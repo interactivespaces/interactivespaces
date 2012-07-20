@@ -1,0 +1,14 @@
+<package>
+  <description brief=".workbench">
+The workbench for developing Interactive Spaces applications.
+  </description>
+  <author>
+  Keith Hughes/khughes@google.com
+  </author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://rosjava.googlecode.com/</url>
+
+  <rosdep name="java" />
+</package>
+

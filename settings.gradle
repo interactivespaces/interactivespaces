@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+include 'interactivespaces-core',
+	'interactivespaces-system',
+	'interactivespaces-database',
+	'interactivespaces-service-script',
+	'interactivespaces-service-scheduler',
+	'interactivespaces-service-alert',
+	'interactivespaces-service-alert-notifier-mail',
+	'interactivespaces-service-mail-common',
+	'interactivespaces-service-mail-sender',
+	'interactivespaces-service-mail-receiver',
+	'interactivespaces-controller',
+	'interactivespaces-master', 
+	'interactivespaces-master-webapp',
+	'interactivespaces-google-api',
+	'rosjava_osgi', 'rosjava_osgi_master', 'rosjava_osgi_node',
+	'rosjava_zeroconf_common', 'rosjava_zeroconf_master', 
+	'rosjava_zeroconf_node',
+	'interactivespaces-launcher', 'interactivespaces-launcher-bootstrap',
+	'interactivespaces-hardware',
+	'interactivespaces-workbench',
+	'interactivespaces_docs'

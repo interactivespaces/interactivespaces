@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2012 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
+the License.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:osgi="http://www.springframework.org/schema/osgi"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+       xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/mvc
+  http://www.springframework.org/schema/mvc/spring-mvc.xsd
+  http://www.springframework.org/schema/osgi
+  http://www.springframework.org/schema/osgi/spring-osgi.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+  http://www.springframework.org/schema/webflow-config
+  http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd">
+  <!-- Executes flows: the entry point into the Spring Web Flow system -->
+  <webflow:flow-executor id="flowExecutor">
+    <!-- <webflow:flow-execution-listeners>
+      <webflow:listener ref="securityFlowExecutionListener" />
+    </webflow:flow-execution-listeners> -->
+  </webflow:flow-executor>
+  
+  <!-- The registry of executable flow definitions -->
+  <webflow:flow-registry id="flowRegistry" 
+      flow-builder-services="flowBuilderServices">
+    <webflow:flow-location id="activity/upload"
+        path="/WEB-INF/freemarker/activity/ActivityUploadFlow.xml" />
+    <webflow:flow-location id="spacecontroller/new"
+        path="/WEB-INF/freemarker/spacecontroller/SpaceControllerNewFlow.xml" />
+    <webflow:flow-location id="liveactivity/new"
+        path="/WEB-INF/freemarker/liveactivity/LiveActivityNewFlow.xml" />
+    <webflow:flow-location id="liveactivitygroup/new"
+        path="/WEB-INF/freemarker/liveactivitygroup/LiveActivityGroupNewFlow.xml" />
+    <webflow:flow-location id="space/new"
+        path="/WEB-INF/freemarker/space/SpaceNewFlow.xml" />
+    <webflow:flow-location id="admin/namedscript/new"
+        path="/WEB-INF/freemarker/admin/NamedScriptNewFlow.xml" />
+  </webflow:flow-registry>
+  
+  <!-- Plugs in a custom creator for Web Flow views -->
+  <webflow:flow-builder-services id="flowBuilderServices" view-factory-creator="mvcViewFactoryCreator" 
+      development="true" />
+
+    <!-- Configures Web Flow to use Tiles to create views for rendering; Tiles allows for applying consistent layouts to your views -->
+  <bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator"> 
+    <property name="viewResolvers" ref="viewResolver"/>
+    <property name="useSpringBeanBinding" value="true" />
+  </bean>
+  
+</beans>

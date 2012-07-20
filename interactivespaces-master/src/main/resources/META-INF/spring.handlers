@@ -1,0 +1,8 @@
+http\://www.springframework.org/schema/osgi=org.eclipse.gemini.blueprint.config.OsgiNamespaceHandler
+http\://www.springframework.org/schema/osgi-compendium=org.eclipse.gemini.blueprint.compendium.config.CompendiumNamespaceHandler
+http\://www.eclipse.org/gemini/blueprint/schema/blueprint=org.eclipse.gemini.blueprint.config.OsgiNamespaceHandler
+http\://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium=org.eclipse.gemini.blueprint.compendium.config.CompendiumNamespaceHandler
+http\://www.osgi.org/xmlns/blueprint/v1.0.0=org.eclipse.gemini.blueprint.blueprint.config.BlueprintNamespaceHandler
+http\://www.springframework.org/schema/security=org.springframework.security.config.SecurityNamespaceHandler
+http\://www.springframework.org/schema/tx=org.springframework.transaction.config.TxNamespaceHandler
+http\://www.springframework.org/schema/aop=org.springframework.aop.config.AopNamespaceHandler

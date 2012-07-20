@@ -1,0 +1,6 @@
+To change the base URL of the webapp, go to 
+build.gradle and look for lines that mention
+
+Web-ContextPath and Webapp-Context.
+
+Change their values to what you want the the root of the webapp URL to be.

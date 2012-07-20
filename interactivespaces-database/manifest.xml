@@ -1,0 +1,14 @@
+<package>
+  <description brief="interactivespaces.database">
+    Database support for Interactive Spaces nodes.
+  </description>
+  <author>Keith Hughes/khughes@google.com</author>
+  <license>Apache License v2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://code.google.com/p/interactive-spaces/</url>
+
+  <depend package="interactivespaces" />
+
+  <rosdep name="java" />
+</package>
+

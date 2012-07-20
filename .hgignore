@@ -1,0 +1,10 @@
+syntax: glob
+*.class
+.settings
+.classpath
+.classpath-generated
+ros.properties
+dependencies.xml
+*~
+syntax: regexp
+(bin|build|dist|msg_gen|srv_gen|gen|test_output|osgi_build|target)/.*

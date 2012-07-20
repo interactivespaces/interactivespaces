@@ -1,0 +1,102 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+dependencies {
+  compile project(':interactivespaces-core')
+
+  compile 'org.codehaus.groovy:groovy-all:1.8.4'
+  compile 'org.python:org.python:2.5.2'
+  compile 'org.mozilla:rhino:1.7R4'
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.8.5'
+}
+
+def findArtifact(prefix) {
+  configurations.compile.find { it.name.startsWith(prefix) }
+}
+
+jar {
+  from zipTree(findArtifact("org.python-"))
+  from zipTree(findArtifact("groovy-all-"))
+  from zipTree(findArtifact("rhino-"))
+
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces.service.script'
+	
+    instruction 'Export-Package',
+		'!interactivespaces.service.script.internal.*',
+		'interactivespaces.service.script.*'
+		
+    instruction 'Private-Package',
+		'interactivespaces.service.script.internal.*'
+	
+    instruction 'Import-Package',
+		'interactivespaces.activity',
+		'interactivespaces.activity.impl',
+		'interactivespaces.activity.impl.binary',
+		'interactivespaces.activity.impl.ros',
+		'interactivespaces.activity.impl.web',
+		'interactivespaces.activity.binary',
+		'interactivespaces.activity.component',
+		'interactivespaces.activity.component.ros',
+		'interactivespaces.activity.component.web',
+		'interactivespaces.event',
+		'interactivespaces.event.trigger',
+		'interactivespaces.util',
+		'interactivespaces.util.concurrency',
+		'interactivespaces.util.data',
+		'interactivespaces.util.data.persist',
+		'interactivespaces.util.io',
+		'interactivespaces.util.process.restart',
+		'interactivespaces.util.ros',
+		'interactivespaces.util.uuid',
+		'interactivespaces.util.web',
+		'interactivespaces.service.web.server',
+		'com.informix.jdbc.*;resolution:="optional"',
+		'javax.xml.*;resolution:="optional"',
+		'javax.imageio;resolution:="optional"',
+		'javax.servlet.*;resolution:="optional"',
+		'junit.framework.*;resolution:="optional"',
+		'oracle.jdbc.*;resolution:="optional"',
+		'oracle.sql.*;resolution:="optional"',
+		'org.antlr.stringtemplate;resolution:="optional"',
+		'org.apache.tools.ant;resolution:="optional"',
+		'org.apache.tools.ant.taskdefs;resolution:="optional"',
+		'org.apache.tools.ant.types;resolution:="optional"',
+		'org.apache.tools.ant.types.resources;resolution:="optional"',
+		'org.apache.tools.ant.util;resolution:="optional"',
+		'org.gnu.readline;resolution:="optional"',
+		'org.python.apache.xml.resolver;resolution:="optional"',
+		'org.python.apache.xml.resolver.readers;resolution:="optional"',
+		'org.python.objectweb.asm.tree;resolution:="optional"',
+		'org.python.objectweb.asm.tree.analysis;resolution:="optional"',
+		'sun.io;resolution:="optional"',
+		'sun.misc;resolution:="optional"',
+		'org.apache.xmlbeans;resolution:="optional"',
+		'com.kenai.jnr.x86asm;resolution:="optional"',
+		'org.codehaus.groovy.jsr223.*;resolution:="optional"',
+		'org.python.apache.*', 
+		// These are because of the way that gradle and bnd are working together
+		// even though all classes are in the bundle
+		'org.mozilla.javascript.*;resolution:="optional"',
+		'org.python.*;resolution:="optional"',
+		'*'
+
+    instruction 'Service-Component', 'OSGI-INF/interactivespaces_service_script.xml'
+  }
+}
+

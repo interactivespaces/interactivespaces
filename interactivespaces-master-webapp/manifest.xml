@@ -1,0 +1,14 @@
+<package>
+  <description brief="interactivespaces.master.webapp">
+    Space Master webapp for Interactive Spaces.
+  </description>
+  <author>Keith Hughes/khughes@google.com</author>
+  <license>Apache License 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://code.google.com/p/interactive-spaces/</url>
+  
+  <depend package="interactivespaces.master"/>
+
+  <rosdep name="java" />
+</package>
+

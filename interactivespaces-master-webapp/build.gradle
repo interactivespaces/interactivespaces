@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+ 
+dependencies {
+  compile project(':interactivespaces-core')
+  compile project(':interactivespaces-database')
+  compile project(':interactivespaces-service-script')
+  compile project(':interactivespaces-service-scheduler')
+  compile project(':interactivespaces-master')
+  
+  compile ('ros.rosjava_core:rosjava:0.0.0-SNAPSHOT')
+  compile ('ros.rosjava_core:rosjava_actionlib:0.0.0-SNAPSHOT')
+  
+  compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
+    exclude module: 'rosjava_bootstrap'
+  }
+
+  compile ('org.springframework:spring-web:3.1.1.RELEASE')
+  compile ('org.springframework:spring-webmvc:3.1.1.RELEASE')
+  compile ('org.springframework.webflow:spring-webflow:2.3.1.RELEASE')
+  compile ('javax.validation:com.springsource.javax.validation:1.0.0.GA')
+
+  compile ('org.ops4j.pax.web:pax-web-extender-war:1.1.1')
+  compile ('org.eclipse.gemini.blueprint:gemini-blueprint-core:1.0.0.RELEASE')
+  compile ('org.freemarker:com.springsource.freemarker:2.3.18')
+  //compile ('javax.servlet:javax.servlet:3.0.0.v201103241009')
+  compile ('org.apache.commons:com.springsource.org.apache.commons.fileupload:1.2.1')
+  compile ('org.apache.commons:com.springsource.org.apache.commons.io:1.4.0')
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.8.5'
+}
+
+jar {
+  extension = 'war'
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces.master.webapp'
+	
+	instruction 'Webapp-Context', '/interactivespaces'
+	instruction 'Web-ContextPath', '/interactivespaces'
+	instruction 'Bundle-Classpath', '.,WEB-INF'
+
+    instruction 'Bundle-Activator',
+		'interactivespaces.master.ui.internal.web.osgi.WebappActivator'
+	
+    instruction 'Private-Package', 
+		'interactivespaces.*'
+		
+    instruction 'Import-Package',
+        'org.springframework.web.servlet',
+        'org.springframework.core',
+        'org.springframework.web.util',
+        'org.springframework.context.support',
+        'org.springframework.web.context',
+        'org.springframework.beans.factory.xml',
+        'org.springframework.web.servlet.view',
+        'org.springframework.web.servlet.view.velocity',
+        'org.springframework.web.servlet.view.freemarker',
+        'org.springframework.ui.freemarker',
+        'org.springframework.webflow.config',
+        'org.springframework.webflow.mvc.servlet',
+        'org.springframework.webflow.mvc.builder',
+        'org.springframework.validation.beanvalidation',
+        'org.springframework.webflow.engine.impl',
+        'org.springframework.webflow.core.collection',
+        'org.springframework.binding.convert.service',
+        'org.springframework.webflow.engine.builder.support',
+        'org.springframework.webflow.expression.spel',
+        'org.springframework.expression.spel.standard',
+        'org.springframework.web.multipart.commons',
+        'org.springframework.ui.velocity',
+        'org.eclipse.gemini.blueprint.config',
+        'org.springframework.security.config',
+        'org.springframework.security.provisioning',
+        'org.springframework.security.web.authentication',
+        'org.springframework.web.filter',
+		'org.springframework.transaction.config',
+		'org.apache.derby.jdbc',
+		//'javax.servlet;version=""',
+        '*'
+  }
+}

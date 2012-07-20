@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Python Script Routable Input Activity Example</name>
+    <description>
+An example of a Routable Interactive Spaces Activity written in Python which 
+inputs to another activity.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.routable.input.script.python</identifyingName>
+</activity>

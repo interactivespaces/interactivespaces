@@ -1,0 +1,14 @@
+<package>
+	<description brief="rosjava_zeroconf_common">
+		Common Zeroconf module for ROS.
+	</description>
+	<author>Keith Hughes/khughes@google.com</author>
+	<license>Apache License 2.0</license>
+	<review status="unreviewed" notes="" />
+	<url>http://code.google.com/p/interactive-spaces/</url>
+	
+	<depend package="rosjava" />
+	<depend package="osgi" />
+
+	<rosdep name="java" />
+</package>

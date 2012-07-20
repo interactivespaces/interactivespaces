@@ -1,0 +1,6 @@
+syntax: glob
+*.class
+.settings
+*~
+syntax: regexp
+(bin|build|dist|msg_gen|srv_gen|gen|test_output|osgi_build)/.*

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Python Script Activity Example</name>
+    <description>
+An example of an Interactive Spaces Activity written in Python.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.script.python</identifyingName>
+</activity>

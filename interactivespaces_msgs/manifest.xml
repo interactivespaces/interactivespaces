@@ -1,0 +1,12 @@
+<package>
+  <description brief="ecsj_msgs">
+These messages are used by the ECSj system.
+  </description>
+  <author>Keith Hughes</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ecs2_msgs</url>
+
+  <depend package="std_msgs"/>
+  <depend package="actionlib_msgs"/>
+</package>

@@ -1,0 +1,41 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+dependencies {
+  compile ('ros.rosjava_core:rosjava:0.0.0-SNAPSHOT')
+  
+//  compile('ros:message.osgi_msgs:0.0.0-SNAPSHOT') {
+//    exclude module: 'rosjava_bootstrap'
+//  }
+
+  compile 'org.apache.felix:org.apache.felix.framework:3.2.2'
+  compile 'org.apache.felix:org.apache.felix.scr:1.6.0'
+  compile 'org.apache.felix:org.apache.felix.http.bundle:2.2.0'
+  compile 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
+  compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
+  compile 'org.apache.felix:org.apache.felix.gogo.runtime:0.10.0'
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.8.5'
+}
+
+jar {
+  manifest {
+    version = osgiVersion
+    symbolicName = 'org.ros.osgi'
+    instruction 'Export-Package', 'org.ros.osgi.*'
+  }
+}
+

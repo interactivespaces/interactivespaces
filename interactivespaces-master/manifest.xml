@@ -1,0 +1,20 @@
+<package>
+  <description brief="interactivespaces.master">
+The master node for an Interactive Spaces system.
+  </description>
+  <author>Keith Hughes/khughes@google.com</author>
+  <license>Apache License 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://code.google.com/p/interactive-spaces/</url>
+  
+  <depend package="rosjava"/>
+  <depend package="interactivespaces_msgs" />
+  <depend package="osgi_master"/>
+  <depend package="interactivespaces"/>
+  <depend package="interactivespaces.database"/>
+  <depend package="interactivespaces.service.scheduler"/>
+  <depend package="interactivespaces.service.alert"/>
+
+  <rosdep name="java" />
+</package>
+

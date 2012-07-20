@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright (C) 2012 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
+the License.
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/osgi
+  http://www.springframework.org/schema/osgi/spring-osgi.xsd
+  http://www.springframework.org/schema/tx
+  http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd
+  http://www.springframework.org/schema/aop 
+  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<osgi:reference id="activityRepository"
+		interface="interactivespaces.master.server.services.ActivityRepository"
+		availability="mandatory" />
+    <osgi:reference id="automationRepository"
+        interface="interactivespaces.master.server.services.AutomationRepository"
+        availability="mandatory" />
+	<osgi:reference id="controllerRepository"
+		interface="interactivespaces.master.server.services.ControllerRepository"
+		availability="mandatory" />
+	<osgi:reference id="interactivespaces.master.controller.active"
+		interface="interactivespaces.master.server.services.ActiveControllerManager"
+		availability="mandatory" />
+	<osgi:reference id="interactivespaces.master.space.active"
+		interface="interactivespaces.master.server.services.ActiveSpaceManager"
+		availability="mandatory" />
+	<osgi:reference id="interactivespaces.master.ui.activity"
+		interface="interactivespaces.master.server.ui.UiActivityManager"
+		availability="mandatory" />
+    <osgi:reference id="interactivespaces.master.ui.automation"
+        interface="interactivespaces.master.server.ui.UiAutomationManager"
+        availability="mandatory" />
+    <osgi:reference id="interactivespaces.master.ui.support"
+        interface="interactivespaces.master.server.ui.UiMasterSupportManager"
+        availability="mandatory" />
+    <osgi:reference id="interactivespaces.master.extension"
+        interface="interactivespaces.master.server.services.ExtensionManager"
+        availability="mandatory" />
+    	<osgi:reference id="interactivespaces.master.ui.controller"
+		interface="interactivespaces.master.server.ui.UiControllerManager"
+		availability="mandatory" />
+	<osgi:reference id="interactivespaces.master.ui.space"
+		interface="interactivespaces.master.server.ui.UiSpaceManager"
+		availability="mandatory" />
+
+	<osgi:reference id="interactivespaces.master.networkinfo.client"
+		interface="interactivespaces.network.client.NetworkInformationClient"
+		availability="mandatory" />
+	
+    <osgi:reference id="interactivespaces.environment"
+        interface="interactivespaces.system.InteractiveSpacesEnvironment"
+        availability="mandatory" />
+	
+</beans>

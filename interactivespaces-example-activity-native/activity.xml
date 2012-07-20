@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Native Example</name>
+    <description>
+An example of a pure native code activity.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.native</identifyingName>
+</activity>

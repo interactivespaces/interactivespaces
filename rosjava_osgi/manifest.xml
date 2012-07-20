@@ -1,0 +1,15 @@
+<package>
+  <description brief="osgi">
+    Support for using OSGi with rosjava
+  </description>
+  <author>Keith Hughes/khughes@google.com</author>
+  <license>Apache License 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://code.google.com/p/interactive-spaces/</url>
+  
+  <depend package="rosjava"/>
+  <depend package="osgi_msgs" />
+
+  <rosdep name="java" />
+</package>
+

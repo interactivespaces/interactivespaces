@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Simple Java Activity Example</name>
+    <description>
+A very simple Java-based activity which just logs at INFO level its
+callback messages.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.java.simple</identifyingName>
+</activity>

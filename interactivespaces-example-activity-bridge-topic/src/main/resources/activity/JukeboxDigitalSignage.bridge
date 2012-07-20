@@ -1,0 +1,4 @@
+/foobar/music/jukebox/playing:interactivespaces_msgs/MusicJukeboxAnnounce;
+/foobar/digital_signage/control:interactivespaces_msgs/DigitalSignageCommand;
+dst.title = "Now Playing";
+dst.msg = src.title;

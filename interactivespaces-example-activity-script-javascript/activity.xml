@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Javascript Script Activity Example</name>
+    <description>
+An example of an Interactive Spaces activity written in Javascript.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.script.javascript</identifyingName>
+</activity>

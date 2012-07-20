@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Web Javascript Script Activity Example</name>
+    <description>
+An example of an Interactive Spaces activity written in Javascript which uses websockets and a browser webapp.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.web.script.javascript</identifyingName>
+</activity>

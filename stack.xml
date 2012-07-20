@@ -1,0 +1,10 @@
+<stack>
+  <description brief="interactivespaces">
+    ROS stack for the Interactive Spaces.
+  </description>
+  <author>Maintained by Keith Hughes</author>
+  <license>Apache 2</license>  
+  <review status="unreviewed" notes=""/>
+  <url>https://code.google.com/p/interactive-spaces/</url>
+  <depend stack="rosjava_core" />
+</stack>

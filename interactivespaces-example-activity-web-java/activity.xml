@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Simple Web Java Activity Example</name>
+    <description>
+An example Java-based web activity.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.web.java</identifyingName>
+</activity>

@@ -1,0 +1,18 @@
+<package>
+  <description brief="interactivespaces">
+    A Java/ROS based framework for controlling interactive spaces.
+  </description>
+  <author>
+  Keith Hughes/khughes@google.com
+  </author>
+  <license>Apache License 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://code.google.com/p/interactive-spaces/</url>
+  <depend package="rosjava"/>
+  <depend package="actionlib_java"/>
+  <depend package="interactivespaces_msgs" />
+  <depend package="osgi"/>
+
+  <rosdep name="java" />
+</package>
+

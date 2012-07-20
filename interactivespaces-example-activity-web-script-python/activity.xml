@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Web Python Script Activity Example</name>
+    <description>
+An example of an Interactive Spaces activity written in Python which uses websockets and a browser webapp.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.web.script.python</identifyingName>
+</activity>
