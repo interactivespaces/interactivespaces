@@ -151,6 +151,14 @@ tr.odd {
   background-color: #e0e0e0;
 }
 
+.liveactivity-info-popup { 
+  display: none; 
+  z-index: 9002;
+  border:2px solid #000;
+  padding: 10px;
+  background-color: #FFFFFF;
+}
+
 .liveactivity-status { }
 
 .liveactivity-status-RUNNING { background-color: #00ff00; font-weight: bold; padding-left: 1em; padding-right: 1em; }

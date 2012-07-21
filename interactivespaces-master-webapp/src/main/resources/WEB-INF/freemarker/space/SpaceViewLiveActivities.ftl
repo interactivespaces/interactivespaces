@@ -13,12 +13,25 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  -->
+ 
 <!DOCTYPE html>
 <html>
 <head>
 <title>Interactive Spaces Admin: Spaces</title>
 
 <#include "/allpages_head.ftl">
+
+<script type="text/javascript" src="/interactivespaces/js/jquery-ispopup.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+<#list liveactivitygroups as liveactivitygroup>
+<#list liveactivitygroup.liveActivities as liveactivity>
+$('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
+  .ispopup("#liveactivity-info-${liveactivity.activity.uuid}-popup");
+</#list></#list>
+});
+</script>
 </head>
 
 <body>
@@ -37,14 +50,32 @@
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">
 <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
-<td><#if liveactivity.active?has_content>
-<@spring.message liveactivity.active.state.description />
+<td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
+<span class="liveactivity-status liveactivity-status-${liveactivity.active.state.name()}"><@spring.message liveactivity.active.state.description /></span>
  as of 
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
     Unknown
   </#if>
+</div>
+<div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
+<div><#if liveactivity.active.directRunning>
+Directly Running
+<#else>
+Not directly running
+</#if> 
+</div><div>
+<#if liveactivity.active.directActivated>
+Directly activated
+<#else>
+Not directly activated
+</#if> 
+</div><div>
+Running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
+</div><div>
+Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
+</div></div>
 <#else>
 <span style="color: red;">No controller assigned!</span>
 </#if>
@@ -55,27 +86,6 @@
 </#if>
 </td>
     </tr>
-<tr class="${trCss}">
-<td>&nbsp;</td>
-<td>
-<#if liveactivity.active.directRunning>
-Directly Running
-<#else>
-Not Directly Running
-</#if> 
-&bull;
-<#if liveactivity.active.directActivated>
-Directly Activated
-<#else>
-Not Directly Activated
-</#if> 
-&bull;
-running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
-&bull;
-activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
-</td>
-<td>&nbsp;</td>
-</tr>
 </#list>
 </#list>
 </table>
