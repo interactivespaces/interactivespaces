@@ -1,10 +1,21 @@
 Interactive Spaces
 ============
 
-Interactive Spaces are physical spaces which can interact with their occupants in some way. To do 
-this, the spaces will contain two types of objects. Sensors, things like push buttons, keyboards, 
-pressure sensors, and cameras to be able to tell something about the space’s occupants, and what 
-they are doing. Effectors can then respond in some way. Examples of effectors could be anything 
+Interactive Spaces are physical spaces which can interact with their occupants in some way.
+
+An example can be seen in the picture below.
+
+.. image:: images/InteractiveSpacesInuse.jpg
+
+Here there are cameras in the ceiling which are doing blob tracking, the blobs in this case are
+people walking around on the floor. The floor then responds by having a colored circle appear
+underneath the person, following them around as they move around the floor.
+
+You can think of the space as having event producers and consumers. Event producers, 
+things like push buttons, keyboards, and
+pressure, and proximity sensors, can tell something about the space’s occupants, 
+and what they are doing. Event consumers are things which can then respond to those event
+and could do anything 
 from putting something on a video screen, moving a physical arm, or turning on a light.
 
 The Interactive Spaces framework is both a collection of libraries for writing activities in 
