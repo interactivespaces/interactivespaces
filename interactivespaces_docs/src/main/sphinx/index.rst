@@ -13,8 +13,8 @@ underneath the person, following them around as they move around the floor.
 
 You can think of the space as having event producers and consumers. Event producers, 
 things like push buttons, keyboards, and
-pressure, and proximity sensors, can tell something about the space’s occupants, 
-and what they are doing. Event consumers are things which can then respond to those event
+pressure, and proximity sensors, can tell something about the space’s occupants 
+and what they are doing. Event consumers then respond to those event
 and could do anything 
 from putting something on a video screen, moving a physical arm, or turning on a light.
 

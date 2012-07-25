@@ -1,0 +1,38 @@
+master (
+  uri: "http://172.22.58.199:11311/",
+  networkType: "test"
+)
+
+defaults {
+  controller (
+    type: "default",
+    image: "images/controllers/foo",
+    folder: "/Users/interactivespaces/Documents/interactivespaces/controller",
+  )
+
+  machine (
+    os: "osx",
+    account: "interactivespaces",
+    systemFolder: "/Users/interactivespaces/Documents/interactivespaces/system"
+  )
+}
+
+machine (
+  host: "machine1"
+) {
+  controller(
+    name: "Controller 1",
+    description: "The Magical Mystery Controller 1",
+    hostId: "controller1"
+  )
+}
+
+machine (
+  host: "machine2"
+) {
+  controller(
+    name: "Controller 2",
+    description: "The Magical Mystery Controller 2",
+    hostId: "controller2"
+  )
+}

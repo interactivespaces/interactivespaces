@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<plist version="1.0">
+  <dict>
+    <key>KeepAlive</key>
+    <dict>
+      <key>PathState</key>
+      <dict>
+        <key>${keepaliveFile}</key>
+        <true />
+      </dict>
+    </dict>
+
+    <key>Label</key>
+    <string>interactivespaces.controller.${controller.hostId}</string>
+
+    <key>WorkingDirectory</key>
+    <string>${controller.folder}</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/java</string>
+      <string>-jar</string>
+      <string>interactivespaces-launcher-1.0.0.jar</string>
+      <string>--noshell</string>
+     </array>
+  </dict>
+</plist>
