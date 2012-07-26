@@ -16,22 +16,38 @@
 
 package interactivespaces.evaluation;
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+
 /**
- * An environment for looking up values for evaluating expressions.
- *
+ * A standalone {@link EvaluationEnvironment}.
+ * 
  * @author Keith M. Hughes
+ * @since Jul 25, 2012
  */
-public interface EvaluationEnvironment {
-	
+public class SimpleEvaluationEnvironment implements EvaluationEnvironment {
+
 	/**
-	 * Look up the value of a variable.
+	 * The map of values for the environment.
+	 */
+	private Map<String, String> values = Maps.newHashMap();
+
+	@Override
+	public String lookupVariableValue(String variable)
+			throws EvaluationInteractiveSpacesException {
+		return values.get(variable);
+	}
+
+	/**
+	 * Set the value of a variable.
 	 * 
 	 * @param variable
-	 * 			the name of the variable to lookup
-	 * 
-	 * @return The value of the variable.
-	 * 
-	 * @throws EvaluationInteractiveSpacesException
+	 *            the name of the variable
+	 * @param value
+	 *            the value of the variable
 	 */
-	String lookupVariableValue(String variable) throws EvaluationInteractiveSpacesException;
+	public void set(String variable, String value) {
+		values.put(variable, value);
+	}
 }

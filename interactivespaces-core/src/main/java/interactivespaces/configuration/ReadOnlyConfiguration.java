@@ -18,6 +18,8 @@ package interactivespaces.configuration;
 
 import interactivespaces.InteractiveSpacesException;
 
+import java.util.Map;
+
 /**
  * A wrapper for configurations which makes them unmodifiable.
  *
@@ -106,5 +108,15 @@ public class ReadOnlyConfiguration implements Configuration {
 	@Override
 	public void clear() {
 		throw new InteractiveSpacesException("Cannot modify configuration");
+	}
+	
+	@Override
+	public Map<String, String> getCollapsedMap() {
+		return wrapped.getCollapsedMap();
+	}
+
+	@Override
+	public void addEntries(Map<String, String> map) {
+		wrapped.addEntries(map);
 	}
 }

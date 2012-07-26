@@ -14,8 +14,21 @@
  * the License.
  */
 
+buildscript {
+  repositories {
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+      name = 'GitHub'
+      addArtifactPattern 'http://cloud.github.com/downloads/[organisation]/[module]/[module]-[revision].[ext]'
+    }
+  }
+
+  dependencies {
+    classpath 'bmuschko:gradle-izpack-plugin:0.2.1'
+  }
+}
+
 allprojects {
-  osgiVersion = '1.0.0'
+  osgiVersion = '1.1.0'
 
   group = 'interactivespaces'
   version = osgiVersion

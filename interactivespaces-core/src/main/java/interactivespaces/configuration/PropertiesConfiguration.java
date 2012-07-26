@@ -18,8 +18,9 @@ package interactivespaces.configuration;
 
 import interactivespaces.evaluation.ExpressionEvaluator;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-
 
 /**
  * A {@link Configuration} based on Java properties files.
@@ -42,7 +43,7 @@ public class PropertiesConfiguration extends BaseConfiguration {
 	public PropertiesConfiguration(Properties properties,
 			ExpressionEvaluator expressionEvaluator) {
 		super(expressionEvaluator);
-		
+
 		this.values = properties;
 	}
 
@@ -64,5 +65,16 @@ public class PropertiesConfiguration extends BaseConfiguration {
 	@Override
 	public void clear() {
 		values.clear();
+	}
+
+	@Override
+	public void addEntries(Map<String, String> map) {
+		if (parent != null) {
+			parent.addEntries(map);
+		}
+
+		for (Entry<Object, Object> entry : values.entrySet()) {
+			map.put(entry.getKey().toString(), entry.getValue().toString());
+		}
 	}
 }

@@ -16,7 +16,6 @@
 
 package interactivespaces.evaluation;
 
-
 /**
  * An {@link ExpressionEvaluatorFactory} which returns instances of
  * {@link SimpleExpressionEvaluator}.

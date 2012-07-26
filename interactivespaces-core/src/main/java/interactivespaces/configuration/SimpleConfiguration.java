@@ -60,4 +60,11 @@ public class SimpleConfiguration extends BaseConfiguration {
 	public void clear() {
 		values.clear();
 	}
+	
+	@Override
+	public void addEntries(Map<String, String> map) {
+		if (parent != null) {
+			parent.addEntries(map);
+		}
+	}
 }

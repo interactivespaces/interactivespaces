@@ -16,7 +16,6 @@
 
 package interactivespaces.evaluation;
 
-
 /**
  * An {@link ExpressionEvaluator} which only evaluates variable expressions.
  *

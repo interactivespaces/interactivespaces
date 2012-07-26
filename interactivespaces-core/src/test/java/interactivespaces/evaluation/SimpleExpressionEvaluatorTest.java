@@ -46,6 +46,7 @@ public class SimpleExpressionEvaluatorTest {
 				TODAY_DATE);
 		when(environment.lookupVariableValue(eq("nameFirst"))).thenReturn(
 				NAME_FIRST);
+		when(environment.lookupVariableValue(eq("one"))).thenReturn("1");
 
 		evaluator = new SimpleExpressionEvaluator();
 		evaluator.setEvaluationEnvironment(environment);
@@ -93,7 +94,7 @@ public class SimpleExpressionEvaluatorTest {
 			evaluator.evaluateStringExpression("${nameFirst");
 			fail();
 		} catch (EvaluationInteractiveSpacesException e) {
-			
+
 		}
 	}
 

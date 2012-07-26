@@ -21,16 +21,21 @@ import interactivespaces.evaluation.EvaluationEnvironment;
 import interactivespaces.evaluation.EvaluationInteractiveSpacesException;
 import interactivespaces.evaluation.ExpressionEvaluator;
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+
 /**
  * Support for implementations of {@link Configuration}.
  * 
  * @author Keith M. Hughes
  */
 public abstract class BaseConfiguration implements Configuration, EvaluationEnvironment {
+
 	/**
 	 * Parent configuration to this configuration.
 	 */
-	private Configuration parent;
+	protected Configuration parent;
 
 	/**
 	 * The expression evaluator for this configuration.
@@ -166,5 +171,12 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 	@Override
 	public String lookupVariableValue(String variable) throws EvaluationInteractiveSpacesException {
 		return getValue(variable);
+	}
+
+	@Override
+	public Map<String, String> getCollapsedMap() {
+		Map<String, String> map = Maps.newHashMap();
+		
+		return map;
 	}
 }

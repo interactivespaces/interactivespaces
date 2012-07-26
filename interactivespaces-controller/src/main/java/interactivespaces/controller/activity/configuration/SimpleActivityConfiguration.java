@@ -196,4 +196,14 @@ public class SimpleActivityConfiguration implements Configuration,
 			current.clear();
 		}
 	}
+
+	@Override
+	public Map<String, String> getCollapsedMap() {
+		return temporary.getCollapsedMap();
+	}
+
+	@Override
+	public void addEntries(Map<String, String> map) {
+		temporary.addEntries(map);
+	}
 }
