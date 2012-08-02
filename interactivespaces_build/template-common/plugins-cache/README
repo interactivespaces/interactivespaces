@@ -1,0 +1,2 @@
+OSGi will store its understanding of the bundles which are currently loaded
+into the OSGi container in this folder.

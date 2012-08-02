@@ -18,11 +18,11 @@ from interactivespaces.activity.impl.web import BaseWebActivity
 
 class ExamplePythonWebActivity(BaseWebActivity):
     def onActivityActivate(self):
-        self.getLog().info("Activated " + self.getConfiguration().evaluate("${a}"))
+        self.log.info("Activated " + self.configuration.evaluate("${a}"))
         self.sendImageUrl("images/Geoffrey.jpg")
 
     def onActivityDeactivate(self):
-        self.getLog().info("Deactivated " + self.getConfiguration().evaluate("${a}"))
+        self.log.info("Deactivated " + self.configuration.evaluate("${a}"))
         self.sendImageUrl("images/Lion.jpg")
 
     def sendImageUrl(self, imageUrl):
@@ -35,10 +35,10 @@ class ExamplePythonWebActivity(BaseWebActivity):
         self.sendAllWebSocketJson(data)
 
     def onNewWebSocketConnection(self, connectionId):
-        self.getLog().info("Got web socket connection from connection " + connectionId)
+        self.log.info("Got web socket connection from connection " + connectionId)
 
     def onWebSocketClose(self, connectionId):
-        self.getLog().info("Got web socket close from connection " + connectionId)
+        self.log.info("Got web socket close from connection " + connectionId)
 
     def onWebSocketReceive(self, connectionId, data):
-        self.getLog().info("Got web socket data from connection " + connectionId)
+        self.log.info("Got web socket data from connection " + connectionId)

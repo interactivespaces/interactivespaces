@@ -116,7 +116,7 @@ public class ReadOnlyConfiguration implements Configuration {
 	}
 
 	@Override
-	public void addEntries(Map<String, String> map) {
-		wrapped.addEntries(map);
+	public void addCollapsedEntries(Map<String, String> map) {
+		wrapped.addCollapsedEntries(map);
 	}
 }

@@ -62,9 +62,9 @@ public class SimpleConfiguration extends BaseConfiguration {
 	}
 	
 	@Override
-	public void addEntries(Map<String, String> map) {
+	public void addCollapsedEntries(Map<String, String> map) {
 		if (parent != null) {
-			parent.addEntries(map);
+			parent.addCollapsedEntries(map);
 		}
 	}
 }

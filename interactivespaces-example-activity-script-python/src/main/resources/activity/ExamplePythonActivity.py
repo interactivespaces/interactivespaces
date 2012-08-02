@@ -23,13 +23,13 @@ class ExamplePythonActivity(BaseActivity):
     def onActivityStartup(self):
         releaseTest()
         example.test()
-        self.getLog().info("Simple Python Example Activity startup")
+        self.log.info("Simple Python Example Activity startup")
 
     def onActivityShutdown(self):
-        self.getLog().info("Simple Python Example Activity shutting down")
+        self.log.info("Simple Python Example Activity shutting down")
 
     def onActivityActivate(self):
-        self.getLog().info("Simple Python Example Activity activated")
+        self.log.info("Simple Python Example Activity activated")
 
     def onActivityDeactivate(self):
-        self.getLog().info("Simple Python Example Activity deactivated")
+        self.log.info("Simple Python Example Activity deactivated")

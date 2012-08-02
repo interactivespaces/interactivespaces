@@ -203,7 +203,7 @@ public class SimpleActivityConfiguration implements Configuration,
 	}
 
 	@Override
-	public void addEntries(Map<String, String> map) {
-		temporary.addEntries(map);
+	public void addCollapsedEntries(Map<String, String> map) {
+		temporary.addCollapsedEntries(map);
 	}
 }

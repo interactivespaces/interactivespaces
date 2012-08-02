@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<userInput>
+	<panel order="0">
+		<field type="title" id="static.main.title" />
+
+		<field type="dir" variable="interactivespaces.controller.basedir" align="top">
+			<spec id="input.interactivespaces.controller.basedir" size="25" mustExist="true" />
+		</field>
+	</panel>
+</userInput>

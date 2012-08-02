@@ -19,19 +19,19 @@ from interactivespaces.activity.impl.ros import BaseRoutableRosActivity
 class ExampleOutputRoutablePythonActivity(BaseRoutableRosActivity):
 
     def onActivityStartup(self):
-        self.getLog().info("Starting up")
+        self.log.info("Starting up")
 
     def onActivityShutdown(self):
-        self.getLog().info("Shutting down")
+        self.log.info("Shutting down")
 
     def onActivityActivate(self):
-        self.getLog().info("Activated")
+        self.log.info("Activated")
         message = {}
         message["message"] = "yipee! activated!"
         self.sendOutputJson("output1", message)
 
     def onActivityDeactivate(self):
-        self.getLog().info("Deactivated")
+        self.log.info("Deactivated")
         message = {}
         message["message"] = "bummer! deactivated!"
         self.sendOutputJson("output1", message)

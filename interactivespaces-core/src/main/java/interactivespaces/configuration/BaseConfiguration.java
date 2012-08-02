@@ -177,6 +177,8 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 	public Map<String, String> getCollapsedMap() {
 		Map<String, String> map = Maps.newHashMap();
 		
+		addCollapsedEntries(map);
+		
 		return map;
 	}
 }

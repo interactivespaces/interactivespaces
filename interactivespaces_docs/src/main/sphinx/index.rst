@@ -29,6 +29,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   historyanddesignphilosophy
    firstactivity
    basics
    workbench1

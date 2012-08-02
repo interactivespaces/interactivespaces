@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<langpack>
+<str id="static.main.title" txt="Interactive Spaces Master Configuration"/>
+<str id="input.interactivespaces.hostname" txt="Hostname:"/>
+<str id="input.interactivespaces.hostname.invalid" txt="The master hostname is invalid. It must be a domain name or an IP address." />
+
+<str id="input.interactivespaces.hostid" txt="Host ID:"/>
+<str id="input.interactivespaces.hostid.invalid" txt="The Host ID is invalid. It must consist only of letters and numbers and start with a letter." />
+
+<str id="input.interactivespaces.network.type" txt="Network Type:" />
+<str id="input.interactivespaces.network.type.invalid" txt="Network type invalid. It must be a letter followed any number of letters or numbers." />
+
+<str id="static.advanced.title" txt="Advanced Master Configuration"/>
+
+<str id="static.advanced.info" txt="These values should only be changed if you know what you are doing."/>
+<str id="input.interactivespaces.master.port" txt="Master Host Port:" />
+<str id="input.interactivespaces.master.port.invalid" txt="Invalid Master Host port. It must be a maximum 5 digit number." />
+</langpack>

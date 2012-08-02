@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<userInput>
+	<panel order="0">
+		<field type="title" id="static.main.title" />
+
+		<field type="text" variable="interactivespaces.hostname">
+			<spec id="input.interactivespaces.hostname" size="25" set="localhost" />
+            <validator class="com.izforge.izpack.util.RegularExpressionValidator"
+                id="input.interactivespaces.hostname.invalid">
+                <param name="pattern"
+                    value="^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+            </validator>
+		</field>
+
+		<field type="text" variable="interactivespaces.hostid">
+			<spec id="input.interactivespaces.hostid" size="25" set="controller1" />
+			<validator class="com.izforge.izpack.util.RegularExpressionValidator"
+				id="input.interactivespaces.hostid.invalid">
+				<param name="pattern"
+					value="[a-zA-Z_][a-zA-Z_0-9]*" />
+			</validator>
+		</field>
+
+        <field type="space" />
+
+        <field type="text" variable="interactivespaces.network.type">
+            <spec id="input.interactivespaces.network.type" size="25" set="localdev" />
+            <validator class="com.izforge.izpack.util.RegularExpressionValidator"
+                id="input.interactivespaces.network.type.invalid">
+                <param name="pattern" value="[a-zA-Z_][a-zA-Z_0-9]*" />
+            </validator>
+        </field>
+
+        <field type="space" />
+        
+        <field type="check" align="left" variable="interactivespaces.controller.manualconfig">
+            <spec id="input.interactivespaces.controller.manualconfig" true="true" false="false" />
+        </field>
+	</panel>
+	
+    <panel order="1">
+        <field type="title" id="static.main.title" />
+
+        <field type="staticText" id="static.interactivespaces.controller.uuid" />
+
+        <field type="space" />
+        <field type="space" />
+
+        <field type="text" variable="interactivespaces.controller.uuid">
+            <spec id="input.interactivespaces.controller.uuid" size="30" />
+            <validator class="com.izforge.izpack.util.RegularExpressionValidator"
+                id="input.interactivespaces.controller.uuid.invalid">
+                <param name="pattern"
+                    value="[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}" />
+            </validator>
+        </field>
+    </panel>
+    
+    <panel order="2">
+        <field type="title" id="static.main.title" />
+
+        <field type="text" variable="interactivespaces.controller.name">
+            <spec id="input.interactivespaces.controller.name" size="30" />
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"
+                id="input.interactivespaces.controller.name.invalid" />
+        </field>
+        
+        <field type="text" variable="interactivespaces.controller.description">
+            <spec id="input.interactivespaces.controller.description" size="30" />
+        </field>
+    </panel>
+    
+    <panel order="3">
+        <field type="title" id="static.main.title" />
+
+        <field type="text" variable="interactivespaces.master.hostname">
+            <spec id="input.interactivespaces.master.hostname" size="25" set="localhost" />
+            <validator class="com.izforge.izpack.util.RegularExpressionValidator"
+                id="input.interactivespaces.master.hostname.invalid">
+                <param name="pattern"
+                    value="^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$" />
+            </validator>
+        </field>
+    </panel>
+    
+	<panel order="4">
+		<field type="title" id="static.advanced.title" />
+
+		<field type="staticText" id="static.advanced.info" />
+
+		<field type="space" />
+		<field type="space" />
+		<field type="space" />
+
+		<field type="text" variable="interactivespaces.master.port">
+			<spec id="input.interactivespaces.master.port" size="25" set="11311" />
+            <validator class="com.izforge.izpack.util.RegularExpressionValidator"
+                id="input.interactivespaces.master.port.invalid">
+                <param name="pattern"
+                    value="[0-9]{1,5}" />
+            </validator>
+		</field>
+	</panel>
+</userInput>

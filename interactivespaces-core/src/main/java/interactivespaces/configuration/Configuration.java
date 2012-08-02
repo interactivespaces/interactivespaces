@@ -197,5 +197,5 @@ public interface Configuration {
 	 * @param map
 	 *            the map to add things into
 	 */
-	void addEntries(Map<String, String> map);
+	void addCollapsedEntries(Map<String, String> map);
 }

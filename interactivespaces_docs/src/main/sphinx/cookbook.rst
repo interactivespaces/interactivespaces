@@ -21,13 +21,8 @@ The following examples show how to use the thread pools in a variety of
 languages. The task will be a simple one, print *Hello World* every 5 seconds.
 The very first time it will happen will be 10 seconds in the future.
 
-The examples start up the thread when the Activity is activated. It is then
-shut down when the activity is deactivated and also when the activity is
-shut down. Notice the use of the *onActivityCleanup()* method, which will be
-called no matter what happens during shutdown.
-
-Notice that the cleanup method calls *cancel(false)*. This means to let the
-method finish whatever it is doing before canceling any further iterations.
+The examples start up the thread when the Activity is activated. It will 
+automatically be shutdown when the activity is shut down.
 
 Python
 ------
@@ -40,18 +35,7 @@ Python
               def run(self):
                   print "Hello, world"
 
-          self.repeater = self.spaceEnvironment.executorService.scheduleWithFixedDelay(Foo(), 10, 5, TimeUnit.SECONDS)
-
-      def onActivityDeactivate(self):
-          self.repeaterCleanup()
-
-      def onActivityCleanup(self):
-          self.repeaterCleanup()
-
-      def repeaterCleanup(self):
-          if self.repeater:
-              self.repeater.cancel(False)
-              self.repeater = None
+          self.managedCommands.scheduleWithFixedDelay(Foo(), 10, 5, TimeUnit.SECONDS)
 
               
 Cloning A Space
