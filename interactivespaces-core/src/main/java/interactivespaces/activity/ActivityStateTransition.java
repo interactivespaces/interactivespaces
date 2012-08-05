@@ -112,12 +112,12 @@ public abstract class ActivityStateTransition {
 		}
 
 		@Override
-		public TransitionResult canTransition(ActivityState state) {
-			if (state.isRunning()) {
+		public TransitionResult canTransition(ActivityState currentState) {
+			if (currentState.isRunning()) {
 				return TransitionResult.NOOP;
-			} else if (state.equals(ActivityState.READY)) {
+			} else if (currentState.equals(ActivityState.READY)) {
 				return TransitionResult.OK;
-			}else {
+			} else {
 				return TransitionResult.ILLEGAL;
 			}
 		}
@@ -218,6 +218,6 @@ public abstract class ActivityStateTransition {
 	}
 
 	public enum TransitionResult {
-		OK, ILLEGAL, NOOP
+		OK, WAIT, ILLEGAL, NOOP
 	}
 }

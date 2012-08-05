@@ -30,7 +30,7 @@ either producing events or consuming events, or even both at the same time.
 
 These Live Activities need to run on a computer somewhere in the space. 
 In Interactive Spaces, a Space Controller is the container for Live Activities 
-which runs on a given computer. A given Controller can run many Live Activities
+which runs on a given computer. A given Space Controller can run many Live Activities
 as need to run on that machine. Though there is nothing to stop you from running
 multiple Space Controllers on a given machine, there is rarely, if ever, a reason
 to. Live Activities need a Space Controller to run in. The Controller directly 

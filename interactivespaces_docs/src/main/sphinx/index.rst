@@ -37,8 +37,9 @@ Contents:
    activityconfigurations
    services
    supportclasses
+   advancedspacecontroller
    expressionlanguage
-   scriptingmaster
+   advancedmaster
    masterapi
    cookbook
    installing

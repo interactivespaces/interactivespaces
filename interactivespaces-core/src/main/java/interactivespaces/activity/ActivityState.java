@@ -23,22 +23,22 @@ package interactivespaces.activity;
  */
 public enum ActivityState {
 
-	UNKNOWN("space.activity.state.unknown", false, false), 
-	DOESNT_EXIST("space.activity.state.nonexistent", false, false), 
-	DEPLOY_ATTEMPT("space.activity.state.deployment.attempt", false, false), 
-	DEPLOY_FAILURE("space.activity.state.deployment.failure", false, true),
-	READY("space.activity.state.ready", false, false),
-	STARTUP_ATTEMPT("space.activity.state.start.attempt", false, false), 
-	STARTUP_FAILURE("space.activity.state.start.failure", false, true),
-	RUNNING("space.activity.state.running", true, false), 
-	ACTIVATE_ATTEMPT("space.activity.state.activate.attempt", true, false),
-	ACTIVATE_FAILURE("space.activity.state.activate.failure", true, true), 
-	ACTIVE("space.activity.state.active", true, false), 
-	DEACTIVATE_ATTEMPT("space.activity.state.deactivate.attempt", true, false),
-	DEACTIVATE_FAILURE("space.activity.state.deactivate.failure", true, true),
-	SHUTDOWN_ATTEMPT("space.activity.state.shutdown.attempt", false, false), 
-	SHUTDOWN_FAILURE("space.activity.state.shutdown.failure", false, true), 
-	CRASHED("space.activity.state.crashed", false, true);
+	UNKNOWN("space.activity.state.unknown", false, false, true), 
+	DOESNT_EXIST("space.activity.state.nonexistent", false, false, true), 
+	DEPLOY_ATTEMPT("space.activity.state.deployment.attempt", false, false, false), 
+	DEPLOY_FAILURE("space.activity.state.deployment.failure", false, true, true), 
+	READY("space.activity.state.ready", false, false, true), 
+	STARTUP_ATTEMPT("space.activity.state.start.attempt", false, false, false), 
+	STARTUP_FAILURE("space.activity.state.start.failure", false, true, true), 
+	RUNNING("space.activity.state.running", true, false, true), 
+	ACTIVATE_ATTEMPT("space.activity.state.activate.attempt", true, false, false), 
+	ACTIVATE_FAILURE("space.activity.state.activate.failure", true, true, true), 
+	ACTIVE("space.activity.state.active", true, false, true), 
+	DEACTIVATE_ATTEMPT("space.activity.state.deactivate.attempt", true, false, false),
+	DEACTIVATE_FAILURE("space.activity.state.deactivate.failure", true, true, true), 
+	SHUTDOWN_ATTEMPT("space.activity.state.shutdown.attempt", false, false, false), 
+	SHUTDOWN_FAILURE("space.activity.state.shutdown.failure", false, true, true), 
+	CRASHED("space.activity.state.crashed", false, true, true);
 
 	/**
 	 * Text description of the state.
@@ -49,16 +49,24 @@ public enum ActivityState {
 	 * Is this a running state?
 	 */
 	private boolean running;
-	
+
 	/**
 	 * Is this an error state?
 	 */
 	private boolean error;
 
-	ActivityState(String description, boolean running, boolean error) {
+	/**
+	 * Is this a state that can be transitioned from (as opposed to merely
+	 * notification)?
+	 */
+	private boolean transitional;
+
+	ActivityState(String description, boolean running, boolean error,
+			boolean transitional) {
 		this.description = description;
 		this.running = running;
 		this.error = error;
+		this.transitional = transitional;
 	}
 
 	/**
@@ -86,5 +94,15 @@ public enum ActivityState {
 	 */
 	public boolean isError() {
 		return error;
+	}
+
+	/**
+	 * Is the activity's state transitional (as opposed to notificational)?
+	 * 
+	 * @return {@code true} if the activity's state is considered to be
+	 *         transitional.
+	 */
+	public boolean isTransitional() {
+		return transitional;
 	}
 }

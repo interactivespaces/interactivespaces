@@ -34,9 +34,14 @@ serialized into the file as JSON.
 
 .. code-block:: java
   
-  Map<String, Object> map = persister.Map("foo");
+  Map<String, Object> map = persister.getMap("foo");
   
 would then read the map from disk.
+
+The SimpleMapPersister classes are thread-safe. They permit multiple
+simultaneous readers and only 1 writer. Any readers will block the
+writer and the writer will block any readers. The locks are fair, so
+continuing to add lots of readers will not block a writer forever.
 
 
 

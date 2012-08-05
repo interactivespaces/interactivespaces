@@ -50,7 +50,6 @@ public class ActivityStateTransitionerCollection {
 	 */
 	public synchronized void addTransitioner(String uuid,
 			ActivityStateTransitioner transitioner) {
-		System.out.println("Adding transitioner " + uuid);
 		transitioners.put(uuid, transitioner);
 	}
 
@@ -68,11 +67,8 @@ public class ActivityStateTransitionerCollection {
 	public synchronized void transition(String uuid,
 			ActivityState newState) {
 		ActivityStateTransitioner transitioner = transitioners.get(uuid);
-		System.out.println("Seeking transitioner " + uuid);
 		if (transitioner != null) {
-			System.out.println("Got transitioner");
 			SequenceTransitionResult result = transitioner.transition(newState);
-			System.out.println(result);
 			if (result.equals(SequenceTransitionResult.DONE) || result.equals(SequenceTransitionResult.ERROR)) {
 				transitioners.remove(uuid);
 			}

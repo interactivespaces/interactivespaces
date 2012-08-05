@@ -46,6 +46,7 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.util.concurrency.SequentialEventQueue;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
@@ -219,6 +220,11 @@ public abstract class BaseSpaceController implements SpaceController,
 	};
 
 	/**
+	 * The sequential event queue to be used for controller events.
+	 */
+	private SequentialEventQueue eventQueue;
+
+	/**
 	 * {@code true} if the controller was started up.
 	 */
 	private volatile boolean startedUp = false;
@@ -232,6 +238,11 @@ public abstract class BaseSpaceController implements SpaceController,
 
 		activityComponentFactory = new CoreExistingActivityComponentFactory();
 		activityStateTransitioners = new ActivityStateTransitionerCollection();
+
+		// TODO(keith): Set this container-wide.
+		eventQueue = new SequentialEventQueue(getSpaceEnvironment(),
+				getSpaceEnvironment().getLog());
+		eventQueue.startup();
 
 		// TODO(keith): Set this container-wide.
 		alertStatusManager = new SimpleAlertStatusManager();
@@ -287,9 +298,19 @@ public abstract class BaseSpaceController implements SpaceController,
 	 *            the new status
 	 */
 	private void handleActivityListenerOnActivityStatusChange(
-			Activity activity, ActivityStatus oldStatus,
-			ActivityStatus newStatus) {
+			final Activity activity, ActivityStatus oldStatus,
+			final ActivityStatus newStatus) {
 		publishActivityStatus(activity.getUuid(), newStatus);
+
+		// TODO(keith): Android hates garbage collection. This may need an
+		// object pool.
+		eventQueue.addEvent(new Runnable() {
+			@Override
+			public void run() {
+				activityStateTransitioners.transition(activity.getUuid(),
+						newStatus.getState());
+			}
+		});
 	}
 
 	/**
@@ -398,6 +419,9 @@ public abstract class BaseSpaceController implements SpaceController,
 				activityWatcherControl.cancel(true);
 				activityWatcherControl = null;
 				activityWatcher = null;
+
+				eventQueue.shutdown();
+				eventQueue = null;
 
 				onShutdown();
 			} finally {
@@ -809,8 +833,8 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * @param activity
 	 *            the activity to go to startup
 	 */
-	private void setupActiveTarget(ActiveControllerActivity activity) {
-		String uuid = activity.getUuid();
+	private void setupActiveTarget(final ActiveControllerActivity activity) {
+		final String uuid = activity.getUuid();
 		activityStateTransitioners.addTransitioner(
 				uuid,
 				new ActivityStateTransitioner(activity,
@@ -818,8 +842,16 @@ public abstract class BaseSpaceController implements SpaceController,
 								ActivityStateTransition.STARTUP,
 								ActivityStateTransition.ACTIVATE),
 						spaceEnvironment.getLog()));
-		activityStateTransitioners
-				.transition(uuid, activity.getActivityState());
+
+		// TODO(keith): Android hates garbage collection. This may need an
+		// object pool.
+		eventQueue.addEvent(new Runnable() {
+			@Override
+			public void run() {
+				activityStateTransitioners.transition(uuid,
+						activity.getActivityState());
+			}
+		});
 	}
 
 	/**
@@ -889,8 +921,6 @@ public abstract class BaseSpaceController implements SpaceController,
 	public void onActivityStatusChange(ActiveControllerActivity activity,
 			ActivityStatus oldStatus, ActivityStatus newStatus) {
 		publishActivityStatus(activity.getUuid(), newStatus);
-		activityStateTransitioners.transition(activity.getUuid(),
-				newStatus.getState());
 	}
 
 	/**

@@ -97,6 +97,10 @@ public class ActivityStateTransitioner {
 	 * @return the result of the transition
 	 */
 	public SequenceTransitionResult transition(ActivityState nextState) {
+		if (!nextState.isTransitional()) {
+			return SequenceTransitionResult.WORKING;
+		}
+
 		if (errored) {
 			return SequenceTransitionResult.CANT;
 		}
@@ -106,12 +110,15 @@ public class ActivityStateTransitioner {
 			return SequenceTransitionResult.DONE;
 		}
 
-		if (nextTransition.canTransition(nextState).equals(TransitionResult.OK)) {
+		TransitionResult canTransition = nextTransition
+				.canTransition(nextState);
+		if (canTransition.equals(TransitionResult.WAIT)) {
+			// Don't consume the transition yet. WAIT means we are on our way.
+			return SequenceTransitionResult.WORKING;
+		} else if (canTransition.equals(TransitionResult.OK)) {
+			transitions.poll();
 			try {
 				nextTransition.transition(activity);
-
-				// Actually pull the transition since it was successful
-				transitions.poll();
 			} catch (Exception e) {
 				errored = true;
 
@@ -137,6 +144,7 @@ public class ActivityStateTransitioner {
 	 * @author Keith M. Hughes
 	 */
 	public enum SequenceTransitionResult {
+
 		/**
 		 * Still working on the transitions.
 		 */
