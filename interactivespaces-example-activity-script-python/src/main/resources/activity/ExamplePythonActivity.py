@@ -25,11 +25,24 @@ class ExamplePythonActivity(BaseActivity):
         example.test()
         self.log.info("Simple Python Example Activity startup")
 
-    def onActivityShutdown(self):
-        self.log.info("Simple Python Example Activity shutting down")
-
     def onActivityActivate(self):
         self.log.info("Simple Python Example Activity activated")
 
     def onActivityDeactivate(self):
         self.log.info("Simple Python Example Activity deactivated")
+
+    def onActivityShutdown(self):
+        self.log.info("Simple Python Example Activity shutting down")
+
+    def onActivityCleanup(self):
+        self.log.info("Simple Python Example Activity cleanup")
+
+    def onActivityFailure(self):
+        self.log.info("Simple Python Example Activity failure")
+
+    def onActivityCheckState(self):
+        self.log.info("Simple Python Example Activity checking state")
+        return True
+
+    def onActivityConfigurationUpdate(self, update):
+        self.log.info("Simple Python Example Activity config update %s" % update)

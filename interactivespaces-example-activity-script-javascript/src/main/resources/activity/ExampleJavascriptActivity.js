@@ -15,12 +15,12 @@
  */
 
 interactivespaces.activity.impl.BaseActivity {
-    onActivityStartup: function() {
-        this.getLog().info("Simple Javascript Example Activity startup");
+    onActivitySetup: function() {
+        this.getLog().info("Simple Javascript Example Activity setup");
     },
 
-    onActivityShutdown: function() {
-        this.getLog().info("Simple Javascript Example Activity shutdown");
+    onActivityStartup: function() {
+        this.getLog().info("Simple Javascript Example Activity startup");
     },
 
     onActivityActivate: function() {
@@ -29,5 +29,26 @@ interactivespaces.activity.impl.BaseActivity {
 
     onActivityDeactivate: function() {
         this.getLog().info("Simple Javascript Example Activity deactivate");
-    }
+    },
+
+    onActivityShutdown: function() {
+        this.getLog().info("Simple Javascript Example Activity shutdown");
+    },
+
+    onActivityCleanup: function() {
+        this.getLog().info("Simple Javascript Example Activity cleanup");
+    },
+
+    onActivityFailure: function() {
+        this.getLog().error("Simple Javascript Example Activity failure");
+    },
+
+    onActivityCheckState: function() {
+        this.getLog().info("Simple Javascript Example Activity checking state");
+        return true;
+    },
+
+    onActivityConfigurationUpdate: function(update) {
+        this.getLog().info("Simple Javascript Example Activity config update " + update);
+    },
 }

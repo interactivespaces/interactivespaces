@@ -108,7 +108,7 @@
 			<file src="bootstrap" targetdir="$INSTALL_PATH" override="true" />
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
 			<file src="controller" targetdir="$INSTALL_PATH" />
-			<file src="interactivespaces-launcher-1.1.0.jar" targetdir="$INSTALL_PATH"
+			<file src="interactivespaces-launcher-1.1.1.jar" targetdir="$INSTALL_PATH"
 				override="true" />
 
 			<parsable targetfile="$INSTALL_PATH/bin/startup_linux.bash" />

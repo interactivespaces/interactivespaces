@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-master-installer</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 
 	<name>Interactive Spaces Master</name>
 
@@ -137,7 +137,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}</outputDirectory>
@@ -155,7 +155,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher-bootstrap</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
@@ -341,14 +341,14 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi_master</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -372,7 +372,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_common</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -386,7 +386,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_master</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>  -->
@@ -402,7 +402,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-core</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -480,7 +480,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-system</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -613,7 +613,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-database</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -699,7 +699,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-scheduler</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -715,7 +715,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-script</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -731,28 +731,28 @@ the License.
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-mail-common</artifactId>
-                                    <version>1.1.0</version>
+                                    <version>1.1.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-mail-sender</artifactId>
-                                    <version>1.1.0</version>
+                                    <version>1.1.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-alert</artifactId>
-                                    <version>1.1.0</version>
+                                    <version>1.1.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-alert-notifier-mail</artifactId>
-                                    <version>1.1.0</version>
+                                    <version>1.1.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
@@ -775,7 +775,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-master</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -805,7 +805,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-master-webapp</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>war</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

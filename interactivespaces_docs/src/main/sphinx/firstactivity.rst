@@ -233,8 +233,8 @@ This will build an Eclipse project which you can then import into Eclipse.
 Next Steps
 ==========
 
-You have now walked through installing an activity on a controller and running it. You should l
-ook at the various examples in the Interactive Spaces Workbench to get an idea of the types of 
+You have now walked through installing an activity on a controller and running it. You should 
+look at the various examples in the Interactive Spaces Workbench to get an idea of the types of 
 activities you can create in Interactive Spaces.
 
 In the next chapter we will examine the basics of Interactive Spaces in more detail.

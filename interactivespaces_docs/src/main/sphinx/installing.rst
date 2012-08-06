@@ -1,8 +1,15 @@
-Installing Interactive Spaces
+Installing and Updating Interactive Spaces
 *****************************
 
+Installing and updating Interactive Spaces is pretty simple. 
+
+Installing Interactive Spaces
+=============================
+
+Installing Interactive Spaces from the supplied installers is very easy.
+
 Prerequisites
-=============
+-------------
 
 Before you can install Interactive Spaces on your computer, you should make sure you have Java installed first. 
 
@@ -13,14 +20,14 @@ building tool. This is going away for non-Java activities and possibly even
 for Java activities.
 
 Installing a Local Master
-=========================
+-------------
 
 Installing a master is pretty easy. You will run an installer activity, and finally test your installation.
 
 .. _installing-the-master:
 
 Installing the Master
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 If you are using a windowing system, find the icon for the Interactive Spaces Master installer and double click on it.
 
@@ -36,7 +43,7 @@ where 0.0.0 is the version of the Interactive Spaces Master you are installing.
 For now just accept all of the default settings by clicking Next on the configuration page. 
 
 Testing the Master Installation
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To test if your installation happened correctly, open up a command shell and go to the directory where you installed the master. Once there, type the command 
 
@@ -53,14 +60,14 @@ You should see a bunch of text scroll by as the master starts up. When you see n
 If everything installed correctly you should be seeing the Master Web Interface in your browser.
 
 Installing a Local Controller
-=============================
+-----------------------------
 
 Installing a controller is pretty easy if you chose to let the controller autoconfigure itself. You will run an installer activity, and finally test your installation.
 
 You can also manually configure the controller, though there usually isn't a good reason for this.
 
 Installing the Controller
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are using a windowing system, find the icon for the Interactive Spaces Controller installer and double click on it.
 
@@ -75,7 +82,7 @@ where 0.0.0 is the version of the Interactive Spaces Controller you are installi
 If you are auto-configuring the controller, make sure you don't check the manual configuration checkbox.
 
 Testing the Controller Installation 
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To test if your installation happened correctly, first make sure you have a Master started. Then 
 open up a command shell and go to the directory where you installed the controller. 
@@ -104,7 +111,7 @@ appear in the controller window. Also, if you refresh the controller page in the
 Interface you should see it say that the controller is in the running state.
 
 Manually Configuring a Controller
----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before you install a manually configured controller, you need a UUID for the controller. 
 
@@ -118,7 +125,7 @@ You will enter both the controller Host ID and UUID during the controller instal
 prompted. Be sure to chose the manually configured option during installation.
 
 Installing the Workbench
-========================
+------------------------
 
 The Interactive Spaces Workbench provides you with example code, documentation, and the 
 Workbench application which can help you maintain and deploy your activities.
@@ -135,3 +142,21 @@ If you are using a command line interface for your operating system, use the com
 
 where 0.0.0 is the version of the Interactive Spaces Workbench you are installing.
 
+
+Updating An Installation
+========================
+
+Upadting an installation is currently more complicated than it needs to be,
+but that will change soon.
+
+Delete the contents of the following folders in your master and in all of
+your controllers and workbenches.
+
+1. bootstrap
+2. lib/system/java
+
+Also delete the file *interactivespaces-launcher-x,y,z* from the root folder
+of each master, controller, and workbench, where *x.y.z* was the version
+of the launcher that was there before the update.
+
+Once you have done this, you can upgrade the same way you install.

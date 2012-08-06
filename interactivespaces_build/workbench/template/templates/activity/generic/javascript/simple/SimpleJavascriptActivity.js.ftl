@@ -1,10 +1,10 @@
 interactivespaces.activity.impl.BaseActivity {
-    onActivityStartup: function() {
-        this.getLog().info("${project.activity.identifyingName} startup");
+    onActivitySetup: function() {
+        this.getLog().info("${project.activity.identifyingName} setup");
     },
 
-    onActivityShutdown: function() {
-        this.getLog().info("Activity ${project.activity.identifyingName} shutdown");
+    onActivityStartup: function() {
+        this.getLog().info("${project.activity.identifyingName} startup");
     },
 
     onActivityActivate: function() {
@@ -13,5 +13,13 @@ interactivespaces.activity.impl.BaseActivity {
 
     onActivityDeactivate: function() {
         this.getLog().info("Activity ${project.activity.identifyingName} deactivate");
+    }
+
+    onActivityShutdown: function() {
+        this.getLog().info("Activity ${project.activity.identifyingName} shutdown");
+    },
+
+    onActivityCleanup: function() {
+        this.getLog().info("Activity ${project.activity.identifyingName} cleanup");
     }
 }

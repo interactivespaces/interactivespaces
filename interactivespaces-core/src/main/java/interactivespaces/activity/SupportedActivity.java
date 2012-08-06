@@ -107,7 +107,7 @@ public interface SupportedActivity {
 	 * 
 	 * @return {@code true} if the activity is fine, false otherwise.
 	 */
-	boolean onCheckActivityState();
+	boolean onActivityCheckState();
 
 	/**
 	 * A configuration update is coming in.

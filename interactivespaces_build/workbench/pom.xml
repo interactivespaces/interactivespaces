@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-workbench-installer</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 
 	<name>Interactive Spaces Workbench</name>
 
@@ -143,7 +143,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}</outputDirectory>
@@ -161,7 +161,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher-bootstrap</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
@@ -170,14 +170,14 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-workbench</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-core</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

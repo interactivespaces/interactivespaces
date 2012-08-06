@@ -7,6 +7,11 @@ import interactivespaces.activity.impl.BaseActivity;
  */
 public class SimpleJavaActivity extends BaseActivity {
 
+    @Override
+    public void onActivitySetup() {
+        getLog().info("Activity ${project.activity.identifyingName} setup");
+    }
+
 	@Override
 	public void onActivityStartup() {
 		getLog().info("Activity ${project.activity.identifyingName} startup");
@@ -26,4 +31,9 @@ public class SimpleJavaActivity extends BaseActivity {
 	public void onActivityShutdown() {
 		getLog().info("Activity ${project.activity.identifyingName} shutdown");
 	}
+
+    @Override
+    public void onActivityCleanup() {
+        getLog().info("Activity ${project.activity.identifyingName} cleanup");
+    }
 }

@@ -410,7 +410,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 	}
 
 	/**
-	 * Call {@link #onCheckActivityState()} properly
+	 * Call {@link #onActivityCheckState()} properly
 	 * 
 	 * @return
 	 */
@@ -419,7 +419,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 				.enterMethod();
 
 		try {
-			return onCheckActivityState();
+			return onActivityCheckState();
 		} finally {
 			getExecutionContext().exitMethod(invocation);
 		}
@@ -504,7 +504,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 	}
 
 	@Override
-	public boolean onCheckActivityState() {
+	public boolean onActivityCheckState() {
 		// Default is all is OK.
 		return true;
 	}

@@ -32,6 +32,7 @@ Contents:
    historyanddesignphilosophy
    firstactivity
    basics
+   exampleactivities
    workbench1
    activity
    activityconfigurations

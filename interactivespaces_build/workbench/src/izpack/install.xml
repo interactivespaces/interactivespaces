@@ -85,7 +85,7 @@
             <file src="config" targetdir="$INSTALL_PATH"/>
             <file src="examples" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH" override="true" />
-            <file src="interactivespaces-launcher-1.1.0.jar" targetdir="$INSTALL_PATH"
+            <file src="interactivespaces-launcher-1.1.1.jar" targetdir="$INSTALL_PATH"
                 override="true" />
             
             <parsable targetfile="$INSTALL_PATH/config/workbench.conf"/>

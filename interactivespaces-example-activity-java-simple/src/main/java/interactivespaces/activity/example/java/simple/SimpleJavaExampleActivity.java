@@ -18,6 +18,8 @@ package interactivespaces.activity.example.java.simple;
 
 import interactivespaces.activity.impl.BaseActivity;
 
+import java.util.Map;
+
 /**
  * A sample Interactive Spaces Java-based activity.
  * 
@@ -26,6 +28,10 @@ import interactivespaces.activity.impl.BaseActivity;
  */
 public class SimpleJavaExampleActivity extends BaseActivity {
 
+	@Override
+	public void onActivitySetup() {
+		getLog().info("Simple Java Example Activity setup");
+	}
 
 	@Override
 	public void onActivityStartup() {
@@ -46,4 +52,26 @@ public class SimpleJavaExampleActivity extends BaseActivity {
 	public void onActivityShutdown() {
 		getLog().info("Simple Java Example Activity shutdown");
 	}
+
+	@Override
+	public void onActivityCleanup() {
+		getLog().info("Simple Java Example Activity cleanup");
+	}
+
+	@Override
+	public void onActivityFailure() {
+		getLog().error("Simple Java Example Activity failure");
+	}
+
+	@Override
+	public boolean onActivityCheckState() {
+		getLog().info("Simple Java Example Activity checking state");
+
+		return true;
+	}
+
+	@Override
+	public void onActivityConfigurationUpdate(Map<String, Object> update) {
+		getLog().info(String.format("Simple Java Example Activity config update %s", update));
+        }
 }

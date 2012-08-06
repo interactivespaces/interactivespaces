@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-controller-installer</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 
 	<name>Interactive Spaces Controller</name>
 
@@ -137,7 +137,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}</outputDirectory>
@@ -155,7 +155,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher-bootstrap</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
@@ -341,14 +341,14 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi_node</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -358,7 +358,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_common</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -372,7 +372,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_node</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -389,7 +389,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-core</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -467,7 +467,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-system</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -562,7 +562,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-scheduler</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -578,7 +578,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-script</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -601,7 +601,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-controller</artifactId>
-									<version>1.1.0</version>
+									<version>1.1.1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
