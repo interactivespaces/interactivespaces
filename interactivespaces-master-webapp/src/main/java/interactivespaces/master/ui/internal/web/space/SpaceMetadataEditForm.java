@@ -70,15 +70,15 @@ public class SpaceMetadataEditForm extends MetadataEditFormSupport {
 
 	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
 	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("config") ConfigurationForm configurationForm,
+			@ModelAttribute("metadata") ConfigurationForm metadataForm,
 			BindingResult result, SessionStatus status) {
-		validate(configurationForm, result);
+		metadataForm.validate(result, false, "space.metadata");
 		if (result.hasErrors()) {
 			return "space/SpaceMetadataEdit";
 		} else {
 			Space space = activityRepository.getSpaceById(id);
 
-			if (saveMetadataForm(configurationForm, space)) {
+			if (saveMetadataForm(metadataForm, space)) {
 				activityRepository.saveSpace(space);
 			}
 

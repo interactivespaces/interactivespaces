@@ -815,7 +815,7 @@ public abstract class BaseSpaceController implements SpaceController,
 			break;
 
 		case READY:
-			setupActiveTarget(activity);
+			setupSequencedActiveTarget(activity);
 			break;
 
 		default:
@@ -833,7 +833,7 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * @param activity
 	 *            the activity to go to startup
 	 */
-	private void setupActiveTarget(final ActiveControllerActivity activity) {
+	private void setupSequencedActiveTarget(final ActiveControllerActivity activity) {
 		final String uuid = activity.getUuid();
 		activityStateTransitioners.addTransitioner(
 				uuid,

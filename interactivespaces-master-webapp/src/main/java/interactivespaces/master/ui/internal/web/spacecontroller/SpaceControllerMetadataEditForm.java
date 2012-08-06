@@ -17,7 +17,6 @@
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.domain.space.Space;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
@@ -73,16 +72,16 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
 
 	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
 	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("config") ConfigurationForm configurationForm,
+			@ModelAttribute("meatadata") ConfigurationForm metadataForm,
 			BindingResult result, SessionStatus status) {
-		validate(configurationForm, result);
+		metadataForm.validate(result, false, "space.metadata");
 		if (result.hasErrors()) {
 			return "spacecontroller/SpaceControllerMetadataEdit";
 		} else {
 			SpaceController controller = controllerRepository
 					.getSpaceControllerById(id);
 
-			if (saveMetadataForm(configurationForm, controller)) {
+			if (saveMetadataForm(metadataForm, controller)) {
 				controllerRepository.saveSpaceController(controller);
 			}
 

@@ -18,6 +18,8 @@ package interactivespaces.master.ui.internal.web;
 
 import java.util.Map;
 
+import org.springframework.validation.Errors;
+
 import com.google.common.collect.Maps;
 
 /**
@@ -67,6 +69,43 @@ public class ConfigurationForm {
 			map.put(new String(line.substring(0, pos).trim()), new String(line
 					.substring(pos + 1).trim()));
 		}
+		
 		return map;
+	}
+	
+
+	/**
+	 * Get a map of the submitted parameters.
+	 * 
+	 * @param form
+	 *            the form
+	 * @param blankValuesAllowed
+	 * 			{@code true} if blank values are allowed
+	 * @param errorCodePrefix
+	 * 			prefix to put on error codes
+	 * 
+	 * @return a map of the config names to values
+	 */
+	public void validate(Errors errors, boolean blankValuesAllowed, String errorCodePrefix) {
+		String[] lines = getValues().split("\n");
+		for (String line : lines) {
+			line = line.trim();
+			if (line.isEmpty())
+				continue;
+
+			int pos = line.indexOf('=');
+			if (pos == -1) {
+				errors.rejectValue("values", errorCodePrefix + ".error.field.format", "error");
+				return;
+			}
+			if (line.substring(0, pos).trim().isEmpty()) {
+				errors.rejectValue("values", errorCodePrefix + ".error.name.blank", "error");
+				return;
+			}
+			if (!blankValuesAllowed && line.substring(pos + 1).trim().isEmpty()) {
+				errors.rejectValue("values", errorCodePrefix + ".error.value.blank", "error");
+				return;
+			}
+		}
 	}
 }

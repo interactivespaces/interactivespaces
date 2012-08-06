@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -81,7 +80,7 @@ public class LiveActivityConfigEditForm {
 	public String processSubmit(@PathVariable("id") String id,
 			@ModelAttribute("config") ConfigurationForm configurationForm,
 			BindingResult result, SessionStatus status) {
-		validate(configurationForm, result);
+		configurationForm.validate(result, true, "space.config");
 		if (result.hasErrors()) {
 			return "liveactivity/LiveActivityConfigurationEdit";
 		} else {
@@ -285,37 +284,6 @@ public class LiveActivityConfigEditForm {
 					.substring(pos + 1).trim()));
 		}
 		return map;
-	}
-
-	/**
-	 * Get a map of the submitted parameters.
-	 * 
-	 * @param form
-	 *            the form
-	 * 
-	 * @return a map of the config names to values
-	 */
-	protected void validate(ConfigurationForm form, Errors errors) {
-		String[] lines = form.getValues().split("\n");
-		for (String line : lines) {
-			line = line.trim();
-			if (line.isEmpty())
-				continue;
-
-			int pos = line.indexOf('=');
-			if (pos == -1) {
-				errors.rejectValue("values", "error", "error");
-				return;
-			}
-			if (line.substring(0, pos).trim().isEmpty()) {
-				errors.rejectValue("values", "error", "error");
-				return;
-			}
-			if (line.substring(pos + 1).trim().isEmpty()) {
-				errors.rejectValue("values", "error", "error");
-				return;
-			}
-		}
 	}
 
 	/**

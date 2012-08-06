@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
- * A form for editing live activity group metadata.
+ * A form for editing live activity metadata.
  * 
  * @author Keith M. Hughes
  */
@@ -70,15 +70,15 @@ public class LiveActivityMetadataEditForm extends MetadataEditFormSupport {
 
 	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
 	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("config") ConfigurationForm configurationForm,
+			@ModelAttribute("metadata") ConfigurationForm metadataForm,
 			BindingResult result, SessionStatus status) {
-		validate(configurationForm, result);
+		metadataForm.validate(result, false, "space.metadata");
 		if (result.hasErrors()) {
 			return "liveactivity/LiveActivityMetadataEdit";
 		} else {
 			LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
 
-			if (saveMetadataForm(configurationForm, liveactivity)) {
+			if (saveMetadataForm(metadataForm, liveactivity)) {
 				activityRepository.saveLiveActivity(liveactivity);
 			}
 

@@ -212,32 +212,19 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
 	@Override
 	public void fullConfigureActivity(LiveActivity activity) {
-		ActivityConfiguration configuration = activity.getConfiguration();
-		if (configuration == null) {
-			log.info(String.format(
-					"No configuration parameters for installed activity %s",
-					activity.getUuid()));
-
-			return;
-		}
-
 		ArrayList<ActivityConfigurationParameterRequest> parameterRequests = Lists
 				.newArrayList();
-		for (ConfigurationParameter parameter : configuration.getParameters()) {
-			ActivityConfigurationParameterRequest newParameter = new ActivityConfigurationParameterRequest();
-			newParameter.operation = ActivityConfigurationParameterRequest.OPERATION_ADD;
-			newParameter.name = parameter.getName();
-			newParameter.value = parameter.getValue();
+		ActivityConfiguration configuration = activity.getConfiguration();
+		if (configuration != null) {
+			for (ConfigurationParameter parameter : configuration
+					.getParameters()) {
+				ActivityConfigurationParameterRequest newParameter = new ActivityConfigurationParameterRequest();
+				newParameter.operation = ActivityConfigurationParameterRequest.OPERATION_ADD;
+				newParameter.name = parameter.getName();
+				newParameter.value = parameter.getValue();
 
-			parameterRequests.add(newParameter);
-		}
-
-		if (parameterRequests.isEmpty()) {
-			log.info(String.format(
-					"No configuration parameters for installed activity %s",
-					activity.getUuid()));
-
-			return;
+				parameterRequests.add(newParameter);
+			}
 		}
 
 		ActivityConfigurationRequest request = new ActivityConfigurationRequest();
@@ -532,12 +519,12 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 					.get(remoteNode);
 
 			if (communicator == null) {
-				communicator = new SpaceControllerCommunicator(controller.getUuid());
+				communicator = new SpaceControllerCommunicator(
+						controller.getUuid());
 				communicator.startup(masterRosContext.getNode(), remoteNode,
 						controllerStatusListener, activityStatusListener);
 				controllerCommunicators.put(remoteNode, communicator);
-				
-				
+
 			}
 
 			return communicator;
@@ -591,7 +578,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * @author Keith M. Hughes
 	 */
 	public class SpaceControllerCommunicator {
-		
+
 		/**
 		 * UUID of the space controller.
 		 */
@@ -654,8 +641,9 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			activityRuntimeRequestPublisher = RosSpaceControllerSupport
 					.getControllerActivityRuntimeRequestPublisher(node,
 							remoteNode, publisherListener);
-			
-			remoteControllerClientListeners.signalSpaceControllerConnectAttempt(uuid);
+
+			remoteControllerClientListeners
+					.signalSpaceControllerConnectAttempt(uuid);
 		}
 
 		/**
@@ -670,8 +658,9 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			activityRuntimeRequestPublisher = null;
 			activityStatusSubscriber.shutdown();
 			activityStatusSubscriber = null;
-			
-			remoteControllerClientListeners.signalSpaceControllerDisconnectAttempt(uuid);
+
+			remoteControllerClientListeners
+					.signalSpaceControllerDisconnectAttempt(uuid);
 		}
 
 		/**
