@@ -36,6 +36,7 @@ Contents:
    workbench1
    activity
    activityconfigurations
+   basiccommunications
    services
    supportclasses
    advancedspacecontroller

@@ -139,11 +139,14 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				+ webContentPath;
 
 		String contentLocation = configuration
-				.getRequiredPropertyString(CONFIGURATION_WEBAPP_CONTENT_LOCATION);
-		webContentBaseDir = new File(activity.getActivityFilesystem()
-				.getInstallDirectory(), contentLocation);
+				.getPropertyString(CONFIGURATION_WEBAPP_CONTENT_LOCATION);
+		if (contentLocation != null) {
+			webContentBaseDir = new File(activity.getActivityFilesystem()
+					.getInstallDirectory(), contentLocation);
 
-		webServer.addStaticContentHandler(webContentPath, webContentBaseDir);
+			webServer
+					.addStaticContentHandler(webContentPath, webContentBaseDir);
+		}
 
 		for (StaticContent content : staticContent) {
 			webServer.addStaticContentHandler(content.getUriPrefix(),

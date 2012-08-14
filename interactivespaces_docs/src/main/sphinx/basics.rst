@@ -2,7 +2,9 @@ Interactive Spaces Basics
 *************************
 
 Now that you have installed and run your first Interactive Spaces activity it is time to 
-understand more of the pieces of what you have done.
+understand more of the pieces of what you have done. In this section we
+will cover all of the basic concepts of Interactive Spaces. While reading, think
+back to what you did in the previous chapter.
 
 Overview
 ========
@@ -60,8 +62,10 @@ directly with each other.
 Activities and Live Activities
 ==============================
 
-There is a lot to Live Activities. They contain an Activity and potentially
-a configuration. They also have a lifecycle.
+Live Activities are the work horses of an interactive space, without them
+the space would have no interactivity. 
+They contain an Activity and potentially a configuration. They also have 
+a lifecycle.
 
 Let's look at each of these.
 
@@ -75,12 +79,15 @@ are the copies of that graphics program that you have installed on both your
 laptop and on your desktop. You can think of the laptop and desktop in this example
 as the Space Controllers running your graphics program Live Activities.
 
-Activities come with configurations which give default values for different
+Activities come with base configurations which give default values for different
 parameters which can control how the Live Activity works. Each Live Activity can
 also have its own configuration which can override any of the values found in the
 configuration which is part of the Activity the Live Activity is based on. In
 the graphics program example, perhaps on your laptop you have it configured to use the
-touchpad for drawing, whereas the desktop uses an active pen tablet.
+touchpad for drawing, whereas the desktop uses an pen-based active tablet.
+
+The Activity can also contain any initial data that the Live Activity would
+need to run.
 
 You can have more than one Live Activity based on a given Activity, even on the 
 same Space Controller, each one potentially configured differently from any of 
@@ -100,71 +107,234 @@ major ones.
 
 READY
 
-  Deployed within the controller
+  The Live Activity is deployed within the controller and is ready to run.
   
 RUNNING
 
-  The Live Activity is loaded and running, but can't necessarily handle requests
+  The Live Activity is loaded and running, but can't necessarily handle requests.
   
 ACTIVATE
 
-  The Live Activity can handle requests
+  The Live Activity can handle requests.
 
-  This is needed because some Live Activities can take a long time to reach RUNNING
-  state. For example, a piece of hardware may take a long time to warm up.
+  This is needed because some Live Activities can take a long time to reach the RUNNING
+  state. For example, a piece of hardware such as a projector may take a long time to warm up.
   
 CRASHED
 
-  The Live Activity has crashed
+  The Live Activity has crashed and is no longer running.
 
+The Live Activity wil move between these states when they are given
+commands to move to the new state. For instance, if the Live Activity
+is in the READY state, it can be sent a StartUp command which will
+make it move to either the RUNNING state, if it was able to start,
+or CRASHED if it wasn't able to start properly.
+
+A complete list of the states and what they mean will be found in the
+Advanced Activity section.
+
+Space Controllers
+=================
+
+As we've already seen, Space Controllers are where Live Activities run.
+if you have an interactive space, you need at least 1 Space Controller
+because you have no space without Live Activities.
+
+A space will have anywhere from 1 Space Controller to potentially hundreds
+or thousands, depending on how complex the space is. 99.99999% of the time
+there will be one Space Controller to one computer. Though nothing prevents
+multiple Space Controllers running on the same machine, it isn't very
+likely.
+
+The Space Controller is the container that runs Live Activities. 
+The Space Controller 
+tells the Live Activities it contains when to start, stop, activate, and deactivate.
+When Live Activities are deployed, the Space Controller copies the Activity
+from the Activity Repository and unpackages it for installation.
+
+The Space Controller also provides services that Live Activities need to
+run. The Space Controller knows which operating system it is running
+on and can make decisions for the Live Activity on which executable to
+use for a native activity, including a web browser being used by the
+Live Activity. It provides per-Live Activity logging. The Space
+Controller also contains services which can be used by multiple Live Activities,
+like a scripting service or a service for scheduling events in the future,
+or clocks which can be synchronized across the space. There are many services
+available, more than can be described here and more coming all the time.
+
+The Space Controller monitors all Live Activities by periodically
+asking all Live Activities what their state is.
+The Space Controller uses this information to provide an alerting 
+mechanisms for when Live Activities fail. The Controller also 
+automatically tries to restart Live Activities which have crashed.
+
+The Master, discussed next, does not communicate directly with Live
+Activities. The Master communicates with the Space Controller and
+the Space Controller directly controls the Live Activities.
 
 The Master
 ==========
 
-Contains model of entire space
-Controls controllers
-Shutdown
-Shutdown all installed applications
-Deploys Activities to Controllers
-Controls the lifecycle of Live Activities on the Controllers
-Maintains Activity Repository
-Provides naming services for pubsub topics
+The Interactive Spaces Master is in charge of the entire physical space
+and is used to not only control the Live Activities (via the Space
+Controller which contains the Live Activity), but to also support
+maintenance, deployment, and monitoring of the entire installation.
 
-Controllers
-===========
+It would be very interesting to have an interactive space which has much more
+decentralized control, but Interactive Spaces was built to support 
+installations where it was very easy to tear a space down and reconfigure it for
+a very different purpose in a short time and this is much easier
+from a central control point. The Live Activities themselves
+could be more self organizing, it would be possible to write code
+where a Live Activity can query about its environment and make 
+functionality available based on what it finds, but the Master is still
+needed in Interactive Space's view of a space.
 
-Provides running environment for Live Activities
-Controls lifecycle of Live Activities under the direction of the Mmaster
-Provides services to Live Activities
-e.g. web server, browser control, logging
-Provides alerting mechanism when Live Activities fail
-Can automatically try to restart failed Live Activities
+The Master contains a model of the entire space. It knows how to
+contact every Space Controller in the entire space and what Live Activities
+are supposed to be on that Space Controller. It also knows what Activity
+a particular Live Activity is based on and whether or not the Space Controller
+has the most recent version of the Live Activity. It also contains the current
+configurations for all Live Activities.
 
-Activities
-==========
-a base configuration
-the base activity binaries (if any)
-initial data (if any)
+The Master contains the Activity Repository which contains all Activities 
+known in the space. The Master is used to deploy a new Live Activity, or 
+new version of an already installed Live Activity, to its Controller and
+takes the Activity to deploy from this Repository.
 
-Live Activity
-=============
+The master is also used to start, activate, deactivate, and stop Live
+Activities. The Space Controllers constantly inform the master about the
+status of all Live Activities running in the space making it possible from
+one central location to know everything that is happening in the space.
 
-an Activity (as above)
-a Controller that it runs on
-an installation-specific configuration which can modify the base configuration
+The Master also allows easy control of a Space Controller. From the Master
+you can shut down all Live Activities running on the Controller or shut 
+the controller down itself. You can also ask the Controller to immediately give
+the current state of all Live Activities on the Controller.
+
+The Master and Live Activity Communication
+------------------------------------------
+
+The Master is also necessary for the communication between Live Activities
+and between the Master and the Space Controllers. Interactive Spaces
+communication works by having global topics that can be listened to or written
+to. The Master provides a global registry for all of these topics. 
+Each topic contains information about who wants to listen to what is written on the
+topics and who wants to write on the topics.
+
+As an example, there might be a topic in the space called 
+*/livingroom/camera*. The camera itself would write information on this
+topic about what it is seeing. Listeners would listen to this topic
+and process the images that are being seen. The Master would have a record for
+*/livingroom/camera* with all of the publishers of the events on that topic,
+probably just the camera Live Activity in this case, and consumers of the
+camera events.
 
 
 Live Activity Group
 ===================
 
 A Live Activity Group is a group of Live Activities which are controlled as a single 
-unit. The Group only has meaning on the Master, Controllers only understand about
-Live Activities.
+unit. This is useful because often you will need a collection of event
+producers and consumers to give a certain behavior in your space.
+Often these will be implemented as separate Live Activities, but it is
+best to treat them as a single unit. Groups make this possible.
+
+The Group only has meaning on the Master, Controllers only understand about
+individual Live Activities.
 
 Groups are deployed by deploying each Live Activity in the Group. They also have 
 the same lifecycle as a Live Activity and can be started, activated, 
-deactivated, and shutdown. The particular lifecycle request will be sent to each Live
-Activity in the Group. However, there is one slight difference in that the lifecycle
-requests are reference counted.
+deactivated, and shutdown as a group. the particular lifecycle request 
+will be sent to each Live Activity in the Group. 
 
-Reference counted for deactivation and shutdown
+However, there is one slight difference in how the lifecycle requests are handled.
+
+A given Live Activity can be in more than 1 group. Let's say we have two Live Activity 
+Groups. 
+
+===================== =====================
+Live Activity Group 1 Live Activity Group 2
+===================== =====================
+Live Activity Foo     Live Activity Bar
+Live Activity Bar     Live Activity Spam
+===================== =====================
+
+
+Initially nothing is running in the entire space.
+
+Suppose we start Live Activity Group 1. Because Live Activity Foo and
+Live Activity Bar aren't running, they both start.
+
+* Live Activity Foo running
+* Live Activity Bar running
+
+Suppose we next start Live Activity Group 2. Live Activity Foo is already
+running, so there is no need to start it again and it is left alone. 
+But Live Activity Spam is not running yet, so only it will be started.
+
+* Live Activity Foo running
+* Live Activity Bar running
+* Live Activity Spam running
+
+Suppose we now want to shut Live Activity Group 1 down. We can immediately
+shut Live Activity Foo down because it isn't being used anywhere else. 
+But Live Activity Bar is still needed by Live Activity Group 2, so can't 
+be shut down. Live Activity Bar is left running.
+
+* Live Activity Bar running
+* Live Activity Spam running
+
+So once Live Activities are part of a Live Activity Group and are controlled
+at the Group level, they will only be started for the first Group which
+asks them to start, and will only be stopped by the last Group that started
+them asks them to be shut down.
+
+The same thing happens with activation. The first group which activates the
+Live Activity will cause it to be activated, but it won't be deactivated until
+the last remaining Group which activated it asks it to be deactivated.
+
+Live Activities can be in as many Live Activity Groups as is desired.
+
+Spaces
+======
+
+Suppose you have a physical space that you want to slice and dice in
+many different ways so that you can refer to items in ways
+that make sense. For instance, suppose you have a two story house.
+You might want to refer to all the Live Activities
+
+
+* on the first floor
+* on the second floor.
+* the living room on the first floor
+* all of the bedrooms as a unit, even though some of them are on
+  the first floor and some are on the second floor
+* all of the camera Live Activities in the entire house
+
+Sometimes your slicing has to do with geographic location 
+(the floors of the house, or the living room), 
+sometimes it has to do with function of the space (the bedrooms),
+and sometimes to do with the functionality (the cameras).
+
+Spaces allow you to to this. Admittedly *space* is not necessarily 
+a good name for referring to all of the cameras as a unit, but it seemed
+the best term overall.
+
+Spaces consist of two things
+
+* an arbitrary number of Live Activity Groups (including 0)
+* an arbitrary number of child Spaces (including 0)
+
+Live Activity Groups can appear in more than one space. So perhaps
+you have a depth camera halfway up the stairs as a small 
+Live Activity group, that group can be part of the Stair Space, 
+the First Floor Space, and the Second Floor Space.
+The Living Room will be a Space, and that Space could be a child Space
+of the First Floor Space.
+
+You can deploy a Space, which means that every Live Activity Group of the 
+Space will be deployed, and every Live Activity Group of all child Spaces 
+and their children until you get to child Spaces that have no children. 
+You can also start, stop, activate and deactivate the Space with the same 
+behavior.
