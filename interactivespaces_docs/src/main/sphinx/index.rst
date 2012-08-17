@@ -24,8 +24,6 @@ control them. The system has been designed so that you can start with relatively
 activities where Interactive Spaces is doing most of the work, but can get as advanced as you 
 want. Hopefully peeling that onion won’t bring too many tears to your eyes.
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
@@ -34,9 +32,15 @@ Contents:
    basics
    exampleactivities
    workbench1
-   activity
+   activitysection
+   activitytypes
+   activitybasicfunctionality
+   activitysupportedclasses
    activityconfigurations
-   basiccommunications
+   activitybasiccommunications
+   activityadditional
+   activitycomponents
+   spaceenvironment
    services
    supportclasses
    advancedspacecontroller

@@ -5,40 +5,6 @@ Services provide more advanced functionality to your Activities.
 Services provide the ability to do such things as run scripts, 
 schedule future events, send email, and receive email.
 
-Getting Services
-================
-
-Services are obtained through the Service Registry, which is available
-from the *spaceEnvironment*.
-
-If your Live Activity is written in Java, you can get the Service
-Registry with the following code
-
-.. code-block:: java
-
-  getSpaceEnvironment().getServiceRegistry()
-
-Once you have the Service Registry, you use the *getService()* method to
-get an actual service. For instance, if you want the scripting service you
-would use the following Java code
-
-.. code-block:: java
-
-  ScriptService scriptService = 
-      getSpaceEnvironment().getServiceRegistry().getService("scripting");
-
-A safer way to do it would be
-
-.. code-block:: java
-
-  ScriptService scriptService = 
-      getSpaceEnvironment().getServiceRegistry().getService(ScriptService.SERVICE_NAME);
-  
-You can get more details about the Service Registry in the
-:javadoc:`interactivespaces.service.ServiceRegistry` 
-Javadoc.
-
-
 The Script Service
 =================
 
@@ -92,3 +58,31 @@ at 3AM.
 For more details about what you can do with the Scheduler Service, see the
 :javadoc:`interactivespaces.service.scheduler.SchedulerService` 
 Javadoc.
+
+Mail Services
+=============
+
+Interactive Spaces has support for both sending and receiving email.
+
+Mail Sender Service
+-------------------
+
+
+For more details about what you can do with the Mail Sender Service, see the
+:javadoc:`interactivespaces.service.mail.sender.MailSenderService` 
+Javadoc.
+
+Configuring the Mail Sender Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Mail Sender Service needs to be configured properly if it going to
+be able to send mail.
+
+
+Mail Receiver Service
+---------------------
+
+For more details about what you can do with the Mail Receiver Service, see the
+:javadoc:`interactivespaces.service.mail.receiver.MailReceiverService` 
+Javadoc.
+

@@ -70,7 +70,7 @@ public interface SupportedActivity {
 	 * Called during the activation of the activity.
 	 * 
 	 * <p>
-	 * This method should throw an exception if it can't shutdown. Any
+	 * This method should throw an exception if it can't activate. Any
 	 * exceptions thrown will be caught.
 	 */
 	void onActivityActivate();
@@ -79,7 +79,7 @@ public interface SupportedActivity {
 	 * Called during the deactivation of the activity.
 	 * 
 	 * <p>
-	 * This method should throw an exception if it can't shutdown. Any
+	 * This method should throw an exception if it can't deactivate. Any
 	 * exceptions thrown will be caught.
 	 */
 	void onActivityDeactivate();
