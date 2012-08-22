@@ -114,7 +114,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	 * A new JSON message is coming in.
 	 * 
 	 * @param channelName
-	 *            name of the inpt channel the message came in on
+	 *            name of the input channel the message came in on
 	 * @param message
 	 *            the message that came in
 	 */
@@ -137,7 +137,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	/**
 	 * Send an output JSON message.
 	 * 
-	 * @param chaName
+	 * @param channelName
 	 *            the name of the output channel to send the message on
 	 * @param message
 	 *            the message to send

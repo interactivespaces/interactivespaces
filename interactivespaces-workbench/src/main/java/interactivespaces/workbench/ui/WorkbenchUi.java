@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Event;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -83,8 +85,6 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	private JMenuItem advancedServerStartMenuItem;
 
 	private JMenuItem advancedServerStopMenuItem;
-
-	private JMenuItem catalogMenuItem;
 
 	/**
 	 * Menu item for a New Project.
@@ -241,11 +241,11 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 		fileMenu.addSeparator();
 
-		fileMenu.addSeparator();
-
-		catalogMenuItem = new JMenuItem("Catalog...");
-		fileMenu.add(catalogMenuItem);
-		catalogMenuItem.addActionListener(this);
+		exitMenuItem = new JMenuItem("Exit");
+		fileMenu.add(exitMenuItem);
+		exitMenuItem.addActionListener(this);
+		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				Event.CTRL_MASK, false));
 
 		editMenu = new JMenu("Edit");
 		mb.add(editMenu);
@@ -321,11 +321,29 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(openMenuItem)) {
+		Object source = e.getSource();
+		if (source.equals(openMenuItem)) {
 
-			ActivityProject project = workbench.readActivityProject(new File(
-					"foo.bar.java"));
+			JFileChooser chooser = new JFileChooser();
+			// Find out what file we get
+			int state = chooser.showOpenDialog(this);
+			File file = chooser.getSelectedFile();
+			System.out.format("Got %s\n", file);
+
+			ActivityProject project = workbench.readActivityProject(file
+					.getParentFile());
 			workbench.buildActivityProject(project);
+		} else if (source.equals(exitMenuItem)) {
+			// Get rid of the frame we live in. We want Exit to have the
+			// same effect as closing the window.
+			//
+			// We want to just displatch a closing event because
+			// otherwise the up mouse event from the menu item will no longer
+			// have a window associated with it and we'll generate an error
+			Toolkit.getDefaultToolkit()
+					.getSystemEventQueue()
+					.postEvent(
+							new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		}
 	}
 }

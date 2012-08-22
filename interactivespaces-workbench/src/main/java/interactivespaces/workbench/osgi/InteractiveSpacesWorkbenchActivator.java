@@ -39,17 +39,17 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	 * The workbench UI, if any.
 	 */
 	private WorkbenchUi ui;
-	
+
 	/**
 	 * The workbench properties
 	 */
 	private Properties workbenchProperties;
-	
+
 	/**
 	 * The context for the workbench's OSGi bundle.
 	 */
 	private BundleContext bundleContext;
-	
+
 	/**
 	 * The args handed in.
 	 */
@@ -58,12 +58,16 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		this.bundleContext = bundleContext;
-		
+
 		try {
-			String args = bundleContext.getProperty("interactiveSpacesLaunchArgs");
-			
-			argList = args.trim().split("\\s");
-			
+			String args = bundleContext
+					.getProperty("interactiveSpacesLaunchArgs");
+
+			args = args.trim();
+			if (!args.isEmpty()) {
+				argList = args.split("\\s");
+			}
+
 			prepare();
 			run();
 		} catch (Exception e) {
@@ -98,10 +102,10 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	public void run() {
 		InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(
 				workbenchProperties);
-		
-		if (argList.length != 0) {
+
+		if (argList != null) {
 			workbench.doCommands(Lists.newArrayList(argList));
-			
+
 			try {
 				bundleContext.getBundle(0).stop();
 			} catch (BundleException e) {
