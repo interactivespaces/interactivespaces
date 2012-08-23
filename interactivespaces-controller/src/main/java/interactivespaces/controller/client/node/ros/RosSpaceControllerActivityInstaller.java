@@ -51,6 +51,7 @@ public class RosSpaceControllerActivityInstaller implements
 	public void shutdown() {
 	}
 
+	@Override
 	public LiveActivityDeployStatus handleDeploymentRequest(
 			LiveActivityDeployRequest request) {
 		String activityUri = request.activity_source_uri;

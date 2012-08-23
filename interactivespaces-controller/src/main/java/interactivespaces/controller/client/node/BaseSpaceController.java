@@ -39,7 +39,6 @@ import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatch
 import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatcherListener;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.logging.ActivityLogFactory;
-import interactivespaces.controller.logging.AlertStatusManager;
 import interactivespaces.controller.logging.SimpleAlertStatusManager;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
@@ -69,7 +68,7 @@ import com.google.common.collect.Maps;
  * @author Keith M. Hughes
  */
 public abstract class BaseSpaceController implements SpaceController,
-		SpaceControllerActivityWatcherListener {
+		SpaceControllerActivityWatcherListener, SpaceControllerCommunicator {
 
 	/**
 	 * The default number of milliseconds the activity activityWatcher thread
@@ -78,7 +77,7 @@ public abstract class BaseSpaceController implements SpaceController,
 	private static final int WATCHER_DELAY_DEFAULT = 1000;
 
 	/**
-	 * The default number of milliseconds the heartbeat thread delays between
+	 * The default number of milliseconds the controllerHeartbeat thread delays between
 	 * beats.
 	 */
 	public static final int HEARTBEAT_DELAY_DEFAULT = 10000;
@@ -93,10 +92,10 @@ public abstract class BaseSpaceController implements SpaceController,
 	/**
 	 * The heartbeatLoop for this controller.
 	 */
-	private ControllerHeartbeat heartbeat;
+	private SpaceControllerHeartbeat controllerHeartbeat;
 
 	/**
-	 * Control for the heartbeat.
+	 * Control for the controllerHeartbeat.
 	 */
 	private ScheduledFuture<?> heartbeatControl;
 
@@ -108,7 +107,7 @@ public abstract class BaseSpaceController implements SpaceController,
 	/**
 	 * All activities in this controller, indexed by UUID.
 	 */
-	protected Map<String, ActiveControllerActivity> activities = Maps
+	private Map<String, ActiveControllerActivity> activities = Maps
 			.newHashMap();
 
 	/**
@@ -125,22 +124,22 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * Number of milliseconds the activityWatcher waits before scanning for
 	 * activity state.
 	 */
-	protected long activityWatcherDelay = WATCHER_DELAY_DEFAULT;
+	private long activityWatcherDelay = WATCHER_DELAY_DEFAULT;
 
 	/**
 	 * For important alerts worthy of paging, etc.
 	 */
-	protected AlertStatusManager alertStatusManager;
+	private SimpleAlertStatusManager alertStatusManager;
 
 	/**
 	 * Receives activities deployed to the controller.
 	 */
-	protected ActivityInstallationManager activityInstallationManager;
+	private ActivityInstallationManager activityInstallationManager;
 
 	/**
 	 * A loader for container activities.
 	 */
-	protected ActiveControllerActivityFactory activeControllerActivityFactory;
+	private ActiveControllerActivityFactory activeControllerActivityFactory;
 
 	/**
 	 * Local repository of controller information.
@@ -150,17 +149,17 @@ public abstract class BaseSpaceController implements SpaceController,
 	/**
 	 * A factory for native app runners.
 	 */
-	protected NativeActivityRunnerFactory nativeActivityRunnerFactory;
+	private NativeActivityRunnerFactory nativeActivityRunnerFactory;
 
 	/**
 	 * The configuration manager for activities.
 	 */
-	protected ActivityConfigurationManager configurationManager;
+	private ActivityConfigurationManager configurationManager;
 
 	/**
 	 * The component factory to be used by this controller.
 	 */
-	protected ActivityComponentFactory activityComponentFactory;
+	private ActivityComponentFactory activityComponentFactory;
 
 	/**
 	 * Log factory for activities.
@@ -246,13 +245,14 @@ public abstract class BaseSpaceController implements SpaceController,
 
 		// TODO(keith): Set this container-wide.
 		alertStatusManager = new SimpleAlertStatusManager();
+		alertStatusManager.setLog(spaceEnvironment.getLog());
 
-		heartbeat = newControllerHeartbeat();
+		controllerHeartbeat = newSpaceControllerHeartbeat();
 		getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(
 				new Runnable() {
 					@Override
 					public void run() {
-						heartbeat.heartbeat();
+						controllerHeartbeat.heartbeat();
 					}
 				}, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
 
@@ -300,13 +300,14 @@ public abstract class BaseSpaceController implements SpaceController,
 	private void handleActivityListenerOnActivityStatusChange(
 			final Activity activity, ActivityStatus oldStatus,
 			final ActivityStatus newStatus) {
-		publishActivityStatus(activity.getUuid(), newStatus);
 
 		// TODO(keith): Android hates garbage collection. This may need an
 		// object pool.
 		eventQueue.addEvent(new Runnable() {
 			@Override
 			public void run() {
+				publishActivityStatus(activity.getUuid(), newStatus);
+
 				activityStateTransitioners.transition(activity.getUuid(),
 						newStatus.getState());
 			}
@@ -387,22 +388,6 @@ public abstract class BaseSpaceController implements SpaceController,
 						.getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
 	}
 
-	/**
-	 * Notify the master that the controller has started.
-	 */
-	protected abstract void notifyRemoteMasterServerAboutStartup(
-			SimpleSpaceController controllerInfo);
-
-	/**
-	 * The controller is starting up.
-	 * 
-	 * <p>
-	 * This is a chance for subclasses to do any additional startup
-	 */
-	protected void onStartup() {
-		// Default is nothing to do.
-	}
-
 	@Override
 	public void shutdown() {
 		if (startedUp) {
@@ -430,15 +415,6 @@ public abstract class BaseSpaceController implements SpaceController,
 		}
 	}
 
-	/**
-	 * controller is shutting down.
-	 * 
-	 * <p>
-	 * This is a chance for subclasses to do their specific shutdown.
-	 */
-	protected void onShutdown() {
-		// Default is nothing to do.
-	}
 
 	@Override
 	public ActivityComponentFactory getActivityComponentFactory() {
@@ -575,7 +551,7 @@ public abstract class BaseSpaceController implements SpaceController,
 	}
 
 	@Override
-	public void shutdownActivity(String uuid) {
+	public void shutdownActivity(final String uuid) {
 		spaceEnvironment.getLog().info(
 				String.format("Shutting down activity %s", uuid));
 
@@ -583,11 +559,19 @@ public abstract class BaseSpaceController implements SpaceController,
 		if (activity != null) {
 			attemptActivityShutdown(activity);
 		} else {
+			// The activity hasn't been active. Make sure it really exists then
+			// send that it is ready.
 			InstalledLiveActivity ia = controllerRepository
 					.getInstalledLiveActivityByUuid(uuid);
 			if (ia != null) {
-				publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+				eventQueue.addEvent(new Runnable() {
+					@Override
+					public void run() {
+						publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+					}
+				});
 			} else {
+				// TODO(keith): Tell master the controller doesn't exist.
 				spaceEnvironment.getLog().warn(
 						String.format(
 								"Activity %s does not exist on controller",
@@ -601,13 +585,18 @@ public abstract class BaseSpaceController implements SpaceController,
 		spaceEnvironment.getLog().info(
 				String.format("Getting status of activity %s", uuid));
 
-		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+		final ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
 		if (activity != null) {
-			ActivityStatus activityStatus = activity.getActivityStatus();
+			final ActivityStatus activityStatus = activity.getActivityStatus();
 			spaceEnvironment.getLog().info(
 					String.format("Reporting activity status %s for %s", uuid,
 							activityStatus));
-			publishActivityStatus(activity.getUuid(), activityStatus);
+			eventQueue.addEvent(new Runnable() {
+				@Override
+				public void run() {
+					publishActivityStatus(activity.getUuid(), activityStatus);
+				}
+			});
 		} else {
 			InstalledLiveActivity liveActivity = controllerRepository
 					.getInstalledLiveActivityByUuid(uuid);
@@ -833,8 +822,10 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * @param activity
 	 *            the activity to go to startup
 	 */
-	private void setupSequencedActiveTarget(final ActiveControllerActivity activity) {
+	private void setupSequencedActiveTarget(
+			final ActiveControllerActivity activity) {
 		final String uuid = activity.getUuid();
+		activityWatcher.watchActivity(activity);
 		activityStateTransitioners.addTransitioner(
 				uuid,
 				new ActivityStateTransitioner(activity,
@@ -906,33 +897,25 @@ public abstract class BaseSpaceController implements SpaceController,
 	}
 
 	@Override
-	public void onActivityError(ActiveControllerActivity activity,
+	public void onWatcherActivityError(ActiveControllerActivity activity,
 			ActivityStatus oldStatus, ActivityStatus newStatus) {
-		publishActivityStatus(activity.getUuid(), newStatus);
+		// TODO(keith): No need to publish here?
+		//publishActivityStatus(activity.getUuid(), newStatus);
 
-		// TODO(keith): need more nuance here.
-		if (oldStatus.getState() == ActivityState.READY
+		if (oldStatus.getState() == ActivityState.STARTUP_ATTEMPT
 				&& newStatus.getState() == ActivityState.STARTUP_FAILURE) {
 			handleActivityCantStart(activity);
+		} else {
+			handleActivityFailure(activity);
 		}
 	}
 
 	@Override
-	public void onActivityStatusChange(ActiveControllerActivity activity,
+	public void onWatcherActivityStatusChange(ActiveControllerActivity activity,
 			ActivityStatus oldStatus, ActivityStatus newStatus) {
-		publishActivityStatus(activity.getUuid(), newStatus);
+		// TODO(keith): No need to publish here?
+		//publishActivityStatus(activity.getUuid(), newStatus);
 	}
-
-	/**
-	 * Publish the state of an activity on the activity status topic.
-	 * 
-	 * @param uuid
-	 *            the UUID of the live activity
-	 * @param newStatus
-	 *            the status to be sent
-	 */
-	protected abstract void publishActivityStatus(String uuid,
-			ActivityStatus newStatus);
 
 	/**
 	 * An activity was unable to start up.
@@ -945,24 +928,29 @@ public abstract class BaseSpaceController implements SpaceController,
 		alertStatusManager.announceStatus(activity);
 
 		// Need better policy, for now, just clean up app and we will let the
-		// controller
-		// handle it.
+		// controller handle it.
 		instance.handleStartupFailure();
 
 		alertStatusManager.announceStatus(activity);
+	}
+
+	/**
+	 * An activity has had some sort of error.
+	 * 
+	 * @param activity
+	 *            the problematic activity
+	 */
+	private void handleActivityFailure(ActiveControllerActivity activity) {
+		//Activity instance = activity.getInstance();
+		alertStatusManager.announceStatus(activity);
+
+		// TODO(keith): Something in instance needs to happen.
 	}
 
 	@Override
 	public SimpleSpaceController getControllerInfo() {
 		return controllerInfo;
 	}
-
-	/**
-	 * Create a {@link ControllerHeartbeat} appropriate for the controller.
-	 * 
-	 * @return
-	 */
-	protected abstract ControllerHeartbeat newControllerHeartbeat();
 
 	/**
 	 * The activity installer is signaling an install.
@@ -1084,10 +1072,9 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	public interface ControllerHeartbeat {
-
+	public interface SpaceControllerHeartbeat {
 		/**
-		 * Send the heartbeat.
+		 * Send the controllerHeartbeat.
 		 */
 		void heartbeat();
 	}

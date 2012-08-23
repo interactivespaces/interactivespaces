@@ -67,11 +67,6 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 	private long lastModified;
 
 	/**
-	 * The instance being used.
-	 */
-	private Activity instance;
-
-	/**
 	 * Log to use for reporting errors.
 	 */
 	private Log log;
@@ -90,7 +85,6 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 		try {
 			bundle.uninstall();
 			bundle = null;
-			instance = null;
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Could not unload bundle at %s", bundle.getLocation()), e);
@@ -100,18 +94,13 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 	@Override
 	public synchronized Activity newInstance() {
 		prepare();
-		if (instance == null) {
-			try {
-				instance = (Activity) bundle.loadClass(className)
-						.newInstance();
-			} catch (Exception e) {
-				throw new InteractiveSpacesException(String.format(
-						"Could not create class %s from bundle at %s",
-						className, bundle.getLocation()), e);
-			}
+		try {
+			return (Activity) bundle.loadClass(className).newInstance();
+		} catch (Exception e) {
+			throw new InteractiveSpacesException(String.format(
+					"Could not create class %s from bundle at %s", className,
+					bundle.getLocation()), e);
 		}
-
-		return instance;
 	}
 
 	/**
@@ -140,9 +129,8 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 			bundle.start();
 		} catch (BundleException e) {
 			e.printStackTrace();
-			throw new InteractiveSpacesException(String.format("Cannot load bundle %s",
-					executable.getAbsolutePath()), e);
+			throw new InteractiveSpacesException(String.format(
+					"Cannot load bundle %s", executable.getAbsolutePath()), e);
 		}
 	}
-
 }

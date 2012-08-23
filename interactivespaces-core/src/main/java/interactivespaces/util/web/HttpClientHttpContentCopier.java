@@ -37,12 +37,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
  * @author Keith M. Hughes
  */
 public class HttpClientHttpContentCopier implements HttpContentCopier {
-	
+
 	/**
 	 * Number of bytes in the copy buffer.
 	 */
 	private static final int BUFFER_SIZE = 4096;
-	
+
 	/**
 	 * Connection manager for the client.
 	 * 
@@ -50,7 +50,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 	 * It must be thread safe as the client can be used by multiple threads.
 	 */
 	private ThreadSafeClientConnManager connectionManager;
-	
+
 	/**
 	 * The HTTPClient instance which does the actual transfer.
 	 */
@@ -73,10 +73,10 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 		try {
 			HttpGet httpget = new HttpGet(sourceUri);
 			HttpResponse response = client.execute(httpget);
-			
+
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == HttpStatus.SC_OK) {
-	
+
 				HttpEntity entity = response.getEntity();
 				if (entity != null) {
 					InputStream in = entity.getContent();
@@ -87,12 +87,18 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 					}
 				}
 			} else {
-				throw new InteractiveSpacesException(String.format("Server returned bad status code %d", statusCode));
+				throw new InteractiveSpacesException(
+						String.format(
+								"Server returned bad status code %d for source URI %s during HTTP copy",
+								statusCode, sourceUri));
 			}
 		} catch (InteractiveSpacesException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new InteractiveSpacesException("Could not read source URI " + sourceUri, e);
+			throw new InteractiveSpacesException(
+					String.format(
+							"Could not read source URI %s during HTTP copy",
+							sourceUri), e);
 		}
 	}
 
@@ -105,13 +111,13 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(destination);
-			
+
 			byte[] buffer = new byte[BUFFER_SIZE];
-			
+
 			int len;
 			while ((len = in.read(buffer)) > 0)
 				out.write(buffer, 0, len);
-	
+
 			out.flush();
 		} finally {
 			if (out != null) {

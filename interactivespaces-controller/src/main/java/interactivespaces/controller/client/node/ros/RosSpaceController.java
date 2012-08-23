@@ -186,7 +186,7 @@ public class RosSpaceController extends BaseSpaceController {
 	}
 
 	@Override
-	protected void notifyRemoteMasterServerAboutStartup(
+	public void notifyRemoteMasterServerAboutStartup(
 			SimpleSpaceController controllerInfo) {
 		RemoteMasterServerClient masterServerClient = new RosRemoteMasterServerClient();
 		masterServerClient.startup(rosEnvironment);
@@ -205,7 +205,7 @@ public class RosSpaceController extends BaseSpaceController {
 	}
 
 	@Override
-	protected ControllerHeartbeat newControllerHeartbeat() {
+	public SpaceControllerHeartbeat newSpaceControllerHeartbeat() {
 		return new RosControllerHeartbeat();
 	}
 
@@ -298,7 +298,7 @@ public class RosSpaceController extends BaseSpaceController {
 			LiveActivityDeployRequest deployRequest) {
 		LiveActivityDeployStatus deployStatus = spaceControllerActivityInstaller
 				.handleDeploymentRequest(deployRequest);
-		
+
 		ControllerStatus status = new ControllerStatus();
 		status.uuid = getControllerInfo().getUuid();
 		status.status = ControllerStatus.STATUS_ACTIVITY_INSTALL;
@@ -308,15 +308,6 @@ public class RosSpaceController extends BaseSpaceController {
 		status.data = serialize.array();
 
 		controllerStatusPublisher.publish(status);
-	}
-
-	/**
-	 * Create and publish the status of a live activity deployment status.
-	 * 
-	 * @param dstatus
-	 * 			status of the deployment
-	 */
-	private void publishLiveActivityDeployStatus(LiveActivityDeployStatus dstatus) {
 	}
 
 	/**
@@ -393,13 +384,20 @@ public class RosSpaceController extends BaseSpaceController {
 	}
 
 	@Override
-	protected void publishActivityStatus(String uuid,
-			ActivityStatus astatus) {
-		ControllerActivityStatus status = new ControllerActivityStatus();
-		status.uuid = uuid;
-		status.status = translateActivityState(astatus.getState());
+	public void publishActivityStatus(String uuid, ActivityStatus astatus) {
+		try {
+			ControllerActivityStatus status = new ControllerActivityStatus();
+			status.uuid = uuid;
+			status.status = translateActivityState(astatus.getState());
 
-		activityStatusPublisher.publish(status);
+			activityStatusPublisher.publish(status);
+		} catch (Exception e) {
+			spaceEnvironment
+					.getLog()
+					.error(String.format(
+							"Could not publish Status change %s for Live Activity %s\n",
+							uuid, astatus), e);
+		}
 	}
 
 	/**
@@ -455,7 +453,7 @@ public class RosSpaceController extends BaseSpaceController {
 
 		case DEPLOY_FAILURE:
 			return ControllerActivityStatus.STATUS_DEPLOY_FAILURE;
-			
+
 		case DOESNT_EXIST:
 			return ControllerActivityStatus.STATUS_DOESNT_EXIST;
 
@@ -487,7 +485,7 @@ public class RosSpaceController extends BaseSpaceController {
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	private class RosControllerHeartbeat implements ControllerHeartbeat {
+	private class RosControllerHeartbeat implements SpaceControllerHeartbeat {
 		/**
 		 * heartbeatLoop status is always the same, so create once.
 		 */

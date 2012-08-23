@@ -85,7 +85,7 @@ public class IncomingMessageQueue<MessageType> {
     this.deserializer = deserializer;
     this.executorService = executorService;
     messages = new CircularBlockingQueue<MessageType>(MESSAGE_BUFFER_CAPACITY);
-    listeners = new ListenerCollection<MessageListener<MessageType>>(executorService);
+    listeners = new ListenerCollection<MessageListener<MessageType>>(executorService, true);
     dispatcher = new Dispatcher();
     latchMode = false;
     latchedMessage = null;

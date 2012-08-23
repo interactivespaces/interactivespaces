@@ -39,7 +39,7 @@ public interface SpaceControllerActivityWatcherListener {
 	 * @param newStatus
 	 * 		The status of the activity after the change.
 	 */
-	void onActivityStatusChange(ActiveControllerActivity activity, 
+	void onWatcherActivityStatusChange(ActiveControllerActivity activity, 
 		ActivityStatus oldStatus, ActivityStatus newStatus);
 	
 	/**
@@ -52,7 +52,6 @@ public interface SpaceControllerActivityWatcherListener {
 	 * @param newStatus
 	 * 		The status of the activity after the change.
 	 */
-	void onActivityError(ActiveControllerActivity activity, 
+	void onWatcherActivityError(ActiveControllerActivity activity, 
 			ActivityStatus oldStatus, ActivityStatus newStatus);
-
 }

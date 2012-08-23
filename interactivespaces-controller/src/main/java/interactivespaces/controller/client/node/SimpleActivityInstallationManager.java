@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class SimpleActivityInstallationManager implements
 		ActivityInstallationManager {
-	
+
 	/**
 	 * Configuration property giving the location of the activity staging
 	 * directory.
@@ -208,17 +208,19 @@ public class SimpleActivityInstallationManager implements
 	public void removePackedActivity(String uuid) {
 		File stagedLocation = null;
 		synchronized (uuidToTemporary) {
-			stagedLocation = uuidToTemporary.get(uuid);
-			if (stagedLocation == null)
-				throw new InteractiveSpacesException(
-						"No staged file with given UUID: " + uuid);
-
-			uuidToTemporary.remove(uuid);
+			stagedLocation = uuidToTemporary.remove(uuid);
 		}
 
-		if (!stagedLocation.delete()) {
-			throw new InteractiveSpacesException(
-					"Unable to delete staged activity: " + stagedLocation);
+		if (stagedLocation != null) {
+			if (!stagedLocation.delete()) {
+				spaceEnvironment.getLog().warn(
+						String.format(
+								"Could not delete staged file %s for UUID %s",
+								stagedLocation, uuid));
+			}
+		} else {
+			spaceEnvironment.getLog().warn(
+					String.format("No staged file with UUID %s", uuid));
 		}
 	}
 

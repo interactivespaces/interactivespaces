@@ -96,7 +96,7 @@ public class LiveActivityGroupForm implements Serializable {
 		destinationGroup.setDescription(liveActivityGroup.getDescription());
 
 		destinationGroup.clearActivities();
-		if (!liveActivityIds.contains(UiUtilities.MULTIPLE_SELECT_NONE)) {
+		if (liveActivityIds != null && !liveActivityIds.contains(UiUtilities.MULTIPLE_SELECT_NONE)) {
 			for (String liveActivityId : liveActivityIds) {
 				LiveActivity activity = activityRepository
 						.getLiveActivityById(liveActivityId);

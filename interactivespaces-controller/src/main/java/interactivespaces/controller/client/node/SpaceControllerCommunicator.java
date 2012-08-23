@@ -17,7 +17,7 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.client.node.BaseSpaceController.ControllerHeartbeat;
+import interactivespaces.controller.client.node.BaseSpaceController.SpaceControllerHeartbeat;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 
 /**
@@ -62,10 +62,10 @@ public interface SpaceControllerCommunicator {
 	void publishActivityStatus(String uuid, ActivityStatus newStatus);
 
 	/**
-	 * Create a {@link ControllerHeartbeat} appropriate for the commuication
+	 * Create a {@link SpaceControllerHeartbeat} appropriate for the commuication
 	 * channel.
 	 * 
-	 * @return A {@link ControllerHeartbeat}
+	 * @return A {@link SpaceControllerHeartbeat}
 	 */
-	ControllerHeartbeat newControllerHeartbeat();
+	SpaceControllerHeartbeat newSpaceControllerHeartbeat();
 }

@@ -34,6 +34,9 @@ import com.google.common.collect.Maps;
  * It is assumed that this activity watcher and its operations run in one and
  * only 1 thread.
  * 
+ * <p>
+ * Activities are removed from the watcher once they stop running.
+ * 
  * @author Keith M. Hughes
  */
 public class SpaceControllerActivityWatcher {
@@ -171,7 +174,7 @@ public class SpaceControllerActivityWatcher {
 		// changes
 		System.out.format("%s changed from %s to %s\n", activity.getUuid(), previousStatus, currentStatus);
 		for (SpaceControllerActivityWatcherListener listener : listeners) {
-			listener.onActivityStatusChange(activity, previousStatus,
+			listener.onWatcherActivityStatusChange(activity, previousStatus,
 					currentStatus);
 		}
 	}
@@ -191,7 +194,7 @@ public class SpaceControllerActivityWatcher {
 		// Don't care if a listener gets added or removed between any of the
 		// changes
 		for (SpaceControllerActivityWatcherListener listener : listeners) {
-			listener.onActivityError(activity, previousStatus, currentStatus);
+			listener.onWatcherActivityError(activity, previousStatus, currentStatus);
 		}
 	}
 

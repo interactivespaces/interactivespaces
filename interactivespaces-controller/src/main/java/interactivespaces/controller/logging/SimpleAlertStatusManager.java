@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class SimpleAlertStatusManager implements AlertStatusManager {
+	
 	/**
 	 * Local log where things should be written.
 	 */
