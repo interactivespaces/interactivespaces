@@ -30,15 +30,16 @@ Installing the Master
 ~~~~~~~~~~~~~~~~~~~~~
 
 If you are using a windowing system, find the icon for the Interactive Spaces Master installer and double click on it.
+The installer is a Java jar file.
 
 If you are using a command line interface for your operating system, use the command
 
 ::
 
-  java -jar interactivespaces-master-installer-0.0.0-SNAPSHOT-standard.jar
+  java -jar interactivespaces-master-installer-x.y.z-standard.jar
 
 
-where 0.0.0 is the version of the Interactive Spaces Master you are installing.
+where *x.y.z* is the version of the Interactive Spaces Master you are installing.
 
 For now just accept all of the default settings by clicking Next on the configuration page. 
 
@@ -70,14 +71,15 @@ Installing the Controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you are using a windowing system, find the icon for the Interactive Spaces Controller installer and double click on it.
+The installer is a Java jar file.
 
 If you are using a command line interface for your operating system, use the command
 
 ::
 
-  java -jar interactivespaces-controller-installer-0.0.0-SNAPSHOT-standard.jar
+  java -jar interactivespaces-controller-installer-x.y.z-standard.jar
 
-where 0.0.0 is the version of the Interactive Spaces Controller you are installing.
+where *x.y.z* is the version of the Interactive Spaces Controller you are installing.
 
 If you are auto-configuring the controller, make sure you don't check the manual configuration checkbox.
 
@@ -132,15 +134,15 @@ Workbench application which can help you maintain and deploy your activities.
 
 
 If you are using a windowing system, find the icon for the Interactive Spaces Controller 
-installer and double click on it.
+installer and double click on it. The installer is a Java jar file.
 
 If you are using a command line interface for your operating system, use the command
 
 ::
 
-  java -jar interactivespaces-workbench-installer-0.0.0-SNAPSHOT-standard.jar
+  java -jar interactivespaces-workbench-installer-x.y.z-standard.jar
 
-where 0.0.0 is the version of the Interactive Spaces Workbench you are installing.
+where *x.y.z* is the version of the Interactive Spaces Workbench you are installing.
 
 
 Updating An Installation
@@ -155,7 +157,7 @@ your controllers and workbenches.
 1. bootstrap
 2. lib/system/java
 
-Also delete the file *interactivespaces-launcher-x,y,z* from the root folder
+Also delete the file *interactivespaces-launcher-x.y.z* from the root folder
 of each master, controller, and workbench, where *x.y.z* was the version
 of the launcher that was there before the update.
 

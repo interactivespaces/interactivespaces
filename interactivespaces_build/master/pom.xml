@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-master-installer</artifactId>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 
 	<name>Interactive Spaces Master</name>
 
@@ -137,7 +137,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}</outputDirectory>
@@ -155,7 +155,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-launcher-bootstrap</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
@@ -202,23 +202,23 @@ the License.
 
 								<!-- ROS bundles needed -->
 								<artifactItem>
-									<groupId>ros.rosjava_core</groupId>
+									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_bootstrap</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
-									<groupId>ros.rosjava_core</groupId>
+									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.ros.rosjava</groupId>
-									<artifactId>org.ros.rosjava.roscpp</artifactId>
-									<version>0.0.0</version>
+									<groupId>ros</groupId>
+									<artifactId>message.roscpp</artifactId>
+									<version>0.0.0-SNAPSHOT</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -251,13 +251,27 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.ros.rosjava</groupId>
-									<artifactId>org.ros.rosjava.apache-xmlrpc</artifactId>
+									<groupId>interactivespaces</groupId>
+									<artifactId>apache_xmlrpc_common</artifactId>
 									<version>3.1.3</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>apache_xmlrpc_client</artifactId>
+                                    <version>3.1.3</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
 								<artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>apache_xmlrpc_server</artifactId>
+                                    <version>3.1.3</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                                <artifactItem>
 									<groupId>com.google.guava</groupId>
 									<artifactId>org.ros.rosjava.guava</artifactId>
 									<version>r07</version>
@@ -341,14 +355,14 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_osgi_master</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -372,7 +386,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_common</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -386,7 +400,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_master</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>  -->
@@ -402,14 +416,14 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-core</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
                                     <groupId>io.netty</groupId>
                                     <artifactId>netty</artifactId>
-                                    <version>3.5.0.Final</version>
+                                    <version>3.5.5.Final</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -480,7 +494,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-system</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -613,7 +627,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-database</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -699,7 +713,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-scheduler</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -715,7 +729,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-service-script</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -731,28 +745,28 @@ the License.
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-mail-common</artifactId>
-                                    <version>1.1.1</version>
+                                    <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-mail-sender</artifactId>
-                                    <version>1.1.1</version>
+                                    <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-alert</artifactId>
-                                    <version>1.1.1</version>
+                                    <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-alert-notifier-mail</artifactId>
-                                    <version>1.1.1</version>
+                                    <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
@@ -775,7 +789,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-master</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -805,7 +819,7 @@ the License.
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-master-webapp</artifactId>
-									<version>1.1.1</version>
+									<version>${project.version}</version>
 									<type>war</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

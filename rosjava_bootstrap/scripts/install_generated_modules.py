@@ -38,7 +38,7 @@ _POM = """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://w
   <modelVersion>4.0.0</modelVersion>
   <groupId>ros</groupId>
   <artifactId>%(artifact_id)s</artifactId>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
   <version>0.0.0-SNAPSHOT</version>
   <name>%(artifact_id)s</name>
   <url>http://maven.apache.org</url>
@@ -49,6 +49,20 @@ _POM = """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://w
       <version>0.0.0-SNAPSHOT</version>
     </dependency>%(dependency_tags)s
   </dependencies>
+  <build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>maven-bundle-plugin</artifactId>
+      <extensions>true</extensions>
+      <configuration>
+        <instructions>
+          <Fragment-Host>org.ros.rosjava; bundle-version="[0.0.0,0.1.0)"</Fragment-Host>
+        </instructions>
+      </configuration>
+    </plugin>
+  </plugins>
+  </build>
 </project>"""
 _MESSAGE = 'message'
 _SERVICE = 'service'

@@ -16,9 +16,10 @@
 
 jar {
   manifest {
-    version = '0.0.0'
+    version = osgiVersion
     symbolicName = 'org.ros.rosjava_bootstrap'
     instruction 'Export-Package', 'org.ros.message'
+    instruction 'Fragment-Host', 'org.ros.rosjava; bundle-version="[0.0.0,1.0.0)"'
   }
 }
 

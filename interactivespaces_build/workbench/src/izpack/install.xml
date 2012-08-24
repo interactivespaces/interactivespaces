@@ -18,6 +18,7 @@
     </info>
 
     <dynamicvariables>
+      <variable name="interactivespaces.version" value="@{project.version}" />
       <variable name="interactivespaces.platform.os" value="linux" condition="izpack.linuxinstall" />
       <variable name="interactivespaces.platform.os" value="windows" condition="izpack.windowsinstall" />
       <variable name="interactivespaces.platform.os" value="osx" condition="izpack.macinstall" />
@@ -85,7 +86,7 @@
             <file src="config" targetdir="$INSTALL_PATH"/>
             <file src="examples" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH" override="true" />
-            <file src="interactivespaces-launcher-1.1.1.jar" targetdir="$INSTALL_PATH"
+            <file src="interactivespaces-launcher-@{project.version}.jar" targetdir="$INSTALL_PATH"
                 override="true" />
             
             <parsable targetfile="$INSTALL_PATH/config/workbench.conf"/>

@@ -28,7 +28,7 @@ buildscript {
 }
 
 allprojects {
-  osgiVersion = '1.1.1'
+  osgiVersion = '1.2.0'
 
   group = 'interactivespaces'
   version = osgiVersion
