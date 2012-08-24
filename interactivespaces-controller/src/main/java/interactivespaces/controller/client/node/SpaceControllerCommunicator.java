@@ -17,8 +17,9 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.client.node.BaseSpaceController.SpaceControllerHeartbeat;
+import interactivespaces.controller.client.node.SpaceControllerHeartbeat;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * Provide communications between a Space Controller and something controlling
@@ -47,7 +48,7 @@ public interface SpaceControllerCommunicator {
 	 * The controller is shutting down.
 	 * 
 	 * <p>
-	 * This is a chance for the communicator to do ay additional shutdown.
+	 * This is a chance for the communicator to do any additional shutdown.
 	 */
 	void onShutdown();
 
@@ -68,4 +69,9 @@ public interface SpaceControllerCommunicator {
 	 * @return A {@link SpaceControllerHeartbeat}
 	 */
 	SpaceControllerHeartbeat newSpaceControllerHeartbeat();
+	
+	/**
+	 * @param controllerControl the controllerControl to set
+	 */
+	void setControllerControl(SpaceControllerControl controllerControl);
 }

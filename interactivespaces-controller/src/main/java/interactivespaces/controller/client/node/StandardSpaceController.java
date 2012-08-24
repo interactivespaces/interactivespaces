@@ -54,6 +54,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledFuture;
@@ -67,8 +68,8 @@ import com.google.common.collect.Maps;
  * 
  * @author Keith M. Hughes
  */
-public abstract class BaseSpaceController implements SpaceController,
-		SpaceControllerActivityWatcherListener, SpaceControllerCommunicator {
+public class StandardSpaceController implements SpaceController,
+		SpaceControllerActivityWatcherListener, SpaceControllerControl {
 
 	/**
 	 * The default number of milliseconds the activity activityWatcher thread
@@ -192,6 +193,11 @@ public abstract class BaseSpaceController implements SpaceController,
 	private ActivityStateTransitionerCollection activityStateTransitioners;
 
 	/**
+	 * The controller communicator for remote control.
+	 */
+	private SpaceControllerCommunicator controllerCommunicator;
+	
+	/**
 	 * A listener for installation events.
 	 */
 	private ActivityInstallationListener activityInstallationListener = new ActivityInstallationListener() {
@@ -247,7 +253,7 @@ public abstract class BaseSpaceController implements SpaceController,
 		alertStatusManager = new SimpleAlertStatusManager();
 		alertStatusManager.setLog(spaceEnvironment.getLog());
 
-		controllerHeartbeat = newSpaceControllerHeartbeat();
+		controllerHeartbeat = controllerCommunicator.newSpaceControllerHeartbeat();
 		getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(
 				new Runnable() {
 					@Override
@@ -270,11 +276,11 @@ public abstract class BaseSpaceController implements SpaceController,
 		activityInstallationManager
 				.addActivityInstallationListener(activityInstallationListener);
 
-		onStartup();
+		controllerCommunicator.onStartup();
 
 		startupAutostartActivities();
 
-		notifyRemoteMasterServerAboutStartup(controllerInfo);
+		controllerCommunicator.notifyRemoteMasterServerAboutStartup(controllerInfo);
 
 		startedUp = true;
 
@@ -306,7 +312,7 @@ public abstract class BaseSpaceController implements SpaceController,
 		eventQueue.addEvent(new Runnable() {
 			@Override
 			public void run() {
-				publishActivityStatus(activity.getUuid(), newStatus);
+				controllerCommunicator.publishActivityStatus(activity.getUuid(), newStatus);
 
 				activityStateTransitioners.transition(activity.getUuid(),
 						newStatus.getState());
@@ -408,7 +414,7 @@ public abstract class BaseSpaceController implements SpaceController,
 				eventQueue.shutdown();
 				eventQueue = null;
 
-				onShutdown();
+				controllerCommunicator.onShutdown();
 			} finally {
 				startedUp = false;
 			}
@@ -567,7 +573,7 @@ public abstract class BaseSpaceController implements SpaceController,
 				eventQueue.addEvent(new Runnable() {
 					@Override
 					public void run() {
-						publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+						controllerCommunicator.publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
 					}
 				});
 			} else {
@@ -594,7 +600,7 @@ public abstract class BaseSpaceController implements SpaceController,
 			eventQueue.addEvent(new Runnable() {
 				@Override
 				public void run() {
-					publishActivityStatus(activity.getUuid(), activityStatus);
+					controllerCommunicator.publishActivityStatus(activity.getUuid(), activityStatus);
 				}
 			});
 		} else {
@@ -604,7 +610,7 @@ public abstract class BaseSpaceController implements SpaceController,
 				spaceEnvironment.getLog().info(
 						String.format("Reporting activity status %s for %s",
 								uuid, LIVE_ACTIVITY_READY_STATUS));
-				publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+				controllerCommunicator.publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
 			} else {
 				spaceEnvironment.getLog().warn(
 						String.format(
@@ -645,15 +651,8 @@ public abstract class BaseSpaceController implements SpaceController,
 		}
 	}
 
-	/**
-	 * Configure the activity.
-	 * 
-	 * @param uuid
-	 *            uuid of the activity
-	 * @param configuration
-	 *            the configuration request
-	 */
-	protected void configureActivity(String uuid,
+	@Override
+	public void configureActivity(String uuid,
 			Map<String, Object> configuration) {
 		spaceEnvironment.getLog().info(
 				String.format("Configuring activity %s", uuid));
@@ -673,6 +672,11 @@ public abstract class BaseSpaceController implements SpaceController,
 		return nativeActivityRunnerFactory;
 	}
 
+	@Override
+	public ActiveControllerActivity getActiveActivityByUuid(String uuid) {
+		return getActiveActivityByUuid(uuid, false);
+	}
+
 	/**
 	 * Get an activity by UUID.
 	 * 
@@ -684,7 +688,7 @@ public abstract class BaseSpaceController implements SpaceController,
 	 * 
 	 * @return The activity with the given UUID. null if no such activity.
 	 */
-	protected ActiveControllerActivity getActiveActivityByUuid(String uuid,
+	private ActiveControllerActivity getActiveActivityByUuid(String uuid,
 			boolean create) {
 		ActiveControllerActivity activity = null;
 		synchronized (activities) {
@@ -897,6 +901,15 @@ public abstract class BaseSpaceController implements SpaceController,
 	}
 
 	@Override
+	public void shutdownControllerContainer() {
+		spaceSystemControl.shutdown();	}
+
+	@Override
+	public List<InstalledLiveActivity> getAllInstalledLiveActivities() {
+		return controllerRepository.getAllInstalledLiveActivities();
+	}
+
+	@Override
 	public void onWatcherActivityError(ActiveControllerActivity activity,
 			ActivityStatus oldStatus, ActivityStatus newStatus) {
 		// TODO(keith): No need to publish here?
@@ -1068,14 +1081,11 @@ public abstract class BaseSpaceController implements SpaceController,
 	}
 
 	/**
-	 * Give heartbeats from controller.
-	 * 
-	 * @author Keith M. Hughes
+	 * @param controllerCommunicator the controllerCommunicator to set
 	 */
-	public interface SpaceControllerHeartbeat {
-		/**
-		 * Send the controllerHeartbeat.
-		 */
-		void heartbeat();
+	public void setControllerCommunicator(
+			SpaceControllerCommunicator controllerCommunicator) {
+		this.controllerCommunicator = controllerCommunicator;
+		controllerCommunicator.setControllerControl(this);
 	}
 }

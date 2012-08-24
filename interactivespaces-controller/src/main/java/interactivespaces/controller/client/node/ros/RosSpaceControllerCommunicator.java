@@ -18,15 +18,17 @@ package interactivespaces.controller.client.node.ros;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
-import interactivespaces.controller.client.node.BaseSpaceController;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstaller;
+import interactivespaces.controller.client.node.SpaceControllerCommunicator;
+import interactivespaces.controller.client.node.SpaceControllerControl;
+import interactivespaces.controller.client.node.SpaceControllerHeartbeat;
 import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
 import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerClient;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.nio.ByteBuffer;
@@ -56,11 +58,17 @@ import org.ros.osgi.common.RosEnvironment;
 import com.google.common.collect.Maps;
 
 /**
- * An {@link SpaceController} for the ROS environment.
+ * An {@link SpaceControllerCommunicator} using ROS for communication.
  * 
  * @author Keith M. Hughes
  */
-public class RosSpaceController extends BaseSpaceController {
+public class RosSpaceControllerCommunicator implements
+		SpaceControllerCommunicator {
+
+	/**
+	 * The controller being controlled.
+	 */
+	private SpaceControllerControl controllerControl;
 
 	/**
 	 * The ROS environment this controller is running in.
@@ -116,6 +124,11 @@ public class RosSpaceController extends BaseSpaceController {
 	 * Activity installer for the controller
 	 */
 	private SpaceControllerActivityInstaller spaceControllerActivityInstaller;
+
+	/**
+	 * The space environment for this communicator.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
 
 	@Override
 	public void onStartup() {
@@ -223,12 +236,12 @@ public class RosSpaceController extends BaseSpaceController {
 			break;
 
 		case ControllerRequest.OPERATION_SHUTDOWN_ACTIVITIES:
-			shutdownAllActivities();
+			controllerControl.shutdownAllActivities();
 
 			break;
 
 		case ControllerRequest.OPERATION_SHUTDOWN_CONTROLLER:
-			spaceSystemControl.shutdown();
+			controllerControl.shutdownControllerContainer();
 
 			break;
 
@@ -255,22 +268,25 @@ public class RosSpaceController extends BaseSpaceController {
 	 * Create and publish controller full status.
 	 */
 	private void publishControllerFullStatus() {
+		SimpleSpaceController controllerInfo = controllerControl
+				.getControllerInfo();
+
 		ControllerStatus status = new ControllerStatus();
-		status.uuid = getControllerInfo().getUuid();
+		status.uuid = controllerInfo.getUuid();
 		status.status = ControllerStatus.STATUS_FULL;
 
 		ControllerFullStatus fullStatus = new ControllerFullStatus();
-		fullStatus.name = getControllerInfo().getName();
-		fullStatus.description = getControllerInfo().getDescription();
-		fullStatus.host_id = getControllerInfo().getHostId();
+		fullStatus.name = controllerInfo.getName();
+		fullStatus.description = controllerInfo.getDescription();
+		fullStatus.host_id = controllerInfo.getHostId();
 
-		for (InstalledLiveActivity activity : controllerRepository
+		for (InstalledLiveActivity activity : controllerControl
 				.getAllInstalledLiveActivities()) {
 			ControllerActivityStatus cas = new ControllerActivityStatus();
 			cas.uuid = activity.getUuid();
 
-			ActiveControllerActivity activeActivity = getActiveActivityByUuid(
-					cas.uuid, false);
+			ActiveControllerActivity activeActivity = controllerControl
+					.getActiveActivityByUuid(cas.uuid);
 			if (activeActivity != null) {
 				cas.status = translateActivityState(activeActivity
 						.getInstance().getActivityStatus().getState());
@@ -300,7 +316,7 @@ public class RosSpaceController extends BaseSpaceController {
 				.handleDeploymentRequest(deployRequest);
 
 		ControllerStatus status = new ControllerStatus();
-		status.uuid = getControllerInfo().getUuid();
+		status.uuid = controllerControl.getControllerInfo().getUuid();
 		status.status = ControllerStatus.STATUS_ACTIVITY_INSTALL;
 
 		ByteBuffer serialize = liveActivityDeployStatusSerializer
@@ -320,27 +336,27 @@ public class RosSpaceController extends BaseSpaceController {
 			ControllerActivityRuntimeRequest request) {
 		switch (request.operation) {
 		case ControllerActivityRuntimeRequest.OPERATION_STARTUP:
-			startupActivity(request.uuid);
+			controllerControl.startupActivity(request.uuid);
 
 			break;
 
 		case ControllerActivityRuntimeRequest.OPERATION_ACTIVATE:
-			activateActivity(request.uuid);
+			controllerControl.activateActivity(request.uuid);
 
 			break;
 
 		case ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE:
-			deactivateActivity(request.uuid);
+			controllerControl.deactivateActivity(request.uuid);
 
 			break;
 
 		case ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN:
-			shutdownActivity(request.uuid);
+			controllerControl.shutdownActivity(request.uuid);
 
 			break;
 
 		case ControllerActivityRuntimeRequest.OPERATION_STATUS:
-			statusActivity(request.uuid);
+			controllerControl.statusActivity(request.uuid);
 
 			break;
 
@@ -380,7 +396,7 @@ public class RosSpaceController extends BaseSpaceController {
 			}
 		}
 
-		configureActivity(uuid, values);
+		controllerControl.configureActivity(uuid, values);
 	}
 
 	@Override
@@ -481,6 +497,20 @@ public class RosSpaceController extends BaseSpaceController {
 	}
 
 	/**
+	 * @param controllerControl the controllerControl to set
+	 */
+	public void setControllerControl(SpaceControllerControl controllerControl) {
+		this.controllerControl = controllerControl;
+	}
+
+	/**
+	 * @param spaceEnvironment the spaceEnvironment to set
+	 */
+	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
+	/**
 	 * Give heartbeats from controller using ROS.
 	 * 
 	 * @author Keith M. Hughes
@@ -499,7 +529,7 @@ public class RosSpaceController extends BaseSpaceController {
 		@Override
 		public void heartbeat() {
 			// In case the UUID changed.
-			status.uuid = getControllerInfo().getUuid();
+			status.uuid = controllerControl.getControllerInfo().getUuid();
 			controllerStatusPublisher.publish(status);
 		}
 	}

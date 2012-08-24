@@ -72,7 +72,7 @@ public class ActiveControllerActivity implements ActivityControl {
 	 * <p>
 	 * This can be null if an instance hasn't been created yet.
 	 */
-	private BaseSpaceController controller;
+	private StandardSpaceController controller;
 
 	/**
 	 * The activity being run.
@@ -96,7 +96,7 @@ public class ActiveControllerActivity implements ActivityControl {
 			ActivityWrapper activityWrapper,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
-			BaseSpaceController controller) {
+			StandardSpaceController controller) {
 		this.uuid = installedActivity.getUuid();
 		this.installedActivity = installedActivity;
 		this.activityWrapper = activityWrapper;

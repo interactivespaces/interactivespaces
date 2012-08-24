@@ -22,6 +22,7 @@ package interactivespaces.activity;
  * @author Keith M. Hughes
  */
 public interface ActivityControl {
+
 	/**
 	 * Start up the activity.
 	 * 

@@ -51,7 +51,7 @@ public interface ActiveControllerActivityFactory {
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
-			BaseSpaceController controller);
+			StandardSpaceController controller);
 
 	/**
 	 * Create an appropriate runner.
@@ -75,7 +75,7 @@ public interface ActiveControllerActivityFactory {
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
-			BaseSpaceController controller);
+			StandardSpaceController controller);
 
 	/**
 	 * Get the activity type of the activity.

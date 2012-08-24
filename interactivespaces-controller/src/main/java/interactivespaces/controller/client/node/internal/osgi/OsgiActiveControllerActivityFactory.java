@@ -30,7 +30,7 @@ import interactivespaces.controller.activity.wrapper.internal.script.ScriptActiv
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.BaseSpaceController;
+import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.service.script.ScriptService;
 
@@ -71,7 +71,7 @@ public class OsgiActiveControllerActivityFactory implements
 			String activityType, InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
-			BaseSpaceController controller) {
+			StandardSpaceController controller) {
 
 		ActivityWrapperFactory wrapperFactory = activityWrapperFactories
 				.get(activityType.toLowerCase());
@@ -97,7 +97,7 @@ public class OsgiActiveControllerActivityFactory implements
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
-			BaseSpaceController controller) {
+			StandardSpaceController controller) {
 		String type = getConfiguredType(configuration);
 
 		return createActiveActivity(type, liapp, activityFilesystem,

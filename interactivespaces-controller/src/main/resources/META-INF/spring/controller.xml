@@ -75,20 +75,25 @@ the License.
 		<property name="spaceEnvironment" ref="interactivespaces.environment" />
 	</bean>
 
-	<bean id="interactivespaces.controller" class="interactivespaces.controller.client.node.ros.RosSpaceController"
-		init-method="startup" destroy-method="shutdown">
+    <bean id="interactivespaces.controller" class="interactivespaces.controller.client.node.StandardSpaceController"
+        init-method="startup" destroy-method="shutdown">
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+        <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
+        <property name="activityInstallationManager"
+            ref="interactivespaces.controller.manager.activity.installation" />
+        <property name="activityStorageManager" ref="interactivespaces.controller.manager.activity.storage" />
+        <property name="controllerRepository" ref="interactivespaces.controller.repository.controller" />
+        <property name="activeControllerActivityFactory" ref="interactivespaces.controller.activity.active.factory" />
+        <property name="configurationManager" ref="interactivespaces.controller.manager.configuration" />
+        <property name="nativeActivityRunnerFactory" ref="space.activity.native.runner.factory" />
+        <property name="activityLogFactory" ref="interactivespaces.controller.activity.log.factory" />
+        <property name="controllerCommunicator" ref="interactivespaces.controller.communicator.ros" />
+    </bean>
+	
+	<bean id="interactivespaces.controller.communicator.ros" class="interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator">
 		<property name="rosEnvironment" ref="ros.environment" />
 		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-		<property name="spaceSystemControl" ref="interactivespaces.systemctl" />
-		<property name="activityInstallationManager"
-			ref="interactivespaces.controller.manager.activity.installation" />
 		<property name="spaceControllerActivityInstaller" ref="interactivespaces.controller.activity.installer" />
-        <property name="activityStorageManager" ref="interactivespaces.controller.manager.activity.storage" />
-		<property name="controllerRepository" ref="interactivespaces.controller.repository.controller" />
-		<property name="activeControllerActivityFactory" ref="interactivespaces.controller.activity.active.factory" />
-		<property name="configurationManager" ref="interactivespaces.controller.manager.configuration" />
-		<property name="nativeActivityRunnerFactory" ref="space.activity.native.runner.factory" />
-		<property name="activityLogFactory" ref="interactivespaces.controller.activity.log.factory" />
 	</bean>
 
 	<bean id="interactivespaces.controller.shell"
