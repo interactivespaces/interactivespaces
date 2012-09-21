@@ -35,20 +35,15 @@ public class ActivityProject {
 	/**
 	 * The information known about the activity.
 	 */
-	private ActivityDescription activity;
+	private ActivityDescription activityDescription;
 	
 	/**
 	 * Type of the activity.
 	 */
 	private String activityType;
-	
-	/**
-	 * The name of the activity.
-	 */
-	private String activityName;
 
-	public ActivityProject(ActivityDescription activity) {
-		this.activity = activity;
+	public ActivityProject(ActivityDescription activityDescription) {
+		this.activityDescription = activityDescription;
 	}
 
 	/**
@@ -70,8 +65,8 @@ public class ActivityProject {
 	 * 
 	 * @return the activity
 	 */
-	public ActivityDescription getActivity() {
-		return activity;
+	public ActivityDescription getActivityDescription() {
+		return activityDescription;
 	}
 	
 	/**
@@ -122,19 +117,5 @@ public class ActivityProject {
 	 */
 	public void setActivityType(String activityType) {
 		this.activityType = activityType;
-	}
-
-	/**
-	 * @return the activityName
-	 */
-	public String getActivityName() {
-		return activityName;
-	}
-
-	/**
-	 * @param activityName the activityName to set
-	 */
-	public void setActivityName(String activityName) {
-		this.activityName = activityName;
 	}
 }

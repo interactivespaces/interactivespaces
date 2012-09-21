@@ -45,13 +45,13 @@ function deleteSpace() {
 <h1>Space: ${space.name}</h1>
 
 <div class="commandBar"><ul>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></li>
-<li><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></li>
 <li><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></li>
 <li><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></li>
 <li><button type="button" d="deactivateButton" onclick="doAjaxCommand('deactivate')"">Deactivate</button></li>
 <li><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></li>
 <li><button type="button" id="statusButton" onclick="doAjaxCommand('liveactivitystatus')">Status</button></li>
+<li><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></li>
+<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></li>
 <li><button type="button" id="liveActivitiesButton" 
     onclick="window.location='/interactivespaces/space/${space.id}/liveactivities.html'" title="Get all live activities that are part of the space and its subspaces">Live Activities</button></li>
 <li><button type="button" id="editButton" 

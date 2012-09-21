@@ -102,11 +102,14 @@ public class RosSpaceControllerActivityInstaller implements
 			LiveActivityDeployRequest request, int status, boolean success,
 			Date installedDate) {
 		LiveActivityDeployStatus result = new LiveActivityDeployStatus();
-		
+
 		result.uuid = request.uuid;
 		result.status = status;
-		result.time_deployed = installedDate.getTime();
-		
+
+		if (installedDate != null) {
+			result.time_deployed = installedDate.getTime();
+		}
+
 		return result;
 	}
 

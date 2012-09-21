@@ -21,6 +21,7 @@ dependencies {
 
 	compile 'org.apache.felix:org.apache.felix.framework:3.2.2'
 	compile 'org.freemarker:com.springsource.freemarker:2.3.18'
+	compile 'interactivespaces:org.swinglabs.swingx:1.6.1'
 	compile 'biz.aQute:bndlib:1.50.0'
 	
 	testCompile 'junit:junit:4.8.2'

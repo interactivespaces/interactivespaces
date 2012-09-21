@@ -26,6 +26,8 @@ import interactivespaces.domain.support.Validator;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
+import interactivespaces.workbench.activity.project.ActivityProjectManager;
+import interactivespaces.workbench.activity.project.BasicActivityProjectManager;
 import interactivespaces.workbench.activity.project.builder.ActivityBuilder;
 import interactivespaces.workbench.activity.project.builder.ActivityBuilderFactory;
 import interactivespaces.workbench.activity.project.builder.SimpleActivityBuilderFactory;
@@ -34,6 +36,8 @@ import interactivespaces.workbench.activity.project.creator.ActivityProjectCreat
 import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreator;
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackager;
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackagerImpl;
+import interactivespaces.workbench.ui.UserInterfaceFactory;
+import interactivespaces.workbench.ui.swing.PlainSwingUserInterfaceFactory;
 
 import java.io.Console;
 import java.io.File;
@@ -64,6 +68,11 @@ public class InteractiveSpacesWorkbench {
 	 * Properties for the workbench.
 	 */
 	private Properties workbenchProperties;
+	
+	/**
+	 * The activity project manager for file operations.
+	 */
+	private ActivityProjectManager activityProjectManager = new BasicActivityProjectManager();
 
 	/**
 	 * The creator for new projects.
@@ -89,6 +98,11 @@ public class InteractiveSpacesWorkbench {
 	 * The templater to use.
 	 */
 	private FreemarkerTemplater templater;
+	
+	/**
+	 * The user interface factory to be used by the workbench.
+	 */
+	private UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
 
 	public InteractiveSpacesWorkbench(Properties workbenchProperties) {
 		this.workbenchProperties = workbenchProperties;
@@ -100,32 +114,6 @@ public class InteractiveSpacesWorkbench {
 		activityProjectPackager = new ActivityProjectPackagerImpl();
 		activityBuilderFactory = new SimpleActivityBuilderFactory();
 		ideProjectCreator = new EclipseIdeProjectCreator(templater);
-	}
-
-	/**
-	 * Read an activity project.
-	 * 
-	 * @param baseDir
-	 * @return
-	 */
-	public ActivityProject readActivityProject(File baseDir) {
-		ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
-
-		File descriptionFile = new File(baseDir, "activity.xml");
-		try {
-			FileInputStream activityDescriptionStream = new FileInputStream(
-					descriptionFile);
-			ActivityDescription activity = reader
-					.readDescription(activityDescriptionStream);
-
-			ActivityProject project = new ActivityProject(activity);
-			project.setBaseDirectory(baseDir);
-			return project;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(String.format(
-					"Cannot read activity description file %s",
-					descriptionFile.getAbsolutePath()), e);
-		}
 	}
 
 	/**
@@ -179,7 +167,7 @@ public class InteractiveSpacesWorkbench {
 			System.out.println("Creating project");
 			createProject(commands);
 		} else {
-			ActivityProject project = readActivityProject(new File(command));
+			ActivityProject project = activityProjectManager.readActivityProject(new File(command));
 			doCommandsOnProject(project, commands);
 		}
 	}
@@ -290,5 +278,19 @@ public class InteractiveSpacesWorkbench {
 				generateIdeActivityProject(project, commands.remove(0));
 			}
 		}
+	}
+
+	/**
+	 * @return the activityProjectManager
+	 */
+	public ActivityProjectManager getActivityProjectManager() {
+		return activityProjectManager;
+	}
+
+	/**
+	 * @return the userInterfaceFactory
+	 */
+	public UserInterfaceFactory getUserInterfaceFactory() {
+		return userInterfaceFactory;
 	}
 }

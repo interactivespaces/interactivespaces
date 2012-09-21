@@ -170,7 +170,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 			}
 		}
 
-		SimpleActivity activity = project.getActivity();
+		SimpleActivity activity = project.getActivityDescription();
 		return new File(buildFolder, activity.getIdentifyingName() + "-"
 				+ activity.getVersion() + "." + PROJECT_BUILD_FILE_EXTENSION);
 	}

@@ -48,9 +48,10 @@ public class InteractiveSpacesLauncher {
 	 * Launch Interactive Spaces
 	 */
 	public void launch(String[] args) {
-		writePid();
-		createClassLoader();
-		boostrap(args);
+		if (writePid()) {
+			createClassLoader();
+			boostrap(args);
+		}
 	}
 
 	/**
@@ -113,32 +114,50 @@ public class InteractiveSpacesLauncher {
 		}
 	}
 
-	private void writePid() {
+	/**
+	 * Try and write the pid file.
+	 * 
+	 * @return {@code true} if a pid file didn't previously exist and one
+	 *         couldn't be written.
+	 */
+	private boolean writePid() {
 		File runDirectory = new File("run");
 		if (!runDirectory.exists()) {
 			if (!runDirectory.mkdir()) {
-				System.err.println("Could not create run directory");
-				return;
+				System.err.format("Could not create run directory %s\n",
+						runDirectory);
+				return false;
 			}
 		}
 
 		pidFile = new File(runDirectory, "interactivespaces.pid");
-		pidFile.deleteOnExit();
-		BufferedWriter out = null;
-		try {
-			out = new BufferedWriter(new FileWriter(pidFile));
-			out.append(Integer.toString(getPid()));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// Don't care
+		if (!pidFile.exists()) {
+			pidFile.deleteOnExit();
+			BufferedWriter out = null;
+			try {
+				out = new BufferedWriter(new FileWriter(pidFile));
+				out.append(Integer.toString(getPid()));
+			} catch (Exception e) {
+				System.err.format("Error while writing pid file %s\n", pidFile);
+				e.printStackTrace();
+
+				return false;
+			} finally {
+				if (out != null) {
+					try {
+						out.close();
+					} catch (IOException e) {
+						// Don't care
+					}
 				}
 			}
+
+			return true;
+		} else {
+			System.err
+					.format("InteractiveSpaces component already running. If it isn't running, delete %s\n",
+							pidFile.getAbsolutePath());
+			return false;
 		}
 	}
 

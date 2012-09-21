@@ -17,16 +17,13 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.client.node.SpaceControllerHeartbeat;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * Provide communications between a Space Controller and something controlling
  * it.
  * 
  * @author Keith M. Hughes
- * @since Aug 21, 2012
  */
 public interface SpaceControllerCommunicator {
 

@@ -155,6 +155,11 @@ under the CDDL license.  You can obtain a copy of the License at:
 The source code is available at:
     https://glassfish.java.net/source/browse/glassfish/
 
+-------------
+Interactive Spaces includes JARS for the swinglabs swingx project.
+
+This code is used under the LGPL license.
+http://www.gnu.org/copyleft/lesser.html
 
 --------------------
 The following libraries use the MIT license

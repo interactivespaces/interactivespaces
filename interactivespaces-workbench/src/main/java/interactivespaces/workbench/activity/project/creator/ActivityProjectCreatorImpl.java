@@ -80,7 +80,7 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 	 */
 	private void addSpecDetails(ActivityProjectCreationSpecification spec) {
 		// Create an activity name from the identifying name
-		String identifyingName = spec.getProject().getActivity()
+		String identifyingName = spec.getProject().getActivityDescription()
 				.getIdentifyingName();
 		String[] parts = identifyingName.split("\\.");
 		StringBuilder activityName = new StringBuilder(parts[0]);
@@ -91,7 +91,7 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 					part.substring(1));
 		}
 
-		spec.getProject().setActivityName(activityName.toString());
+		spec.getProject().getActivityDescription().setName(activityName.toString());
 	}
 
 	/**

@@ -37,7 +37,7 @@ public class JavaProjectSourceDescription implements ProjectSourceDescription {
 	public void process(ActivityProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> templateData) {
-		ActivityDescription activity = spec.getProject().getActivity();
+		ActivityDescription activity = spec.getProject().getActivityDescription();
 		activity.setBuilderType("java");
 		spec.getProject().setActivityType("interactivespaces_native");
 
@@ -51,7 +51,7 @@ public class JavaProjectSourceDescription implements ProjectSourceDescription {
 		File javaSourceDir = makeSourceDirs(spec);
 
 		// TODO(keith): Fix this when start supporting Windoze
-		String pathname = spec.getProject().getActivity().getIdentifyingName()
+		String pathname = spec.getProject().getActivityDescription().getIdentifyingName()
 				.replace('.', '/');
 		File sourceDirectory = new File(javaSourceDir, pathname);
 		if (!sourceDirectory.mkdirs()) {

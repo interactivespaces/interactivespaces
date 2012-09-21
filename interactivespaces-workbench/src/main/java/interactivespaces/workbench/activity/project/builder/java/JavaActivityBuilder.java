@@ -177,7 +177,7 @@ public class JavaActivityBuilder implements ActivityBuilder {
 	 */
 	private File getBuildDestinationFile(ActivityProject project,
 			File buildDirectory) {
-		SimpleActivity activity = project.getActivity();
+		SimpleActivity activity = project.getActivityDescription();
 		return new File(buildDirectory, activity.getIdentifyingName() + "-"
 				+ activity.getVersion() + "." + JAR_FILE_EXTENSION);
 	}
@@ -248,7 +248,7 @@ public class JavaActivityBuilder implements ActivityBuilder {
 			// analyzer.addClasspath( new
 			// File("jar/spring.jar") );
 
-			analyzer.setProperty("Bundle-SymbolicName", project.getActivity()
+			analyzer.setProperty("Bundle-SymbolicName", project.getActivityDescription()
 					.getIdentifyingName());
 			analyzer.setProperty("Export-Package", "*");
 			analyzer.setProperty("Bundle-Version", "1.0");

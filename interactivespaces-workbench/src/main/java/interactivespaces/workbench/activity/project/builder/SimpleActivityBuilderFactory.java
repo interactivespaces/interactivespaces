@@ -46,7 +46,7 @@ public class SimpleActivityBuilderFactory implements ActivityBuilderFactory {
 	public ActivityBuilder newBuilder(ActivityProject project) {
 		Class<? extends ActivityBuilder> builderClass = builderClasses
 				.get(NoopActivityBuilder.NAME);
-		String builderType = project.getActivity().getBuilderType();
+		String builderType = project.getActivityDescription().getBuilderType();
 		if (builderType != null) {
 			builderClass = builderClasses.get(builderType);
 			if (builderClass == null) {

@@ -78,7 +78,7 @@ public class EclipseIdeProjectCreator {
 
 			writeProjectFile(project, freemarkerContext);
 
-			if ("java".equals(project.getActivity().getBuilderType())) {
+			if ("java".equals(project.getActivityDescription().getBuilderType())) {
 				writeClasspathFile(project, freemarkerContext);
 			}
 		} catch (Exception e) {
@@ -96,7 +96,7 @@ public class EclipseIdeProjectCreator {
 	 */
 	private void addLanguageSpecificData(ActivityProject project,
 			Map<String, Object> freemarkerContext) {
-		if ("java".equals(project.getActivity().getBuilderType())) {
+		if ("java".equals(project.getActivityDescription().getBuilderType())) {
 			freemarkerContext.put("natures",
 					Lists.newArrayList(ECLIPSE_NATURE_JAVA));
 			freemarkerContext.put("builder", ECLIPSE_BUILDER_JAVA);

@@ -312,7 +312,7 @@ the License.
 								<artifactItem>
                                     <groupId>io.netty</groupId>
                                     <artifactId>netty</artifactId>
-                                    <version>3.5.5.Final</version>
+                                    <version>3.5.7.Final</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -341,6 +341,15 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
+
+                                <!-- UI -->
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>org.swinglabs.swingx</artifactId>
+                                    <version>1.6.1</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
 							</artifactItems>
 
 							<outputDirectory>${staging.dir}/bootstrap</outputDirectory>

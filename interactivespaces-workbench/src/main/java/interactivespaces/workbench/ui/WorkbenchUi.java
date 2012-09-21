@@ -32,12 +32,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 /**
@@ -56,6 +56,12 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 * Initial height of the UI window.
 	 */
 	public static final int APP_HEIGHT_DEFAULT = 600;
+	
+	/**
+	 * The desktop that will be used.
+	 */
+	private WorkbenchSplitPane desktop;
+	
 	/**
 	 * Menu bar associated with this desktop (if any)
 	 */
@@ -72,29 +78,13 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	private JMenu editMenu;
 	private JMenu viewMenu;
 	private JMenu runMenu;
-	private JMenu advancedMenu;
-	private JMenu windowMenu;
 	private JMenu helpMenu;
 
-	private JCheckBoxMenuItem viewProgrammer;
-	private JCheckBoxMenuItem viewMessages;
-	private JCheckBoxMenuItem stopActiveMenu;
-
-	private JCheckBoxMenuItem runFullDebugMenuItem;
-
-	private JMenuItem advancedServerStartMenuItem;
-
-	private JMenuItem advancedServerStopMenuItem;
 
 	/**
 	 * Menu item for a New Project.
 	 */
 	private JMenuItem newProjectMenuItem;
-
-	/**
-	 * Menu item for a new source file.
-	 */
-	private JMenuItem newSourceMenuItem;
 
 	private JMenuItem openMenuItem;
 
@@ -102,33 +92,13 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 	private JMenuItem saveMenuItem;
 
-	private JMenuItem saveAsMenuItem;
-
 	private JMenuItem saveAllMenuItem;
 
 	private JMenuItem revertMenuItem;
 
-	private JMenuItem importProjectMenuItem;
-
-	private JMenuItem importWorldsMenuItem;
-
-	private JMenuItem exportProjectMenuItem;
-
 	private JMenuItem deleteMenuItem;
 
 	private JMenuItem exitMenuItem;
-
-	private JMenuItem showInitialWorldMenuItem;
-
-	private JMenuItem runMenuItem;
-
-	private JMenuItem stopMenuItem;
-
-	private JMenuItem startMenuItem;
-
-	private JMenuItem steptMenuItem;
-
-	private JMenuItem changeRobotInfoMenuItem;
 
 	private JMenu newMenu;
 
@@ -155,12 +125,16 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		});
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+		desktop = new WorkbenchSplitPane(this);
+		desktop.getSourceWindowManager().setUserInterfaceFactory(workbench.getUserInterfaceFactory());
+
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
+		contentPane.add(desktop, BorderLayout.CENTER);
 
 		setJMenuBar(getJMenuBar());
 
-		// Set our intial size to 600x400 pixels.
+		// Set our initial size to 600x400 pixels.
 		Rectangle bounds = getBounds();
 		bounds.height = APP_HEIGHT_DEFAULT;
 		bounds.width = APP_WIDTH_DEFAULT;
@@ -183,9 +157,10 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		newMenu = new JMenu("New");
 		fileMenu.add(newMenu);
 
-		newProjectMenuItem = new JMenuItem("New Java Project");
+		newProjectMenuItem = new JMenuItem("New Project");
 		newMenu.add(newProjectMenuItem);
 		newProjectMenuItem.addActionListener(this);
+
 		/*
 		 * fileMenu.addSeparator();
 		 * 
@@ -289,21 +264,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		viewMenu = new JMenu("View");
 		mb.add(viewMenu);
 
-		changeRobotInfoMenuItem = new JMenuItem("Change Robot Info Panel...");
-		changeRobotInfoMenuItem.addActionListener(this);
-		viewMenu.add(changeRobotInfoMenuItem);
-
 		viewMenu.addSeparator();
-
-		showInitialWorldMenuItem = new JMenuItem("Show Initial World");
-		showInitialWorldMenuItem.addActionListener(this);
-		viewMenu.add(showInitialWorldMenuItem);
-		showInitialWorldMenuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_F1, Event.SHIFT_MASK, false));
-
-		JMenuItem worldMenu = new JMenuItem("Worlds");
-		worldMenu.addActionListener(this);
-		viewMenu.add(worldMenu);
 
 		runMenu = new JMenu("Run");
 		mb.add(runMenu);
@@ -311,7 +272,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		helpMenu = new JMenu("Help");
 		mb.add(helpMenu);
 
-		JMenuItem aboutMenu = new JMenuItem("About RobotWorld...");
+		JMenuItem aboutMenu = new JMenuItem("About Interactive Spaces Workbench...");
 		helpMenu.add(aboutMenu);
 		aboutMenu.addActionListener(this);
 
@@ -326,24 +287,54 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 			JFileChooser chooser = new JFileChooser();
 			// Find out what file we get
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			int state = chooser.showOpenDialog(this);
-			File file = chooser.getSelectedFile();
-			System.out.format("Got %s\n", file);
 
-			ActivityProject project = workbench.readActivityProject(file
-					.getParentFile());
-			workbench.buildActivityProject(project);
+			if (state == JFileChooser.APPROVE_OPTION) {
+				File file = chooser.getSelectedFile();
+
+				if (workbench.getActivityProjectManager().isActivityProjectFolder(file)) {
+					ActivityProject currentProject = workbench
+							.getActivityProjectManager().readActivityProject(file);
+					setTitle("Interactive Spaces - " + currentProject.getActivityDescription().getName());
+
+					desktop.getSourceWindowManager().addNewSourceWindow(workbench.getActivityProjectManager().getActivityConfSource(currentProject));
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"The folder is not an Activity project folder",
+							"Not Activity Project Folder",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} else if (source.equals(newProjectMenuItem)) {
+			JNewWizardDialog wizard = new InteractiveSpacesNewProjectDialog(
+					this);
+			wizard.setLocationRelativeTo(this);
+			wizard.setVisible(true);
 		} else if (source.equals(exitMenuItem)) {
 			// Get rid of the frame we live in. We want Exit to have the
 			// same effect as closing the window.
 			//
-			// We want to just displatch a closing event because
+			// We want to just dispatch a closing event because
 			// otherwise the up mouse event from the menu item will no longer
 			// have a window associated with it and we'll generate an error
 			Toolkit.getDefaultToolkit()
 					.getSystemEventQueue()
 					.postEvent(
 							new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		} else if (source.equals(saveMenuItem)) {
+			desktop.getSourceWindowManager().saveCurrentWindow();
+		} else if (source.equals(saveAllMenuItem)) {
+			desktop.getSourceWindowManager().saveAll();
+		} else if (source.equals(revertMenuItem)) {
+			desktop.getSourceWindowManager().revertCurrentWindow();
 		}
+	}
+
+	/**
+	 * @return the workbench
+	 */
+	public InteractiveSpacesWorkbench getWorkbench() {
+		return workbench;
 	}
 }
