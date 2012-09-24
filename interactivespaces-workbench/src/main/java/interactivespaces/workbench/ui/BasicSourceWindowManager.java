@@ -23,6 +23,7 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -124,13 +125,14 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 		editor.setContentModified(false);
 
 		JComponent component = editor.getComponent();
+		JScrollPane scrollPane = new JScrollPane(component);
 		changeEditorTitle(editor, false);
 		component.setVisible(true);
 
 		filenameToEditor.put(filePath, editor);
-		componentToEditor.put(component, editor);
-		sourcePane.addTab(fileName, null, component, filePath);
-		sourcePane.setSelectedComponent(component);
+		componentToEditor.put(scrollPane, editor);
+		sourcePane.addTab(fileName, null, scrollPane, filePath);
+		sourcePane.setSelectedComponent(scrollPane);
 
 		for (SourceEditorListener editorListener : editorListeners)
 			editor.addSourceEditorListener(editorListener);

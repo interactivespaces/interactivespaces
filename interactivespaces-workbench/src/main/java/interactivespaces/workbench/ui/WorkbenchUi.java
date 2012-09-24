@@ -18,7 +18,6 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
-import interactivespaces.workbench.activity.project.SimpleSource;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -34,14 +33,18 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 
@@ -135,9 +138,46 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	private JMenu newMenu;
 
 	/**
+	 * Menu item for the Project menu's Open Activity Conf.
+	 */
+	private JMenuItem openActivityConfMenuItem;
+
+	/**
+	 * Menu item for the Project menu's Build activity.
+	 */
+	private JMenuItem buildActivityMenuItem;
+
+	/**
+	 * Action for starting an activity up.
+	 */
+	private Action activityStartupAction;
+
+	/**
+	 * Action for activating an activity.
+	 */
+	private Action activityActivateAction;
+
+	/**
+	 * Action for deactivating an activity.
+	 */
+	private Action activityDeactivateAction;
+
+	/**
+	 * Action for shutting an activity down.
+	 */
+	private Action activityShutdownAction;
+
+	/**
 	 * The workbench being controlled.
 	 */
 	private InteractiveSpacesWorkbench workbench;
+
+	/**
+	 * The project this UI is working with.
+	 */
+	private ActivityProject currentProject;
+
+	private JToolBar toolbar;
 
 	public WorkbenchUi(InteractiveSpacesWorkbench workbench) {
 		super("Interactive Spaces Workbench");
@@ -163,6 +203,11 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
+
+		toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		contentPane.add(toolbar, BorderLayout.NORTH);
+
 		contentPane.add(desktop, BorderLayout.CENTER);
 
 		setJMenuBar(getJMenuBar());
@@ -289,7 +334,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 				defaultActionMap.get(DefaultEditorKit.copyAction));
 		cutMenuItem.setText("Copy");
 		editMenu.add(copyMenuItem);
-		
+
 		pasteMenuItem = new JMenuItem(
 				defaultActionMap.get(DefaultEditorKit.pasteAction));
 		cutMenuItem.setText("Paste");
@@ -307,8 +352,64 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 		viewMenu.addSeparator();
 
-		runMenu = new JMenu("Run");
+		JMenu projectMenu = new JMenu("Project");
+		mb.add(projectMenu);
+
+		openActivityConfMenuItem = new JMenuItem("Open Activity Conf");
+		openActivityConfMenuItem.addActionListener(this);
+		projectMenu.add(openActivityConfMenuItem);
+
+		buildActivityMenuItem = new JMenuItem("Build");
+		buildActivityMenuItem.addActionListener(this);
+		projectMenu.add(buildActivityMenuItem);
+
+		JMenu runMenu = new JMenu("Run");
 		mb.add(runMenu);
+
+		activityStartupAction = new WorkbenchAction("Startup", null,
+				"Startup the activity", new Integer(KeyEvent.VK_L)) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Starting up activity");
+			}
+		};
+		activityActivateAction = new WorkbenchAction("Activate", null,
+				"Activate the activity", new Integer(KeyEvent.VK_L)) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Activating activity");
+			}
+		};
+		activityDeactivateAction = new WorkbenchAction("Deactivate",
+				null, "Deactivate the activity", new Integer(KeyEvent.VK_L)) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Deactivating activity");
+			}
+		};
+		activityShutdownAction = new WorkbenchAction("Shutdown", null,
+				"Shut the activity down", new Integer(KeyEvent.VK_L)) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Shutting down activity");
+			}
+		};
+
+		JMenuItem activityStartupMenuItem = new JMenuItem(activityStartupAction);
+		runMenu.add(activityStartupMenuItem);
+		toolbar.add(activityStartupAction).setText("St");
+
+		JMenuItem activityActivateMenuItem = new JMenuItem(activityActivateAction);
+		runMenu.add(activityActivateMenuItem);
+		toolbar.add(activityActivateAction).setText("Ac");
+
+		JMenuItem activityDeactivateMenuItem = new JMenuItem(activityDeactivateAction);
+		runMenu.add(activityDeactivateMenuItem);
+		toolbar.add(activityDeactivateAction).setText("De");
+
+		JMenuItem activityShutdownMenuItem = new JMenuItem(activityShutdownAction);
+		runMenu.add(activityShutdownMenuItem);
+		toolbar.add(activityShutdownAction).setText("Sh");
 
 		helpMenu = new JMenu("Help");
 		mb.add(helpMenu);
@@ -335,27 +436,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 			if (state == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
 
-				if (workbench.getActivityProjectManager()
-						.isActivityProjectFolder(file)) {
-					ActivityProject currentProject = workbench
-							.getActivityProjectManager().readActivityProject(
-									file);
-					setTitle("Interactive Spaces - "
-							+ currentProject.getActivityDescription().getName());
-
-					desktop.getSourceWindowManager().addNewSourceWindow(
-							workbench.getActivityProjectManager()
-									.getActivityConfSource(currentProject));
-					SimpleSource src = new SimpleSource(currentProject,
-							"/var/tmp/foop");
-
-					desktop.getSourceWindowManager().addNewSourceWindow(src);
-				} else {
-					JOptionPane.showMessageDialog(this,
-							"The folder is not an Activity project folder",
-							"Not Activity Project Folder",
-							JOptionPane.ERROR_MESSAGE);
-				}
+				openActivityProject(file);
 			}
 		} else if (source.equals(newProjectMenuItem)) {
 			JNewWizardDialog wizard = new InteractiveSpacesNewProjectDialog(
@@ -383,6 +464,33 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 			desktop.getSourceWindowManager().undoEditCurrentWindow();
 		} else if (source.equals(redoMenuItem)) {
 			desktop.getSourceWindowManager().redoEditCurrentWindow();
+		} else if (source.equals(buildActivityMenuItem)) {
+			workbench.buildActivityProject(currentProject);
+		} else if (source.equals(openActivityConfMenuItem)) {
+			desktop.getSourceWindowManager().addNewSourceWindow(
+					workbench.getActivityProjectManager()
+							.getActivityConfSource(currentProject));
+		}
+	}
+
+	/**
+	 * Open up an activity project, if there is one to open.
+	 * 
+	 * @param baseProjectDir
+	 *            the base directory for the project
+	 */
+	private void openActivityProject(File baseProjectDir) {
+		// TODO(keith): If project already open should open up new workbench UI.
+		if (workbench.getActivityProjectManager().isActivityProjectFolder(
+				baseProjectDir)) {
+			currentProject = workbench.getActivityProjectManager()
+					.readActivityProject(baseProjectDir);
+			setTitle("Interactive Spaces - "
+					+ currentProject.getActivityDescription().getName());
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"The folder is not an Activity project folder",
+					"Not Activity Project Folder", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -401,10 +509,23 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 *            the map of actions to attach to the menu items
 	 */
 	public void onSourceEditorSelect(ActionMap map) {
-		System.out.println("Changing actions");
 		copyMenuItem.setAction(map.get(DefaultEditorKit.copyAction));
 		cutMenuItem.setAction(map.get(DefaultEditorKit.cutAction));
 		pasteMenuItem.setAction(map.get(DefaultEditorKit.pasteAction));
 		selectAllMenuItem.setAction(map.get(DefaultEditorKit.selectAllAction));
+	}
+
+	/**
+	 * An {@link Action} for workbench operations.
+	 * 
+	 * @author Keith M. Hughes
+	 */
+	private abstract class WorkbenchAction extends AbstractAction {
+		public WorkbenchAction(String text, ImageIcon icon, String desc,
+				Integer mnemonic) {
+			super(text, icon);
+			putValue(SHORT_DESCRIPTION, desc);
+			putValue(MNEMONIC_KEY, mnemonic);
+		}
 	}
 }

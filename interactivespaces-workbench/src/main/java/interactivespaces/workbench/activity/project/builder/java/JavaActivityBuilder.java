@@ -80,10 +80,14 @@ public class JavaActivityBuilder implements ActivityBuilder {
 	}
 
 	/**
+	 * Compile the project.
+	 * 
 	 * @param project
 	 *            the project being compiled
 	 * @param compilationBuildDirectory
 	 *            the build folder for compilation artifacts
+	 * @param context
+	 *            the project build context
 	 * 
 	 * @throws IOException
 	 */
@@ -248,8 +252,8 @@ public class JavaActivityBuilder implements ActivityBuilder {
 			// analyzer.addClasspath( new
 			// File("jar/spring.jar") );
 
-			analyzer.setProperty("Bundle-SymbolicName", project.getActivityDescription()
-					.getIdentifyingName());
+			analyzer.setProperty("Bundle-SymbolicName", project
+					.getActivityDescription().getIdentifyingName());
 			analyzer.setProperty("Export-Package", "*");
 			analyzer.setProperty("Bundle-Version", "1.0");
 

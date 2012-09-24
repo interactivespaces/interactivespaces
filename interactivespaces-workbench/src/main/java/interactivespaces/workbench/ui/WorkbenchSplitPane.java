@@ -117,6 +117,7 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 
 		MultiSplitLayout layout = new MultiSplitLayout(row1);
 		setLayout(layout);
+		layout.setFloatingDividers(false);
 	}
 
 	@Override
