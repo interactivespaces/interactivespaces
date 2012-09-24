@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -72,10 +74,16 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 	 * The user interface factory for UI elements.
 	 */
 	private UserInterfaceFactory userInterfaceFactory;
+	
+	/**
+	 * The workbench UI we are part of.
+	 */
+	private WorkbenchUi workbenchUi;
 
-	public BasicSourceWindowManager(
-			ActivityProjectManager activityProjectManager,
-			JTabbedPane sourcePane) {
+	public BasicSourceWindowManager(WorkbenchUi workbenchUi,
+			JTabbedPane sourcePane,
+			ActivityProjectManager activityProjectManager) {
+		this.workbenchUi = workbenchUi;
 		this.activityProjectManager = activityProjectManager;
 		this.sourcePane = sourcePane;
 
@@ -83,6 +91,17 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 			@Override
 			public void contentModified(SourceEditor editor) {
 				editorContentModified(editor);
+			}
+		});
+
+		sourcePane.addChangeListener(new ChangeListener() {
+			// This method is called whenever the selected tab changes
+			public void stateChanged(ChangeEvent evt) {
+				JTabbedPane pane = (JTabbedPane) evt.getSource();
+
+				// Get current tab
+				JComponent component = (JComponent) pane.getSelectedComponent();
+				onSourceEditorWindowSelect(component);
 			}
 		});
 	}
@@ -108,13 +127,16 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 		changeEditorTitle(editor, false);
 		component.setVisible(true);
 
-		sourcePane.addTab(fileName, null, component, filePath);
 		filenameToEditor.put(filePath, editor);
 		componentToEditor.put(component, editor);
+		sourcePane.addTab(fileName, null, component, filePath);
 		sourcePane.setSelectedComponent(component);
 
 		for (SourceEditorListener editorListener : editorListeners)
 			editor.addSourceEditorListener(editorListener);
+
+		// TODO(keith): Potential race condition here
+		editor.removeAllEdits();
 	}
 
 	@Override
@@ -189,6 +211,27 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 	}
 
 	@Override
+	public void undoEditCurrentWindow() {
+		SourceEditor editor = getCurrentEditor();
+		if (editor != null) {
+			editor.undoEdit();
+
+			// changeEditorTitle(editor, false);
+		}
+	}
+
+	@Override
+	public void redoEditCurrentWindow() {
+		SourceEditor editor = getCurrentEditor();
+		if (editor != null) {
+			editor.redoEdit();
+
+			// TODO(keith): Check if any more pending undos so can properly set
+			// whether or not window needs to be saved.
+		}
+	}
+
+	@Override
 	public void addSourceEditorListener(SourceEditorListener editorListener) {
 		editorListeners.add(editorListener);
 
@@ -206,6 +249,17 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 	private void setAllWindowsReadOnly(boolean readOnly) {
 		for (SourceEditor editor : filenameToEditor.values())
 			editor.setReadOnly(readOnly);
+	}
+
+	/**
+	 * A code editor has been selected from the tabbed pane.
+	 * 
+	 * @param component
+	 *            the selected editor's component
+	 */
+	private void onSourceEditorWindowSelect(JComponent component) {
+		SourceEditor selected = componentToEditor.get(component);
+		workbenchUi.onSourceEditorSelect(component.getActionMap());
 	}
 
 	/**

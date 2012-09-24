@@ -104,6 +104,22 @@ public interface SourceWindowManager {
 	void revertCurrentWindow();
 
 	/**
+	 * Undo the edit of the the current window
+	 * 
+	 * <p>
+	 * A no-op if there is no current window
+	 */
+	void undoEditCurrentWindow();
+
+	/**
+	 * Redo the edit of the the current window
+	 * 
+	 * <p>
+	 * A no-op if there is no current window
+	 */
+	void redoEditCurrentWindow();
+
+	/**
 	 * Set the user interface factory to be used by the source window manager.
 	 * 
 	 * @param userInterfaceFactory

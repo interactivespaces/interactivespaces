@@ -18,6 +18,7 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
+import interactivespaces.workbench.activity.project.SimpleSource;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -27,11 +28,14 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -39,6 +43,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.text.DefaultEditorKit;
 
 /**
  * A Swing UI window for the Interactive Spaces workbench.
@@ -56,12 +61,12 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 * Initial height of the UI window.
 	 */
 	public static final int APP_HEIGHT_DEFAULT = 600;
-	
+
 	/**
 	 * The desktop that will be used.
 	 */
 	private WorkbenchSplitPane desktop;
-	
+
 	/**
 	 * Menu bar associated with this desktop (if any)
 	 */
@@ -80,7 +85,6 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	private JMenu runMenu;
 	private JMenu helpMenu;
 
-
 	/**
 	 * Menu item for a New Project.
 	 */
@@ -96,7 +100,35 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 
 	private JMenuItem revertMenuItem;
 
-	private JMenuItem deleteMenuItem;
+	/**
+	 * menu item for the Edit Undo operation.
+	 */
+	private JMenuItem undoMenuItem;
+
+	/**
+	 * menu item for the Edit Redo operation.
+	 */
+	private JMenuItem redoMenuItem;
+
+	/**
+	 * menu item for the Edit Copy operation.
+	 */
+	private JMenuItem copyMenuItem;
+
+	/**
+	 * menu item for the Edit Cut operation.
+	 */
+	private JMenuItem cutMenuItem;
+
+	/**
+	 * menu item for the Edit Paste operation.
+	 */
+	private JMenuItem pasteMenuItem;
+
+	/**
+	 * Menu item for the Edit Select All operation.
+	 */
+	private JMenuItem selectAllMenuItem;
 
 	private JMenuItem exitMenuItem;
 
@@ -126,7 +158,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		desktop = new WorkbenchSplitPane(this);
-		desktop.getSourceWindowManager().setUserInterfaceFactory(workbench.getUserInterfaceFactory());
+		desktop.getSourceWindowManager().setUserInterfaceFactory(
+				workbench.getUserInterfaceFactory());
 
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -225,41 +258,49 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		editMenu = new JMenu("Edit");
 		mb.add(editMenu);
 
-		// mi = new JMenuItem("Undo");
-		// editMenu.add(mi);
-		// mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-		// InputEvent.CTRL_MASK, false));
-		// mi.setEnabled(false);
-		//
-		// editMenu.addSeparator();
+		undoMenuItem = new JMenuItem("Undo");
+		editMenu.add(undoMenuItem);
+		undoMenuItem.addActionListener(this);
+		undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+				InputEvent.CTRL_MASK, false));
+		undoMenuItem.setEnabled(true);
 
-		/*
-		 * mi = editMenu.add(actions.get(DefaultEditorKit.cutAction));
-		 * mi.setText("Cut"); if (accelerators)
-		 * mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,
-		 * InputEvent.CTRL_MASK, false));
-		 * 
-		 * mi = editMenu.add(actions.get(DefaultEditorKit.copyAction));
-		 * mi.setText("Copy"); if (accelerators)
-		 * mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-		 * InputEvent.CTRL_MASK, false));
-		 * 
-		 * mi = editMenu.add(actions.get(DefaultEditorKit.pasteAction));
-		 * mi.setText("Paste"); if (accelerators)
-		 * mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
-		 * InputEvent.CTRL_MASK, false));
-		 * 
-		 * editMenu.addSeparator();
-		 * 
-		 * mi = editMenu.add(actions.get(DefaultEditorKit.selectAllAction));
-		 * mi.setText("Select All"); if (accelerators)
-		 * mi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
-		 * InputEvent.CTRL_MASK, false));
-		 */
+		redoMenuItem = new JMenuItem("Redo");
+		editMenu.add(redoMenuItem);
+		redoMenuItem.addActionListener(this);
+		redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,
+				InputEvent.CTRL_MASK, false));
+		redoMenuItem.setEnabled(true);
 
-		deleteMenuItem = new JMenuItem("Delete");
-		editMenu.add(deleteMenuItem);
-		deleteMenuItem.addActionListener(this);
+		editMenu.addSeparator();
+
+		ActionMap defaultActionMap = new ActionMap();
+		DefaultEditorKit kit = new DefaultEditorKit();
+		for (Action action : kit.getActions()) {
+			defaultActionMap.put(action.getValue(Action.NAME), action);
+		}
+
+		cutMenuItem = new JMenuItem(
+				defaultActionMap.get(DefaultEditorKit.cutAction));
+		cutMenuItem.setText("Cut");
+		editMenu.add(cutMenuItem);
+
+		copyMenuItem = new JMenuItem(
+				defaultActionMap.get(DefaultEditorKit.copyAction));
+		cutMenuItem.setText("Copy");
+		editMenu.add(copyMenuItem);
+		
+		pasteMenuItem = new JMenuItem(
+				defaultActionMap.get(DefaultEditorKit.pasteAction));
+		cutMenuItem.setText("Paste");
+		editMenu.add(pasteMenuItem);
+
+		editMenu.addSeparator();
+
+		selectAllMenuItem = new JMenuItem(
+				defaultActionMap.get(DefaultEditorKit.selectAllAction));
+		cutMenuItem.setText("Select All");
+		editMenu.add(selectAllMenuItem);
 
 		viewMenu = new JMenu("View");
 		mb.add(viewMenu);
@@ -272,7 +313,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		helpMenu = new JMenu("Help");
 		mb.add(helpMenu);
 
-		JMenuItem aboutMenu = new JMenuItem("About Interactive Spaces Workbench...");
+		JMenuItem aboutMenu = new JMenuItem(
+				"About Interactive Spaces Workbench...");
 		helpMenu.add(aboutMenu);
 		aboutMenu.addActionListener(this);
 
@@ -293,12 +335,21 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 			if (state == JFileChooser.APPROVE_OPTION) {
 				File file = chooser.getSelectedFile();
 
-				if (workbench.getActivityProjectManager().isActivityProjectFolder(file)) {
+				if (workbench.getActivityProjectManager()
+						.isActivityProjectFolder(file)) {
 					ActivityProject currentProject = workbench
-							.getActivityProjectManager().readActivityProject(file);
-					setTitle("Interactive Spaces - " + currentProject.getActivityDescription().getName());
+							.getActivityProjectManager().readActivityProject(
+									file);
+					setTitle("Interactive Spaces - "
+							+ currentProject.getActivityDescription().getName());
 
-					desktop.getSourceWindowManager().addNewSourceWindow(workbench.getActivityProjectManager().getActivityConfSource(currentProject));
+					desktop.getSourceWindowManager().addNewSourceWindow(
+							workbench.getActivityProjectManager()
+									.getActivityConfSource(currentProject));
+					SimpleSource src = new SimpleSource(currentProject,
+							"/var/tmp/foop");
+
+					desktop.getSourceWindowManager().addNewSourceWindow(src);
 				} else {
 					JOptionPane.showMessageDialog(this,
 							"The folder is not an Activity project folder",
@@ -328,6 +379,10 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 			desktop.getSourceWindowManager().saveAll();
 		} else if (source.equals(revertMenuItem)) {
 			desktop.getSourceWindowManager().revertCurrentWindow();
+		} else if (source.equals(undoMenuItem)) {
+			desktop.getSourceWindowManager().undoEditCurrentWindow();
+		} else if (source.equals(redoMenuItem)) {
+			desktop.getSourceWindowManager().redoEditCurrentWindow();
 		}
 	}
 
@@ -336,5 +391,20 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 */
 	public InteractiveSpacesWorkbench getWorkbench() {
 		return workbench;
+	}
+
+	/**
+	 * A source editor has been selected. Get its action map and set up menu
+	 * items.
+	 * 
+	 * @param map
+	 *            the map of actions to attach to the menu items
+	 */
+	public void onSourceEditorSelect(ActionMap map) {
+		System.out.println("Changing actions");
+		copyMenuItem.setAction(map.get(DefaultEditorKit.copyAction));
+		cutMenuItem.setAction(map.get(DefaultEditorKit.cutAction));
+		pasteMenuItem.setAction(map.get(DefaultEditorKit.pasteAction));
+		selectAllMenuItem.setAction(map.get(DefaultEditorKit.selectAllAction));
 	}
 }

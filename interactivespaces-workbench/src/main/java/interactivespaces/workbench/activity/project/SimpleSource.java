@@ -44,6 +44,15 @@ public class SimpleSource implements Source {
 	 */
 	private SourceAdapter adapter;
 
+	public SimpleSource() {
+		// Do nothing
+	}
+
+	public SimpleSource(ActivityProject project, String path) {
+		this.project = project;
+		this.path = path;
+	}
+
 	@Override
 	public ActivityProject getProject() {
 		return project;

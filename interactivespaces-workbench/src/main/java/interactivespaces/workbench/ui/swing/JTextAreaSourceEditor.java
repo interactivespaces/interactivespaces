@@ -26,37 +26,46 @@ import javax.swing.JComponent;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.UndoManager;
 
 import com.google.common.collect.Lists;
 
 /**
  * A {@link SourceEditor} using a {@link JTextArea}
- *
+ * 
  * @author Keith M. Hughes
  * @since Sep 20, 2012
  */
 public class JTextAreaSourceEditor implements SourceEditor {
-	
+
 	/**
 	 * The text area to use.
 	 */
 	private JTextArea textArea;
-	
+
 	/**
 	 * The source being edited.
 	 */
 	private Source source;
-	
+
 	/**
 	 * Everyone who wants to know when this code was edited.
 	 */
 	private List<SourceEditorListener> editorListeners = Lists.newArrayList();
 
+	/**
+	 * The undo/redo manager for the text area.
+	 */
+	private UndoManager undoManager = new UndoManager();
+
 	public JTextAreaSourceEditor(Source source) {
 		this.source = source;
-		
+
 		textArea = new JTextArea();
-		
+
 		textArea.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
@@ -71,8 +80,16 @@ public class JTextAreaSourceEditor implements SourceEditor {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				contentChanged();
-			} 
+			}
 		});
+
+		textArea.getDocument().addUndoableEditListener(
+				new UndoableEditListener() {
+					public void undoableEditHappened(UndoableEditEvent e) {
+						undoManager.addEdit(e.getEdit());
+						// updateButtons();
+					}
+				});
 	}
 
 	@Override
@@ -99,7 +116,7 @@ public class JTextAreaSourceEditor implements SourceEditor {
 	@Override
 	public void setContentModified(boolean modified) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -110,19 +127,19 @@ public class JTextAreaSourceEditor implements SourceEditor {
 	@Override
 	public void selectLine(long line) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void clearSelection() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void revert() {
 		setContent(source.getContent());
-		
+
 		textArea.repaint();
 	}
 
@@ -140,7 +157,7 @@ public class JTextAreaSourceEditor implements SourceEditor {
 	@Override
 	public void setMarkedModified(boolean markedModified) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -158,11 +175,36 @@ public class JTextAreaSourceEditor implements SourceEditor {
 		source.setContent(getContent());
 	}
 
+	@Override
+	public void undoEdit() {
+		try {
+			undoManager.undo();
+		} catch (CannotRedoException cre) {
+			cre.printStackTrace();
+		}
+		// updateButtons();
+	}
+
+	@Override
+	public void redoEdit() {
+		try {
+			undoManager.redo();
+		} catch (CannotRedoException cre) {
+			cre.printStackTrace();
+		}
+		// updateButtons();
+	}
+
+	@Override
+	public void removeAllEdits() {
+		undoManager.discardAllEdits();
+	}
+
 	/**
 	 * Something about the content changed.
 	 */
 	private void contentChanged() {
 		for (SourceEditorListener listener : editorListeners)
 			listener.contentModified(this);
-	}	
+	}
 }

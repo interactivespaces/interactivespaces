@@ -88,4 +88,20 @@ public interface SourceEditor extends SourceAdapter {
 	 * @return {@code true} if the editor is read only, false otherwise.
 	 */
 	boolean isReadOnly();
+	
+	/**
+	 * If possible, undo the last edit.
+	 */
+	void undoEdit();
+	
+	/**
+	 * If possible, redo the last edit.
+	 */
+	void redoEdit();
+	
+	/**
+	 * Remove all edits from the editor. This will remove any pending
+	 * undo and redo events.
+	 */
+	void removeAllEdits();
 }

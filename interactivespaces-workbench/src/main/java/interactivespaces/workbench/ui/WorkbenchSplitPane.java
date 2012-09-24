@@ -19,8 +19,10 @@ package interactivespaces.workbench.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
@@ -58,6 +60,11 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 	private JTabbedPane sourcePane;
 
 	/**
+	 * Where the info windows go.
+	 */
+	private JTabbedPane infoPane;
+
+	/**
 	 * The source window manager to use for all source files.
 	 */
 	private SourceWindowManager sourceWindowManager;
@@ -74,14 +81,15 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 		confPane = new JTabbedPane();
 		add(confPane, "conf");
 
-		JTabbedPane sourcePane = new JTabbedPane();
+		sourcePane = new JTabbedPane();
 		add(sourcePane, "source");
 
-		JTabbedPane infoPane = new JTabbedPane();
+		infoPane = new JTabbedPane();
 		add(infoPane, "info");
 
-		sourceWindowManager = new BasicSourceWindowManager(workbenchUi
-				.getWorkbench().getActivityProjectManager(), sourcePane);
+		sourceWindowManager = new BasicSourceWindowManager(workbenchUi,
+				sourcePane, workbenchUi.getWorkbench()
+						.getActivityProjectManager());
 	}
 
 	/**
