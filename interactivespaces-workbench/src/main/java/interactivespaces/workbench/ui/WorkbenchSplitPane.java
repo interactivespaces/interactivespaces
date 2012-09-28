@@ -117,6 +117,8 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 
 		MultiSplitLayout layout = new MultiSplitLayout(row1);
 		setLayout(layout);
+
+		// This means that the splits don't resize when content is put in them.
 		layout.setFloatingDividers(false);
 	}
 

@@ -14,22 +14,15 @@
  * the License.
  */
 
-package interactivespaces.workbench.ui.swing;
+package interactivespaces.workbench.ui.wizard;
 
-import interactivespaces.workbench.activity.project.Source;
-import interactivespaces.workbench.ui.SourceEditor;
-import interactivespaces.workbench.ui.UserInterfaceFactory;
 
 /**
- * A {@link UserInterfaceFactory} using plain Swing widgets.
+ * A panel to go inside a wizard.
  *
  * @author Keith M. Hughes
  */
-public class PlainSwingUserInterfaceFactory implements UserInterfaceFactory {
-
-	@Override
-	public SourceEditor newSourceEditor(Source source) {
-		return new JTextAreaSourceEditor(source);
-	}
-
+public interface WizardComponent extends Wizard {
+	
+	
 }

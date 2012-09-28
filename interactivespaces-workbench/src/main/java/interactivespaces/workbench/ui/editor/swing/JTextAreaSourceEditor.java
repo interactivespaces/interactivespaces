@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.ui.swing;
+package interactivespaces.workbench.ui.editor.swing;
 
 import interactivespaces.workbench.activity.project.Source;
 import interactivespaces.workbench.ui.SourceEditor;

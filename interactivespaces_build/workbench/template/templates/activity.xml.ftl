@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<activity <#if project.activity.builderType?has_content>builder="${project.activity.builderType}"</#if>>
-    <name>${project.activity.name}</name>
+<activity <#if project.activityDescription.builderType?has_content>builder="${project.activityDescription.builderType}"</#if>>
+    <name>${project.activityDescription.name}</name>
     <description>
-${project.activity.description}
+${project.activityDescription.description}
     </description>
-    <version>${project.activity.version}</version>
-    <identifyingName>${project.activity.identifyingName}</identifyingName>
+    <version>${project.activityDescription.version}</version>
+    <identifyingName>${project.activityDescription.identifyingName}</identifyingName>
 </activity>

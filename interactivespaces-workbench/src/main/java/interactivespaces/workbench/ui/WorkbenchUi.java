@@ -18,6 +18,8 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
+import interactivespaces.workbench.ui.wizard.JWizardDialog;
+import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -37,7 +39,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -439,8 +440,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 				openActivityProject(file);
 			}
 		} else if (source.equals(newProjectMenuItem)) {
-			JNewWizardDialog wizard = new InteractiveSpacesNewProjectDialog(
-					this);
+			JWizardDialog wizard = new JWizardDialog(
+					"New Project", this, new NewProjectWizard(workbench));
 			wizard.setLocationRelativeTo(this);
 			wizard.setVisible(true);
 		} else if (source.equals(exitMenuItem)) {

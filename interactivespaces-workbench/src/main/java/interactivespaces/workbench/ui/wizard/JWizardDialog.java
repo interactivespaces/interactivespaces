@@ -14,18 +14,20 @@
  * the License.
  */
 
-package interactivespaces.workbench.ui;
+package interactivespaces.workbench.ui.wizard;
+
+import interactivespaces.workbench.ui.ImagePanel;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,23 +36,77 @@ import javax.swing.JPanel;
  * A base class for creating wizard classes.
  * 
  * @author Keith M. Hughes
- * @since Aug 27, 2012
  */
-public abstract class JNewWizardDialog extends JDialog implements ActionListener {
-	public JNewWizardDialog(Frame parent) {
-		super(parent, "New Project", true);
+public class JWizardDialog extends JDialog implements ActionListener {
+
+	/**
+	 * Where the message icon will go.
+	 */
+	private ImagePanel messageIcon;
+
+	/**
+	 * There is a message on display
+	 */
+	protected boolean hasMessage;
+
+	/**
+	 * There is an error.
+	 */
+	protected boolean hasErrorMessage;
+
+	/**
+	 * Where the messages will go.
+	 */
+	private JLabel messageLabel;
+
+	/**
+	 * The button for canceling the wizard.
+	 */
+	private JButton cancelButton;
+
+	/**
+	 * The button for proceeding the wizard.
+	 */
+	private JButton proceedButton;
+
+	/**
+	 * The button for moving to the previous wizard component.
+	 */
+	private JButton previousButton;
+
+	/**
+	 * The wizard for this dialog.
+	 */
+	private Wizard wizard;
+
+	/**
+	 * The current wizard component visible in the dialog
+	 */
+	private JComponent currentComponent;
+
+	public JWizardDialog(String title, Frame parent, Wizard wizard) {
+		super(parent, title, true);
+
+		this.wizard = wizard;
+		wizard.initializeWizard();
 
 		cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(this);
 
-		finishButton = new JButton("Finish");
-		finishButton.addActionListener(this);
+		previousButton = new JButton("Previous");
+		previousButton.addActionListener(this);
+
+		proceedButton = new JButton();
+		proceedButton.addActionListener(this);
+
+		updateButtons();
 
 		// Put the buttons in a flow panel so that they get centered and are
 		// next to each other
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		buttonPanel.add(cancelButton);
-		buttonPanel.add(finishButton);
+		buttonPanel.add(previousButton);
+		buttonPanel.add(proceedButton);
 		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
 		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -60,43 +116,91 @@ public abstract class JNewWizardDialog extends JDialog implements ActionListener
 		infoPanel.add(messageLabel);
 		getContentPane().add(infoPanel, BorderLayout.NORTH);
 
-		JPanel mainPanel = new JPanel(new GridBagLayout());
-		getContentPane().add(mainPanel, BorderLayout.CENTER);
+		setWizardJComponent();
 
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-
-		// Components that are too short or narrow for their space
-		// Should be pinned to the northwest (upper left) corner
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-
-		getWizardPanel(mainPanel, gbc);
-
-		initializeWizard();
+		pack();
 	}
 
 	/**
-	 * Initialize the wizard.
+	 * Make the wizard's current jcomponent visible.
 	 */
-	protected void initializeWizard() {
-		// Default is do nothing.
+	private void setWizardJComponent() {
+		Container contentPane = getContentPane();
+		if (currentComponent != null) {
+			contentPane.remove(currentComponent);
+			currentComponent.setVisible(false);
+		}
+		
+		currentComponent = wizard.getCurrentJComponent();
+		contentPane.add(currentComponent, BorderLayout.CENTER);
+		currentComponent.setVisible(true);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		Object command = ae.getSource();
 
-		if (command.equals(finishButton)) {
-			if (checkWizard(true) != ValidationResult.ERRORS) {
-				completeWizard();
-
-				setVisible(false);
-				dispose();
-			}
+		if (command.equals(proceedButton)) {
+			proceedButtonPressed();
+		} else if (command.equals(previousButton)) {
+			previousButtonPressed();
 		} else if (command.equals(cancelButton)) {
 			setVisible(false);
 			dispose();
 		}
+	}
+
+	/**
+	 * The proceed button has been pressed.
+	 */
+	private void proceedButtonPressed() {
+		if (wizard.hasNext()) {
+			wizard.moveNext();
+
+			setWizardJComponent();
+
+			updateButtons();
+
+			invalidate();
+			repaint();
+		} else {
+			if (checkWizard(true) != ValidationResult.ERRORS) {
+				wizardDone();
+			} else {
+				updateButtons();
+			}
+		}
+	}
+
+	/**
+	 * The previous button was pressed.
+	 */
+	private void previousButtonPressed() {
+		// Assuming we only see a button press if the wizard could move
+		wizard.movePrevious();
+
+		setWizardJComponent();
+
+		updateButtons();
+	}
+
+	/**
+	 * Update the buttons on the wizard dialog.
+	 */
+	private void updateButtons() {
+		proceedButton.setText(wizard.hasNext() ? "Next" : "Finish");
+
+		previousButton.setEnabled(wizard.hasPrevious());
+	}
+
+	/**
+	 * The wizard is done.
+	 */
+	private void wizardDone() {
+		wizard.completeWizard();
+
+		setVisible(false);
+		dispose();
 	}
 
 	protected String getDefaultMessage() {
@@ -107,9 +211,9 @@ public abstract class JNewWizardDialog extends JDialog implements ActionListener
 	 * The result of a validation.
 	 * 
 	 * @author Keith M. Hughes
-	 * @since Feb 8, 2011
 	 */
 	public enum ValidationResult {
+
 		/**
 		 * Everything validated properly.
 		 */
@@ -130,7 +234,6 @@ public abstract class JNewWizardDialog extends JDialog implements ActionListener
 	 * The types of messages that can be written.
 	 * 
 	 * @author Keith M. Hughes
-	 * @since May 8, 2010
 	 */
 	public enum MessageType {
 		INFO, WARNING, ERROR
@@ -201,35 +304,4 @@ public abstract class JNewWizardDialog extends JDialog implements ActionListener
 	protected ValidationResult checkWizard(boolean finalCheck) {
 		return ValidationResult.OK;
 	}
-
-	/**
-	 * Complete the generation of the project.
-	 */
-	protected void completeWizard() {
-		// Default is to do nothing
-	}
-
-	/**
-	 * Where the message icon will go.
-	 */
-	private ImagePanel messageIcon;
-
-	/**
-	 * There is a message on display
-	 */
-	protected boolean hasMessage;
-
-	/**
-	 * There is an error.
-	 */
-	protected boolean hasErrorMessage;
-
-	/**
-	 * Where the messages will go.
-	 */
-	private JLabel messageLabel;
-
-	private JButton cancelButton;
-
-	private JButton finishButton;
 }

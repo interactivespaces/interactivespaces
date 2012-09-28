@@ -1,4 +1,4 @@
-package ${project.activity.identifyingName};
+package ${project.activityDescription.identifyingName};
 
 import interactivespaces.activity.impl.BaseActivity;
 
@@ -9,31 +9,31 @@ public class SimpleJavaActivity extends BaseActivity {
 
     @Override
     public void onActivitySetup() {
-        getLog().info("Activity ${project.activity.identifyingName} setup");
+        getLog().info("Activity ${project.activityDescription.identifyingName} setup");
     }
 
 	@Override
 	public void onActivityStartup() {
-		getLog().info("Activity ${project.activity.identifyingName} startup");
+		getLog().info("Activity ${project.activityDescription.identifyingName} startup");
 	}
 
 	@Override
 	public void onActivityActivate() {
-		getLog().info("Activity ${project.activity.identifyingName} activate");
+		getLog().info("Activity ${project.activityDescription.identifyingName} activate");
 	}
 
 	@Override
 	public void onActivityDeactivate() {
-		getLog().info("Activity ${project.activity.identifyingName} deactivate");
+		getLog().info("Activity ${project.activityDescription.identifyingName} deactivate");
 	}
 
 	@Override
 	public void onActivityShutdown() {
-		getLog().info("Activity ${project.activity.identifyingName} shutdown");
+		getLog().info("Activity ${project.activityDescription.identifyingName} shutdown");
 	}
 
     @Override
     public void onActivityCleanup() {
-        getLog().info("Activity ${project.activity.identifyingName} cleanup");
+        getLog().info("Activity ${project.activityDescription.identifyingName} cleanup");
     }
 }

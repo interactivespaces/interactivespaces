@@ -18,10 +18,8 @@ package interactivespaces.workbench;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.support.ActivityDescription;
-import interactivespaces.domain.support.ActivityDescriptionReader;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
-import interactivespaces.domain.support.JdomActivityDescriptionReader;
 import interactivespaces.domain.support.Validator;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
@@ -37,11 +35,10 @@ import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreator
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackager;
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackagerImpl;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
-import interactivespaces.workbench.ui.swing.PlainSwingUserInterfaceFactory;
+import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
 import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -237,9 +234,13 @@ public class InteractiveSpacesWorkbench {
 	 * Get a value from the user.
 	 * 
 	 * @param prompt
+	 *            the prompt for the user
 	 * @param validator
+	 *            the validator for the value
 	 * @param console
-	 * @return
+	 *            the console for IO
+	 * 
+	 * @return a valid value for the prquestion
 	 */
 	private String getValue(String prompt, Validator validator, Console console) {
 		String fullPrompt = prompt + ": ";
@@ -293,4 +294,11 @@ public class InteractiveSpacesWorkbench {
 	public UserInterfaceFactory getUserInterfaceFactory() {
 		return userInterfaceFactory;
 	}
+
+	/**
+	 * @return the activityProjectCreator
+	 */
+	public ActivityProjectCreator getActivityProjectCreator() {
+		return activityProjectCreator;
+	}	
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>${project.activity.identifyingName}</name>
+	<name>${project.activityDescription.identifyingName}</name>
 	<comment/>
 	<projects/>
 	<natures>
