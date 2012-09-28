@@ -31,8 +31,12 @@ import java.util.Map;
  * 
  * @author Keith M. Hughes
  */
-public class JavaProjectSourceDescription implements ProjectSourceDescription {
+public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+	public GenericJavaActivityProjectTemplate() {
+		super("Generic Simple Java Project");
+	}
+	
 	@Override
 	public void process(ActivityProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,

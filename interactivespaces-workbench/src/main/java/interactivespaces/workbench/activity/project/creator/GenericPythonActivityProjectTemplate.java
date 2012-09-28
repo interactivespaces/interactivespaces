@@ -25,24 +25,28 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * A project creator for java projects.
+ * A project creator for Python projects.
  * 
  * @author Keith M. Hughes
  */
-public class JavascriptProjectSourceDescription implements ProjectSourceDescription {
+public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+	public GenericPythonActivityProjectTemplate() {
+		super("Generic Simple Python Project");
+	}
+	
 	@Override
 	public void process(ActivityProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> templateData) {
 		spec.getProject().setActivityType("script");
 
-		spec.setExecutable("SimplePythonActivity.js");
+		spec.setExecutable("SimplePythonActivity.py");
 		spec.addExtraConfigurationParameter("space.activity.log.level",
 				InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
 
 		templater.writeTemplate(templateData, new File(spec.getProject().getActivityResourceDirectory(),
-				"SimplePythonActivity.js"),
-				"activity/generic/javascript/simple/SimpleJavascriptActivity.js.ftl");
+				"SimplePythonActivity.py"),
+				"activity/generic/python/simple/SimplePythonActivity.py.ftl");
 	}
 }

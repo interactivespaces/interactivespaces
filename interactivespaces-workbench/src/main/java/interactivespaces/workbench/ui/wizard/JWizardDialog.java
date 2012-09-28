@@ -161,7 +161,7 @@ public class JWizardDialog extends JDialog implements ActionListener {
 
 			updateButtons();
 
-			invalidate();
+			validate();
 			repaint();
 		} else {
 			if (checkWizard(true) != ValidationResult.ERRORS) {

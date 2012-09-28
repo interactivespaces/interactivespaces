@@ -16,35 +16,35 @@
 
 package interactivespaces.workbench.activity.project.creator;
 
-import java.util.Map;
-
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
 
+import java.util.Map;
+
 /**
- * A description of what should be in project sources.
- * 
+ * A base implementation of a project template.
+ *
  * @author Keith M. Hughes
  */
-public interface ProjectSourceDescription {
+public abstract class BaseActivityProjectTemplate implements ActivityProjectTemplate {
 
 	/**
-	 * Process the source description.
-	 * 
-	 * <p>
-	 * This may fill in portions of the specification
-	 * 
-	 * @param spec
-	 *            the build specification
-	 * @param workbench
-	 *            the workbench for the project
-	 * @param templater
-	 *            the templater to use
-	 * @param templateData
-	 *            the template data to use
+	 * The display name for the template.
 	 */
-	void process(ActivityProjectCreationSpecification spec,
-			InteractiveSpacesWorkbench workbench,
-			FreemarkerTemplater templater, Map<String, Object> templateData);
+	private String displayName;
+
+	public BaseActivityProjectTemplate(String displayName) {
+		this.displayName = displayName;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	@Override
+	public String toString() {
+		return displayName;
+	}
 }

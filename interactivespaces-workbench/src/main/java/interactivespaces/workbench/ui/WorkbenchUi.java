@@ -381,8 +381,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 				System.out.println("Activating activity");
 			}
 		};
-		activityDeactivateAction = new WorkbenchAction("Deactivate",
-				null, "Deactivate the activity", new Integer(KeyEvent.VK_L)) {
+		activityDeactivateAction = new WorkbenchAction("Deactivate", null,
+				"Deactivate the activity", new Integer(KeyEvent.VK_L)) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Deactivating activity");
@@ -400,15 +400,18 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		runMenu.add(activityStartupMenuItem);
 		toolbar.add(activityStartupAction).setText("St");
 
-		JMenuItem activityActivateMenuItem = new JMenuItem(activityActivateAction);
+		JMenuItem activityActivateMenuItem = new JMenuItem(
+				activityActivateAction);
 		runMenu.add(activityActivateMenuItem);
 		toolbar.add(activityActivateAction).setText("Ac");
 
-		JMenuItem activityDeactivateMenuItem = new JMenuItem(activityDeactivateAction);
+		JMenuItem activityDeactivateMenuItem = new JMenuItem(
+				activityDeactivateAction);
 		runMenu.add(activityDeactivateMenuItem);
 		toolbar.add(activityDeactivateAction).setText("De");
 
-		JMenuItem activityShutdownMenuItem = new JMenuItem(activityShutdownAction);
+		JMenuItem activityShutdownMenuItem = new JMenuItem(
+				activityShutdownAction);
 		runMenu.add(activityShutdownMenuItem);
 		toolbar.add(activityShutdownAction).setText("Sh");
 
@@ -440,8 +443,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 				openActivityProject(file);
 			}
 		} else if (source.equals(newProjectMenuItem)) {
-			JWizardDialog wizard = new JWizardDialog(
-					"New Project", this, new NewProjectWizard(workbench));
+			JWizardDialog wizard = new JWizardDialog("New Project", this,
+					new NewProjectWizard(this, workbench));
 			wizard.setLocationRelativeTo(this);
 			wizard.setVisible(true);
 		} else if (source.equals(exitMenuItem)) {
@@ -493,6 +496,18 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 					"The folder is not an Activity project folder",
 					"Not Activity Project Folder", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	/**
+	 * Set the current project.
+	 * 
+	 * @param project
+	 *            the project to make the current project
+	 */
+	public void setCurrentActivityProject(ActivityProject project) {
+		currentProject = project;
+		setTitle("Interactive Spaces - "
+				+ currentProject.getActivityDescription().getName());
 	}
 
 	/**

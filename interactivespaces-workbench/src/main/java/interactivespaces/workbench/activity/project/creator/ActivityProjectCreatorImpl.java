@@ -23,8 +23,12 @@ import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Lists;
 
 /**
  * A {@link ActivityProjectCreator} implementation.
@@ -32,6 +36,16 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
+
+	/**
+	 * The list of activities to be handed to clients.
+	 */
+	private List<ActivityProjectTemplate> activityProjectTemplates;
+
+	/**
+	 * The list of activities to be used internally.
+	 */
+	private List<ActivityProjectTemplate> activityProjectTemplatesInternal;
 
 	/**
 	 * Templater to use
@@ -47,12 +61,25 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 			FreemarkerTemplater templater) {
 		this.workbench = workbench;
 		this.templater = templater;
+		
+		activityProjectTemplatesInternal = Lists.newArrayList();
+		activityProjectTemplates = Collections.unmodifiableList(activityProjectTemplatesInternal);
+		
+		activityProjectTemplatesInternal.add(new GenericJavaActivityProjectTemplate());
+		activityProjectTemplatesInternal.add(new GenericJavascriptActivityProjectTemplate());
+		activityProjectTemplatesInternal.add(new GenericPythonActivityProjectTemplate());
+	}
+
+	@Override
+	public List<ActivityProjectTemplate> getActivityProjectTemplates() {
+		return activityProjectTemplates;
 	}
 
 	@Override
 	public void createProject(ActivityProjectCreationSpecification spec) {
 		try {
 			ActivityProject project = spec.getProject();
+			
 			createProjectStructure(project);
 
 			addSpecDetails(spec);
@@ -83,15 +110,15 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 		String identifyingName = spec.getProject().getActivityDescription()
 				.getIdentifyingName();
 		String[] parts = identifyingName.split("\\.");
-		StringBuilder activityName = new StringBuilder(parts[0]);
+		StringBuilder activityRuntimeName = new StringBuilder(parts[0]);
 
 		for (int i = 1; i < parts.length; ++i) {
 			String part = parts[i];
-			activityName.append(part.substring(0, 1).toUpperCase()).append(
+			activityRuntimeName.append(part.substring(0, 1).toUpperCase()).append(
 					part.substring(1));
 		}
 
-		spec.getProject().getActivityDescription().setName(activityName.toString());
+		spec.getProject().getActivityDescription().setActivityRuntimeName(activityRuntimeName.toString());
 	}
 
 	/**
@@ -157,13 +184,13 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 			Map<String, Object> templateData) {
 		String language = spec.getLanguage();
 		if ("java".equals(language)) {
-			writeProjectTemplate(new JavaProjectSourceDescription(), spec,
+			writeProjectTemplate(new GenericJavaActivityProjectTemplate(), spec,
 					templateData);
 		} else if ("python".equals(language)) {
-			writeProjectTemplate(new PythonProjectSourceDescription(), spec,
+			writeProjectTemplate(new GenericPythonActivityProjectTemplate(), spec,
 					templateData);
 		} else if ("javascript".equals(language)) {
-			writeProjectTemplate(new JavascriptProjectSourceDescription(), spec,
+			writeProjectTemplate(new GenericJavascriptActivityProjectTemplate(), spec,
 					templateData);
 		} else {
 			throw new InteractiveSpacesException(String.format(
@@ -180,7 +207,7 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 	 *            data to go into the template
 	 */
 	private void writeProjectTemplate(
-			ProjectSourceDescription sourceDescription,
+			ActivityProjectTemplate sourceDescription,
 			ActivityProjectCreationSpecification spec,
 			Map<String, Object> templateData) {
 		sourceDescription.process(spec, workbench, templater, templateData);

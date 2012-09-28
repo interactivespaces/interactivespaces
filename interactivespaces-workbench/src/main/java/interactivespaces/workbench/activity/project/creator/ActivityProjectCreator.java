@@ -18,12 +18,21 @@ package interactivespaces.workbench.activity.project.creator;
 
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
 
+import java.util.List;
+
 /**
  * Creator for new activity projects.
  * 
  * @author Keith M. Hughes
  */
 public interface ActivityProjectCreator {
+	
+	/**
+	 * Get all activity project templates.
+	 * 
+	 * @return the templates ordered by their display name.
+	 */
+	List<ActivityProjectTemplate> getActivityProjectTemplates();
 
 	/**
 	 * Create an activity project.

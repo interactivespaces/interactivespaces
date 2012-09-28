@@ -41,19 +41,34 @@ public class NewProjectWizard extends WizardCollection {
 	 * The activity description wizard
 	 */
 	private ActivityDescriptionWizard activityDescriptionWizard;
-	
+
+	/**
+	 * Wizard for chosing the project template.
+	 */
+	private ActivityProjectTemplateChooserWizard activityProjectTemplateChooserWizard;
+
+	/**
+	 * The workbench UI.
+	 */
+	private WorkbenchUi workbenchUi;
+
 	/**
 	 * The workbench.
 	 */
 	private InteractiveSpacesWorkbench workbench;
 
-	public NewProjectWizard(InteractiveSpacesWorkbench workbench) {
+	public NewProjectWizard(WorkbenchUi workbenchUi,
+			InteractiveSpacesWorkbench workbench) {
+		this.workbenchUi = workbenchUi;
 		this.workbench = workbench;
-		
+
 		chooseDirectoryWizard = new ChooseDirectoryWizard();
 		activityDescriptionWizard = new ActivityDescriptionWizard();
+		activityProjectTemplateChooserWizard = new ActivityProjectTemplateChooserWizard(
+				workbench.getActivityProjectCreator()
+						.getActivityProjectTemplates());
 
-		addWizards(chooseDirectoryWizard, activityDescriptionWizard);
+		addWizards(chooseDirectoryWizard, activityDescriptionWizard, activityProjectTemplateChooserWizard);
 	}
 
 	@Override
@@ -64,19 +79,22 @@ public class NewProjectWizard extends WizardCollection {
 
 		ActivityDescription activityDescription = activityDescriptionWizard
 				.getActivityDescription();
-		ActivityProject project = new ActivityProject(activityDescription);
+		ActivityProject activityProject = new ActivityProject(
+				activityDescription);
 
 		// Folder will be by identifying name in the folder selected in the
 		// directory choose dialog
-		project.setBaseDirectory(new File(chooseDirectoryWizard
-				.getSelectedDirectory(), activityDescription
-				.getIdentifyingName()));
+		String identifyingName = activityDescription.getIdentifyingName();
+		activityProject.setBaseDirectory(new File(chooseDirectoryWizard
+				.getSelectedDirectory(), identifyingName));
 
-		spec.setProject(project);
-		
+		spec.setProject(activityProject);
+
 		spec.setLanguage("java");
-		
+
 		workbench.getActivityProjectCreator().createProject(spec);
+
+		workbenchUi.setCurrentActivityProject(activityProject);
 	}
 
 }

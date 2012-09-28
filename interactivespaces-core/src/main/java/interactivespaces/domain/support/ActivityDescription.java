@@ -24,6 +24,11 @@ import interactivespaces.domain.basic.pojo.SimpleActivity;
  * @author Keith M. Hughes
  */
 public class ActivityDescription extends SimpleActivity {
+	
+	/**
+	 * The activity's runtime name.
+	 */
+	private String activityRuntimeName;
 
 	/**
 	 * The type of builder for the project.
@@ -34,6 +39,25 @@ public class ActivityDescription extends SimpleActivity {
 	 * The runtime for the activity.
 	 */
 	private LiveActivityRuntime runtime;
+
+	/**
+	 * Get the activity topic name for the project.
+	 * 
+	 * @return the activity topic name
+	 */
+	public String getActivityRuntimeName() {
+		return activityRuntimeName;
+	}
+
+	/**
+	 * Set the activity runtime name for the project.
+	 * 
+	 * @param activityRuntimeName 
+	 * 			the activity runtime name
+	 */
+	public void setActivityRuntimeName(String activityRuntimeName) {
+		this.activityRuntimeName = activityRuntimeName;
+	}
 
 	/**
 	 * Get the type of builder to be used for the activity.

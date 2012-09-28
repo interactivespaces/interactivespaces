@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.activity.project.creator;
 
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -31,20 +29,24 @@ import java.util.Map;
  * 
  * @author Keith M. Hughes
  */
-public class PythonProjectSourceDescription implements ProjectSourceDescription {
+public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+	public GenericJavascriptActivityProjectTemplate() {
+		super("Generic Simple Javascript Project");
+	}
+	
 	@Override
 	public void process(ActivityProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> templateData) {
 		spec.getProject().setActivityType("script");
 
-		spec.setExecutable("SimplePythonActivity.py");
+		spec.setExecutable("SimplePythonActivity.js");
 		spec.addExtraConfigurationParameter("space.activity.log.level",
 				InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
 
 		templater.writeTemplate(templateData, new File(spec.getProject().getActivityResourceDirectory(),
-				"SimplePythonActivity.py"),
-				"activity/generic/python/simple/SimplePythonActivity.py.ftl");
+				"SimplePythonActivity.js"),
+				"activity/generic/javascript/simple/SimpleJavascriptActivity.js.ftl");
 	}
 }
