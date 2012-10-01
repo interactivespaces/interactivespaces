@@ -16,14 +16,18 @@
 
 package interactivespaces.workbench.ui;
 
-import javax.swing.JComponent;
-
 import interactivespaces.domain.support.ActivityDescription;
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationMessageType;
+import interactivespaces.workbench.ui.validation.ValidationResult;
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
+import interactivespaces.workbench.ui.wizard.Wizard;
+
+import javax.swing.JComponent;
 
 /**
  * A {@link Wizard} for getting an Activity Description.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class ActivityDescriptionWizard extends SingleComponentWizard {
@@ -32,7 +36,7 @@ public class ActivityDescriptionWizard extends SingleComponentWizard {
 	 * The activity description panel to use.
 	 */
 	private ActivityDescriptionPanel panel;
-	
+
 	public ActivityDescriptionWizard() {
 		panel = new ActivityDescriptionPanel();
 	}
@@ -41,9 +45,21 @@ public class ActivityDescriptionWizard extends SingleComponentWizard {
 	public JComponent getCurrentJComponent() {
 		return panel;
 	}
-	
+
 	public ActivityDescription getActivityDescription() {
 		panel.syncActivityDescription();
 		return panel.getActivityDescription();
+	}
+
+	@Override
+	public ValidationResult validateCurrentWizard(boolean finalCheck) {
+		return panel.checkValidation();
+	}
+
+	@Override
+	public void setValidationMessageDisplay(
+			ValidationMessageDisplay validationMessageDisplay) {
+		super.setValidationMessageDisplay(validationMessageDisplay);
+		panel.setValidationMessageDisplay(validationMessageDisplay);
 	}
 }

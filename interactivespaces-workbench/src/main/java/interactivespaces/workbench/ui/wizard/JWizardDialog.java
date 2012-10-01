@@ -17,27 +17,32 @@
 package interactivespaces.workbench.ui.wizard;
 
 import interactivespaces.workbench.ui.ImagePanel;
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationMessageType;
+import interactivespaces.workbench.ui.validation.ValidationResult;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 /**
  * A base class for creating wizard classes.
  * 
  * @author Keith M. Hughes
  */
-public class JWizardDialog extends JDialog implements ActionListener {
+public class JWizardDialog extends JDialog implements ActionListener,
+		ValidationMessageDisplay {
 
 	/**
 	 * Where the message icon will go.
@@ -57,7 +62,7 @@ public class JWizardDialog extends JDialog implements ActionListener {
 	/**
 	 * Where the messages will go.
 	 */
-	private JLabel messageLabel;
+	private JTextArea messageLabel;
 
 	/**
 	 * The button for canceling the wizard.
@@ -84,10 +89,13 @@ public class JWizardDialog extends JDialog implements ActionListener {
 	 */
 	private JComponent currentComponent;
 
+	private JPanel infoPanel;
+
 	public JWizardDialog(String title, Frame parent, Wizard wizard) {
 		super(parent, title, true);
 
 		this.wizard = wizard;
+		wizard.setValidationMessageDisplay(this);
 		wizard.initializeWizard();
 
 		cancelButton = new JButton("Cancel");
@@ -109,11 +117,23 @@ public class JWizardDialog extends JDialog implements ActionListener {
 		buttonPanel.add(proceedButton);
 		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
-		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		infoPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints infoConstraints = new GridBagConstraints();
+		infoConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
+		
 		messageIcon = new ImagePanel();
-		messageLabel = new JLabel();
-		infoPanel.add(messageIcon);
-		infoPanel.add(messageLabel);
+		infoConstraints.gridx = 0;
+		infoConstraints.gridy = 0;
+		infoConstraints.fill = GridBagConstraints.HORIZONTAL;
+		infoPanel.add(messageIcon, infoConstraints);
+		
+		messageLabel = new JTextArea();
+		messageLabel.setRows(3);
+		messageLabel.setEditable(false);
+		messageLabel.setOpaque(false);
+		infoConstraints.gridx++;
+		infoConstraints.fill = GridBagConstraints.BOTH;
+		infoPanel.add(messageLabel, infoConstraints);
 		getContentPane().add(infoPanel, BorderLayout.NORTH);
 
 		setWizardJComponent();
@@ -130,7 +150,7 @@ public class JWizardDialog extends JDialog implements ActionListener {
 			contentPane.remove(currentComponent);
 			currentComponent.setVisible(false);
 		}
-		
+
 		currentComponent = wizard.getCurrentJComponent();
 		contentPane.add(currentComponent, BorderLayout.CENTER);
 		currentComponent.setVisible(true);
@@ -164,7 +184,7 @@ public class JWizardDialog extends JDialog implements ActionListener {
 			validate();
 			repaint();
 		} else {
-			if (checkWizard(true) != ValidationResult.ERRORS) {
+			if (wizard.validateCurrentWizard(true) != ValidationResult.ERRORS) {
 				wizardDone();
 			} else {
 				updateButtons();
@@ -207,61 +227,22 @@ public class JWizardDialog extends JDialog implements ActionListener {
 		return "   ";
 	}
 
-	/**
-	 * The result of a validation.
-	 * 
-	 * @author Keith M. Hughes
-	 */
-	public enum ValidationResult {
-
-		/**
-		 * Everything validated properly.
-		 */
-		OK,
-
-		/**
-		 * There were warnings, but no errors.
-		 */
-		WARNINGS,
-
-		/**
-		 * There are errors.
-		 */
-		ERRORS
-	}
-
-	/**
-	 * The types of messages that can be written.
-	 * 
-	 * @author Keith M. Hughes
-	 */
-	public enum MessageType {
-		INFO, WARNING, ERROR
-	}
-
-	/**
-	 * Write out a message to the information window.
-	 * 
-	 * @param type
-	 *            Type of the message.
-	 * @param message
-	 *            The message.
-	 */
-	public void writeMessage(MessageType type, String message) {
+	@Override
+	public void showValidationMessage(ValidationMessageType type, String message) {
 		hasMessage = true;
 		switch (type) {
 		case ERROR:
 			messageIcon
-					.setImage(ImagePanel.loadImage("images/WizardError.gif"));
+					.setImage(ImagePanel.loadImage("/images/WizardError.gif"));
 			hasErrorMessage = true;
 			break;
 		case INFO:
-			messageIcon.setImage(ImagePanel.loadImage("images/WizardInfo.gif"));
+			messageIcon.setImage(ImagePanel.loadImage("/images/WizardInfo.gif"));
 			hasErrorMessage = false;
 			break;
 		case WARNING:
 			messageIcon.setImage(ImagePanel
-					.loadImage("images/WizardWarning.gif"));
+					.loadImage("/images/WizardWarning.gif"));
 			hasErrorMessage = false;
 			break;
 		default:
@@ -271,37 +252,12 @@ public class JWizardDialog extends JDialog implements ActionListener {
 		messageLabel.setText(message);
 	}
 
-	/**
-	 * Clear any message out.
-	 */
-	public void clearMessage() {
+	@Override
+	public void clearValidationMessage() {
 		messageIcon.setImage(null);
 		messageLabel.setText("");
 
 		hasMessage = false;
 		hasErrorMessage = false;
-	}
-
-	/**
-	 * Add the wizard specific components.
-	 */
-	protected void getWizardPanel(JPanel mainPanel, GridBagConstraints gbc) {
-		// The default is to do nothing.
-	}
-
-	/**
-	 * Check to see if the wizard is ready to complete.
-	 * 
-	 * <p>
-	 * This method should pop any warning windows for fields not properly filled
-	 * out.
-	 * 
-	 * @param finalCheck
-	 *            TODO
-	 * 
-	 * @return The result of verifying the wizard.
-	 */
-	protected ValidationResult checkWizard(boolean finalCheck) {
-		return ValidationResult.OK;
 	}
 }

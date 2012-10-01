@@ -16,6 +16,9 @@
 
 package interactivespaces.workbench.ui.wizard;
 
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationResult;
+
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -105,6 +108,11 @@ public class WizardCollection implements Wizard {
 	}
 
 	@Override
+	public ValidationResult validateCurrentWizard(boolean finalCheck) {
+		return getCurrentWizard().validateCurrentWizard(finalCheck);
+	}
+
+	@Override
 	public void initializeWizard() {
 		// Walk the wizards in the order added.
 		for (Wizard wizard : wizards) {
@@ -117,6 +125,14 @@ public class WizardCollection implements Wizard {
 		// Walk the wizards in the order added.
 		for (Wizard wizard : wizards) {
 			wizard.completeWizard();
+		}
+	}
+
+	@Override
+	public void setValidationMessageDisplay(
+			ValidationMessageDisplay validationMessageDisplay) {
+		for (Wizard wizard : wizards) {
+			wizard.setValidationMessageDisplay(validationMessageDisplay);
 		}
 	}
 

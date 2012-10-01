@@ -16,13 +16,14 @@
 
 package interactivespaces.workbench.ui.wizard;
 
-import javax.swing.JComponent;
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationResult;
 
 import javax.swing.JComponent;
 
 /**
  * A wizard for UI events.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface Wizard {
@@ -33,7 +34,7 @@ public interface Wizard {
 	 * @return {@code true} if there is another panel to move to
 	 */
 	boolean hasNext();
-	
+
 	/**
 	 * Move to the next panel.
 	 * 
@@ -41,14 +42,14 @@ public interface Wizard {
 	 * Does nothing if there is no next panel.
 	 */
 	void moveNext();
-	
+
 	/**
 	 * Does the manager currently have a previous panel?
 	 * 
 	 * @return {@code true} if there is a previous panel to move to
 	 */
 	boolean hasPrevious();
-	
+
 	/**
 	 * Move to the previous panel.
 	 * 
@@ -56,20 +57,40 @@ public interface Wizard {
 	 * Does nothing if there is no previous panel.
 	 */
 	void movePrevious();
-	
+
 	/**
 	 * Get the current panel for the wizard.
+	 * 
 	 * @return
 	 */
 	JComponent getCurrentJComponent();
-	
+
+	/**
+	 * Check the current wizard to see if it is validating.
+	 * 
+	 * @param finalCheck
+	 *            is this the final check?
+	 * 
+	 * @return the {@link ValidationResult}
+	 */
+	ValidationResult validateCurrentWizard(boolean finalCheck);
+
 	/**
 	 * Initialize the wizard.
 	 */
 	void initializeWizard();
-	
+
 	/**
 	 * Complete the wizard.
 	 */
 	void completeWizard();
+
+	/**
+	 * Set the validation message display to be used.
+	 * 
+	 * @param validationMessageDisplay
+	 *            the display to use
+	 */
+	void setValidationMessageDisplay(
+			ValidationMessageDisplay validationMessageDisplay);
 }

@@ -20,6 +20,8 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
+import interactivespaces.domain.support.DomainValidationResult;
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
@@ -246,8 +248,9 @@ public class InteractiveSpacesWorkbench {
 		String fullPrompt = prompt + ": ";
 
 		String value = console.readLine(fullPrompt);
-		while (!validator.validate(value)) {
-			console.printf(validator.getDescription());
+		DomainValidationResult result = validator.validate(value);
+		while (result.getResultType().equals(DomainValidationResultType.ERRORS)) {
+			console.printf(result.getDescription());
 			value = console.readLine(fullPrompt);
 		}
 

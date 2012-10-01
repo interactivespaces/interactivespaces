@@ -16,7 +16,8 @@
 
 package interactivespaces.workbench.ui.wizard;
 
-import javax.swing.JComponent;
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationResult;
 
 /**
  * A {@link WizardComponent} which has only 1 internal component.
@@ -24,7 +25,8 @@ import javax.swing.JComponent;
  * @author Keith M. Hughes
  */
 public abstract class SingleComponentWizard implements WizardComponent {
-
+	private ValidationMessageDisplay validationMessageDisplay;
+	
 	@Override
 	public boolean hasNext() {
 		// Nowhere to move to
@@ -55,5 +57,23 @@ public abstract class SingleComponentWizard implements WizardComponent {
 	@Override
 	public void completeWizard() {
 		// Default is nothing to complete.
+	}
+	
+	@Override
+	public ValidationResult validateCurrentWizard(boolean finalCheck) {
+		// Default is all is OK.
+		return ValidationResult.OK;
+	}
+
+	@Override
+	public void setValidationMessageDisplay(ValidationMessageDisplay validationMessageDisplay) {
+		this.validationMessageDisplay = validationMessageDisplay;
+	}
+
+	/**
+	 * @return the validationMessageDisplay
+	 */
+	public ValidationMessageDisplay getValidationMessageDisplay() {
+		return validationMessageDisplay;
 	}
 }

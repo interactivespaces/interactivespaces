@@ -16,6 +16,8 @@
 
 package interactivespaces.domain.support;
 
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+
 import java.util.regex.Pattern;
 
 /**
@@ -31,14 +33,19 @@ public class ActivityIdentifyingNameValidator implements Validator {
 	public static final Pattern PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*");
 	
 	@Override
-	public boolean validate(String candidate) {
-		return PATTERN.matcher(candidate).matches();
-	}
-	
-	@Override
-	public String getDescription() {
-		return "An identifying name must be of the form a.b.c.c\n" + 
-				"where each section starts with a letter and\n" + 
-				"continues with letters, digits, or underscores.";
+	public DomainValidationResult validate(String candidate) {
+		candidate = candidate.trim();
+		
+		if (candidate.isEmpty()) {
+			return new DomainValidationResult(DomainValidationResultType.ERRORS, "An identifying name is required.");
+		}
+		
+		if (!PATTERN.matcher(candidate).matches()) {
+			return new DomainValidationResult(DomainValidationResultType.ERRORS, "An identifying name must be of the form a.b.c.c\n" + 
+					"where each section starts with a letter and\n" + 
+					"continues with letters, digits, or underscores.");
+		}
+		
+		return new DomainValidationResult(DomainValidationResultType.OK, null);
 	}
 }

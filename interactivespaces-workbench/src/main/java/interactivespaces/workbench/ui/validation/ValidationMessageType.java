@@ -14,22 +14,13 @@
  * the License.
  */
 
-package interactivespaces.domain.support;
+package interactivespaces.workbench.ui.validation;
 
 /**
- * A validator for activity values.
- *
+ * The types of validation messages that can be written.
+ * 
  * @author Keith M. Hughes
  */
-public interface Validator {
-
-	/**
-	 * Validate the given candidate.
-	 * 
-	 * @param candidate
-	 * 		the candidate value
-	 * 
-	 * @return the result of the validation
-	 */
-	DomainValidationResult validate(String candidate);
+public enum ValidationMessageType {
+	INFO, WARNING, ERROR
 }

@@ -17,13 +17,19 @@
 package interactivespaces.workbench.ui;
 
 import interactivespaces.domain.support.ActivityDescription;
+import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
+import interactivespaces.domain.support.ActivityVersionValidator;
+import interactivespaces.domain.support.DomainValidationResult;
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
+import interactivespaces.workbench.ui.validation.ValidationMessageType;
+import interactivespaces.workbench.ui.validation.ValidationResult;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -38,20 +44,6 @@ import javax.swing.JTextField;
  * @since Sep 25, 2012
  */
 public class ActivityDescriptionPanel extends JPanel {
-
-	/**
-	 * Regex definition for project names.
-	 */
-	private static final String PROJECT_NAME_REGEX = "[a-zA-Z_]{1}[a-zA-Z0-9_]*";
-
-	/**
-	 * Regex pattern for project names.
-	 */
-	private static final Pattern PROJECT_NAME_PATTERN;
-
-	static {
-		PROJECT_NAME_PATTERN = Pattern.compile(PROJECT_NAME_REGEX);
-	}
 
 	/**
 	 * Input control for the name of the project.
@@ -79,6 +71,15 @@ public class ActivityDescriptionPanel extends JPanel {
 	private ActivityDescription activityDescription;
 
 	/**
+	 * The display for validation messages.
+	 */
+	private ValidationMessageDisplay validationMessageDisplay;
+
+	private ActivityIdentifyingNameValidator identifyingNameValidator;
+
+	private ActivityVersionValidator versionValidator;
+	
+	/**
 	 * Creates a fresh {@link ActivityDescription} to back the panel.
 	 */
 	public ActivityDescriptionPanel() {
@@ -105,7 +106,7 @@ public class ActivityDescriptionPanel extends JPanel {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// checkWizard(false);
+				checkValidation();
 			}
 		};
 
@@ -169,6 +170,9 @@ public class ActivityDescriptionPanel extends JPanel {
 		add(projectVersionInput, gbc);
 		
 		setActivityDescription(activityDescription);
+		
+		identifyingNameValidator = new ActivityIdentifyingNameValidator();
+		versionValidator = new ActivityVersionValidator();
 	}
 
 	/**
@@ -223,21 +227,47 @@ public class ActivityDescriptionPanel extends JPanel {
 		return activityDescription;
 	}
 
-	// public ValidationResult checkWizard(boolean finalCheck) {
-	// String projectName = projectNameInput.getText().trim();
-	// int sizeName = projectName.length();
-	// if (sizeName == 0) {
-	// writeMessage(MessageType.ERROR, "A project name is required.");
-	// return ValidationResult.ERRORS;
-	// }
-	//
-	// if (!PROJECT_NAME_PATTERN.matcher(projectName).matches()) {
-	// writeMessage(MessageType.ERROR,
-	// "Illegal characters in the project name.");
-	// return ValidationResult.ERRORS;
-	// }
-	//
-	// clearMessage();
-	// return ValidationResult.OK;
-	// }
+	/**
+	 * Check the validation of this panel
+	 * 
+	 * @return the result of the validation check
+	 */
+	public ValidationResult checkValidation() {
+		String projectName = projectNameInput.getText().trim();
+		int sizeName = projectName.length();
+		if (sizeName == 0) {
+			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR, "A project name is required.");
+			return ValidationResult.ERRORS;
+		}
+		
+		String identifyingName = projectIdentifyingNameInput.getText().trim();
+		DomainValidationResult validationResult = identifyingNameValidator.validate(identifyingName);
+		if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
+			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
+					validationResult.getDescription());
+			
+			return ValidationResult.ERRORS;
+		}
+		
+		String version = projectVersionInput.getText().trim();
+		validationResult = versionValidator.validate(version);
+		if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
+			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
+					validationResult.getDescription());
+			
+			return ValidationResult.ERRORS;
+		}
+
+		validationMessageDisplay.clearValidationMessage();
+		
+		return ValidationResult.OK;
+	}
+
+	/**
+	 * @param validationMessageDisplay the validationMessageDisplay to set
+	 */
+	public void setValidationMessageDisplay(
+			ValidationMessageDisplay validationMessageDisplay) {
+		this.validationMessageDisplay = validationMessageDisplay;
+	}
 }

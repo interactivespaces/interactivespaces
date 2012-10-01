@@ -16,6 +16,8 @@
 
 package interactivespaces.domain.support;
 
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+
 import java.util.regex.Pattern;
 
 /**
@@ -31,16 +33,21 @@ public class ActivityVersionValidator implements Validator {
 	public static final Pattern PATTERN = Pattern.compile("[0-9]+(\\.[0-9]+){2}(-[a-zA-Z0-9][a-zA-Z0-9_]*)?");
 	
 	@Override
-	public boolean validate(String candidate) {
-		return PATTERN.matcher(candidate).matches();
-	}
-	
-	@Override
-	public String getDescription() {
-		return "A version must be of the form a.b.c\n" + 
-				"where each section is a series of digits.\n" + 
-				"It can also be of the form a.b.c-d where d starts with\n" +
-				"a letter or digit, and is followed by letters, digits,\n" + 
-				"or underscores.";
+	public DomainValidationResult validate(String candidate) {
+		candidate = candidate.trim();
+		
+		if (candidate.isEmpty()) {
+			return new DomainValidationResult(DomainValidationResultType.ERRORS, "A version is required.");
+		}
+		
+		if (!PATTERN.matcher(candidate).matches()) {
+			return new DomainValidationResult(DomainValidationResultType.ERRORS, "A version must be of the form a.b.c\n" + 
+					"where each section is a series of digits.\n" + 
+					"It can also be of the form a.b.c-d where d starts with\n" +
+					"a letter or digit, and is followed by letters, digits,\n" + 
+					"or underscores.");
+		}
+		
+		return new DomainValidationResult(DomainValidationResultType.OK, null);
 	}
 }

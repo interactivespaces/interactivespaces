@@ -14,22 +14,29 @@
  * the License.
  */
 
-package interactivespaces.domain.support;
+package interactivespaces.workbench.ui.validation;
+
+import interactivespaces.workbench.ui.ImagePanel;
 
 /**
- * A validator for activity values.
+ * A display for validation messages.
  *
  * @author Keith M. Hughes
  */
-public interface Validator {
+public interface ValidationMessageDisplay {
+	
+	/**
+	 * Write out a validation message to the display.
+	 * 
+	 * @param type
+	 *            Type of the message.
+	 * @param message
+	 *            The message.
+	 */
+	void showValidationMessage(ValidationMessageType type, String message);
 
 	/**
-	 * Validate the given candidate.
-	 * 
-	 * @param candidate
-	 * 		the candidate value
-	 * 
-	 * @return the result of the validation
+	 * Clear any validation message.
 	 */
-	DomainValidationResult validate(String candidate);
+	void clearValidationMessage();
 }

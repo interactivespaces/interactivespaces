@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 
 /**
  * A panel with an image in it.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class ImagePanel extends JPanel {
@@ -48,37 +48,36 @@ public class ImagePanel extends JPanel {
 		if (img != null)
 			g.drawImage(img, 0, 0, null);
 	}
-	
+
 	public void setImage(BufferedImage img) {
-	    this.img = img;
-	    Dimension size;
-	    if (img != null)
-	    	size = new Dimension(img.getWidth(null), img.getHeight(null));
-	    else
-	    	size = new Dimension(0,0);
-	    
-	    setPreferredSize(size);
-	    setMinimumSize(size);
-	    setMaximumSize(size);
-	    setSize(size);
-	    setLayout(null);
-	    
-	    repaint();
+		this.img = img;
+		Dimension size;
+		if (img != null)
+			size = new Dimension(img.getWidth(null), img.getHeight(null));
+		else
+			size = new Dimension(0, 0);
+
+		setPreferredSize(size);
+		setMinimumSize(size);
+		setMaximumSize(size);
+		setSize(size);
+		setLayout(null);
+
+		repaint();
 	}
-	
+
 	/**
 	 * Load images to go in the box.
 	 */
 	public static BufferedImage loadImage(String imagePath) {
-		InputStream imageStream = Thread.currentThread()
-    		.getContextClassLoader()
-    		.getResourceAsStream(imagePath);
+		InputStream imageStream = ImagePanel.class
+				.getResourceAsStream(imagePath);
 		try {
 			return ImageIO.read(imageStream);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
+
 			return null;
 		} finally {
 			try {
