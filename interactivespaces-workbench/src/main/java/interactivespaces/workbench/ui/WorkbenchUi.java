@@ -19,7 +19,6 @@ package interactivespaces.workbench.ui;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.ui.wizard.JWizardDialog;
-import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -487,10 +486,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		// TODO(keith): If project already open should open up new workbench UI.
 		if (workbench.getActivityProjectManager().isActivityProjectFolder(
 				baseProjectDir)) {
-			currentProject = workbench.getActivityProjectManager()
-					.readActivityProject(baseProjectDir);
-			setTitle("Interactive Spaces - "
-					+ currentProject.getActivityDescription().getName());
+			setCurrentActivityProject(workbench.getActivityProjectManager()
+					.readActivityProject(baseProjectDir));
 		} else {
 			JOptionPane.showMessageDialog(this,
 					"The folder is not an Activity project folder",
@@ -508,6 +505,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		currentProject = project;
 		setTitle("Interactive Spaces - "
 				+ currentProject.getActivityDescription().getName());
+		desktop.setCurrentActivityProject(project);
 	}
 
 	/**

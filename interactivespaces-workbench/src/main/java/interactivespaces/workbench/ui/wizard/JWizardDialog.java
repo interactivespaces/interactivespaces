@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 /**
  * A base class for creating wizard classes.
@@ -120,13 +121,13 @@ public class JWizardDialog extends JDialog implements ActionListener,
 		infoPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints infoConstraints = new GridBagConstraints();
 		infoConstraints.anchor = GridBagConstraints.FIRST_LINE_START;
-		
+
 		messageIcon = new ImagePanel();
 		infoConstraints.gridx = 0;
 		infoConstraints.gridy = 0;
 		infoConstraints.fill = GridBagConstraints.HORIZONTAL;
 		infoPanel.add(messageIcon, infoConstraints);
-		
+
 		messageLabel = new JTextArea();
 		messageLabel.setRows(3);
 		messageLabel.setEditable(false);
@@ -232,12 +233,13 @@ public class JWizardDialog extends JDialog implements ActionListener,
 		hasMessage = true;
 		switch (type) {
 		case ERROR:
-			messageIcon
-					.setImage(ImagePanel.loadImage("/images/WizardError.gif"));
+			messageIcon.setImage(ImagePanel
+					.loadImage("/images/WizardError.gif"));
 			hasErrorMessage = true;
 			break;
 		case INFO:
-			messageIcon.setImage(ImagePanel.loadImage("/images/WizardInfo.gif"));
+			messageIcon
+					.setImage(ImagePanel.loadImage("/images/WizardInfo.gif"));
 			hasErrorMessage = false;
 			break;
 		case WARNING:

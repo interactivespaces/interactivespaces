@@ -14,31 +14,25 @@
  * the License.
  */
 
-package interactivespaces.workbench.activity.project.creator;
+package interactivespaces.workbench.activity.project;
 
 /**
- * A base implementation of a project template.
+ * A listener for events from an activity project file manager.
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseActivityProjectTemplate implements ActivityProjectTemplate {
+public interface ActivityProjectFileManagerListener {
 
 	/**
-	 * The display name for the template.
+	 * A new activity project has been opened.
+	 * 
+	 * @param project
 	 */
-	private String displayName;
-
-	public BaseActivityProjectTemplate(String displayName) {
-		this.displayName = displayName;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	@Override
-	public String toString() {
-		return displayName;
-	}
+	void onNewProject(ActivityProject project);
+	
+	/**
+	 * A new source file has been added.
+	 * @param source
+	 */
+	void onNewSource(Source source);
 }

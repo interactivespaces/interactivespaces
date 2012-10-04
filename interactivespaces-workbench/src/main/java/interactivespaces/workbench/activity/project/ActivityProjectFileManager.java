@@ -14,31 +14,13 @@
  * the License.
  */
 
-package interactivespaces.workbench.activity.project.creator;
+package interactivespaces.workbench.activity.project;
 
 /**
- * A base implementation of a project template.
+ * A file manager for activity projects.
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseActivityProjectTemplate implements ActivityProjectTemplate {
+public interface ActivityProjectFileManager {
 
-	/**
-	 * The display name for the template.
-	 */
-	private String displayName;
-
-	public BaseActivityProjectTemplate(String displayName) {
-		this.displayName = displayName;
-	}
-
-	@Override
-	public String getDisplayName() {
-		return displayName;
-	}
-
-	@Override
-	public String toString() {
-		return displayName;
-	}
 }

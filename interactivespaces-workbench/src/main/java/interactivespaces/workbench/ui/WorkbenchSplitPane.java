@@ -16,13 +16,14 @@
 
 package interactivespaces.workbench.ui;
 
+import interactivespaces.workbench.activity.project.ActivityProject;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.ScrollPaneConstants;
 
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
@@ -69,6 +70,11 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 	 */
 	private SourceWindowManager sourceWindowManager;
 
+	/**
+	 * The project explorer.
+	 */
+	private JFileSystemExplorerTree projectExplorerPane;
+
 	public WorkbenchSplitPane(WorkbenchUi workbenchUi) {
 		this.workbenchUi = workbenchUi;
 
@@ -86,6 +92,14 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 
 		infoPane = new JTabbedPane();
 		add(infoPane, "info");
+
+		projectExplorerPane = new JFileSystemExplorerTree();
+		JScrollPane projectExplorerScrollPane = new JScrollPane(
+				projectExplorerPane,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		confPane.addTab("Project Explorer", projectExplorerScrollPane);
 
 		sourceWindowManager = new BasicSourceWindowManager(workbenchUi,
 				sourcePane, workbenchUi.getWorkbench()
@@ -133,5 +147,15 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 	 */
 	public SourceWindowManager getSourceWindowManager() {
 		return sourceWindowManager;
+	}
+
+	/**
+	 * Set the new activity project.
+	 * 
+	 * @param activityProject
+	 *            the new project
+	 */
+	public void setCurrentActivityProject(ActivityProject activityProject) {
+		projectExplorerPane.buildTree(activityProject);
 	}
 }

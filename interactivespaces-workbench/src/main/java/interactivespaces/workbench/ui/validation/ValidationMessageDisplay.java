@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.ui.validation;
 
-import interactivespaces.workbench.ui.ImagePanel;
-
 /**
  * A display for validation messages.
  *
