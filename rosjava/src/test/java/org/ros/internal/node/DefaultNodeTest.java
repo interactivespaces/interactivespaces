@@ -76,7 +76,7 @@ public class DefaultNodeTest {
 
   @Before
   public void setUp() throws Exception {
-    scheduledExecutorService = Executors.newScheduledThreadPool(10);
+    scheduledExecutorService = Executors.newScheduledThreadPool(Integer.MAX_VALUE);
     masterServer = new MasterServer(BindAddress.newPublic(), AdvertiseAddress.newPublic());
     masterServer.start();
     masterUri = masterServer.getUri();

@@ -63,7 +63,7 @@ public class InteractiveSpacesService extends Service {
 		Log.i("InteractiveSpacesRootActivity", "startForeground for InteractiveSpacesService");
 
 		List<String> args = new ArrayList<String>();
-		InteractiveSpacesFrameworkBootstrap isBootstrap = new InteractiveSpacesFrameworkBootstrap();
+		InteractiveSpacesFrameworkAndroidBootstrap isBootstrap = new InteractiveSpacesFrameworkAndroidBootstrap();
 		isBootstrap.boot(args, getApplicationContext());
 		Log.i("InteractiveSpacesRootActivity",
 				"starting Interactive Spaces container");

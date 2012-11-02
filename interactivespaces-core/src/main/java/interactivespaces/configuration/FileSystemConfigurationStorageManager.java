@@ -19,6 +19,7 @@ package interactivespaces.configuration;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.evaluation.ExpressionEvaluator;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
+import interactivespaces.system.InteractiveSpacesFilesystem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +59,11 @@ public class FileSystemConfigurationStorageManager implements
 	 */
 	private ExpressionEvaluatorFactory expressionEvaluatorFactory;
 
+	/**
+	 * The interactivespaces file system.
+	 */
+	private InteractiveSpacesFilesystem interactiveSpacesFilesystem;
+	
 	/**
 	 * Logger.
 	 */
@@ -129,7 +135,7 @@ public class FileSystemConfigurationStorageManager implements
 	 * @return
 	 */
 	private File[] getConfigFiles() {
-		File configurationFolder = new File(CONFIGURATION_FILE_FOLDER);
+		File configurationFolder = new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
 		if (configurationFolder.exists()) {
 			if (!configurationFolder.isDirectory()) {
 				throw new InteractiveSpacesException(
@@ -180,4 +186,11 @@ public class FileSystemConfigurationStorageManager implements
 		this.log = log;
 	}
 
+	/**
+	 * @param interactiveSpacesFilesystem the interactiveSpacesFilesystem to set
+	 */
+	public void setInteractiveSpacesFilesystem(
+			InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
+		this.interactiveSpacesFilesystem = interactiveSpacesFilesystem;
+	}
 }

@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.ros.osgi.deployment.master.Feature;
 import org.ros.osgi.deployment.master.FeatureBundleResolver;
 
@@ -31,7 +30,7 @@ import org.ros.osgi.deployment.master.FeatureBundleResolver;
  */
 public class ObrFeatureBundleResolver implements FeatureBundleResolver {
 
-	private RepositoryAdmin repositoryAdmin;
+	//private RepositoryAdmin repositoryAdmin;
 	
 	@Override
 	public Set<String> getBundles(Collection<Feature> features) {
@@ -46,18 +45,18 @@ public class ObrFeatureBundleResolver implements FeatureBundleResolver {
 		return bundles;
 	}
 
-	/**
-	 * @param repositoryAdmin the repositoryAdmin to set
-	 */
-	public void setRepositoryAdmin(RepositoryAdmin repositoryAdmin) {
-		this.repositoryAdmin = repositoryAdmin;
-	}
-
-	/**
-	 * @param repositoryAdmin the repositoryAdmin to set
-	 */
-	public void unsetRepositoryAdmin(RepositoryAdmin rrepositoryAdmin) {
-		this.repositoryAdmin = null;
-	}
+//	/**
+//	 * @param repositoryAdmin the repositoryAdmin to set
+//	 */
+//	public void setRepositoryAdmin(RepositoryAdmin repositoryAdmin) {
+//		this.repositoryAdmin = repositoryAdmin;
+//	}
+//
+//	/**
+//	 * @param repositoryAdmin the repositoryAdmin to set
+//	 */
+//	public void unsetRepositoryAdmin(RepositoryAdmin rrepositoryAdmin) {
+//		this.repositoryAdmin = null;
+//	}
 	
 }

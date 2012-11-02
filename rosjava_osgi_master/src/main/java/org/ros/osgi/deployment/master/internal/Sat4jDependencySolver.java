@@ -16,22 +16,6 @@
 
 package org.ros.osgi.deployment.master.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.felix.bundlerepository.Repository;
-import org.apache.felix.bundlerepository.Requirement;
-import org.apache.felix.bundlerepository.Resource;
-import org.sat4j.pb.IPBSolver;
-import org.sat4j.pb.SolverFactory;
-import org.sat4j.pb.tools.DependencyHelper;
-import org.sat4j.pb.tools.WeightedObject;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IVec;
 
 /**
  * 

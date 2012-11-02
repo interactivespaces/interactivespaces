@@ -66,7 +66,7 @@ public class RegistrarTest {
   @Before
   public void setup() {
 	Log log = Mockito.mock(Log.class);
-    executorService = Executors.newScheduledThreadPool(10);
+    executorService = Executors.newScheduledThreadPool(Integer.MAX_VALUE);
     masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate());
     masterServer.start();
     masterClient = new MasterClient(masterServer.getUri());

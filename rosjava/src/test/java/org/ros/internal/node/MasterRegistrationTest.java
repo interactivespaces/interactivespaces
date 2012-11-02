@@ -63,7 +63,7 @@ public class MasterRegistrationTest {
 	@Before
 	public void setup() {
 		Log log = mock(Log.class);
-		executorService = Executors.newScheduledThreadPool(10);
+		executorService = Executors.newScheduledThreadPool(Integer.MAX_VALUE);
 		masterServer = new MasterServer(BindAddress.newPrivate(),
 				AdvertiseAddress.newPrivate());
 		masterServer.start();
@@ -98,7 +98,7 @@ public class MasterRegistrationTest {
 	@Test
 	public void testRegisterPublisher() throws InterruptedException {
 		masterRegistration.onPublisherAdded(publisher);
-		assertTrue(publisherListener.awaitMasterRegistrationSuccess(1,
+		assertTrue(publisherListener.awaitMasterRegistrationSuccess(10,
 				TimeUnit.SECONDS));
 	}
 

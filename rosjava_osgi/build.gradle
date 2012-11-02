@@ -14,7 +14,7 @@
  */
 
 dependencies {
-  compile ('ros.rosjava_core:rosjava:0.0.0-SNAPSHOT')
+  compile project(':rosjava')
   
 //  compile('ros:message.osgi_msgs:0.0.0-SNAPSHOT') {
 //    exclude module: 'rosjava_bootstrap'
@@ -22,10 +22,10 @@ dependencies {
 
   compile 'org.apache.felix:org.apache.felix.framework:3.2.2'
   compile 'org.apache.felix:org.apache.felix.scr:1.6.0'
-  compile 'org.apache.felix:org.apache.felix.http.bundle:2.2.0'
-  compile 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
-  compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
-  compile 'org.apache.felix:org.apache.felix.gogo.runtime:0.10.0'
+  //compile 'org.apache.felix:org.apache.felix.http.bundle:2.2.0'
+  //compile 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
+  //compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
+  //compile 'org.apache.felix:org.apache.felix.gogo.runtime:0.10.0'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -38,4 +38,3 @@ jar {
     instruction 'Export-Package', 'org.ros.osgi.*'
   }
 }
-

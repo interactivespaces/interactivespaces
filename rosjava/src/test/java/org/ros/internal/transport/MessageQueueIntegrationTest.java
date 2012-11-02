@@ -104,7 +104,7 @@ public class MessageQueueIntegrationTest {
 
 	@Before
 	public void setup() {
-		executorService = Executors.newScheduledThreadPool(20);
+		executorService = Executors.newScheduledThreadPool(Integer.MAX_VALUE);
 		tcpClientConnectionManager = new TcpClientConnectionManager(
 				executorService);
 		expectedMessage = new org.ros.message.std_msgs.String();

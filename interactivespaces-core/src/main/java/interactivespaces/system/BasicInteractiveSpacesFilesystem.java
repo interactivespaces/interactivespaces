@@ -59,11 +59,16 @@ public class BasicInteractiveSpacesFilesystem implements
 	 */
 	private File logsDirectory;
 
-	public BasicInteractiveSpacesFilesystem() {
+	/**
+	 * 
+	 * @param baseInstallDir
+	 * 		The base directory where Interactive Spaces is installed.
+	 */
+	public BasicInteractiveSpacesFilesystem(File baseInstallDir) {
 		/**
 		 * Need to check this is always right for all OSes.
 		 */
-		baseInstallDirectory = new File(".").getAbsoluteFile();
+		this.baseInstallDirectory = baseInstallDir;
 		String absolutePath = baseInstallDirectory.getAbsolutePath();
 		if (absolutePath.endsWith(".")) {
 			baseInstallDirectory = baseInstallDirectory.getParentFile();

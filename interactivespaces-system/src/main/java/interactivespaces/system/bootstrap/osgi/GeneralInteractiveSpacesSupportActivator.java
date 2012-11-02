@@ -34,20 +34,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.commons.logging.impl.Jdk14Logger;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.osgi.framework.BundleActivator;
@@ -66,6 +58,12 @@ import org.ros.osgi.common.SimpleRosEnvironment;
  */
 public class GeneralInteractiveSpacesSupportActivator implements
 		BundleActivator {
+
+	/**
+	 * Property containing the Interactive Spaces root dir. This will be an
+	 * absolute path.
+	 */
+	public static final String PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR = "interactivespaces.rootdir";
 
 	/**
 	 * Configuration property for where configurations are found for the
@@ -132,12 +130,17 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * Start up the activator.
 	 */
 	public void start(BundleContext context) throws Exception {
+		String baseInstallDirProperty = context
+				.getProperty(PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR);
+		File baseInstallDir = new File(baseInstallDirProperty);
+
 		try {
-			Properties containerProperties = getContainerProperties();
+			Properties containerProperties = getProperties(new File(
+					baseInstallDir, PROPERTY_CONTAINER_CONFIGURATION_FILEPATH));
 
-			setupLogging();
+			//setupLogging(baseInstallDir);
 
-			setupSpaceEnvironment(context, containerProperties);
+			setupSpaceEnvironment(context, containerProperties, baseInstallDir);
 
 			registerServices(context);
 		} catch (Exception e) {
@@ -170,25 +173,36 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	/**
 	 * Set up the logging in the container.
 	 */
-	private void setupLogging() {
+	private void setupLogging(File baseInstallDir) {
+		Properties loggingProperties = getProperties(new File(baseInstallDir,
+				LOGGING_PROPERTIES_FILE));
+		loggingProperties.put("log4j.appender.interactivespaces.File",
+				new File(baseInstallDir, "logs/interactivespaces.log")
+						.getAbsolutePath());
 		// TODO(keith): This needs to go into a logging bundle.
-		PropertyConfigurator.configure(LOGGING_PROPERTIES_FILE);
-		baseInteractiveSpacesLogger = Logger.getLogger(LOGGER_BASE_NAME);
+		PropertyConfigurator.configure(loggingProperties);
+		baseInteractiveSpacesLogger = new Logger("interactivespaces") { }; // Logger.getLogger(LOGGER_BASE_NAME);
 	}
 
 	/**
 	 * Set up the {@link InteractiveSpacesEnvironment} everyone should use.
 	 * 
 	 * @param context
+	 *            the OSGi bundle context
+	 * @param containerProperties
+	 *            properties for the base container
+	 * @param baseInstallDir
+	 *            the base directory where Interactive Spaces is installed
 	 */
 	private void setupSpaceEnvironment(BundleContext context,
-			Properties containerProperties) {
+			Properties containerProperties, File baseInstallDir) {
 		systemControl = new OsgiInteractiveSpacesSystemControl(context);
 
 		executorService = new DefaultScheduledExecutorService();
-		Log log = new Log4JLogger(baseInteractiveSpacesLogger);
+		//Log log = new Log4JLogger(baseInteractiveSpacesLogger);
+		Log log = new Jdk14Logger("interactivespaces");
 
-		filesystem = new BasicInteractiveSpacesFilesystem();
+		filesystem = new BasicInteractiveSpacesFilesystem(baseInstallDir);
 		filesystem.startup();
 
 		spaceEnvironment = new RosOsgiInteractiveSpacesEnvironment();
@@ -215,7 +229,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * @param containerProperties
 	 * @param log
 	 */
-	protected void setupRosEnvironment(BundleContext context,
+	private void setupRosEnvironment(BundleContext context,
 			Properties containerProperties, Log log) {
 		rosEnvironment = new SimpleRosEnvironment();
 		rosEnvironment.setExecutorService(executorService);
@@ -256,7 +270,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * @param containerProperties
 	 *            the properties from the container configuration
 	 */
-	protected void configureRosFromInteractiveSpaces(
+	private void configureRosFromInteractiveSpaces(
 			Properties containerProperties) {
 		rosEnvironment
 				.setProperty(
@@ -295,7 +309,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		fileSystemConfigurationStorageManager.setLog(spaceEnvironment.getLog());
 		fileSystemConfigurationStorageManager
 				.setExpressionEvaluatorFactory(expressionEvaluatorFactory);
-
+		fileSystemConfigurationStorageManager.setInteractiveSpacesFilesystem(filesystem);
+		
 		systemConfigurationStorageManager = fileSystemConfigurationStorageManager;
 		systemConfigurationStorageManager.startup();
 
@@ -310,6 +325,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		spaceEnvironment.setSystemConfiguration(systemConfiguration);
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		systemConfigurationStorageManager.shutdown();
 		systemConfigurationStorageManager = null;
@@ -321,12 +337,13 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	/**
 	 * Get the properties the container needs to bootstrap.
 	 * 
-	 * @return
+	 * @param containerHomeDirectory
+	 *            the root directory of the IS container install
+	 * 
+	 * @return the properties for the container
 	 */
-	private Properties getContainerProperties() {
+	private Properties getProperties(File conf) {
 		Properties properties = new Properties();
-
-		File conf = new File(PROPERTY_CONTAINER_CONFIGURATION_FILEPATH);
 
 		FileInputStream fileInputStream = null;
 
@@ -346,153 +363,4 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		}
 	}
 
-	private class DelegatingScheduledExecutorService implements
-			ScheduledExecutorService {
-
-		private ScheduledExecutorService delegate;
-		private Log log;
-
-		public DelegatingScheduledExecutorService(
-				ScheduledExecutorService delegate, Log log) {
-			this.delegate = delegate;
-			this.log = log;
-		}
-
-		public ScheduledFuture<?> schedule(Runnable command, long delay,
-				TimeUnit unit) {
-			try {
-				log.debug("Calling schedule(Runnable command, long delay, TimeUnit unit)");
-			return delegate.schedule(command, delay, unit);
-			} finally {
-				log.debug("Success Calling schedule(Runnable command, long delay, TimeUnit unit)");
-			}
-		}
-
-		public void execute(Runnable command) {
-			try {
-				log.debug("Calling execute(Runnable command)");
-				delegate.execute(command);
-			} finally {
-				log.debug("Success Calling execute(Runnable command)");
-			}
-		}
-
-		public <V> ScheduledFuture<V> schedule(Callable<V> callable,
-				long delay, TimeUnit unit) {
-			try {
-				log.debug("Calling schedule(Callable<V> callable, long delay, TimeUnit unit)");
-				return delegate.schedule(callable, delay, unit);
-			} finally {
-				log.debug("Success Calling schedule(Callable<V> callable, long delay, TimeUnit unit)");
-			}
-		}
-
-		public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
-				long initialDelay, long period, TimeUnit unit) {
-			try {
-				log.debug("Calling scheduleWithFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)");
-				return delegate.scheduleAtFixedRate(command, initialDelay,
-						period, unit);
-			} finally {
-				log.debug("Success Calling scheduleWithFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)");
-			}
-		}
-
-		public void shutdown() {
-			delegate.shutdown();
-		}
-
-		public List<Runnable> shutdownNow() {
-			return delegate.shutdownNow();
-		}
-
-		public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
-				long initialDelay, long delay, TimeUnit unit) {
-			try {
-				log.debug("Calling scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)");
-				return delegate.scheduleWithFixedDelay(command, initialDelay,
-						delay, unit);
-			} finally {
-				log.debug("Success Calling scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)");
-			}
-		}
-
-		public boolean isShutdown() {
-			return delegate.isShutdown();
-		}
-
-		public boolean isTerminated() {
-			return delegate.isTerminated();
-		}
-
-		public boolean awaitTermination(long timeout, TimeUnit unit)
-				throws InterruptedException {
-			return delegate.awaitTermination(timeout, unit);
-		}
-
-		public <T> Future<T> submit(Callable<T> task) {
-			try {
-				log.debug("Calling submit(Callable<T> task)");
-				return delegate.submit(task);
-			} finally {
-				log.debug("Success Calling submit(Callable<T> task)");
-			}
-		}
-
-		public <T> Future<T> submit(Runnable task, T result) {
-			try {
-				log.debug("Calling submit(Runnable task, T result)");
-				return delegate.submit(task, result);
-			} finally {
-				log.debug("Success Calling submit(Runnable task, T result)");
-			}
-		}
-
-		public Future<?> submit(Runnable task) {
-			try {
-				log.debug("Calling submit(Runnable task)");
-				return delegate.submit(task);
-			} finally {
-				log.debug("Success Calling submit(Runnable task)");
-			}
-		}
-
-		/**
-		 * @param tasks
-		 * @return
-		 * @throws InterruptedException
-		 * @see java.util.concurrent.ExecutorService#invokeAll(java.util.Collection)
-		 */
-		public <T> List<Future<T>> invokeAll(
-				Collection<? extends Callable<T>> tasks)
-				throws InterruptedException {
-			return delegate.invokeAll(tasks);
-		}
-
-		/**
-		 * @param tasks
-		 * @param timeout
-		 * @param unit
-		 * @return
-		 * @throws InterruptedException
-		 * @see java.util.concurrent.ExecutorService#invokeAll(java.util.Collection,
-		 *      long, java.util.concurrent.TimeUnit)
-		 */
-		public <T> List<Future<T>> invokeAll(
-				Collection<? extends Callable<T>> tasks, long timeout,
-				TimeUnit unit) throws InterruptedException {
-			return delegate.invokeAll(tasks, timeout, unit);
-		}
-
-		public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-				throws InterruptedException, ExecutionException {
-			return delegate.invokeAny(tasks);
-		}
-
-		public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-				long timeout, TimeUnit unit) throws InterruptedException,
-				ExecutionException, TimeoutException {
-			return delegate.invokeAny(tasks, timeout, unit);
-		}
-	}
 }
