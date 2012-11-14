@@ -30,7 +30,13 @@ dependencies {
   compile('dnsjava:dnsjava:2.1.1') {
 	  transitive = false
   }
-  compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  
+  if (buildType != 'android') {
+    compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  } else {
+	compile files(androidSdkJar)
+  }
+  
   compile 'org.apache.commons:com.springsource.org.apache.commons.net:2.0.0'
   testCompile('ros:message.test_ros:0.0.0-SNAPSHOT') {
     exclude module: 'rosjava_bootstrap'

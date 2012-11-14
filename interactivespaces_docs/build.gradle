@@ -17,7 +17,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 task javadoc(type: Javadoc) {
-  javaProjects = rootProject.subprojects.findResults { (it.name != 'interactivespaces_docs') ? it : null }
+  javaProjects = rootProject.subprojects.findResults { (it.name != 'interactivespaces_docs' && it.name != 'interactivespaces-android-service') ? it : null }
   source javaProjects.collect { it.sourceSets.main.allJava }
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
   destinationDir = new File("${buildDir}/html", 'javadoc')

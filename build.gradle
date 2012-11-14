@@ -20,14 +20,28 @@ buildscript {
       name = 'GitHub'
       addArtifactPattern 'http://cloud.github.com/downloads/[organisation]/[module]/[module]-[revision].[ext]'
     }
+    mavenCentral()
   }
 
   dependencies {
     classpath 'bmuschko:gradle-izpack-plugin:0.2.1'
+    classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
   }
 }
 
 allprojects {
+  if (project.hasProperty("buildTypeProp")) {
+    ext.buildType = project.buildTypeProp
+  } else {
+    ext.buildType = "standard"
+  }
+
+  if (buildType == 'android') {
+    ext.androidPlatformHome = getProperty("android.sdk.home") + "/platform/" + getProperty("android.platform")
+    ext.androidPlatformTools = getProperty("android.sdk.home") + "/platform-tools"
+    ext.androidSdkJar = "$androidPlatformHome/android.jar"
+  }
+
   ext.osgiVersion = '1.2.0'
 
   group = 'interactivespaces'
@@ -35,11 +49,20 @@ allprojects {
 }
 
 subprojects {
-  if (name != 'interactivespaces_docs') {
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    apply plugin: 'osgi'
-    apply plugin: 'eclipse'
+  if (name != 'interactivespaces_docs' && name != 'interactivespaces-android-service') {
+      apply plugin: 'java'
+      apply plugin: 'maven'
+      apply plugin: 'osgi'
+      apply plugin: 'eclipse'
+
+    configurations {
+      provided
+    }
+
+    sourceSets {
+      main { compileClasspath += configurations.provided }
+    }
+    eclipse.classpath.plusConfigurations += configurations.provided
 
     sourceCompatibility = 1.6
 
@@ -48,6 +71,7 @@ subprojects {
       maven {
         url 'http://robotbrains.hideho.org/nexus/content/groups/ros-public'
       }
+      mavenCentral()
     }
 
     install.dependsOn build
@@ -55,5 +79,3 @@ subprojects {
 }
 
 defaultTasks 'install'
-
-

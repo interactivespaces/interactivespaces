@@ -245,7 +245,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 				activeControllerManager.statusController(controller);
 			} else {
 				spaceEnvironment.getLog().error(
-						String.format("Unknown controller %s", id));
+						String.format("Attempted status of unknown controller %s", id));
 
 				throw new EntityNotFoundInteractiveSpacesException(
 						String.format("Space controller with ID %s not found",

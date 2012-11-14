@@ -268,6 +268,8 @@ public class RosSpaceControllerCommunicator implements
 	 * Create and publish controller full status.
 	 */
 	private void publishControllerFullStatus() {
+		spaceEnvironment.getLog().info("Getting full controller status");
+
 		SimpleSpaceController controllerInfo = controllerControl
 				.getControllerInfo();
 
@@ -288,10 +290,21 @@ public class RosSpaceControllerCommunicator implements
 			ActiveControllerActivity activeActivity = controllerControl
 					.getActiveActivityByUuid(cas.uuid);
 			if (activeActivity != null) {
-				cas.status = translateActivityState(activeActivity
-						.getInstance().getActivityStatus().getState());
+				ActivityState state = activeActivity.getInstance()
+						.getActivityStatus().getState();
+				cas.status = translateActivityState(state);
+				spaceEnvironment
+						.getLog()
+						.info(String
+								.format("Full status live activity %s status %s, returning %d",
+										cas.uuid, state, cas.status));
 			} else {
 				cas.status = ControllerActivityStatus.STATUS_READY;
+				spaceEnvironment
+						.getLog()
+						.info(String
+								.format("Full status live activity %s not found, returning READY",
+										cas.uuid));
 			}
 
 			fullStatus.activities.add(cas);
@@ -497,16 +510,19 @@ public class RosSpaceControllerCommunicator implements
 	}
 
 	/**
-	 * @param controllerControl the controllerControl to set
+	 * @param controllerControl
+	 *            the controllerControl to set
 	 */
 	public void setControllerControl(SpaceControllerControl controllerControl) {
 		this.controllerControl = controllerControl;
 	}
 
 	/**
-	 * @param spaceEnvironment the spaceEnvironment to set
+	 * @param spaceEnvironment
+	 *            the spaceEnvironment to set
 	 */
-	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;
 	}
 

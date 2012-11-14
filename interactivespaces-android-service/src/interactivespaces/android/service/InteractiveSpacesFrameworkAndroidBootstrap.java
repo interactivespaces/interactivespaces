@@ -214,7 +214,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 				Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
 //		m.put(Constants.FRAMEWORK_BUNDLE_PARENT,
-//				Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
+//				Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);BaseSpace
 //		System.err.format("Setting %s to %s\n", Constants.FRAMEWORK_BUNDLE_PARENT, m.get(Constants.FRAMEWORK_BUNDLE_PARENT));
 		String delegations = getClassloaderDelegations(filesDir);
 		if (delegations != null) {

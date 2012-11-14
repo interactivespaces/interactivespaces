@@ -14,15 +14,14 @@
  */
 
 dependencies {
-  compile project(':rosjava_osgi')
+  compile project(':rosjava_osgi_node')
   compile project(':interactivespaces-core')
-  
-  compile ('ros.rosjava_core:rosjava:0.0.0-SNAPSHOT')
-  compile ('ros.rosjava_core:rosjava_actionlib:0.0.0-SNAPSHOT')
-  
+    
   compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
     exclude module: 'rosjava_bootstrap'
   }
+  
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   compile 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
   //compile 'org.apache.felix:org.apache.felix.log:1.0.1'

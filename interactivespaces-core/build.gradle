@@ -22,7 +22,13 @@ dependencies {
 
     compile 'com.google.guava:guava:r07'
 	compile 'io.netty:netty:3.5.9.Final'
-	compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+	
+	if (buildType != 'android') {
+		compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+	} else {
+	    compile files(androidSdkJar)
+	}
+	
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.4'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.4'
 	compile 'org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1'
@@ -66,4 +72,3 @@ jar {
 				'*'
 	}
 }
-
