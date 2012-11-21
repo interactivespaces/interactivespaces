@@ -27,10 +27,10 @@ jar {
     version = osgiVersion
     symbolicName = 'org.ros.osgi.node'
 	
+	instruction 'Bundle-Activator',
+		'org.ros.osgi.deployment.node.internal.RosOsgiNodeBundleActivator'
+
     instruction 'Private-Package',
 		'org.ros.osgi.deployment.node.*'
-
-    instruction 'Service-Component', 
-		'OSGI-INF/deployment-client.xml'
   }
 }

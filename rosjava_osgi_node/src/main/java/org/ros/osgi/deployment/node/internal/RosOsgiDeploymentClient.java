@@ -18,7 +18,7 @@ package org.ros.osgi.deployment.node.internal;
 
 import java.io.File;
 
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
 import org.ros.osgi.common.RosEnvironment;
 import org.ros.osgi.deployment.common.DeploymentInstaller;
 import org.ros.osgi.deployment.common.DeploymentInstallerFactory;
@@ -48,14 +48,14 @@ public class RosOsgiDeploymentClient implements DeploymentClient {
 	 */
 	private File deploymentDirectory;
 
-	public void activate(final ComponentContext context) {
+	public void activate(final BundleContext context) {
 		deploymentDirectory = new File("bootstrap");
 
 		deploymentInstallerFactory = new DeploymentInstallerFactory() {
 
 			@Override
 			public DeploymentInstaller createInstaller() {
-				return new OsgiDeploymentInstaller(context.getBundleContext(),
+				return new OsgiDeploymentInstaller(context,
 						deploymentDirectory, rosEnvironment.getLog());
 			}
 
@@ -63,7 +63,7 @@ public class RosOsgiDeploymentClient implements DeploymentClient {
 
 	}
 
-	public void deactivate(ComponentContext context) {
+	public void deactivate(BundleContext context) {
 	}
 
 	public void setRosEnvironment(RosEnvironment rosEnvironment) {

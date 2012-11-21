@@ -60,10 +60,15 @@ public class OsgiActiveControllerActivityFactory implements
 	private Map<String, ActivityWrapperFactory> activityWrapperFactories = Maps
 			.newConcurrentMap();
 
-	public OsgiActiveControllerActivityFactory() {
+	public OsgiActiveControllerActivityFactory(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+		
 		registerActivityWrapperFactory(new NativeActivityWrapperFactory());
 		registerActivityWrapperFactory(new WebActivityWrapperFactory());
 		registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
+
+		registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
+				bundleContext));
 	}
 
 	@Override
@@ -139,16 +144,5 @@ public class OsgiActiveControllerActivityFactory implements
 	public void setScriptService(ScriptService scriptService) {
 		registerActivityWrapperFactory(new ScriptActivityWrapperFactory(
 				scriptService));
-	}
-
-	/**
-	 * @param bundleContext
-	 *            the bundleContext to set
-	 */
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-
-		registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
-				bundleContext));
 	}
 }

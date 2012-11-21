@@ -138,7 +138,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			Properties containerProperties = getProperties(new File(
 					baseInstallDir, PROPERTY_CONTAINER_CONFIGURATION_FILEPATH));
 
-			//setupLogging(baseInstallDir);
+			setupLogging(baseInstallDir);
 
 			setupSpaceEnvironment(context, containerProperties, baseInstallDir);
 
@@ -181,7 +181,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 						.getAbsolutePath());
 		// TODO(keith): This needs to go into a logging bundle.
 		PropertyConfigurator.configure(loggingProperties);
-		baseInteractiveSpacesLogger = new Logger("interactivespaces") { }; // Logger.getLogger(LOGGER_BASE_NAME);
+		baseInteractiveSpacesLogger = Logger.getLogger(LOGGER_BASE_NAME);
 	}
 
 	/**

@@ -37,18 +37,14 @@ public class InteractiveSpacesEnvironmentActivityLogFactory implements
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public InteractiveSpacesEnvironmentActivityLogFactory(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public Log createLogger(InstalledLiveActivity activity, String level) {
 		return spaceEnvironment.getLog(
 				ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level);
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

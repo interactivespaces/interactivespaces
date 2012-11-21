@@ -188,15 +188,18 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 */
 	private void createAndStartFramework(List<String> args) throws IOException,
 			Exception, BundleException {
-		Map<String, Object> m = new HashMap<String, Object>();
+		Map<String, String> m = new HashMap<String, String>();
 
 		// m.putAll(System.getProperties());
 		m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
 
 		String delegations = getClassloaderDelegations();
+		System.out.println(delegations);
 		if (delegations != null) {
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
+		//m.put("felix.bootdelegation.implicit", "false");
+		//m.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
 
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "log4j.properties");
 
@@ -321,7 +324,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 	}
 
 	private void loadPropertyFiles(String configFolder,
-			Map<String, Object> properties) {
+			Map<String, String> properties) {
 		// Look in the specified bundle directory to create a list
 		// of all JAR files to install.
 		File[] files = new File(configFolder).listFiles(new FilenameFilter() {

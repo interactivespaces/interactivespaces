@@ -35,6 +35,11 @@ public class SimpleNativeActivityRunnerFactory implements
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public SimpleNativeActivityRunnerFactory(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public NativeActivityRunner newPlatformNativeActivityRunner(Log log) {
 		String os = spaceEnvironment.getSystemConfiguration()

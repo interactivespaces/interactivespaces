@@ -56,7 +56,17 @@ public class OsgiControllerShell {
 	 */
 	private InteractiveSpacesSystemControl spaceSystemControl;
 
-	public void activate() {
+	public OsgiControllerShell(SpaceController spaceController,
+			InteractiveSpacesSystemControl spaceSystemControl,
+			LocalSpaceControllerRepository controllerRepository,
+			BundleContext bundleContext) {
+		this.spaceController = spaceController;
+		this.spaceSystemControl = spaceSystemControl;
+		this.controllerRepository = controllerRepository;
+		this.bundleContext = bundleContext;
+	}
+
+	public void startup() {
 		Dictionary<String, Object> dict = new Hashtable<String, Object>();
 		dict.put(CommandProcessor.COMMAND_SCOPE, "interactivespaces");
 		dict.put(CommandProcessor.COMMAND_FUNCTION, new String[] {

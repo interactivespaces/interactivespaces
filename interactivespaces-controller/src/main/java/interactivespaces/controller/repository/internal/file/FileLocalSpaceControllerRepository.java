@@ -70,6 +70,13 @@ public class FileLocalSpaceControllerRepository implements
 	 */
 	private ReadWriteLock lock = new ReentrantReadWriteLock();
 
+	public FileLocalSpaceControllerRepository(
+			ActivityStorageManager activityStorageManager,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.activityStorageManager = activityStorageManager;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		// Treat this as a write
@@ -233,23 +240,5 @@ public class FileLocalSpaceControllerRepository implements
 	private File getActivityDataFile(String uuid) {
 		return new File(activityStorageManager.getBaseActivityLocation(uuid),
 				DATAFILE_NAME);
-	}
-
-	/**
-	 * @param activityStorageManager
-	 *            the activityStorageManager to set
-	 */
-	public void setActivityStorageManager(
-			ActivityStorageManager activityStorageManager) {
-		this.activityStorageManager = activityStorageManager;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

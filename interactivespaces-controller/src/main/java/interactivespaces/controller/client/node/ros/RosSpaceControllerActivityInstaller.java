@@ -43,6 +43,13 @@ public class RosSpaceControllerActivityInstaller implements
 	 */
 	private ActivityInstallationManager activityInstallationManager;
 
+	public RosSpaceControllerActivityInstaller(
+			ActivityInstallationManager activityInstallationManager,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.activityInstallationManager = activityInstallationManager;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 	}
@@ -111,23 +118,5 @@ public class RosSpaceControllerActivityInstaller implements
 		}
 
 		return result;
-	}
-
-	/**
-	 * @param activityInstallationManager
-	 *            the activityInstallationManager to set
-	 */
-	public void setActivityInstallationManager(
-			ActivityInstallationManager activityInstallationManager) {
-		this.activityInstallationManager = activityInstallationManager;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spacesEnvironment) {
-		this.spaceEnvironment = spacesEnvironment;
 	}
 }

@@ -61,28 +61,34 @@ class MyAssemblyPlugin implements Plugin<Project>  {
       FileCollection assembledFiles = project.files(files)
 
       project.ext.assembledFiles = assembledFiles
+      processFiles(project)
+    }
+
+    void collectProjectJars(ProjectDependency projectDependency, project, files) {
+        println projectDependency.dependencyProject
+        def runtimeConfiguration = projectDependency.dependencyProject.configurations.runtime
+
+        files.addAll runtimeConfiguration.allArtifacts*.file
+
+        def runtimeFiles = runtimeConfiguration.resolvedConfiguration.resolvedArtifacts*.file
+        files.addAll runtimeFiles
+    }
+
+    void processFiles(project) {
       File bootstrapAssets = project.file("assets/bootstrap")
       bootstrapAssets.mkdirs()
       project.copy {
-        from assembledFiles
+        from project.ext.assembledFiles
         into bootstrapAssets
       }
 
       bootstrapAssets.eachFile { processFile(it, project) }
     }
 
-    void collectProjectJars(ProjectDependency projectDependency, project, files) {
-        def configurations = projectDependency.dependencyProject.configurations
-
-        def runtimeFiles = configurations.runtime.resolvedConfiguration.resolvedArtifacts*.file
-
-        files.addAll runtimeFiles
-    }
-
     void processFile(File jar, project) {
       def archiveDir = jar.parent
 
-      def dexFile = new File(archiveDir, "classes.dex")
+      def dexFile = new File("classes.dex")
 	  
       def dex = "$project.ext.androidPlatformTools/dx --dex --output=$dexFile $jar".execute()
       dex.waitFor()

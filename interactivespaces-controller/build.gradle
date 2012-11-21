@@ -38,6 +38,9 @@ jar {
     version = osgiVersion
     symbolicName = 'interactivespaces.controller'
 	
+	instruction 'Bundle-Activator',
+		'interactivespaces.controller.internal.osgi.OsgiControllerActivator'
+
     instruction 'Export-Package',
 		'interactivespaces.*'
 		

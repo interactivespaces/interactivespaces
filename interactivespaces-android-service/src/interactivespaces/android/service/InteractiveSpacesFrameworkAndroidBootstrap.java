@@ -36,7 +36,9 @@ import java.util.Set;
 import org.apache.felix.framework.Felix;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 
@@ -94,6 +96,8 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	 * Whether or not the OSGi shell is needed.
 	 */
 	private boolean needShell = true;
+	
+	private Map<String, Bundle> jarToBundle = new HashMap<String, Bundle>();
 
 	/**
 	 * Boot the framework.
@@ -112,16 +116,24 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			if (initialBundles.isEmpty() && finalBundles.isEmpty()) {
 				System.out.println("No bundles to install.");
 			} else {
-				//setupShutdownHandler();
+				// setupShutdownHandler();
 
 				createAndStartFramework(args, context);
 				List<Bundle> bundleList = new ArrayList<Bundle>();
 
 				// Install bundle JAR files and remember the bundle objects.
 				BundleContext ctxt = framework.getBundleContext();
+				ctxt.addBundleListener(new BundleListener() {
 
-				startBundles(assetManager, ctxt, bundleList, initialBundles);
-				startBundles(assetManager, ctxt, bundleList, finalBundles);
+					@Override
+					public void bundleChanged(BundleEvent event) {
+						bundleChangeEvent(event);
+					}
+
+				});
+
+				startBundles(assetManager, ctxt, bundleList, initialBundles, false);
+				startBundles(assetManager, ctxt, bundleList, finalBundles, true);
 
 				// Wait for framework to stop.
 				// framework.waitForStop(0);
@@ -136,23 +148,35 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	}
 
 	/**
+	 * An event happened on one of the bundles in the container.
+	 * 
+	 * @param event
+	 *            the OSGi bundle event
+	 */
+	private void bundleChangeEvent(BundleEvent event) {
+		System.out.format("Bundle %s changed state to %d\n", event.getBundle()
+				.getLocation(), event.getBundle().getState());
+	}
+
+	/**
 	 * @param ctxt
 	 * @param bundleList
 	 * @param jars
 	 * @throws BundleException
 	 */
 	private void startBundles(AssetManager assetManager, BundleContext ctxt,
-			List<Bundle> bundleList, List<String> jars) throws BundleException {
+			List<Bundle> bundleList, List<String> jars, boolean start)
+			throws BundleException {
 		for (String bundleFile : jars) {
 
 			// System.out.println("Installing " + bundleUri);
 			try {
 				Bundle b = ctxt.installBundle(bundleFile,
 						assetManager.open(bundleFile));
-
+				
 				bundleList.add(b);
 				bundles.add(b);
-
+				jarToBundle.put(bundleFile.substring(bundleFile.indexOf('/') + 1), b);
 				System.out.format("Added bundle file %s with ID %d\n",
 						bundleFile, b.getBundleId());
 			} catch (IOException e) {
@@ -166,11 +190,12 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			if (!isFragment(bundle)) {
 				// TODO(keith): See if way to start up shell from property
 				// since we may want it for remote access.
-				if (bundle.getLocation().contains("gogo") && !needShell) {
+				if ((bundle.getLocation().contains("gogo") && !needShell) || bundle.getLocation().contains("netty")) {
 					continue;
 				}
 
-				startBundle(bundle);
+				if (start)
+					startBundle(bundle);
 			}
 		}
 	}
@@ -213,15 +238,17 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		m.put(Constants.FRAMEWORK_STORAGE_CLEAN,
 				Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
-//		m.put(Constants.FRAMEWORK_BUNDLE_PARENT,
-//				Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);BaseSpace
-//		System.err.format("Setting %s to %s\n", Constants.FRAMEWORK_BUNDLE_PARENT, m.get(Constants.FRAMEWORK_BUNDLE_PARENT));
+		// m.put(Constants.FRAMEWORK_BUNDLE_PARENT,
+		// Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);BaseSpace
+		// System.err.format("Setting %s to %s\n",
+		// Constants.FRAMEWORK_BUNDLE_PARENT,
+		// m.get(Constants.FRAMEWORK_BUNDLE_PARENT));
 		String delegations = getClassloaderDelegations(filesDir);
 		if (delegations != null) {
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
 
-		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
+		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath; javax.xml.transform.sax ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES, packages);
 
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "log4j.properties");

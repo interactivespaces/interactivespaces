@@ -48,6 +48,13 @@ public class PropertyFileActivityConfigurationManager implements
 	 */
 	private ExpressionEvaluatorFactory expressionEvaluatorFactory;
 
+	public PropertyFileActivityConfigurationManager(
+			ExpressionEvaluatorFactory expressionEvaluatorFactory,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.expressionEvaluatorFactory = expressionEvaluatorFactory;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public SimpleActivityConfiguration getConfiguration(
 			ActivityFilesystem activityFilesystem) {
@@ -101,24 +108,5 @@ public class PropertyFileActivityConfigurationManager implements
 	 */
 	private String getConfigFileName(String configType) {
 		return configType + "." + CONFIGURATION_FILE_EXTENSION;
-	}
-
-	/**
-	 * @param expressionEvaluatorFactory
-	 *            the expressionEvaluatorFactory to set
-	 */
-	public void setExpressionEvaluatorFactory(
-			ExpressionEvaluatorFactory expressionEvaluatorFactory) {
-		this.expressionEvaluatorFactory = expressionEvaluatorFactory;
-	}
-
-	/**
-	 * set the Interactive Spaces environment to use.
-	 * 
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to use
-	 */
-	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

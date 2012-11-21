@@ -55,6 +55,11 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public SimpleActivityStorageManager(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		Configuration systemConfiguration = spaceEnvironment
@@ -145,14 +150,5 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
 		if (baseLocation.exists()) {
 			Files.delete(baseLocation);
 		}
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

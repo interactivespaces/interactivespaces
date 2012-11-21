@@ -20,18 +20,14 @@ dependencies {
 		exclude module: 'rosjava_bootstrap' 
 	}
 
-    compile 'com.google.guava:guava:r07'
+    compile 'com.google.guava:org.ros.rosjava.guava:r07'
 	compile 'io.netty:netty:3.5.9.Final'
-	
-	if (buildType != 'android') {
-		compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
-	} else {
-	    compile files(androidSdkJar)
-	}
 	
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.4'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.4'
-	compile 'org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1'
+	compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1') {
+		//exclude module: 'com.springsource.org.apache.commons.logging'
+	}
 
 	runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
 
@@ -44,6 +40,12 @@ dependencies {
 	//compile 'jivesoftware:smackx:3.1.0'
 
 	compile 'org.jdom:com.springsource.org.jdom:1.1.0'
+	
+//	if (buildType != 'android') {
+//		compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+//	} else {
+//		compile files(androidSdkJar)
+//	}
 
 
 	testCompile 'junit:junit:4.8.2'

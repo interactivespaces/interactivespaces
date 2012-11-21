@@ -81,6 +81,10 @@ public class QuartzSchedulerService implements SchedulerService {
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public QuartzSchedulerService(InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		try {
@@ -174,17 +178,6 @@ public class QuartzSchedulerService implements SchedulerService {
 	 *            the spaceEnvironment to set
 	 */
 	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
-
-	/**
-	 * Unset the Interactive Spaces environment being used.
-	 * 
-	 * @param spaceEnvironment
-	 *            the previous environment that was used.
-	 */
-	public void unsetSpaceEnvironment(
 			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;
 	}

@@ -130,6 +130,15 @@ public class RosSpaceControllerCommunicator implements
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public RosSpaceControllerCommunicator(
+			SpaceControllerActivityInstaller spaceControllerActivityInstaller,
+			RosEnvironment rosEnvironment,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceControllerActivityInstaller = spaceControllerActivityInstaller;
+		this.rosEnvironment = rosEnvironment;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void onStartup() {
 		final NodeConfiguration nodeConfiguration = rosEnvironment

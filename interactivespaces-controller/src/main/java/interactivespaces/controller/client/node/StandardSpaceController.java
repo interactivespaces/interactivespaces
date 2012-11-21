@@ -78,8 +78,8 @@ public class StandardSpaceController implements SpaceController,
 	private static final int WATCHER_DELAY_DEFAULT = 1000;
 
 	/**
-	 * The default number of milliseconds the controllerHeartbeat thread delays between
-	 * beats.
+	 * The default number of milliseconds the controllerHeartbeat thread delays
+	 * between beats.
 	 */
 	public static final int HEARTBEAT_DELAY_DEFAULT = 10000;
 
@@ -98,7 +98,7 @@ public class StandardSpaceController implements SpaceController,
 	/**
 	 * Control for the controllerHeartbeat.
 	 */
-	private ScheduledFuture<?> heartbeatControl;
+	private ScheduledFuture<?> controllerHeartbeatControl;
 
 	/**
 	 * Number of milliseconds the heartbeatLoop waits before each beat.
@@ -145,7 +145,7 @@ public class StandardSpaceController implements SpaceController,
 	/**
 	 * Local repository of controller information.
 	 */
-	protected LocalSpaceControllerRepository controllerRepository;
+	private LocalSpaceControllerRepository controllerRepository;
 
 	/**
 	 * A factory for native app runners.
@@ -196,7 +196,7 @@ public class StandardSpaceController implements SpaceController,
 	 * The controller communicator for remote control.
 	 */
 	private SpaceControllerCommunicator controllerCommunicator;
-	
+
 	/**
 	 * A listener for installation events.
 	 */
@@ -234,6 +234,32 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	private volatile boolean startedUp = false;
 
+	public StandardSpaceController(
+			ActivityInstallationManager activityInstallationManager,
+			LocalSpaceControllerRepository controllerRepository,
+			ActiveControllerActivityFactory activeControllerActivityFactory,
+			NativeActivityRunnerFactory nativeAppRunnerFactory,
+			ActivityConfigurationManager configurationManager,
+			ActivityStorageManager activityStorageManager,
+			ActivityLogFactory activityLogFactory,
+			SpaceControllerCommunicator controllerCommunicator,
+			InteractiveSpacesSystemControl spaceSystemControl,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.activityInstallationManager = activityInstallationManager;
+		this.controllerRepository = controllerRepository;
+		this.activeControllerActivityFactory = activeControllerActivityFactory;
+		this.nativeActivityRunnerFactory = nativeAppRunnerFactory;
+		this.configurationManager = configurationManager;
+		this.activityStorageManager = activityStorageManager;
+		this.activityLogFactory = activityLogFactory;
+
+		this.controllerCommunicator = controllerCommunicator;
+		controllerCommunicator.setControllerControl(this);
+
+		this.spaceSystemControl = spaceSystemControl;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		spaceEnvironment.getLog().info("Controller starting up");
@@ -253,8 +279,9 @@ public class StandardSpaceController implements SpaceController,
 		alertStatusManager = new SimpleAlertStatusManager();
 		alertStatusManager.setLog(spaceEnvironment.getLog());
 
-		controllerHeartbeat = controllerCommunicator.newSpaceControllerHeartbeat();
-		getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(
+		controllerHeartbeat = controllerCommunicator
+				.newSpaceControllerHeartbeat();
+		controllerHeartbeatControl = getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(
 				new Runnable() {
 					@Override
 					public void run() {
@@ -280,7 +307,8 @@ public class StandardSpaceController implements SpaceController,
 
 		startupAutostartActivities();
 
-		controllerCommunicator.notifyRemoteMasterServerAboutStartup(controllerInfo);
+		controllerCommunicator
+				.notifyRemoteMasterServerAboutStartup(controllerInfo);
 
 		startedUp = true;
 
@@ -312,7 +340,8 @@ public class StandardSpaceController implements SpaceController,
 		eventQueue.addEvent(new Runnable() {
 			@Override
 			public void run() {
-				controllerCommunicator.publishActivityStatus(activity.getUuid(), newStatus);
+				controllerCommunicator.publishActivityStatus(
+						activity.getUuid(), newStatus);
 
 				activityStateTransitioners.transition(activity.getUuid(),
 						newStatus.getState());
@@ -404,8 +433,8 @@ public class StandardSpaceController implements SpaceController,
 
 				shutdownAllActivities();
 
-				heartbeatControl.cancel(true);
-				heartbeatControl = null;
+				controllerHeartbeatControl.cancel(true);
+				controllerHeartbeatControl = null;
 
 				activityWatcherControl.cancel(true);
 				activityWatcherControl = null;
@@ -420,7 +449,6 @@ public class StandardSpaceController implements SpaceController,
 			}
 		}
 	}
-
 
 	@Override
 	public ActivityComponentFactory getActivityComponentFactory() {
@@ -573,7 +601,8 @@ public class StandardSpaceController implements SpaceController,
 				eventQueue.addEvent(new Runnable() {
 					@Override
 					public void run() {
-						controllerCommunicator.publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+						controllerCommunicator.publishActivityStatus(uuid,
+								LIVE_ACTIVITY_READY_STATUS);
 					}
 				});
 			} else {
@@ -591,7 +620,8 @@ public class StandardSpaceController implements SpaceController,
 		spaceEnvironment.getLog().info(
 				String.format("Getting status of activity %s", uuid));
 
-		final ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+		final ActiveControllerActivity activity = getActiveActivityByUuid(uuid,
+				false);
 		if (activity != null) {
 			final ActivityStatus activityStatus = activity.getActivityStatus();
 			spaceEnvironment.getLog().info(
@@ -600,7 +630,8 @@ public class StandardSpaceController implements SpaceController,
 			eventQueue.addEvent(new Runnable() {
 				@Override
 				public void run() {
-					controllerCommunicator.publishActivityStatus(activity.getUuid(), activityStatus);
+					controllerCommunicator.publishActivityStatus(
+							activity.getUuid(), activityStatus);
 				}
 			});
 		} else {
@@ -610,7 +641,8 @@ public class StandardSpaceController implements SpaceController,
 				spaceEnvironment.getLog().info(
 						String.format("Reporting activity status %s for %s",
 								uuid, LIVE_ACTIVITY_READY_STATUS));
-				controllerCommunicator.publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+				controllerCommunicator.publishActivityStatus(uuid,
+						LIVE_ACTIVITY_READY_STATUS);
 			} else {
 				spaceEnvironment.getLog().warn(
 						String.format(
@@ -652,8 +684,7 @@ public class StandardSpaceController implements SpaceController,
 	}
 
 	@Override
-	public void configureActivity(String uuid,
-			Map<String, Object> configuration) {
+	public void configureActivity(String uuid, Map<String, Object> configuration) {
 		spaceEnvironment.getLog().info(
 				String.format("Configuring activity %s", uuid));
 
@@ -902,7 +933,8 @@ public class StandardSpaceController implements SpaceController,
 
 	@Override
 	public void shutdownControllerContainer() {
-		spaceSystemControl.shutdown();	}
+		spaceSystemControl.shutdown();
+	}
 
 	@Override
 	public List<InstalledLiveActivity> getAllInstalledLiveActivities() {
@@ -913,7 +945,7 @@ public class StandardSpaceController implements SpaceController,
 	public void onWatcherActivityError(ActiveControllerActivity activity,
 			ActivityStatus oldStatus, ActivityStatus newStatus) {
 		// TODO(keith): No need to publish here?
-		//publishActivityStatus(activity.getUuid(), newStatus);
+		// publishActivityStatus(activity.getUuid(), newStatus);
 
 		if (oldStatus.getState() == ActivityState.STARTUP_ATTEMPT
 				&& newStatus.getState() == ActivityState.STARTUP_FAILURE) {
@@ -924,10 +956,11 @@ public class StandardSpaceController implements SpaceController,
 	}
 
 	@Override
-	public void onWatcherActivityStatusChange(ActiveControllerActivity activity,
-			ActivityStatus oldStatus, ActivityStatus newStatus) {
+	public void onWatcherActivityStatusChange(
+			ActiveControllerActivity activity, ActivityStatus oldStatus,
+			ActivityStatus newStatus) {
 		// TODO(keith): No need to publish here?
-		//publishActivityStatus(activity.getUuid(), newStatus);
+		// publishActivityStatus(activity.getUuid(), newStatus);
 	}
 
 	/**
@@ -954,7 +987,7 @@ public class StandardSpaceController implements SpaceController,
 	 *            the problematic activity
 	 */
 	private void handleActivityFailure(ActiveControllerActivity activity) {
-		//Activity instance = activity.getInstance();
+		// Activity instance = activity.getInstance();
 		alertStatusManager.announceStatus(activity);
 
 		// TODO(keith): Something in instance needs to happen.
@@ -996,96 +1029,5 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	public ActivityListener getActivityListener() {
 		return activityListener;
-	}
-
-	/**
-	 * Set the activity deployer the controller should use.
-	 * 
-	 * @param activityInstallationManager
-	 *            the activityInstallationManager to set
-	 */
-	public void setActivityInstallationManager(
-			ActivityInstallationManager activityInstallationManager) {
-		this.activityInstallationManager = activityInstallationManager;
-	}
-
-	/**
-	 * @param controllerRepository
-	 *            the controllerRepository to set
-	 */
-	public void setControllerRepository(
-			LocalSpaceControllerRepository controllerRepository) {
-		this.controllerRepository = controllerRepository;
-	}
-
-	/**
-	 * @param activeControllerActivityFactory
-	 *            the activeControllerActivityFactory to set
-	 */
-	public void setActiveControllerActivityFactory(
-			ActiveControllerActivityFactory activeControllerActivityFactory) {
-		this.activeControllerActivityFactory = activeControllerActivityFactory;
-	}
-
-	/**
-	 * @param nativeActivityRunnerFactory
-	 *            the nativeActivityRunnerFactory to set
-	 */
-	public void setNativeActivityRunnerFactory(
-			NativeActivityRunnerFactory nativeAppRunnerFactory) {
-		this.nativeActivityRunnerFactory = nativeAppRunnerFactory;
-	}
-
-	/**
-	 * @param configurationManager
-	 *            the configurationManager to set
-	 */
-	public void setConfigurationManager(
-			ActivityConfigurationManager configurationManager) {
-		this.configurationManager = configurationManager;
-	}
-
-	/**
-	 * @param activityStorageManager
-	 *            the activityStorageManager to set
-	 */
-	public void setActivityStorageManager(
-			ActivityStorageManager activityStorageManager) {
-		this.activityStorageManager = activityStorageManager;
-	}
-
-	/**
-	 * @param activityLogFactory
-	 *            the activityLogFactory to set
-	 */
-	public void setActivityLogFactory(ActivityLogFactory activityLogFactory) {
-		this.activityLogFactory = activityLogFactory;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
-
-	/**
-	 * @param spaceSystemControl
-	 *            the spaceSystemControl to set
-	 */
-	public void setSpaceSystemControl(
-			InteractiveSpacesSystemControl spaceSystemControl) {
-		this.spaceSystemControl = spaceSystemControl;
-	}
-
-	/**
-	 * @param controllerCommunicator the controllerCommunicator to set
-	 */
-	public void setControllerCommunicator(
-			SpaceControllerCommunicator controllerCommunicator) {
-		this.controllerCommunicator = controllerCommunicator;
-		controllerCommunicator.setControllerControl(this);
 	}
 }

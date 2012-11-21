@@ -22,7 +22,7 @@
 
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
   
-  compile 'org.apache.felix:org.apache.felix.scr:1.6.0'
+  // compile 'org.apache.felix:org.apache.felix.scr:1.6.0'
   
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'

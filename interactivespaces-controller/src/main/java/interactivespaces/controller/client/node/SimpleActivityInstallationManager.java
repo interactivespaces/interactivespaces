@@ -90,6 +90,15 @@ public class SimpleActivityInstallationManager implements
 	 */
 	private List<ActivityInstallationListener> listeners = new ArrayList<ActivityInstallationListener>();
 
+	public SimpleActivityInstallationManager(
+			LocalSpaceControllerRepository controllerRepository,
+			ActivityStorageManager activityStorageManager,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.controllerRepository = controllerRepository;
+		this.activityStorageManager = activityStorageManager;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		remoteCopier.startup();
@@ -273,32 +282,5 @@ public class SimpleActivityInstallationManager implements
 		synchronized (listeners) {
 			return new ArrayList<ActivityInstallationListener>(listeners);
 		}
-	}
-
-	/**
-	 * @param controllerRepository
-	 *            the controllerRepository to set
-	 */
-	public void setControllerRepository(
-			LocalSpaceControllerRepository controllerRepository) {
-		this.controllerRepository = controllerRepository;
-	}
-
-	/**
-	 * @param activityStorageManager
-	 *            the activityStorageManager to set
-	 */
-	public void setActivityStorageManager(
-			ActivityStorageManager activityStorageManager) {
-		this.activityStorageManager = activityStorageManager;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

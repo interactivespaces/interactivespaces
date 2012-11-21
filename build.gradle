@@ -37,7 +37,7 @@ allprojects {
   }
 
   if (buildType == 'android') {
-    ext.androidPlatformHome = getProperty("android.sdk.home") + "/platform/" + getProperty("android.platform")
+    ext.androidPlatformHome = getProperty("android.sdk.home") + "/platforms/" + getProperty("android.platform")
     ext.androidPlatformTools = getProperty("android.sdk.home") + "/platform-tools"
     ext.androidSdkJar = "$androidPlatformHome/android.jar"
   }
