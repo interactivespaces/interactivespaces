@@ -61,6 +61,11 @@ public class JavaxMailMailSenderService implements MailSenderService {
 	 */
 	private Session mailerSession;
 
+	public JavaxMailMailSenderService(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void startup() {
 		spaceEnvironment.getLog().info("Mail sending service starting up");
@@ -131,32 +136,5 @@ public class JavaxMailMailSenderService implements MailSenderService {
 
 	@Override
 	public void shutdown() {
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void bindSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		setSpaceEnvironment(spaceEnvironment);
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void unbindSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		setSpaceEnvironment(null);
 	}
 }

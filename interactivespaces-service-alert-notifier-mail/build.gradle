@@ -16,6 +16,8 @@
 dependencies {
   compile project(':interactivespaces-service-alert')
   compile project(':interactivespaces-service-mail-sender')
+  
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -26,10 +28,11 @@ jar {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.alert.notifier.mail'
 	
+	instruction 'Bundle-Activator',
+			'interactivespaces.service.alert.notifier.mail.internal.osgi.OsgiMailAlertNotifierActivator'
+
     instruction 'Private-Package',
 		'interactivespaces.service.alert.notifier.mail.internal.*'
-	
-    instruction 'Service-Component', 'OSGI-INF/interactivespaces_service_alert_notifier_mail.xml'
   }
 }
 

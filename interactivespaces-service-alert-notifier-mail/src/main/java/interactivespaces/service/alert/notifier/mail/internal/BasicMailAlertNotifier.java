@@ -73,6 +73,24 @@ public class BasicMailAlertNotifier implements AlertNotifier {
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
+	public BasicMailAlertNotifier(AlertService alertService,
+			MailSenderService mailSenderService,
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.alertService = alertService;
+		this.mailSenderService = mailSenderService;
+		this.spaceEnvironment = spaceEnvironment;
+	}
+	
+	@Override
+	public void startup() {
+		alertService.registerAlertNotifier(this);
+	}
+	
+	@Override
+	public void shutdown() {
+		alertService.unregisterAlertNotifier(this);
+	}
+
 	@Override
 	public void notify(String alertType, String id, String message) {
 		Configuration config = spaceEnvironment.getSystemConfiguration();
@@ -178,36 +196,5 @@ public class BasicMailAlertNotifier implements AlertNotifier {
 		}
 
 		return value;
-	}
-
-	/**
-	 * @param alertService
-	 *            the alertService to set
-	 */
-	public void setAlertService(AlertService alertService) {
-		if (this.alertService != null) {
-			this.alertService.unregisterAlertNotifier(this);
-		}
-		this.alertService = alertService;
-		if (alertService != null) {
-			alertService.registerAlertNotifier(this);
-		}
-	}
-
-	/**
-	 * @param mailSenderService
-	 *            the mailSenderService to set
-	 */
-	public void setMailSenderService(MailSenderService mailSenderService) {
-		this.mailSenderService = mailSenderService;
-	}
-
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
 	}
 }

@@ -22,6 +22,16 @@ package interactivespaces.service.alert;
  * @author Keith M. Hughes
  */
 public interface AlertNotifier {
+	
+	/**
+	 * Start the notifier up.
+	 */
+	void startup();
+	
+	/**
+	 * Shut the notifier down.
+	 */
+	void shutdown();
 
 	/**
 	 * Send a notification about the alert.

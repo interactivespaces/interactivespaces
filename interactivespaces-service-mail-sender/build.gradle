@@ -19,6 +19,8 @@ dependencies {
   compile project(':interactivespaces-service-mail-common')
   
   compile 'javax.mail:com.springsource.javax.mail:1.4.1'
+  
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -29,14 +31,15 @@ jar {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.mail.sender'
 	
+	instruction 'Bundle-Activator',
+			'interactivespaces.service.mail.sender.internal.osgi.OsgiMailSenderServiceActivator'
+
     instruction 'Export-Package',
 		'!interactivespaces.service.mail.sender.internal.*',
 		'interactivespaces.service.mail.sender.*'
 		
     instruction 'Private-Package',
 		'interactivespaces.service.mail.sender.internal.*'
-	
-    instruction 'Service-Component', 'OSGI-INF/interactivespaces_service_mail_sender.xml'
   }
 }
 

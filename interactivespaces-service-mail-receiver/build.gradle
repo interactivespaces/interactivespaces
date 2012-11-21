@@ -19,6 +19,8 @@ dependencies {
   compile project(':interactivespaces-service-mail-common')
 
   compile 'org.github.rjo1970:dumbster:1.9.0.1-SNAPSHOT'
+  
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -29,14 +31,15 @@ jar {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.mail.receiver'
 	
+	instruction 'Bundle-Activator',
+			'interactivespaces.service.mail.receiver.internal.osgi.OsgiMailReceiverServiceActivator'
+
     instruction 'Export-Package',
 		'!interactivespaces.service.mail.receiver.internal.*',
 		'interactivespaces.service.mail.receiver.*'
 		
     instruction 'Private-Package',
 		'interactivespaces.service.mail.receiver.internal.*'
-	
-    instruction 'Service-Component', 'OSGI-INF/interactivespaces_service_mail_receiver.xml'
   }
 }
 

@@ -40,7 +40,7 @@ public class BasicMailAlertNotifierTest {
 	private BasicMailAlertNotifier notifier;
 
 	private InteractiveSpacesEnvironment spaceEnvironment;
-	private MailSenderService mailSender;
+	private MailSenderService mailSenderService;
 	private AlertService alertService;
 	private Configuration configuration;
 
@@ -51,13 +51,10 @@ public class BasicMailAlertNotifierTest {
 		Mockito.when(spaceEnvironment.getSystemConfiguration()).thenReturn(
 				configuration);
 
-		mailSender = Mockito.mock(MailSenderService.class);
+		mailSenderService = Mockito.mock(MailSenderService.class);
 		alertService = Mockito.mock(AlertService.class);
 
-		notifier = new BasicMailAlertNotifier();
-		notifier.setSpaceEnvironment(spaceEnvironment);
-		notifier.setAlertService(alertService);
-		notifier.setMailSenderService(mailSender);
+		notifier = new BasicMailAlertNotifier(alertService, mailSenderService, spaceEnvironment);
 	}
 
 	/**
@@ -65,6 +62,7 @@ public class BasicMailAlertNotifierTest {
 	 */
 	@Test
 	public void testAlertServiceRegistration() {
+		notifier.startup();
 		Mockito.verify(alertService, Mockito.times(1)).registerAlertNotifier(
 				notifier);
 		Mockito.verify(alertService, Mockito.never()).unregisterAlertNotifier(
@@ -76,7 +74,8 @@ public class BasicMailAlertNotifierTest {
 	 */
 	@Test
 	public void testAlertServiceUnRegistration() {
-		notifier.setAlertService(null);
+		notifier.startup();
+		notifier.shutdown();
 		Mockito.verify(alertService, Mockito.times(1)).registerAlertNotifier(
 				notifier);
 		Mockito.verify(alertService, Mockito.times(1)).unregisterAlertNotifier(
@@ -113,7 +112,7 @@ public class BasicMailAlertNotifierTest {
 
 		notifier.notify(alertType, id, message);
 
-		Mockito.verify(mailSender).sendMailMessage(argument.capture());
+		Mockito.verify(mailSenderService).sendMailMessage(argument.capture());
 
 		assertEquals(fromAddress, argument.getValue().getFromAddress());
 		assertEquals(toAddress, argument.getValue().getToAdresses().get(0));
@@ -156,7 +155,7 @@ public class BasicMailAlertNotifierTest {
 
 		notifier.notify(alertType, id, message);
 
-		Mockito.verify(mailSender).sendMailMessage(argument.capture());
+		Mockito.verify(mailSenderService).sendMailMessage(argument.capture());
 
 		assertEquals(fromAddress, argument.getValue().getFromAddress());
 		assertEquals(Lists.newArrayList(toAddress1, toAddress2), argument
