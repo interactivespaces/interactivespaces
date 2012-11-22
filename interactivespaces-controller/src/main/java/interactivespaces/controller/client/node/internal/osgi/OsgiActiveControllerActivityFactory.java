@@ -26,13 +26,11 @@ import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
-import interactivespaces.controller.activity.wrapper.internal.script.ScriptActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.service.script.ScriptService;
 
 import java.util.Map;
 
@@ -134,15 +132,5 @@ public class OsgiActiveControllerActivityFactory implements
 		if (activityWrapperFactories.get(activityType) == factory) {
 			activityWrapperFactories.remove(activityType);
 		}
-	}
-
-	/**
-	 * Set the script engine to be used.
-	 * 
-	 * @param scriptEngine
-	 */
-	public void setScriptService(ScriptService scriptService) {
-		registerActivityWrapperFactory(new ScriptActivityWrapperFactory(
-				scriptService));
 	}
 }

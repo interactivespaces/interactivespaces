@@ -39,7 +39,7 @@ import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
+import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.osgi.framework.BundleActivator;
@@ -154,7 +154,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * 
 	 * @param context
 	 */
-	protected void registerServices(BundleContext context) {
+	private void registerServices(BundleContext context) {
 		context.registerService(ExpressionEvaluatorFactory.class.getName(),
 				expressionEvaluatorFactory, null);
 		context.registerService(
@@ -199,8 +199,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		systemControl = new OsgiInteractiveSpacesSystemControl(context);
 
 		executorService = new DefaultScheduledExecutorService();
-		//Log log = new Log4JLogger(baseInteractiveSpacesLogger);
-		Log log = new Jdk14Logger("interactivespaces");
+		Log log = new Log4JLogger(baseInteractiveSpacesLogger);
+		//Log log = new Jdk14Logger("interactivespaces");
 
 		filesystem = new BasicInteractiveSpacesFilesystem(baseInstallDir);
 		filesystem.startup();

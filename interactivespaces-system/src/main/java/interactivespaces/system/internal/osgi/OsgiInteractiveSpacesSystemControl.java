@@ -27,6 +27,7 @@ import org.osgi.framework.BundleException;
  * @author Keith M. Hughes
  */
 public class OsgiInteractiveSpacesSystemControl implements InteractiveSpacesSystemControl {
+
 	/**
 	 * The bundle the control is part of.
 	 */

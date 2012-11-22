@@ -18,6 +18,7 @@ package interactivespaces.controller.internal.osgi;
 
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.activity.configuration.PropertyFileActivityConfigurationManager;
+import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
@@ -28,7 +29,6 @@ import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivity
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
-import interactivespaces.service.script.ScriptService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 
@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.ros.osgi.common.RosEnvironment;
 
@@ -54,7 +55,6 @@ public class OsgiControllerActivator implements BundleActivator {
 	private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
 	private MyServiceTracker<RosEnvironment> rosEnvironmentTracker;
 	private MyServiceTracker<ExpressionEvaluatorFactory> expressionEvaluatorFactoryTracker;
-	private MyServiceTracker<ScriptService> scriptServiceTracker;
 
 	private BundleContext bundleContext;
 	private SimpleActivityStorageManager activityStorageManager;
@@ -68,6 +68,7 @@ public class OsgiControllerActivator implements BundleActivator {
 	 * Object to give lock for putting this bundle's services together.
 	 */
 	private Object serviceLock = new Object();
+	private ServiceRegistration controllerActivityFactoryServiceRegistration;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
@@ -84,11 +85,6 @@ public class OsgiControllerActivator implements BundleActivator {
 
 		expressionEvaluatorFactoryTracker = newMyServiceTracker(context,
 				ExpressionEvaluatorFactory.class.getName());
-
-		scriptServiceTracker = newMyServiceTracker(context,
-				ScriptService.class.getName());
-
-		scriptServiceTracker.open();
 		expressionEvaluatorFactoryTracker.open();
 		interactiveSpacesEnvironmentTracker.open();
 		rosEnvironmentTracker.open();
@@ -101,33 +97,37 @@ public class OsgiControllerActivator implements BundleActivator {
 		interactiveSpacesSystemControlTracker.close();
 		rosEnvironmentTracker.close();
 		expressionEvaluatorFactoryTracker.close();
-		scriptServiceTracker.close();
 		
+		if (controllerActivityFactoryServiceRegistration != null) {
+			controllerActivityFactoryServiceRegistration.unregister();
+			controllerActivityFactoryServiceRegistration = null;
+		}
+
 		if (controllerShell != null) {
 			controllerShell.deactivate();
 			controllerShell = null;
 		}
-		
+
 		if (spaceController != null) {
 			spaceController.shutdown();
 			spaceController = null;
 		}
-		
+
 		if (activityInstallationManager != null) {
 			activityInstallationManager.shutdown();
 			activityInstallationManager = null;
 		}
-		
+
 		if (controllerActivityInstaller != null) {
 			controllerActivityInstaller.shutdown();
 			controllerActivityInstaller = null;
 		}
-		
+
 		if (activityStorageManager != null) {
 			activityStorageManager.shutdown();
 			activityStorageManager = null;
 		}
-		
+
 		if (controllerRepository != null) {
 			controllerRepository.shutdown();
 			controllerRepository = null;
@@ -145,12 +145,10 @@ public class OsgiControllerActivator implements BundleActivator {
 					.getMyService();
 			ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker
 					.getMyService();
-			ScriptService scriptService = scriptServiceTracker.getMyService();
 
 			if (spaceEnvironment != null && spaceSystemControl != null
 					&& rosEnvironment != null && rosEnvironmentTracker != null
-					&& expressionEvaluatorFactory != null
-					&& scriptService != null) {
+					&& expressionEvaluatorFactory != null) {
 				activityStorageManager = new SimpleActivityStorageManager(
 						spaceEnvironment);
 				activityStorageManager.startup();
@@ -169,7 +167,11 @@ public class OsgiControllerActivator implements BundleActivator {
 
 				OsgiActiveControllerActivityFactory controllerActivityFactory = new OsgiActiveControllerActivityFactory(
 						bundleContext);
-				controllerActivityFactory.setScriptService(scriptService);
+
+				controllerActivityFactoryServiceRegistration = bundleContext
+						.registerService(
+								ActiveControllerActivityFactory.class.getName(),
+								controllerActivityFactory, null);
 
 				controllerActivityInstaller = new RosSpaceControllerActivityInstaller(
 						activityInstallationManager, spaceEnvironment);
@@ -193,9 +195,8 @@ public class OsgiControllerActivator implements BundleActivator {
 						spaceSystemControl, spaceEnvironment);
 				spaceController.startup();
 
-				controllerShell = new OsgiControllerShell(
-						spaceController, spaceSystemControl,
-						controllerRepository, bundleContext);
+				controllerShell = new OsgiControllerShell(spaceController,
+						spaceSystemControl, controllerRepository, bundleContext);
 				controllerShell.startup();
 			}
 		}

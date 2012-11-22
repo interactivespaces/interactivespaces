@@ -14,17 +14,8 @@
  */
 
 dependencies {
-  compile project(':rosjava_osgi_node')
-
-  compile project(':interactivespaces-core')
-  
-  compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
-    exclude module: 'rosjava_bootstrap'
-  }
-
-  compile 'org.jdom:com.springsource.org.jdom:1.1.0'
-  
-  compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
+  compile project(':interactivespaces-controller')
+  compile project(':interactivespaces-service-script')
   
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -33,10 +24,10 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.controller'
+    symbolicName = 'interactivespaces.controller.activity.wrapper.script'
 	
 	instruction 'Bundle-Activator',
-		'interactivespaces.controller.internal.osgi.OsgiControllerActivator'
+		'interactivespaces.controller.activity.wrapper.internal.script.osgi.OsgiScriptActivityWrapperActivator'
 
     instruction 'Export-Package',
 		'interactivespaces.*'
