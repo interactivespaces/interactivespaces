@@ -571,16 +571,21 @@ public class StandardSpaceController implements SpaceController,
 		spaceEnvironment.getLog().info(
 				String.format("Starting up activity %s", uuid));
 
-		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
-		if (activity != null) {
-			if (!activity.getCachedActivityStatus().getState().isRunning()) {
-				activityWatcher.watchActivity(activity);
-				attemptActivityStartup(activity);
+		try {
+			ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+			if (activity != null) {
+				if (!activity.getCachedActivityStatus().getState().isRunning()) {
+					activityWatcher.watchActivity(activity);
+					attemptActivityStartup(activity);
+				}
+			} else {
+				spaceEnvironment.getLog().warn(
+						String.format("Activity %s does not exist on controller",
+								uuid));
 			}
-		} else {
-			spaceEnvironment.getLog().warn(
-					String.format("Activity %s does not exist on controller",
-							uuid));
+		} catch (Exception e) {
+			ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, e.getMessage());
+			controllerCommunicator.publishActivityStatus(uuid, status);
 		}
 	}
 
@@ -750,7 +755,7 @@ public class StandardSpaceController implements SpaceController,
 	 * 
 	 * @return The active app with a runner.
 	 */
-	protected ActiveControllerActivity createActivityFromRepository(String uuid) {
+	private ActiveControllerActivity createActivityFromRepository(String uuid) {
 		InstalledLiveActivity liveActivity = controllerRepository
 				.getInstalledLiveActivityByUuid(uuid);
 		if (liveActivity != null) {

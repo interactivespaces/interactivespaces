@@ -89,9 +89,11 @@ public class OsgiActiveControllerActivityFactory implements
 
 			return app;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Unsupported activity type %s",
-					activityType.toString()));
+			String message = String.format(
+					"Unsupported activity type %s for activity %s",
+					activityType.toString(), liapp.getUuid());
+			controller.getSpaceEnvironment().getLog().warn(message);
+			throw new InteractiveSpacesException(message);
 		}
 	}
 
