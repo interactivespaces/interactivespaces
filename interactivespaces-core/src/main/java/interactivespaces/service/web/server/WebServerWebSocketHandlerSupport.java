@@ -16,36 +16,24 @@
 
 package interactivespaces.service.web.server;
 
+import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandlerSupport;
 
 /**
- * A useful support class for {@link WebSocketHandler} instances
+ * A support class which implements do nothing default methods for {@link WebServerWebSocketHandler}
+ * classes.
  *
  * @author Keith M. Hughes
  */
-public class WebSocketHandlerSupport implements WebSocketHandler {
+public class WebServerWebSocketHandlerSupport extends WebSocketHandlerSupport implements WebServerWebSocketHandler {
+
 	/**
 	 * The connection to the remote endpoint.
 	 */
 	protected WebSocketConnection connection;
 
-	public WebSocketHandlerSupport(WebSocketConnection connection) {
+	public WebServerWebSocketHandlerSupport(WebSocketConnection connection) {
 		this.connection = connection;
-	}
-
-	@Override
-	public void onConnect() {
-		// Default is nothing.
-	}
-
-	@Override
-	public void onClose() {
-		// Default is nothing.
-		
-	}
-
-	@Override
-	public void onReceive(Object data) {
-		// Default is nothing.
 	}
 
 	@Override

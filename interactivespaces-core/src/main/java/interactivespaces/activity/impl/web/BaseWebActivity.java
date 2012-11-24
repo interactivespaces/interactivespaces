@@ -21,7 +21,7 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.component.web.WebBrowserActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
-import interactivespaces.activity.impl.web.MultipleConnectionWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public class BaseWebActivity extends BaseWebServerActivity implements
 	/**
 	 * Web socket handler for the connection to the browser.
 	 */
-	private MultipleConnectionWebSocketHandlerFactory webSocketFactory;
+	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 
 	@Override
 	public void commonActivitySetup() {
@@ -55,7 +55,7 @@ public class BaseWebActivity extends BaseWebServerActivity implements
 		addActivityComponent(new WebBrowserActivityComponent());
 		
 		WebServerActivityComponent webServer = getComponent(WebServerActivityComponent.COMPONENT_NAME);
-		webSocketFactory = new MultipleConnectionWebSocketHandlerFactory(this,
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
 				getLog());
 		webServer.setWebSocketHandlerFactory(webSocketFactory);
 	}

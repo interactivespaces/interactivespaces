@@ -20,7 +20,7 @@ import static org.jboss.netty.channel.Channels.pipeline;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
-import interactivespaces.service.web.server.WebSocketHandlerFactory;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -112,7 +112,7 @@ public class NettyWebServer implements WebServer {
 				workerThreadPool);
 
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-
+		
 		// Set up the event pipeline factory.
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
@@ -155,7 +155,7 @@ public class NettyWebServer implements WebServer {
 
 	@Override
 	public void setWebSocketHandlerFactory(String webSocketUriPrefix,
-			WebSocketHandlerFactory webSocketHandlerFactory) {
+			WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
 		serverHandler.setWebSocketHandlerFactory(webSocketUriPrefix,
 				webSocketHandlerFactory);
 	}

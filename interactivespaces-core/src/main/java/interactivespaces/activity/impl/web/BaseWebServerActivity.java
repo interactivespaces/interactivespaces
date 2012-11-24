@@ -20,7 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.BaseActivity;
-import interactivespaces.activity.impl.web.MultipleConnectionWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 
@@ -43,7 +43,7 @@ public class BaseWebServerActivity extends BaseActivity implements
 	/**
 	 * Web socket handler for the connection to the browser.
 	 */
-	private MultipleConnectionWebSocketHandlerFactory webSocketFactory;
+	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 	
 	/**
 	 * The web server component.
@@ -55,7 +55,7 @@ public class BaseWebServerActivity extends BaseActivity implements
 		addActivityComponent(new WebServerActivityComponent());
 
 		webServer = getComponent(WebServerActivityComponent.COMPONENT_NAME);
-		webSocketFactory = new MultipleConnectionWebSocketHandlerFactory(this,
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
 				getLog());
 		webServer.setWebSocketHandlerFactory(webSocketFactory);
 		webServer.setHttpFileUploadListener(this);

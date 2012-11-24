@@ -14,36 +14,26 @@
  * the License.
  */
 
-package interactivespaces.service.web.server;
+package interactivespaces.service.web.client;
+
+import interactivespaces.service.web.WebSocketConnection;
+
+import java.util.Map;
 
 /**
- * A connection connection for a web socket server.
+ * A web socket client.
  *
  * @author Keith M. Hughes
  */
-public interface WebSocketConnection {
-	/**
-	 * Is the connection still open?
-	 * @return
-	 */
-	boolean isOpen();
+public interface WebSocketClient extends WebSocketConnection {
 	
 	/**
-	 * Close the connection.
+	 * Connect to the remote endpoint.
 	 */
-	void close();
+	void connect();
 	
 	/**
-	 * Write data out to the remote endpoint encoded as JSON.
-	 * 
-	 * @param data Data to write.
+	 * Ping the server.
 	 */
-	void writeDataAsJson(Object data);
-	
-	/**
-	 * Write data out to the remote endpoint encoded as a raw string.
-	 * 
-	 * @param data Data to write.
-	 */
-	void writeDataAsString(String data);
+	void ping();
 }

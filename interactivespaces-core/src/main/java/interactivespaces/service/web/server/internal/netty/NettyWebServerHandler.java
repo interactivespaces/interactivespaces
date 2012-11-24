@@ -25,7 +25,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
-import interactivespaces.service.web.server.WebSocketHandlerFactory;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	/**
 	 * Map of Netty channel IDs to web socket handlers.
 	 */
-	private Map<Integer, NettyWebSocketConnection> webSocketHandlers = Maps
+	private Map<Integer, NettyWebServerWebSocketConnection> webSocketConnections = Maps
 			.newConcurrentMap();
 
 	/**
@@ -113,7 +113,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * <p>
 	 * Can be null.
 	 */
-	private WebSocketHandlerFactory webSocketHandlerFactory;
+	private WebServerWebSocketHandlerFactory webSocketHandlerFactory;
 
 	/**
 	 * The listener for file uploads.
@@ -151,7 +151,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 *            handle web socket calls)
 	 */
 	public void setWebSocketHandlerFactory(String webSocketUriPrefix,
-			WebSocketHandlerFactory webSocketHandlerFactory) {
+			WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
 		this.fullWebSocketUriPrefix = (webSocketUriPrefix != null) ? "/"
 				+ webSocketUriPrefix.trim() : "/"
 				+ WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
@@ -317,12 +317,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 				@Override
 				public void operationComplete(ChannelFuture arg0)
 						throws Exception {
-					NettyWebSocketConnection handler = new NettyWebSocketConnection(
+					NettyWebServerWebSocketConnection connection = new NettyWebServerWebSocketConnection(
 							channel, handshaker, webSocketHandlerFactory,
 							webServer.getLog());
-					webSocketHandlers.put(channel.getId(), handler);
+					webSocketConnections.put(channel.getId(), connection);
 
-					handler.getHandler().onConnect();
+					connection.getHandler().onConnect();
 				}
 			});
 		}
@@ -482,11 +482,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 			WebSocketFrame frame) {
 		Channel channel = ctx.getChannel();
 
-		NettyWebSocketConnection handler = webSocketHandlers.get(channel
+		NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel
 				.getId());
 		if (handler != null) {
 			handler.handleWebSocketFrame(ctx, frame);
 		} else {
+			
 			throw new RuntimeException(
 					"Web socket frame request from unregistered channel");
 		}
@@ -498,12 +499,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * @param channel
 	 */
 	private void webSocketChannelClosing(Channel channel) {
-		NettyWebSocketConnection handler = webSocketHandlers.get(channel
+		NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel
 				.getId());
 		if (handler != null) {
 			// Is a web socket handler. Remove it and tell the handler it is
 			// done.
-			webSocketHandlers.remove(channel.getId());
+			webSocketConnections.remove(channel.getId());
 			handler.getHandler().onClose();
 		}
 	}

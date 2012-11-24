@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.web.server;
+package interactivespaces.service.web;
 
 /**
  * Handle web socket requests.
@@ -22,6 +22,7 @@ package interactivespaces.service.web.server;
  * @author Keith M. Hughes
  */
 public interface WebSocketHandler {
+
 	/**
 	 * The connection has just been made to the remote endpoint.
 	 */
@@ -38,18 +39,4 @@ public interface WebSocketHandler {
 	 * @param data The data to process.
 	 */
 	void onReceive(Object data);
-	
-	/**
-	 * Send data to the remote endpoint.
-	 * 
-	 * @param data The data to send.
-	 */
-	void sendJson(Object data);
-	
-	/**
-	 * Send raw data to the remote endpoint.
-	 * 
-	 * @param data The data to send.
-	 */
-	void sendString(String data);
 }

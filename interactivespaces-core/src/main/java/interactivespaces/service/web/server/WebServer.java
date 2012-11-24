@@ -65,7 +65,7 @@ public interface WebServer {
 	 *            handle web socket calls)
 	 */
 	void setWebSocketHandlerFactory(String webSocketUriPrefix,
-			WebSocketHandlerFactory webSocketHandlerFactory);
+			WebServerWebSocketHandlerFactory webSocketHandlerFactory);
 
 	/**
 	 * Set the listener for file uploads.

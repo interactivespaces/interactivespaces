@@ -21,11 +21,12 @@ import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
-import interactivespaces.service.web.server.WebSocketConnection;
-import interactivespaces.service.web.server.WebSocketHandler;
-import interactivespaces.service.web.server.WebSocketHandlerFactory;
+import interactivespaces.service.web.server.WebServerWebSocketHandler;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 
 import java.io.File;
@@ -96,7 +97,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	/**
 	 * Factory for web socket handlers.
 	 */
-	private WebSocketHandlerFactory webSocketHandlerFactory;
+	private WebServerWebSocketHandlerFactory webSocketHandlerFactory;
 
 	/**
 	 * A potential listener for file uploads.
@@ -254,7 +255,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	 * @return the web server component this method was called on
 	 */
 	public WebServerActivityComponent setWebSocketHandlerFactory(
-			WebSocketHandlerFactory webSocketHandlerFactory) {
+			WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
 		this.webSocketHandlerFactory = webSocketHandlerFactory;
 
 		if (webServer != null) {
@@ -321,7 +322,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	 */
 	private void setWebServerWebSocketHandlerFactory() {
 		webServer.setWebSocketHandlerFactory(webSocketUriPrefix,
-				new MyWebSocketHandlerFactory(webSocketHandlerFactory,
+				new MyWebServerWebSocketHandlerFactory(webSocketHandlerFactory,
 						getComponentContext()));
 	}
 
@@ -363,35 +364,35 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	}
 
 	/**
-	 * A {@link WebSocketHandlerFactory} which delegates to another web socket
+	 * A {@link WebServerWebSocketHandlerFactory} which delegates to another web socket
 	 * handler factory and wraps web socket handler with
-	 * {@link MyWebSocketHandler}.
+	 * {@link MyWebServerWebSocketHandler}.
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	public static class MyWebSocketHandlerFactory implements
-			WebSocketHandlerFactory {
+	public static class MyWebServerWebSocketHandlerFactory implements
+			WebServerWebSocketHandlerFactory {
 		/**
 		 * The factory being delegated to.
 		 */
-		private WebSocketHandlerFactory delegate;
+		private WebServerWebSocketHandlerFactory delegate;
 
 		/**
 		 * The component context this factory is part of.
 		 */
 		private ActivityComponentContext activityComponentContext;
 
-		public MyWebSocketHandlerFactory(WebSocketHandlerFactory delegate,
+		public MyWebServerWebSocketHandlerFactory(WebServerWebSocketHandlerFactory delegate,
 				ActivityComponentContext activityComponentContext) {
 			this.delegate = delegate;
 			this.activityComponentContext = activityComponentContext;
 		}
 
 		@Override
-		public WebSocketHandler newWebSocketHandler(WebSocketConnection proxy) {
-			WebSocketHandler handlerDelegate = delegate
+		public WebServerWebSocketHandler newWebSocketHandler(WebSocketConnection proxy) {
+			WebServerWebSocketHandler handlerDelegate = delegate
 					.newWebSocketHandler(proxy);
-			return new MyWebSocketHandler(handlerDelegate,
+			return new MyWebServerWebSocketHandler(handlerDelegate,
 					activityComponentContext);
 		}
 	}
@@ -402,12 +403,12 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	public static class MyWebSocketHandler implements WebSocketHandler {
+	public static class MyWebServerWebSocketHandler implements WebServerWebSocketHandler {
 
 		/**
 		 * The delegate to be protected.
 		 */
-		private WebSocketHandler delegate;
+		private WebServerWebSocketHandler delegate;
 
 		/**
 		 * The component context this handler is part of.
@@ -421,7 +422,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 		 * @param activityComponentContext
 		 *            the context in charge of the component
 		 */
-		public MyWebSocketHandler(WebSocketHandler delegate,
+		public MyWebServerWebSocketHandler(WebServerWebSocketHandler delegate,
 				ActivityComponentContext activityComponentContext) {
 			this.delegate = delegate;
 			this.activityComponentContext = activityComponentContext;

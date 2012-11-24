@@ -16,19 +16,22 @@
 
 package interactivespaces.service.web.server;
 
+import interactivespaces.service.web.WebSocketConnection;
 
 /**
  * A factory for web socket handlers.
- *
+ * 
  * @author Keith M. Hughes
  */
-public interface WebSocketHandlerFactory {
+public interface WebServerWebSocketHandlerFactory {
+	
 	/**
 	 * Create a new web socket handler.
 	 * 
-	 * @param connection Proxy to be used for the handler for communication with remote server.
+	 * @param connection
+	 *            connection for communication with remote server
 	 * 
 	 * @return A ready to use web socket handler.
 	 */
-	WebSocketHandler newWebSocketHandler(WebSocketConnection proxy);
+	WebServerWebSocketHandler newWebSocketHandler(WebSocketConnection connection);
 }

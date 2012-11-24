@@ -21,7 +21,7 @@ import java.io.File;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.activity.impl.web.MultipleConnectionWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 
@@ -36,14 +36,14 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	/**
 	 * Web socket handler for the connection to the browser.
 	 */
-	private MultipleConnectionWebSocketHandlerFactory webSocketFactory;
+	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 	private WebServerActivityComponent webServer;
 
 	@Override
 	public void commonActivitySetup() {
 		super.commonActivitySetup();
 
-		webSocketFactory = new MultipleConnectionWebSocketHandlerFactory(this,
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
 				getLog());
 
 		addActivityComponent(new WebServerActivityComponent());

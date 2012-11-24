@@ -16,10 +16,10 @@
 
 package interactivespaces.activity.impl.web;
 
-import interactivespaces.service.web.server.WebSocketConnection;
-import interactivespaces.service.web.server.WebSocketHandler;
-import interactivespaces.service.web.server.WebSocketHandlerFactory;
-import interactivespaces.service.web.server.WebSocketHandlerSupport;
+import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.server.WebServerWebSocketHandler;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerSupport;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,13 +29,13 @@ import org.apache.commons.logging.Log;
 import com.google.common.collect.Maps;
 
 /**
- * A {@link WebSocketHandlerFactory} which supports multiple simultaneous web
+ * A {@link WebServerWebSocketHandlerFactory} which supports multiple simultaneous web
  * socket connections.
  * 
  * @author Keith M. Hughes
  */
-public class MultipleConnectionWebSocketHandlerFactory implements
-		WebSocketHandlerFactory {
+public class MultipleConnectionWebServerWebSocketHandlerFactory implements
+		WebServerWebSocketHandlerFactory {
 
 	/**
 	 * The client handler.
@@ -45,7 +45,7 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	/**
 	 * A map from connect IDs to handlers.
 	 */
-	private Map<String, MyWebSocketHandler> handlers = Maps.newConcurrentMap();
+	private Map<String, MyWebServerWebSocketHandler> handlers = Maps.newConcurrentMap();
 
 	/**
 	 * Creator of connection IDs.
@@ -58,15 +58,15 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 */
 	private Log log;
 
-	public MultipleConnectionWebSocketHandlerFactory(
+	public MultipleConnectionWebServerWebSocketHandlerFactory(
 			MultipleConnectionWebSocketHandler clientHandler, Log log) {
 		this.clientHandler = clientHandler;
 		this.log = log;
 	}
 
 	@Override
-	public WebSocketHandler newWebSocketHandler(WebSocketConnection connection) {
-		return new MyWebSocketHandler(connection);
+	public WebServerWebSocketHandler newWebSocketHandler(WebSocketConnection connection) {
+		return new MyWebServerWebSocketHandler(connection);
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 *            the data to send
 	 */
 	public void sendJson(String connectionId, Object data) {
-		MyWebSocketHandler handler = handlers.get(connectionId);
+		MyWebServerWebSocketHandler handler = handlers.get(connectionId);
 		if (handler != null) {
 			handler.sendJson(data);
 		} else {
@@ -103,7 +103,7 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 *            the data to send
 	 */
 	public void sendJson(Object data) {
-		for (MyWebSocketHandler handler : handlers.values()) {
+		for (MyWebServerWebSocketHandler handler : handlers.values()) {
 			handler.sendJson(data);
 		}
 	}
@@ -117,7 +117,7 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 *            the data to send
 	 */
 	public void sendString(String connectionId, String data) {
-		MyWebSocketHandler handler = handlers.get(connectionId);
+		MyWebServerWebSocketHandler handler = handlers.get(connectionId);
 		if (handler != null) {
 			handler.sendString(data);
 		} else {
@@ -133,7 +133,7 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 *            the data to send
 	 */
 	public void sendString(String data) {
-		for (MyWebSocketHandler handler : handlers.values()) {
+		for (MyWebServerWebSocketHandler handler : handlers.values()) {
 			handler.sendString(data);
 		}
 	}
@@ -152,14 +152,14 @@ public class MultipleConnectionWebSocketHandlerFactory implements
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	public class MyWebSocketHandler extends WebSocketHandlerSupport {
+	public class MyWebServerWebSocketHandler extends WebServerWebSocketHandlerSupport {
 
 		/**
 		 * The ID for the connection.
 		 */
 		private String connectionId;
 
-		public MyWebSocketHandler(WebSocketConnection connection) {
+		public MyWebServerWebSocketHandler(WebSocketConnection connection) {
 			super(connection);
 
 			this.connectionId = newConnectionId();

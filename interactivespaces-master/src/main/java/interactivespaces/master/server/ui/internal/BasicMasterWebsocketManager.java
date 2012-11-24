@@ -17,8 +17,8 @@
 package interactivespaces.master.server.ui.internal;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.impl.web.MultipleConnectionWebSocketHandlerFactory;
-import interactivespaces.activity.impl.web.MultipleConnectionWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory;
+import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
@@ -74,7 +74,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	/**
 	 * Web socket handler for the connection to the browser.
 	 */
-	private MultipleConnectionWebSocketHandlerFactory webSocketFactory;
+	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 
 	/**
 	 * Client for communication with a remote controller.
@@ -103,7 +103,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 				spaceEnvironment.getExecutorService(),
 				spaceEnvironment.getLog());
 
-		webSocketFactory = new MultipleConnectionWebSocketHandlerFactory(this,
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
 				spaceEnvironment.getLog());
 
 		webServer.setWebSocketHandlerFactory("", webSocketFactory);

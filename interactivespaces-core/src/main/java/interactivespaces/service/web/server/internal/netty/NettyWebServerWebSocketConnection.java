@@ -16,9 +16,9 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
-import interactivespaces.service.web.server.WebSocketConnection;
-import interactivespaces.service.web.server.WebSocketHandler;
-import interactivespaces.service.web.server.WebSocketHandlerFactory;
+import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandler;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import java.util.Map;
 
@@ -34,11 +34,16 @@ import org.jboss.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 
 /**
- * A {@link WebSocketConnection} for Netty.
+ * A {@link WebSocketConnection} for a Netty web socket server.
  * 
  * @author Keith M. Hughes
  */
-public class NettyWebSocketConnection implements WebSocketConnection {
+public class NettyWebServerWebSocketConnection implements WebSocketConnection {
+
+	/**
+	 * The JSON mapper.
+	 */
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
 	 * The channel for this web socket handler.
@@ -60,9 +65,9 @@ public class NettyWebSocketConnection implements WebSocketConnection {
 	 */
 	private Log log;
 
-	public NettyWebSocketConnection(Channel channel,
+	public NettyWebServerWebSocketConnection(Channel channel,
 			WebSocketServerHandshaker handshaker,
-			WebSocketHandlerFactory handlerFactory, Log log) {
+			WebServerWebSocketHandlerFactory handlerFactory, Log log) {
 		this.channel = channel;
 		this.handshaker = handshaker;
 		this.log = log;
@@ -84,7 +89,6 @@ public class NettyWebSocketConnection implements WebSocketConnection {
 	 */
 	public void handleWebSocketFrame(ChannelHandlerContext ctx,
 			WebSocketFrame frame) {
-		// Send the Squared integer back.
 		if (frame instanceof CloseWebSocketFrame) {
 			handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
 			return;
@@ -101,9 +105,8 @@ public class NettyWebSocketConnection implements WebSocketConnection {
 		}
 
 		String textData = ((TextWebSocketFrame) frame).getText();
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			handler.onReceive(mapper.readValue(textData, Map.class));
+			handler.onReceive(MAPPER.readValue(textData, Map.class));
 		} catch (Exception e) {
 			log.error("Could not process web socket frame", e);
 		}
@@ -111,9 +114,8 @@ public class NettyWebSocketConnection implements WebSocketConnection {
 
 	@Override
 	public void writeDataAsJson(Object data) {
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			channel.write(new TextWebSocketFrame(mapper
+			channel.write(new TextWebSocketFrame(MAPPER
 					.writeValueAsString(data)));
 		} catch (Exception e) {
 			log.error("Could not write JSON object on web socket", e);
