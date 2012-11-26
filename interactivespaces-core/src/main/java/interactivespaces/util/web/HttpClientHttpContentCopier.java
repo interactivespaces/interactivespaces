@@ -29,7 +29,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
 /**
  * An {@link HttpContentCopier} which uses Apache HttpClient.
@@ -44,28 +43,18 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 	private static final int BUFFER_SIZE = 4096;
 
 	/**
-	 * Connection manager for the client.
-	 * 
-	 * <p>
-	 * It must be thread safe as the client can be used by multiple threads.
-	 */
-	private ThreadSafeClientConnManager connectionManager;
-
-	/**
 	 * The HTTPClient instance which does the actual transfer.
 	 */
 	private HttpClient client;
 
 	@Override
 	public void startup() {
-		connectionManager = new ThreadSafeClientConnManager();
-		connectionManager.setMaxTotal(100);
-		client = new DefaultHttpClient(connectionManager);
+		client = new DefaultHttpClient();
 	}
 
 	@Override
 	public void shutdown() {
-		connectionManager.shutdown();
+		client.getConnectionManager().shutdown();
 	}
 
 	@Override

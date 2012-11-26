@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.Jdk14Logger;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -137,22 +138,23 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 		// stuff.
 		// OSGi logging only allows one logger, need something more general.
 		// This would allow things like being able to change log levels, etc.
-		Level l = log4jLevels.get(level.toLowerCase());
-		boolean unknownLevel = false;
-		if (l == null) {
-			unknownLevel = true;
-			l = Level.ERROR;
-		}
+//		Level l = log4jLevels.get(level.toLowerCase());
+//		boolean unknownLevel = false;
+//		if (l == null) {
+//			unknownLevel = true;
+//			l = Level.ERROR;
+//		}
+//
+//		Logger logger = Logger.getLogger("interactivespaces." + logName);
+//		logger.setLevel(l);
+//
+//		if (unknownLevel) {
+//			logger.error(String.format("Unknown log level %s, set to ERROR",
+//					level));
+//		}
 
-		Logger logger = Logger.getLogger("interactivespaces." + logName);
-		logger.setLevel(l);
-
-		if (unknownLevel) {
-			logger.error(String.format("Unknown log level %s, set to ERROR",
-					level));
-		}
-
-		return new Log4JLogger(logger);
+		//return new Log4JLogger(logger);
+		return new Jdk14Logger("interactivespaces." + logName);
 	}
 
 	@Override

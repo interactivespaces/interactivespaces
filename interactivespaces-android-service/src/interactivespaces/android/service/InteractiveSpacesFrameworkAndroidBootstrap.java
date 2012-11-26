@@ -16,6 +16,9 @@
 
 package interactivespaces.android.service;
 
+import interactivespaces.controller.internal.osgi.OsgiControllerActivator;
+import interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +49,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 
 /**
- * A bootstrapper for Interactive Spaces on an Androind device.
+ * A bootstrapper for Interactive Spaces on an Android device.
  * 
  * @author Keith M. Hughes
  */
@@ -96,8 +99,10 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	 * Whether or not the OSGi shell is needed.
 	 */
 	private boolean needShell = true;
-	
+
 	private Map<String, Bundle> jarToBundle = new HashMap<String, Bundle>();
+
+	private GeneralInteractiveSpacesSupportActivator isSystemActivator;
 
 	/**
 	 * Boot the framework.
@@ -115,30 +120,35 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			// If no bundle JAR files are in the directory, then exit.
 			if (initialBundles.isEmpty() && finalBundles.isEmpty()) {
 				System.out.println("No bundles to install.");
-			} else {
-				// setupShutdownHandler();
-
-				createAndStartFramework(args, context);
-				List<Bundle> bundleList = new ArrayList<Bundle>();
-
-				// Install bundle JAR files and remember the bundle objects.
-				BundleContext ctxt = framework.getBundleContext();
-				ctxt.addBundleListener(new BundleListener() {
-
-					@Override
-					public void bundleChanged(BundleEvent event) {
-						bundleChangeEvent(event);
-					}
-
-				});
-
-				startBundles(assetManager, ctxt, bundleList, initialBundles, false);
-				startBundles(assetManager, ctxt, bundleList, finalBundles, true);
-
-				// Wait for framework to stop.
-				// framework.waitForStop(0);
-				// System.exit(0);
 			}
+			// setupShutdownHandler();
+
+			createAndStartFramework(args, context);
+			List<Bundle> bundleList = new ArrayList<Bundle>();
+
+			// Install bundle JAR files and remember the bundle objects.
+			BundleContext ctxt = framework.getBundleContext();
+			ctxt.addBundleListener(new BundleListener() {
+
+				@Override
+				public void bundleChanged(BundleEvent event) {
+					bundleChangeEvent(event);
+				}
+
+			});
+
+			// Wait for framework to stop.
+			// framework.waitForStop(0);
+			// System.exit(0);
+
+			isSystemActivator = new GeneralInteractiveSpacesSupportActivator();
+			isSystemActivator.start(framework.getBundleContext());
+
+			OsgiControllerActivator isControllerActivator = new OsgiControllerActivator();
+			isControllerActivator.start(framework.getBundleContext());
+
+			startBundles(assetManager, ctxt, bundleList, initialBundles, false);
+			startBundles(assetManager, ctxt, bundleList, finalBundles, true);
 
 		} catch (Exception ex) {
 			System.err.println("Error starting framework: " + ex);
@@ -173,10 +183,11 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			try {
 				Bundle b = ctxt.installBundle(bundleFile,
 						assetManager.open(bundleFile));
-				
+
 				bundleList.add(b);
 				bundles.add(b);
-				jarToBundle.put(bundleFile.substring(bundleFile.indexOf('/') + 1), b);
+				jarToBundle.put(
+						bundleFile.substring(bundleFile.indexOf('/') + 1), b);
 				System.out.format("Added bundle file %s with ID %d\n",
 						bundleFile, b.getBundleId());
 			} catch (IOException e) {
@@ -190,7 +201,8 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			if (!isFragment(bundle)) {
 				// TODO(keith): See if way to start up shell from property
 				// since we may want it for remote access.
-				if ((bundle.getLocation().contains("gogo") && !needShell) || bundle.getLocation().contains("netty")) {
+				if ((bundle.getLocation().contains("gogo") && !needShell)
+						|| bundle.getLocation().contains("netty")) {
 					continue;
 				}
 
@@ -249,18 +261,58 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		}
 
 		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath; javax.xml.transform.sax ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
+		packages += "; com.google.common.collect; interactivespaces; interactivespaces.activity; ";
+		packages += "interactivespaces.configuration; ";
+		packages += "interactivespaces.controller; ";
+		packages += "interactivespaces.controller.activity.installation; ";
+		packages += "interactivespaces.domain.basic; ";
+		packages += "interactivespaces.domain.basic.pojo; ";
+		packages += "interactivespaces.evaluation; ";
+		packages += "interactivespaces.master.server.remote.client; ";
+		packages += "interactivespaces.master.server.remote.client.ros; ";
+		packages += "interactivespaces.system; ";
+		packages += "interactivespaces.time; ";
+		packages += "org.apache.commons.logging; version=1.1.1, ";
+		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
+		packages += "interactivespaces.activity.execution; ";
+		packages += "interactivespaces.activity.impl; ";
+		packages += "interactivespaces.activity.impl.binary; ";
+		packages += "interactivespaces.activity.impl.ros; ";
+		packages += "interactivespaces.activity.impl.web; ";
+		packages += "interactivespaces.activity.binary; ";
+		packages += "interactivespaces.activity.component; ";
+		packages += "interactivespaces.activity.component.ros; ";
+		packages += "interactivespaces.activity.component.web; ";
+		packages += "interactivespaces.event; ";
+		packages += "interactivespaces.event.trigger; ";
+		packages += "interactivespaces.util; ";
+		packages += "interactivespaces.util.concurrency; ";
+		packages += "interactivespaces.util.data; ";
+		packages += "interactivespaces.util.data.persist; ";
+		packages += "interactivespaces.util.io; ";
+		packages += "interactivespaces.util.process.restart; ";
+		packages += "interactivespaces.util.ros; ";
+		packages += "interactivespaces.util.uuid; ";
+		packages += "interactivespaces.util.web; ";
+		packages += "interactivespaces.service.web.server; ";
+		packages += "org.ros.osgi.common; ";
+		packages += "org.ros.node; ";
+		packages += "org.ros.node.topic; ";
+		packages += "org.ros.message; ";
+		packages += "org.ros.message.interactivespaces_msgs; version=0.0.0";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES, packages);
 
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "log4j.properties");
 
 		File file = new File(filesDir, "plugins-cache");
-		System.out.format("Attempted IS cache creation %s\n", file.mkdirs());
+		file.mkdirs();
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
 
 		// m.put("org.apache.felix.http.enable", "true");
 		// m.put("org.apache.felix.http.jettyEnabled", "true");
 		// m.put("org.osgi.service.http.port", "80");
 
+		m.put("felix.service.urlhandlers", "false");
 		loadPropertyFiles(CONFIG_DIRECTORY, m);
 
 		StringBuilder argsString = new StringBuilder();
@@ -332,6 +384,14 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		return bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null;
 	}
 
+	/**
+	 * Load all config files from the configuration folder.
+	 * 
+	 * @param configFolder
+	 *            the configuration
+	 * @param properties
+	 *            where the properties from the configurations will be placed
+	 */
 	private void loadPropertyFiles(String configFolder,
 			Map<String, String> properties) {
 		// Look in the specified bundle directory to create a list
@@ -416,16 +476,23 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			systemLibDir.mkdirs();
 			File logsDir = new File(filesDir, "logs");
 			logsDir.mkdirs();
+			File activitiesStagingDir = new File(filesDir, "controller/activities/staging");
+			activitiesStagingDir.mkdirs();
+			File activitiesInstalledDir = new File(filesDir, "controller/activities/installed");
+			activitiesInstalledDir.mkdirs();
 
-			copyAssetFile(assetManager.open("config/container.conf"), new File(
-					confDir, "container.conf"));
-			copyAssetFile(
-					assetManager
-							.open("config/interactivespaces/controller.conf"),
-					new File(isConfigDir, "controller.conf"));
-			copyAssetFile(
-					assetManager.open("lib/system/java/log4j.properties"),
-					new File(systemLibDir, "log4j.properties"));
+			copyAssetFile("config/container.conf", new File(confDir,
+					"container.conf"), assetManager);
+
+			String[] configFiles = assetManager
+					.list("config/interactivespaces");
+			for (String configFile : configFiles) {
+				copyAssetFile("config/interactivespaces/" + configFile,
+						new File(isConfigDir, configFile), assetManager);
+			}
+
+			copyAssetFile("lib/system/java/log4j.properties", new File(
+					systemLibDir, "log4j.properties"), assetManager);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -439,13 +506,20 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	 *            the input stream for the asset
 	 * @param outputFile
 	 *            where the file should be copied
+	 * @param assetManager
+	 *            TODO
 	 */
-	private void copyAssetFile(InputStream inputStream, File outputFile) {
+	private void copyAssetFile(String input, File outputFile,
+			AssetManager assetManager) {
+
+		System.out.format("Copying %s to %s\n", input, outputFile);
 
 		byte buf[] = new byte[1024];
 		int len;
 		FileOutputStream fos = null;
+		InputStream inputStream = null;
 		try {
+			inputStream = assetManager.open(input);
 			fos = new FileOutputStream(outputFile);
 
 			while ((len = inputStream.read(buf)) != -1) {
@@ -463,12 +537,13 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 				}
 			}
 
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				// Don't care
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Don't care
+				}
 			}
-
 		}
 	}
 }

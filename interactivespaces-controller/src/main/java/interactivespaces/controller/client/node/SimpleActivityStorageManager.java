@@ -64,7 +64,8 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
 	public void startup() {
 		Configuration systemConfiguration = spaceEnvironment
 				.getSystemConfiguration();
-		activityBaseDirectory = new File(systemConfiguration.getPropertyString(
+		activityBaseDirectory = new File(spaceEnvironment.getFilesystem()
+				.getInstallDirectory(), systemConfiguration.getPropertyString(
 				CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY_PROPERTY,
 				CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT));
 	}
@@ -77,9 +78,12 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
 	@Override
 	public List<String> getAllInstalledActivityUuids() {
 		List<String> results = Lists.newArrayList();
-		for (File file : activityBaseDirectory.listFiles()) {
-			if (file.isDirectory()) {
-				results.add(file.getName());
+		File[] installedActivityDirectories = activityBaseDirectory.listFiles();
+		if (installedActivityDirectories != null) {
+			for (File file : installedActivityDirectories) {
+				if (file.isDirectory()) {
+					results.add(file.getName());
+				}
 			}
 		}
 

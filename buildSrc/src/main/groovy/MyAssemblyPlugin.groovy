@@ -82,7 +82,7 @@ class MyAssemblyPlugin implements Plugin<Project>  {
         into bootstrapAssets
       }
 
-      bootstrapAssets.eachFile { processFile(it, project) }
+      //bootstrapAssets.eachFile { processFile(it, project) }
     }
 
     void processFile(File jar, project) {

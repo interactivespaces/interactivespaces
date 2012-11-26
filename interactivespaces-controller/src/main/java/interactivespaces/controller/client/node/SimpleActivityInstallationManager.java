@@ -105,7 +105,8 @@ public class SimpleActivityInstallationManager implements
 
 		Configuration systemConfiguration = spaceEnvironment
 				.getSystemConfiguration();
-		stagingBaseDirectory = new File(systemConfiguration.getPropertyString(
+		stagingBaseDirectory = new File(spaceEnvironment.getFilesystem()
+				.getInstallDirectory(), systemConfiguration.getPropertyString(
 				CONTROLLER_APPLICATION_STAGING_DIRECTORY_PROPERTY,
 				CONTROLLER_APPLICATIONS_STAGING_DEFAULT));
 	}

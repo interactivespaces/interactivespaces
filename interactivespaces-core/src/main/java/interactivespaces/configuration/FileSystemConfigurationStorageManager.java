@@ -162,7 +162,7 @@ public class FileSystemConfigurationStorageManager implements
 		if (configFiles.length == 0) {
 			throw new InteractiveSpacesException(
 					String.format(
-							"Interactive Spaces configuration folder %s constaints no files ending with %s",
+							"Interactive Spaces configuration folder %s contains no files ending with %s",
 							configurationFolder, CONFIGURATION_FILE_EXTENSION));
 		}
 

@@ -39,7 +39,7 @@ import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.commons.logging.impl.Jdk14Logger;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.osgi.framework.BundleActivator;
@@ -138,7 +138,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			Properties containerProperties = getProperties(new File(
 					baseInstallDir, PROPERTY_CONTAINER_CONFIGURATION_FILEPATH));
 
-			setupLogging(baseInstallDir);
+			//setupLogging(baseInstallDir);
 
 			setupSpaceEnvironment(context, containerProperties, baseInstallDir);
 
@@ -199,8 +199,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		systemControl = new OsgiInteractiveSpacesSystemControl(context);
 
 		executorService = new DefaultScheduledExecutorService();
-		Log log = new Log4JLogger(baseInteractiveSpacesLogger);
-		//Log log = new Jdk14Logger("interactivespaces");
+		//Log log = new Log4JLogger(baseInteractiveSpacesLogger);
+		Log log = new Jdk14Logger("interactivespaces");
 
 		filesystem = new BasicInteractiveSpacesFilesystem(baseInstallDir);
 		filesystem.startup();
@@ -316,6 +316,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 
 		Configuration systemConfiguration = systemConfigurationStorageManager
 				.getSystemConfiguration();
+		
+		System.out.println(systemConfiguration.getCollapsedMap());
 
 		for (Entry<Object, Object> entry : containerProperties.entrySet()) {
 			systemConfiguration.setValue(entry.getKey().toString(), entry
