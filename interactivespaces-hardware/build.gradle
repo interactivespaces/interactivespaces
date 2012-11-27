@@ -14,18 +14,21 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-bootstrap-core')
-  compile 'org.apache.felix:org.apache.felix.framework:4.0.3'
-  
-  compile 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
-
+  compile project(':interactivespaces-core')
+  compile files(project.getProperty("rxtx.home"))
+ 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
 }
 
 jar {
   manifest {
-    version = version
-    symbolicName = 'interactivespaces.launcher.bootstrap'
+    version = osgiVersion
+    symbolicName = 'interactivespaces.hardware'
+	
+    instruction 'Export-Package',
+		'!interactivespaces.hardware.internal.*', 
+		'interactivespaces.hardware.*'
   }
 }
+

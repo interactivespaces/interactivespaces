@@ -1,0 +1,6 @@
+Starting up Interactive Spaces on a variety of platforms can be a challenge. As an
+example, logging can come from Log4J when on a standard desktop platform, while
+using the Android platform logger is preferable on Android.
+
+This module gives the core connections to the underlying platform by providing
+a bunch of interfaces to be implemented by various platform providers.

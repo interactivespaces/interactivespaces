@@ -16,8 +16,10 @@
 
 package interactivespaces.launcher;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -35,6 +37,7 @@ import java.util.List;
  */
 public class InteractiveSpacesLauncher {
 
+	private static final String EXTRA_SYSTEM_JARS_CONF = "extrasystemjars.conf";
 	private static final String SPACES_LIB_JAVA_SYSTEM = "lib/system/java";
 	private ClassLoader classLoader;
 	private File pidFile;
@@ -58,7 +61,11 @@ public class InteractiveSpacesLauncher {
 	 * Create the classloader to use to start the system.
 	 */
 	private void createClassLoader() {
-		List<URL> urls = collectClasspath();
+		File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
+
+		List<URL> urls = collectSystemLibClasspath(systemDirectory);
+		addExtraClasspath(systemDirectory, urls);
+
 		classLoader = new URLClassLoader(urls.toArray(new URL[0]));
 	}
 
@@ -67,12 +74,15 @@ public class InteractiveSpacesLauncher {
 	 * 
 	 * @return
 	 */
-	private List<URL> collectClasspath() {
+	private List<URL> collectSystemLibClasspath(File systemDirectory) {
 		List<URL> urls = new ArrayList<URL>();
-		File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
 		File[] files = systemDirectory.listFiles();
 		if (files != null) {
 			for (File file : files) {
+				if (file.getName().equals(EXTRA_SYSTEM_JARS_CONF)) {
+					continue;
+				}
+
 				try {
 					URL url = file.toURI().toURL();
 					urls.add(url);
@@ -88,6 +98,44 @@ public class InteractiveSpacesLauncher {
 		}
 
 		return urls;
+	}
+
+	/**
+	 * If the {@link #SYSTEMJARS_CONF} exists in the system directory, extend
+	 * the classpath.
+	 * 
+	 * @param systemDirectory
+	 *            the system directory
+	 * @param urls
+	 *            the collection of URLs for the classpath.
+	 */
+	private void addExtraClasspath(File systemDirectory, List<URL> urls) {
+		File systemJarsFile = new File(systemDirectory, EXTRA_SYSTEM_JARS_CONF);
+		if (systemJarsFile.exists()) {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(systemJarsFile));
+
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					line = line.trim();
+					if (!line.isEmpty()) {
+						File file = new File(line);
+						if (file.exists()) {
+							try {
+								urls.add(file.toURI().toURL());
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	/**

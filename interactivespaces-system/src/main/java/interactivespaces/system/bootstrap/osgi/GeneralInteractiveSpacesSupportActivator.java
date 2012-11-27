@@ -25,6 +25,7 @@ import interactivespaces.evaluation.SimpleExpressionEvaluatorFactory;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.system.internal.osgi.OsgiInteractiveSpacesSystemControl;
 import interactivespaces.system.internal.osgi.RosOsgiInteractiveSpacesEnvironment;
 import interactivespaces.time.LocalTimeProvider;
@@ -39,11 +40,9 @@ import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.master.uri.MasterUriProvider;
 import org.ros.master.uri.StaticMasterUriProvider;
@@ -72,16 +71,6 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	public static final String PROPERTY_CONTAINER_CONFIGURATION_FILEPATH = "config/container.conf";
 
 	/**
-	 * Base name attached to loggers.
-	 */
-	public static final String LOGGER_BASE_NAME = "interactivespaces";
-
-	/**
-	 * Where the logging properties file is kept.
-	 */
-	public static final String LOGGING_PROPERTIES_FILE = "lib/system/java/log4j.properties";
-
-	/**
 	 * Threadpool for everyone to use.
 	 */
 	private ScheduledExecutorService executorService;
@@ -107,11 +96,6 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	private SystemConfigurationStorageManager systemConfigurationStorageManager;
 
 	/**
-	 * The root logger for the container.
-	 */
-	private Logger baseInteractiveSpacesLogger;
-
-	/**
 	 * Factory for expression evaluators.
 	 */
 	private SimpleExpressionEvaluatorFactory expressionEvaluatorFactory;
@@ -127,6 +111,11 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	private SwitchableMasterUriProvider masterUriProvider;
 
 	/**
+	 * The platform logging provider.
+	 */
+	private LoggingProvider loggingProvider;
+
+	/**
 	 * Start up the activator.
 	 */
 	public void start(BundleContext context) throws Exception {
@@ -138,7 +127,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			Properties containerProperties = getProperties(new File(
 					baseInstallDir, PROPERTY_CONTAINER_CONFIGURATION_FILEPATH));
 
-			//setupLogging(baseInstallDir);
+			getCoreServices(context);
 
 			setupSpaceEnvironment(context, containerProperties, baseInstallDir);
 
@@ -147,6 +136,22 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Get all core services needed.
+	 * 
+	 * <p>
+	 * These services should have been provided by the OSGi container bootstrap
+	 * and so will be immediately available. They will never go away since they
+	 * are only destroyed when bundle 0 goes, which means the entire container
+	 * is being shut down.
+	 */
+	private void getCoreServices(BundleContext context) throws Exception {
+		ServiceReference loggingProviderServiceReference = context
+				.getServiceReference(LoggingProvider.class.getName());
+		loggingProvider = (LoggingProvider) context
+				.getService(loggingProviderServiceReference);
 	}
 
 	/**
@@ -171,20 +176,6 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	}
 
 	/**
-	 * Set up the logging in the container.
-	 */
-	private void setupLogging(File baseInstallDir) {
-		Properties loggingProperties = getProperties(new File(baseInstallDir,
-				LOGGING_PROPERTIES_FILE));
-		loggingProperties.put("log4j.appender.interactivespaces.File",
-				new File(baseInstallDir, "logs/interactivespaces.log")
-						.getAbsolutePath());
-		// TODO(keith): This needs to go into a logging bundle.
-		PropertyConfigurator.configure(loggingProperties);
-		baseInteractiveSpacesLogger = Logger.getLogger(LOGGER_BASE_NAME);
-	}
-
-	/**
 	 * Set up the {@link InteractiveSpacesEnvironment} everyone should use.
 	 * 
 	 * @param context
@@ -199,15 +190,13 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		systemControl = new OsgiInteractiveSpacesSystemControl(context);
 
 		executorService = new DefaultScheduledExecutorService();
-		//Log log = new Log4JLogger(baseInteractiveSpacesLogger);
-		Log log = new Jdk14Logger("interactivespaces");
 
 		filesystem = new BasicInteractiveSpacesFilesystem(baseInstallDir);
 		filesystem.startup();
 
 		spaceEnvironment = new RosOsgiInteractiveSpacesEnvironment();
 		spaceEnvironment.setExecutorService(executorService);
-		spaceEnvironment.setLog(log);
+		spaceEnvironment.setLoggingProvider(loggingProvider);
 		spaceEnvironment.setFilesystem(filesystem);
 		spaceEnvironment
 				.setNetworkType(containerProperties
@@ -217,7 +206,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 
 		spaceEnvironment.setTimeProvider(new LocalTimeProvider());
 
-		setupRosEnvironment(context, containerProperties, log);
+		setupRosEnvironment(context, containerProperties,
+				loggingProvider.getLog());
 
 		spaceEnvironment.setValue("environment.ros", rosEnvironment);
 	}
@@ -309,14 +299,15 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		fileSystemConfigurationStorageManager.setLog(spaceEnvironment.getLog());
 		fileSystemConfigurationStorageManager
 				.setExpressionEvaluatorFactory(expressionEvaluatorFactory);
-		fileSystemConfigurationStorageManager.setInteractiveSpacesFilesystem(filesystem);
-		
+		fileSystemConfigurationStorageManager
+				.setInteractiveSpacesFilesystem(filesystem);
+
 		systemConfigurationStorageManager = fileSystemConfigurationStorageManager;
 		systemConfigurationStorageManager.startup();
 
 		Configuration systemConfiguration = systemConfigurationStorageManager
 				.getSystemConfiguration();
-		
+
 		System.out.println(systemConfiguration.getCollapsedMap());
 
 		for (Entry<Object, Object> entry : containerProperties.entrySet()) {

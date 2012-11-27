@@ -18,6 +18,7 @@ package interactivespaces.android.service;
 
 import interactivespaces.controller.internal.osgi.OsgiControllerActivator;
 import interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator;
+import interactivespaces.system.core.logging.LoggingProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -61,11 +62,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	private static final String CONFIGURATION_FILES_EXTENSION = ".conf";
 
 	/**
-	 * Where the OSGi framework launcher can be found.
-	 */
-	private static final String OSGI_FRAMEWORK_LAUNCH_FRAMEWORK_FACTORY = "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
-
-	/**
 	 * Subdirectory which will contain the bootstrap bundles.
 	 */
 	public static final String BUNDLE_DIRECTORY_BOOTSTRAP = "bootstrap";
@@ -105,6 +101,11 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	private GeneralInteractiveSpacesSupportActivator isSystemActivator;
 
 	/**
+	 * Logging provider for the container.
+	 */
+	private AndroidLoggingProvider loggingProvider;
+
+	/**
 	 * Boot the framework.
 	 */
 	public void boot(List<String> args, Context context) {
@@ -113,6 +114,8 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		needShell = !args.contains("--noshell");
 		needShell = false;
 		try {
+			createCoreServices();
+
 			copyInitialBootstrapAssets(assetManager, context.getFilesDir());
 
 			getBootstrapBundleJars(assetManager, BUNDLE_DIRECTORY_BOOTSTRAP);
@@ -124,6 +127,9 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			// setupShutdownHandler();
 
 			createAndStartFramework(args, context);
+
+			registerCoreServices();
+
 			List<Bundle> bundleList = new ArrayList<Bundle>();
 
 			// Install bundle JAR files and remember the bundle objects.
@@ -155,6 +161,21 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			ex.printStackTrace();
 			System.exit(0);
 		}
+	}
+
+	/**
+	 * Create the core services to the base bundle which are platform dependent.
+	 */
+	public void createCoreServices() {
+		loggingProvider = new AndroidLoggingProvider();
+	}
+
+	/**
+	 * Register all bootstrap core services with the container.
+	 */
+	public void registerCoreServices() {
+		framework.getBundleContext().registerService(LoggingProvider.class.getName(),
+				loggingProvider, null);
 	}
 
 	/**
@@ -261,6 +282,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		}
 
 		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath; javax.xml.transform.sax ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
+		packages += "interactivespaces.system.core.logging; ";
 		packages += "; com.google.common.collect; interactivespaces; interactivespaces.activity; ";
 		packages += "interactivespaces.configuration; ";
 		packages += "interactivespaces.controller; ";
@@ -308,11 +330,8 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		file.mkdirs();
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
 
-		// m.put("org.apache.felix.http.enable", "true");
-		// m.put("org.apache.felix.http.jettyEnabled", "true");
-		// m.put("org.osgi.service.http.port", "80");
-
 		m.put("felix.service.urlhandlers", "false");
+		
 		loadPropertyFiles(CONFIG_DIRECTORY, m);
 
 		StringBuilder argsString = new StringBuilder();

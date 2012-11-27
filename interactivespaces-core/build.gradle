@@ -15,7 +15,8 @@
 
 dependencies {
 	compile project(':rosjava_osgi')
-
+	compile project(':interactivespaces-bootstrap-core')
+	
 	compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') { 
 		exclude module: 'rosjava_bootstrap' 
 	}
@@ -41,12 +42,7 @@ dependencies {
 
 	compile 'org.jdom:com.springsource.org.jdom:1.1.0'
 	
-//	if (buildType != 'android') {
-//		compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
-//	} else {
-//		compile files(androidSdkJar)
-//	}
-
+    provided 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
 
 	testCompile 'junit:junit:4.8.2'
 	testCompile 'org.mockito:mockito-all:1.8.5'

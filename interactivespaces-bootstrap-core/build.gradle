@@ -14,18 +14,5 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-bootstrap-core')
-  compile 'org.apache.felix:org.apache.felix.framework:4.0.3'
-  
-  compile 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
-
-  testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
-}
-
-jar {
-  manifest {
-    version = version
-    symbolicName = 'interactivespaces.launcher.bootstrap'
-  }
+    compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
 }

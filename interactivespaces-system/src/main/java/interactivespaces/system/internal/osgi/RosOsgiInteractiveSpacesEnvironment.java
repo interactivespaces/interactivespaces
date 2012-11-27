@@ -21,18 +21,13 @@ import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
+import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
-import org.apache.commons.logging.impl.Log4JLogger;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import com.google.common.collect.Maps;
 
@@ -43,24 +38,6 @@ import com.google.common.collect.Maps;
  */
 public class RosOsgiInteractiveSpacesEnvironment implements
 		InteractiveSpacesEnvironment {
-
-	/**
-	 * The map of logging levels to their log4j level.
-	 */
-	public static final Map<String, Level> log4jLevels;
-
-	static {
-		Map<String, Level> levels = Maps.newHashMap();
-		levels.put(LOG_LEVEL_ERROR, Level.ERROR);
-		levels.put(LOG_LEVEL_FATAL, Level.FATAL);
-		levels.put(LOG_LEVEL_DEBUG, Level.DEBUG);
-		levels.put(LOG_LEVEL_INFO, Level.INFO);
-		levels.put(LOG_LEVEL_OFF, Level.OFF);
-		levels.put(LOG_LEVEL_TRACE, Level.TRACE);
-		levels.put(LOG_LEVEL_WARN, Level.WARN);
-
-		log4jLevels = Collections.unmodifiableMap(levels);
-	}
 
 	/**
 	 * The system configuration.
@@ -76,11 +53,6 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 	 * The file system for Interactive Spaces.
 	 */
 	private InteractiveSpacesFilesystem filesystem;
-
-	/**
-	 * Base log for Interactive Spaces.
-	 */
-	private Log log;
 
 	/**
 	 * Network type for the container.
@@ -105,6 +77,11 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 	 * The service registry.
 	 */
 	private ServiceRegistry serviceRegistry = new SimpleServiceRegistry();
+	
+	/**
+	 * The platform logging provider.
+	 */
+	private LoggingProvider loggingProvider;
 
 	@Override
 	public Configuration getSystemConfiguration() {
@@ -128,52 +105,17 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 
 	@Override
 	public Log getLog() {
-		// Just hand along the ROS Environment log.
-		return log;
+		return loggingProvider.getLog();
 	}
 
 	@Override
 	public Log getLog(String logName, String level) {
-		// TODO(keith): We need a logging bundle which handles all of this
-		// stuff.
-		// OSGi logging only allows one logger, need something more general.
-		// This would allow things like being able to change log levels, etc.
-//		Level l = log4jLevels.get(level.toLowerCase());
-//		boolean unknownLevel = false;
-//		if (l == null) {
-//			unknownLevel = true;
-//			l = Level.ERROR;
-//		}
-//
-//		Logger logger = Logger.getLogger("interactivespaces." + logName);
-//		logger.setLevel(l);
-//
-//		if (unknownLevel) {
-//			logger.error(String.format("Unknown log level %s, set to ERROR",
-//					level));
-//		}
-
-		//return new Log4JLogger(logger);
-		return new Jdk14Logger("interactivespaces." + logName);
+		return loggingProvider.getLog(logName, level);
 	}
 
 	@Override
 	public boolean modifyLogLevel(Log log, String level) {
-		if (Log4JLogger.class.isAssignableFrom(log.getClass())) {
-		
-			Level l = log4jLevels.get(level.toLowerCase());
-			if (l != null) {
-				((Log4JLogger)log).getLogger().setLevel(l);
-				
-				return true;
-			} else {
-				log.error(String.format("Unknown log level %s", level));
-			}
-		} else {
-			log.error("Attempt to modify an unmodifiable logger");
-		}
-
-		return false;
+		return loggingProvider.modifyLogLevel(log, level);
 	}
 
 	@Override
@@ -226,15 +168,6 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 	}
 
 	/**
-	 * Set the logger to use.
-	 * 
-	 * @param log
-	 */
-	public void setLog(Log log) {
-		this.log = log;
-	}
-
-	/**
 	 * @param executorService
 	 *            the executorService to set
 	 */
@@ -255,5 +188,12 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 	 */
 	public void setTimeProvider(TimeProvider timeProvider) {
 		this.timeProvider = timeProvider;
+	}
+
+	/**
+	 * @param loggingProvider the loggingProvider to set
+	 */
+	public void setLoggingProvider(LoggingProvider loggingProvider) {
+		this.loggingProvider = loggingProvider;
 	}
 }

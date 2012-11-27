@@ -50,10 +50,13 @@ allprojects {
 
 subprojects {
   if (name != 'interactivespaces_docs' && name != 'interactivespaces-android-service') {
-      apply plugin: 'java'
-      apply plugin: 'maven'
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'eclipse'
+
+    if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'
-      apply plugin: 'eclipse'
+    }
 
     configurations {
       provided

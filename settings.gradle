@@ -34,6 +34,7 @@ include 'rosjava_bootstrap', 'apache_xmlrpc_common', 'apache_xmlrpc_client',
 	'rosjava_zeroconf_common', 'rosjava_zeroconf_master', 
 	'rosjava_zeroconf_node',
 	'interactivespaces-launcher', 'interactivespaces-launcher-bootstrap',
-//	'interactivespaces-hardware',
+        'interactivespaces-bootstrap-core',
+	'interactivespaces-hardware',
 	'interactivespaces-workbench',
 	'interactivespaces_docs' , 'interactivespaces-android-service'

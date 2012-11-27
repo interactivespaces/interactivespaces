@@ -16,6 +16,8 @@
 
 package interactivespaces.launcher.bootstrap;
 
+import interactivespaces.system.core.logging.LoggingProvider;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,22 +95,32 @@ public class InteractiveSpacesFrameworkBootstrap {
 	private boolean needShell = true;
 
 	/**
+	 * Logging provider for the container.
+	 */
+	private Log4jLoggingProvider loggingProvider;
+
+	/**
 	 * Boot the framework.
 	 */
 	public void boot(List<String> args) {
 		// TODO(keith): Better command line processing
 		needShell = !args.contains("--noshell");
+		
+		createCoreServices();
 
 		getBootstrapBundleJars(BUNDLE_DIRECTORY_BOOTSTRAP);
 
 		// If no bundle JAR files are in the directory, then exit.
 		if (initialBundles.isEmpty() && finalBundles.isEmpty()) {
-			System.out.println("No bundles to install.");
+			loggingProvider.getLog().warn("No bundles to install.");
 		} else {
 			setupShutdownHandler();
 
 			try {
 				createAndStartFramework(args);
+
+				registerCoreServices();
+
 				List<Bundle> bundleList = new ArrayList<Bundle>();
 
 				// Install bundle JAR files and remember the bundle objects.
@@ -127,6 +139,22 @@ public class InteractiveSpacesFrameworkBootstrap {
 				System.exit(0);
 			}
 		}
+	}
+
+	/**
+	 * Create the core services to the base bundle which are platform dependent.
+	 */
+	public void createCoreServices() {
+		loggingProvider = new Log4jLoggingProvider();
+		loggingProvider.configure(new File("."));
+	}
+
+	/**
+	 * Register all bootstrap core services with the container.
+	 */
+	public void registerCoreServices() {
+		framework.getBundleContext().registerService(LoggingProvider.class.getName(),
+				loggingProvider, null);
 	}
 
 	/**
@@ -194,24 +222,20 @@ public class InteractiveSpacesFrameworkBootstrap {
 		m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
 
 		String delegations = getClassloaderDelegations();
-		System.out.println(delegations);
 		if (delegations != null) {
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
-		//m.put("felix.bootdelegation.implicit", "false");
-		//m.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
 
-		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "log4j.properties");
+		String packages = "org.apache.commons.logging; version=1.1.1, ";
+		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
+		packages += "interactivespaces.system.core.logging";
+		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
 
 		File filesDir = new File(".");
 		m.put("interactivespaces.rootdir", filesDir.getAbsolutePath());
 
 		File file = new File("plugins-cache");
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
-
-		// m.put("org.apache.felix.http.enable", "true");
-		// m.put("org.apache.felix.http.jettyEnabled", "true");
-		// m.put("org.osgi.service.http.port", "80");
 
 		loadPropertyFiles(CONFIG_DIRECTORY, m);
 
@@ -225,7 +249,6 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		m.put("interactiveSpacesLaunchArgs", argsString.toString());
 
-		// m.put(Constants.FRAME, value)
 		framework = getFrameworkFactory().newFramework(m);
 		framework.start();
 	}
