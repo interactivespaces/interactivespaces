@@ -1,0 +1,4 @@
+Building Interactive Spaces requires the following dependencies:
+
+The Android SDK
+The RXTX Java serial communications library.
