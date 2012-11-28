@@ -23,17 +23,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        
+        <activity 
+            android:name="MyFragmentPreferencesActivity" 
+            android:label="Interactive Spaces Preferences">
+        </activity>
+        
+        <service
+            android:name=".InteractiveSpacesService"
+            android:enabled="true" />
+        
         <receiver android:name=".InteracticeSpacesBootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!--  <action android:name="android.intent.action.SCREEN_OFF" />  -->
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".InteractiveSpacesService"
-            android:enabled="true" />
-    </application>
+        </application>
 
 </manifest>

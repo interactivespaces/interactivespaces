@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Startup" >
+        <CheckBoxPreference
+            android:key="PREF_START_ON_BOOT"
+            android:title="Start On Boot" 
+            android:summary="Interactive Spaces starts on device boot"
+            android:defaultValue="true"
+            />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Controller" >
+        <CheckBoxPreference
+            android:key="PREF_CONTROLLER_HOST"
+            android:title="Controller Host" 
+            android:summary="Domain name for this controller"
+        />
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="Master" >
+        <EditTextPreference
+            android:key="PREF_MASTER_HOST"
+            android:summary="Domain name of the Interactive Spaces Master"
+            android:title="Master Host" />
+        <EditTextPreference
+            android:defaultValue="11311"
+            android:key="PREF_MASTER_PORT"
+            android:summary="Port for the Interactive Spaces Master"
+            android:title="Master Port" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

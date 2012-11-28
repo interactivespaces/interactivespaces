@@ -53,7 +53,7 @@ public class InteractiveSpacesService extends Service {
 		// Set to run in foreground
 		Log.i("InteractiveSpacesRootActivity", "Notification for InteractiveSpacesService");
 		Notification notification = new Notification(R.drawable.ic_launcher,
-				"Connecting to IS", System.currentTimeMillis() + 10000);
+				"Starting up Interactive Spaces service", System.currentTimeMillis() + 10000);
 		// Passing in "null" instead of a PendingIntent means no activity will
 		// be launched when the user clicks the notification
 		Log.i("InteractiveSpacesRootActivity",

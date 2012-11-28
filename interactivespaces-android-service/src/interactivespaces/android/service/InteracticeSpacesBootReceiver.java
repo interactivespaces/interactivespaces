@@ -33,16 +33,15 @@ public class InteracticeSpacesBootReceiver extends BroadcastReceiver {
 		Log.i("InteractiveSpacesRootActivity",
 				"INTENT RECEIVED: " + myIntent.getAction());
 		// Detect if the device just booted up, and automatically start the
-		// foreground
-		// service if so.
+		// foreground service if so.
 		if ((myIntent.getAction())
 				.equals("android.intent.action.BOOT_COMPLETED")) {
-			Log.i("InteractiveSpacesRootActivity",
-					"onReceive: " + myIntent.getAction());
-			Intent serviceIntent = new Intent(myContext,
-					InteractiveSpacesService.class);
-			myContext.startService(serviceIntent);
-			Log.i("InteractiveSpacesRootActivity", "service should have started");
+
+			Log.i("InteractiveSpaces Service", "onReceive: "
+					+ myIntent.getAction());
+
+			AndroidInteractiveSpacesEnvironment
+					.startInteractiveSpacesService(myContext);
 		}
 	}
 
