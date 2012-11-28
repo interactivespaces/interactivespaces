@@ -172,7 +172,6 @@ public class SpaceControllerActivityWatcher {
 			ActivityStatus previousStatus, ActivityStatus currentStatus) {
 		// Don't care if a listener gets added or removed between any of the
 		// changes
-		System.out.format("%s changed from %s to %s\n", activity.getUuid(), previousStatus, currentStatus);
 		for (SpaceControllerActivityWatcherListener listener : listeners) {
 			listener.onWatcherActivityStatusChange(activity, previousStatus,
 					currentStatus);

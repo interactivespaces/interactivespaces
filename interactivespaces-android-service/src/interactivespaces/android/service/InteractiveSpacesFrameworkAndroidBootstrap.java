@@ -283,7 +283,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 
 		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath; javax.xml.transform.sax ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
 		packages += "interactivespaces.system.core.logging; ";
-		packages += "; com.google.common.collect; interactivespaces; interactivespaces.activity; ";
+		packages += "com.google.common.collect; interactivespaces; interactivespaces.activity; ";
 		packages += "interactivespaces.configuration; ";
 		packages += "interactivespaces.controller; ";
 		packages += "interactivespaces.controller.activity.installation; ";
