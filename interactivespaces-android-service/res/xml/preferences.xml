@@ -11,7 +11,7 @@
     </PreferenceCategory>
     
     <PreferenceCategory android:title="Controller" >
-        <CheckBoxPreference
+        <EditTextPreference
             android:key="PREF_CONTROLLER_HOST"
             android:title="Controller Host" 
             android:summary="Domain name for this controller"

@@ -25,13 +25,19 @@ import java.util.List;
 import org.apache.http.conn.util.InetAddressUtils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 /**
  * The root Android Activity for controlling Interactive Spaces.
@@ -48,8 +54,46 @@ public class InteractiveSpacesRootActivity extends Activity {
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		AndroidInteractiveSpacesEnvironment.startInteractiveSpacesService(this);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		updateView(this);
+	}
+
+	/**
+	 * Update the view
+	 */
+	public void updateView(Context context) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		TextView deviceSerialView = (TextView) findViewById(R.id.myDeviceSerial);
+		deviceSerialView.setText(Settings.Secure.getString(
+				context.getContentResolver(), Settings.Secure.ANDROID_ID));
+
+		WifiManager wifiMan = (WifiManager) this
+				.getSystemService(Context.WIFI_SERVICE);
+		WifiInfo wifiInf = wifiMan.getConnectionInfo();
+		String macAddr = wifiInf.getMacAddress();
 		
-		Log.i("is", "IP address is " + getLocalIpAddress());
+		TextView deviceMacView = (TextView) findViewById(R.id.myDeviceMac);
+		deviceMacView.setText(macAddr);
+
+		TextView ipView = (TextView) findViewById(R.id.myDeviceIp);
+		ipView.setText(getLocalIpAddress());
+
+		TextView controllerHostView = (TextView) findViewById(R.id.myControllerHost);
+		controllerHostView
+				.setText(prefs.getString("PREF_CONTROLLER_HOST", "?"));
+
+		TextView masterHostView = (TextView) findViewById(R.id.myMasterHost);
+		masterHostView.setText(prefs.getString("PREF_MASTER_HOST", "?"));
+
+		TextView masterPortView = (TextView) findViewById(R.id.myMasterPort);
+		masterPortView.setText(prefs.getString("PREF_MASTER_PORT", "?"));
 	}
 
 	@Override
@@ -94,7 +138,7 @@ public class InteractiveSpacesRootActivity extends Activity {
 		} catch (SocketException ex) {
 			Log.e("interactivespaces", ex.toString());
 		}
-		return null;
+		return "Device IP Unknown";
 	}
 
 }

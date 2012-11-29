@@ -1,9 +1,16 @@
 <resources>
 
-    <string name="app_name">InteractiveSpacesAndroidService</string>
-    <string name="hello_world">Interactive Spaces Controller, Android-Style!</string>
+    <string name="app_name">Interactive Spaces Controller</string>
     <string name="menu_start_controller">Start Controller</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
-
+    <string name="device_mac">Device MAC Address</string>
+    <string name="device_ip">Device IP</string>
+    <string name="device_ip_unknown">Device IP Unknown</string>
+    <string name="device_serial">Device Serial Number</string>
+    <string name="master_host">Master Host</string>
+    <string name="master_port">Master Port</string>
+    <string name="controller_host">Controller Host</string>
+    <string name="value_unknown">Unknown</string>
+ 
 </resources>

@@ -58,7 +58,7 @@ public class InteractiveSpacesService extends Service {
 		// be launched when the user clicks the notification
 		Log.i("InteractiveSpacesRootActivity",
 				"Notification.setLatestEventInfo for InteractiveSpacesService");
-		notification.setLatestEventInfo(this, "IS Connection",
+		notification.setLatestEventInfo(this, "Interactive Spaces Connection",
 				"Launches apps from commands received by IS", null);
 		Log.i("InteractiveSpacesRootActivity", "startForeground for InteractiveSpacesService");
 
