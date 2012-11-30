@@ -16,11 +16,11 @@
 
 package interactivespaces.launcher.bootstrap;
 
+import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -31,8 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
@@ -50,11 +48,6 @@ import org.osgi.framework.launch.FrameworkFactory;
 public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
-	 * Extensions on config files.
-	 */
-	private static final String CONFIGURATION_FILES_EXTENSION = ".conf";
-
-	/**
 	 * Where the OSGi framework launcher can be found.
 	 */
 	private static final String OSGI_FRAMEWORK_LAUNCH_FRAMEWORK_FACTORY = "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
@@ -63,11 +56,6 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * Subdirectory which will contain the bootstrap bundles.
 	 */
 	public static final String BUNDLE_DIRECTORY_BOOTSTRAP = "bootstrap";
-
-	/**
-	 * Where the config files are stored.
-	 */
-	public static final String CONFIG_DIRECTORY = "config";
 
 	/**
 	 * The OSGI framework which has been started.
@@ -100,12 +88,21 @@ public class InteractiveSpacesFrameworkBootstrap {
 	private Log4jLoggingProvider loggingProvider;
 
 	/**
+	 * The configuration provider for the container.
+	 */
+	private FileConfigurationProvider configurationProvider;
+
+	private File baseInstallFolder;
+
+	/**
 	 * Boot the framework.
 	 */
 	public void boot(List<String> args) {
 		// TODO(keith): Better command line processing
 		needShell = !args.contains("--noshell");
-		
+
+		baseInstallFolder = new File(".");
+
 		createCoreServices();
 
 		getBootstrapBundleJars(BUNDLE_DIRECTORY_BOOTSTRAP);
@@ -146,15 +143,21 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 */
 	public void createCoreServices() {
 		loggingProvider = new Log4jLoggingProvider();
-		loggingProvider.configure(new File("."));
+		loggingProvider.configure(baseInstallFolder);
+
+		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
+		configurationProvider.load();
 	}
 
 	/**
 	 * Register all bootstrap core services with the container.
 	 */
 	public void registerCoreServices() {
-		framework.getBundleContext().registerService(LoggingProvider.class.getName(),
-				loggingProvider, null);
+		framework.getBundleContext().registerService(
+				LoggingProvider.class.getName(), loggingProvider, null);
+		framework.getBundleContext().registerService(
+				ConfigurationProvider.class.getName(), configurationProvider,
+				null);
 	}
 
 	/**
@@ -231,13 +234,12 @@ public class InteractiveSpacesFrameworkBootstrap {
 		packages += "interactivespaces.system.core.logging";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
 
-		File filesDir = new File(".");
-		m.put("interactivespaces.rootdir", filesDir.getAbsolutePath());
+		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());
 
-		File file = new File("plugins-cache");
+		m.putAll(configurationProvider.getInitialConfiguration());
+
+		File file = new File(baseInstallFolder, "plugins-cache");
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
-
-		loadPropertyFiles(CONFIG_DIRECTORY, m);
 
 		StringBuilder argsString = new StringBuilder();
 		if (!args.isEmpty()) {
@@ -280,7 +282,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 	private void getBootstrapBundleJars(String bootstrapFolder) {
 		// Look in the specified bundle directory to create a list
 		// of all JAR files to install.
-		File[] files = new File(bootstrapFolder)
+		File[] files = new File(baseInstallFolder, bootstrapFolder)
 				.listFiles(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
@@ -346,38 +348,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 		throw new Exception("Could not find framework factory.");
 	}
 
-	private void loadPropertyFiles(String configFolder,
-			Map<String, String> properties) {
-		// Look in the specified bundle directory to create a list
-		// of all JAR files to install.
-		File[] files = new File(configFolder).listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.toLowerCase().endsWith(
-						CONFIGURATION_FILES_EXTENSION);
-			}
-		});
-		if (files == null || files.length == 0) {
-			System.err.format("Couldn't load config files from %s\n",
-					configFolder);
-			return;
-		}
-
-		for (File file : files) {
-			Properties props = new Properties();
-			try {
-				props.load(new FileInputStream(file));
-				for (Entry<Object, Object> p : props.entrySet()) {
-					properties.put((String) p.getKey(), (String) p.getValue());
-				}
-			} catch (IOException e) {
-				System.err.format("Couldn't load config file %s\n", file);
-			}
-		}
-	}
-
 	private String getClassloaderDelegations() {
-		File delegation = new File("lib/system/java/delegations.conf");
+		File delegation = new File(baseInstallFolder,
+				"lib/system/java/delegations.conf");
 		if (delegation.exists()) {
 
 			StringBuilder builder = new StringBuilder();

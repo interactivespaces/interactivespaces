@@ -408,7 +408,7 @@ public class StandardSpaceController implements SpaceController,
 	/**
 	 * Get controller information from the configs.
 	 */
-	protected void obtainControllerInfo() {
+	private void obtainControllerInfo() {
 		Configuration systemConfiguration = spaceEnvironment
 				.getSystemConfiguration();
 

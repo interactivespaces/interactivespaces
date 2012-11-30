@@ -16,7 +16,6 @@
 
 package interactivespaces.system.bootstrap.osgi;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.FileSystemConfigurationStorageManager;
 import interactivespaces.configuration.SystemConfigurationStorageManager;
@@ -25,18 +24,16 @@ import interactivespaces.evaluation.SimpleExpressionEvaluatorFactory;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.system.internal.osgi.OsgiInteractiveSpacesSystemControl;
 import interactivespaces.system.internal.osgi.RosOsgiInteractiveSpacesEnvironment;
 import interactivespaces.time.LocalTimeProvider;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
@@ -63,12 +60,6 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * absolute path.
 	 */
 	public static final String PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR = "interactivespaces.rootdir";
-
-	/**
-	 * Configuration property for where configurations are found for the
-	 * container.
-	 */
-	public static final String PROPERTY_CONTAINER_CONFIGURATION_FILEPATH = "config/container.conf";
 
 	/**
 	 * Threadpool for everyone to use.
@@ -116,6 +107,11 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	private LoggingProvider loggingProvider;
 
 	/**
+	 * The platform configuration provider.
+	 */
+	private ConfigurationProvider configurationProvider;
+
+	/**
 	 * Start up the activator.
 	 */
 	public void start(BundleContext context) throws Exception {
@@ -124,12 +120,9 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		File baseInstallDir = new File(baseInstallDirProperty);
 
 		try {
-			Properties containerProperties = getProperties(new File(
-					baseInstallDir, PROPERTY_CONTAINER_CONFIGURATION_FILEPATH));
-
 			getCoreServices(context);
 
-			setupSpaceEnvironment(context, containerProperties, baseInstallDir);
+			setupSpaceEnvironment(context, baseInstallDir);
 
 			registerServices(context);
 		} catch (Exception e) {
@@ -152,6 +145,11 @@ public class GeneralInteractiveSpacesSupportActivator implements
 				.getServiceReference(LoggingProvider.class.getName());
 		loggingProvider = (LoggingProvider) context
 				.getService(loggingProviderServiceReference);
+
+		ServiceReference configurationProviderServiceReference = context
+				.getServiceReference(ConfigurationProvider.class.getName());
+		configurationProvider = (ConfigurationProvider) context
+				.getService(configurationProviderServiceReference);
 	}
 
 	/**
@@ -186,7 +184,10 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 *            the base directory where Interactive Spaces is installed
 	 */
 	private void setupSpaceEnvironment(BundleContext context,
-			Properties containerProperties, File baseInstallDir) {
+			File baseInstallDir) {
+		Map<String, String> containerProperties = configurationProvider
+				.getInitialConfiguration();
+
 		systemControl = new OsgiInteractiveSpacesSystemControl(context);
 
 		executorService = new DefaultScheduledExecutorService();
@@ -198,9 +199,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		spaceEnvironment.setExecutorService(executorService);
 		spaceEnvironment.setLoggingProvider(loggingProvider);
 		spaceEnvironment.setFilesystem(filesystem);
-		spaceEnvironment
-				.setNetworkType(containerProperties
-						.getProperty(InteractiveSpacesEnvironment.CONFIGURATION_NETWORK_TYPE));
+		spaceEnvironment.setNetworkType(containerProperties
+				.get(InteractiveSpacesEnvironment.CONFIGURATION_NETWORK_TYPE));
 
 		setupSystemConfiguration(context, containerProperties);
 
@@ -220,20 +220,18 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * @param log
 	 */
 	private void setupRosEnvironment(BundleContext context,
-			Properties containerProperties, Log log) {
+			Map<String, String> containerProperties, Log log) {
 		rosEnvironment = new SimpleRosEnvironment();
 		rosEnvironment.setExecutorService(executorService);
 		rosEnvironment.setLog(spaceEnvironment.getLog());
 		rosEnvironment
 				.setMaster(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE_MASTER.equals(containerProperties
-						.getProperty(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE)));
-		rosEnvironment
-				.setNetworkType(containerProperties
-						.getProperty(InteractiveSpacesEnvironment.CONFIGURATION_NETWORK_TYPE));
+						.get(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE)));
+		rosEnvironment.setNetworkType(containerProperties
+				.get(InteractiveSpacesEnvironment.CONFIGURATION_NETWORK_TYPE));
 
-		for (Entry<Object, Object> entry : containerProperties.entrySet()) {
-			rosEnvironment.setProperty(entry.getKey().toString(), entry
-					.getValue().toString());
+		for (Entry<String, String> entry : containerProperties.entrySet()) {
+			rosEnvironment.setProperty(entry.getKey(), entry.getValue());
 		}
 
 		configureRosFromInteractiveSpaces(containerProperties);
@@ -261,13 +259,13 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 *            the properties from the container configuration
 	 */
 	private void configureRosFromInteractiveSpaces(
-			Properties containerProperties) {
+			Map<String, String> containerProperties) {
 		rosEnvironment
 				.setProperty(
 						RosEnvironment.PROPERTY_ROS_NODE_NAME,
 						"/"
 								+ containerProperties
-										.getProperty(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
+										.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
 		rosEnvironment.setProperty(RosEnvironment.PROPERTY_ROS_NETWORK_TYPE,
 				spaceEnvironment.getNetworkType());
 		rosEnvironment
@@ -292,7 +290,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * @param context
 	 */
 	private void setupSystemConfiguration(BundleContext context,
-			Properties containerProperties) {
+			Map<String, String> containerProperties) {
 		expressionEvaluatorFactory = new SimpleExpressionEvaluatorFactory();
 
 		FileSystemConfigurationStorageManager fileSystemConfigurationStorageManager = new FileSystemConfigurationStorageManager();
@@ -308,11 +306,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		Configuration systemConfiguration = systemConfigurationStorageManager
 				.getSystemConfiguration();
 
-		System.out.println(systemConfiguration.getCollapsedMap());
-
-		for (Entry<Object, Object> entry : containerProperties.entrySet()) {
-			systemConfiguration.setValue(entry.getKey().toString(), entry
-					.getValue().toString());
+		for (Entry<String, String> entry : containerProperties.entrySet()) {
+			systemConfiguration.setValue(entry.getKey(), entry.getValue());
 		}
 
 		spaceEnvironment.setSystemConfiguration(systemConfiguration);
@@ -326,34 +321,4 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		rosEnvironment.shutdown();
 		rosEnvironment = null;
 	}
-
-	/**
-	 * Get the properties the container needs to bootstrap.
-	 * 
-	 * @param containerHomeDirectory
-	 *            the root directory of the IS container install
-	 * 
-	 * @return the properties for the container
-	 */
-	private Properties getProperties(File conf) {
-		Properties properties = new Properties();
-
-		FileInputStream fileInputStream = null;
-
-		try {
-			fileInputStream = new FileInputStream(conf);
-			properties.load(fileInputStream);
-
-			return properties;
-		} catch (FileNotFoundException e) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find container configuration %s",
-					conf.getAbsolutePath()));
-		} catch (IOException e) {
-			throw new InteractiveSpacesException(String.format(
-					"Error while reading container configuration %s",
-					conf.getAbsolutePath()), e);
-		}
-	}
-
 }

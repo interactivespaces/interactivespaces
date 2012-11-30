@@ -16,20 +16,24 @@
 
 package interactivespaces.android.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
- * The Android service which controls Interactive Spaces
- * in the Android environment.
+ * The Android service which controls Interactive Spaces in the Android
+ * environment.
  * 
  * <ul>
  * <li>Starts Interactive Spaces</li>
@@ -45,27 +49,51 @@ public class InteractiveSpacesService extends Service {
 	 */
 	private PowerManager.WakeLock wakelock;
 
-	public InteractiveSpacesService() {
-	}
+	/**
+	 * The interactive spaces bootstrap container.
+	 */
+	private InteractiveSpacesFrameworkAndroidBootstrap isBootstrap;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		Map<String, String> initialProperties = null;
+		try {
+			initialProperties = AndroidConfigurationProvider
+					.getInitialProperties(PreferenceManager
+							.getDefaultSharedPreferences(this));
+
+		} catch (RuntimeException e) {
+			Intent i = new Intent(this, InteractiveSpacesRootActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+					| Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+			i.putExtra(InteractiveSpacesRootActivity.INTENT_EXTRA_ERROR_MESSAGE
+
+			, e.getMessage());
+			getApplication().startActivity(i);
+
+			stopSelf();
+
+			return START_NOT_STICKY;
+		}
+
 		// Set to run in foreground
-		Log.i("InteractiveSpacesRootActivity", "Notification for InteractiveSpacesService");
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
+				"Start command received for InteractiveSpacesService");
 		Notification notification = new Notification(R.drawable.ic_launcher,
-				"Starting up Interactive Spaces service", System.currentTimeMillis() + 10000);
+				"Starting up Interactive Spaces service",
+				System.currentTimeMillis() + 10000);
 		// Passing in "null" instead of a PendingIntent means no activity will
 		// be launched when the user clicks the notification
-		Log.i("InteractiveSpacesRootActivity",
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
 				"Notification.setLatestEventInfo for InteractiveSpacesService");
 		notification.setLatestEventInfo(this, "Interactive Spaces Connection",
 				"Launches apps from commands received by IS", null);
-		Log.i("InteractiveSpacesRootActivity", "startForeground for InteractiveSpacesService");
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
+				"startForeground for InteractiveSpacesService");
 
-		List<String> args = new ArrayList<String>();
-		InteractiveSpacesFrameworkAndroidBootstrap isBootstrap = new InteractiveSpacesFrameworkAndroidBootstrap();
-		isBootstrap.boot(args, getApplicationContext());
-		Log.i("InteractiveSpacesRootActivity",
+		isBootstrap = new InteractiveSpacesFrameworkAndroidBootstrap();
+		isBootstrap.startup(initialProperties, getApplicationContext());
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
 				"starting Interactive Spaces container");
 
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -75,7 +103,7 @@ public class InteractiveSpacesService extends Service {
 
 		// 4321 is an arbitrary identification number.
 		startForeground(4321, notification);
-		Log.i("InteractiveSpacesRootActivity",
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
 				"InteractiveSpacesService should have been moved to the foreground");
 
 		return Service.START_STICKY;
@@ -83,9 +111,17 @@ public class InteractiveSpacesService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.i("InteractiveSpacesRootActivity", "InteractiveSpacesService got onDestroy()");
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
+				"InteractiveSpacesService got onDestroy()");
 
-		wakelock.release();
+		if (wakelock != null) {
+			wakelock.release();
+			wakelock = null;
+		}
+
+		if (isBootstrap != null) {
+			isBootstrap.shutdown();
+		}
 
 		super.onDestroy();
 	}

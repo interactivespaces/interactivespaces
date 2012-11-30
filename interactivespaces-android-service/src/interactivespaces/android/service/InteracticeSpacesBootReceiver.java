@@ -19,6 +19,8 @@ package interactivespaces.android.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -29,19 +31,25 @@ import android.util.Log;
 public class InteracticeSpacesBootReceiver extends BroadcastReceiver {
 
 	@Override
-	public void onReceive(Context myContext, Intent myIntent) {
-		Log.i("InteractiveSpacesRootActivity",
-				"INTENT RECEIVED: " + myIntent.getAction());
+	public void onReceive(Context context, Intent myIntent) {
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME, "INTENT RECEIVED: "
+				+ myIntent.getAction());
 		// Detect if the device just booted up, and automatically start the
 		// foreground service if so.
 		if ((myIntent.getAction())
 				.equals("android.intent.action.BOOT_COMPLETED")) {
 
-			Log.i("InteractiveSpaces Service", "onReceive: "
+			Log.i(AndroidLoggingProvider.BASE_LOG_NAME, "onReceive: "
 					+ myIntent.getAction());
 
-			AndroidInteractiveSpacesEnvironment
-					.startInteractiveSpacesService(myContext);
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(context);
+
+			if (prefs.getBoolean("PREF_START_ON_BOOT", false)) {
+				Log.i(AndroidLoggingProvider.BASE_LOG_NAME, "Autostarting Interactive Spaces controller on boot");
+				AndroidInteractiveSpacesEnvironment
+						.startInteractiveSpacesService(context);
+			}
 		}
 	}
 

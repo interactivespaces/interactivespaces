@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
  */
 public class AndroidLoggingProvider implements LoggingProvider {
 
+	public static final String BASE_LOG_NAME = "interactivespaces";
+
 	/**
 	 * Map of logging levels to priorities.
 	 */
@@ -57,7 +59,7 @@ public class AndroidLoggingProvider implements LoggingProvider {
 	/**
 	 * The containerwide logger.
 	 */
-	private Log log = new AndroidLog("interactivespaces");
+	private Log log = new AndroidLog(BASE_LOG_NAME);
 
 	@Override
 	public Log getLog() {

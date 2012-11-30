@@ -18,6 +18,7 @@ package interactivespaces.android.service;
 
 import interactivespaces.controller.internal.osgi.OsgiControllerActivator;
 import interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator;
+import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
 import java.io.BufferedReader;
@@ -48,6 +49,8 @@ import org.osgi.framework.launch.Framework;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * A bootstrapper for Interactive Spaces on an Android device.
@@ -92,12 +95,13 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	private List<String> finalBundles;
 
 	/**
-	 * Whether or not the OSGi shell is needed.
+	 * Mapping of JAR files to the bundles they are once loaded.
 	 */
-	private boolean needShell = true;
-
 	private Map<String, Bundle> jarToBundle = new HashMap<String, Bundle>();
 
+	/**
+	 * Activator for the base Interactive Spaces services.
+	 */
 	private GeneralInteractiveSpacesSupportActivator isSystemActivator;
 
 	/**
@@ -106,15 +110,21 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	private AndroidLoggingProvider loggingProvider;
 
 	/**
-	 * Boot the framework.
+	 * Configuration provider for the container.
 	 */
-	public void boot(List<String> args, Context context) {
+	private ConfigurationProvider configurationProvider;
+
+	/**
+	 * Start the framework up.
+	 * 
+	 * @param context
+	 *            the Android context to start the framework up in.
+	 */
+	public void startup(Map<String, String> config, Context context) {
 		AssetManager assetManager = context.getAssets();
-		// TODO(keith): Better command line processing
-		needShell = !args.contains("--noshell");
-		needShell = false;
+
 		try {
-			createCoreServices();
+			createCoreServices(context);
 
 			copyInitialBootstrapAssets(assetManager, context.getFilesDir());
 
@@ -124,9 +134,8 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			if (initialBundles.isEmpty() && finalBundles.isEmpty()) {
 				System.out.println("No bundles to install.");
 			}
-			// setupShutdownHandler();
 
-			createAndStartFramework(args, context);
+			createAndStartFramework(config, context);
 
 			registerCoreServices();
 
@@ -143,10 +152,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 
 			});
 
-			// Wait for framework to stop.
-			// framework.waitForStop(0);
-			// System.exit(0);
-
 			isSystemActivator = new GeneralInteractiveSpacesSupportActivator();
 			isSystemActivator.start(framework.getBundleContext());
 
@@ -155,7 +160,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 
 			startBundles(assetManager, ctxt, bundleList, initialBundles, false);
 			startBundles(assetManager, ctxt, bundleList, finalBundles, true);
-
 		} catch (Exception ex) {
 			System.err.println("Error starting framework: " + ex);
 			ex.printStackTrace();
@@ -164,18 +168,41 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	}
 
 	/**
-	 * Create the core services to the base bundle which are platform dependent.
+	 * Shut the controller down.
 	 */
-	public void createCoreServices() {
+	public void shutdown() {
+		if (framework != null) {
+			try {
+				framework.stop();
+			} catch (BundleException e) {
+				Log.e("interactivespaces",
+						"Exception during Interactive Spaces OSGi shutdown", e);
+			}
+			framework = null;
+		}
+	}
+
+	/**
+	 * Create the core services to the base bundle which are platform dependent.
+	 * 
+	 * @param context
+	 *            Android context for the service
+	 */
+	public void createCoreServices(Context context) {
 		loggingProvider = new AndroidLoggingProvider();
+		configurationProvider = new AndroidConfigurationProvider(
+				PreferenceManager.getDefaultSharedPreferences(context));
 	}
 
 	/**
 	 * Register all bootstrap core services with the container.
 	 */
 	public void registerCoreServices() {
-		framework.getBundleContext().registerService(LoggingProvider.class.getName(),
-				loggingProvider, null);
+		framework.getBundleContext().registerService(
+				LoggingProvider.class.getName(), loggingProvider, null);
+		framework.getBundleContext().registerService(
+				ConfigurationProvider.class.getName(), configurationProvider,
+				null);
 	}
 
 	/**
@@ -199,8 +226,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			List<Bundle> bundleList, List<String> jars, boolean start)
 			throws BundleException {
 		for (String bundleFile : jars) {
-
-			// System.out.println("Installing " + bundleUri);
 			try {
 				Bundle b = ctxt.installBundle(bundleFile,
 						assetManager.open(bundleFile));
@@ -220,13 +245,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		// Start all installed non-fragment bundles.
 		for (final Bundle bundle : bundleList) {
 			if (!isFragment(bundle)) {
-				// TODO(keith): See if way to start up shell from property
-				// since we may want it for remote access.
-				if ((bundle.getLocation().contains("gogo") && !needShell)
-						|| bundle.getLocation().contains("netty")) {
-					continue;
-				}
-
 				if (start)
 					startBundle(bundle);
 			}
@@ -239,7 +257,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	 * @param bundle
 	 *            the bundle to start
 	 */
-	protected void startBundle(Bundle bundle) {
+	private void startBundle(Bundle bundle) {
 		boolean started = true;
 		try {
 			System.out.format("Starting %s\n", bundle.getLocation());
@@ -257,11 +275,10 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	 * 
 	 * @return
 	 * @throws IOException
-	 * @throws Exception
 	 * @throws BundleException
 	 */
-	private void createAndStartFramework(List<String> args, Context context)
-			throws IOException, Exception, BundleException {
+	private void createAndStartFramework(Map<String, String> bootstrapConfig,
+			Context context) throws BundleException, IOException {
 		Map<String, String> m = new HashMap<String, String>();
 
 		File filesDir = context.getFilesDir();
@@ -271,11 +288,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		m.put(Constants.FRAMEWORK_STORAGE_CLEAN,
 				Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
-		// m.put(Constants.FRAMEWORK_BUNDLE_PARENT,
-		// Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);BaseSpace
-		// System.err.format("Setting %s to %s\n",
-		// Constants.FRAMEWORK_BUNDLE_PARENT,
-		// m.get(Constants.FRAMEWORK_BUNDLE_PARENT));
 		String delegations = getClassloaderDelegations(filesDir);
 		if (delegations != null) {
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
@@ -331,47 +343,23 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
 
 		m.put("felix.service.urlhandlers", "false");
-		
+
 		loadPropertyFiles(CONFIG_DIRECTORY, m);
 
-		StringBuilder argsString = new StringBuilder();
-		if (!args.isEmpty()) {
-			argsString.append(args.get(0));
-			for (int i = 1; i < args.size(); i++) {
-				argsString.append(' ').append(args.get(i));
-			}
-		}
+		m.putAll(bootstrapConfig);
 
-		m.put("interactiveSpacesLaunchArgs", argsString.toString());
-
-		// m.put(Constants.FRAME, value)
 		framework = new Felix(m);
 		framework.start();
 	}
 
 	/**
+	 * Get all of the bundles from the bootstrap folder.
 	 * 
-	 */
-	private void setupShutdownHandler() {
-		// Want the framework to shut down cleanly no matter how the VM is
-		// exitted.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				try {
-					if (framework != null) {
-						framework.stop();
-						framework.waitForStop(0);
-					}
-				} catch (Exception ex) {
-					System.err.println("Error stopping framework: " + ex);
-				}
-			}
-		});
-	}
-
-	/**
-	 * @param args
-	 * @return
+	 * @param assetManager
+	 *            the android asset manager for the application
+	 * @param bootstrapFolderPath
+	 *            The folder where the bootstrap folders are stored.
+	 * 
 	 * @throws IOException
 	 */
 	private void getBootstrapBundleJars(AssetManager assetManager,
@@ -381,7 +369,6 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		initialBundles = new ArrayList<String>();
 		finalBundles = new ArrayList<String>();
 
-		List<String> bootstrapFiles = new ArrayList<String>();
 		for (String filename : assetManager.list(bootstrapFolderPath)) {
 			if (filename.endsWith(".jar")) {
 				if (filename.startsWith("interactivespaces")) {
@@ -495,9 +482,11 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			systemLibDir.mkdirs();
 			File logsDir = new File(filesDir, "logs");
 			logsDir.mkdirs();
-			File activitiesStagingDir = new File(filesDir, "controller/activities/staging");
+			File activitiesStagingDir = new File(filesDir,
+					"controller/activities/staging");
 			activitiesStagingDir.mkdirs();
-			File activitiesInstalledDir = new File(filesDir, "controller/activities/installed");
+			File activitiesInstalledDir = new File(filesDir,
+					"controller/activities/installed");
 			activitiesInstalledDir.mkdirs();
 
 			copyAssetFile("config/container.conf", new File(confDir,

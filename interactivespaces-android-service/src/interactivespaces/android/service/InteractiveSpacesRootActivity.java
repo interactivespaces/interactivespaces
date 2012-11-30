@@ -16,16 +16,12 @@
 
 package interactivespaces.android.service;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.http.conn.util.InetAddressUtils;
+import java.util.UUID;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiInfo;
@@ -46,6 +42,11 @@ import android.widget.TextView;
  */
 public class InteractiveSpacesRootActivity extends Activity {
 
+	/**
+	 * Key in the intent extras for error messages.
+	 */
+	public static final String INTENT_EXTRA_ERROR_MESSAGE = "error.message";
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,7 +54,41 @@ public class InteractiveSpacesRootActivity extends Activity {
 
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-		AndroidInteractiveSpacesEnvironment.startInteractiveSpacesService(this);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		boolean autostart = prefs.getBoolean("PREF_START_ON_LAUNCH", false);
+
+		ensureUuid(prefs);
+
+		if (autostart) {
+			Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
+					"Autostarting Interactive Spaces controller on launch");
+			AndroidInteractiveSpacesEnvironment
+					.startInteractiveSpacesService(this);
+		}
+	}
+
+	/**
+	 * Ensure there is a UUID for the controller.
+	 * 
+	 * @param prefs
+	 *            the shared preferences for the application
+	 */
+	private void ensureUuid(SharedPreferences prefs) {
+		String uuid = prefs.getString(
+				AndroidConfigurationProvider.PREF_CONTROLLER_UUID, null);
+		if (uuid == null) {
+			uuid = UUID.randomUUID().toString();
+			Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
+					String.format("No UUID, generated %s", uuid));
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString(AndroidConfigurationProvider.PREF_CONTROLLER_UUID,
+					uuid);
+
+			// Writing synchronously since want soon.
+			editor.commit();
+		}
 	}
 
 	@Override
@@ -61,6 +96,27 @@ public class InteractiveSpacesRootActivity extends Activity {
 		super.onResume();
 
 		updateView(this);
+
+		Intent i = getIntent();
+		String errorMessage = i.getStringExtra(INTENT_EXTRA_ERROR_MESSAGE);
+		if (errorMessage != null && !errorMessage.isEmpty()) {
+			i.putExtra(INTENT_EXTRA_ERROR_MESSAGE, (String) null);
+
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle("Cannot start Interactive Spaces");
+			alert.setMessage(errorMessage);
+
+			alert.setPositiveButton("OK",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+			alert.create().show();
+		}
+
 	}
 
 	/**
@@ -78,22 +134,49 @@ public class InteractiveSpacesRootActivity extends Activity {
 				.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInf = wifiMan.getConnectionInfo();
 		String macAddr = wifiInf.getMacAddress();
-		
+
 		TextView deviceMacView = (TextView) findViewById(R.id.myDeviceMac);
 		deviceMacView.setText(macAddr);
 
 		TextView ipView = (TextView) findViewById(R.id.myDeviceIp);
-		ipView.setText(getLocalIpAddress());
+		String localIpAddress = AndroidInteractiveSpacesEnvironment
+				.getLocalIpAddress();
+		if (localIpAddress == null) {
+			localIpAddress = "Device not connected";
+		}
+		ipView.setText(localIpAddress);
 
 		TextView controllerHostView = (TextView) findViewById(R.id.myControllerHost);
-		controllerHostView
-				.setText(prefs.getString("PREF_CONTROLLER_HOST", "?"));
+		controllerHostView.setText(prefs
+				.getString(AndroidConfigurationProvider.PREF_CONTROLLER_HOST,
+						"?required?"));
+
+		TextView hostIdView = (TextView) findViewById(R.id.myHostId);
+		hostIdView.setText(prefs.getString(
+				AndroidConfigurationProvider.PREF_HOST_ID, "?required?"));
+
+		TextView controllerUuidView = (TextView) findViewById(R.id.myControllerUuid);
+		controllerUuidView.setText(prefs
+				.getString(AndroidConfigurationProvider.PREF_CONTROLLER_UUID,
+						"?required?"));
+
+		TextView controllerNameView = (TextView) findViewById(R.id.myControllerName);
+		controllerNameView.setText(prefs
+				.getString(AndroidConfigurationProvider.PREF_CONTROLLER_NAME,
+						"?required?"));
+
+		TextView controllerDescriptionView = (TextView) findViewById(R.id.myControllerDescription);
+		controllerDescriptionView.setText(prefs.getString(
+				AndroidConfigurationProvider.PREF_CONTROLLER_DESCRIPTION,
+				"?required?"));
 
 		TextView masterHostView = (TextView) findViewById(R.id.myMasterHost);
-		masterHostView.setText(prefs.getString("PREF_MASTER_HOST", "?"));
+		masterHostView.setText(prefs.getString(
+				AndroidConfigurationProvider.PREF_MASTER_HOST, "?required?"));
 
 		TextView masterPortView = (TextView) findViewById(R.id.myMasterPort);
-		masterPortView.setText(prefs.getString("PREF_MASTER_PORT", "?"));
+		masterPortView.setText(prefs.getString(
+				AndroidConfigurationProvider.PREF_MASTER_PORT, "?required?"));
 	}
 
 	@Override
@@ -105,7 +188,17 @@ public class InteractiveSpacesRootActivity extends Activity {
 	}
 
 	public boolean onMenuStartController(MenuItem item) {
-		Log.i("IS", "Starting controller yowza");
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME, "Starting controller yowza");
+
+		AndroidInteractiveSpacesEnvironment.startInteractiveSpacesService(this);
+
+		return true;
+	}
+
+	public boolean onMenuStopController(MenuItem item) {
+		Log.i(AndroidLoggingProvider.BASE_LOG_NAME, "Stopping controller yowza");
+
+		AndroidInteractiveSpacesEnvironment.stopInteractiveSpacesService(this);
 
 		return true;
 	}
@@ -115,30 +208,6 @@ public class InteractiveSpacesRootActivity extends Activity {
 		startActivityForResult(i, 1);
 
 		return true;
-	}
-
-	public String getLocalIpAddress() {
-		try {
-			String ipv4;
-			List<NetworkInterface> nilist = Collections.list(NetworkInterface
-					.getNetworkInterfaces());
-			for (NetworkInterface ni : nilist) {
-				List<InetAddress> ialist = Collections.list(ni
-						.getInetAddresses());
-				for (InetAddress address : ialist) {
-					if (!address.isLoopbackAddress()
-							&& InetAddressUtils.isIPv4Address(ipv4 = address
-									.getHostAddress())) {
-						return ipv4;
-					}
-				}
-
-			}
-
-		} catch (SocketException ex) {
-			Log.e("interactivespaces", ex.toString());
-		}
-		return "Device IP Unknown";
 	}
 
 }
