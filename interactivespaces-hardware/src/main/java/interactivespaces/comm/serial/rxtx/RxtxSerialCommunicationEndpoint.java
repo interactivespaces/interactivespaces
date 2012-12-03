@@ -14,81 +14,90 @@
  * the License.
  */
 
-package interactivespaces.hardware.serial;
+package interactivespaces.comm.serial.rxtx;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 
+import java.io.InputStream;
 import java.util.Enumeration;
 
 /**
- * An rxtx serial connection.
+ * A serial endpoint.
  * 
  * @author Keith M. Hughes
  */
-public class RxtxSerialConnection {
+public class RxtxSerialCommunicationEndpoint implements
+		SerialCommunicationEndpoint {
+
+	public static void main(String[] args) {
+		RxtxSerialCommunicationEndpoint endpoint = new RxtxSerialCommunicationEndpoint("/dev/ttyUSB0");
+		endpoint.connect();
+	}
 
 	/**
-	 * The port name to talk to.
+	 * Number of msecs to wait for a serial port connection.
 	 */
-	private String portName = "/dev/ttyUSB0";
+	private static final int TIME_TO_WAIT_FOR_PORT = 10000;
 
 	/**
-	 * The serial port communicating with the serial endpoint.
+	 * Name of the port this endpoint is for.
+	 */
+	private String portName;
+
+	/**
+	 * The serial communication port.
 	 */
 	private SerialPort port;
 
-	// private ROSSerial rosSerial;
-
-	private int serialPortBaudRate;
-	
 	/**
-	 * The space environment being run in.
+	 * @param portName
+	 *            the name of the port to connect to
 	 */
-	private InteractiveSpacesEnvironment spaceEnvironment;
-
-	public RxtxSerialConnection(InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
+	public RxtxSerialCommunicationEndpoint(String portName) {
+		this.portName = portName;
 	}
 
-	/**
-	 * Connect to the serial connection
-	 */
+	@Override
 	public void connect() {
+
 		try {
 			port = createSerialPort(portName);
 
-			serialPortBaudRate = 57600;
-			port.setSerialPortParams(serialPortBaudRate, SerialPort.DATABITS_8,
+			port.setSerialPortParams(9600, SerialPort.DATABITS_8,
 					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-			spaceEnvironment.getLog().error("Have serial connection");
+			System.out.println("Serial connectione connected to " + portName);
+
+			InputStream in = port.getInputStream();
+			byte[] buffer = new byte[2];
+			while (true) {
+				if (in.available() >= 2) {
+					int numBytes = in.read(buffer);
+					int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
+
+					System.out.format("%d\n", val);
+				}
+			}
+
 		} catch (Exception e) {
-			throw new InteractiveSpacesException("Cannot start serial node", e);
+			e.printStackTrace();
 		}
 	}
 
-	/**
-	 * Shut down and release all components of the serial connection.
-	 */
-	public void close() {
+	@Override
+	public void shutdown() {
 		port.close();
-		port = null;
 	}
 
 	/**
 	 * Get a serial port.
 	 * 
 	 * @param portName
-	 *            name of the port desired
-	 * 
-	 * @return the requested port
-	 * 
-	 * @throws InteractiveSpacesException
-	 *             the port was not found or was already in use
+	 * @return
 	 */
 	private SerialPort createSerialPort(String portName) {
 		@SuppressWarnings("unchecked")
@@ -112,8 +121,10 @@ public class RxtxSerialConnection {
 
 		SerialPort port = null;
 		try {
+			// Name of the application asking for the port
 			// Wait max. 10 sec. to acquire port
-			port = (SerialPort) portId.open("interactivespaces", 10000);
+			port = (SerialPort) portId.open("interactivespaces",
+					TIME_TO_WAIT_FOR_PORT);
 		} catch (PortInUseException e) {
 			throw new InteractiveSpacesException("Port already in use: "
 					+ portName, e);

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.hardware.serial;
+package interactivespaces.comm.serial;
 
 import interactivespaces.InteractiveSpacesException;
 
@@ -23,12 +23,12 @@ import interactivespaces.InteractiveSpacesException;
  *
  * @author Keith M. Hughes
  */
-public interface SerialEndpoint {
+public interface SerialCommunicationEndpoint {
 
 	/**
 	 * Start the endpoint up.
 	 */
-	void startup();
+	void connect();
 
 	/**
 	 * Shut down all open serial ports managed by this endpoint.
@@ -37,26 +37,4 @@ public interface SerialEndpoint {
 	 * The node is left running.
 	 */
 	void shutdown();
-
-	/**
-	 * Add a new port on the given node.
-	 * 
-	 * @param node The node which will publish the subscribers and publishers.
-	 * @param portName Name of the port to open. This will be OS dependent.
-	 * 
-	 * @throws InteractiveSpacesException Either the port is already open or something bad happened while
-	 * openning it.
-	 */
-	void addPort(String portName);
-
-	/**
-	 * Shut down a specific port.
-	 * 
-	 * <p>
-	 * Does nothing if port isn't open.
-	 * 
-	 * @param portName name of the port to shut down.
-	 */
-	void shutdownPort(String portName);
-
 }

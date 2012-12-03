@@ -16,16 +16,12 @@
 
 package interactivespaces.android.service;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
