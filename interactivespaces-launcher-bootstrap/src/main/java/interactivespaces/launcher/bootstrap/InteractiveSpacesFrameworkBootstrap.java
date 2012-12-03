@@ -231,7 +231,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		String packages = "org.apache.commons.logging; version=1.1.1, ";
 		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
-		packages += "interactivespaces.system.core.logging";
+		packages += "interactivespaces.system.core.logging; ";
+		packages += "interactivespaces.system.core.configuration";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
 
 		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());

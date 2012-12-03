@@ -20,7 +20,6 @@ import interactivespaces.service.alert.AlertService;
 import interactivespaces.service.alert.notifier.mail.internal.BasicMailAlertNotifier;
 import interactivespaces.service.mail.sender.MailSenderService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.system.InteractiveSpacesSystemControl;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -41,8 +40,8 @@ public class OsgiMailAlertNotifierActivator implements BundleActivator {
 	 * OSGi service tracker for the interactive spaces environment.
 	 */
 	private MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
-	private MyServiceTracker<MailSenderService> interactiveSpacesSystemControlTracker;
-	private MyServiceTracker<AlertService> rosEnvironmentTracker;
+	private MyServiceTracker<MailSenderService> mailSenderServiceTracker;
+	private MyServiceTracker<AlertService> alertServiceTracker;
 
 	private BundleContext bundleContext;
 	private BasicMailAlertNotifier mailAlertNotifier;
@@ -59,22 +58,22 @@ public class OsgiMailAlertNotifierActivator implements BundleActivator {
 		interactiveSpacesEnvironmentTracker = newMyServiceTracker(context,
 				InteractiveSpacesEnvironment.class.getName());
 
-		interactiveSpacesSystemControlTracker = newMyServiceTracker(context,
-				InteractiveSpacesSystemControl.class.getName());
+		mailSenderServiceTracker = newMyServiceTracker(context,
+				MailSenderService.class.getName());
 
-		rosEnvironmentTracker = newMyServiceTracker(context,
-				RosEnvironment.class.getName());
+		alertServiceTracker = newMyServiceTracker(context,
+				AlertService.class.getName());
 
 		interactiveSpacesEnvironmentTracker.open();
-		rosEnvironmentTracker.open();
-		interactiveSpacesSystemControlTracker.open();
+		alertServiceTracker.open();
+		mailSenderServiceTracker.open();
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		interactiveSpacesEnvironmentTracker.close();
-		interactiveSpacesSystemControlTracker.close();
-		rosEnvironmentTracker.close();
+		mailSenderServiceTracker.close();
+		alertServiceTracker.close();
 
 		if (mailAlertNotifier != null) {
 			mailAlertNotifier.shutdown();
@@ -86,12 +85,12 @@ public class OsgiMailAlertNotifierActivator implements BundleActivator {
 		synchronized (serviceLock) {
 			InteractiveSpacesEnvironment spaceEnvironment = interactiveSpacesEnvironmentTracker
 					.getMyService();
-			MailSenderService mailSenderService = interactiveSpacesSystemControlTracker
+			MailSenderService mailSenderService = mailSenderServiceTracker
 					.getMyService();
-			AlertService alertService = rosEnvironmentTracker.getMyService();
+			AlertService alertService = alertServiceTracker.getMyService();
 
 			if (spaceEnvironment != null && mailSenderService != null
-					&& alertService != null && rosEnvironmentTracker != null) {
+					&& alertService != null && alertServiceTracker != null) {
 				mailAlertNotifier = new BasicMailAlertNotifier(alertService,
 						mailSenderService, spaceEnvironment);
 				mailAlertNotifier.startup();

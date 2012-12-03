@@ -22,7 +22,7 @@ dependencies {
 	}
 
     compile 'com.google.guava:org.ros.rosjava.guava:r07'
-	compile 'io.netty:netty:3.5.10.Final'
+	compile 'io.netty:netty:3.5.11.Final'
 	
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.4'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.4'
