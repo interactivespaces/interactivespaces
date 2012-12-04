@@ -249,14 +249,21 @@ public class InteractiveSpacesFrameworkBootstrap {
 		}
 
 		List<String> extraPackages = new ArrayList<String>();
+		extraPackages.add("org.apache.commons.logging; version=1.1.1");
+		extraPackages.add("org.apache.commons.logging.impl; version=1.1.1");
+		extraPackages.add("interactivespaces.system.core.logging");
+		extraPackages.add("interactivespaces.system.core.configuration");
+
 		addControllerExtensionsClasspath(extraPackages);
 
-		String packages = "org.apache.commons.logging; version=1.1.1, ";
-		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
-		packages += "interactivespaces.system.core.logging, ";
-		packages += "interactivespaces.system.core.configuration, ";
-		packages += "gnu.io";
-		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
+		StringBuilder packages = new StringBuilder();
+		String separator = "";
+		for (String extraPackage : extraPackages) {
+			packages.append(separator).append(extraPackage);
+			separator = ", ";
+		}
+		
+		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
 
 		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());
 
