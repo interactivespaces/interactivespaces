@@ -95,7 +95,7 @@ public class JavaActivityBuilder implements ActivityBuilder {
 			File compilationBuildDirectory, ActivityProjectBuildContext context)
 			throws IOException {
 		List<File> classpath = Lists.newArrayList(context.getWorkbench()
-				.getControllerBootstrapDir().listFiles());
+				.getControllerClasspath());
 
 		List<File> compilationFiles = getCompilationFiles(project);
 

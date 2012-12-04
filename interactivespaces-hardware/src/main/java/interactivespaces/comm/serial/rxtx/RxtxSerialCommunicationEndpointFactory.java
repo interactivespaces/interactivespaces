@@ -16,8 +16,14 @@
 
 package interactivespaces.comm.serial.rxtx;
 
-import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
+import gnu.io.CommPortIdentifier;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
+
+import java.util.Enumeration;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 /**
  * A factory for serial communication endpoints using the RXTX library.
@@ -28,9 +34,27 @@ public class RxtxSerialCommunicationEndpointFactory implements
 		SerialCommunicationEndpointFactory {
 
 	@Override
-	public SerialCommunicationEndpoint newSerialEndpoint(String portName) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<String> getSerialPorts() {
+		List<String> ports = Lists.newArrayList();
+
+		@SuppressWarnings("unchecked")
+		Enumeration<CommPortIdentifier> portIdentifiers = CommPortIdentifier
+				.getPortIdentifiers();
+
+		CommPortIdentifier portId = null; // will be set if port found
+
+		while (portIdentifiers.hasMoreElements()) {
+			CommPortIdentifier pid = portIdentifiers.nextElement();
+			if (pid.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+				ports.add(pid.getName());
+			}
+		}
+
+		return ports;
 	}
 
+	@Override
+	public SerialCommunicationEndpoint newSerialEndpoint(String portName) {
+		return new RxtxSerialCommunicationEndpoint(portName);
+	}
 }

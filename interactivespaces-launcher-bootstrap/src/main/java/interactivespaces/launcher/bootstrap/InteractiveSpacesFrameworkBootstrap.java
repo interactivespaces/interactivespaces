@@ -196,16 +196,11 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * @param bundle
 	 *            the bundle to start
 	 */
-	protected void startBundle(Bundle bundle) {
-		boolean started;
+	private void startBundle(Bundle bundle) {
 		try {
-			// System.out.println("Starting " + bundle.getLocation());
 			bundle.start();
-			// System.out.println("Started " + bundle.getLocation());
 		} catch (Exception e) {
-			started = false;
-			System.err.println("Exception " + bundle.getLocation());
-			e.printStackTrace();
+			loggingProvider.getLog().error(String.format("Error while starting bundle %s", bundle.getLocation()), e);
 		}
 	}
 
@@ -226,13 +221,15 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		String delegations = getClassloaderDelegations();
 		if (delegations != null) {
+			loggingProvider.getLog().info(String.format("Delegations %s", delegations));
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
 
 		String packages = "org.apache.commons.logging; version=1.1.1, ";
 		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
 		packages += "interactivespaces.system.core.logging; ";
-		packages += "interactivespaces.system.core.configuration";
+		packages += "interactivespaces.system.core.configuration; ";
+		packages += "gnu.io";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
 
 		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());

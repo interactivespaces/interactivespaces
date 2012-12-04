@@ -39,10 +39,16 @@ import interactivespaces.workbench.activity.project.packager.ActivityProjectPack
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
+import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+
+import com.google.common.collect.Lists;
 
 /**
  * A workbench for working with Interactive Spaces Activity development.
@@ -67,7 +73,7 @@ public class InteractiveSpacesWorkbench {
 	 * Properties for the workbench.
 	 */
 	private Properties workbenchProperties;
-	
+
 	/**
 	 * The activity project manager for file operations.
 	 */
@@ -87,17 +93,17 @@ public class InteractiveSpacesWorkbench {
 	 * The builder factory.
 	 */
 	private ActivityBuilderFactory activityBuilderFactory;
-	
+
 	/**
 	 * The IDE project creator.
 	 */
 	private EclipseIdeProjectCreator ideProjectCreator;
-	
+
 	/**
 	 * The templater to use.
 	 */
 	private FreemarkerTemplater templater;
-	
+
 	/**
 	 * The user interface factory to be used by the workbench.
 	 */
@@ -105,7 +111,7 @@ public class InteractiveSpacesWorkbench {
 
 	public InteractiveSpacesWorkbench(Properties workbenchProperties) {
 		this.workbenchProperties = workbenchProperties;
-		
+
 		this.templater = new FreemarkerTemplater();
 		templater.startup();
 
@@ -142,15 +148,84 @@ public class InteractiveSpacesWorkbench {
 	}
 
 	/**
+	 * Get a list of all files on the controller's classpath.
+	 * 
+	 * @return
+	 */
+	public List<File> getControllerClasspath() {
+		List<File> classpath = Lists.newArrayList();
+
+		File[] files = getControllerBootstrapDir().listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".jar");
+			}
+		});
+		if (files != null) {
+			for (File file : files) {
+				classpath.add(file);
+			}
+		}
+		
+		File javaSystemDirectory = new File(new File(
+				workbenchProperties
+				.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+		"lib/system/java");
+		classpath.add(new File(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
+
+		addControllerExtraClasspath(classpath);
+
+		return classpath;
+	}
+
+	/**
 	 * Get the bootstrap directory for the controller.
 	 * 
 	 * @return the bootstrap directory for the controller
 	 */
-	public File getControllerBootstrapDir() {
+	private File getControllerBootstrapDir() {
 		return new File(new File(
 				workbenchProperties
 						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
 				"bootstrap");
+	}
+
+	/**
+	 * Add all extra classpath entries that the controller specifies.
+	 * 
+	 * @param files
+	 *            the list of files to add to.
+	 */
+	private void addControllerExtraClasspath(List<File> files) {
+		File extraClasspathFile = new File(new File(
+				workbenchProperties
+						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+				"lib/system/java/extrasystemjars.conf");
+		if (!extraClasspathFile.exists())
+			return;
+		
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(extraClasspathFile));
+			
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (!line.trim().isEmpty()) {
+					files.add(new File(line));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// Don't care.
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -166,7 +241,8 @@ public class InteractiveSpacesWorkbench {
 			System.out.println("Creating project");
 			createProject(commands);
 		} else {
-			ActivityProject project = activityProjectManager.readActivityProject(new File(command));
+			ActivityProject project = activityProjectManager
+					.readActivityProject(new File(command));
 			doCommandsOnProject(project, commands);
 		}
 	}
@@ -303,5 +379,5 @@ public class InteractiveSpacesWorkbench {
 	 */
 	public ActivityProjectCreator getActivityProjectCreator() {
 		return activityProjectCreator;
-	}	
+	}
 }

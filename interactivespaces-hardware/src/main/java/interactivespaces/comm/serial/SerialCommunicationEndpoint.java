@@ -16,7 +16,8 @@
 
 package interactivespaces.comm.serial;
 
-import interactivespaces.InteractiveSpacesException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * An endpoint for serial communication.
@@ -37,4 +38,18 @@ public interface SerialCommunicationEndpoint {
 	 * The node is left running.
 	 */
 	void shutdown();
+	
+	/**
+	 * Get the input stream associated with the port.
+	 * 
+	 * @return the input stream
+	 */
+	InputStream getInputStream();
+	
+	/**
+	 * Get the input stream associated with the port.
+	 * 
+	 * @return the output stream
+	 */
+	OutputStream getOutputStream();
 }

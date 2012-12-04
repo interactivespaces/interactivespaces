@@ -18,6 +18,8 @@ package interactivespaces.comm.serial;
 
 import interactivespaces.InteractiveSpacesException;
 
+import java.util.List;
+
 /**
  * Get {link serialEndpoint} instances.
  * 
@@ -25,6 +27,13 @@ import interactivespaces.InteractiveSpacesException;
  */
 public interface SerialCommunicationEndpointFactory {
 
+	/**
+	 * Get a list of all serial ports ready to be connected to.
+	 * 
+	 * @return a potentially empty list of ports.
+	 */
+	List<String> getSerialPorts();
+	
 	/**
 	 * Create a new serial endpoint for the given port.
 	 * 

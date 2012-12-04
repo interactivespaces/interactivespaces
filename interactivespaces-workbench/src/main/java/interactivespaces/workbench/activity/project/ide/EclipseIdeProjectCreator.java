@@ -118,8 +118,7 @@ public class EclipseIdeProjectCreator {
 	private List<String> getProjectLibs(InteractiveSpacesWorkbench workbench) {
 		List<String> libs = Lists.newArrayList();
 
-		for (File lib : workbench.getControllerBootstrapDir().listFiles(
-				JAR_FILE_FILTER)) {
+		for (File lib : workbench.getControllerClasspath()) {
 			libs.add(lib.getAbsolutePath());
 		}
 

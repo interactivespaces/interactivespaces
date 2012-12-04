@@ -22,7 +22,9 @@ import gnu.io.SerialPort;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 
 /**
@@ -32,11 +34,6 @@ import java.util.Enumeration;
  */
 public class RxtxSerialCommunicationEndpoint implements
 		SerialCommunicationEndpoint {
-
-	public static void main(String[] args) {
-		RxtxSerialCommunicationEndpoint endpoint = new RxtxSerialCommunicationEndpoint("/dev/ttyUSB0");
-		endpoint.connect();
-	}
 
 	/**
 	 * Number of msecs to wait for a serial port connection.
@@ -70,27 +67,38 @@ public class RxtxSerialCommunicationEndpoint implements
 			port.setSerialPortParams(9600, SerialPort.DATABITS_8,
 					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-			System.out.println("Serial connectione connected to " + portName);
-
-			InputStream in = port.getInputStream();
-			byte[] buffer = new byte[2];
-			while (true) {
-				if (in.available() >= 2) {
-					int numBytes = in.read(buffer);
-					int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
-
-					System.out.format("%d\n", val);
-				}
-			}
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new InteractiveSpacesException(String.format(
+					"Unable to connect to serial port %s with rxtx", portName),
+					e);
 		}
 	}
 
 	@Override
 	public void shutdown() {
 		port.close();
+	}
+
+	@Override
+	public InputStream getInputStream() {
+		try {
+			return port.getInputStream();
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(String.format(
+					"Unable to get serial port %s input stream with rxtx", portName),
+					e);
+		}
+	}
+
+	@Override
+	public OutputStream getOutputStream() {
+		try {
+			return port.getOutputStream();
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(String.format(
+					"Unable to get serial port %s output stream with rxtx", portName),
+					e);
+		}
 	}
 
 	/**

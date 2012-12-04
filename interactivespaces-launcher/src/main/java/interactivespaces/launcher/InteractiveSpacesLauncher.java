@@ -141,7 +141,7 @@ public class InteractiveSpacesLauncher {
 	/**
 	 * Bootstrap the framework.
 	 */
-	protected void boostrap(String[] args) {
+	private void boostrap(String[] args) {
 		try {
 			Class<?> bootstrapClass = classLoader
 					.loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");

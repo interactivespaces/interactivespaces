@@ -28,7 +28,8 @@ jar {
 	
     instruction 'Export-Package',
 		'!interactivespaces.hardware.internal.*', 
-		'interactivespaces.hardware.*'
+		'interactivespaces.hardware.*',
+		'interactivespaces.comm.*'
   }
 }
 

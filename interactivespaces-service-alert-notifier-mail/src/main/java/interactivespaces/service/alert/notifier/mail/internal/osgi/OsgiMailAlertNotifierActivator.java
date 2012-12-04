@@ -27,7 +27,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
-import org.ros.osgi.common.RosEnvironment;
 
 /**
  * An OSGi activator for a mail alert notifier.
