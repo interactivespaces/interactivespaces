@@ -21,6 +21,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -37,11 +38,47 @@ import java.util.List;
  */
 public class InteractiveSpacesLauncher {
 
-	private static final String EXTRA_SYSTEM_JARS_CONF = "extrasystemjars.conf";
+	/**
+	 * The file extension used for files which give container extensions.
+	 */
+	private static final String EXTENSION_FILE_EXTENSION = ".ext";
+
+	/**
+	 * The keyword header for a package line on an extensions file.
+	 */
+	public static final String EXTENSION_FILE_PATH_KEYWORD = "path:";
+
+	/**
+	 * The length of the keyword header for a package line on an extensions
+	 * file.
+	 */
+	public static final int EXTENSION_FILE_PATH_KEYWORD_LENGTH = EXTENSION_FILE_PATH_KEYWORD
+			.length();
+
+	/**
+	 * The subdirectory which contains the system files.
+	 */
 	private static final String SPACES_LIB_JAVA_SYSTEM = "lib/system/java";
+
+	/**
+	 * The classloader for starting Interactive Spaces
+	 */
 	private ClassLoader classLoader;
+
+	/**
+	 * The file which gives the process ID for the IS process.
+	 */
 	private File pidFile;
 
+	/**
+	 * The main method for IS.
+	 * 
+	 * @param args
+	 *            the command line arguments
+	 * 
+	 * @throws Exception
+	 *             fall down go boom
+	 */
 	public static void main(String[] args) throws Exception {
 		InteractiveSpacesLauncher launcher = new InteractiveSpacesLauncher();
 		launcher.launch(args);
@@ -64,7 +101,7 @@ public class InteractiveSpacesLauncher {
 		File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
 
 		List<URL> urls = collectSystemLibClasspath(systemDirectory);
-		addExtraClasspath(systemDirectory, urls);
+		addExtensionsToClasspath(systemDirectory, urls);
 
 		classLoader = new URLClassLoader(urls.toArray(new URL[0]));
 	}
@@ -79,7 +116,7 @@ public class InteractiveSpacesLauncher {
 		File[] files = systemDirectory.listFiles();
 		if (files != null) {
 			for (File file : files) {
-				if (file.getName().equals(EXTRA_SYSTEM_JARS_CONF)) {
+				if (file.getName().endsWith(EXTENSION_FILE_EXTENSION)) {
 					continue;
 				}
 
@@ -109,33 +146,62 @@ public class InteractiveSpacesLauncher {
 	 * @param urls
 	 *            the collection of URLs for the classpath.
 	 */
-	private void addExtraClasspath(File systemDirectory, List<URL> urls) {
-		File systemJarsFile = new File(systemDirectory, EXTRA_SYSTEM_JARS_CONF);
-		if (systemJarsFile.exists()) {
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new FileReader(systemJarsFile));
-
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					line = line.trim();
-					if (!line.isEmpty()) {
-						File file = new File(line);
-						if (file.exists()) {
-							try {
-								urls.add(file.toURI().toURL());
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	private void addExtensionsToClasspath(File systemDirectory, List<URL> urls) {
+		File[] extensionFiles = systemDirectory.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(EXTENSION_FILE_EXTENSION);
 			}
+		});
+		if (extensionFiles == null)
+			return;
+
+		for (File extensionFile : extensionFiles) {
+			processExtensionFile(urls, extensionFile);
 		}
 
+	}
+
+	/**
+	 * process an extension file.
+	 * 
+	 * @param urls
+	 *            the collection of urls to be placed on the classpath at boot
+	 * 
+	 * @param extensionFile
+	 *            the extension file to process
+	 */
+	private void processExtensionFile(List<URL> urls, File extensionFile) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(extensionFile));
+
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (!line.isEmpty()) {
+					int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
+					if (pos == 0
+							&& line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
+						urls.add(new File(line
+								.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH))
+								.toURI().toURL());
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.format("Error while processing extensions file %s\n",
+					extensionFile);
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// Don't care.
+				}
+			}
+		}
 	}
 
 	/**

@@ -44,6 +44,7 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -58,16 +59,33 @@ import com.google.common.collect.Lists;
 public class InteractiveSpacesWorkbench {
 
 	/**
+	 * The file extension used for files which give container extensions.
+	 */
+	public static final String EXTENSION_FILE_EXTENSION = ".ext";
+
+	/**
+	 * The keyword header for a package line on an extensions file.
+	 */
+	public static final String EXTENSION_FILE_PATH_KEYWORD = "path:";
+
+	/**
+	 * The length of the keyword header for a package line on an extensions
+	 * file.
+	 */
+	public static final int EXTENSION_FILE_PATH_KEYWORD_LENGTH = EXTENSION_FILE_PATH_KEYWORD
+			.length();
+
+	/**
 	 * Configuration property giving the location of the controller the
 	 * workbench is using.
 	 */
-	private static final String CONFIGURATION_CONTROLLER_BASEDIR = "interactivespaces.controller.basedir";
+	public static final String CONFIGURATION_CONTROLLER_BASEDIR = "interactivespaces.controller.basedir";
 
 	/**
 	 * Configuration property giving the location of the master the workbench is
 	 * using.
 	 */
-	private static final String CONFIGURATION_MASTER_BASEDIR = "interactivespaces.master.basedir";
+	public static final String CONFIGURATION_MASTER_BASEDIR = "interactivespaces.master.basedir";
 
 	/**
 	 * Properties for the workbench.
@@ -166,14 +184,15 @@ public class InteractiveSpacesWorkbench {
 				classpath.add(file);
 			}
 		}
-		
+
 		File javaSystemDirectory = new File(new File(
 				workbenchProperties
-				.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
-		"lib/system/java");
-		classpath.add(new File(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
+						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+				"lib/system/java");
+		classpath.add(new File(javaSystemDirectory,
+				"com.springsource.org.apache.commons.logging-1.1.1.jar"));
 
-		addControllerExtraClasspath(classpath);
+		addControllerExtensionsClasspath(classpath);
 
 		return classpath;
 	}
@@ -191,27 +210,53 @@ public class InteractiveSpacesWorkbench {
 	}
 
 	/**
-	 * Add all extra classpath entries that the controller specifies.
+	 * Add all extension classpath entries that the controller specifies.
 	 * 
 	 * @param files
 	 *            the list of files to add to.
 	 */
-	private void addControllerExtraClasspath(List<File> files) {
-		File extraClasspathFile = new File(new File(
+	private void addControllerExtensionsClasspath(List<File> files) {
+		File[] extensionFiles = new File(new File(
 				workbenchProperties
 						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
-				"lib/system/java/extrasystemjars.conf");
-		if (!extraClasspathFile.exists())
+				"lib/system/java").listFiles(new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(EXTENSION_FILE_EXTENSION);
+			}
+		});
+		if (extensionFiles == null)
 			return;
-		
+
+		for (File extensionFile : extensionFiles) {
+			processExtensionFile(files, extensionFile);
+		}
+
+	}
+
+	/**
+	 * process an extension file.
+	 * 
+	 * @param files
+	 *            the collection of jars described in the extension files
+	 * 
+	 * @param extensionFile
+	 *            the extension file to process
+	 */
+	private void processExtensionFile(List<File> files, File extensionFile) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new FileReader(extraClasspathFile));
-			
+			reader = new BufferedReader(new FileReader(extensionFile));
+
 			String line;
 			while ((line = reader.readLine()) != null) {
-				if (!line.trim().isEmpty()) {
-					files.add(new File(line));
+				line = line.trim();
+				if (!line.isEmpty()) {
+					int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
+					if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
+						files.add(new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)));
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -225,7 +270,6 @@ public class InteractiveSpacesWorkbench {
 				}
 			}
 		}
-
 	}
 
 	/**

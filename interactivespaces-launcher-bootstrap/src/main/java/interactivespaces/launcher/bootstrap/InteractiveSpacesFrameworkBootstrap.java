@@ -48,6 +48,23 @@ import org.osgi.framework.launch.FrameworkFactory;
 public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
+	 * The file extension used for files which give container extensions.
+	 */
+	private static final String EXTENSION_FILE_EXTENSION = ".ext";
+
+	/**
+	 * The keyword header for a package line on an extensions file.
+	 */
+	public static final String EXTENSION_FILE_PACKAGE_KEYWORD = "package:";
+
+	/**
+	 * The length of the keyword header for a package line on an extensions
+	 * file.
+	 */
+	public static final int EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH = EXTENSION_FILE_PACKAGE_KEYWORD
+			.length();
+
+	/**
 	 * Where the OSGi framework launcher can be found.
 	 */
 	private static final String OSGI_FRAMEWORK_LAUNCH_FRAMEWORK_FACTORY = "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
@@ -92,6 +109,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 */
 	private FileConfigurationProvider configurationProvider;
 
+	/**
+	 * The base install folder for Interactive Spaces
+	 */
 	private File baseInstallFolder;
 
 	/**
@@ -200,7 +220,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 		try {
 			bundle.start();
 		} catch (Exception e) {
-			loggingProvider.getLog().error(String.format("Error while starting bundle %s", bundle.getLocation()), e);
+			loggingProvider.getLog().error(
+					String.format("Error while starting bundle %s",
+							bundle.getLocation()), e);
 		}
 	}
 
@@ -221,14 +243,18 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		String delegations = getClassloaderDelegations();
 		if (delegations != null) {
-			loggingProvider.getLog().info(String.format("Delegations %s", delegations));
+			loggingProvider.getLog().info(
+					String.format("Delegations %s", delegations));
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
 
+		List<String> extraPackages = new ArrayList<String>();
+		addControllerExtensionsClasspath(extraPackages);
+
 		String packages = "org.apache.commons.logging; version=1.1.1, ";
 		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
-		packages += "interactivespaces.system.core.logging; ";
-		packages += "interactivespaces.system.core.configuration; ";
+		packages += "interactivespaces.system.core.logging, ";
+		packages += "interactivespaces.system.core.configuration, ";
 		packages += "gnu.io";
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages);
 
@@ -254,11 +280,10 @@ public class InteractiveSpacesFrameworkBootstrap {
 	}
 
 	/**
-	 * 
+	 * Set up a shutdown hook which will stop the framework when the VM shuts
+	 * down.
 	 */
 	private void setupShutdownHandler() {
-		// Want the framework to shut down cleanly no matter how the VM is
-		// exitted.
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				try {
@@ -267,15 +292,18 @@ public class InteractiveSpacesFrameworkBootstrap {
 						framework.waitForStop(0);
 					}
 				} catch (Exception ex) {
-					System.err.println("Error stopping framework: " + ex);
+					loggingProvider.getLog().error("Error stopping framework",
+							ex);
 				}
 			}
 		});
 	}
 
 	/**
-	 * @param args
-	 * @return
+	 * Get all jars from the bootstrap folder.
+	 * 
+	 * @param bootstrapFolder
+	 *            the folder containing the bootstrap bundles
 	 */
 	private void getBootstrapBundleJars(String bootstrapFolder) {
 		// Look in the specified bundle directory to create a list
@@ -304,7 +332,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * Is the bundle a fragment host?
 	 * 
 	 * @param bundle
-	 * @return
+	 *            the bundle to check
+	 * 
+	 * @return {@code true} if the bundle is a fragment host
 	 */
 	private boolean isFragment(Bundle bundle) {
 		return bundle.getHeaders().get(Constants.FRAGMENT_HOST) != null;
@@ -315,7 +345,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * Currently, it assumes the first non-commented line is the class nodeName
 	 * of the framework factory implementation.
 	 * 
-	 * @return The created <tt>FrameworkFactory</tt> instance.
+	 * @return the created <tt>FrameworkFactory</tt> instance
+	 * 
 	 * @throws Exception
 	 *             if any errors occur.
 	 **/
@@ -346,6 +377,17 @@ public class InteractiveSpacesFrameworkBootstrap {
 		throw new Exception("Could not find framework factory.");
 	}
 
+	/**
+	 * Get the list of packages which must be delegated to the boot classloader.
+	 * 
+	 * <p>
+	 * The bootloader loads all classes in the java install. This covers things
+	 * like the javax classes which are not automatically exposed through the
+	 * OSGi bundle classloaders.
+	 * 
+	 * @return a properly formated string for the delegation classpath, or
+	 *         {@code null} if there are no packages to be delegated
+	 */
 	private String getClassloaderDelegations() {
 		File delegation = new File(baseInstallFolder,
 				"lib/system/java/delegations.conf");
@@ -378,5 +420,70 @@ public class InteractiveSpacesFrameworkBootstrap {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Add all extension classpath entries that the controller specifies.
+	 * 
+	 * @param files
+	 *            the list of files to add to.
+	 */
+	private void addControllerExtensionsClasspath(List<String> packages) {
+		File[] extensionFiles = new File(baseInstallFolder, "lib/system/java")
+				.listFiles(new FilenameFilter() {
+
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.endsWith(EXTENSION_FILE_EXTENSION);
+					}
+				});
+		if (extensionFiles == null)
+			return;
+
+		for (File extensionFile : extensionFiles) {
+			processExtensionFile(packages, extensionFile);
+		}
+
+	}
+
+	/**
+	 * process an extension file.
+	 * 
+	 * @param packages
+	 *            the collection of packages described in the extension files
+	 * 
+	 * @param extensionFile
+	 *            the extension file to process
+	 */
+	private void processExtensionFile(List<String> packages, File extensionFile) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(extensionFile));
+
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (!line.isEmpty()) {
+					int pos = line.indexOf(EXTENSION_FILE_PACKAGE_KEYWORD);
+					if (pos == 0
+							&& line.length() > EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH) {
+						packages.add(line
+								.substring(EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH));
+					}
+				}
+			}
+		} catch (Exception e) {
+			loggingProvider.getLog().error(
+					String.format("Error while processing extensions file %s",
+							extensionFile), e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// Don't care.
+				}
+			}
+		}
 	}
 }
