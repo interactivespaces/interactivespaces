@@ -21,7 +21,7 @@ import java.io.OutputStream;
 
 /**
  * An endpoint for serial communication.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface SerialCommunicationEndpoint {
@@ -38,18 +38,71 @@ public interface SerialCommunicationEndpoint {
 	 * The node is left running.
 	 */
 	void shutdown();
-	
+
 	/**
 	 * Get the input stream associated with the port.
 	 * 
 	 * @return the input stream
 	 */
 	InputStream getInputStream();
-	
+
 	/**
 	 * Get the input stream associated with the port.
 	 * 
 	 * @return the output stream
 	 */
 	OutputStream getOutputStream();
+
+	/**
+	 * Set the baud rate of the connection.
+	 * 
+	 * @param baud
+	 *            the baud rate
+	 * 
+	 * @return the endpoint
+	 */
+	SerialCommunicationEndpoint setBaud(int baud);
+
+	/**
+	 * Set the number of data bits for the connection.
+	 * 
+	 * @param dataBits
+	 *            the number of data bits
+	 * 
+	 * @return the endpoint
+	 */
+	SerialCommunicationEndpoint setDataBits(int dataBits);
+
+	/**
+	 * Set the number of stop bits for the connection.
+	 * 
+	 * @param stopBits
+	 *            the number of stop bits
+	 * 
+	 * @return the endpoint
+	 */
+	SerialCommunicationEndpoint setStopBits(int stopBits);
+
+	/**
+	 * Set the type of parity for the connection.
+	 * 
+	 * @param parity
+	 *            the type of parity
+	 * 
+	 * @return the endpoint
+	 */
+	SerialCommunicationEndpoint setParity(Parity parity);
+	
+	/**
+	 * Types of parity.
+	 *
+	 * @author Keith M. Hughes
+	 */
+	public enum Parity {
+		NONE,
+		EVEN,
+		ODD,
+		SPACE,
+		MARK
+	}
 }

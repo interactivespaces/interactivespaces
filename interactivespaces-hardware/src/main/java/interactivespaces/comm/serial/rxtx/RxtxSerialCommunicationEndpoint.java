@@ -25,7 +25,10 @@ import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumMap;
 import java.util.Enumeration;
+
+import com.google.common.collect.Maps;
 
 /**
  * A serial endpoint.
@@ -35,6 +38,19 @@ import java.util.Enumeration;
 public class RxtxSerialCommunicationEndpoint implements
 		SerialCommunicationEndpoint {
 
+	/**
+	 * The mp of parity enums to their {@link SerialPort} equivalents.
+	 */
+	private static final EnumMap<Parity, Integer> SERIAL_PORT_PARITY_VALUES = Maps
+			.newEnumMap(Parity.class);
+
+	static {
+		SERIAL_PORT_PARITY_VALUES.put(Parity.NONE, SerialPort.PARITY_NONE);
+		SERIAL_PORT_PARITY_VALUES.put(Parity.ODD, SerialPort.PARITY_ODD);
+		SERIAL_PORT_PARITY_VALUES.put(Parity.EVEN, SerialPort.PARITY_EVEN);
+		SERIAL_PORT_PARITY_VALUES.put(Parity.MARK, SerialPort.PARITY_MARK);
+		SERIAL_PORT_PARITY_VALUES.put(Parity.SPACE, SerialPort.PARITY_SPACE);
+	}
 	/**
 	 * Number of msecs to wait for a serial port connection.
 	 */
@@ -51,6 +67,26 @@ public class RxtxSerialCommunicationEndpoint implements
 	private SerialPort port;
 
 	/**
+	 * Baud rate for the serial connection
+	 */
+	private int baud = 9600;
+
+	/**
+	 * The number of data bits.
+	 */
+	private int dataBits = SerialPort.DATABITS_8;
+
+	/**
+	 * The number of stop bits.
+	 */
+	private int stopBits = SerialPort.STOPBITS_1;
+
+	/**
+	 * The parity of the connection.
+	 */
+	private Parity parity = Parity.NONE;
+
+	/**
 	 * @param portName
 	 *            the name of the port to connect to
 	 */
@@ -60,13 +96,11 @@ public class RxtxSerialCommunicationEndpoint implements
 
 	@Override
 	public void connect() {
-
 		try {
 			port = createSerialPort(portName);
 
-			port.setSerialPortParams(9600, SerialPort.DATABITS_8,
-					SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-
+			port.setSerialPortParams(baud, dataBits, stopBits,
+					SERIAL_PORT_PARITY_VALUES.get(parity));
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Unable to connect to serial port %s with rxtx", portName),
@@ -85,8 +119,8 @@ public class RxtxSerialCommunicationEndpoint implements
 			return port.getInputStream();
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(String.format(
-					"Unable to get serial port %s input stream with rxtx", portName),
-					e);
+					"Unable to get serial port %s input stream with rxtx",
+					portName), e);
 		}
 	}
 
@@ -96,16 +130,49 @@ public class RxtxSerialCommunicationEndpoint implements
 			return port.getOutputStream();
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(String.format(
-					"Unable to get serial port %s output stream with rxtx", portName),
-					e);
+					"Unable to get serial port %s output stream with rxtx",
+					portName), e);
 		}
+	}
+
+	@Override
+	public SerialCommunicationEndpoint setBaud(int baud) {
+		this.baud = baud;
+
+		return this;
+	}
+
+	@Override
+	public SerialCommunicationEndpoint setDataBits(int dataBits) {
+		this.dataBits = dataBits;
+		
+		return this;
+	}
+
+	@Override
+	public SerialCommunicationEndpoint setStopBits(int stopBits) {
+		this.stopBits = stopBits;
+
+		return this;
+	}
+
+	@Override
+	public SerialCommunicationEndpoint setParity(Parity parity) {
+		this.parity = parity;
+		
+		return this;
 	}
 
 	/**
 	 * Get a serial port.
 	 * 
 	 * @param portName
-	 * @return
+	 *            the name of the requested port
+	 * 
+	 * @return the port
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             the port wasn't found or some other error happened
 	 */
 	private SerialPort createSerialPort(String portName) {
 		@SuppressWarnings("unchecked")
