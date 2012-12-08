@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<activity builder="android">
+    <name>Simple Android Activity Example</name>
+    <description>
+A very simple Android-based activity which just logs at INFO level its
+callback messages.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.android.simple</identifyingName>
+</activity>

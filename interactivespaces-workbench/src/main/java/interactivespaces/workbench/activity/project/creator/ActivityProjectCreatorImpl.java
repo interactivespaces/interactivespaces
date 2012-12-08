@@ -21,6 +21,8 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
+import interactivespaces.workbench.activity.project.type.android.GenericAndroidActivityProjectTemplate;
+import interactivespaces.workbench.activity.project.type.java.GenericJavaActivityProjectTemplate;
 
 import java.io.File;
 import java.util.Collections;
@@ -61,13 +63,19 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 			FreemarkerTemplater templater) {
 		this.workbench = workbench;
 		this.templater = templater;
-		
+
 		activityProjectTemplatesInternal = Lists.newArrayList();
-		activityProjectTemplates = Collections.unmodifiableList(activityProjectTemplatesInternal);
-		
-		activityProjectTemplatesInternal.add(new GenericJavaActivityProjectTemplate());
-		activityProjectTemplatesInternal.add(new GenericJavascriptActivityProjectTemplate());
-		activityProjectTemplatesInternal.add(new GenericPythonActivityProjectTemplate());
+		activityProjectTemplates = Collections
+				.unmodifiableList(activityProjectTemplatesInternal);
+
+		activityProjectTemplatesInternal
+				.add(new GenericJavaActivityProjectTemplate());
+		activityProjectTemplatesInternal
+				.add(new GenericJavascriptActivityProjectTemplate());
+		activityProjectTemplatesInternal
+				.add(new GenericPythonActivityProjectTemplate());
+		activityProjectTemplatesInternal
+				.add(new GenericAndroidActivityProjectTemplate());
 	}
 
 	@Override
@@ -79,7 +87,7 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 	public void createProject(ActivityProjectCreationSpecification spec) {
 		try {
 			ActivityProject project = spec.getProject();
-			
+
 			createProjectStructure(project);
 
 			addSpecDetails(spec);
@@ -114,11 +122,12 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 
 		for (int i = 1; i < parts.length; ++i) {
 			String part = parts[i];
-			activityRuntimeName.append(part.substring(0, 1).toUpperCase()).append(
-					part.substring(1));
+			activityRuntimeName.append(part.substring(0, 1).toUpperCase())
+					.append(part.substring(1));
 		}
 
-		spec.getProject().getActivityDescription().setActivityRuntimeName(activityRuntimeName.toString());
+		spec.getProject().getActivityDescription()
+				.setActivityRuntimeName(activityRuntimeName.toString());
 	}
 
 	/**
@@ -182,16 +191,32 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 	private void writeProjectTemplate(
 			ActivityProjectCreationSpecification spec,
 			Map<String, Object> templateData) {
-		String language = spec.getLanguage();
+		ActivityProjectTemplate template = spec.getTemplate();
+		if (template == null) {
+			template = getActivityProjectTemplateByLanguage(spec.getLanguage());
+		}
+		
+		writeProjectTemplate(template, spec, templateData);
+	}
+
+	/**
+	 * Get a generic project template by language.
+	 * 
+	 * @param language
+	 *            the language
+	 * 
+	 * @return the generic template for that language
+	 */
+	private ActivityProjectTemplate getActivityProjectTemplateByLanguage(
+			String language) {
 		if ("java".equals(language)) {
-			writeProjectTemplate(new GenericJavaActivityProjectTemplate(), spec,
-					templateData);
+			return new GenericJavaActivityProjectTemplate();
 		} else if ("python".equals(language)) {
-			writeProjectTemplate(new GenericPythonActivityProjectTemplate(), spec,
-					templateData);
+			return new GenericPythonActivityProjectTemplate();
 		} else if ("javascript".equals(language)) {
-			writeProjectTemplate(new GenericJavascriptActivityProjectTemplate(), spec,
-					templateData);
+			return new GenericJavascriptActivityProjectTemplate();
+		} else if ("android".equals(language)) {
+			return new GenericAndroidActivityProjectTemplate();
 		} else {
 			throw new InteractiveSpacesException(String.format(
 					"Unknown language %s", language));

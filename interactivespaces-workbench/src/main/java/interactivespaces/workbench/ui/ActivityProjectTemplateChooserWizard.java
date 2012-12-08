@@ -35,13 +35,28 @@ public class ActivityProjectTemplateChooserWizard extends SingleComponentWizard 
 	 * Combo box for picking the project template.
 	 */
 	private JComboBox comboBox;
+	
+	/**
+	 * The templates being shown.
+	 */
+	private List<ActivityProjectTemplate> templates;
 
 	public ActivityProjectTemplateChooserWizard(List<ActivityProjectTemplate> templates) {
+		this.templates = templates;
 		comboBox = new JComboBox(templates.toArray());
 	}
 
 	@Override
 	public JComponent getCurrentJComponent() {
 		return comboBox;
+	}
+	
+	/**
+	 * Get the selected project template.
+	 * 
+	 * @return the selected project template.
+	 */
+	public ActivityProjectTemplate getSelectedTemplate() {
+		return templates.get(comboBox.getSelectedIndex());
 	}
 }

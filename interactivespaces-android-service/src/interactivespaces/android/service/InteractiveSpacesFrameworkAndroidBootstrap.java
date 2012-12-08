@@ -293,48 +293,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 			m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
 		}
 
-		String packages = "org.osgi.framework; version=1.5, org.osgi.service.event; org.osgi.service.startlevel; org.osgi.service.log; org.osgi.util.tracker; org.apache.felix.service.command; org.osgi.service.packageadmin; version=1.2.0, javax.xml; javax.xml.xpath; javax.xml.transform.sax ; javax.net; javax.net.ssl; javax.xml.bind; javax.crypto; javax.management; javax.script; javax.xml.datatype; javax.xml.namespace; javax.xml.parsers; javax.crypto.spec; javax.security.auth.callback; javax.naming; javax.management.openmbean; javax.xml.transform; javax.xml.transform.stream; javax.xml.transform.dom; org.w3c.dom; org.xml.sax; org.xml.sax.helpers; org.ietf.jgss; javax.security.sasl; javax.sql; org.xml.sax.ext; javax.security.auth.x500; javax.swing; javax.swing.border; javax.swing.event; javax.swing.table; javax.swing.text; javax.swing.tree";
-		packages += "interactivespaces.system.core.logging; ";
-		packages += "com.google.common.collect; interactivespaces; interactivespaces.activity; ";
-		packages += "interactivespaces.configuration; ";
-		packages += "interactivespaces.controller; ";
-		packages += "interactivespaces.controller.activity.installation; ";
-		packages += "interactivespaces.domain.basic; ";
-		packages += "interactivespaces.domain.basic.pojo; ";
-		packages += "interactivespaces.evaluation; ";
-		packages += "interactivespaces.master.server.remote.client; ";
-		packages += "interactivespaces.master.server.remote.client.ros; ";
-		packages += "interactivespaces.system; ";
-		packages += "interactivespaces.time; ";
-		packages += "org.apache.commons.logging; version=1.1.1, ";
-		packages += "org.apache.commons.logging.impl; version=1.1.1, ";
-		packages += "interactivespaces.activity.execution; ";
-		packages += "interactivespaces.activity.impl; ";
-		packages += "interactivespaces.activity.impl.binary; ";
-		packages += "interactivespaces.activity.impl.ros; ";
-		packages += "interactivespaces.activity.impl.web; ";
-		packages += "interactivespaces.activity.binary; ";
-		packages += "interactivespaces.activity.component; ";
-		packages += "interactivespaces.activity.component.ros; ";
-		packages += "interactivespaces.activity.component.web; ";
-		packages += "interactivespaces.event; ";
-		packages += "interactivespaces.event.trigger; ";
-		packages += "interactivespaces.util; ";
-		packages += "interactivespaces.util.concurrency; ";
-		packages += "interactivespaces.util.data; ";
-		packages += "interactivespaces.util.data.persist; ";
-		packages += "interactivespaces.util.io; ";
-		packages += "interactivespaces.util.process.restart; ";
-		packages += "interactivespaces.util.ros; ";
-		packages += "interactivespaces.util.uuid; ";
-		packages += "interactivespaces.util.web; ";
-		packages += "interactivespaces.service.web.server; ";
-		packages += "org.ros.osgi.common; ";
-		packages += "org.ros.node; ";
-		packages += "org.ros.node.topic; ";
-		packages += "org.ros.message; ";
-		packages += "org.ros.message.interactivespaces_msgs; version=0.0.0";
-		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES, packages);
+		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES, getSystemPackages());
 
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "log4j.properties");
 
@@ -350,6 +309,86 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 
 		framework = new Felix(m);
 		framework.start();
+	}
+
+	/**
+	 * Get all system packages.
+	 * 
+	 * @return an OSGi formatted list of system packages.
+	 */
+	public String getSystemPackages() {
+		List<String> packages = new ArrayList<String>();
+		packages.add("org.osgi.framework; version=1.5");
+		packages.add("org.osgi.service.event");
+		packages.add("org.osgi.service.startlevel");
+		packages.add("org.osgi.service.log");
+		packages.add("org.osgi.util.tracker");
+		packages.add("org.apache.felix.service.command");
+		packages.add("org.osgi.service.packageadmin; version=1.2.0");
+		packages.add("javax.xml");
+		packages.add("javax.xml.xpath");
+		packages.add("javax.xml.transform.sax");
+		packages.add("javax.net");
+		packages.add("javax.net.ssl");
+		packages.add("javax.xml.bind");
+		packages.add("javax.crypto");
+		packages.add("javax.management");
+		packages.add("javax.script");
+		packages.add("javax.xml.datatype");
+		packages.add("javax.xml.namespace");
+		packages.add("javax.xml.parsers");
+		packages.add("javax.crypto.spec");
+		packages.add("javax.security.auth.callback");
+		packages.add("interactivespaces.system.core.logging");
+		packages.add("com.google.common.collect, interactivespaces, interactivespaces.activity");
+		packages.add("interactivespaces.configuration");
+		packages.add("interactivespaces.controller");
+		packages.add("interactivespaces.controller.activity.installation");
+		packages.add("interactivespaces.domain.basic");
+		packages.add("interactivespaces.domain.basic.pojo");
+		packages.add("interactivespaces.evaluation");
+		packages.add("interactivespaces.master.server.remote.client");
+		packages.add("interactivespaces.master.server.remote.client.ros");
+		packages.add("interactivespaces.system");
+		packages.add("interactivespaces.time");
+		packages.add("org.apache.commons.logging; version=1.1.1");
+		packages.add("org.apache.commons.logging.impl; version=1.1.1");
+		packages.add("interactivespaces.activity.execution");
+		packages.add("interactivespaces.activity.impl");
+		packages.add("interactivespaces.activity.impl.binary");
+		packages.add("interactivespaces.activity.impl.ros");
+		packages.add("interactivespaces.activity.impl.web");
+		packages.add("interactivespaces.activity.binary");
+		packages.add("interactivespaces.activity.component");
+		packages.add("interactivespaces.activity.component.ros");
+		packages.add("interactivespaces.activity.component.web");
+		packages.add("interactivespaces.event");
+		packages.add("interactivespaces.event.trigger");
+		packages.add("interactivespaces.util");
+		packages.add("interactivespaces.util.concurrency");
+		packages.add("interactivespaces.util.data");
+		packages.add("interactivespaces.util.data.persist");
+		packages.add("interactivespaces.util.io");
+		packages.add("interactivespaces.util.process.restart");
+		packages.add("interactivespaces.util.ros");
+		packages.add("interactivespaces.util.uuid");
+		packages.add("interactivespaces.util.web");
+		packages.add("interactivespaces.service.web.server");
+		packages.add("org.ros.osgi.common");
+		packages.add("org.ros.node");
+		packages.add("org.ros.node.topic");
+		packages.add("org.ros.message");
+		packages.add("org.ros.message.interactivespaces_msgs; version=0.0.0");
+		packages.add("android.util");
+		
+		StringBuilder pkgs = new StringBuilder();
+		String separator = "";
+		for (String p : packages) {
+			pkgs.append(separator).append(p);
+			separator = ", ";
+		}
+		
+		return pkgs.toString();
 	}
 
 	/**

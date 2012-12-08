@@ -14,24 +14,30 @@
  * the License.
  */
 
-package interactivespaces.workbench.activity.project.builder;
+package interactivespaces.workbench.util;
 
-import interactivespaces.workbench.activity.project.ActivityProject;
+import java.util.List;
 
 /**
- * A factory for {@link ActivityBuilder} instances.
- * 
+ * Execute a series of commands, stopping if any fail.
+ *
  * @author Keith M. Hughes
  */
-public interface ActivityBuilderFactory {
-
+public class NativeCommandsExecutor {
+	
 	/**
-	 * Create a builder for the given activity.
-	 * 
-	 * @param project
-	 *            project a builder is needed for
-	 * 
-	 * @return a builder ready to use
+	 * Execute the set of native commands.
+	 * @param commands
 	 */
-	ActivityBuilder newBuilder(ActivityProject project);
+	public void executeCommands(List<String> commands) {
+		for (String command : commands) {
+			NativeCommandRunner runner = new NativeCommandRunner();
+			runner.execute(command);
+			
+			if (!runner.isSuccess()) {
+				System.out.format("Command failed: %s\n", command);
+				break;
+			}
+		}
+	}
 }

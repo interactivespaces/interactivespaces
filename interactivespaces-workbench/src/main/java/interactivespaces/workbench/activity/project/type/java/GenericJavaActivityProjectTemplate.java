@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.activity.project.creator;
+package interactivespaces.workbench.activity.project.type.java;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.support.ActivityDescription;
@@ -22,6 +22,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
+import interactivespaces.workbench.activity.project.creator.BaseActivityProjectTemplate;
 
 import java.io.File;
 import java.util.Map;

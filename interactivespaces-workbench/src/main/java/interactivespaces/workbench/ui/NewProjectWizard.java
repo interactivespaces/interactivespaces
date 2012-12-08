@@ -90,6 +90,7 @@ public class NewProjectWizard extends WizardCollection {
 
 		spec.setProject(activityProject);
 
+		spec.setTemplate(activityProjectTemplateChooserWizard.getSelectedTemplate());
 		spec.setLanguage("java");
 
 		workbench.getActivityProjectCreator().createProject(spec);

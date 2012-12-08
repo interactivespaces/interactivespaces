@@ -18,6 +18,7 @@ package interactivespaces.workbench.activity.project.builder.java;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
 import interactivespaces.workbench.activity.project.builder.ActivityBuilder;
@@ -58,9 +59,26 @@ public class JavaActivityBuilder implements ActivityBuilder {
 	private static final String JAR_FILE_EXTENSION = "jar";
 
 	/**
-	 * Name for the builder.
+	 * The extensions for this builder.
 	 */
-	public static final String NAME = "java";
+	private JavaActivityExtensions extensions;
+
+	/**
+	 * Construct a builder with no extensions.
+	 */
+	public JavaActivityBuilder() {
+		this(null);
+	}
+
+	/**
+	 * Construct a builder with the given extensions.
+	 * 
+	 * @param extensions
+	 *            the extensions to use, can be {@code null}
+	 */
+	public JavaActivityBuilder(JavaActivityExtensions extensions) {
+		this.extensions = extensions;
+	}
 
 	@Override
 	public void build(ActivityProject project,
@@ -72,6 +90,11 @@ public class JavaActivityBuilder implements ActivityBuilder {
 			compile(project, compilationFolder, context);
 			File buildArtifact = createJarFile(project, buildDirectory,
 					compilationFolder);
+			
+			if (extensions != null) {
+				extensions.postProcessJar(context, buildArtifact);
+			}
+			
 			context.addArtifact(buildArtifact);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -94,8 +117,12 @@ public class JavaActivityBuilder implements ActivityBuilder {
 	private void compile(ActivityProject project,
 			File compilationBuildDirectory, ActivityProjectBuildContext context)
 			throws IOException {
-		List<File> classpath = Lists.newArrayList(context.getWorkbench()
+		InteractiveSpacesWorkbench workbench = context.getWorkbench();
+		List<File> classpath = Lists.newArrayList(workbench
 				.getControllerClasspath());
+		if (extensions != null) {
+			extensions.addToClasspath(classpath, workbench);
+		}
 
 		List<File> compilationFiles = getCompilationFiles(project);
 

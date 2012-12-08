@@ -19,7 +19,9 @@ package interactivespaces.workbench.osgi;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
@@ -87,11 +89,22 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	 */
 	public void prepare() {
 		workbenchProperties = new Properties();
-		try {
-			workbenchProperties.load(new FileInputStream(
-					"config/workbench.conf"));
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot prepare workbench", e);
+
+		File[] configFiles = new File("config").listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".conf");
+			}
+		});
+
+		if (configFiles != null) {
+			for (File configFile : configFiles) {
+				try {
+					workbenchProperties.load(new FileInputStream(configFile));
+				} catch (Exception e) {
+					System.out.format("Could not open config file %s\n", configFile);
+				}
+			}
 		}
 
 	}
@@ -104,13 +117,15 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 				workbenchProperties);
 
 		if (argList != null) {
-			workbench.doCommands(Lists.newArrayList(argList));
-
 			try {
-				bundleContext.getBundle(0).stop();
-			} catch (BundleException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				workbench.doCommands(Lists.newArrayList(argList));
+			} finally {
+				try {
+					bundleContext.getBundle(0).stop();
+				} catch (BundleException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		} else {
 			ui = new WorkbenchUi(workbench);

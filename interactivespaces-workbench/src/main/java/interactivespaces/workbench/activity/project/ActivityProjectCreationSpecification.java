@@ -17,6 +17,7 @@
 package interactivespaces.workbench.activity.project;
 
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
+import interactivespaces.workbench.activity.project.creator.ActivityProjectTemplate;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class ActivityProjectCreationSpecification {
 	/**
 	 * The template for the project.
 	 */
-	private String template;
+	private ActivityProjectTemplate template;
 
 	/**
 	 * The executable for the project.
@@ -73,7 +74,7 @@ public class ActivityProjectCreationSpecification {
 	/**
 	 * @return the template
 	 */
-	public String getTemplate() {
+	public ActivityProjectTemplate getTemplate() {
 		return template;
 	}
 
@@ -81,7 +82,7 @@ public class ActivityProjectCreationSpecification {
 	 * @param template
 	 *            the template to set
 	 */
-	public void setTemplate(String template) {
+	public void setTemplate(ActivityProjectTemplate template) {
 		this.template = template;
 	}
 

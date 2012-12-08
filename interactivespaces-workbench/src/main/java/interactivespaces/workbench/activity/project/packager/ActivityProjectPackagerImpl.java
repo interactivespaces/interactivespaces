@@ -36,7 +36,14 @@ import java.util.zip.ZipOutputStream;
  */
 public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
+	/**
+	 * The activity project subdirectory where the build happened.
+	 */
 	private static final String BUILD_DIRECTORY = "build";
+
+	/**
+	 * The file extension that will be used for the assembled package.
+	 */
 	private static final String PROJECT_BUILD_FILE_EXTENSION = "zip";
 
 	@Override
@@ -86,9 +93,8 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void addArtifacts(ActivityProjectBuildContext context,
-			byte[] buf, ZipOutputStream out) throws FileNotFoundException,
-			IOException {
+	private void addArtifacts(ActivityProjectBuildContext context, byte[] buf,
+			ZipOutputStream out) throws FileNotFoundException, IOException {
 		for (File artifact : context.getArtifactsToAdd()) {
 			writeZipEntry(buf, out, "", artifact);
 		}
@@ -121,10 +127,17 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 	}
 
 	/**
+	 * Write a file into the package.
+	 * 
 	 * @param buf
+	 *            the buffer being used
 	 * @param packageOutputStream
+	 *            the output stream being written to
 	 * @param parentPath
+	 *            the path of the parent folder
 	 * @param file
+	 *            the file to be written into the package
+	 * 
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -171,6 +184,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 		}
 
 		SimpleActivity activity = project.getActivityDescription();
+		
 		return new File(buildFolder, activity.getIdentifyingName() + "-"
 				+ activity.getVersion() + "." + PROJECT_BUILD_FILE_EXTENSION);
 	}

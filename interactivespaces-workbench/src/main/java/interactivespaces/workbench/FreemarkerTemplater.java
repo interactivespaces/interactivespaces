@@ -50,9 +50,7 @@ public class FreemarkerTemplater {
 			freemarkerConfig.setDirectoryForTemplateLoading(new File(
 					"templates"));
 			// Specify how templates will see the data-model. This is an
-			// advanced
-			// topic...
-			// but just use this:
+			// advanced topic... but just use this:
 			freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(
@@ -73,8 +71,8 @@ public class FreemarkerTemplater {
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	public void writeTemplate(Map<String, Object> data,
-			File outputFile, String template) {
+	public void writeTemplate(Map<String, Object> data, File outputFile,
+			String template) {
 		try {
 			Template temp = freemarkerConfig.getTemplate(template);
 

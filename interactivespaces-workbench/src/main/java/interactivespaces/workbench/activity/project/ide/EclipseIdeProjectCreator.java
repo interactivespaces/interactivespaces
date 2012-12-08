@@ -41,13 +41,11 @@ import com.google.common.collect.Lists;
  */
 public class EclipseIdeProjectCreator {
 
-	private static final JarFileFiler JAR_FILE_FILTER = new JarFileFiler();
+	private static final String TEMPLATE_FILEPATH_ECLIPSE_PROJECT = "ide/eclipse/project.ftl";
 
-	private static final String ECLIPSE_BUILDER_NON_JAVA = "org.eclipse.wst.common.project.facet.core.builder";
-	private static final String ECLIPSE_NATURE_NON_JAVA = "org.eclipse.wst.common.project.facet.core.nature";
+	private static final String FILENAME_PROJECT_FILE = ".project";
 
-	private static final String ECLIPSE_BUILDER_JAVA = "org.eclipse.jdt.core.javabuilder";
-	private static final String ECLIPSE_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
+	private static final JarFileFilter JAR_FILE_FILTER = new JarFileFilter();
 
 	/**
 	 * The Templater.
@@ -62,67 +60,29 @@ public class EclipseIdeProjectCreator {
 	 * Create the IDE project.
 	 * 
 	 * @param project
-	 *            project creating the IDE version for
+	 *            project creating the IDE version for param spec the
+	 *            specification giving details about the IDE build
 	 * @param workbench
 	 *            workbench being run under
 	 */
 	public void createProject(ActivityProject project,
+			EclipseIdeProjectCreatorSpecification spec,
 			InteractiveSpacesWorkbench workbench) {
 		try {
 			// Create the freemarkerContext hash
 			Map<String, Object> freemarkerContext = new HashMap<String, Object>();
 			freemarkerContext.put("project", project);
-			freemarkerContext.put("libs", getProjectLibs(workbench));
 
-			addLanguageSpecificData(project, freemarkerContext);
+			spec.addSpecificationData(project, freemarkerContext);
 
 			writeProjectFile(project, freemarkerContext);
 
-			if ("java".equals(project.getActivityDescription().getBuilderType())) {
-				writeClasspathFile(project, freemarkerContext);
-			}
+			spec.writeAdditionalFiles(project, freemarkerContext, templater,
+					workbench);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Add further context needed for the project.
-	 * 
-	 * @param project
-	 * 
-	 * @param freemarkerContext
-	 */
-	private void addLanguageSpecificData(ActivityProject project,
-			Map<String, Object> freemarkerContext) {
-		if ("java".equals(project.getActivityDescription().getBuilderType())) {
-			freemarkerContext.put("natures",
-					Lists.newArrayList(ECLIPSE_NATURE_JAVA));
-			freemarkerContext.put("builder", ECLIPSE_BUILDER_JAVA);
-		} else {
-			freemarkerContext.put("natures",
-					Lists.newArrayList(ECLIPSE_NATURE_NON_JAVA));
-			freemarkerContext.put("builder", ECLIPSE_BUILDER_NON_JAVA);
-		}
-	}
-
-	/**
-	 * Get file paths to all libraries needed for the project.
-	 * 
-	 * @param workbench
-	 *            workbench being run under
-	 * 
-	 * @return full qualified path names for all libs
-	 */
-	private List<String> getProjectLibs(InteractiveSpacesWorkbench workbench) {
-		List<String> libs = Lists.newArrayList();
-
-		for (File lib : workbench.getControllerClasspath()) {
-			libs.add(lib.getAbsolutePath());
-		}
-
-		return libs;
 	}
 
 	/**
@@ -137,31 +97,15 @@ public class EclipseIdeProjectCreator {
 			Map<String, Object> freemarkerContext) throws IOException,
 			TemplateException {
 		templater.writeTemplate(freemarkerContext,
-				new File(project.getBaseDirectory(), ".project"),
-				"ide/eclipse/project.ftl");
-	}
-
-	/**
-	 * Write the classpath file.
-	 * 
-	 * @param freemarkerConfig
-	 * @param freemarkerContext
-	 * @throws IOException
-	 * @throws TemplateException
-	 */
-	private void writeClasspathFile(ActivityProject project,
-			Map<String, Object> freemarkerContext) throws IOException,
-			TemplateException {
-		templater.writeTemplate(freemarkerContext,
-				new File(project.getBaseDirectory(), ".classpath"),
-				"ide/eclipse/java-classpath.ftl");
+				new File(project.getBaseDirectory(), FILENAME_PROJECT_FILE),
+				TEMPLATE_FILEPATH_ECLIPSE_PROJECT);
 	}
 
 	/**
 	 * Write a a template out.
 	 * 
 	 * @param config
-	 *            the freemarker config
+	 *            the freemarker template configuration
 	 * @param freemarkerContext
 	 *            the data for the templates
 	 * @param template
@@ -187,7 +131,7 @@ public class EclipseIdeProjectCreator {
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	private static class JarFileFiler implements FileFilter {
+	private static class JarFileFilter implements FileFilter {
 
 		@Override
 		public boolean accept(File pathname) {

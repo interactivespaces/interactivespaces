@@ -29,13 +29,16 @@ import interactivespaces.workbench.activity.project.ActivityProjectCreationSpeci
 import interactivespaces.workbench.activity.project.ActivityProjectManager;
 import interactivespaces.workbench.activity.project.BasicActivityProjectManager;
 import interactivespaces.workbench.activity.project.builder.ActivityBuilder;
-import interactivespaces.workbench.activity.project.builder.ActivityBuilderFactory;
-import interactivespaces.workbench.activity.project.builder.SimpleActivityBuilderFactory;
 import interactivespaces.workbench.activity.project.creator.ActivityProjectCreator;
 import interactivespaces.workbench.activity.project.creator.ActivityProjectCreatorImpl;
 import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreator;
+import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.activity.project.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackager;
 import interactivespaces.workbench.activity.project.packager.ActivityProjectPackagerImpl;
+import interactivespaces.workbench.activity.project.type.ActivityProjectType;
+import interactivespaces.workbench.activity.project.type.ActivityProjectTypeRegistry;
+import interactivespaces.workbench.activity.project.type.SimpleActivityProjectTypeRegistery;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
@@ -108,9 +111,9 @@ public class InteractiveSpacesWorkbench {
 	private ActivityProjectPackager activityProjectPackager;
 
 	/**
-	 * The builder factory.
+	 * The registry of activity project types.
 	 */
-	private ActivityBuilderFactory activityBuilderFactory;
+	private ActivityProjectTypeRegistry activityProjectTypeRegistry;
 
 	/**
 	 * The IDE project creator.
@@ -133,9 +136,9 @@ public class InteractiveSpacesWorkbench {
 		this.templater = new FreemarkerTemplater();
 		templater.startup();
 
+		activityProjectTypeRegistry = new SimpleActivityProjectTypeRegistery();
 		activityProjectCreator = new ActivityProjectCreatorImpl(this, templater);
 		activityProjectPackager = new ActivityProjectPackagerImpl();
-		activityBuilderFactory = new SimpleActivityBuilderFactory();
 		ideProjectCreator = new EclipseIdeProjectCreator(templater);
 	}
 
@@ -143,14 +146,48 @@ public class InteractiveSpacesWorkbench {
 	 * Build a project.
 	 * 
 	 * @param project
+	 *            the project to be built
 	 */
 	public void buildActivityProject(ActivityProject project) {
 		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
 				project, this);
 
-		ActivityBuilder builder = activityBuilderFactory.newBuilder(project);
-		builder.build(project, context);
+		// If no type, there is nothing special to do for building.
+		ActivityProjectType type = getActivityProjectType(project);
+		if (type != null) {
+			ActivityBuilder builder = type.newBuilder();
+			builder.build(project, context);
+		}
+
 		activityProjectPackager.packageActivityProject(project, context);
+	}
+
+	/**
+	 * Get the project type for the project.
+	 * 
+	 * @param project
+	 *            the activity project
+	 * 
+	 * @return the type of the project, if set, or {@code null} if none
+	 *         specified
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no unknown type
+	 */
+	private ActivityProjectType getActivityProjectType(ActivityProject project) {
+		String name = project.getActivityDescription().getBuilderType();
+		if (name != null) {
+			ActivityProjectType type = activityProjectTypeRegistry
+					.getActivityProjectType(name);
+			if (type != null) {
+				return type;
+			} else {
+				throw new InteractiveSpacesException(String.format(
+						"No builder found for type %s", name));
+			}
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -162,7 +199,15 @@ public class InteractiveSpacesWorkbench {
 	 *            the name of the IDE to generate the project for
 	 */
 	public void generateIdeActivityProject(ActivityProject project, String ide) {
-		ideProjectCreator.createProject(project, this);
+		EclipseIdeProjectCreatorSpecification spec;
+		ActivityProjectType type = getActivityProjectType(project);
+		if (type != null) {
+			spec = type.getEclipseIdeProjectCreatorSpecification();
+		} else {
+			spec = new NonJavaEclipseIdeProjectCreatorSpecification();
+		}
+		
+		ideProjectCreator.createProject(project, spec, this);
 	}
 
 	/**
@@ -254,8 +299,10 @@ public class InteractiveSpacesWorkbench {
 				line = line.trim();
 				if (!line.isEmpty()) {
 					int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
-					if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-						files.add(new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)));
+					if (pos == 0
+							&& line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
+						files.add(new File(line
+								.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)));
 					}
 				}
 			}
@@ -423,5 +470,12 @@ public class InteractiveSpacesWorkbench {
 	 */
 	public ActivityProjectCreator getActivityProjectCreator() {
 		return activityProjectCreator;
+	}
+
+	/**
+	 * @return the workbenchProperties
+	 */
+	public Properties getWorkbenchProperties() {
+		return workbenchProperties;
 	}
 }
