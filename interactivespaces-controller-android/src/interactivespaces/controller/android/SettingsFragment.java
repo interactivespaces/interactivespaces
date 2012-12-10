@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.android.service;
+package interactivespaces.controller.android;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="interactivespaces.android.service"
+    package="interactivespaces.controller.android"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,7 +26,7 @@
         </activity>
         
         <activity 
-            android:name="MyFragmentPreferencesActivity" 
+            android:name=".MyFragmentPreferencesActivity" 
             android:label="Interactive Spaces Preferences">
         </activity>
         
@@ -34,7 +34,7 @@
             android:name=".InteractiveSpacesService"
             android:enabled="true" />
         
-        <receiver android:name=".InteracticeSpacesBootReceiver" >
+        <receiver android:name=".InteractiveSpacesBootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!--  <action android:name="android.intent.action.SCREEN_OFF" />  -->

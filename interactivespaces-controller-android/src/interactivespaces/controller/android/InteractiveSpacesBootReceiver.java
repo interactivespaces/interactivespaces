@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.android.service;
+package interactivespaces.controller.android;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,7 +28,7 @@ import android.util.Log;
  * 
  * @author Keith M. Hughes
  */
-public class InteracticeSpacesBootReceiver extends BroadcastReceiver {
+public class InteractiveSpacesBootReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent myIntent) {

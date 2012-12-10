@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.android.service;
+package interactivespaces.controller.android;
 
 import java.util.Map;
 

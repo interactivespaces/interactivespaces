@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.android.service;
+package interactivespaces.controller.android;
 
 import interactivespaces.controller.internal.osgi.OsgiControllerActivator;
 import interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator;
