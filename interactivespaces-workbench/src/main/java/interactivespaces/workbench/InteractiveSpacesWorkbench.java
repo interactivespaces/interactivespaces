@@ -245,7 +245,7 @@ public class InteractiveSpacesWorkbench {
 				"com.springsource.org.apache.commons.logging-1.1.1.jar"));
 
 		addControllerExtensionsClasspath(classpath);
-		addAlternateControllerExtensionsClasspath(classpath);
+		addAlternateControllerExtensionsClasspath(classpath, "android");
 
 		return classpath;
 	}
@@ -293,9 +293,13 @@ public class InteractiveSpacesWorkbench {
 	 * 
 	 * @param files
 	 *            the list of files to add to.
+	 * @param alternate
+	 *            the alternate files to add
 	 */
-	private void addAlternateControllerExtensionsClasspath(List<File> files) {
-		File[] alternateFiles = new File(workbenchBaseDir, "alternate")
+	private void addAlternateControllerExtensionsClasspath(List<File> files,
+			String alternate) {
+		File[] alternateFiles = new File(
+				new File(workbenchBaseDir, "alternate"), alternate)
 				.listFiles(new FilenameFilter() {
 
 					@Override

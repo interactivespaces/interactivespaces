@@ -17,6 +17,8 @@
 package interactivespaces.launcher.bootstrap;
 
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.container.ContainerCustomizerProvider;
+import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
 import java.io.BufferedReader;
@@ -108,6 +110,11 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * The configuration provider for the container.
 	 */
 	private FileConfigurationProvider configurationProvider;
+	
+	/**
+	 * The container customizer provider for the container.
+	 */
+	private SimpleContainerCustomizerProvider containerCustomizerProvider;
 
 	/**
 	 * The base install folder for Interactive Spaces
@@ -167,16 +174,22 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
 		configurationProvider.load();
+		
+		containerCustomizerProvider = new SimpleContainerCustomizerProvider();
 	}
 
 	/**
 	 * Register all bootstrap core services with the container.
 	 */
 	public void registerCoreServices() {
-		framework.getBundleContext().registerService(
+		BundleContext bundleContext = framework.getBundleContext();
+		bundleContext.registerService(
 				LoggingProvider.class.getName(), loggingProvider, null);
-		framework.getBundleContext().registerService(
+		bundleContext.registerService(
 				ConfigurationProvider.class.getName(), configurationProvider,
+				null);
+		bundleContext.registerService(
+				ContainerCustomizerProvider.class.getName(), containerCustomizerProvider,
 				null);
 	}
 
@@ -253,6 +266,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 		extraPackages.add("org.apache.commons.logging.impl; version=1.1.1");
 		extraPackages.add("interactivespaces.system.core.logging");
 		extraPackages.add("interactivespaces.system.core.configuration");
+		extraPackages.add("interactivespaces.system.core.container");
 
 		addControllerExtensionsClasspath(extraPackages);
 

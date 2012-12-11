@@ -100,12 +100,18 @@ the License.
 										<exclude name="**/bin/**" />
 									</fileset>
 								</copy>
-								<copy todir="${staging.dir}/examples">
-									<fileset dir="${basedir}/../..">
-										<include name="interactivespaces-example-activity-*/target/*.zip" />
-									</fileset>
-								</copy>
-							</tasks>
+                                <copy todir="${staging.dir}/examples">
+                                    <fileset dir="${basedir}/../..">
+                                        <include name="interactivespaces.example.activity.*/**" />
+                                        <exclude name="**/bin/**" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="${staging.dir}/lib/system/java">
+                                    <fileset dir="${basedir}/../template-common/lib/system/java">
+                                        <include name="log4j.properties" />
+                                    </fileset>
+                                </copy>
+   							</tasks>
 						</configuration>
 					</execution>
 				</executions>
@@ -360,7 +366,17 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-							</artifactItems>
+                                
+                                <!-- alternates -->
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-androidos</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${staging.dir}/alternate/android</outputDirectory>
+                                </artifactItem>
+   							</artifactItems>
 
 							<outputDirectory>${staging.dir}/bootstrap</outputDirectory>
 							<overWriteReleases>true</overWriteReleases>

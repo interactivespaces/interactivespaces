@@ -135,7 +135,12 @@ public class JavaActivityBuilder implements ActivityBuilder {
 
 		Iterable<? extends JavaFileObject> compilationUnits1 = fileManager
 				.getJavaFileObjectsFromFiles(compilationFiles);
-		compiler.getTask(null, fileManager, null, null, null, compilationUnits1)
+		List<String> options = Lists.newArrayList();
+		options.add("-source");
+		options.add("1.6");
+		options.add("-target");
+		options.add("1.6");
+		compiler.getTask(null, fileManager, null, options, null, compilationUnits1)
 				.call();
 
 		fileManager.close();

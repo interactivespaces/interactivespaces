@@ -74,18 +74,18 @@ public class InteractiveSpacesService extends Service {
 
 		// Set to run in foreground
 		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
-				"Start command received for InteractiveSpacesService");
+				"Start command received for Interactive Spaces Controller");
 		Notification notification = new Notification(R.drawable.ic_launcher,
-				"Starting up Interactive Spaces service",
+				"Starting up Interactive Spaces Controller",
 				System.currentTimeMillis() + 10000);
 		// Passing in "null" instead of a PendingIntent means no activity will
 		// be launched when the user clicks the notification
 		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
-				"Notification.setLatestEventInfo for InteractiveSpacesService");
-		notification.setLatestEventInfo(this, "Interactive Spaces Connection",
-				"Launches apps from commands received by IS", null);
+				"Notification.setLatestEventInfo for Interactive Spaces Controller");
+		notification.setLatestEventInfo(this, "Interactive Spaces Controller",
+				"The Interactive Spaces Controller is active", null);
 		Log.i(AndroidLoggingProvider.BASE_LOG_NAME,
-				"startForeground for InteractiveSpacesService");
+				"startForeground for Interactive Spaces Controller");
 
 		isBootstrap = new InteractiveSpacesFrameworkAndroidBootstrap();
 		isBootstrap.startup(initialProperties, getApplicationContext());
