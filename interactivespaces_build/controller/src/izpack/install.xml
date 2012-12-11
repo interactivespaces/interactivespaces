@@ -119,6 +119,7 @@
 			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
 			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/controllerinfo.conf" />
 			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/controller.conf" />
+            <file src="extras" targetdir="$INSTALL_PATH" />
 		</pack>
 		<pack name="Docs" required="no">
 			<description>The documentation</description>

@@ -63,6 +63,10 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 					"Could not find Android jar file %s",
 					androidJarFile.getAbsolutePath()));
 		}
+
+		workbench.addAlternateControllerExtensionsClasspath(classpath,
+				"android");
+
 	}
 
 	@Override

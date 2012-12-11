@@ -90,11 +90,11 @@ public class JavaActivityBuilder implements ActivityBuilder {
 			compile(project, compilationFolder, context);
 			File buildArtifact = createJarFile(project, buildDirectory,
 					compilationFolder);
-			
+
 			if (extensions != null) {
 				extensions.postProcessJar(context, buildArtifact);
 			}
-			
+
 			context.addArtifact(buildArtifact);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -140,8 +140,8 @@ public class JavaActivityBuilder implements ActivityBuilder {
 		options.add("1.6");
 		options.add("-target");
 		options.add("1.6");
-		compiler.getTask(null, fileManager, null, options, null, compilationUnits1)
-				.call();
+		compiler.getTask(null, fileManager, null, options, null,
+				compilationUnits1).call();
 
 		fileManager.close();
 	}
@@ -190,10 +190,12 @@ public class JavaActivityBuilder implements ActivityBuilder {
 	 */
 	private void scanDirectory(File directory, List<File> files) {
 		for (File file : directory.listFiles()) {
-			if (file.isDirectory()) {
-				scanDirectory(file, files);
-			} else {
-				files.add(file);
+			if (!file.getName().startsWith(".")) {
+				if (file.isDirectory()) {
+					scanDirectory(file, files);
+				} else {
+					files.add(file);
+				}
 			}
 		}
 	}
