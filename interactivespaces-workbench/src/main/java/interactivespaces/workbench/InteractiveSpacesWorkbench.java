@@ -61,6 +61,8 @@ import com.google.common.collect.Lists;
  */
 public class InteractiveSpacesWorkbench {
 
+	private static final String FILENAME_JAR_EXTENSION = ".jar";
+
 	/**
 	 * The file extension used for files which give container extensions.
 	 */
@@ -124,6 +126,11 @@ public class InteractiveSpacesWorkbench {
 	 * The templater to use.
 	 */
 	private FreemarkerTemplater templater;
+
+	/**
+	 * Base directory the workbench is installed in.
+	 */
+	private File workbenchBaseDir = new File(".").getAbsoluteFile();
 
 	/**
 	 * The user interface factory to be used by the workbench.
@@ -206,7 +213,7 @@ public class InteractiveSpacesWorkbench {
 		} else {
 			spec = new NonJavaEclipseIdeProjectCreatorSpecification();
 		}
-		
+
 		ideProjectCreator.createProject(project, spec, this);
 	}
 
@@ -221,7 +228,7 @@ public class InteractiveSpacesWorkbench {
 		File[] files = getControllerBootstrapDir().listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".jar");
+				return pathname.getName().endsWith(FILENAME_JAR_EXTENSION);
 			}
 		});
 		if (files != null) {
@@ -238,6 +245,7 @@ public class InteractiveSpacesWorkbench {
 				"com.springsource.org.apache.commons.logging-1.1.1.jar"));
 
 		addControllerExtensionsClasspath(classpath);
+		addAlternateControllerExtensionsClasspath(classpath);
 
 		return classpath;
 	}
@@ -276,6 +284,30 @@ public class InteractiveSpacesWorkbench {
 
 		for (File extensionFile : extensionFiles) {
 			processExtensionFile(files, extensionFile);
+		}
+
+	}
+
+	/**
+	 * Add all extension classpath entries that the controller specifies.
+	 * 
+	 * @param files
+	 *            the list of files to add to.
+	 */
+	private void addAlternateControllerExtensionsClasspath(List<File> files) {
+		File[] alternateFiles = new File(workbenchBaseDir, "alternate")
+				.listFiles(new FilenameFilter() {
+
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.endsWith(FILENAME_JAR_EXTENSION);
+					}
+				});
+		if (alternateFiles == null)
+			return;
+
+		for (File alternateFile : alternateFiles) {
+			files.add(alternateFile);
 		}
 
 	}

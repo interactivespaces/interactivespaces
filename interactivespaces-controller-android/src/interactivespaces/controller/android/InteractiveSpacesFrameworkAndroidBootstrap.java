@@ -17,8 +17,12 @@
 package interactivespaces.controller.android;
 
 import interactivespaces.controller.internal.osgi.OsgiControllerActivator;
+import interactivespaces.service.androidos.AndroidOsService;
+import interactivespaces.service.androidos.impl.SimpleAndroidOsService;
 import interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.container.ContainerCustomizerProvider;
+import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
 import java.io.BufferedReader;
@@ -115,6 +119,11 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 	private ConfigurationProvider configurationProvider;
 
 	/**
+	 * Container customizer provider for the container.
+	 */
+	private SimpleContainerCustomizerProvider containerCustomizerProvider;
+
+	/**
 	 * Start the framework up.
 	 * 
 	 * @param context
@@ -192,16 +201,24 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		loggingProvider = new AndroidLoggingProvider();
 		configurationProvider = new AndroidConfigurationProvider(
 				PreferenceManager.getDefaultSharedPreferences(context));
+
+		containerCustomizerProvider = new SimpleContainerCustomizerProvider();
+		containerCustomizerProvider.addService(AndroidOsService.SERVICE_NAME,
+				new SimpleAndroidOsService(context));
 	}
 
 	/**
 	 * Register all bootstrap core services with the container.
 	 */
 	public void registerCoreServices() {
-		framework.getBundleContext().registerService(
+		BundleContext bundleContext = framework.getBundleContext();
+		bundleContext.registerService(
 				LoggingProvider.class.getName(), loggingProvider, null);
-		framework.getBundleContext().registerService(
+		bundleContext.registerService(
 				ConfigurationProvider.class.getName(), configurationProvider,
+				null);
+		bundleContext.registerService(
+				ContainerCustomizerProvider.class.getName(), containerCustomizerProvider,
 				null);
 	}
 
@@ -373,21 +390,24 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		packages.add("interactivespaces.util.ros");
 		packages.add("interactivespaces.util.uuid");
 		packages.add("interactivespaces.util.web");
+		packages.add("interactivespaces.service");
 		packages.add("interactivespaces.service.web.server");
 		packages.add("org.ros.osgi.common");
 		packages.add("org.ros.node");
 		packages.add("org.ros.node.topic");
 		packages.add("org.ros.message");
 		packages.add("org.ros.message.interactivespaces_msgs; version=0.0.0");
+		packages.add("interactivespaces.service.androidos");
 		packages.add("android.util");
-		
+		packages.add("android.hardware");
+
 		StringBuilder pkgs = new StringBuilder();
 		String separator = "";
 		for (String p : packages) {
 			pkgs.append(separator).append(p);
 			separator = ", ";
 		}
-		
+
 		return pkgs.toString();
 	}
 

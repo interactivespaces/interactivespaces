@@ -21,10 +21,13 @@ import interactivespaces.configuration.FileSystemConfigurationStorageManager;
 import interactivespaces.configuration.SystemConfigurationStorageManager;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.evaluation.SimpleExpressionEvaluatorFactory;
+import interactivespaces.service.Service;
+import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.system.internal.osgi.OsgiInteractiveSpacesSystemControl;
 import interactivespaces.system.internal.osgi.RosOsgiInteractiveSpacesEnvironment;
@@ -112,6 +115,14 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	private ConfigurationProvider configurationProvider;
 
 	/**
+	 * The platform container customizer provider.
+	 * 
+	 * <p>
+	 * Can be {@code null} if none is provided.
+	 */
+	private ContainerCustomizerProvider containerCustomizerProvider;
+
+	/**
 	 * Start up the activator.
 	 */
 	public void start(BundleContext context) throws Exception {
@@ -150,6 +161,12 @@ public class GeneralInteractiveSpacesSupportActivator implements
 				.getServiceReference(ConfigurationProvider.class.getName());
 		configurationProvider = (ConfigurationProvider) context
 				.getService(configurationProviderServiceReference);
+
+		ServiceReference containerCustomizerProviderServiceReference = context
+				.getServiceReference(ContainerCustomizerProvider.class
+						.getName());
+		containerCustomizerProvider = (ContainerCustomizerProvider) context
+				.getService(containerCustomizerProviderServiceReference);
 	}
 
 	/**
@@ -210,6 +227,24 @@ public class GeneralInteractiveSpacesSupportActivator implements
 				loggingProvider.getLog());
 
 		spaceEnvironment.setValue("environment.ros", rosEnvironment);
+
+		customizeContainer();
+	}
+
+	/**
+	 * Add any customization to the service from services and other objects
+	 * provided by the container.
+	 */
+	public void customizeContainer() {
+		if (containerCustomizerProvider != null) {
+			ServiceRegistry serviceRegistry = spaceEnvironment
+					.getServiceRegistry();
+			for (Entry<String, Object> entry : containerCustomizerProvider
+					.getServices().entrySet()) {
+				serviceRegistry.registerService(entry.getKey(),
+						(Service) entry.getValue());
+			}
+		}
 	}
 
 	/**

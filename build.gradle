@@ -49,7 +49,7 @@ allprojects {
 }
 
 subprojects {
-  if (name != 'interactivespaces_docs' && name != 'interactivespaces-android-service') {
+  if (name != 'interactivespaces_docs' && name != 'interactivespaces-controller-android') {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'eclipse'

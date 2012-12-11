@@ -1,0 +1,42 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+package interactivespaces.system.core.container;
+
+import java.util.Map;
+
+/**
+ * A container customizer.
+ * 
+ * <p>
+ * Can have useful information about things added by the container.
+ * 
+ * @author Keith M. Hughes
+ */
+public interface ContainerCustomizerProvider {
+
+	/**
+	 * Get services supplied by the container.
+	 * 
+	 * <p>
+	 * These are not using the Service interface because of how classpaths and
+	 * IS components are being started.
+	 * 
+	 * @return a map of services with the key being the service name and the
+	 *         value being the service
+	 */
+	Map<String, Object> getServices();
+}
