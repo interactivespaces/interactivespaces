@@ -94,12 +94,6 @@ the License.
 								<copy todir="${staging.dir}">
 									<fileset dir="${basedir}/template" />
 								</copy>
-								<copy todir="${staging.dir}/examples">
-									<fileset dir="${basedir}/../..">
-										<include name="interactivespaces-example-activity-*/**" />
-										<exclude name="**/bin/**" />
-									</fileset>
-								</copy>
                                 <copy todir="${staging.dir}/examples">
                                     <fileset dir="${basedir}/../..">
                                         <include name="interactivespaces.example.activity.*/**" />
