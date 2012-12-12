@@ -1,17 +1,22 @@
 package interactivespaces.example.activity.android.accelerometer;
 
-import interactivespaces.activity.impl.BaseActivity;
+import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.service.androidos.AndroidOsService;
+
+import java.util.Map;
+
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import com.google.common.collect.Maps;
+
 /**
  * A Interactive Spaces Android-based activity which reads the accelerometer.
  */
-public class AccelerometerAndroidActivity extends BaseActivity {
+public class AccelerometerAndroidActivity extends BaseRoutableRosActivity {
 
 	private SensorManager sensorManager;
 	private Sensor accelerometer;
@@ -83,11 +88,17 @@ public class AccelerometerAndroidActivity extends BaseActivity {
 	 *            the accelerometer event
 	 */
 	private void onAccelerometerEvent(SensorEvent event) {
-		float x = event.values[0];
-		float y = event.values[1];
-		float z = event.values[2];
-		
-		getLog().info(String.format("Accelerometer event %f %f %f", x, y, z));
-	}
+		if (isActivated()) {
+			float x = event.values[0];
+			float y = event.values[1];
+			float z = event.values[2];
 
+			Map<String, Object> message = Maps.newHashMap();
+			message.put("x", x);
+			message.put("y", y);
+			message.put("z", z);
+
+			sendOutputJson("output1", message);
+		}
+	}
 }
