@@ -37,8 +37,7 @@ public class AccelerometerAndroidActivity extends BaseRoutableRosActivity {
 
 			@Override
 			public void onAccuracyChanged(Sensor sensor, int accuracy) {
-				// TODO Auto-generated method stub
-
+				// Nothing yet...
 			}
 
 			@Override
@@ -46,6 +45,7 @@ public class AccelerometerAndroidActivity extends BaseRoutableRosActivity {
 				onAccelerometerEvent(event);
 			}
 		};
+		
 		sensorManager.registerListener(accelerometerEventListener,
 				accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 	}

@@ -398,8 +398,9 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		packages.add("org.ros.message");
 		packages.add("org.ros.message.interactivespaces_msgs; version=0.0.0");
 		packages.add("interactivespaces.service.androidos");
-		packages.add("android.util");
+		packages.add("android.content");
 		packages.add("android.hardware");
+		packages.add("android.util");
 
 		StringBuilder pkgs = new StringBuilder();
 		String separator = "";

@@ -37,11 +37,14 @@ You can create activity projects very simply.
 
   java -jar interactivespaces-launcher-0.0.0.jar create language <language>
 
-where *<language>* is one of *java*, *javascript*, or *python*.
+where *<language>* is one of *java*, *javascript*, *python*, or *android*.
 
 You then get a project of one of those types which contains an initial
 piece of code for you to then start editing. You will be prompted for
 identifying name, version, name, and description of the new project.
+
+If you are using *android*, please see the chapter on Android for details about
+initial configurations.
 
 Using an IDE
 ==========================
