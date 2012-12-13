@@ -496,7 +496,14 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>
 
-								<!-- Spring needs -->
+								<!-- Music Service -->
+                                <artifactItem>
+                                    <groupId>org.farng.mp3</groupId>
+                                    <artifactId>jid3lib</artifactId>
+                                    <version>0.5.4</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
 
 								<!-- Interactive Spaces scheduler -->
 								<artifactItem>

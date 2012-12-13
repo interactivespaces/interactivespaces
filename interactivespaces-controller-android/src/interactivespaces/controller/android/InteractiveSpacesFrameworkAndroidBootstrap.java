@@ -400,6 +400,7 @@ public class InteractiveSpacesFrameworkAndroidBootstrap {
 		packages.add("interactivespaces.service.androidos");
 		packages.add("android.content");
 		packages.add("android.hardware");
+		packages.add("android.net");
 		packages.add("android.util");
 
 		StringBuilder pkgs = new StringBuilder();
