@@ -496,10 +496,10 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>
 
-								<!-- Music Service -->
+								<!-- Audio Player Service -->
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-music</artifactId>
+                                    <artifactId>interactivespaces-service-audio-player</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>

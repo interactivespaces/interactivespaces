@@ -17,7 +17,7 @@
 package interactivespaces.activity.music.jukebox.internal;
 
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.TrackPlayerFactory;
+import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -38,7 +38,7 @@ public abstract class BaseJukeboxOperation implements JukeboxOperation {
 	/**
 	 * factory for track players.
 	 */
-	protected TrackPlayerFactory trackPlayerFactory;
+	protected AudioTrackPlayerFactory trackPlayerFactory;
 
 	/**
 	 * An executor service.
@@ -56,7 +56,7 @@ public abstract class BaseJukeboxOperation implements JukeboxOperation {
 	protected Log log;
 
 	public BaseJukeboxOperation(Configuration configuration,
-			TrackPlayerFactory trackPlayerFactory,
+			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
 			JukeboxOperationListener listener, Log log) {
 		this.configuration = configuration;

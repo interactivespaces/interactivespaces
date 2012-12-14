@@ -17,9 +17,9 @@
 package interactivespaces.activity.music.jukebox.internal;
 
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
-import interactivespaces.service.music.TrackPlayerFactory;
+import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,10 +33,11 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
+	
 	/**
 	 * The track to be played.
 	 */
-	private PlayableTrack track;
+	private PlayableAudioTrack track;
 
 	/**
 	 * Number of milliseconds into the begin of the track
@@ -54,7 +55,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 	 * <p>
 	 * Will be {@code null} if no track is being played.
 	 */
-	private TrackPlayer player;
+	private AudioTrackPlayer player;
 
 	/**
 	 * The runnable which will check on the track player.
@@ -66,9 +67,9 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 	 */
 	private ScheduledFuture<?> playingFuture;
 
-	public PlayTrackJukeboxOperation(PlayableTrack track, long begin,
+	public PlayTrackJukeboxOperation(PlayableAudioTrack track, long begin,
 			long duration, Configuration configuration,
-			TrackPlayerFactory trackPlayerFactory,
+			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
 			JukeboxOperationListener listener, Log log) {
 		super(configuration, trackPlayerFactory, executor, listener, log);

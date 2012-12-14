@@ -14,13 +14,13 @@
  * the License.
  */
 
-package interactivespaces.service.music.internal;
+package interactivespaces.service.audio.player.internal;
 
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackPlayer;
 
 import java.text.MessageFormat;
 import java.util.Map;
@@ -30,11 +30,11 @@ import org.apache.commons.logging.Log;
 import com.google.common.collect.Maps;
 
 /**
- * A {@link TrackPlayer} which uses a {@link NativeActivityRunner}.
+ * A {@link AudioTrackPlayer} which uses a {@link NativeActivityRunner}.
  * 
  * @author Keith M. Hughes
  */
-public class NativeTrackPlayer implements TrackPlayer {
+public class NativeAudioTrackPlayer implements AudioTrackPlayer {
 	private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS = "space.service.music.player.flags.linux";
 
 	private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE = "space.service.music.player.executable.linux";
@@ -57,15 +57,15 @@ public class NativeTrackPlayer implements TrackPlayer {
 	/**
 	 * The track to be played.
 	 */
-	private PlayableTrack ptrack;
+	private PlayableAudioTrack ptrack;
 
 	/**
 	 * The log to use.
 	 */
 	private Log log;
 
-	public NativeTrackPlayer(Configuration configuration,
-			NativeActivityRunnerFactory runnerFactory, PlayableTrack ptrack,
+	public NativeAudioTrackPlayer(Configuration configuration,
+			NativeActivityRunnerFactory runnerFactory, PlayableAudioTrack ptrack,
 			Log log) {
 		this.configuration = configuration;
 		this.runnerFactory = runnerFactory;

@@ -14,23 +14,23 @@
  * the License.
  */
 
-package interactivespaces.service.music.internal;
+package interactivespaces.service.audio.player.internal;
 
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
-import interactivespaces.service.music.TrackPlayerFactory;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link TrackPlayerFactory} which gives track players which are natively
+ * A {@link AudioTrackPlayerFactory} which gives track players which are natively
  * run.
  * 
  * @author Keith M. Hughes
  */
-public class NativeTrackPlayerFactory implements TrackPlayerFactory {
+public class NativeAudioTrackPlayerFactory implements AudioTrackPlayerFactory {
 	/**
 	 * The factory for native activity runners.
 	 */
@@ -41,15 +41,15 @@ public class NativeTrackPlayerFactory implements TrackPlayerFactory {
 	 */
 	private Log log;
 
-	public NativeTrackPlayerFactory(NativeActivityRunnerFactory runnerFactory,
+	public NativeAudioTrackPlayerFactory(NativeActivityRunnerFactory runnerFactory,
 			Log log) {
 		this.runnerFactory = runnerFactory;
 		this.log = log;
 	}
 
 	@Override
-	public TrackPlayer newTrackPlayer(PlayableTrack ptrack,
+	public AudioTrackPlayer newTrackPlayer(PlayableAudioTrack ptrack,
 			Configuration configuration, Log log) {
-		return new NativeTrackPlayer(configuration, runnerFactory, ptrack, log);
+		return new NativeAudioTrackPlayer(configuration, runnerFactory, ptrack, log);
 	}
 }

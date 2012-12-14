@@ -14,29 +14,29 @@
  * the License.
  */
 
-package interactivespaces.service.music.internal;
+package interactivespaces.service.audio.player;
 
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
-import interactivespaces.service.music.TrackPlayerFactory;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link TrackPlayerfactory} for {@link FakeTrackPlayer} instances.
- * 
+ * A factory for {@link AudioTrackPlayer} instances.
+ *
  * @author Keith M. Hughes
  */
-public class FakeTrackPlayerFactory implements TrackPlayerFactory {
+public interface AudioTrackPlayerFactory {
 	/**
-	 * A fake track length, in milliseconds.
+	 * Get a new track player.
+	 * 
+	 * @param track
+	 * 		the track to be played
+	 * @param configuration
+	 * 		the configuration for the track player
+	 * @param log
+	 * 		a log for logging information
+	 * 
+	 * @return a track player ready to work.
 	 */
-	private static final int FAKE_TRACK_LENGTH = 2000;
-
-	@Override
-	public TrackPlayer newTrackPlayer(PlayableTrack track,
-			Configuration configuration, Log log) {
-		return new FakeTrackPlayer(track, FAKE_TRACK_LENGTH, log);
-	}
+	AudioTrackPlayer newTrackPlayer(PlayableAudioTrack track, Configuration configuration, Log log);
 }

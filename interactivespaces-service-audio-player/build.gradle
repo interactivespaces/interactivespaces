@@ -25,10 +25,10 @@ dependencies {
 jar {
 	manifest {
 		version = osgiVersion
-		symbolicName = 'interactivespaces.service.music'
+		symbolicName = 'interactivespaces.service.audio.player'
 
 		instruction 'Export-Package',
-				'interactivespaces.service.music.*'
+			'interactivespaces.service.audio.player.*'
 	}
 }
 

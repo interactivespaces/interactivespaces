@@ -23,12 +23,12 @@ import interactivespaces.activity.music.jukebox.internal.JukeboxOperationListene
 import interactivespaces.activity.music.jukebox.internal.PlayTrackJukeboxOperation;
 import interactivespaces.activity.music.jukebox.internal.ShuffleJukeboxOperation;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.MusicRepository;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.Track;
-import interactivespaces.service.music.TrackPlayerFactory;
-import interactivespaces.service.music.internal.NativeTrackPlayerFactory;
-import interactivespaces.service.music.internal.ScanningFileMusicRepository;
+import interactivespaces.service.audio.player.AudioRepository;
+import interactivespaces.service.audio.player.AudioTrack;
+import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.internal.NativeAudioTrackPlayerFactory;
+import interactivespaces.service.audio.player.internal.ScanningFileAudioRepository;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
@@ -61,7 +61,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	/**
 	 * The music repository this is a jukebox for.
 	 */
-	private MusicRepository musicRepository;
+	private AudioRepository musicRepository;
 
 	/**
 	 * ROS subscribers for the jukebox control messages.
@@ -76,7 +76,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	/**
 	 * A set of all tracks played since this jukebox was started.
 	 */
-	private Set<PlayableTrack> tracksAlreadyPlayed;
+	private Set<PlayableAudioTrack> tracksAlreadyPlayed;
 
 	/**
 	 * Current operation the jukebox is doing. Can be {@code null} if nothing is
@@ -87,7 +87,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	/**
 	 * The factory for track players.
 	 */
-	private TrackPlayerFactory trackPlayerFactory;
+	private AudioTrackPlayerFactory trackPlayerFactory;
 
 	@Override
 	public void onActivityStartup() {
@@ -99,7 +99,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 			tracksAlreadyPlayed = Sets.newHashSet();
 
 			// TODO(keith): Get from a service repository.
-			trackPlayerFactory = new NativeTrackPlayerFactory(getController()
+			trackPlayerFactory = new NativeAudioTrackPlayerFactory(getController()
 					.getNativeActivityRunnerFactory(), getLog());
 
 			setupRosTopics(configuration);
@@ -184,7 +184,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	 * Start up the music repository.
 	 */
 	private void startMusicRepository(Configuration configuration) {
-		musicRepository = new ScanningFileMusicRepository();
+		musicRepository = new ScanningFileAudioRepository();
 
 		musicRepository.setConfiguration(configuration);
 		musicRepository.startup();
@@ -243,7 +243,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 				String.format("Beginning track play of %s at %d:%d", id, begin,
 						duration));
 
-		PlayableTrack ptrack = musicRepository.getPlayableTrack(id);
+		PlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
 		if (ptrack != null) {
 			startNewOperation(new PlayTrackJukeboxOperation(ptrack, begin,
 					duration, getConfiguration(), trackPlayerFactory,
@@ -293,13 +293,13 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	}
 
 	@Override
-	public void onTrackStart(JukeboxOperation operation, PlayableTrack ptrack) {
+	public void onTrackStart(JukeboxOperation operation, PlayableAudioTrack ptrack) {
 		if (getLog().isInfoEnabled()) {
 			getLog().info(String.format("Playing %s", ptrack));
 		}
 
 		MusicJukeboxAnnounce announce = new MusicJukeboxAnnounce();
-		Track track = ptrack.getTrack();
+		AudioTrack track = ptrack.getTrack();
 		announce.title = track.getTitle();
 		announce.artist = track.getArtist();
 		announce.album = track.getAlbum();
@@ -308,7 +308,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	}
 
 	@Override
-	public void onTrackStop(JukeboxOperation operation, PlayableTrack ptrack) {
+	public void onTrackStop(JukeboxOperation operation, PlayableAudioTrack ptrack) {
 		// Everyone gets told we have completed the track.
 		if (getLog().isInfoEnabled()) {
 			getLog().info(String.format("Done playing %s", ptrack));

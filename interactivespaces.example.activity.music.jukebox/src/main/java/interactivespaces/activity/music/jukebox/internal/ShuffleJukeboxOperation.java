@@ -17,10 +17,10 @@
 package interactivespaces.activity.music.jukebox.internal;
 
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.MusicRepository;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
-import interactivespaces.service.music.TrackPlayerFactory;
+import interactivespaces.service.audio.player.AudioRepository;
+import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
 
 import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
+	
 	/**
 	 * The shuffle is running.
 	 */
@@ -43,22 +44,22 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 	/**
 	 * Tracks which have already been played.
 	 */
-	private Collection<PlayableTrack> tracksAlreadyPlayed;
+	private Collection<PlayableAudioTrack> tracksAlreadyPlayed;
 
 	/**
 	 * Music repository to get a new track.
 	 */
-	private MusicRepository musicRepository;
+	private AudioRepository musicRepository;
 
 	/**
 	 * The track player for the track
 	 */
-	private TrackPlayer player;
+	private AudioTrackPlayer player;
 
 	/**
 	 * Current track being played.
 	 */
-	private PlayableTrack currentTrack;
+	private PlayableAudioTrack currentTrack;
 
 	/**
 	 * The runnable which will check on the track player.
@@ -71,9 +72,9 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 	private ScheduledFuture<?> playingFuture;
 
 	public ShuffleJukeboxOperation(
-			Collection<PlayableTrack> tracksAlreadyPlayed,
-			Configuration configuration, MusicRepository musicRepository,
-			TrackPlayerFactory trackPlayerFactory,
+			Collection<PlayableAudioTrack> tracksAlreadyPlayed,
+			Configuration configuration, AudioRepository musicRepository,
+			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
 			JukeboxOperationListener listener, Log log) {
 		super(configuration, trackPlayerFactory, executor, listener, log);

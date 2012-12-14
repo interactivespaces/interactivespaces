@@ -14,13 +14,13 @@
  * the License.
  */
 
-package interactivespaces.service.music.internal;
+package interactivespaces.service.audio.player.internal;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.music.MusicRepository;
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.Track;
+import interactivespaces.service.audio.player.AudioRepository;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrack;
 
 import java.io.File;
 import java.util.Collection;
@@ -34,12 +34,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * An {@link MusicRepository} which just picks up all tracks from scanning
+ * An {@link AudioRepository} which just picks up all tracks from scanning
  * directories.
  * 
  * @author Keith M. Hughes
  */
-public class ScanningFileMusicRepository implements MusicRepository {
+public class ScanningFileAudioRepository implements AudioRepository {
 	/**
 	 * Configuration property giving the base directories of the music
 	 * repository.
@@ -59,7 +59,7 @@ public class ScanningFileMusicRepository implements MusicRepository {
 	/**
 	 * Map of track ID to playable tracks.
 	 */
-	private Map<String, PlayableTrack> tracks;
+	private Map<String, PlayableAudioTrack> tracks;
 
 	private Random random;
 
@@ -82,8 +82,8 @@ public class ScanningFileMusicRepository implements MusicRepository {
 	}
 
 	@Override
-	public Track getTrackData(String id) {
-		PlayableTrack ptrack = getPlayableTrack(id);
+	public AudioTrack getTrackData(String id) {
+		PlayableAudioTrack ptrack = getPlayableTrack(id);
 		if (ptrack != null) {
 			return ptrack.getTrack();
 		} else {
@@ -92,13 +92,13 @@ public class ScanningFileMusicRepository implements MusicRepository {
 	}
 
 	@Override
-	public PlayableTrack getPlayableTrack(String id) {
+	public PlayableAudioTrack getPlayableTrack(String id) {
 		return tracks.get(id);
 	}
 
 	@Override
-	public PlayableTrack getRandomTrack(Collection<PlayableTrack> tracksPlayed) {
-		List<PlayableTrack> tracksToChoose = getListOfAllTracks();
+	public PlayableAudioTrack getRandomTrack(Collection<PlayableAudioTrack> tracksPlayed) {
+		List<PlayableAudioTrack> tracksToChoose = getListOfAllTracks();
 		tracksToChoose.removeAll(tracksPlayed);
 		if (tracksToChoose.isEmpty()) {
 			tracksPlayed.clear();
@@ -114,7 +114,7 @@ public class ScanningFileMusicRepository implements MusicRepository {
 	 * 
 	 * @return a list of all tracks in no particular order
 	 */
-	private List<PlayableTrack> getListOfAllTracks() {
+	private List<PlayableAudioTrack> getListOfAllTracks() {
 		return Lists.newArrayList(tracks.values());
 	}
 
@@ -177,11 +177,11 @@ public class ScanningFileMusicRepository implements MusicRepository {
 					"Cannot read music file %s", file.getAbsolutePath()));
 		}
 
-		Track track = new Track();
+		AudioTrack track = new AudioTrack();
 		track.setId(generateTrackId(file));
 		getMusicMetadata(file, track);
 
-		PlayableTrack playableTrack = new PlayableTrack(track, file);
+		PlayableAudioTrack playableTrack = new PlayableAudioTrack(track, file);
 		tracks.put(track.getId(), playableTrack);
 	}
 
@@ -206,7 +206,7 @@ public class ScanningFileMusicRepository implements MusicRepository {
 	 * 
 	 * @return the metadata for the music, if possible to get, or null if not.
 	 */
-	private void getMusicMetadata(File file, Track track) {
+	private void getMusicMetadata(File file, AudioTrack track) {
 		try {
 			MP3File metadata = new MP3File(file);
 

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.music;
+package interactivespaces.service.audio.player;
 
 import interactivespaces.configuration.Configuration;
 
@@ -25,7 +25,7 @@ import java.util.Collection;
  * 
  * @author Keith M. Hughes
  */
-public interface MusicRepository {
+public interface AudioRepository {
 
 	/**
 	 * Start the repository up.
@@ -53,7 +53,7 @@ public interface MusicRepository {
 	 * @return the information about the track, or {@code null} if there is no
 	 *         track with the ID.
 	 */
-	Track getTrackData(String id);
+	AudioTrack getTrackData(String id);
 
 	/**
 	 * Get information about a track from its ID.
@@ -64,7 +64,7 @@ public interface MusicRepository {
 	 * @return the information about the track, or {@code null} if there is no
 	 *         track with the ID.
 	 */
-	PlayableTrack getPlayableTrack(String id);
+	PlayableAudioTrack getPlayableTrack(String id);
 
 	/**
 	 * Get a random track to play.
@@ -79,5 +79,5 @@ public interface MusicRepository {
 	 * 
 	 * @return a new track to play
 	 */
-	PlayableTrack getRandomTrack(Collection<PlayableTrack> tracksPlayed);
+	PlayableAudioTrack getRandomTrack(Collection<PlayableAudioTrack> tracksPlayed);
 }

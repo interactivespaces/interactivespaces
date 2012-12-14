@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.service.music;
+package interactivespaces.service.audio.player;
 
 /**
  * The metadata for a song.
  * 
  * @author Keith M. Hughes
  */
-public class Track {
+public class AudioTrack {
 	/**
 	 * The track ID.
 	 */
@@ -48,7 +48,7 @@ public class Track {
 	 */
 	private String album;
 
-	public Track() {
+	public AudioTrack() {
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class Track {
 	 * @param album
 	 *            the album, can be {@code null}
 	 */
-	public Track(String id, String title, String artist, String album) {
+	public AudioTrack(String id, String title, String artist, String album) {
 		this.id = id;
 		this.title = title;
 		this.artist = artist;
@@ -128,7 +128,7 @@ public class Track {
 
 	@Override
 	public String toString() {
-		return "Track [id=" + id + ", title=" + title + ", artist=" + artist
+		return "AudioTrack [id=" + id + ", title=" + title + ", artist=" + artist
 				+ ", album=" + album + "]";
 	}
 }

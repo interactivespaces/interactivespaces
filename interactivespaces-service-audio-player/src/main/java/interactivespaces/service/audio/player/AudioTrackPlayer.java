@@ -14,29 +14,31 @@
  * the License.
  */
 
-package interactivespaces.service.music;
-
-import interactivespaces.configuration.Configuration;
-
-import org.apache.commons.logging.Log;
+package interactivespaces.service.audio.player;
 
 /**
- * A factory for {@link TrackPlayer} instances.
+ * Something which can play tracks.
  *
  * @author Keith M. Hughes
  */
-public interface TrackPlayerFactory {
+public interface AudioTrackPlayer {
 	/**
-	 * Get a new track player.
+	 * Start playing the track.
 	 * 
-	 * @param track
-	 * 		the track to be played
-	 * @param configuration
-	 * 		the configuration for the track player
-	 * @param log
-	 * 		a log for logging information
-	 * 
-	 * @return a track player ready to work.
+	 * @param begin
+	 * 		number of milliseconds into the track to start.
 	 */
-	TrackPlayer newTrackPlayer(PlayableTrack track, Configuration configuration, Log log);
+	void start(long begin, long duration);
+	
+	/**
+	 * Stop playing the track.
+	 */
+	void stop();
+	
+	/**
+	 * Is the track playing?
+	 * 
+	 * @return {@link true} if the track is playing, false otherwise.
+	 */
+	boolean isPlaying();
 }

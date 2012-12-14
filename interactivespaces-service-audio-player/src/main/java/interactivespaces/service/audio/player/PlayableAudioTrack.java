@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.music;
+package interactivespaces.service.audio.player;
 
 import java.io.File;
 
@@ -24,11 +24,11 @@ import java.io.File;
  * 
  * @author Keith M. Hughes
  */
-public class PlayableTrack {
+public class PlayableAudioTrack {
 	/**
 	 * The metadata about the track.
 	 */
-	private Track track;
+	private AudioTrack track;
 
 	/**
 	 * File containing the track
@@ -42,7 +42,7 @@ public class PlayableTrack {
 	 * @param file
 	 *            File containing the track
 	 */
-	public PlayableTrack(Track track, File file) {
+	public PlayableAudioTrack(AudioTrack track, File file) {
 		this.track = track;
 		this.file = file;
 	}
@@ -50,7 +50,7 @@ public class PlayableTrack {
 	/**
 	 * @return the track's metadata.
 	 */
-	public Track getTrack() {
+	public AudioTrack getTrack() {
 		return track;
 	}
 
@@ -63,6 +63,6 @@ public class PlayableTrack {
 
 	@Override
 	public String toString() {
-		return "PlayableTrack [track=" + track + ", file=" + file + "]";
+		return "PlayableAudioTrack [track=" + track + ", file=" + file + "]";
 	}
 }

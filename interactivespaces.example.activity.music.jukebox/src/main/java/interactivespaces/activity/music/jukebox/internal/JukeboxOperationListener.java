@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.music.jukebox.internal;
 
-import interactivespaces.service.music.PlayableTrack;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
 
 /**
  * A listener for {@link JukeboxOperation} events.
@@ -32,7 +32,7 @@ public interface JukeboxOperationListener {
 	 * @param track
 	 *            the track being started
 	 */
-	void onTrackStart(JukeboxOperation operation, PlayableTrack track);
+	void onTrackStart(JukeboxOperation operation, PlayableAudioTrack track);
 
 	/**
 	 * A track is done.
@@ -42,7 +42,7 @@ public interface JukeboxOperationListener {
 	 * @param track
 	 *            the track being completed
 	 */
-	void onTrackStop(JukeboxOperation operation, PlayableTrack track);
+	void onTrackStop(JukeboxOperation operation, PlayableAudioTrack track);
 
 	/**
 	 * This operation is done running.

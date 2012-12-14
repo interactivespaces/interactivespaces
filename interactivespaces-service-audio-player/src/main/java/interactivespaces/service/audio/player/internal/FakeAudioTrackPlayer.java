@@ -14,24 +14,24 @@
  * the License.
  */
 
-package interactivespaces.service.music.internal;
+package interactivespaces.service.audio.player.internal;
 
-import interactivespaces.service.music.PlayableTrack;
-import interactivespaces.service.music.TrackPlayer;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackPlayer;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A fake {@link TrackPlayer}. It will merely write events on stdout.
+ * A fake {@link AudioTrackPlayer}. It will merely write events on stdout.
  * 
  * @author Keith M. Hughes
  */
-public class FakeTrackPlayer implements TrackPlayer {
+public class FakeAudioTrackPlayer implements AudioTrackPlayer {
 	
 	/**
 	 * The track being played.
 	 */
-	private PlayableTrack track;
+	private PlayableAudioTrack track;
 
 	/**
 	 * The number of milliseconds in the "track".
@@ -48,7 +48,7 @@ public class FakeTrackPlayer implements TrackPlayer {
 	 */
 	private Log log;
 
-	public FakeTrackPlayer(PlayableTrack track, long trackLength, Log log) {
+	public FakeAudioTrackPlayer(PlayableAudioTrack track, long trackLength, Log log) {
 		this.track = track;
 		this.trackLength = trackLength;
 		this.log = log;
