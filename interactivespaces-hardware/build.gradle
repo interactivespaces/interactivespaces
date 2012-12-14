@@ -15,7 +15,6 @@
 
 dependencies {
   compile project(':interactivespaces-core')
-  compile files(project.getProperty("rxtx.home"))
  
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.8.5'
@@ -28,8 +27,7 @@ jar {
 	
     instruction 'Export-Package',
 		'!interactivespaces.hardware.internal.*', 
-		'interactivespaces.hardware.*',
-		'interactivespaces.comm.*'
+		'interactivespaces.hardware.*'
   }
 }
 

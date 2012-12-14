@@ -16,14 +16,11 @@
 
 package interactivespaces.example.activity.arduino.analog;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
 import interactivespaces.comm.serial.rxtx.RxtxSerialCommunicationEndpointFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.Future;
 
 /**
@@ -87,10 +84,13 @@ public class ArduinoAnalogActivity extends BaseActivity {
 		arduinoReader = getSpaceEnvironment().getExecutorService().submit(
 				new Runnable() {
 					public void run() {
-						InputStream in = arduinoEndpoint.getInputStream();
 						byte[] buffer = new byte[MESSAGE_LENGTH];
-						while (!Thread.interrupted()) {
-							readStream(in, buffer);
+						try {
+							while (!Thread.interrupted()) {
+								readStream(buffer);
+							}
+						} catch (Exception e) {
+							getLog().error("Exception while reading serial port", e);
 						}
 					}
 				});
@@ -114,28 +114,20 @@ public class ArduinoAnalogActivity extends BaseActivity {
 	/**
 	 * Attempt to read the serial data from the arduino.
 	 * 
-	 * @param in
-	 *            the input stream
 	 * @param buffer
 	 *            the buffer for storing bytes read
 	 */
-	private void readStream(InputStream in, byte[] buffer) {
-		try {
-			if (in.available() >= MESSAGE_LENGTH) {
-				in.read(buffer);
+	private void readStream(byte[] buffer) {
+		if (arduinoEndpoint.available() >= MESSAGE_LENGTH) {
+			arduinoEndpoint.read(buffer);
 
-				// If activated, process the bytes. But they must be read
-				// regardless.
-				if (isActivated()) {
-					int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
+			// If activated, process the bytes. But they must be read
+			// regardless.
+			if (isActivated()) {
+				int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
 
-					getLog().info(String.format("Analog value is %d\n", val));
-				}
+				getLog().info(String.format("Analog value is %d\n", val));
 			}
-		} catch (IOException e) {
-			throw new InteractiveSpacesException(
-					"Error while reading arduino serial line", e);
 		}
 	}
-
 }

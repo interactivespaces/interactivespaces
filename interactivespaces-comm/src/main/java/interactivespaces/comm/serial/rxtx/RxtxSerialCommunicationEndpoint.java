@@ -23,8 +23,6 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.EnumMap;
 import java.util.Enumeration;
 
@@ -114,24 +112,94 @@ public class RxtxSerialCommunicationEndpoint implements
 	}
 
 	@Override
-	public InputStream getInputStream() {
+	public int available() {
 		try {
-			return port.getInputStream();
+			return port.getInputStream().available();
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(
+					String.format(
+							"Unable to get number of available bytes from serial port %s input stream with rxtx",
+							portName), e);
+		}
+	}
+
+	@Override
+	public int read() {
+		try {
+			return port.getInputStream().read();
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(String.format(
-					"Unable to get serial port %s input stream with rxtx",
+					"Unable to read serial port %s output stream with rxtx",
 					portName), e);
 		}
 	}
 
 	@Override
-	public OutputStream getOutputStream() {
+	public int read(byte[] buffer) {
 		try {
-			return port.getOutputStream();
+			return port.getInputStream().read(buffer);
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(String.format(
-					"Unable to get serial port %s output stream with rxtx",
+					"Unable to read serial port %s output stream with rxtx",
 					portName), e);
+		}
+	}
+
+	@Override
+	public int read(byte[] buffer, int offset, int length) {
+		try {
+			return port.getInputStream().read(buffer, offset, length);
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(String.format(
+					"Unable to read serial port %s output stream with rxtx",
+					portName), e);
+		}
+	}
+
+	@Override
+	public void flush() {
+		try {
+			port.getOutputStream().flush();
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(String.format(
+					"Unable to flush serial port %s output stream with rxtx",
+					portName), e);
+		}
+	}
+
+	@Override
+	public void write(int b) {
+		try {
+			port.getOutputStream().write(b);
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(
+					String.format(
+							"Unable to write byte serial port %s output stream with rxtx",
+							portName), e);
+		}
+	}
+
+	@Override
+	public void write(byte b[]) {
+		try {
+			port.getOutputStream().write(b);
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(
+					String.format(
+							"Unable to write bytes to serial port %s output stream with rxtx",
+							portName), e);
+		}
+	}
+
+	@Override
+	public void write(byte b[], int offset, int length) {
+		try {
+			port.getOutputStream().write(b, offset, length);
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(
+					String.format(
+							"Unable to write bytes to serial port %s output stream with rxtx",
+							portName), e);
 		}
 	}
 
@@ -145,7 +213,7 @@ public class RxtxSerialCommunicationEndpoint implements
 	@Override
 	public SerialCommunicationEndpoint setDataBits(int dataBits) {
 		this.dataBits = dataBits;
-		
+
 		return this;
 	}
 
@@ -159,7 +227,7 @@ public class RxtxSerialCommunicationEndpoint implements
 	@Override
 	public SerialCommunicationEndpoint setParity(Parity parity) {
 		this.parity = parity;
-		
+
 		return this;
 	}
 

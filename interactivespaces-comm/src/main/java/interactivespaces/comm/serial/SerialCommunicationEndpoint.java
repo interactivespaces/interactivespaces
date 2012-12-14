@@ -40,18 +40,75 @@ public interface SerialCommunicationEndpoint {
 	void shutdown();
 
 	/**
-	 * Get the input stream associated with the port.
+	 * How many bytes are available on the input stream?
 	 * 
-	 * @return the input stream
+	 * @return the number of bytes available for reading
 	 */
-	InputStream getInputStream();
+	int available();
 
 	/**
-	 * Get the input stream associated with the port.
+	 * Read a single byte
 	 * 
-	 * @return the output stream
+	 * @return the byte
 	 */
-	OutputStream getOutputStream();
+	int read();
+
+	/**
+	 * Read bytes into the buffer
+	 * 
+	 * @param buffer
+	 *            the buffer to read the bytes into
+	 * 
+	 * @return the number of bytes read
+	 */
+	int read(byte[] buffer);
+
+	/**
+	 * Read bytes into the buffer.
+	 * 
+	 * @param buffer
+	 *            the buffer to read the bytes into
+	 * @param offset
+	 *            the first position in the buffer to place the bytes read
+	 * @param length
+	 *            the number of bytes to try and read
+	 * 
+	 * @return the actual number of bytes read
+	 */
+	int read(byte[] buffer, int offset, int length);
+
+	/**
+	 * Flush the output buffering.
+	 */
+	void flush();
+
+	/**
+	 * Write the byte out to the serial port
+	 * 
+	 * @param b
+	 *            the byte value to write
+	 */
+	void write(int b);
+
+	/**
+	 * Write the array of bytes out to the serial port
+	 * 
+	 * @param b
+	 *            the byte array to write
+	 */
+	void write(byte[] b);
+
+	/**
+	 * Write the array of bytes out to the serial port
+	 * 
+	 * @param b
+	 *            the byte array to write
+	 * @param offset
+	 *            the position of the first byte to be written in the array
+	 * @param length
+	 *            the number of bytes to write
+	 */
+	void write(byte[] b, int offset, int length);
 
 	/**
 	 * Set the baud rate of the connection.
@@ -92,17 +149,13 @@ public interface SerialCommunicationEndpoint {
 	 * @return the endpoint
 	 */
 	SerialCommunicationEndpoint setParity(Parity parity);
-	
+
 	/**
 	 * Types of parity.
-	 *
+	 * 
 	 * @author Keith M. Hughes
 	 */
 	public enum Parity {
-		NONE,
-		EVEN,
-		ODD,
-		SPACE,
-		MARK
+		NONE, EVEN, ODD, SPACE, MARK
 	}
 }
