@@ -20,7 +20,6 @@ import interactivespaces.configuration.Configuration;
 
 import java.util.Collection;
 
-
 /**
  * Repository of all music.
  * 

@@ -37,7 +37,7 @@
 //                                                                        \\
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-package interactivespaces.service.speech.internal.synthesis.festival.scheme;
+package interactivespaces.service.speech.synthesis.internal.festival.scheme;
 
 import java.lang.*;
 import java.util.*;

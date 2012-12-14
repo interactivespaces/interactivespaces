@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class FakeTrackPlayer implements TrackPlayer {
+	
 	/**
 	 * The track being played.
 	 */

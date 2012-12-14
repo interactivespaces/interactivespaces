@@ -14,22 +14,23 @@
  * the License.
  */
 
-package interactivespaces.service.speech.internal.synthesis.festival;
+package interactivespaces.service.speech.synthesis.internal.festival;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.service.speech.internal.synthesis.festival.client.Request;
-import interactivespaces.service.speech.internal.synthesis.festival.client.RequestListener;
-import interactivespaces.service.speech.internal.synthesis.festival.client.Session;
+import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
+import interactivespaces.service.speech.synthesis.internal.festival.client.Request;
+import interactivespaces.service.speech.synthesis.internal.festival.client.RequestListener;
+import interactivespaces.service.speech.synthesis.internal.festival.client.Session;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 /**
- * A speech service based on Festival.
+ * A speech synthesis service based on Festival.
  * 
  * @author Keith M. Hughes
  */
-public class FestivalSpeechClient {
+public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 	
 	/**
 	 * Host the festival server is running on.
@@ -52,14 +53,12 @@ public class FestivalSpeechClient {
 	 * @param port
 	 *            Port the festival host is listening on.
 	 */
-	public FestivalSpeechClient(String host, int port) {
+	public FestivalSpeechSynthesisService(String host, int port) {
 		this.host = host;
 		this.port = port;
 	}
 
-	/**
-	 * Start the client up.
-	 */
+	@Override
 	public void startup() {
 
 		session = null;
@@ -79,14 +78,19 @@ public class FestivalSpeechClient {
 		requestHandler = new RequestHandler();
 	}
 
-	/**
-	 * Shut the client down.
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.speech.synthesis.internal.festival.SpeechSynthesisService#shutdown()
 	 */
+	@Override
 	public void shutdown() {
 		session.terminate(true);
 	}
 
-	public void sendRequest(String request, boolean sync) {
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.speech.synthesis.internal.festival.SpeechSynthesisService#sendRequest(java.lang.String, boolean)
+	 */
+	@Override
+	public void speak(String request, boolean sync) {
 		String textCommand = String.format("(SayText \"%s\")", request);
 
 		Request r = session.request(textCommand, requestHandler);

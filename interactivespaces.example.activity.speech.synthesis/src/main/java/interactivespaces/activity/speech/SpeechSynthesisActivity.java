@@ -20,7 +20,8 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.impl.ros.BaseRosActivity;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.speech.internal.synthesis.festival.FestivalSpeechClient;
+import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
+import interactivespaces.service.speech.synthesis.internal.festival.FestivalSpeechSynthesisService;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.util.Map;
@@ -46,7 +47,7 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 	 */
 	private NativeActivityRunner speechServer;
 
-	private FestivalSpeechClient speechClient;
+	private SpeechSynthesisService speechSynthesisService;
 
 	@Override
 	public void onActivityStartup() {
@@ -63,16 +64,10 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 			speechServer = null;
 		}
 
-		if (speechClient != null) {
-			speechClient.shutdown();
-			speechClient = null;
+		if (speechSynthesisService != null) {
+			speechSynthesisService.shutdown();
+			speechSynthesisService = null;
 		}
-
-		// TODO(keith): Fix this.
-		// if (node != null) {
-		// node.shutdown();
-		// node = null;
-		// }
 	}
 
 	@Override
@@ -87,12 +82,12 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 
 	@Override
 	public void onActivityActivate() {
-		speechClient.sendRequest("Speech synthesis is activated", true);
+		speechSynthesisService.speak("Speech synthesis is activated", true);
 	}
 
 	@Override
 	public void onActivityDeactivate() {
-		speechClient.sendRequest("Speech synthesis is deactivated", true);
+		speechSynthesisService.speak("Speech synthesis is deactivated", true);
 	}
 
 	/**
@@ -135,8 +130,8 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 
 		InteractiveSpacesUtilities.delay(5000);
 
-		speechClient = new FestivalSpeechClient("localhost", 1314);
-		speechClient.startup();
+		speechSynthesisService = new FestivalSpeechSynthesisService("localhost", 1314);
+		speechSynthesisService.startup();
 	}
 
 	/**
@@ -146,6 +141,6 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 	 *            The new request
 	 */
 	private void handleNewSpeechCommand(SpeechRequest request) {
-		speechClient.sendRequest(request.text, true);
+		speechSynthesisService.speak(request.text, true);
 	}
 }

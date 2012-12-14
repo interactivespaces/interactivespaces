@@ -35,7 +35,7 @@
 //                                                                        \\
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-package interactivespaces.service.speech.internal.synthesis.festival.client;
+package interactivespaces.service.speech.synthesis.internal.festival.client;
 
 import java.io.IOException;
 import java.io.InputStream;

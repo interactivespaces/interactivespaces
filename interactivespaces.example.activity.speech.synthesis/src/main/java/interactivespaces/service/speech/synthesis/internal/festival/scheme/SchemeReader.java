@@ -32,73 +32,35 @@
  //                                                                        \\
  //                  Author: Richard Caley (rjc@cstr.ed.ac.uk)             \\
  //  --------------------------------------------------------------------  \\
- //  A thread safe queue based on Vector. Could be faster.                 \\
+ //  A simple scheme reader.                                               \\
  //                                                                        \\
  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
 
-package interactivespaces.service.speech.internal.synthesis.festival.client ;
+package interactivespaces.service.speech.synthesis.internal.festival.scheme ;
 
 import java.lang.*;
 import java.util.*;
 import java.awt.*;
+import java.io.*;
 
-public class JobQueue 
+
+public abstract class SchemeReader
+
 {
-  Vector q;
+  static final int SE_EOF=0;
+  static final int SE_ATOM=1;
+  static final int SE_LIST=2;
+  static final int SE_CB=3;
 
-  public JobQueue(int space)
+  SchemeTokenizer tk;
+
+  public SchemeReader(Reader r)
     {
-      q = new Vector(space);
+      tk = new SchemeTokenizer(r);
     }
 
-  public JobQueue()
-    {
-      q = new Vector();
-    }
-
-  public synchronized void add(Object thing)
-    {
-      q.addElement(thing);
-    }
-
-  public synchronized void remove(Object thing)
-    {
-      q.removeElement(thing);
-    }
-
-  public synchronized boolean isEmpty()
-    {
-      return q.isEmpty();
-    }
-
-  public synchronized Object top()
-    {
-     Object o;
-
-      if (q.isEmpty())
-	o = null;
-      else
-	o = q.firstElement(); 
-      return o;
-    }
-
-  public synchronized Object get()
-    {
-      Object o;
-
-      if (q.isEmpty())
-	o = null;
-      else
-	{
-	  o = q.firstElement();
-	  q.removeElementAt(0);
-	}
-      return o;
-    }
-
-  public synchronized Enumeration elements()
-    {
-      return q.elements();
-    }
+  public abstract Object nextExpr() throws IOException ;
 }
+  
+

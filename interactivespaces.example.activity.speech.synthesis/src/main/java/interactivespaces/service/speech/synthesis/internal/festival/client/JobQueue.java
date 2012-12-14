@@ -32,120 +32,73 @@
  //                                                                        \\
  //                  Author: Richard Caley (rjc@cstr.ed.ac.uk)             \\
  //  --------------------------------------------------------------------  \\
- //  A tokeniser for scheme expressions.                                   \\
- //                                                                        \\
- //  This should obviously be a subclass of  java.io.StreamTokenizer,      \\
- //  but that is as much use as a chocolate teapot so we have to go from   \\
- //  first principles.                                                     \\
+ //  A thread safe queue based on Vector. Could be faster.                 \\
  //                                                                        \\
  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-package interactivespaces.service.speech.internal.synthesis.festival.scheme ;
+
+package interactivespaces.service.speech.synthesis.internal.festival.client ;
 
 import java.lang.*;
 import java.util.*;
 import java.awt.*;
-import java.io.*;
 
-public class SchemeTokenizer 
+public class JobQueue 
 {
-  public static final int TT_EOF = StreamTokenizer.TT_EOF;  
-  public static final int TT_WORD = StreamTokenizer.TT_WORD;  
-  static final int TT_NOTHING = -4;  
+  Vector q;
 
-  protected Reader r;
-
-  public String sval;
-  public int ttype;
-
-  protected int pending =-1;
-
-  public SchemeTokenizer(Reader rd)
+  public JobQueue(int space)
     {
-      r=rd;
-
-      ttype=TT_NOTHING;
+      q = new Vector(space);
     }
 
-  public int nextToken() throws IOException
+  public JobQueue()
     {
-      int c;
-
-      if (pending >=0)
-	{
-	  c=pending;
-	  pending = -1;
-	}
-      else
-	c = r.read();
-
-      // Skip whitespace and comments
-      while (true)
-	{
-	  while (Character.isWhitespace((char)c))
-	      c = r.read();
-	  if (c == ';')
-	    {
-	      while (c != '\n' && c != '\r')
-		c = r.read();
-	      while (c == '\n' || c == '\r')
-		c = r.read();
-	    }
-	  else
-	    break;
-	}
-
-      if (c <0)
-	ttype = TT_EOF;
-      else if (c == '"')
-	{
-	  ttype = c;
-	  StringBuffer b = new StringBuffer(100);
-	  boolean escape=false;
-
-	  while ((c=r.read()) != '"' || escape)
-	    {
-	      if (escape)
-		{
-		  if (c == 'n')
-		    c='\n';
-		  else if (c == 'r')
-		    c='\r';
-		  else if (c == 't')
-		    c='\t';
-
-		  b.append((char)c);
-		  escape=false;
-		}
-	      else if (c == '\\')
-		  escape=true;
-	      else
-		{
-		  b.append((char)c);
-		  escape=false;
-		}
-	    }
-
-	  sval = b.toString();
-	}
-      else if (Character.isLetterOrDigit((char)c) || c=='.' || c=='_' || c=='-' || c=='*' || c==':')
-	{
-	  ttype = TT_WORD;
-	  StringBuffer b = new StringBuffer(100);
-	  
-	  b.append((char)c);
-
-	  while (Character.isLetterOrDigit((char)(c=r.read())) || c=='.' || c=='_' || c=='-' || c=='*' || c==':')
-	    b.append((char)c);
-
-	  pending=c;
-
-	  sval = b.toString();
-	}
-      else
-	ttype = c;
-
-      return ttype;
+      q = new Vector();
     }
 
+  public synchronized void add(Object thing)
+    {
+      q.addElement(thing);
+    }
+
+  public synchronized void remove(Object thing)
+    {
+      q.removeElement(thing);
+    }
+
+  public synchronized boolean isEmpty()
+    {
+      return q.isEmpty();
+    }
+
+  public synchronized Object top()
+    {
+     Object o;
+
+      if (q.isEmpty())
+	o = null;
+      else
+	o = q.firstElement(); 
+      return o;
+    }
+
+  public synchronized Object get()
+    {
+      Object o;
+
+      if (q.isEmpty())
+	o = null;
+      else
+	{
+	  o = q.firstElement();
+	  q.removeElementAt(0);
+	}
+      return o;
+    }
+
+  public synchronized Enumeration elements()
+    {
+      return q.elements();
+    }
 }

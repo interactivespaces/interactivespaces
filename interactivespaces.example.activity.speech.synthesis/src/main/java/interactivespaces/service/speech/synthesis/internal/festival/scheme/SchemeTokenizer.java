@@ -32,35 +32,120 @@
  //                                                                        \\
  //                  Author: Richard Caley (rjc@cstr.ed.ac.uk)             \\
  //  --------------------------------------------------------------------  \\
- //  A simple scheme reader.                                               \\
+ //  A tokeniser for scheme expressions.                                   \\
+ //                                                                        \\
+ //  This should obviously be a subclass of  java.io.StreamTokenizer,      \\
+ //  but that is as much use as a chocolate teapot so we have to go from   \\
+ //  first principles.                                                     \\
  //                                                                        \\
  //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 
-
-package interactivespaces.service.speech.internal.synthesis.festival.scheme ;
+package interactivespaces.service.speech.synthesis.internal.festival.scheme ;
 
 import java.lang.*;
 import java.util.*;
 import java.awt.*;
 import java.io.*;
 
-
-public abstract class SchemeReader
-
+public class SchemeTokenizer 
 {
-  static final int SE_EOF=0;
-  static final int SE_ATOM=1;
-  static final int SE_LIST=2;
-  static final int SE_CB=3;
+  public static final int TT_EOF = StreamTokenizer.TT_EOF;  
+  public static final int TT_WORD = StreamTokenizer.TT_WORD;  
+  static final int TT_NOTHING = -4;  
 
-  SchemeTokenizer tk;
+  protected Reader r;
 
-  public SchemeReader(Reader r)
+  public String sval;
+  public int ttype;
+
+  protected int pending =-1;
+
+  public SchemeTokenizer(Reader rd)
     {
-      tk = new SchemeTokenizer(r);
+      r=rd;
+
+      ttype=TT_NOTHING;
     }
 
-  public abstract Object nextExpr() throws IOException ;
-}
-  
+  public int nextToken() throws IOException
+    {
+      int c;
 
+      if (pending >=0)
+	{
+	  c=pending;
+	  pending = -1;
+	}
+      else
+	c = r.read();
+
+      // Skip whitespace and comments
+      while (true)
+	{
+	  while (Character.isWhitespace((char)c))
+	      c = r.read();
+	  if (c == ';')
+	    {
+	      while (c != '\n' && c != '\r')
+		c = r.read();
+	      while (c == '\n' || c == '\r')
+		c = r.read();
+	    }
+	  else
+	    break;
+	}
+
+      if (c <0)
+	ttype = TT_EOF;
+      else if (c == '"')
+	{
+	  ttype = c;
+	  StringBuffer b = new StringBuffer(100);
+	  boolean escape=false;
+
+	  while ((c=r.read()) != '"' || escape)
+	    {
+	      if (escape)
+		{
+		  if (c == 'n')
+		    c='\n';
+		  else if (c == 'r')
+		    c='\r';
+		  else if (c == 't')
+		    c='\t';
+
+		  b.append((char)c);
+		  escape=false;
+		}
+	      else if (c == '\\')
+		  escape=true;
+	      else
+		{
+		  b.append((char)c);
+		  escape=false;
+		}
+	    }
+
+	  sval = b.toString();
+	}
+      else if (Character.isLetterOrDigit((char)c) || c=='.' || c=='_' || c=='-' || c=='*' || c==':')
+	{
+	  ttype = TT_WORD;
+	  StringBuffer b = new StringBuffer(100);
+	  
+	  b.append((char)c);
+
+	  while (Character.isLetterOrDigit((char)(c=r.read())) || c=='.' || c=='_' || c=='-' || c=='*' || c==':')
+	    b.append((char)c);
+
+	  pending=c;
+
+	  sval = b.toString();
+	}
+      else
+	ttype = c;
+
+      return ttype;
+    }
+
+}
