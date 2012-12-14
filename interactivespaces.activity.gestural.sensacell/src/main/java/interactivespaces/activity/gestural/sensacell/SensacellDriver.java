@@ -24,8 +24,6 @@ import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -118,16 +116,6 @@ public class SensacellDriver {
 	 * Serial communication endpoint to the SensacellDriver.
 	 */
 	private SerialCommunicationEndpoint cellEndpoint;
-
-	/**
-	 * Input stream from the sensacell.
-	 */
-	private InputStream cellInputStream;
-
-	/**
-	 * Output stream for the sensacell.
-	 */
-	private OutputStream cellOutputStream;
 
 	/**
 	 * {@true} if the cell has completed setup.
@@ -271,8 +259,6 @@ public class SensacellDriver {
 			cellEndpoint.setBaud(230400).setDataBits(8).setStopBits(1)
 					.setParity(Parity.NONE);
 			cellEndpoint.connect();
-			cellInputStream = cellEndpoint.getInputStream();
-			cellOutputStream = cellEndpoint.getOutputStream();
 
 			setupComplete = true;
 
@@ -287,20 +273,6 @@ public class SensacellDriver {
 	 * Shut down the sensacell.
 	 */
 	public void shutdown() {
-		try {
-			cellInputStream.close();
-		} catch (IOException e) {
-			// Don't care
-		}
-		cellInputStream = null;
-
-		try {
-			cellOutputStream.close();
-		} catch (IOException e) {
-			// Don't care
-		}
-		cellOutputStream = null;
-
 		cellEndpoint.shutdown();
 		cellEndpoint = null;
 	}
@@ -330,7 +302,7 @@ public class SensacellDriver {
 			if (systemResetting) {
 				if ((System.currentTimeMillis() - systemResetStartTime) >= SENSACELL_RESET_PERIOD) {
 					systemResetting = false;
-					cellOutputStream.flush();
+					cellEndpoint.flush();
 
 					// restore settings
 					sendSensorReadModeCommand(readMode, sensorSpeed, latchMode);
@@ -342,13 +314,13 @@ public class SensacellDriver {
 			if (modeChanged) {
 				modeChanged = false;
 				// read mode was changed so flush the port
-				cellOutputStream.flush();
+				cellEndpoint.flush();
 			}
 
 			if (sensorResetting) {
 				if ((System.currentTimeMillis() - sensorResetStartTime) >= SENSACELL_SENSOR_RESET_PERIOD) {
 					sensorResetting = false;
-					cellOutputStream.flush();
+					cellEndpoint.flush();
 
 					// restore settings (not sure this is necessary, but playing
 					// it safe just in case
@@ -396,11 +368,11 @@ public class SensacellDriver {
 		try {
 			sendGlobalWriteCommand(0x01, 0x00);
 			for (int i = 0; i < 16; i++) {
-				cellOutputStream.write(sensorData[i]);
-				cellOutputStream.write(sensorData[i]);
-				cellOutputStream.write(sensorData[i]);
+				cellEndpoint.write(sensorData[i]);
+				cellEndpoint.write(sensorData[i]);
+				cellEndpoint.write(sensorData[i]);
 			}
-			cellOutputStream.write(CARRIAGE_RETURN);
+			cellEndpoint.write(CARRIAGE_RETURN);
 		} catch (IOException e) {
 			throw new InteractiveSpacesException(
 					"Cannot draw sensor data to sensacell", e);
@@ -472,7 +444,7 @@ public class SensacellDriver {
 		int offset = 0;
 		int toRead = buffer.length;
 		while (toRead > 0) {
-			int readAmt = cellInputStream.read(buffer, offset, toRead);
+			int readAmt = cellEndpoint.read(buffer, offset, toRead);
 			if (readAmt == -1) {
 				log.info("Reached EOF of sensacell stream");
 				return false;
@@ -725,7 +697,7 @@ public class SensacellDriver {
 		command[2] = NUMBER_TO_HEX[address & 0x0f];
 		command[3] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 4);
+		cellEndpoint.write(command, 0, 4);
 	}
 
 	/**
@@ -741,7 +713,7 @@ public class SensacellDriver {
 		command[2] = NUMBER_TO_HEX[address & 0x0f];
 		command[3] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 4);
+		cellEndpoint.write(command, 0, 4);
 	}
 
 	/**
@@ -769,7 +741,7 @@ public class SensacellDriver {
 		command[6] = (byte) '0';
 		command[7] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 8);
+		cellEndpoint.write(command, 0, 8);
 	}
 
 	/**
@@ -793,7 +765,7 @@ public class SensacellDriver {
 		command[6] = NUMBER_TO_HEX[address & 0x0f];
 		command[7] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 8);
+		cellEndpoint.write(command, 0, 8);
 	}
 
 	/**
@@ -827,7 +799,7 @@ public class SensacellDriver {
 		command[6] = NUMBER_TO_HEX[address & 0x0f];
 		command[7] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 8);
+		cellEndpoint.write(command, 0, 8);
 	}
 
 	/**
@@ -853,8 +825,8 @@ public class SensacellDriver {
 			systemResetting = true;
 			systemResetStartTime = System.currentTimeMillis();
 
-			cellOutputStream.write(command, 0, 8);
-			cellOutputStream.flush();
+			cellEndpoint.write(command, 0, 8);
+			cellEndpoint.flush();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(
 					"Could not send system reset command to sensacell", e);
@@ -873,12 +845,12 @@ public class SensacellDriver {
 		Random r = new Random();
 		// immediate follow by RGB values
 		for (int i = 0; i < 16; i++) {
-			cellOutputStream.write(r.nextInt(255));
-			cellOutputStream.write(r.nextInt(255));
-			cellOutputStream.write(r.nextInt(255));
+			cellEndpoint.write(r.nextInt(255));
+			cellEndpoint.write(r.nextInt(255));
+			cellEndpoint.write(r.nextInt(255));
 		}
-		cellOutputStream.write(CARRIAGE_RETURN);
-		cellOutputStream.flush();
+		cellEndpoint.write(CARRIAGE_RETURN);
+		cellEndpoint.flush();
 
 		// saveCurrentState();
 	}
@@ -899,8 +871,8 @@ public class SensacellDriver {
 		command[6] = (byte) '1';
 		command[7] = CARRIAGE_RETURN;
 
-		cellOutputStream.write(command, 0, 8);
-		cellOutputStream.flush();
+		cellEndpoint.write(command, 0, 8);
+		cellEndpoint.flush();
 	}
 
 	/**
