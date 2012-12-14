@@ -498,6 +498,13 @@ the License.
 
 								<!-- Music Service -->
                                 <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-music</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>org.farng.mp3</groupId>
                                     <artifactId>jid3lib</artifactId>
                                     <version>0.5.4</version>
@@ -505,6 +512,14 @@ the License.
                                     <overWrite>true</overWrite>
                                 </artifactItem>
 
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-speech-synthesis</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                                
 								<!-- Interactive Spaces scheduler -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
