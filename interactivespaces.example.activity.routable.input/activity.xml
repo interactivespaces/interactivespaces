@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Routable Input Java</name>
+    <description>
+An example of reading from a route in Java.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.routable.input</identifyingName>
+</activity>

@@ -171,7 +171,7 @@ web Activity base classes or Activity Components.
 But sometimes you need more direct access to Android services. You can
 do this by getting access to the AndroidOs service. This will give
 you the service context that the Controller is running as, which allows
-you access to sensors, activity startup trhough Intents, etc.
+you access to sensors, activity startup through Intents, etc.
 
 During Activity setup, you can obtain the AndroidOS service through
 the Service Registry.
@@ -184,10 +184,45 @@ the Service Registry.
 
 You can then get the context and Android services from the service.
 
-An Example: Reading the Android Accelerometer
----------------------------------------------
+Examples
+========
 
-As an example, here is the Accelerometer Activity from the Workbench examples.
+Launching An Android Activity
+---------------------
+
+Launching an Android activity is quite simple. You obtain the Android context for the
+Interactive Spaces Controller and use it to launch the Android activity (it is unfortunate
+that Interactive Spaces has activities and Android has activities as well, it makes for
+confusing sentences).
+
+The following example is from the workbench. Note the use of *Intent.FLAG_ACTIVITY_NEW_TASK*,
+which is required to start up an Android activity outside of the Interactive Spaces Controller.
+
+.. code-block:: java
+
+    public class SimpleAndroidWebActivity extends BaseActivity {
+    
+        @Override
+        public void onActivityStartup() {
+            AndroidOsService androidService = getSpaceEnvironment()
+                 .getServiceRegistry().getService(AndroidOsService.SERVICE_NAME);
+                    
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW );
+                browserIntent.setData( Uri.parse("https://code.google.com/p/interactive-spaces/") );
+                browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                androidService.getAndroidContext().getApplicationContext().startActivity(browserIntent);
+            } catch (Exception e) {
+                getLog().error("Unable to start browser", e);
+            }
+        }
+    }
+
+
+Reading the Android Accelerometer
+---------------------------------
+
+As an example for sensor use, here is the Accelerometer Activity from the Workbench examples.
 The AndroidOS service is used to get the Android Sensor Manager. The
 accelerometer is obtained from the Sensor Manager.
 
