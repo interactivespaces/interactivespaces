@@ -5,13 +5,15 @@ Bringing Live Activities up and down is nice and all, but if you really
 want interesting behaviors in your space, you need your Live Activities
 to communicate with each other.
 
-Interactive Spaces has uses ROS to provide communication. ROS gives the
+Interactive Spaces uses ROS to provide communication. Using ROS directly gives the
 most power, but it is somewhat complex to use. So Interactive Spaces
-provides a simpler-to-use mechanism based on the popular communication
+provides a simpler-to-use mechanism called *routes* based on the popular communication
 format JSON which is used in web applications for transferring name/value
-pairs between Live Activities called *routes*. Routes use ROS under the covers,
+pairs between Live Activities. Routes use ROS under the covers,
 but other than a few configuration parameters that are ROS specific,
 you need never think about ROS.
+
+Direct use of ROS will be covered in another chapter.
 
 Route Basics
 ==========
@@ -21,17 +23,21 @@ a collection of name/value pairs.
 The collection is anything serialization as a JSON message, in fact the message is transmitted
 on the network as a JSON-encoded string.
 
+The basic Interactive Spaces communication system uses ROS for Activity to Activity and Master 
+to Controller communication. ROS uses the concept of Global Topics, which you can think of
+as a globally defined mailbox that anyone can write to and anyone can read from, as long as they
+have the name of the topic.
+``/example/routable/channel1`` is the global ROS Topic that many of the example routable
+Activities in the Workbench can write to or read from. Every Activity that wants to use
+the route to communicate must use the same name for the global topic.
+
 Routes can have multiple activities writing information to the route and multiple activities
 reading from that route. A given activity can write to the channel and never read from it
 and visa versa. In the examples found in the Workbench you can see one example which only writes
 on the route and another which only reads from the route.
 
-Routes are global to your Space. In the examples in the Workbench ``/example/routable/channel1``
-is the global topic that Activities can write to or read from. Every activity that wants to use
-the route must use the same name for the global topic.
-
 Routes are used in Activities by giving them a name which is local to the Activity. If the
-Activity wants to write to a route, it uses this local name. This name
+Activity wants to write to a route, it uses this local name, also called a Channel. This name
 is different than the global topic name.
 
 A lot of words... what does it all mean???
@@ -106,6 +112,13 @@ global topic for the route.
 Multiple global topics can be listed as the value for the ``space.activity.route.output`` property, once
 again separated by a ``:``. This means the channel will write to all topics listed at the same
 time.
+
+Any Activity which uses ROS communication, remember that routes are implemented using ROS
+communication, must have the ``space.activity.ros.node.name`` configuration property defined.
+This name should be unique for your space, and one way to do that is to make it
+a relative name, meaning don't start it with a ``/``. Names which start with a ``/`` are
+absolute names, and should only be used if you know what you are doing and have a good reason 
+for it.
 
 Using Routes In Code
 ====================

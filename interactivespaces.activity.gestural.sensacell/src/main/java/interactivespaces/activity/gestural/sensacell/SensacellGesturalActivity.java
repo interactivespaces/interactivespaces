@@ -17,7 +17,7 @@
 package interactivespaces.activity.gestural.sensacell;
 
 import interactivespaces.activity.gestural.sensacell.SensacellDriver.SensacellListener;
-import interactivespaces.activity.impl.ros.BaseRosActivity;
+import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
 import interactivespaces.comm.serial.rxtx.RxtxSerialCommunicationEndpointFactory;
 import interactivespaces.configuration.Configuration;
@@ -26,12 +26,12 @@ import interactivespaces.event.trigger.Trigger;
 import interactivespaces.event.trigger.TriggerEventType;
 import interactivespaces.event.trigger.TriggerListener;
 import interactivespaces.event.trigger.TriggerState;
-import interactivespaces.util.ros.RosPublishers;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.ros.message.interactivespaces_msgs.GesturalCommand;
+import com.google.common.collect.Maps;
 
 /**
  * An Interactive Spaces Activity for reading a sensacell and updating a
@@ -39,13 +39,7 @@ import org.ros.message.interactivespaces_msgs.GesturalCommand;
  * 
  * @author Keith M. Hughes
  */
-public class SensacellGesturalActivity extends BaseRosActivity {
-
-	/**
-	 * Configuration property giving topic name the app will use for ROS
-	 * control.
-	 */
-	public static final String CONFIGURATION_SENSACELL_GESTURAL_ROS_TOPIC_NAME = "sensacell_gestural.gestural.ros.topic.name";
+public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 
 	/**
 	 * Configuration property giving which element of the array for left
@@ -161,11 +155,6 @@ public class SensacellGesturalActivity extends BaseRosActivity {
 	private Future<?> updater;
 
 	/**
-	 * The ROS publishers which will send out the gestural data.
-	 */
-	private RosPublishers<GesturalCommand> gesturalPublishers;
-
-	/**
 	 * How often the SensacellDriver should be updated. Is updates per second.
 	 */
 	private double sensorUpdateRate = DEFAULT_SENSACELL_UPDATE;
@@ -226,11 +215,6 @@ public class SensacellGesturalActivity extends BaseRosActivity {
 		updater.cancel(true);
 
 		sensacell.shutdown();
-
-		if (gesturalPublishers != null) {
-			gesturalPublishers.shutdown();
-			gesturalPublishers = null;
-		}
 	}
 
 	/**
@@ -239,13 +223,6 @@ public class SensacellGesturalActivity extends BaseRosActivity {
 	private void handleConfiguration() {
 		Configuration configuration = getConfiguration();
 
-		gesturalPublishers = new RosPublishers<GesturalCommand>(getLog());
-		gesturalPublishers
-				.addPublishers(
-						getMainNode(),
-						"interactivespaces_msgs/GesturalCommand",
-						configuration
-								.getRequiredPropertyString(CONFIGURATION_SENSACELL_GESTURAL_ROS_TOPIC_NAME));
 		sensacellSerialPort = configuration
 				.getRequiredPropertyString(CONFIGURATION_SENSACELL_SENSACELL_PORT);
 		sensorThreshold = configuration.getPropertyInteger(
@@ -329,15 +306,21 @@ public class SensacellGesturalActivity extends BaseRosActivity {
 	 * Broadcast gesture data.
 	 */
 	private void sendGestureData() {
-		GesturalCommand command = new GesturalCommand();
-		if (leftSensorOn) {
-			command.left = 1;
-		} else if (rightSensorOn) {
-			command.right = 1;
-		}
-
 		if (isActivated()) {
-			gesturalPublishers.publishMessage(command);
+			int leftValue = 0;
+			int rightValue = 0;
+			
+			if (leftSensorOn) {
+				leftValue = 1;
+			} else if (rightSensorOn) {
+				rightValue = 1;
+			}
+			
+			Map<String, Object> message = Maps.newHashMap();
+			message.put("left", leftValue);
+			message.put("right", rightValue);
+			
+			sendOutputJson("gestureOutput", message);
 		}
 	}
 
