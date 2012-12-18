@@ -16,19 +16,18 @@
 
 package interactivespaces.workbench.osgi;
 
+import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.container.ContainerCustomizerProvider;
+import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.util.Properties;
+import java.util.List;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-
-import com.google.common.collect.Lists;
+import org.osgi.framework.ServiceReference;
 
 /**
  * OSGi activator for the Interactive Spaces Workbench.
@@ -43,70 +42,71 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	private WorkbenchUi ui;
 
 	/**
-	 * The workbench properties
-	 */
-	private Properties workbenchProperties;
-
-	/**
 	 * The context for the workbench's OSGi bundle.
 	 */
 	private BundleContext bundleContext;
 
 	/**
-	 * The args handed in.
+	 * The platform logging provider.
 	 */
-	private String[] argList;
+	private LoggingProvider loggingProvider;
+
+	/**
+	 * The platform configuration provider.
+	 */
+	private ConfigurationProvider configurationProvider;
+
+	/**
+	 * The platform container customizer provider.
+	 * 
+	 * <p>
+	 * Can be {@code null} if none is provided.
+	 */
+	private ContainerCustomizerProvider containerCustomizerProvider;
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		this.bundleContext = bundleContext;
 
+		getCoreServices(bundleContext);
+
 		try {
-			String args = bundleContext
-					.getProperty("interactiveSpacesLaunchArgs");
-
-			args = args.trim();
-			if (!args.isEmpty()) {
-				argList = args.split("\\s");
-			}
-
-			prepare();
 			run();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			loggingProvider.getLog().error("Could not run workbench", e);
 		}
 	}
 
 	@Override
-	public void stop(BundleContext arg0) throws Exception {
-		// TODO Auto-generated method stub
-
+	public void stop(BundleContext bundleContext) throws Exception {
+		// Nothing right now.
 	}
 
 	/**
-	 * prepare to start the workbench.
+	 * Get all core services needed.
+	 * 
+	 * <p>
+	 * These services should have been provided by the OSGi container bootstrap
+	 * and so will be immediately available. They will never go away since they
+	 * are only destroyed when bundle 0 goes, which means the entire container
+	 * is being shut down.
 	 */
-	public void prepare() {
-		workbenchProperties = new Properties();
+	private void getCoreServices(BundleContext context) throws Exception {
+		ServiceReference loggingProviderServiceReference = context
+				.getServiceReference(LoggingProvider.class.getName());
+		loggingProvider = (LoggingProvider) context
+				.getService(loggingProviderServiceReference);
 
-		File[] configFiles = new File("config").listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".conf");
-			}
-		});
+		ServiceReference configurationProviderServiceReference = context
+				.getServiceReference(ConfigurationProvider.class.getName());
+		configurationProvider = (ConfigurationProvider) context
+				.getService(configurationProviderServiceReference);
 
-		if (configFiles != null) {
-			for (File configFile : configFiles) {
-				try {
-					workbenchProperties.load(new FileInputStream(configFile));
-				} catch (Exception e) {
-					System.out.format("Could not open config file %s\n", configFile);
-				}
-			}
-		}
-
+		ServiceReference containerCustomizerProviderServiceReference = context
+				.getServiceReference(ContainerCustomizerProvider.class
+						.getName());
+		containerCustomizerProvider = (ContainerCustomizerProvider) context
+				.getService(containerCustomizerProviderServiceReference);
 	}
 
 	/**
@@ -114,17 +114,17 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 	 */
 	public void run() {
 		InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(
-				workbenchProperties);
+				configurationProvider.getInitialConfiguration());
 
-		if (argList != null) {
+		List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
+		if (!commandLineArguments.isEmpty()) {
 			try {
-				workbench.doCommands(Lists.newArrayList(argList));
+				workbench.doCommands(commandLineArguments);
 			} finally {
 				try {
 					bundleContext.getBundle(0).stop();
 				} catch (BundleException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					loggingProvider.getLog().error("Error stopping container", e);
 				}
 			}
 		} else {

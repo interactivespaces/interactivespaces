@@ -16,6 +16,7 @@
 
 package interactivespaces.system.core.container;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +28,13 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public interface ContainerCustomizerProvider {
+
+	/**
+	 * Get the command line arguments from the container.
+	 * 
+	 * @return the command line arguments
+	 */
+	List<String> getCommandLineArguments();
 
 	/**
 	 * Get services supplied by the container.

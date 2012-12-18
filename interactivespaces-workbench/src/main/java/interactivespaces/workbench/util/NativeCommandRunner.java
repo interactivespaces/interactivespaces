@@ -18,7 +18,7 @@ package interactivespaces.workbench.util;
 
 import interactivespaces.InteractiveSpacesException;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * A runner for native commands.
@@ -26,7 +26,9 @@ import java.io.IOException;
  * @author Keith M. Hughes
  */
 public class NativeCommandRunner {
-	
+
+	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
 	/**
 	 * The status the process exited with.
 	 */
@@ -38,9 +40,9 @@ public class NativeCommandRunner {
 	 * @param command
 	 *            the command to execute
 	 */
-	public void execute(String command) {
+	public void execute(List<String> command) {
 		try {
-			Process process = Runtime.getRuntime().exec(command);
+			Process process = Runtime.getRuntime().exec(command.toArray(EMPTY_STRING_ARRAY));
 			exitStatus = process.waitFor();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(

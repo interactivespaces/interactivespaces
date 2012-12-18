@@ -407,7 +407,7 @@ public class BasicUiSpaceManager implements UiSpaceManager {
 		Map<String, Object> response = Maps.newHashMap();
 		
 		response.put("id", activity.getId());
-		response.put("status", active.getState().getDescription());
+		response.put("status", active.getRuntimeState().getDescription());
 		
 		return response;
 	}

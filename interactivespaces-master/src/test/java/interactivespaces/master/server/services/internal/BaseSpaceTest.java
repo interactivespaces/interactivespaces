@@ -287,13 +287,16 @@ public class BaseSpaceTest {
 	 * @param expectedDirectActivated TODO
 	 * @param expectedGroupActivatedCount
 	 *            how many groups should have activated the live activity
-	 * @param expectedState
-	 *            the expected state of the activity
+	 * @param expectedRuntimeState
+	 *            the expected runtime state of the activity
+	 * @param expectedDeployState
+	 *            the expected deploy state of the activity
 	 */
 	protected void assertActiveActivityState(
 			ActiveLiveActivity activeLiveActivity,
 			boolean expectedDirectRunning, int expectedGroupRunningCount,
-			boolean expectedDirectActivated, int expectedGroupActivatedCount, ActivityState expectedState) {
+			boolean expectedDirectActivated, int expectedGroupActivatedCount, 
+			ActivityState expectedRuntimeState, ActivityState expectedDeployState) {
 		assertEquals("Direct running not equal",
 				expectedDirectRunning,
 				activeLiveActivity.isDirectRunning());
@@ -306,7 +309,9 @@ public class BaseSpaceTest {
 		assertEquals("Group activated counts not equal",
 				expectedGroupActivatedCount,
 				activeLiveActivity.getNumberLiveActivityGroupActivated());
-		assertEquals("Activity states not equal", expectedState,
-				activeLiveActivity.getState());
+		assertEquals("Activity runtime states not equal", expectedRuntimeState,
+				activeLiveActivity.getRuntimeState());
+		assertEquals("Activity deploy states not equal", expectedDeployState,
+				activeLiveActivity.getDeployState());
 	}
 }

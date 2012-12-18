@@ -16,7 +16,9 @@
 
 package interactivespaces.system.core.container;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,9 +30,19 @@ public class SimpleContainerCustomizerProvider implements
 		ContainerCustomizerProvider {
 
 	/**
+	 * The command line arguments from container startup.
+	 */
+	private List<String> commandLineArguments = new ArrayList<String>();
+	
+	/**
 	 * The services from the container.
 	 */
 	private Map<String, Object> services = new HashMap<String, Object>();
+
+	@Override
+	public List<String> getCommandLineArguments() {
+		return commandLineArguments;
+	}
 
 	@Override
 	public Map<String, Object> getServices() {

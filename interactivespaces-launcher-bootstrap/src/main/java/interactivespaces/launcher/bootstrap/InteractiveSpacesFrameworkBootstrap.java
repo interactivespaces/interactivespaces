@@ -110,7 +110,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * The configuration provider for the container.
 	 */
 	private FileConfigurationProvider configurationProvider;
-	
+
 	/**
 	 * The container customizer provider for the container.
 	 */
@@ -130,7 +130,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		baseInstallFolder = new File(".");
 
-		createCoreServices();
+		createCoreServices(args);
 
 		getBootstrapBundleJars(BUNDLE_DIRECTORY_BOOTSTRAP);
 
@@ -141,7 +141,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 			setupShutdownHandler();
 
 			try {
-				createAndStartFramework(args);
+				createAndStartFramework();
 
 				registerCoreServices();
 
@@ -167,15 +167,19 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Create the core services to the base bundle which are platform dependent.
+	 * 
+	 * @param args
+	 *            the list of command line arguments
 	 */
-	public void createCoreServices() {
+	public void createCoreServices(List<String> args) {
 		loggingProvider = new Log4jLoggingProvider();
 		loggingProvider.configure(baseInstallFolder);
 
 		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
 		configurationProvider.load();
-		
+
 		containerCustomizerProvider = new SimpleContainerCustomizerProvider();
+		containerCustomizerProvider.getCommandLineArguments().addAll(args);
 	}
 
 	/**
@@ -183,20 +187,24 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 */
 	public void registerCoreServices() {
 		BundleContext bundleContext = framework.getBundleContext();
+		bundleContext.registerService(LoggingProvider.class.getName(),
+				loggingProvider, null);
+		bundleContext.registerService(ConfigurationProvider.class.getName(),
+				configurationProvider, null);
 		bundleContext.registerService(
-				LoggingProvider.class.getName(), loggingProvider, null);
-		bundleContext.registerService(
-				ConfigurationProvider.class.getName(), configurationProvider,
-				null);
-		bundleContext.registerService(
-				ContainerCustomizerProvider.class.getName(), containerCustomizerProvider,
-				null);
+				ContainerCustomizerProvider.class.getName(),
+				containerCustomizerProvider, null);
 	}
 
 	/**
+	 * Start all bundles.
+	 * 
 	 * @param ctxt
+	 *            the framework bundle context
 	 * @param bundleList
+	 *            the list of all bundles
 	 * @param jars
+	 *            the jars for the bundles
 	 * @throws BundleException
 	 */
 	protected void startBundles(BundleContext ctxt, List<Bundle> bundleList,
@@ -240,15 +248,14 @@ public class InteractiveSpacesFrameworkBootstrap {
 	}
 
 	/**
-	 * Create, configure, and start an OSGi framework instance. OO
+	 * Create, configure, and start the OSGi framework instance.
 	 * 
-	 * @return
 	 * @throws IOException
 	 * @throws Exception
 	 * @throws BundleException
 	 */
-	private void createAndStartFramework(List<String> args) throws IOException,
-			Exception, BundleException {
+	private void createAndStartFramework() throws IOException, Exception,
+			BundleException {
 		Map<String, String> m = new HashMap<String, String>();
 
 		// m.putAll(System.getProperties());
@@ -276,7 +283,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 			packages.append(separator).append(extraPackage);
 			separator = ", ";
 		}
-		
+
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
 
 		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());
@@ -285,16 +292,6 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		File file = new File(baseInstallFolder, "plugins-cache");
 		m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
-
-		StringBuilder argsString = new StringBuilder();
-		if (!args.isEmpty()) {
-			argsString.append(args.get(0));
-			for (int i = 1; i < args.size(); i++) {
-				argsString.append(' ').append(args.get(i));
-			}
-		}
-
-		m.put("interactiveSpacesLaunchArgs", argsString.toString());
 
 		framework = getFrameworkFactory().newFramework(m);
 		framework.start();

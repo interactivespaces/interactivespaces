@@ -50,6 +50,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import com.google.common.collect.Lists;
@@ -95,7 +96,7 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * Properties for the workbench.
 	 */
-	private Properties workbenchProperties;
+	private Map<String, String> workbenchConfig;
 
 	/**
 	 * The activity project manager for file operations.
@@ -137,8 +138,8 @@ public class InteractiveSpacesWorkbench {
 	 */
 	private UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
 
-	public InteractiveSpacesWorkbench(Properties workbenchProperties) {
-		this.workbenchProperties = workbenchProperties;
+	public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig) {
+		this.workbenchConfig = workbenchConfig;
 
 		this.templater = new FreemarkerTemplater();
 		templater.startup();
@@ -238,8 +239,7 @@ public class InteractiveSpacesWorkbench {
 		}
 
 		File javaSystemDirectory = new File(new File(
-				workbenchProperties
-						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+				workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
 				"lib/system/java");
 		classpath.add(new File(javaSystemDirectory,
 				"com.springsource.org.apache.commons.logging-1.1.1.jar"));
@@ -256,8 +256,7 @@ public class InteractiveSpacesWorkbench {
 	 */
 	private File getControllerBootstrapDir() {
 		return new File(new File(
-				workbenchProperties
-						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+				workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
 				"bootstrap");
 	}
 
@@ -269,8 +268,7 @@ public class InteractiveSpacesWorkbench {
 	 */
 	private void addControllerExtensionsClasspath(List<File> files) {
 		File[] extensionFiles = new File(new File(
-				workbenchProperties
-						.getProperty(CONFIGURATION_CONTROLLER_BASEDIR)),
+				workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
 				"lib/system/java").listFiles(new FilenameFilter() {
 
 			@Override
@@ -510,7 +508,7 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * @return the workbenchProperties
 	 */
-	public Properties getWorkbenchProperties() {
-		return workbenchProperties;
+	public Map<String, String> getWorkbenchConfig() {
+		return workbenchConfig;
 	}
 }

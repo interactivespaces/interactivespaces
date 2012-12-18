@@ -24,7 +24,7 @@ import interactivespaces.workbench.util.NativeCommandsExecutor;
 
 import java.io.File;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
 
@@ -48,7 +48,7 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 	@Override
 	public void addToClasspath(List<File> classpath,
 			InteractiveSpacesWorkbench workbench) {
-		Properties properties = workbench.getWorkbenchProperties();
+		Map<String, String> properties = workbench.getWorkbenchConfig();
 		String androidJar = getRequiredProperty(properties,
 				PROPERTY_ANDROID_SDK_HOME)
 				+ "/platforms/"
@@ -72,29 +72,33 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 	@Override
 	public void postProcessJar(ActivityProjectBuildContext context, File jarFile) {
 		String platformToolsDirectory = getRequiredProperty(context
-				.getWorkbench().getWorkbenchProperties(),
-				PROPERTY_ANDROID_SDK_HOME)
+				.getWorkbench().getWorkbenchConfig(), PROPERTY_ANDROID_SDK_HOME)
 				+ "/platform-tools/";
 
-		StringBuilder dxCommand = new StringBuilder();
-		dxCommand.append(platformToolsDirectory)
-				.append("dx --dex --output=classes.dex  ")
-				.append(jarFile.getAbsolutePath());
+		List<String> dxCommand = Lists.newArrayList();
+		dxCommand.add(platformToolsDirectory + "dx");
+		dxCommand.add("--dex");
+		dxCommand.add("--output=classes.dex");
+		dxCommand.add(jarFile.getAbsolutePath());
 
-		StringBuilder aaptCommand = new StringBuilder();
-		aaptCommand.append(platformToolsDirectory).append("aapt add ")
-				.append(jarFile.getAbsolutePath()).append(" classes.dex");
+		List<String> aaptCommand = Lists.newArrayList();
+		aaptCommand.add(platformToolsDirectory + "aapt");
+		aaptCommand.add("add");
+		aaptCommand.add(jarFile.getAbsolutePath());
+		aaptCommand.add("classes.dex");
+
+		@SuppressWarnings("unchecked")
+		List<List<String>> commands = Lists.newArrayList(dxCommand, aaptCommand);
 
 		NativeCommandsExecutor executor = new NativeCommandsExecutor();
-		executor.executeCommands(Lists.newArrayList(dxCommand.toString(),
-				aaptCommand.toString()));
+		executor.executeCommands(commands);
 	}
 
 	/**
 	 * Get the required property from the workbench properties
 	 * 
-	 * @param properties
-	 *            the workbench properties
+	 * @param config
+	 *            the workbench configuration
 	 * @param property
 	 *            the name of the required property
 	 * 
@@ -103,8 +107,9 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 	 * @throws InteractiveSpacesException
 	 *             the property is missing or empty
 	 */
-	private String getRequiredProperty(Properties properties, String property) {
-		String value = properties.getProperty(property);
+	private String getRequiredProperty(Map<String, String> config,
+			String property) {
+		String value = config.get(property);
 		if (value != null && !value.trim().isEmpty()) {
 			return value;
 		} else {

@@ -125,7 +125,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
 	@Override
 	public void startup() {
-		log.error("Starting up ROS remote controller");
+		log.info("Starting up ROS remote controller");
 		Node node = masterRosContext.getNode();
 
 		liveActivityDeployRequestSerializer = node

@@ -59,7 +59,16 @@ public class ActiveLiveActivity {
 	 * This is local knowledge about what is true about the remote version of
 	 * the activity.
 	 */
-	private ActivityState state = ActivityState.UNKNOWN;
+	private ActivityState runtimeState = ActivityState.UNKNOWN;
+	
+	/**
+	 * The deploy state of the activity.
+	 * 
+	 * <p>
+	 * This is local knowledge about what is true about the remote version of
+	 * the activity.
+	 */
+	private ActivityState deployState = ActivityState.READY;
 
 	/**
 	 * The last state update. {@code null} means there hasn't been one yet.
@@ -82,12 +91,12 @@ public class ActiveLiveActivity {
 	private TimeProvider timeProvider;
 
 	/**
-	 * The number of groups which have requested live activity to run.
+	 * The groups which have requested live activity to run.
 	 */
 	private Set<ActiveLiveActivityGroup> groupsRunning = Sets.newHashSet();
 
 	/**
-	 * The number of groups which have requested live activity to activate.
+	 * The groups which have requested live activity to activate.
 	 */
 	private Set<ActiveLiveActivityGroup> groupsActivated = Sets.newHashSet();
 
@@ -331,18 +340,18 @@ public class ActiveLiveActivity {
 	 * 
 	 * @return the state
 	 */
-	public ActivityState getState() {
-		return state;
+	public ActivityState getRuntimeState() {
+		return runtimeState;
 	}
 
 	/**
 	 * Set the current local knowledge of the activity state.
 	 * 
-	 * @param state
+	 * @param runtimeState
 	 *            the state to set
 	 */
-	public void setState(ActivityState state) {
-		this.state = state;
+	public void setRuntimeState(ActivityState runtimeState) {
+		this.runtimeState = runtimeState;
 
 		lastStateUpdate = timeProvider.getCurrentTime();
 	}
@@ -372,10 +381,29 @@ public class ActiveLiveActivity {
 	}
 
 	/**
+	 * Get the current local knowledge of the activity deploy state.
+	 * 
+	 * @return the deploy state
+	 */
+	public ActivityState getDeployState() {
+		return deployState;
+	}
+
+	/**
+	 * Set the current local knowledge of the activity deploy state.
+	 * 
+	 * @param deployState
+	 *            the state to set
+	 */
+	public void setDeployState(ActivityState deployState) {
+		this.deployState = deployState;
+	}
+
+	/**
 	 * Attempt a remote startup.
 	 */
 	private void attemptRemoteStartup() {
-		setState(ActivityState.STARTUP_ATTEMPT);
+		setRuntimeState(ActivityState.STARTUP_ATTEMPT);
 		remoteControllerClient.startupActivity(activity);
 	}
 
@@ -383,7 +411,7 @@ public class ActiveLiveActivity {
 	 * Attempt a remote activation.
 	 */
 	private void attemptRemoteActivation() {
-		setState(ActivityState.ACTIVATE_ATTEMPT);
+		setRuntimeState(ActivityState.ACTIVATE_ATTEMPT);
 		remoteControllerClient.activateActivity(activity);
 	}
 
@@ -391,7 +419,7 @@ public class ActiveLiveActivity {
 	 * Attempt a remote deactivation.
 	 */
 	private void attemptRemoteDeactivation() {
-		setState(ActivityState.DEACTIVATE_ATTEMPT);
+		setRuntimeState(ActivityState.DEACTIVATE_ATTEMPT);
 		remoteControllerClient.deactivateActivity(activity);
 	}
 
@@ -399,7 +427,7 @@ public class ActiveLiveActivity {
 	 * Attempt a remote shutdown.
 	 */
 	private void attemptRemoteShutdown() {
-		setState(ActivityState.SHUTDOWN_ATTEMPT);
+		setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT);
 		remoteControllerClient.shutdownActivity(activity);
 	}
 

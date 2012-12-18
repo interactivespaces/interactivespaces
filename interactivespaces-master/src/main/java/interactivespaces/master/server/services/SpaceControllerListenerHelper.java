@@ -132,9 +132,11 @@ public class SpaceControllerListenerHelper {
 	 * Send the live activity state change message to all listeners.
 	 * 
 	 * @param uuid
-	 *            UUID of the activity.
-	 * @param status
-	 *            Deploy status of the remote activity.
+	 *            UUID of the activity
+	 * @param oldState
+	 *            old state of the remote activity
+	 * @param newState
+	 *            new state of the remote activity
 	 */
 	public void signalLiveActivityStateChange(String uuid,
 			ActivityState oldState, ActivityState newState) {

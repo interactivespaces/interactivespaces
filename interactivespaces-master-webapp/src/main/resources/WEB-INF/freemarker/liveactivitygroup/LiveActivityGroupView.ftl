@@ -104,7 +104,7 @@ ${liveactivitygroup.description}
 <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td>
 <#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-  <span class="liveactivity-status liveactivity-status-${liveactivity.active.state.name()}"><@spring.message liveactivity.active.state.description /></span>
+  <span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
   as of 
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}

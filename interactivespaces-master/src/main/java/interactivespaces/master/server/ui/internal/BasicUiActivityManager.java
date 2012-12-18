@@ -441,7 +441,7 @@ public class BasicUiActivityManager implements UiActivityManager {
 			Map<String, Object> data) {
 		ActiveLiveActivity active = activeControllerManager
 				.getActiveLiveActivity(activity);
-		String state = active.getState().getDescription();
+		String state = active.getRuntimeState().getDescription();
 		data.put("status", state);
 	}
 

@@ -192,7 +192,7 @@ public class BasicActiveControllerManager implements
 
 		LiveActivity activity;
 		synchronized (liveActivity) {
-			liveActivity.setState(ActivityState.DEPLOY_ATTEMPT);
+			liveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
 
 			activity = liveActivity.getLiveActivity();
 		}
@@ -686,13 +686,15 @@ public class BasicActiveControllerManager implements
 		ActiveLiveActivity active = getActiveActivityByUuid(uuid);
 		if (active != null) {
 			if (success) {
-				active.setState(ActivityState.READY);
+				// If not running, should update the status as there may be an error or something
+				// that is currently being shown.
+				active.setDeployState(ActivityState.READY);
 
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deployed successfully",
 								uuid));
 			} else {
-				active.setState(ActivityState.DEPLOY_FAILURE);
+				active.setDeployState(ActivityState.DEPLOY_FAILURE);
 
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deployment failed",
@@ -712,9 +714,9 @@ public class BasicActiveControllerManager implements
 		if (active != null) {
 			ActivityState oldState;
 			synchronized (active) {
-				oldState = active.getState();
+				oldState = active.getRuntimeState();
 
-				active.setState(newState);
+				active.setRuntimeState(newState);
 
 				if (newState.equals(ActivityState.READY)) {
 					active.clearRunningStateModel();
