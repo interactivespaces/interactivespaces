@@ -309,9 +309,18 @@ public class BasicActiveControllerManager implements
 
 		for (GroupLiveActivity groupActivity : activeActivityGroup
 				.getActivityGroup().getActivities()) {
-			attemptDeployActiveActivityFromGroup(
-					getActiveLiveActivity(groupActivity.getActivity()),
-					deployedLiveActivities);
+			LiveActivity activity = groupActivity.getActivity();
+			try {
+				attemptDeployActiveActivityFromGroup(
+						getActiveLiveActivity(activity), deployedLiveActivities);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while deploying live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -362,9 +371,19 @@ public class BasicActiveControllerManager implements
 
 		for (GroupLiveActivity groupActivity : activeActivityGroup
 				.getActivityGroup().getActivities()) {
-			attemptConfigureActiveActivityFromGroup(
-					getActiveLiveActivity(groupActivity.getActivity()),
-					configuredLiveActivities);
+			LiveActivity activity = groupActivity.getActivity();
+			try {
+				attemptConfigureActiveActivityFromGroup(
+						getActiveLiveActivity(activity),
+						configuredLiveActivities);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while configuring live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -417,8 +436,17 @@ public class BasicActiveControllerManager implements
 								activity.getUuid(), groupId));
 			}
 
-			getActiveLiveActivity(activity).startupFromLiveActivityGroup(
-					activeActivityGroup);
+			try {
+				getActiveLiveActivity(activity).startupFromLiveActivityGroup(
+						activeActivityGroup);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while starting up live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -447,8 +475,17 @@ public class BasicActiveControllerManager implements
 								activity.getUuid(), groupId));
 			}
 
-			getActiveLiveActivity(activity).activateFromLiveActivityGroup(
-					activeActivityGroup);
+			try {
+				getActiveLiveActivity(activity).activateFromLiveActivityGroup(
+						activeActivityGroup);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while activating live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -477,8 +514,17 @@ public class BasicActiveControllerManager implements
 								activity.getUuid(), groupId));
 			}
 
-			getActiveLiveActivity(activity).deactivateFromLiveActivityGroup(
-					activeActivityGroup);
+			try {
+				getActiveLiveActivity(activity)
+						.deactivateFromLiveActivityGroup(activeActivityGroup);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while deactivating live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -507,8 +553,17 @@ public class BasicActiveControllerManager implements
 								activity.getUuid(), groupId));
 			}
 
-			getActiveLiveActivity(activity).shutdownFromLiveActivityGroup(
-					activeActivityGroup);
+			try {
+				getActiveLiveActivity(activity).shutdownFromLiveActivityGroup(
+						activeActivityGroup);
+			} catch (Exception e) {
+				spaceEnvironment
+						.getLog()
+						.error(String.format(
+								"Error while shutting down live activity %s as part of live activity group %s",
+								activity.getUuid(), activeActivityGroup
+										.getActivityGroup().getId()), e);
+			}
 		}
 	}
 
@@ -686,7 +741,8 @@ public class BasicActiveControllerManager implements
 		ActiveLiveActivity active = getActiveActivityByUuid(uuid);
 		if (active != null) {
 			if (success) {
-				// If not running, should update the status as there may be an error or something
+				// If not running, should update the status as there may be an
+				// error or something
 				// that is currently being shown.
 				active.setDeployState(ActivityState.READY);
 
