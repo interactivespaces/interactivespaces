@@ -336,6 +336,31 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 	}
 
 	/**
+	 * Make sure all activities in a group deploy even if one fails.
+	 */
+	@Test
+	public void testActivityGroupDeploymentWithFail() {
+		List<LiveActivity> liveActivities = liveActivities(10, 11);
+		List<ActiveLiveActivity> activeActivities = activeLiveActivities(liveActivities);
+		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		Mockito.doThrow(new RuntimeException()).when(activityDeploymentManager)
+				.deployLiveActivity(activeActivities.get(0).getLiveActivity());
+
+		activeControllerManager.deployLiveActivityGroup(group1);
+
+		assertActiveActivityState(activeActivities.get(0), false, 0, false, 0,
+				ActivityState.UNKNOWN, ActivityState.DEPLOY_ATTEMPT);
+		assertActiveActivityState(activeActivities.get(1), false, 0, false, 0,
+				ActivityState.UNKNOWN, ActivityState.DEPLOY_ATTEMPT);
+
+		Mockito.verify(activityDeploymentManager, Mockito.times(1))
+				.deployLiveActivity(activeActivities.get(0).getLiveActivity());
+		Mockito.verify(activityDeploymentManager, Mockito.times(1))
+				.deployLiveActivity(activeActivities.get(1).getLiveActivity());
+	}
+
+	/**
 	 * Make sure all activities of the activity group start up.
 	 */
 	@Test
@@ -359,6 +384,33 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 	}
 
 	/**
+	 * Make sure all activities of the activity group start up even if one
+	 * fails.
+	 */
+	@Test
+	public void testActivityGroupStartupWithFail() {
+		List<LiveActivity> liveActivities = liveActivities(10, 11);
+		List<ActiveLiveActivity> activeActivities = activeLiveActivities(liveActivities);
+
+		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		Mockito.doThrow(new RuntimeException()).when(remoteControllerClient)
+				.startupActivity(activeActivities.get(0).getLiveActivity());
+
+		activeControllerManager.startupLiveActivityGroup(group1);
+
+		assertActiveActivityState(activeActivities.get(0), false, 0, false, 0,
+				ActivityState.STARTUP_ATTEMPT, ActivityState.READY);
+		assertActiveActivityState(activeActivities.get(1), false, 1, false, 0,
+				ActivityState.STARTUP_ATTEMPT, ActivityState.READY);
+
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.startupActivity(activeActivities.get(0).getLiveActivity());
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.startupActivity(activeActivities.get(1).getLiveActivity());
+	}
+
+	/**
 	 * Make sure all activities of the activity group shutdown.
 	 */
 	@Test
@@ -366,6 +418,33 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 		List<LiveActivity> liveActivities = liveActivities(10, 11);
 		List<ActiveLiveActivity> activeLiveActivities = activeLiveActivities(liveActivities);
 		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		activeControllerManager.startupLiveActivityGroup(group1);
+		activeControllerManager.shutdownLiveActivityGroup(group1);
+
+		assertActiveActivityState(activeLiveActivities.get(0), false, 0, false,
+				0, ActivityState.SHUTDOWN_ATTEMPT, ActivityState.READY);
+		assertActiveActivityState(activeLiveActivities.get(1), false, 0, false,
+				0, ActivityState.SHUTDOWN_ATTEMPT, ActivityState.READY);
+
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.shutdownActivity(activeLiveActivities.get(0).getLiveActivity());
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.shutdownActivity(activeLiveActivities.get(1).getLiveActivity());
+	}
+
+	/**
+	 * Make sure all activities of the activity group shutdown with a failure.
+	 */
+	@Test
+	public void testActivityGroupShutdownWithFail() {
+		List<LiveActivity> liveActivities = liveActivities(10, 11);
+		List<ActiveLiveActivity> activeLiveActivities = activeLiveActivities(liveActivities);
+		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		Mockito.doThrow(new RuntimeException())
+				.when(remoteControllerClient)
+				.shutdownActivity(activeLiveActivities.get(0).getLiveActivity());
 
 		activeControllerManager.startupLiveActivityGroup(group1);
 		activeControllerManager.shutdownLiveActivityGroup(group1);
@@ -405,6 +484,33 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 	}
 
 	/**
+	 * Make sure all activities of the activity group activate with a failure.
+	 */
+	@Test
+	public void testActivityGroupActivateWithFail() {
+		List<LiveActivity> liveActivities = liveActivities(10, 11);
+		List<ActiveLiveActivity> activeLiveActivities = activeLiveActivities(liveActivities);
+		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		Mockito.doThrow(new RuntimeException())
+				.when(remoteControllerClient)
+				.activateActivity(activeLiveActivities.get(0).getLiveActivity());
+
+		activeControllerManager.startupLiveActivityGroup(group1);
+		activeControllerManager.activateLiveActivityGroup(group1);
+
+		assertActiveActivityState(activeLiveActivities.get(0), false, 1, false,
+				0, ActivityState.ACTIVATE_ATTEMPT, ActivityState.READY);
+		assertActiveActivityState(activeLiveActivities.get(1), false, 1, false,
+				1, ActivityState.ACTIVATE_ATTEMPT, ActivityState.READY);
+
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.activateActivity(activeLiveActivities.get(0).getLiveActivity());
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.activateActivity(activeLiveActivities.get(1).getLiveActivity());
+	}
+
+	/**
 	 * Make sure all activities in the activity group deactivate.
 	 */
 	@Test
@@ -412,6 +518,37 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 		List<LiveActivity> liveActivities = liveActivities(10, 11);
 		List<ActiveLiveActivity> activeLiveActivities = activeLiveActivities(liveActivities);
 		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		activeControllerManager.startupLiveActivityGroup(group1);
+		activeControllerManager.activateLiveActivityGroup(group1);
+		activeControllerManager.deactivateLiveActivityGroup(group1);
+
+		assertActiveActivityState(activeLiveActivities.get(0), false, 1, false,
+				0, ActivityState.DEACTIVATE_ATTEMPT, ActivityState.READY);
+		assertActiveActivityState(activeLiveActivities.get(1), false, 1, false,
+				0, ActivityState.DEACTIVATE_ATTEMPT, ActivityState.READY);
+
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.deactivateActivity(
+						activeLiveActivities.get(0).getLiveActivity());
+		Mockito.verify(remoteControllerClient, Mockito.times(1))
+				.deactivateActivity(
+						activeLiveActivities.get(1).getLiveActivity());
+	}
+
+	/**
+	 * Make sure all activities in the activity group deactivate with a failure.
+	 */
+	@Test
+	public void testActivityGroupDeactivateWithFail() {
+		List<LiveActivity> liveActivities = liveActivities(10, 11);
+		List<ActiveLiveActivity> activeLiveActivities = activeLiveActivities(liveActivities);
+		LiveActivityGroup group1 = liveActivityGroup(liveActivities);
+
+		Mockito.doThrow(new RuntimeException())
+				.when(remoteControllerClient)
+				.deactivateActivity(
+						activeLiveActivities.get(0).getLiveActivity());
 
 		activeControllerManager.startupLiveActivityGroup(group1);
 		activeControllerManager.activateLiveActivityGroup(group1);
