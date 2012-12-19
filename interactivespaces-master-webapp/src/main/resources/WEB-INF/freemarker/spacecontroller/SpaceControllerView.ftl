@@ -157,6 +157,11 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 <#if liveactivity.activity.outOfDate>
 <span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
+<#if liveactivity.active.deployState != "READY">
+<span>
+<@spring.message liveactivity.active.deployState.description />
+</span>
+</#if>
 </td>
     </tr>
 </#list>

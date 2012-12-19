@@ -91,8 +91,9 @@ ${liveactivity.activity.description}
 </td>
 </tr>
 <tr>
-<th>Last Deployed</th>
-<td><#if liveactivity.activity.lastDeployDate??>
+<th>Deployement</th>
+<td>
+Last: <#if liveactivity.activity.lastDeployDate??>
       ${liveactivity.activity.lastDeployDate?datetime}
     <#else>
       Unknown
@@ -100,6 +101,13 @@ ${liveactivity.activity.description}
 <#if liveactivity.activity.outOfDate>
 <span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
+<#if liveactivity.active.deployState != "READY">
+&bull;
+<span>
+<@spring.message liveactivity.active.deployState.description />
+</span>
+</#if>
+
 </td>
 </tr>
 <tr>
