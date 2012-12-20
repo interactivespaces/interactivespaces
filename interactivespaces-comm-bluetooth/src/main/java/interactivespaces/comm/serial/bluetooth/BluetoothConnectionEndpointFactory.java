@@ -17,6 +17,7 @@
 package interactivespaces.comm.serial.bluetooth;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.hardware.drivers.gaming.wii.WiiRemoteDriver;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.io.IOException;
