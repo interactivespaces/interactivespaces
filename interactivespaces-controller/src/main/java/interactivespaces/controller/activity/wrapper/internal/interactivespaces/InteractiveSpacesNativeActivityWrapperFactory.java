@@ -56,10 +56,8 @@ public class InteractiveSpacesNativeActivityWrapperFactory implements
 			ActivityFilesystem activityFilesystem, Configuration configuration,
 			SpaceController controller) {
 		// TODO(keith): Need something which reference counts the OSGi bundle so
-		// that
-		// can have multiple instances of the same app running in the OSGi
-		// container.
-		// Will need to take versions into account.
+		// that can have multiple instances of the same app running in the OSGi
+		// container. Will need to take versions into account.
 		File executable = getActivityExecutable(liapp, activityFilesystem,
 				configuration);
 

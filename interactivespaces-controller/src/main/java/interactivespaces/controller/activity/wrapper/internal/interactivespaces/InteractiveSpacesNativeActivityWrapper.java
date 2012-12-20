@@ -128,7 +128,6 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 
 			bundle.start();
 		} catch (BundleException e) {
-			e.printStackTrace();
 			throw new InteractiveSpacesException(String.format(
 					"Cannot load bundle %s", executable.getAbsolutePath()), e);
 		}
