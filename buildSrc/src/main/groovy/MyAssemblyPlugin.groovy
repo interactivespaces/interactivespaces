@@ -75,14 +75,14 @@ class MyAssemblyPlugin implements Plugin<Project>  {
     }
 
     void processFiles(project) {
-      File bootstrapAssets = project.file("assets/bootstrap")
-      bootstrapAssets.mkdirs()
+      File libsAssets = project.file("libs")
+      libsAssets.mkdirs()
       project.copy {
         from project.ext.assembledFiles
-        into bootstrapAssets
+        into libsAssets
       }
 
-      //bootstrapAssets.eachFile { processFile(it, project) }
+      //libsAssets.eachFile { processFile(it, project) }
     }
 
     void processFile(File jar, project) {

@@ -25,7 +25,7 @@ dependencies {
   compile('ros:message.rosgraph_msgs:0.0.0-SNAPSHOT') {
     exclude module: 'rosjava_bootstrap'
   }
-  compile 'io.netty:netty:3.5.11.Final'
+  compile 'io.netty:netty:3.6.0.Final'
   compile 'com.google.guava:org.ros.rosjava.guava:r07'
   compile('dnsjava:org.ros.rosjava.dnsjava:2.1.1') {
 	  transitive = false

@@ -23,6 +23,15 @@
 <script type="text/javascript" src="/interactivespaces/js/jquery-ispopup.js"></script>
 
 <script type="text/javascript">
+function doAjaxCommandByUrl(url) {
+  $.ajax({
+      url: url,
+      success: function(data) {
+        $('#commandResult').html(data.result);
+      }
+  });
+}
+
 $(document).ready(function() {
 <#list liveactivities as liveactivity>
 $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
@@ -41,6 +50,7 @@ $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
 
 <div class="commandBar"><ul>
 <li><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="Create a new live activity">New</button></li>
+<li><button type="button" id="nstatusAllButton" onclick="doAjaxCommandByUrl('/interactivespaces/spacecontroller/all/status.json')" title="Get the status of all Live Activities on all Space Controllers">Status All</button></li>
 </ul></div>
 
 <div id="commandResult">

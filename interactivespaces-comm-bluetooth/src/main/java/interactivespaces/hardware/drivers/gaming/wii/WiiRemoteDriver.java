@@ -68,13 +68,35 @@ public class WiiRemoteDriver {
 	 * The reader future.
 	 */
 	private Future<?> readerFuture;
-	
+
+	/**
+	 * Denominator for the X calibration for the accelerometer.
+	 */
 	private double calibrationX;
+
+	/**
+	 * Denominator for the Y calibration for the accelerometer.
+	 */
 	private double calibrationY;
+
+	/**
+	 * Denominator for the Z calibration for the accelerometer.
+	 */
 	private double calibrationZ;
-	
+
+	/**
+	 * 0 point for the X calibration for the accelerometer.
+	 */
 	private double calibrationX0;
+
+	/**
+	 * 0 point for the Y calibration for the accelerometer.
+	 */
 	private double calibrationY0;
+
+	/**
+	 * 0 point for the Z calibration for the accelerometer.
+	 */
 	private double calibrationZ0;
 
 	/**
@@ -102,13 +124,13 @@ public class WiiRemoteDriver {
 		readerFuture = executorService.submit(new RemoteReader());
 
 		readCalibration();
-		
-		try {
-			sendConnection.send(new byte[] { 0x12, 0x04, 0x31});
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+//		try {
+//			sendConnection.send(new byte[] { 0x12, 0x04, 0x31 });
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -207,7 +229,7 @@ public class WiiRemoteDriver {
 
 	/**
 	 * The reader for information coming from the Wii
-	 *
+	 * 
 	 * @author Keith M. Hughes
 	 */
 	private class RemoteReader implements Runnable {
@@ -231,22 +253,22 @@ public class WiiRemoteDriver {
 
 					switch (buffer[1]) {
 					case REMOTE_EVENT_CALIBRATION_RESPONSE:
-						decodeCalibrationResponse();  
-                        
-                        break;
-						
+						decodeCalibrationResponse();
+
+						break;
+
 					case REMOTE_EVENT_BUTTON_ONLY:
 						handleButtonOnlyEvent();
-						
+
 						break;
-						
+
 					case REMOTE_EVENT_LOTS:
 						handleLotsEvent();
-						
+
 						break;
 					}
 				} catch (InterruptedIOException e) {
-					// Don't care
+					// Don't care. This happens on thread shutdown.
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -260,15 +282,17 @@ public class WiiRemoteDriver {
 		private void decodeCalibrationResponse() {
 			byte b0 = buffer[3];
 			byte b1 = buffer[7];
-			
+
 			calibrationX0 = ((buffer[7] & 0xFF) << 2) + (b0 & 3);
 			calibrationY0 = ((buffer[8] & 0xFF) << 2) + ((b0 & 0xC) >> 2);
 			calibrationZ0 = ((buffer[9] & 0xFF) << 2) + ((b0 & 0x30) >> 4);
-			
+
 			double calibrationX1 = ((buffer[11] & 0xFF) << 2) + (b1 & 3);
-			double calibrationY1 = ((buffer[12] & 0xFF) << 2) + ((b1 & 0xC) >> 2);
-			double calibrationZ1 = ((buffer[13] & 0xFF) << 2) + ((b1 & 0x30) >> 4);
-			
+			double calibrationY1 = ((buffer[12] & 0xFF) << 2)
+					+ ((b1 & 0xC) >> 2);
+			double calibrationZ1 = ((buffer[13] & 0xFF) << 2)
+					+ ((b1 & 0x30) >> 4);
+
 			calibrationX = calibrationX1 - calibrationX0;
 			calibrationY = calibrationY1 - calibrationY0;
 			calibrationZ = calibrationZ1 - calibrationX0;
@@ -281,17 +305,18 @@ public class WiiRemoteDriver {
 			int button = (buffer[2] << 8) | buffer[3];
 			notifyButtonEvent(button);
 		}
-		
+
 		private void handleLotsEvent() {
-	        int x = ((buffer[4] & 0xff) << 2) + ((buffer[2] & 0x60) >> 5);
-            int y = ((buffer[5] & 0xff) << 2) + ((buffer[3] & 0x60) >> 5);
-            int z = ((buffer[6] & 0xff) << 2) + ((buffer[3] & 0x80) >> 6);
-            
-            double xaccel = ((double)x-calibrationX0)/(calibrationX);
-            double yaccel = ((double)y-calibrationY0)/(calibrationY);
-            double zaccel = ((double)z-calibrationZ0)/(calibrationZ);
-            
-            System.out.format("Acceleration %f %f %f\n", xaccel, yaccel, zaccel);
+			int x = ((buffer[4] & 0xff) << 2) + ((buffer[2] & 0x60) >> 5);
+			int y = ((buffer[5] & 0xff) << 2) + ((buffer[3] & 0x60) >> 5);
+			int z = ((buffer[6] & 0xff) << 2) + ((buffer[3] & 0x80) >> 6);
+
+			double xaccel = ((double) x - calibrationX0) / (calibrationX);
+			double yaccel = ((double) y - calibrationY0) / (calibrationY);
+			double zaccel = ((double) z - calibrationZ0) / (calibrationZ);
+
+			System.out
+					.format("Acceleration %f %f %f\n", xaccel, yaccel, zaccel);
 		}
 
 	}

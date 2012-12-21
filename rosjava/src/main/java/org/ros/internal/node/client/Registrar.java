@@ -49,7 +49,6 @@ import com.google.common.base.Preconditions;
  */
 public class Registrar implements TopicManagerListener, ServiceManagerListener {
 
-	private static final boolean DEBUG = false;
 	private final Log log /* = LogFactory.getLog(Registrar.class) */;
 
 	private static final int SHUTDOWN_TIMEOUT = 5;
@@ -111,16 +110,14 @@ public class Registrar implements TopicManagerListener, ServiceManagerListener {
 		boolean success;
 		try {
 			Response<T> response = callable.call();
-			if (DEBUG) {
-				log.info(response);
+			if (log != null && log.isDebugEnabled()) {
+				log.debug(response);
 			}
 			success = response.isSuccess();
 		} catch (Exception e) {
-			if (DEBUG) {
+			if (log != null) {
 				log.error("Exception caught while communicating with master.",
 						e);
-			} else {
-				log.error("Exception caught while communicating with master.");
 			}
 			success = false;
 		}
@@ -364,8 +361,8 @@ public class Registrar implements TopicManagerListener, ServiceManagerListener {
 	@Override
 	public void onServiceServerAdded(
 			final DefaultServiceServer<?, ?> serviceServer) {
-		if (DEBUG) {
-			log.info("Registering service: " + serviceServer);
+		if (log != null && log.isDebugEnabled()) {
+			log.debug("Registering service: " + serviceServer);
 		}
 		boolean submitted = submit(new Callable<Boolean>() {
 			@Override
@@ -398,8 +395,8 @@ public class Registrar implements TopicManagerListener, ServiceManagerListener {
 	@Override
 	public void onServiceServerRemoved(
 			final DefaultServiceServer<?, ?> serviceServer) {
-		if (DEBUG) {
-			log.info("Unregistering service: " + serviceServer);
+		if (log != null && log.isDebugEnabled()) {
+			log.debug("Unregistering service: " + serviceServer);
 		}
 		boolean submitted = submit(new Callable<Boolean>() {
 			@Override

@@ -19,15 +19,14 @@ package interactivespaces.controller.activity.wrapper.internal.interactivespaces
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 
 import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 
 /**
  * A {@link ActivityWrapper} which works with an OSGi container.
@@ -112,6 +111,13 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 	 */
 	private void prepare() {
 		try {
+//			JarFile bundleJar = new JarFile(executable);
+//			Manifest manifest = bundleJar.getManifest();
+//			Attributes mainAttributes = manifest.getMainAttributes();
+//			bundleJar.close();
+//			System.out.println(mainAttributes.getValue("Bundle-SymbolicName"));
+//			System.out.println(mainAttributes.getValue("Bundle-Version"));
+			
 			// If there is a bundle loaded and it hasn't been modified,
 			// no reason to load.
 			if (bundle != null) {
@@ -127,7 +133,7 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 			lastModified = executable.lastModified();
 
 			bundle.start();
-		} catch (BundleException e) {
+		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Cannot load bundle %s", executable.getAbsolutePath()), e);
 		}
