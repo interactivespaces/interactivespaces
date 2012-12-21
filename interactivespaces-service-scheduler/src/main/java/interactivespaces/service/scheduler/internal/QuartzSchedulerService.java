@@ -89,9 +89,6 @@ public class QuartzSchedulerService implements SchedulerService {
 			scheduler = schedulerFactory.getScheduler();
 
 			scheduler.start();
-
-			spaceEnvironment.getServiceRegistry().registerService(SERVICE_NAME,
-					this);
 		} catch (SchedulerException e) {
 			throw new InteractiveSpacesException(
 					"Could not start Interactive Spaces scheduler", e);
