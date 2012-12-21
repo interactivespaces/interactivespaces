@@ -26,6 +26,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.service.web.client.WebSocketClientService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * A {@link WebSocketClientService} based on Netty.
@@ -33,7 +34,12 @@ import interactivespaces.service.web.client.WebSocketClientService;
  * @author Keith M. Hughes
  */
 public class NettyWebSocketClientService implements WebSocketClientService {
-
+	
+	/**
+	 * Space environment for this service.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
+	
 	@Override
 	public void startup() {
 		// Nothing to do
@@ -46,15 +52,21 @@ public class NettyWebSocketClientService implements WebSocketClientService {
 
 	@Override
 	public WebSocketClient newWebSocketClient(String uri,
-			WebSocketHandler handler, ScheduledExecutorService threadPool, Log log) {
+			WebSocketHandler handler, Log log) {
 		try {
 			URI u = new URI(uri);
 
-			return new NettyWebSocketClient(u, handler, threadPool, log);
+			return new NettyWebSocketClient(u, handler, spaceEnvironment.getExecutorService(), log);
 		} catch (URISyntaxException e) {
 			throw new InteractiveSpacesException(String.format(
 					"Bad URI syntax for web socket URI: %s", uri), e);
 		}
 	}
 
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		// TODO Auto-generated method stub
+		
+	}
 }

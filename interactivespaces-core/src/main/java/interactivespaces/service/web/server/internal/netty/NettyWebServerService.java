@@ -32,9 +32,11 @@ import org.apache.commons.logging.Log;
 public class NettyWebServerService extends AbstractWebServerService {
 
 	@Override
-	public WebServer newWebServer(String serverName, int port,
-			ScheduledExecutorService threadPool, Log log) {
+	public WebServer newWebServer(String serverName, int port, Log log) {
+		ScheduledExecutorService threadPool = getSpaceEnvironment().getExecutorService();
+		
 		WebServer server = new NettyWebServer(serverName, port, threadPool, threadPool, log);
+		
 		return server;
 	}
 }

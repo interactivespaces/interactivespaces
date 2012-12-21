@@ -16,7 +16,7 @@
 
 package interactivespaces.service.web.server;
 
-import java.util.concurrent.ScheduledExecutorService;
+import interactivespaces.service.SupportedService;
 
 import org.apache.commons.logging.Log;
 
@@ -25,21 +25,13 @@ import org.apache.commons.logging.Log;
  * 
  * @author Keith M. Hughes
  */
-public interface WebServerService {
-
+public interface WebServerService extends SupportedService {
+	
 	/**
-	 * Start the service up.
+	 * name for the service.
 	 */
-	void startup();
-
-	/**
-	 * Shut the service down.
-	 * 
-	 * <p>
-	 * All running servers will also be shut down.
-	 */
-	void shutdown();
-
+	public static final String SERVICE_NAME = "web.server";
+	
 	/**
 	 * Create a new server.
 	 * 
@@ -47,15 +39,12 @@ public interface WebServerService {
 	 *            Name of the server.
 	 * @param port
 	 *            Port the server should be on.
-	 * @param threadPool
-	 *            Thread pool for the server.
 	 * @param log
 	 *            Logger to be used with the server.
 	 * 
 	 * @return The web server.
 	 */
-	WebServer newWebServer(String serverName, int port,
-			ScheduledExecutorService threadPool, Log log);
+	WebServer newWebServer(String serverName, int port, Log log);
 
 	/**
 	 * Get the web server.

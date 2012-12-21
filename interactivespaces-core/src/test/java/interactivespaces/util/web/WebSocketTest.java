@@ -65,7 +65,6 @@ public class WebSocketTest {
 		log = new Jdk14Logger("goober"); // Mockito.mock(Log.class);
 
 		threadPool = Executors.newScheduledThreadPool(100);
-
 	}
 
 	@After

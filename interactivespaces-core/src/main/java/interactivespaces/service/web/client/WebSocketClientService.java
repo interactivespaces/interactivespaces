@@ -16,10 +16,8 @@
 
 package interactivespaces.service.web.client;
 
+import interactivespaces.service.SupportedService;
 import interactivespaces.service.web.WebSocketHandler;
-import interactivespaces.service.web.server.WebServer;
-
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
 
@@ -28,21 +26,13 @@ import org.apache.commons.logging.Log;
  * 
  * @author Keith M. Hughes
  */
-public interface WebSocketClientService {
-
+public interface WebSocketClientService extends SupportedService {
+	
 	/**
-	 * Start the service up.
+	 * Service name for the service.
 	 */
-	void startup();
-
-	/**
-	 * Shut the service down.
-	 * 
-	 * <p>
-	 * All running clients will also be shut down.
-	 */
-	void shutdown();
-
+	public static final String SERVICE_NAME = "web.client.websocket";
+	
 	/**
 	 * Create a new server.
 	 * 
@@ -50,14 +40,10 @@ public interface WebSocketClientService {
 	 *            the uri to connect to
 	 * @param handler
 	 *            the handler for web socket events
-	 * @param threadPool
-	 *            thread pool for the client
 	 * @param log
 	 *            logger to be used with the client
 	 * 
 	 * @return The web server.
 	 */
-	WebSocketClient newWebSocketClient(String uri, WebSocketHandler handler,
-			ScheduledExecutorService threadPool, Log log);
-
+	WebSocketClient newWebSocketClient(String uri, WebSocketHandler handler, Log log);
 }

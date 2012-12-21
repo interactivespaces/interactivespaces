@@ -42,6 +42,11 @@ import interactivespaces.controller.logging.ActivityLogFactory;
 import interactivespaces.controller.logging.SimpleAlertStatusManager;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.service.ServiceRegistry;
+import interactivespaces.service.web.client.WebSocketClientService;
+import interactivespaces.service.web.client.internal.netty.NettyWebSocketClientService;
+import interactivespaces.service.web.server.WebServerService;
+import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
@@ -234,6 +239,10 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	private volatile boolean startedUp = false;
 
+	private WebServerService webServerService;
+
+	private WebSocketClientService webSocketClientService;
+
 	public StandardSpaceController(
 			ActivityInstallationManager activityInstallationManager,
 			LocalSpaceControllerRepository controllerRepository,
@@ -281,8 +290,8 @@ public class StandardSpaceController implements SpaceController,
 
 		controllerHeartbeat = controllerCommunicator
 				.newSpaceControllerHeartbeat();
-		controllerHeartbeatControl = getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(
-				new Runnable() {
+		controllerHeartbeatControl = getSpaceEnvironment().getExecutorService()
+				.scheduleAtFixedRate(new Runnable() {
 					@Override
 					public void run() {
 						controllerHeartbeat.heartbeat();
@@ -304,6 +313,8 @@ public class StandardSpaceController implements SpaceController,
 				.addActivityInstallationListener(activityInstallationListener);
 
 		controllerCommunicator.onStartup();
+
+		startupCoreControllerServices();
 
 		startupAutostartActivities();
 
@@ -432,6 +443,8 @@ public class StandardSpaceController implements SpaceController,
 				activityStateTransitioners.clear();
 
 				shutdownAllActivities();
+				
+				shutdownCoreControllerServices();
 
 				controllerHeartbeatControl.cancel(true);
 				controllerHeartbeatControl = null;
@@ -572,7 +585,8 @@ public class StandardSpaceController implements SpaceController,
 				String.format("Starting up activity %s", uuid));
 
 		try {
-			ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+			ActiveControllerActivity activity = getActiveActivityByUuid(uuid,
+					true);
 			if (activity != null) {
 				if (!activity.getCachedActivityStatus().getState().isRunning()) {
 					activityWatcher.watchActivity(activity);
@@ -580,11 +594,13 @@ public class StandardSpaceController implements SpaceController,
 				}
 			} else {
 				spaceEnvironment.getLog().warn(
-						String.format("Activity %s does not exist on controller",
+						String.format(
+								"Activity %s does not exist on controller",
 								uuid));
 			}
 		} catch (Exception e) {
-			ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, e.getMessage());
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.STARTUP_FAILURE, e.getMessage());
 			controllerCommunicator.publishActivityStatus(uuid, status);
 		}
 	}
@@ -1034,5 +1050,36 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	public ActivityListener getActivityListener() {
 		return activityListener;
+	}
+
+	/**
+	 * Start up the core services that all controllers provide.
+	 */
+	private void startupCoreControllerServices() {
+		ServiceRegistry serviceRegistry = getSpaceEnvironment()
+				.getServiceRegistry();
+
+		webServerService = new NettyWebServerService();
+		serviceRegistry.registerService(WebServerService.SERVICE_NAME,
+				webServerService);
+		webServerService.startup();
+
+		webSocketClientService = new NettyWebSocketClientService();
+		serviceRegistry.registerService(WebSocketClientService.SERVICE_NAME,
+				webSocketClientService);
+		webSocketClientService.startup();
+	}
+	
+	private void shutdownCoreControllerServices() {
+		ServiceRegistry serviceRegistry = getSpaceEnvironment()
+				.getServiceRegistry();
+
+		serviceRegistry.unregisterService(WebServerService.SERVICE_NAME,
+				webServerService);
+		webServerService.shutdown();
+
+		serviceRegistry.unregisterService(WebSocketClientService.SERVICE_NAME,
+				webSocketClientService);
+		webSocketClientService.shutdown();
 	}
 }
