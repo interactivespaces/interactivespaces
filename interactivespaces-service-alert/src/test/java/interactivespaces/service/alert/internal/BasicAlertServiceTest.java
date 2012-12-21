@@ -57,7 +57,8 @@ public class BasicAlertServiceTest {
 		notifier1 = Mockito.mock(AlertNotifier.class);
 		notifier2 = Mockito.mock(AlertNotifier.class);
 
-		alertService = new BasicAlertService(spaceEnvironment);
+		alertService = new BasicAlertService();
+		alertService.setSpaceEnvironment(spaceEnvironment);
 		alertService.registerAlertNotifier(notifier1);
 		alertService.registerAlertNotifier(notifier2);
 	}

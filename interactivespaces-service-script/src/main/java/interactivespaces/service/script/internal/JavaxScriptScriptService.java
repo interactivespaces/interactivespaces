@@ -347,10 +347,7 @@ public class JavaxScriptScriptService implements ScriptService {
 				configuration);
 	}
 
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
+	@Override
 	public void setSpaceEnvironment(
 			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;

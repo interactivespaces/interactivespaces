@@ -30,7 +30,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * An OSGI bundle activator for the mail receiver service.
- *
+ * 
  * @author Keith M. Hughes
  * @since Nov 21, 2012
  */
@@ -77,6 +77,12 @@ public class OsgiMailReceiverServiceActivator implements BundleActivator {
 		mailReceiverService.shutdown();
 		mailReceiverService = null;
 
+		interactiveSpacesEnvironmentTracker
+				.getMyService()
+				.getServiceRegistry()
+				.unregisterService(MailReceiverService.SERVICE_NAME,
+						mailReceiverService);
+
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
 	}
@@ -86,13 +92,19 @@ public class OsgiMailReceiverServiceActivator implements BundleActivator {
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			mailReceiverService = new DumbsterMailReceiverService(
-					interactiveSpacesEnvironmentTracker.getMyService());
+			mailReceiverService = new DumbsterMailReceiverService();
 
+			interactiveSpacesEnvironmentTracker
+					.getMyService()
+					.getServiceRegistry()
+					.registerService(MailReceiverService.SERVICE_NAME,
+							mailReceiverService);
+			
 			mailReceiverService.startup();
 
 			mailReceiverServiceRegistration = bundleContext.registerService(
-					MailReceiverService.class.getName(), mailReceiverService, null);
+					MailReceiverService.class.getName(), mailReceiverService,
+					null);
 		}
 	}
 

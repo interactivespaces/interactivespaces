@@ -16,6 +16,7 @@
 
 package interactivespaces.service.scheduler.internal.osgi;
 
+import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.scheduler.internal.QuartzSchedulerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -46,7 +47,7 @@ public class OsgiSchedulerServiceActivator implements BundleActivator {
 	private QuartzSchedulerService schedulerService;
 
 	/**
-	 * OSGi service registration for the script service.
+	 * OSGi service registration for the scheduler service.
 	 */
 	private ServiceRegistration schedulerServiceRegistration;
 
@@ -76,6 +77,12 @@ public class OsgiSchedulerServiceActivator implements BundleActivator {
 		schedulerService.shutdown();
 		schedulerService = null;
 
+		interactiveSpacesEnvironmentTracker
+				.getMyService()
+				.getServiceRegistry()
+				.unregisterService(SchedulerService.SERVICE_NAME,
+						schedulerService);
+
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
 	}
@@ -85,8 +92,12 @@ public class OsgiSchedulerServiceActivator implements BundleActivator {
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			schedulerService = new QuartzSchedulerService(
-					interactiveSpacesEnvironmentTracker.getMyService());
+			schedulerService = new QuartzSchedulerService();
+			interactiveSpacesEnvironmentTracker
+					.getMyService()
+					.getServiceRegistry()
+					.registerService(SchedulerService.SERVICE_NAME,
+							schedulerService);
 
 			schedulerService.startup();
 

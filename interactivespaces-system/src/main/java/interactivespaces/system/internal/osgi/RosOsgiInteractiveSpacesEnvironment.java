@@ -76,7 +76,7 @@ public class RosOsgiInteractiveSpacesEnvironment implements
 	/**
 	 * The service registry.
 	 */
-	private ServiceRegistry serviceRegistry = new SimpleServiceRegistry();
+	private ServiceRegistry serviceRegistry = new SimpleServiceRegistry(this);
 	
 	/**
 	 * The platform logging provider.

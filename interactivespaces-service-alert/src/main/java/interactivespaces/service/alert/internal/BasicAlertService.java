@@ -40,10 +40,6 @@ public class BasicAlertService implements AlertService {
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
-	public BasicAlertService(InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
-
 	@Override
 	public void startup() {
 		spaceEnvironment.getLog().info("Alert manager started");
@@ -76,5 +72,11 @@ public class BasicAlertService implements AlertService {
 	@Override
 	public void unregisterAlertNotifier(AlertNotifier notifier) {
 		alertNotifiers.remove(notifier);
+	}
+
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
 	}
 }

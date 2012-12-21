@@ -18,6 +18,7 @@ package interactivespaces.service.androidos.impl;
 
 import android.content.Context;
 import interactivespaces.service.androidos.AndroidOsService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * A simple implementation of {@link AndroidOsService}
@@ -30,6 +31,11 @@ public class SimpleAndroidOsService implements AndroidOsService {
 	 * The Android context the service was started under.
 	 */
 	private Context context;
+
+	/**
+	 * Interactive Spaces environment for the service.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
 	
 	public SimpleAndroidOsService(Context context) {
 		this.context = context;
@@ -43,5 +49,11 @@ public class SimpleAndroidOsService implements AndroidOsService {
 	@Override
 	public Object getSystemService(String name) {
 		return context.getSystemService(name);
+	}
+
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
 	}
 }

@@ -30,7 +30,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * An OSGI bundle activator for the alert service.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class OsgiAlertServiceActivator implements BundleActivator {
@@ -76,6 +76,9 @@ public class OsgiAlertServiceActivator implements BundleActivator {
 		alertService.shutdown();
 		alertService = null;
 
+		interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
+				.unregisterService(AlertService.SERVICE_NAME, alertService);
+
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
 	}
@@ -85,8 +88,10 @@ public class OsgiAlertServiceActivator implements BundleActivator {
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			alertService = new BasicAlertService(
-					interactiveSpacesEnvironmentTracker.getMyService());
+			alertService = new BasicAlertService();
+			interactiveSpacesEnvironmentTracker.getMyService()
+					.getServiceRegistry()
+					.registerService(AlertService.SERVICE_NAME, alertService);
 
 			alertService.startup();
 

@@ -49,6 +49,19 @@ public interface ServiceRegistry {
 			Map<String, Object> metadata);
 
 	/**
+	 * Unregister a service with the registry.
+	 * 
+	 * <p>
+	 * Does nothing if the service wasn't registered.
+	 * 
+	 * @param name
+	 *            the name of the service
+	 * @param service
+	 *            the service to unregister
+	 */
+	void unregisterService(String name, Service service);
+
+	/**
 	 * Get a given service from the registry.
 	 * 
 	 * @param name

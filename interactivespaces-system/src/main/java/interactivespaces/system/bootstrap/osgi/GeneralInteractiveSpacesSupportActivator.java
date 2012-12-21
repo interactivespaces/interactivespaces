@@ -122,9 +122,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 */
 	private ContainerCustomizerProvider containerCustomizerProvider;
 
-	/**
-	 * Start up the activator.
-	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		String baseInstallDirProperty = context
 				.getProperty(PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR);

@@ -78,5 +78,4 @@ public interface WebServerService {
 	 *            name of the server to shut down.
 	 */
 	void shutdownServer(String serverName);
-
 }

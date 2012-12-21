@@ -131,6 +131,7 @@ public class SpeechSynthesisActivity extends BaseRosActivity {
 		InteractiveSpacesUtilities.delay(5000);
 
 		speechSynthesisService = new FestivalSpeechSynthesisService("localhost", 1314);
+		speechSynthesisService.setSpaceEnvironment(getSpaceEnvironment());
 		speechSynthesisService.startup();
 	}
 

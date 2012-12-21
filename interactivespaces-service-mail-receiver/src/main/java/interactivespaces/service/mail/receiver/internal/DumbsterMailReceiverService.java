@@ -47,11 +47,6 @@ public class DumbsterMailReceiverService implements MailReceiverService,
 	 */
 	private CallbackMailStore mailStore = new CallbackMailStore();
 
-	public DumbsterMailReceiverService(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
-
 	@Override
 	public void startup() {
 		spaceEnvironment.getLog().info("Starting mail server");
@@ -87,10 +82,7 @@ public class DumbsterMailReceiverService implements MailReceiverService,
 				String.format("Got email message\n%s", message.getBody()));
 	}
 
-	/**
-	 * @param spaceEnvironment
-	 *            the spaceEnvironment to set
-	 */
+	@Override
 	public void setSpaceEnvironment(
 			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;

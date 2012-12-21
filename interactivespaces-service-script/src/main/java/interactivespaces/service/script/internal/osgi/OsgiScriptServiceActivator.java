@@ -75,6 +75,10 @@ public class OsgiScriptServiceActivator implements BundleActivator {
 
 		scriptService.shutdown();
 		scriptService = null;
+		
+		interactiveSpacesEnvironmentTracker.getMyService()
+				.getServiceRegistry()
+				.unregisterService(ScriptService.SERVICE_NAME, scriptService);
 
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
@@ -86,9 +90,10 @@ public class OsgiScriptServiceActivator implements BundleActivator {
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
 			scriptService = new JavaxScriptScriptService();
-			scriptService
-					.setSpaceEnvironment(interactiveSpacesEnvironmentTracker
-							.getMyService());
+			
+			interactiveSpacesEnvironmentTracker.getMyService()
+					.getServiceRegistry()
+					.registerService(ScriptService.SERVICE_NAME, scriptService);
 
 			scriptService.startup();
 

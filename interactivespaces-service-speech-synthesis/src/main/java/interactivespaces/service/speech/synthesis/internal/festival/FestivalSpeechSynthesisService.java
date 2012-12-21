@@ -21,6 +21,7 @@ import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
 import interactivespaces.service.speech.synthesis.internal.festival.client.Request;
 import interactivespaces.service.speech.synthesis.internal.festival.client.RequestListener;
 import interactivespaces.service.speech.synthesis.internal.festival.client.Session;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -45,6 +46,11 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 	private RequestListener requestHandler;
 
 	private Session session;
+	
+	/**
+	 * The space environment for the service.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
 
 	/**
 	 * 
@@ -98,6 +104,12 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 			while (!r.isFinished())
 				r.waitForUpdate();
 
+	}
+
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
 	}
 
 	/**

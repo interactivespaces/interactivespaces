@@ -16,11 +16,20 @@
 
 package interactivespaces.service;
 
+import interactivespaces.system.InteractiveSpacesEnvironment;
+
 /**
  * An Interactive Spaces service.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface Service {
 
+	/**
+	 * Set the space environment for the service.
+	 * 
+	 * @param spaceEnvironment
+	 *            the environment to use
+	 */
+	void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment);
 }

@@ -30,7 +30,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * An OSGI bundle activator for the mail sender service.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class OsgiMailSenderServiceActivator implements BundleActivator {
@@ -76,6 +76,12 @@ public class OsgiMailSenderServiceActivator implements BundleActivator {
 		mailSenderService.shutdown();
 		mailSenderService = null;
 
+		interactiveSpacesEnvironmentTracker
+				.getMyService()
+				.getServiceRegistry()
+				.unregisterService(MailSenderService.SERVICE_NAME,
+						mailSenderService);
+
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
 	}
@@ -85,8 +91,12 @@ public class OsgiMailSenderServiceActivator implements BundleActivator {
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			mailSenderService = new JavaxMailMailSenderService(
-					interactiveSpacesEnvironmentTracker.getMyService());
+			mailSenderService = new JavaxMailMailSenderService();
+			interactiveSpacesEnvironmentTracker
+					.getMyService()
+					.getServiceRegistry()
+					.registerService(MailSenderService.SERVICE_NAME,
+							mailSenderService);
 
 			mailSenderService.startup();
 

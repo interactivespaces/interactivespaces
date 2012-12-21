@@ -16,6 +16,8 @@
 
 package interactivespaces.service;
 
+import interactivespaces.system.InteractiveSpacesEnvironment;
+
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -32,6 +34,15 @@ public class SimpleServiceRegistry implements ServiceRegistry {
 	 */
 	private Map<String, ServiceEntry> services = Maps.newHashMap();
 
+	/**
+	 * The space environment for services
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
+
+	public SimpleServiceRegistry(InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
+
 	@Override
 	public void registerService(String name, Service service) {
 		registerService(name, service, null);
@@ -43,8 +54,22 @@ public class SimpleServiceRegistry implements ServiceRegistry {
 		if (metadata == null) {
 			metadata = Maps.newHashMap();
 		}
-		
+
+		// TODO(keith): Support multiple services with the same name of the
+		// service.
 		services.put(name, new ServiceEntry(service, metadata));
+
+		service.setSpaceEnvironment(spaceEnvironment);
+
+		spaceEnvironment.getLog().info(
+				String.format("Service registered with name %s", name));
+	}
+
+	@Override
+	public void unregisterService(String name, Service service) {
+		spaceEnvironment.getLog().info(
+				String.format("Service unregistering with name %s", name));
+		services.remove(name);
 	}
 
 	@Override
