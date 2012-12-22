@@ -25,7 +25,7 @@ import java.util.List;
  * 
  * @author Keith M. Hughes
  */
-public interface SerialCommunicationEndpointFactory {
+public interface SerialCommunicationEndpointService {
 
 	/**
 	 * Get a list of all serial ports ready to be connected to.

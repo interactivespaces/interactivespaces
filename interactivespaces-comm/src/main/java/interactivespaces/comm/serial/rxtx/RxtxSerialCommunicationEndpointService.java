@@ -18,7 +18,7 @@ package interactivespaces.comm.serial.rxtx;
 
 import gnu.io.CommPortIdentifier;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
-import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
+import interactivespaces.comm.serial.SerialCommunicationEndpointService;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -30,8 +30,8 @@ import com.google.common.collect.Lists;
  * 
  * @author Keith M. Hughes
  */
-public class RxtxSerialCommunicationEndpointFactory implements
-		SerialCommunicationEndpointFactory {
+public class RxtxSerialCommunicationEndpointService implements
+		SerialCommunicationEndpointService {
 
 	@Override
 	public List<String> getSerialPorts() {

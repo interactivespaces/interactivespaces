@@ -14,22 +14,28 @@
  * the License.
  */
 
-package interactivespaces.comm;
+package interactivespaces.comm.serial.bluetooth;
 
 /**
- * A communication endpoint.
- *
+ * A service for bluetooth connections.
+ * 
  * @author Keith M. Hughes
  */
-public interface CommunicationEndpoint {
+public interface BluetoothConnectionEndpointService {
 
 	/**
-	 * Start the endpoint up.
+	 * Get a bluetooth endpoint which uses separate ports for sending and
+	 * receiving.
+	 * 
+	 * @param address
+	 *            the bluetooth address
+	 * @param WII_REMOTE_RECEIVE_PORT
+	 *            the port for sending
+	 * @param WII_REMOTE_SEND_PORT
+	 *            the port for receiving
+	 * 
+	 * @return the dual port
 	 */
-	void connect();
-
-	/**
-	 * Shut down all open serial ports managed by this endpoint.
-	 */
-	void shutdown();
+	BluetoothConnectionEndpoint newDualEndpoint(String address,
+			int receivePort, int sendPort);
 }

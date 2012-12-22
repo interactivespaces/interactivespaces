@@ -17,15 +17,15 @@
 package interactivespaces.hardware.drivers.gaming.wii;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpoint;
+import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpointService;
+import interactivespaces.comm.serial.bluetooth.jsr82.Jsr82BluetoothConnectionEndpointService;
+import interactivespaces.util.InteractiveSpacesUtilities;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.bluetooth.L2CAPConnection;
-import javax.microedition.io.Connector;
 
 import com.google.common.collect.Lists;
 
@@ -35,6 +35,57 @@ import com.google.common.collect.Lists;
  * @author Keith M. Hughes
  */
 public class WiiRemoteDriver {
+	public static void main(String[] args) {
+
+		WiiRemoteDriver driver = null;
+		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
+		try {
+			Jsr82BluetoothConnectionEndpointService factory = new Jsr82BluetoothConnectionEndpointService();
+			factory.startup();
+	
+			driver = new WiiRemoteDriver();
+			WiiRemoteEventListener listener = new WiiRemoteEventListener() {
+				
+				@Override
+				public void onWiiRemoteButtonEvent(int button) {
+					System.out.println("Wii button pressed " + button);
+				}
+			};
+			driver.addEventListener(listener);
+			
+			driver.startup(executorService, factory);
+			System.out.println("Connected");
+			
+			InteractiveSpacesUtilities.delay(1000);
+			for (int light = 0; light <= 3; light++) {
+				driver.setLight(light);
+				
+				InteractiveSpacesUtilities.delay(1000);
+			}
+			
+			InteractiveSpacesUtilities.delay(10000);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			executorService.shutdown();
+			
+			if (driver != null) {
+				driver.shutdown();
+			}
+		}
+
+	}
+
+	/**
+	 * The Bluetooth report for reading from the Wii remote.
+	 */
+	public static final int WII_REMOTE_RECEIVE_PORT = 13;
+
+	/**
+	 * The Bluetooth report for writing to the Wii remote.
+	 */
+	public static final int WII_REMOTE_SEND_PORT = 11;
 
 	private static final byte COMMAND_LIGHT = 0x11;
 
@@ -59,10 +110,11 @@ public class WiiRemoteDriver {
 	 * The Bluetooth address for the remote.
 	 */
 	private String address;
-
-	private L2CAPConnection receiveConnection = null;
-
-	private L2CAPConnection sendConnection = null;
+	
+	/**
+	 * The endpoint for speaing with the remote.
+	 */
+	private BluetoothConnectionEndpoint remoteEndpoint;
 
 	/**
 	 * The reader future.
@@ -109,13 +161,12 @@ public class WiiRemoteDriver {
 	 * 
 	 * @param executorService
 	 */
-	public void startup(ScheduledExecutorService executorService) {
+	public void startup(ScheduledExecutorService executorService,
+			BluetoothConnectionEndpointService connectionEndpointFactory) {
 		try {
 			address = "8C56C5D8C5A4";
-			receiveConnection = (L2CAPConnection) Connector.open("btl2cap://"
-					+ address + ":" + "13", Connector.READ, true);
-			sendConnection = (L2CAPConnection) Connector.open("btl2cap://"
-					+ address + ":" + "11", Connector.WRITE, true);
+			remoteEndpoint = connectionEndpointFactory.newDualEndpoint(address, WII_REMOTE_RECEIVE_PORT, WII_REMOTE_SEND_PORT);
+			remoteEndpoint.connect();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException("Unable to connect to device",
 					e);
@@ -125,12 +176,12 @@ public class WiiRemoteDriver {
 
 		readCalibration();
 
-//		try {
-//			sendConnection.send(new byte[] { 0x12, 0x04, 0x31 });
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// try {
+		// sendConnection.send(new byte[] { 0x12, 0x04, 0x31 });
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 
 	/**
@@ -142,22 +193,9 @@ public class WiiRemoteDriver {
 			readerFuture = null;
 		}
 
-		if (receiveConnection != null) {
-			try {
-				receiveConnection.close();
-				receiveConnection = null;
-			} catch (IOException e) {
-				// Don't care.
-			}
-		}
-
-		if (sendConnection != null) {
-			try {
-				sendConnection.close();
-				sendConnection = null;
-			} catch (IOException e) {
-				// Don't care.
-			}
+		if (remoteEndpoint != null) {
+			remoteEndpoint.shutdown();
+			remoteEndpoint = null;
 		}
 	}
 
@@ -193,7 +231,7 @@ public class WiiRemoteDriver {
 	public void setLight(int light) {
 		if (light >= 0 && light <= 3) {
 			try {
-				sendConnection.send(FULL_COMMAND_LIGHTS[light]);
+				remoteEndpoint.write(FULL_COMMAND_LIGHTS[light]);
 			} catch (Exception e) {
 				throw new InteractiveSpacesException(
 						"Error sending light command", e);
@@ -206,7 +244,7 @@ public class WiiRemoteDriver {
 	 */
 	private void readCalibration() {
 		try {
-			sendConnection.send(FULL_COMMAND_READ_CALIBRATION);
+			remoteEndpoint.write(FULL_COMMAND_READ_CALIBRATION);
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(
 					"Error sending read calibration command", e);
@@ -220,8 +258,6 @@ public class WiiRemoteDriver {
 	 *            the button which has been pressed
 	 */
 	private void notifyButtonEvent(int button) {
-		System.out.println("Got button " + button);
-
 		for (WiiRemoteEventListener listener : listeners) {
 			listener.onWiiRemoteButtonEvent(button);
 		}
@@ -246,7 +282,9 @@ public class WiiRemoteDriver {
 		public void run() {
 			while (!Thread.interrupted()) {
 				try {
-					receiveConnection.receive(buffer);
+					if (remoteEndpoint.read(buffer) == -1) {
+						break;
+					}
 
 					System.out.println("Got read data "
 							+ Integer.toHexString(buffer[1]));
@@ -267,9 +305,7 @@ public class WiiRemoteDriver {
 
 						break;
 					}
-				} catch (InterruptedIOException e) {
-					// Don't care. This happens on thread shutdown.
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -306,6 +342,9 @@ public class WiiRemoteDriver {
 			notifyButtonEvent(button);
 		}
 
+		/**
+		 * Handle the full sensor event.
+		 */
 		private void handleLotsEvent() {
 			int x = ((buffer[4] & 0xff) << 2) + ((buffer[2] & 0x60) >> 5);
 			int y = ((buffer[5] & 0xff) << 2) + ((buffer[3] & 0x60) >> 5);

@@ -16,28 +16,15 @@
 
 package interactivespaces.comm.serial;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import interactivespaces.comm.CommunicationEndpoint;
+
 
 /**
  * An endpoint for serial communication.
  * 
  * @author Keith M. Hughes
  */
-public interface SerialCommunicationEndpoint {
-
-	/**
-	 * Start the endpoint up.
-	 */
-	void connect();
-
-	/**
-	 * Shut down all open serial ports managed by this endpoint.
-	 * 
-	 * <p>
-	 * The node is left running.
-	 */
-	void shutdown();
+public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
 
 	/**
 	 * How many bytes are available on the input stream?

@@ -14,9 +14,11 @@
  * the License.
  */
 
-package interactivespaces.comm.serial.bluetooth;
+package interactivespaces.comm.serial.bluetooth.jsr82;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpoint;
+import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpointService;
 import interactivespaces.hardware.drivers.gaming.wii.WiiRemoteDriver;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
@@ -37,43 +39,12 @@ import com.google.common.collect.Lists;
 import com.intel.bluetooth.BlueCoveConfigProperties;
 
 /**
- * A factory for bluetooth connections.
- * 
+ *
+ *
  * @author Keith M. Hughes
+ * @since Dec 21, 2012
  */
-public class BluetoothConnectionEndpointFactory {
-	public static void main(String[] args) {
-
-		WiiRemoteDriver driver = null;
-		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
-		try {
-			BluetoothConnectionEndpointFactory factory = new BluetoothConnectionEndpointFactory();
-			factory.startup();
-			
-			driver = new WiiRemoteDriver();
-			driver.startup(executorService);
-			System.out.println("Connected");
-			
-			InteractiveSpacesUtilities.delay(1000);
-			for (int light = 0; light <= 3; light++) {
-				driver.setLight(light);
-				
-				InteractiveSpacesUtilities.delay(1000);
-			}
-			
-			InteractiveSpacesUtilities.delay(10000);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			executorService.shutdown();
-			
-			if (driver != null) {
-				driver.shutdown();
-			}
-		}
-
-	}
+public class Jsr82BluetoothConnectionEndpointService implements BluetoothConnectionEndpointService {
 
 	public void startup() {
 		System.setProperty(
@@ -175,4 +146,12 @@ public class BluetoothConnectionEndpointFactory {
 					"Error during bluetooth discovery", e);
 		}
 	}
+
+	@Override
+	public BluetoothConnectionEndpoint newDualEndpoint(String address,
+			int receivePort, int sendPort) {
+		return new Jsr82MultiPortBluetoothConnectionEndpoint(address, receivePort, sendPort);
+	}
+	
+	
 }

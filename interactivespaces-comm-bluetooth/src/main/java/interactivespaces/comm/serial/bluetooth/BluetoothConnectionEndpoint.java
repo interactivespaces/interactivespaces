@@ -16,28 +16,40 @@
 
 package interactivespaces.comm.serial.bluetooth;
 
-import javax.bluetooth.L2CAPConnection;
+import interactivespaces.comm.CommunicationEndpoint;
 
 /**
- * A bluetooth connection using Java JSR-82 
- *
+ * A communication endpoint for bluetooth.
+ * 
  * @author Keith M. Hughes
  */
-public class Jsr82BluetoothConnectionEndpoint {
-	
-	/**
-	 * The Bluetooth address for the connection.
-	 */
-	private String address;
-	
-	/**
-	 * The port for the connection.
-	 */
-	private int port;
+public interface BluetoothConnectionEndpoint extends CommunicationEndpoint {
 
 	/**
-	 * The actual connection.
+	 * Connect to the remote endpoint.
 	 */
-	private L2CAPConnection connection;
+	void connect();
 
+	/**
+	 * Shut down the connection.
+	 */
+	void shutdown();
+
+	/**
+	 * Send the given bytes to the connection.
+	 * 
+	 * @param data
+	 *            the bytes to send
+	 */
+	void write(byte[] data);
+
+	/**
+	 * Receive bytes from the connection.
+	 * 
+	 * @param buffer
+	 *            where the bytes read will be
+	 * 
+	 * @return the number of bytes received, or {@code -1} if nothing more
+	 */
+	int read(byte[] data);
 }
