@@ -17,16 +17,13 @@
 package interactivespaces.comm.serial.bluetooth.jsr82;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpoint;
-import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpointService;
-import interactivespaces.hardware.drivers.gaming.wii.WiiRemoteDriver;
-import interactivespaces.util.InteractiveSpacesUtilities;
+import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
+import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
@@ -39,21 +36,28 @@ import com.google.common.collect.Lists;
 import com.intel.bluetooth.BlueCoveConfigProperties;
 
 /**
- *
+ * A bluetooth connection service using Jsr82.
  *
  * @author Keith M. Hughes
  * @since Dec 21, 2012
  */
-public class Jsr82BluetoothConnectionEndpointService implements BluetoothConnectionEndpointService {
-
+public class Jsr82BluetoothCommunicationEndpointService implements BluetoothCommunicationEndpointService {
+	
+	/**
+	 * Space environment for this service.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
+	
+	@Override
 	public void startup() {
 		System.setProperty(
 				BlueCoveConfigProperties.PROPERTY_JSR_82_PSM_MINIMUM_OFF,
 				"true");
 	}
 
+	@Override
 	public void shutdown() {
-
+		// Nothing to do for now
 	}
 
 	public List<RemoteDevice> getDevices() {
@@ -148,10 +152,14 @@ public class Jsr82BluetoothConnectionEndpointService implements BluetoothConnect
 	}
 
 	@Override
-	public BluetoothConnectionEndpoint newDualEndpoint(String address,
+	public BluetoothCommunicationEndpoint newDualEndpoint(String address,
 			int receivePort, int sendPort) {
-		return new Jsr82MultiPortBluetoothConnectionEndpoint(address, receivePort, sendPort);
+		return new Jsr82MultiPortBluetoothCommunicationEndpoint(address, receivePort, sendPort);
 	}
-	
-	
+
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
+	}
 }

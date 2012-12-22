@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpoint;
+import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
 
 import javax.bluetooth.L2CAPConnection;
 import javax.microedition.io.Connector;
@@ -30,8 +30,8 @@ import javax.microedition.io.Connector;
  * 
  * @author Keith M. Hughes
  */
-public class Jsr82MultiPortBluetoothConnectionEndpoint implements
-		BluetoothConnectionEndpoint {
+public class Jsr82MultiPortBluetoothCommunicationEndpoint implements
+		BluetoothCommunicationEndpoint {
 
 	/**
 	 * The Bluetooth address for the connection.
@@ -58,7 +58,7 @@ public class Jsr82MultiPortBluetoothConnectionEndpoint implements
 	 */
 	private L2CAPConnection sendConnection;
 
-	public Jsr82MultiPortBluetoothConnectionEndpoint(String address,
+	public Jsr82MultiPortBluetoothCommunicationEndpoint(String address,
 			int receivePort, int sendPort) {
 		this.address = address;
 		this.receivePort = receivePort;

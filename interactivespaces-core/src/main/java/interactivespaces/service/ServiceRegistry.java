@@ -16,6 +16,8 @@
 
 package interactivespaces.service;
 
+import interactivespaces.InteractiveSpacesException;
+
 import java.util.Map;
 
 /**
@@ -71,4 +73,16 @@ public interface ServiceRegistry {
 	 *         service registered
 	 */
 	<T extends Service> T getService(String name);
+
+	/**
+	 * Get a required service from the registry.
+	 * 
+	 * @param name
+	 *            the name of the desired service
+	 * 
+	 * @return the requested service
+	 * 
+	 * @throws InteractiveSpacesException no service with the given name was found
+	 */
+	<T extends Service> T getRequiredService(String name);
 }

@@ -17,15 +17,12 @@
 package interactivespaces.hardware.drivers.gaming.wii;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpoint;
-import interactivespaces.comm.serial.bluetooth.BluetoothConnectionEndpointService;
-import interactivespaces.comm.serial.bluetooth.jsr82.Jsr82BluetoothConnectionEndpointService;
-import interactivespaces.util.InteractiveSpacesUtilities;
+import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
+import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
 import com.google.common.collect.Lists;
 
@@ -35,47 +32,6 @@ import com.google.common.collect.Lists;
  * @author Keith M. Hughes
  */
 public class WiiRemoteDriver {
-	public static void main(String[] args) {
-
-		WiiRemoteDriver driver = null;
-		ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
-		try {
-			Jsr82BluetoothConnectionEndpointService factory = new Jsr82BluetoothConnectionEndpointService();
-			factory.startup();
-	
-			driver = new WiiRemoteDriver();
-			WiiRemoteEventListener listener = new WiiRemoteEventListener() {
-				
-				@Override
-				public void onWiiRemoteButtonEvent(int button) {
-					System.out.println("Wii button pressed " + button);
-				}
-			};
-			driver.addEventListener(listener);
-			
-			driver.startup(executorService, factory);
-			System.out.println("Connected");
-			
-			InteractiveSpacesUtilities.delay(1000);
-			for (int light = 0; light <= 3; light++) {
-				driver.setLight(light);
-				
-				InteractiveSpacesUtilities.delay(1000);
-			}
-			
-			InteractiveSpacesUtilities.delay(10000);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			executorService.shutdown();
-			
-			if (driver != null) {
-				driver.shutdown();
-			}
-		}
-
-	}
 
 	/**
 	 * The Bluetooth report for reading from the Wii remote.
@@ -110,11 +66,11 @@ public class WiiRemoteDriver {
 	 * The Bluetooth address for the remote.
 	 */
 	private String address;
-	
+
 	/**
 	 * The endpoint for speaing with the remote.
 	 */
-	private BluetoothConnectionEndpoint remoteEndpoint;
+	private BluetoothCommunicationEndpoint remoteEndpoint;
 
 	/**
 	 * The reader future.
@@ -157,22 +113,37 @@ public class WiiRemoteDriver {
 	private List<WiiRemoteEventListener> listeners = Lists.newArrayList();
 
 	/**
+	 * Construct a driver for the given address.
+	 * 
+	 * @param address
+	 * 		the bluetooth address of the Wii Remote
+	 */
+	public WiiRemoteDriver(String address) {
+		this.address = address;
+	}
+
+	/**
 	 * Start the driver up.
 	 * 
-	 * @param executorService
+	 * @param spaceEnvironment
+	 *            space environment the driver is running in
 	 */
-	public void startup(ScheduledExecutorService executorService,
-			BluetoothConnectionEndpointService connectionEndpointFactory) {
+	public void startup(InteractiveSpacesEnvironment spaceEnvironment) {
+		BluetoothCommunicationEndpointService connectionEndpointService = spaceEnvironment
+				.getServiceRegistry().getRequiredService(
+						BluetoothCommunicationEndpointService.SERVICE_NAME);
+
 		try {
-			address = "8C56C5D8C5A4";
-			remoteEndpoint = connectionEndpointFactory.newDualEndpoint(address, WII_REMOTE_RECEIVE_PORT, WII_REMOTE_SEND_PORT);
+			remoteEndpoint = connectionEndpointService.newDualEndpoint(address,
+					WII_REMOTE_RECEIVE_PORT, WII_REMOTE_SEND_PORT);
 			remoteEndpoint.connect();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException("Unable to connect to device",
 					e);
 		}
 
-		readerFuture = executorService.submit(new RemoteReader());
+		readerFuture = spaceEnvironment.getExecutorService().submit(
+				new RemoteReader());
 
 		readCalibration();
 

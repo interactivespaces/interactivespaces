@@ -17,6 +17,7 @@
 package interactivespaces.comm.serial;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.SupportedService;
 
 import java.util.List;
 
@@ -25,7 +26,12 @@ import java.util.List;
  * 
  * @author Keith M. Hughes
  */
-public interface SerialCommunicationEndpointService {
+public interface SerialCommunicationEndpointService extends SupportedService {
+
+	/**
+	 * The name of the service.
+	 */
+	public static final String SERVICE_NAME = "comm.serial";
 
 	/**
 	 * Get a list of all serial ports ready to be connected to.

@@ -19,7 +19,8 @@ package interactivespaces.activity.gestural.sensacell;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint.Parity;
-import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
+import interactivespaces.comm.serial.SerialCommunicationEndpointService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.awt.Rectangle;
@@ -112,6 +113,11 @@ public class SensacellDriver {
 			(byte) '7', (byte) '8', (byte) '9', (byte) 'A', (byte) 'B',
 			(byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F' };
 
+	/**
+	 * Name of the serial port to talk to.
+	 */
+	private String portName;
+	
 	/**
 	 * Serial communication endpoint to the SensacellDriver.
 	 */
@@ -219,7 +225,17 @@ public class SensacellDriver {
 	 */
 	private Log log;
 
-	public SensacellDriver(Log log) {
+	/**
+	 * Construct a driver.
+	 * 
+	 * @param portName
+	 *            the port the driver will be on
+	 * @param log
+	 *            the log to log to
+	 */
+	public SensacellDriver(String portName, Log log) {
+		this.log = log;
+
 		setupComplete = false;
 		systemResetting = false;
 		sensorResetting = false;
@@ -250,11 +266,13 @@ public class SensacellDriver {
 	 * 
 	 * @return {@code true} if setup was successful
 	 */
-	public boolean setup(
-			SerialCommunicationEndpointFactory communicationEndpointFactory,
-			String portName) {
+	public boolean startup(InteractiveSpacesEnvironment spaceEnvironment) {
+		SerialCommunicationEndpointService communicationEndpointService = spaceEnvironment
+				.getServiceRegistry().getRequiredService(
+						SerialCommunicationEndpointService.SERVICE_NAME);
+
 		try {
-			cellEndpoint = communicationEndpointFactory
+			cellEndpoint = communicationEndpointService
 					.newSerialEndpoint(portName);
 			cellEndpoint.setBaud(230400).setDataBits(8).setStopBits(1)
 					.setParity(Parity.NONE);

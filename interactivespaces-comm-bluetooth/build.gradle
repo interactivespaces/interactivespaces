@@ -14,20 +14,26 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-comm')
-  compile files(project.getProperty("bluecove.home"), project.getProperty("bluecove1.home"))
- 
-  testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+	compile project(':interactivespaces-comm')
+	compile files(project.getProperty("bluecove.home"))
+
+	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+
+	testCompile 'junit:junit:4.8.2'
+	testCompile 'org.mockito:mockito-all:1.8.5'
 }
 
 jar {
-  manifest {
-    version = osgiVersion
-    symbolicName = 'interactivespaces.comm.serial.bluetooth'
-	
-    instruction 'Export-Package',
-	'interactivespaces.comm.serial.bluetooth.*'
-  }
+	manifest {
+		version = osgiVersion
+		symbolicName = 'interactivespaces.comm.serial.bluetooth'
+
+		instruction 'Bundle-Activator',
+				'interactivespaces.comm.serial.bluetooth.osgi.BluetoothCommunicationEndpointServiceBundleActivator'
+
+		instruction 'Export-Package',
+				'interactivespaces.comm.serial.bluetooth.*',
+				'interactivespaces.hardware.drivers.*'
+	}
 }
 

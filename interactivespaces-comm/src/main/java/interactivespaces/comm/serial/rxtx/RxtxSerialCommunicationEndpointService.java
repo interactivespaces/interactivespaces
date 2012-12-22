@@ -19,6 +19,7 @@ package interactivespaces.comm.serial.rxtx;
 import gnu.io.CommPortIdentifier;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.comm.serial.SerialCommunicationEndpointService;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -32,6 +33,21 @@ import com.google.common.collect.Lists;
  */
 public class RxtxSerialCommunicationEndpointService implements
 		SerialCommunicationEndpointService {
+	
+	/**
+	 * Space environment for this service.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
+
+	@Override
+	public void startup() {
+		// Nothing to do yet.
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do yet.
+	}
 
 	@Override
 	public List<String> getSerialPorts() {
@@ -56,5 +72,11 @@ public class RxtxSerialCommunicationEndpointService implements
 	@Override
 	public SerialCommunicationEndpoint newSerialEndpoint(String portName) {
 		return new RxtxSerialCommunicationEndpoint(portName);
+	}
+
+	@Override
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
 	}
 }

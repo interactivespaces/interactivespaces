@@ -16,6 +16,7 @@
 
 package interactivespaces.service;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.Map;
@@ -82,6 +83,20 @@ public class SimpleServiceRegistry implements ServiceRegistry {
 			return service;
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	public <T extends Service> T getRequiredService(String name) {
+		ServiceEntry entry = services.get(name);
+		if (entry != null) {
+			@SuppressWarnings("unchecked")
+			T service = (T) entry.getService();
+
+			return service;
+		} else {
+			throw new InteractiveSpacesException(String.format(
+					"No service found with name %s", name));
 		}
 	}
 

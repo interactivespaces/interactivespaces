@@ -18,8 +18,7 @@ package interactivespaces.activity.gestural.sensacell;
 
 import interactivespaces.activity.gestural.sensacell.SensacellDriver.SensacellListener;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
-import interactivespaces.comm.serial.rxtx.RxtxSerialCommunicationEndpointFactory;
+import interactivespaces.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.event.trigger.SimpleTriggerPoint;
 import interactivespaces.event.trigger.Trigger;
@@ -164,7 +163,9 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 
 	@Override
 	public void onActivityStartup() {
-		sensacell = new SensacellDriver(getLog());
+		handleConfiguration();
+
+		sensacell = new SensacellDriver(sensacellSerialPort, getLog());
 
 		// listen for EDataAvailable event from sensacell instance
 		sensacell.addListener(new SensacellListener() {
@@ -192,11 +193,7 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 			}
 		});
 
-		handleConfiguration();
-
-		SerialCommunicationEndpointFactory communicationEndpointFactory = new RxtxSerialCommunicationEndpointFactory();
-
-		sensacell.setup(communicationEndpointFactory, sensacellSerialPort);
+		sensacell.startup(getSpaceEnvironment());
 		sensacell.setReadMode(SensacellDriver.SENSACELL_MODE_READ_PROPORTIONAL);
 		sensacell.setSensorSpeed(SensacellDriver.SENSACELL_SPEED_20HZ);
 
@@ -309,17 +306,17 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 		if (isActivated()) {
 			int leftValue = 0;
 			int rightValue = 0;
-			
+
 			if (leftSensorOn) {
 				leftValue = 1;
 			} else if (rightSensorOn) {
 				rightValue = 1;
 			}
-			
+
 			Map<String, Object> message = Maps.newHashMap();
 			message.put("left", leftValue);
 			message.put("right", rightValue);
-			
+
 			sendOutputJson("gestureOutput", message);
 		}
 	}

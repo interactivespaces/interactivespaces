@@ -23,7 +23,7 @@ import interactivespaces.comm.CommunicationEndpoint;
  * 
  * @author Keith M. Hughes
  */
-public interface BluetoothConnectionEndpoint extends CommunicationEndpoint {
+public interface BluetoothCommunicationEndpoint extends CommunicationEndpoint {
 
 	/**
 	 * Connect to the remote endpoint.

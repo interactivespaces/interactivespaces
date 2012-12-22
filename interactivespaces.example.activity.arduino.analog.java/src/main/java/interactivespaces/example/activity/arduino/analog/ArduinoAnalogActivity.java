@@ -18,8 +18,7 @@ package interactivespaces.example.activity.arduino.analog;
 
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.comm.serial.SerialCommunicationEndpoint;
-import interactivespaces.comm.serial.SerialCommunicationEndpointFactory;
-import interactivespaces.comm.serial.rxtx.RxtxSerialCommunicationEndpointFactory;
+import interactivespaces.comm.serial.SerialCommunicationEndpointService;
 
 import java.util.concurrent.Future;
 
@@ -46,7 +45,7 @@ public class ArduinoAnalogActivity extends BaseActivity {
 	/**
 	 * The source for serial communication endpoints.
 	 */
-	private SerialCommunicationEndpointFactory communicationEndpointFactory;
+	private SerialCommunicationEndpointService communicationEndpointService;
 
 	/**
 	 * The communication endpoint fot the arduino.
@@ -63,11 +62,12 @@ public class ArduinoAnalogActivity extends BaseActivity {
 		getLog().info(
 				"Activity interactivespaces.example.activity.arduino.analog.java setup");
 
-		// TODO(keith): Get this as a service
-		communicationEndpointFactory = new RxtxSerialCommunicationEndpointFactory();
+		communicationEndpointService = getSpaceEnvironment()
+				.getServiceRegistry().getRequiredService(
+						SerialCommunicationEndpointService.SERVICE_NAME);
 		getLog().info(
 				String.format("Serial ports available: %s",
-						communicationEndpointFactory.getSerialPorts()));
+						communicationEndpointService.getSerialPorts()));
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class ArduinoAnalogActivity extends BaseActivity {
 		String portName = getConfiguration().getRequiredPropertyString(
 				CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT);
 
-		arduinoEndpoint = communicationEndpointFactory
+		arduinoEndpoint = communicationEndpointService
 				.newSerialEndpoint(portName);
 		arduinoEndpoint.connect();
 
@@ -90,7 +90,8 @@ public class ArduinoAnalogActivity extends BaseActivity {
 								readStream(buffer);
 							}
 						} catch (Exception e) {
-							getLog().error("Exception while reading serial port", e);
+							getLog().error(
+									"Exception while reading serial port", e);
 						}
 					}
 				});

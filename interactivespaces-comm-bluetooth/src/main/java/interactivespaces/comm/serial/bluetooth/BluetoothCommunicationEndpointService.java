@@ -16,13 +16,20 @@
 
 package interactivespaces.comm.serial.bluetooth;
 
+import interactivespaces.service.SupportedService;
+
 /**
  * A service for bluetooth connections.
  * 
  * @author Keith M. Hughes
  */
-public interface BluetoothConnectionEndpointService {
+public interface BluetoothCommunicationEndpointService extends SupportedService {
 
+	/**
+	 * The name of the service.
+	 */
+	public static final String SERVICE_NAME = "comm.bluetooth";
+	
 	/**
 	 * Get a bluetooth endpoint which uses separate ports for sending and
 	 * receiving.
@@ -36,6 +43,6 @@ public interface BluetoothConnectionEndpointService {
 	 * 
 	 * @return the dual port
 	 */
-	BluetoothConnectionEndpoint newDualEndpoint(String address,
+	BluetoothCommunicationEndpoint newDualEndpoint(String address,
 			int receivePort, int sendPort);
 }
