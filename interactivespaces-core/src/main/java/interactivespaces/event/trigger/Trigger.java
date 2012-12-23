@@ -27,7 +27,7 @@ public interface Trigger {
 	/**
 	 * Get the current state of the trigger.
 	 * 
-	 * @return
+	 * @return the tigger state
 	 */
 	TriggerState getState();
 

@@ -622,7 +622,15 @@ the License.
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${staging.dir}/extras</outputDirectory>
                                 </artifactItem>
-								
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-comm-bluetooth</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${staging.dir}/extras</outputDirectory>
+                                </artifactItem>
+																
 							</artifactItems>
 
 							<outputDirectory>${staging.dir}/bootstrap</outputDirectory>
