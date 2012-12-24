@@ -16,9 +16,9 @@
 dependencies {
   compile project(':interactivespaces-core')
   
-  compile project(':interactivespaces-service-mail-common')
-
-  compile 'org.github.rjo1970:dumbster:1.9.0.1-SNAPSHOT'
+  compile project(':service:interactivespaces-service-mail-common')
+  
+  compile 'javax.mail:com.springsource.javax.mail:1.4.1'
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -29,17 +29,17 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.service.mail.receiver'
+    symbolicName = 'interactivespaces.service.mail.sender'
 	
 	instruction 'Bundle-Activator',
-			'interactivespaces.service.mail.receiver.internal.osgi.OsgiMailReceiverServiceActivator'
+			'interactivespaces.service.mail.sender.internal.osgi.OsgiMailSenderServiceActivator'
 
     instruction 'Export-Package',
-		'!interactivespaces.service.mail.receiver.internal.*',
-		'interactivespaces.service.mail.receiver.*'
+		'!interactivespaces.service.mail.sender.internal.*',
+		'interactivespaces.service.mail.sender.*'
 		
     instruction 'Private-Package',
-		'interactivespaces.service.mail.receiver.internal.*'
+		'interactivespaces.service.mail.sender.internal.*'
   }
 }
 

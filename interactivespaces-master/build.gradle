@@ -18,9 +18,9 @@ dependencies {
 
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-database')
-  compile project(':interactivespaces-service-alert')
-  compile project(':interactivespaces-service-script')
-  compile project(':interactivespaces-service-scheduler')
+  compile project(':service:interactivespaces-service-alert')
+  compile project(':service:interactivespaces-service-script')
+  compile project(':service:interactivespaces-service-scheduler')
   
   compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
     exclude module: 'rosjava_bootstrap'

@@ -15,7 +15,7 @@
 
 dependencies {
   compile project(':interactivespaces-controller')
-  compile project(':interactivespaces-service-script')
+  compile project(':service:interactivespaces-service-script')
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 

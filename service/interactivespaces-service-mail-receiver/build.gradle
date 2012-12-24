@@ -14,8 +14,11 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-service-alert')
-  compile project(':interactivespaces-service-mail-sender')
+  compile project(':interactivespaces-core')
+  
+  compile project(':service:interactivespaces-service-mail-common')
+
+  compile 'org.github.rjo1970:dumbster:1.9.0.1-SNAPSHOT'
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -26,13 +29,17 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.service.alert.notifier.mail'
+    symbolicName = 'interactivespaces.service.mail.receiver'
 	
 	instruction 'Bundle-Activator',
-			'interactivespaces.service.alert.notifier.mail.internal.osgi.OsgiMailAlertNotifierActivator'
+			'interactivespaces.service.mail.receiver.internal.osgi.OsgiMailReceiverServiceActivator'
 
+    instruction 'Export-Package',
+		'!interactivespaces.service.mail.receiver.internal.*',
+		'interactivespaces.service.mail.receiver.*'
+		
     instruction 'Private-Package',
-		'interactivespaces.service.alert.notifier.mail.internal.*'
+		'interactivespaces.service.mail.receiver.internal.*'
   }
 }
 

@@ -14,11 +14,8 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-core')
-  
-  compile project(':interactivespaces-service-mail-common')
-  
-  compile 'javax.mail:com.springsource.javax.mail:1.4.1'
+  compile project(':service:interactivespaces-service-alert')
+  compile project(':service:interactivespaces-service-mail-sender')
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -29,17 +26,13 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.service.mail.sender'
+    symbolicName = 'interactivespaces.service.alert.notifier.mail'
 	
 	instruction 'Bundle-Activator',
-			'interactivespaces.service.mail.sender.internal.osgi.OsgiMailSenderServiceActivator'
+			'interactivespaces.service.alert.notifier.mail.internal.osgi.OsgiMailAlertNotifierActivator'
 
-    instruction 'Export-Package',
-		'!interactivespaces.service.mail.sender.internal.*',
-		'interactivespaces.service.mail.sender.*'
-		
     instruction 'Private-Package',
-		'interactivespaces.service.mail.sender.internal.*'
+		'interactivespaces.service.alert.notifier.mail.internal.*'
   }
 }
 
