@@ -26,16 +26,10 @@ dependencies {
     exclude module: 'rosjava_bootstrap'
   }
   compile 'io.netty:netty:3.6.0.Final'
-  compile 'com.google.guava:org.ros.rosjava.guava:r07'
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.guava:11_1'
   compile('dnsjava:org.ros.rosjava.dnsjava:2.1.1') {
 	  transitive = false
   }
-  
-//  if (buildType != 'android') {
-//    compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
-//  } else {
-//	compile files(androidSdkJar)
-//  }
   
   compile 'org.apache.commons:com.springsource.org.apache.commons.net:2.0.0'
   testCompile('ros:message.test_ros:0.0.0-SNAPSHOT') {

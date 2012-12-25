@@ -22,7 +22,7 @@ dependencies {
     exclude module: 'rosjava_bootstrap'
   }
 
-  compile 'org.jdom:com.springsource.org.jdom:1.1.0'
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 

@@ -268,9 +268,9 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.ros.rosjava</groupId>
-									<artifactId>org.ros.rosjava.ws-commons-util</artifactId>
-									<version>1.0.2</version>
+									<groupId>org.apache.servicemix.bundles</groupId>
+                                    <artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
+                                    <version>1.0.2_2</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -296,9 +296,9 @@ the License.
                                     <overWrite>true</overWrite>
                                 </artifactItem>
 								<artifactItem>
-									<groupId>com.google.guava</groupId>
-									<artifactId>org.ros.rosjava.guava</artifactId>
-									<version>r07</version>
+									<groupId>org.apache.servicemix.bundles</groupId>
+                                    <artifactId>org.apache.servicemix.bundles.guava</artifactId>
+                                    <version>11_1</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -482,10 +482,24 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-   								<!-- <artifactItem> <groupId>jivesoftware</groupId> <artifactId>smack</artifactId> 
-									<version>3.1.0</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem> 
-									<artifactItem> <groupId>jivesoftware</groupId> <artifactId>smackx</artifactId> 
-									<version>3.1.0</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem> -->
+                                
+                                <!-- Twitter service -->
+   								<artifactItem> 
+   								    <groupId>org.apache.servicemix.bundles</groupId> 
+   								    <artifactId>org.apache.servicemix.bundles.twitter4j</artifactId> 
+									<version>2.2.6_1</version> 
+									<type>jar</type> 
+									<overWrite>true</overWrite> 
+								</artifactItem> 
+								
+   								<!-- xmpp service -->
+								<artifactItem> 
+								    <groupId>org.apache.servicemix.bundles</groupId> 
+								    <artifactId>org.apache.servicemix.bundles.smack</artifactId> 
+									<version>3.2.1_1</version> 
+									<type>jar</type> 
+									<overWrite>true</overWrite> 
+								</artifactItem>
 
 								<!-- Interactive Spaces System -->
 								<artifactItem>
