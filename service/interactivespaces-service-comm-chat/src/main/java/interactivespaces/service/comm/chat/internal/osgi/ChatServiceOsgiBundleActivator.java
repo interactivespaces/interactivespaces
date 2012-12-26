@@ -14,10 +14,10 @@
  * the License.
  */
 
-package interactivespaces.service.mail.receiver.internal.osgi;
+package interactivespaces.service.comm.chat.internal.osgi;
 
-import interactivespaces.service.mail.receiver.MailReceiverService;
-import interactivespaces.service.mail.receiver.internal.DumbsterMailReceiverService;
+import interactivespaces.service.comm.chat.ChatService;
+import interactivespaces.service.comm.chat.internal.xmpp.smack.SmackXmppChatService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,15 +25,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * An OSGI bundle activator for the mail receiver service.
+ * An OSGi bundle activator for the ChatService.
  * 
  * @author Keith M. Hughes
  */
-public class OsgiMailReceiverServiceActivator implements BundleActivator {
+public class ChatServiceOsgiBundleActivator implements BundleActivator {
 
 	/**
 	 * OSGi service tracker for the interactive spaces environment.
@@ -41,14 +40,9 @@ public class OsgiMailReceiverServiceActivator implements BundleActivator {
 	private MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
 
 	/**
-	 * The mail receiver service created by this bundle.
+	 * The chat service created by this bundle.
 	 */
-	private DumbsterMailReceiverService mailReceiverService;
-
-	/**
-	 * OSGi service registration for the script service.
-	 */
-	private ServiceRegistration mailReceiverServiceRegistration;
+	private ChatService chatService;
 
 	/**
 	 * OSGi bundle context for this bundle.
@@ -71,16 +65,12 @@ public class OsgiMailReceiverServiceActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		mailReceiverServiceRegistration.unregister();
 
-		mailReceiverService.shutdown();
-		mailReceiverService = null;
+		chatService.shutdown();
+		chatService = null;
 
-		interactiveSpacesEnvironmentTracker
-				.getMyService()
-				.getServiceRegistry()
-				.unregisterService(MailReceiverService.SERVICE_NAME,
-						mailReceiverService);
+		interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
+				.unregisterService(ChatService.SERVICE_NAME, chatService);
 
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
@@ -91,19 +81,13 @@ public class OsgiMailReceiverServiceActivator implements BundleActivator {
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			mailReceiverService = new DumbsterMailReceiverService();
+			chatService = new SmackXmppChatService();
 
-			interactiveSpacesEnvironmentTracker
-					.getMyService()
+			interactiveSpacesEnvironmentTracker.getMyService()
 					.getServiceRegistry()
-					.registerService(MailReceiverService.SERVICE_NAME,
-							mailReceiverService);
-			
-			mailReceiverService.startup();
+					.registerService(ChatService.SERVICE_NAME, chatService);
 
-			mailReceiverServiceRegistration = bundleContext.registerService(
-					MailReceiverService.class.getName(), mailReceiverService,
-					null);
+			chatService.startup();
 		}
 	}
 
