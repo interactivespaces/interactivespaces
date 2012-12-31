@@ -34,6 +34,11 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 public interface SpaceController {
 
 	/**
+	 * Environment value giving the controller's {@link NativeActivityRunnerFactory}.
+	 */
+	public static final String ENVIRONMENT_CONTROLLER_NATIVE_RUNNER = "controller.native.runner";
+
+	/**
 	 * Configuration property giving the UUID of the controller.
 	 */
 	public static final String CONFIGURATION_CONTROLLER_UUID = "interactivespaces.controller.uuid";

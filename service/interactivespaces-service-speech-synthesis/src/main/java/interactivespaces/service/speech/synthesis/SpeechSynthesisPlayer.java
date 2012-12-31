@@ -16,17 +16,21 @@
 
 package interactivespaces.service.speech.synthesis;
 
-import interactivespaces.service.SupportedService;
-
 /**
- * A service for speech synthesis.
- * 
+ * The client portion of the {@link SpeechSynthesisService}.
+ *
  * @author Keith M. Hughes
  */
-public interface SpeechSynthesisService extends SupportedService {
-
+public interface SpeechSynthesisPlayer {
+	
 	/**
-	 * Get a new speed synthesis player.
+	 * Send a speech request to the service.
+	 * 
+	 * @param text
+	 *            the text to speak
+	 * @param sync
+	 *            {@code true} if the call should block until the entire text is
+	 *            uttered
 	 */
-	SpeechSynthesisPlayer newPlayer();
+	void speak(String text, boolean sync);
 }

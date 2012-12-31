@@ -16,6 +16,7 @@
 
 package interactivespaces.system;
 
+import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.core.logging.LoggingProvider;

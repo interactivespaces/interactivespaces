@@ -288,9 +288,16 @@ public class JavaActivityBuilder implements ActivityBuilder {
 
 			analyzer.setProperty("Bundle-SymbolicName", project
 					.getActivityDescription().getIdentifyingName());
+			
+			String version = project
+					.getActivityDescription().getVersion();
+			int pos = version.indexOf("-");
+			if (pos != -1) {
+				version = version.substring(0, pos);
+			}
+			analyzer.setProperty("Bundle-Version", version);
+
 			analyzer.setProperty("Export-Package", "*");
-			analyzer.setProperty("Bundle-Version", project
-					.getActivityDescription().getVersion());
 
 			// There are no good defaults, but this must be set
 			analyzer.setProperty("Import-Package", "*");

@@ -275,6 +275,8 @@ public class StandardSpaceController implements SpaceController,
 
 		obtainControllerInfo();
 		confirmUuid();
+		
+		setEnvironmentValues();
 
 		activityComponentFactory = new CoreExistingActivityComponentFactory();
 		activityStateTransitioners = new ActivityStateTransitionerCollection();
@@ -330,6 +332,13 @@ public class StandardSpaceController implements SpaceController,
 				shutdown();
 			}
 		});
+	}
+
+	/**
+	 * Set values in the space environment that the controller provides.
+	 */
+	public void setEnvironmentValues() {
+		spaceEnvironment.setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER, nativeActivityRunnerFactory);
 	}
 
 	/**
