@@ -485,9 +485,9 @@ the License.
                                 
                                 <!-- Twitter service -->
    								<artifactItem> 
-   								    <groupId>org.apache.servicemix.bundles</groupId> 
-   								    <artifactId>org.apache.servicemix.bundles.twitter4j</artifactId> 
-									<version>2.2.6_1</version> 
+   								    <groupId>org.twitter4j</groupId> 
+   								    <artifactId>interactivespaces.org.twitter4j</artifactId> 
+									<version>3.0.3</version> 
 									<type>jar</type> 
 									<overWrite>true</overWrite> 
 								</artifactItem> 
