@@ -34,6 +34,9 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 
 	/**
 	 * How many accelerometer events are ignored before reporting?
+	 * 
+	 * <p>
+	 * For now, one out of every 10 samples will be processed.
 	 */
 	private EventDividerSampler accelerometerSampler = new EventDividerSampler(10);
 

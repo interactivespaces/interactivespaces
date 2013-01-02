@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;
  * @author Keith M. Hughes
  */
 public abstract class CancellableLoop implements Runnable {
+	
 	/**
 	 * The {@link Thread} the code will be running in.
 	 */

@@ -18,9 +18,8 @@ package interactivespaces.activity.gestural.sensacell;
 
 import interactivespaces.activity.gestural.sensacell.SensacellDriver.SensacellListener;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.event.trigger.SimpleTriggerPoint;
+import interactivespaces.event.trigger.SimpleThresholdTrigger;
 import interactivespaces.event.trigger.Trigger;
 import interactivespaces.event.trigger.TriggerEventType;
 import interactivespaces.event.trigger.TriggerListener;
@@ -131,12 +130,12 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 	/**
 	 * Trigger for the left sensor.
 	 */
-	private SimpleTriggerPoint leftTrigger;
+	private SimpleThresholdTrigger leftTrigger;
 
 	/**
 	 * Trigger for the right sensor.
 	 */
-	private SimpleTriggerPoint rightTrigger;
+	private SimpleThresholdTrigger rightTrigger;
 
 	/**
 	 * Threshold for triggering a sensor.
@@ -175,7 +174,7 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 			}
 		});
 
-		leftTrigger = new SimpleTriggerPoint();
+		leftTrigger = new SimpleThresholdTrigger();
 		leftTrigger.addListener(new TriggerListener() {
 			@Override
 			public void onTrigger(Trigger src, TriggerState newState,
@@ -184,7 +183,7 @@ public class SensacellGesturalActivity extends BaseRoutableRosActivity {
 			}
 		});
 
-		rightTrigger = new SimpleTriggerPoint();
+		rightTrigger = new SimpleThresholdTrigger();
 		rightTrigger.addListener(new TriggerListener() {
 			@Override
 			public void onTrigger(Trigger src, TriggerState newState,

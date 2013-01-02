@@ -28,7 +28,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 
  * @author Keith M. Hughes
  */
-public class SimpleTriggerPoint implements Trigger {
+public class SimpleThresholdTrigger implements ResettableTrigger {
+
 	/**
 	 * The current value of the trigger.
 	 */
@@ -59,7 +60,7 @@ public class SimpleTriggerPoint implements Trigger {
 	 */
 	private List<TriggerListener> listeners = new CopyOnWriteArrayList<TriggerListener>();
 
-	public SimpleTriggerPoint() {
+	public SimpleThresholdTrigger() {
 		threshold = 0;
 		hysteresis = 0;
 		value = 0;
@@ -74,9 +75,9 @@ public class SimpleTriggerPoint implements Trigger {
 	 * @param hysteresis
 	 *            The new value of the hysteresis.
 	 */
-	public SimpleTriggerPoint setThreshold(int threshold) {
+	public SimpleThresholdTrigger setThreshold(int threshold) {
 		this.threshold = threshold;
-		
+
 		return this;
 	}
 
@@ -86,42 +87,43 @@ public class SimpleTriggerPoint implements Trigger {
 	 * @param hysteresis
 	 *            The new value of the hysteresis.
 	 */
-	public SimpleTriggerPoint setHysteresis(int hysteresis) {
+	public SimpleThresholdTrigger setHysteresis(int hysteresis) {
 		this.hysteresis = hysteresis;
-		
+
 		return this;
 	}
 
 	/**
-	 * Update the value.
+	 * Update the value, potentially triggering and notifying listeners.
 	 * 
 	 * @param newValue
 	 *            The new value.
 	 */
 	public void update(int newValue) {
-		value = newValue;
-
-		state = previousState;
-
-		if (value < (threshold - hysteresis)) {
-			state = TriggerState.NOT_TRIGGERED;
-		} else if (value > (threshold + hysteresis)) {
-			state = TriggerState.TRIGGERED;
+		TriggerState newState, lastState;
+		synchronized (this) {
+			if (newValue < (threshold - hysteresis)) {
+				newState = TriggerState.NOT_TRIGGERED;
+				lastState = changeState(newValue, newState);
+			} else if (newValue > (threshold + hysteresis)) {
+				newState = TriggerState.TRIGGERED;
+				lastState = changeState(newValue, newState);
+			} else {
+				return;
+			}
 		}
 
-		if ((previousState == TriggerState.NOT_TRIGGERED)
-				&& (state == TriggerState.TRIGGERED)) {
+		if ((lastState == TriggerState.NOT_TRIGGERED)
+				&& (newState == TriggerState.TRIGGERED)) {
 			for (TriggerListener listener : listeners) {
-				listener.onTrigger(this, state, TriggerEventType.RISING);
+				listener.onTrigger(this, newState, TriggerEventType.RISING);
 			}
 		} else if ((previousState == TriggerState.TRIGGERED)
 				&& (state == TriggerState.NOT_TRIGGERED)) {
 			for (TriggerListener listener : listeners) {
-				listener.onTrigger(this, state, TriggerEventType.FALLING);
+				listener.onTrigger(this, newState, TriggerEventType.FALLING);
 			}
 		}
-
-		previousState = state;
 	}
 
 	/**
@@ -136,6 +138,37 @@ public class SimpleTriggerPoint implements Trigger {
 	@Override
 	public TriggerState getState() {
 		return state;
+	}
+
+	@Override
+	public void reset() {
+		TriggerState lastState = changeState(0, TriggerState.NOT_TRIGGERED);
+
+		if (!lastState.equals(TriggerState.NOT_TRIGGERED)) {
+			for (TriggerListener listener : listeners) {
+				listener.onTrigger(this, TriggerState.NOT_TRIGGERED,
+						TriggerEventType.FALLING);
+			}
+		}
+	}
+
+	/**
+	 * Change the state of the trigger in a thread safe way.
+	 * 
+	 * @param newValue
+	 *            the new value for the trigger
+	 * @param newState
+	 *            the new state of the trigger
+	 * 
+	 * @return the old value of the trigger
+	 */
+	private synchronized TriggerState changeState(int newValue,
+			TriggerState newState) {
+		value = newValue;
+		previousState = state;
+		state = newState;
+
+		return previousState;
 	}
 
 	/**
@@ -156,5 +189,4 @@ public class SimpleTriggerPoint implements Trigger {
 	public void removeListener(TriggerListener listener) {
 		listeners.remove(listener);
 	}
-
 }
