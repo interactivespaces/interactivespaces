@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,25 +14,27 @@
  * the License.
  */
 
-package interactivespaces.service.speech.synthesis;
+package interactivespaces.hardware.driver;
 
+import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.resource.ManagedResource;
 
+import org.apache.commons.logging.Log;
+
 /**
- * The client portion of the {@link SpeechSynthesisService}.
- *
+ * A driver for a hardware device.
+ * 
  * @author Keith M. Hughes
  */
-public interface SpeechSynthesisPlayer extends ManagedResource {
-	
+public interface Driver extends ManagedResource {
+
 	/**
-	 * Send a speech request to the service.
+	 * Prepare the driver for startup.
 	 * 
-	 * @param text
-	 *            the text to speak
-	 * @param sync
-	 *            {@code true} if the call should block until the entire text is
-	 *            uttered
+	 * @param spacesEnvironment
+	 *            the space environment the driver will run under
+	 * @param log
+	 *            the log which should be used for the driver
 	 */
-	void speak(String text, boolean sync);
+	void prepare(InteractiveSpacesEnvironment spacesEnvironment, Log log);
 }

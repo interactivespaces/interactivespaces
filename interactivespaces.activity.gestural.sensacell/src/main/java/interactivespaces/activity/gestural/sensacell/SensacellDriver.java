@@ -117,7 +117,7 @@ public class SensacellDriver {
 	 * Name of the serial port to talk to.
 	 */
 	private String portName;
-	
+
 	/**
 	 * Serial communication endpoint to the SensacellDriver.
 	 */
@@ -259,10 +259,8 @@ public class SensacellDriver {
 	/**
 	 * Set up the SensacellDriver.
 	 * 
-	 * @param communicationEndpointFactory
-	 *            factory for getting a serial connection
-	 * @param portName
-	 *            which USB port the cell is attached to
+	 * @param spaceEnvironment
+	 *            the space environment the driver runs under
 	 * 
 	 * @return {@code true} if setup was successful
 	 */
@@ -276,7 +274,7 @@ public class SensacellDriver {
 					.newSerialEndpoint(portName);
 			cellEndpoint.setBaud(230400).setDataBits(8).setStopBits(1)
 					.setParity(Parity.NONE);
-			cellEndpoint.connect();
+			cellEndpoint.startup();
 
 			setupComplete = true;
 

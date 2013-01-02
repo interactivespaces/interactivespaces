@@ -264,6 +264,16 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 			SpeechSynthesisPlayer {
 
 		@Override
+		public void startup() {
+			// Nothing to do
+		}
+
+		@Override
+		public void shutdown() {
+			// Nothing to do
+		}
+
+		@Override
 		public void speak(String text, boolean sync) {
 			startupServer(true);
 

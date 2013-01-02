@@ -23,6 +23,7 @@ import interactivespaces.activity.component.ActivityComponentCollection;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
+import interactivespaces.hardware.driver.Driver;
 import interactivespaces.util.concurrency.CommandCollection;
 import interactivespaces.util.resource.ManagedResource;
 import interactivespaces.util.resource.ManagedResourceCollection;
@@ -76,6 +77,23 @@ public abstract class BaseActivity extends ActivitySupport implements
 	 */
 	public void addManagedResource(ManagedResource resource) {
 		managedResources.addResource(resource);
+	}
+
+	/**
+	 * Add a driver to the activity as a {@link ManagedResource}.
+	 * 
+	 * <p>
+	 * The drivers
+	 * {@link Driver#prepare(interactivespaces.system.InteractiveSpacesEnvironment, org.apache.commons.logging.Log)}
+	 * method will be called with the activity's space environment and log.
+	 * 
+	 * @param driver
+	 * 		the driver to add to the activity
+	 */
+	public void addDriver(Driver driver) {
+		driver.prepare(getSpaceEnvironment(), getLog());
+		
+		addManagedResource(driver);
 	}
 
 	@Override
@@ -146,7 +164,8 @@ public abstract class BaseActivity extends ActivitySupport implements
 	 * Get the collection of managed commands.
 	 * 
 	 * @return the managed commands (will be {@code null} if the activity has
-	 *         not been started, though will be available for any startup callbacks.
+	 *         not been started, though will be available for any startup
+	 *         callbacks.
 	 */
 	public CommandCollection getManagedCommands() {
 		return managedCommands;

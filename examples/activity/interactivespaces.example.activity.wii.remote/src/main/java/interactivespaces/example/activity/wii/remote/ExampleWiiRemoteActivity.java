@@ -2,8 +2,8 @@ package interactivespaces.example.activity.wii.remote;
 
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.event.simple.EventDividerSampler;
-import interactivespaces.hardware.drivers.gaming.wii.WiiRemoteDriver;
-import interactivespaces.hardware.drivers.gaming.wii.WiiRemoteEventListener;
+import interactivespaces.hardware.driver.gaming.wii.WiiRemoteDriver;
+import interactivespaces.hardware.driver.gaming.wii.WiiRemoteEventListener;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 /**
@@ -39,7 +39,7 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 
 	@Override
 	public void onActivitySetup() {
-		driver = new WiiRemoteDriver("8C56C5D8C5A4", getLog());
+		driver = new WiiRemoteDriver("8C56C5D8C5A4");
 
 		WiiRemoteEventListener listener = new WiiRemoteEventListener() {
 
@@ -55,7 +55,8 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 			}
 		};
 		driver.addEventListener(listener);
-		driver.startup(getSpaceEnvironment());
+		
+		addDriver(driver);
 	}
 
 	@Override
@@ -73,14 +74,6 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 				}
 			}
 		});
-	}
-
-	@Override
-	public void onActivityCleanup() {
-		if (driver != null) {
-			driver.shutdown();
-			driver = null;
-		}
 	}
 
 	/**

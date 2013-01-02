@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <activity builder="java">
-    <name>Speech Synthesis Activity</name>
+    <name>Speech Synthesis Activity Example</name>
     <description>
 A speech synthesis activity. This is meant to run on a machine with a speaker. It
 can be told what to speak via a remote message request.
     </description>
-    <version>0.0.1-preview</version>
+    <version>1.0.0</version>
     <identifyingName>interactivespaces.example.activity.speech.synthesis</identifyingName>
 </activity>

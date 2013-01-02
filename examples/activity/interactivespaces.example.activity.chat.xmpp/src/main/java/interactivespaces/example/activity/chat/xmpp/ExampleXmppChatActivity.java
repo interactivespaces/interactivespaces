@@ -66,14 +66,6 @@ public class ExampleXmppChatActivity extends BaseActivity {
 			} 
 		});
 		
-		connection.connect();
-	}
-
-	@Override
-	public void onActivityCleanup() {
-		if (connection != null) {
-			connection.shutdown();
-			connection = null;
-		}
+		addManagedResource(connection);
 	}
 }

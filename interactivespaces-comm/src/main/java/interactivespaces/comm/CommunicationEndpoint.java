@@ -16,20 +16,15 @@
 
 package interactivespaces.comm;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * A communication endpoint.
+ * 
+ * <p>
+ * {@link #startup()} is the same thing as connecting to the remote endpoint.
  *
  * @author Keith M. Hughes
  */
-public interface CommunicationEndpoint {
-
-	/**
-	 * Start the endpoint up.
-	 */
-	void connect();
-
-	/**
-	 * Shut down all open serial ports managed by this endpoint.
-	 */
-	void shutdown();
+public interface CommunicationEndpoint extends ManagedResource {
 }

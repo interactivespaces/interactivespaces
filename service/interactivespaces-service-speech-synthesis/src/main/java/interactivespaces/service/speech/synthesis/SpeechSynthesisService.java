@@ -24,6 +24,11 @@ import interactivespaces.service.SupportedService;
  * @author Keith M. Hughes
  */
 public interface SpeechSynthesisService extends SupportedService {
+	
+	/**
+	 * Name of the service.
+	 */
+	public static final String SERVICE_NAME = "speech.synthesis";
 
 	/**
 	 * Get a new speed synthesis player.

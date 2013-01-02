@@ -39,7 +39,7 @@ public interface SerialCommunicationEndpointService extends SupportedService {
 	 * @return a potentially empty list of ports.
 	 */
 	List<String> getSerialPorts();
-	
+
 	/**
 	 * Create a new serial endpoint for the given port.
 	 * 

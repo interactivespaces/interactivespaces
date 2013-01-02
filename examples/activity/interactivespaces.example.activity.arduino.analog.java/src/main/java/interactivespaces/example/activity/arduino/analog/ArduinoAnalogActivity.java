@@ -68,19 +68,19 @@ public class ArduinoAnalogActivity extends BaseActivity {
 		getLog().info(
 				String.format("Serial ports available: %s",
 						communicationEndpointService.getSerialPorts()));
+
+		String portName = getConfiguration().getRequiredPropertyString(
+				CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT);
+
+		arduinoEndpoint = communicationEndpointService
+				.newSerialEndpoint(portName);
+		addManagedResource(arduinoEndpoint);
 	}
 
 	@Override
 	public void onActivityStartup() {
 		getLog().info(
 				"Activity interactivespaces.example.activity.arduino.analog.java startup");
-		String portName = getConfiguration().getRequiredPropertyString(
-				CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT);
-
-		arduinoEndpoint = communicationEndpointService
-				.newSerialEndpoint(portName);
-		arduinoEndpoint.connect();
-
 		arduinoReader = getSpaceEnvironment().getExecutorService().submit(
 				new Runnable() {
 					public void run() {
@@ -105,10 +105,6 @@ public class ArduinoAnalogActivity extends BaseActivity {
 
 		if (arduinoReader != null) {
 			arduinoReader.cancel(true);
-		}
-
-		if (arduinoEndpoint != null) {
-			arduinoEndpoint.shutdown();
 		}
 	}
 

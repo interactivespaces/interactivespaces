@@ -97,7 +97,7 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
 	}
 
 	@Override
-	public void connect() {
+	public void startup() {
 		TwitterListener listener = new TwitterAdapter() {
 			@Override
 			public void searched(QueryResult queryResult) {

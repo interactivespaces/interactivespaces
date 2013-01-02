@@ -65,10 +65,8 @@ public class Jsr82MultiPortBluetoothCommunicationEndpoint implements
 		this.sendPort = sendPort;
 	}
 
-	/**
-	 * Connect to remote bluetooth.
-	 */
-	public void connect() {
+	@Override
+	public void startup() {
 		try {
 			receiveConnection = (L2CAPConnection) Connector.open("btl2cap://"
 					+ address + ":" + Integer.toString(receivePort),

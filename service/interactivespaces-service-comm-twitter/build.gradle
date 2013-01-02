@@ -14,7 +14,7 @@
  */
 
 dependencies {
-	compile project(':interactivespaces-core')
+	compile project(':interactivespaces-comm')
 
 	compile 'org.twitter4j:interactivespaces.org.twitter4j:3.0.3'
 	

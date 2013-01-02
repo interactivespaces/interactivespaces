@@ -93,7 +93,7 @@ public class RxtxSerialCommunicationEndpoint implements
 	}
 
 	@Override
-	public void connect() {
+	public void startup() {
 		try {
 			port = createSerialPort(portName);
 

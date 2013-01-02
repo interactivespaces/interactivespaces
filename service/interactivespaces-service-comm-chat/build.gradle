@@ -14,7 +14,7 @@
  */
 
 dependencies {
-	compile project(':interactivespaces-core')
+	compile project(':interactivespaces-comm')
 
 	compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.smack:3.2.1_1'
 

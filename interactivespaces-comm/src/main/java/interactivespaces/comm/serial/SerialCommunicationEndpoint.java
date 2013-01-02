@@ -18,7 +18,6 @@ package interactivespaces.comm.serial;
 
 import interactivespaces.comm.CommunicationEndpoint;
 
-
 /**
  * An endpoint for serial communication.
  * 

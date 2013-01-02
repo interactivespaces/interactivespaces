@@ -14,17 +14,15 @@
  * the License.
  */
 
-package interactivespaces.hardware.drivers.gaming.wii;
+package interactivespaces.hardware.driver.gaming.wii;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
 import interactivespaces.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.hardware.driver.DriverSupport;
 
 import java.util.List;
 import java.util.concurrent.Future;
-
-import org.apache.commons.logging.Log;
 
 import com.google.common.collect.Lists;
 
@@ -33,7 +31,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Keith M. Hughes
  */
-public class WiiRemoteDriver {
+public class WiiRemoteDriver extends DriverSupport {
 
 	/**
 	 * The Bluetooth report for reading from the Wii remote.
@@ -156,30 +154,17 @@ public class WiiRemoteDriver {
 	private List<WiiRemoteEventListener> listeners = Lists.newArrayList();
 
 	/**
-	 * The logger for this driver.
-	 */
-	private Log log;
-
-	/**
 	 * Construct a driver for the given address.
 	 * 
 	 * @param address
 	 *            the bluetooth address of the Wii Remote
-	 * @param log
-	 *            the logger for this driver
 	 */
-	public WiiRemoteDriver(String address, Log log) {
+	public WiiRemoteDriver(String address) {
 		this.address = address;
-		this.log = log;
 	}
 
-	/**
-	 * Start the driver up.
-	 * 
-	 * @param spaceEnvironment
-	 *            space environment the driver is running in
-	 */
-	public void startup(InteractiveSpacesEnvironment spaceEnvironment) {
+	@Override
+	public void startup() {
 		BluetoothCommunicationEndpointService connectionEndpointService = spaceEnvironment
 				.getServiceRegistry().getRequiredService(
 						BluetoothCommunicationEndpointService.SERVICE_NAME);
@@ -187,7 +172,7 @@ public class WiiRemoteDriver {
 		try {
 			remoteEndpoint = connectionEndpointService.newDualEndpoint(address,
 					WII_REMOTE_RECEIVE_PORT, WII_REMOTE_SEND_PORT);
-			remoteEndpoint.connect();
+			remoteEndpoint.startup();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException("Unable to connect to device",
 					e);
@@ -199,9 +184,7 @@ public class WiiRemoteDriver {
 		readCalibration();
 	}
 
-	/**
-	 * Shut the driver down.
-	 */
+	@Override
 	public void shutdown() {
 		if (readerFuture != null) {
 			readerFuture.cancel(true);

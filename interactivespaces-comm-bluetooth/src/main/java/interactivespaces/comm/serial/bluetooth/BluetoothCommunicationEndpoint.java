@@ -26,16 +26,6 @@ import interactivespaces.comm.CommunicationEndpoint;
 public interface BluetoothCommunicationEndpoint extends CommunicationEndpoint {
 
 	/**
-	 * Connect to the remote endpoint.
-	 */
-	void connect();
-
-	/**
-	 * Shut down the connection.
-	 */
-	void shutdown();
-
-	/**
 	 * Send the given bytes to the connection.
 	 * 
 	 * @param data

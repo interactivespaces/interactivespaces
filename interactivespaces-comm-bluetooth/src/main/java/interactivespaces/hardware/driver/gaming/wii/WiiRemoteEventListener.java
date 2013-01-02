@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.hardware.drivers.gaming.wii;
+package interactivespaces.hardware.driver.gaming.wii;
 
 /**
  * A listener for Wii Remote events

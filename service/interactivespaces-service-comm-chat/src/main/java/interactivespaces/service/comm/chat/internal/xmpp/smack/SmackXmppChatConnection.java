@@ -40,6 +40,21 @@ import com.google.common.collect.Lists;
 public class SmackXmppChatConnection implements ChatConnection {
 
 	/**
+	 * Default chat host for Google talk.
+	 */
+	public static final String CHAT_HOST_DEFAULT = "talk.google.com";
+
+	/**
+	 * Default chat port for Google talk.
+	 */
+	public static final int CHAT_PORT_DEFAULT = 5222;
+
+	/**
+	 * Default chat service name for Google talk.
+	 */
+	public static final String CHAT_SERVICE_NAME_DEFAULT = "gmail.com";
+
+	/**
 	 * Username for the connection.
 	 */
 	private String username;
@@ -59,15 +74,39 @@ public class SmackXmppChatConnection implements ChatConnection {
 	 */
 	private Connection connection;
 
+	/**
+	 * Host for the chat server.
+	 */
+	private String chatHost;
+
+	/**
+	 * Port for the chat server.
+	 */
+	private int chatPort;
+
+	/**
+	 * service name for the chat connection.
+	 */
+	private String chatServiceName;
+
 	public SmackXmppChatConnection(String username, String password) {
+		this(username, password, CHAT_HOST_DEFAULT, CHAT_PORT_DEFAULT,
+				CHAT_SERVICE_NAME_DEFAULT);
+	}
+
+	public SmackXmppChatConnection(String username, String password,
+			String chatHost, int chatPort, String chatServiceName) {
 		this.username = username;
 		this.password = password;
+		this.chatHost = chatHost;
+		this.chatPort = chatPort;
+		this.chatServiceName = chatServiceName;
 	}
 
 	@Override
-	public void connect() {
+	public void startup() {
 		ConnectionConfiguration config = new ConnectionConfiguration(
-				"talk.google.com", 5222, "gmail.com");
+				chatHost, chatPort, chatServiceName);
 		SASLAuthentication.supportSASLMechanism("PLAIN", 0);
 		try {
 			connection = new XMPPConnection(config);

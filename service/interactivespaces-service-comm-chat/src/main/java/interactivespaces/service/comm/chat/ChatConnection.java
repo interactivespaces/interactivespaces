@@ -16,22 +16,14 @@
 
 package interactivespaces.service.comm.chat;
 
+import interactivespaces.comm.CommunicationEndpoint;
+
 /**
  * A connection to a chat service.
  * 
  * @author Keith M. Hughes
  */
-public interface ChatConnection {
-
-	/**
-	 * Make the connection.
-	 */
-	void connect();
-
-	/**
-	 * Shut the connection down.
-	 */
-	void shutdown();
+public interface ChatConnection extends CommunicationEndpoint {
 	
 	/**
 	 * Get the user of the connection.
