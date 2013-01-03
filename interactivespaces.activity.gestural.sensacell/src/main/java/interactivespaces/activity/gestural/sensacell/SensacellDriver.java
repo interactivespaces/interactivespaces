@@ -17,9 +17,9 @@
 package interactivespaces.activity.gestural.sensacell;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.comm.serial.SerialCommunicationEndpoint;
-import interactivespaces.comm.serial.SerialCommunicationEndpoint.Parity;
-import interactivespaces.comm.serial.SerialCommunicationEndpointService;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpoint.Parity;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 

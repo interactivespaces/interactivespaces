@@ -10,10 +10,28 @@ import interactivespaces.util.InteractiveSpacesUtilities;
  * A simple Interactive Spaces activity to demonstrate use of the Wii Remote
  * driver.
  * 
+ * <p>
+ * You must find out the Bluetooth address of your Wii remote to use this
+ * activity.
+ * 
+ * <p>
+ * By default this activity will only have the Wii remote send button events. To
+ * get accelerometer and button events, press the remote's plus and minus
+ * buttons simultaneously. Pressing the combination again will switch back to
+ * button only reporting.
+ * 
  * @author Keith M. Hughes
  */
 public class ExampleWiiRemoteActivity extends BaseActivity {
 
+	/**
+	 * Configuration property for the Bluetooth address for the Wii remote.
+	 */
+	public static final String CONFIGURATION_PROPERTY_WII_REMOTE_BLUETOOTH_ADDRESS = "activity.example.wii.remote.bluetooth.address";
+
+	/**
+	 * The button combination to start the accelerometer reporting.
+	 */
 	public static final int BUTTON_TOGGLE_ACCELEROMETER = WiiRemoteEventListener.VALUE_BUTTON_PLUS
 			| WiiRemoteEventListener.VALUE_BUTTON_MINUS;
 
@@ -38,11 +56,16 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 	 * <p>
 	 * For now, one out of every 10 samples will be processed.
 	 */
-	private EventDividerSampler accelerometerSampler = new EventDividerSampler(10);
+	private EventDividerSampler accelerometerSampler = new EventDividerSampler(
+			10);
 
 	@Override
 	public void onActivitySetup() {
-		driver = new WiiRemoteDriver("8C56C5D8C5A4");
+		String wiiRemoteBluetoothAddress = getConfiguration()
+				.getRequiredPropertyString(
+						CONFIGURATION_PROPERTY_WII_REMOTE_BLUETOOTH_ADDRESS);
+
+		driver = new WiiRemoteDriver(wiiRemoteBluetoothAddress);
 
 		WiiRemoteEventListener listener = new WiiRemoteEventListener() {
 
@@ -58,7 +81,7 @@ public class ExampleWiiRemoteActivity extends BaseActivity {
 			}
 		};
 		driver.addEventListener(listener);
-		
+
 		addDriver(driver);
 	}
 

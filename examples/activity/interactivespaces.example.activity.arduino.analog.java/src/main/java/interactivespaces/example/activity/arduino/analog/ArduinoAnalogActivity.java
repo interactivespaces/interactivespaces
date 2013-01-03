@@ -17,13 +17,13 @@
 package interactivespaces.example.activity.arduino.analog;
 
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.comm.serial.SerialCommunicationEndpoint;
-import interactivespaces.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.event.trigger.SimpleThresholdTrigger;
 import interactivespaces.event.trigger.Trigger;
 import interactivespaces.event.trigger.TriggerEventType;
 import interactivespaces.event.trigger.TriggerListener;
 import interactivespaces.event.trigger.TriggerState;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.util.concurrency.CancellableLoop;
 import interactivespaces.util.resource.ManagedResourceWithTask;
 
@@ -170,6 +170,10 @@ public class ArduinoAnalogActivity extends BaseRoutableRosActivity {
 			if (isActivated()) {
 				int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
 
+				// Production code should probably have this as a debug rather
+				// and an info, then have logging at ERROR.
+				//
+				// For now will write logs of data to log since an example.
 				getLog().info(String.format("Analog value is %d\n", val));
 
 				// The new value from the Arduino is known. Tell the trigger

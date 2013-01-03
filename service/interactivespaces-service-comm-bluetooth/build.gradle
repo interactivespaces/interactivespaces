@@ -15,8 +15,7 @@
 
 dependencies {
 	compile project(':service:interactivespaces-service-comm-serial')
-
-	compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.smack:3.2.1_1'
+	compile files(project.getProperty("bluecove.home"))
 
 	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -27,17 +26,14 @@ dependencies {
 jar {
 	manifest {
 		version = osgiVersion
-		symbolicName = 'interactivespaces.service.comm.chat'
+		symbolicName = 'interactivespaces.service.comm.serial.bluetooth'
 
 		instruction 'Bundle-Activator',
-				'interactivespaces.service.comm.chat.internal.osgi.ChatServiceOsgiBundleActivator'
+				'interactivespaces.service.comm.serial.bluetooth.osgi.BluetoothCommunicationEndpointServiceBundleActivator'
 
 		instruction 'Export-Package',
-				'!interactivespaces.service.comm.chat.internal.*',
-				'interactivespaces.service.comm.chat.*'
-
-		instruction 'Private-Package',
-				'interactivespaces.service.comm.chat.internal.*'
+				'interactivespaces.service.comm.serial.bluetooth.*',
+				'interactivespaces.hardware.drivers.*'
 	}
 }
 
