@@ -719,6 +719,14 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>
 
+								<artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-core</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+								
 								<!-- Interactive Spaces scheduler -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
@@ -752,13 +760,6 @@ the License.
 								</artifactItem>
 								
                                 <!-- Interactive Spaces mail alerts -->
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-mail-common</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-mail-sender</artifactId>

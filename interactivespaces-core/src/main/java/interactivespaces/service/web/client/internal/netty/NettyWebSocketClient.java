@@ -89,7 +89,7 @@ public class NettyWebSocketClient implements WebSocketClient {
 	}
 
 	@Override
-	public void connect() {
+	public void startup() {
 		ClientBootstrap bootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(threadPool, threadPool));
 
@@ -175,7 +175,7 @@ public class NettyWebSocketClient implements WebSocketClient {
 	}
 
 	@Override
-	public void close() {
+	public void shutdown() {
 		if (channel != null) {
 			try {
 				channel.write(new CloseWebSocketFrame());

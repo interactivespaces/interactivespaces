@@ -17,20 +17,19 @@
 package interactivespaces.service.web.client;
 
 import interactivespaces.service.web.WebSocketConnection;
-
-import java.util.Map;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
  * A web socket client.
  *
  * @author Keith M. Hughes
  */
-public interface WebSocketClient extends WebSocketConnection {
+public interface WebSocketClient extends WebSocketConnection, ManagedResource {
 	
 	/**
 	 * Connect to the remote endpoint.
 	 */
-	void connect();
+	void startup();
 	
 	/**
 	 * Ping the server.

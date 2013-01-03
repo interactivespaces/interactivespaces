@@ -45,5 +45,6 @@ interactivespaces.activity.impl.web.BaseWebActivity {
 
     onWebSocketReceive: function(connectionId, data) {
         this.getLog().info("Got web socket data from connection " + connectionId);
+        this.getLog().info(data);
     }
 }

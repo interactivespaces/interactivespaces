@@ -482,6 +482,23 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
+
+                                <!-- Interactive Spaces System -->
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-system</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                                
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-core</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
                                 
                                 <!-- Twitter service -->
    								<artifactItem> 
@@ -499,15 +516,6 @@ the License.
 									<version>3.2.1_1</version> 
 									<type>jar</type> 
 									<overWrite>true</overWrite> 
-								</artifactItem>
-
-								<!-- Interactive Spaces System -->
-								<artifactItem>
-									<groupId>interactivespaces</groupId>
-									<artifactId>interactivespaces-system</artifactId>
-									<version>${project.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
 								</artifactItem>
 
 								<!-- Audio Player Service -->
@@ -565,20 +573,6 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-								<artifactItem>
-									<groupId>org.codehaus.groovy</groupId>
-									<artifactId>groovy-all</artifactId>
-									<version>1.8.4</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-<artifactItem>
-    <groupId>org.mozilla</groupId>
-    <artifactId>rhino</artifactId>
-    <version>1.7R4</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-</artifactItem>
 
 								<!--Interactive Spaces controller -->
 								<artifactItem>
@@ -630,7 +624,7 @@ the License.
 
 								<artifactItem>
                                     <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-comm</artifactId>
+                                    <artifactId>interactivespaces-service-comm-serial</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
@@ -638,7 +632,7 @@ the License.
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-comm-bluetooth</artifactId>
+                                    <artifactId>interactivespaces-service-comm-bluetooth</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>

@@ -33,7 +33,7 @@ public interface WebSocketConnection {
 	/**
 	 * Close the connection.
 	 */
-	void close();
+	void shutdown();
 
 	/**
 	 * Write data out to the remote endpoint encoded as JSON.

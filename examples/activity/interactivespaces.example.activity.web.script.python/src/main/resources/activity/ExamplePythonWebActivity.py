@@ -42,3 +42,4 @@ class ExamplePythonWebActivity(BaseWebActivity):
 
     def onWebSocketReceive(self, connectionId, data):
         self.log.info("Got web socket data from connection " + connectionId)
+        self.log.info(data)

@@ -16,6 +16,8 @@
 
 package interactivespaces.service.web.server;
 
+import interactivespaces.util.resource.ManagedResource;
+
 import java.io.File;
 
 /**
@@ -23,7 +25,7 @@ import java.io.File;
  * 
  * @author Keith M. Hughes
  */
-public interface WebServer {
+public interface WebServer extends ManagedResource {
 
 	/**
 	 * The default for the web socket URI prefix. Does not include the forward
@@ -34,7 +36,7 @@ public interface WebServer {
 	/**
 	 * Start the server running.
 	 */
-	void start();
+	void startup();
 
 	/**
 	 * Shut the server down.

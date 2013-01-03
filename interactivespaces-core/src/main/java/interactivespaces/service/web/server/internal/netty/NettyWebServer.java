@@ -104,7 +104,7 @@ public class NettyWebServer implements WebServer {
 	}
 
 	@Override
-	public void start() {
+	public void startup() {
 
 		allChannels = new DefaultChannelGroup(serverName);
 

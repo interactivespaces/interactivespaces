@@ -166,7 +166,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 	@Override
 	public void startupComponent() {
-		webServer.start();
+		webServer.startup();
 		getComponentContext().getActivity().getLog()
 				.debug("web server component started up");
 	}

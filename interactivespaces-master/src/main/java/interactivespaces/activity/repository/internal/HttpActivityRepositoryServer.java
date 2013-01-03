@@ -90,7 +90,7 @@ public class HttpActivityRepositoryServer implements
 				spaceEnvironment.getExecutorService(),
 				spaceEnvironment.getExecutorService(), log);
 
-		repositoryServer.start();
+		repositoryServer.startup();
 
 		// TODO(keith): Web server should bind to a host or localhost. Add
 		// getHost()

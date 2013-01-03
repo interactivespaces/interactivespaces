@@ -25,8 +25,11 @@ int32 OPERATION_SHUTDOWN_CONTROLLER = 1
 # Shut down all activities in the controller.
 int32 OPERATION_SHUTDOWN_ACTIVITIES = 2
 
-# Shut down all activities in the controller.
+# Deploy a live activity on the controller.
 int32 OPERATION_DEPLOY_LIVE_ACTIVITY = 3
+
+# Delete a live activity from the controller.
+int32 OPERATION_DELETE_LIVE_ACTIVITY = 4
 
 # Any payload needed by the request.
 byte[] payload

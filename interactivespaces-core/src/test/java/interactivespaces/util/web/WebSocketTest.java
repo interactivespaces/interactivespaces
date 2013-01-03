@@ -131,7 +131,7 @@ public class WebSocketTest {
 				return handler;
 			}
 		});
-		server.start();
+		server.startup();
 		
 		Thread.sleep(2000);
 		
@@ -157,7 +157,7 @@ public class WebSocketTest {
 		};
 		
 		NettyWebSocketClient client = new NettyWebSocketClient(uri, clientHandler, threadPool, log);
-		client.connect();
+		client.startup();
 		
 		Assert.assertTrue(clientOpenning.await(10, TimeUnit.SECONDS));
 		
@@ -176,7 +176,7 @@ public class WebSocketTest {
 		
 		client.ping();
 		
-		client.close();
+		client.shutdown();
 
 		Assert.assertTrue(clientClosing.await(10, TimeUnit.SECONDS));
 

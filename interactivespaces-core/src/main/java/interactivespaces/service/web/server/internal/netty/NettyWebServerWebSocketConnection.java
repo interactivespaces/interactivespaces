@@ -132,7 +132,7 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	}
 
 	@Override
-	public void close() {
+	public void shutdown() {
 		// The netty server handler should signal that the channel has been
 		// closed.
 		channel.close();

@@ -14,18 +14,16 @@
 # the License.
 ##
 
+# goal definition for deleting a live activity
+
+# UUID of the live activity
 string uuid
 
-int32 status
-int32 STATUS_HEARTBEAT = 0
-int32 STATUS_SHUTDOWN = 1
-int32 STATUS_RESTARTED = 2
-int32 STATUS_INSTALL = 3
-int32 STATUS_FULL = 4
-int32 STATUS_ACTIVITY_INSTALL = 5
-int32 STATUS_ACTIVITY_DELETE = 6
+# Identifying name of the activity
+string identifying_name
 
-string data_type
-byte[] data
+# Version of the activity
+string version
 
-
+# 1 if should force deletion
+int32 force

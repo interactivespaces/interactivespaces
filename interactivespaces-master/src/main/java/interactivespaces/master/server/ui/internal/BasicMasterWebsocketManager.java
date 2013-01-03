@@ -108,7 +108,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 
 		webServer.setWebSocketHandlerFactory("", webSocketFactory);
 
-		webServer.start();
+		webServer.startup();
 
 		remoteControllerClient.addRemoteSpaceControllerClientListener(this);
 	}

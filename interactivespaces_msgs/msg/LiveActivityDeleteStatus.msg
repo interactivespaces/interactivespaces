@@ -14,18 +14,14 @@
 # the License.
 ##
 
+# result of a deletion of a live activity
+
+# UUID of the live activity
 string uuid
 
+# Time deleted on controller
+int64 time_deleted
+
 int32 status
-int32 STATUS_HEARTBEAT = 0
-int32 STATUS_SHUTDOWN = 1
-int32 STATUS_RESTARTED = 2
-int32 STATUS_INSTALL = 3
-int32 STATUS_FULL = 4
-int32 STATUS_ACTIVITY_INSTALL = 5
-int32 STATUS_ACTIVITY_DELETE = 6
-
-string data_type
-byte[] data
-
-
+int32 STATUS_SUCCESS = 0
+int32 STATUS_FAILURE = 1
