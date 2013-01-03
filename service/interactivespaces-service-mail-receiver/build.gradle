@@ -14,9 +14,7 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-core')
-  
-  compile project(':service:interactivespaces-service-mail-common')
+  compile project(':service:interactivespaces-service-core')
 
   compile 'org.github.rjo1970:dumbster:1.9.0.1-SNAPSHOT'
   

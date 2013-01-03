@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.scheduler.internal;
+package interactivespaces.service.scheduler.internal.quartz;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.scheduler.SchedulerService;

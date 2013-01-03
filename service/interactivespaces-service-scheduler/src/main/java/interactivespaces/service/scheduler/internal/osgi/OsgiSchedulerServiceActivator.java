@@ -18,7 +18,7 @@ package interactivespaces.service.scheduler.internal.osgi;
 
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.scheduler.SchedulerService;
-import interactivespaces.service.scheduler.internal.QuartzSchedulerService;
+import interactivespaces.service.scheduler.internal.quartz.QuartzSchedulerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.atomic.AtomicReference;

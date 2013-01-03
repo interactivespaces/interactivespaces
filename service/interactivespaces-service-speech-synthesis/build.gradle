@@ -14,7 +14,7 @@
  */
 
 dependencies {
-	compile project(':interactivespaces-core')
+	compile project(':service:interactivespaces-service-core')
 	
 	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -29,9 +29,6 @@ jar {
 		
 		instruction 'Bundle-Activator',
 				'interactivespaces.service.speech.synthesis.internal.osgi.SpeechSynthesisServiceOsgiBundleActivator'
-
-		instruction 'Export-Package',
-				'interactivespaces.service.speech.synthesis.*'
 	}
 }
 

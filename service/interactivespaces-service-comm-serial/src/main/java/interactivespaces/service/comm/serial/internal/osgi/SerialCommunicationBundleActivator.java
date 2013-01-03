@@ -14,10 +14,10 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.bluetooth.osgi;
+package interactivespaces.service.comm.serial.internal.osgi;
 
-import interactivespaces.service.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
-import interactivespaces.service.comm.serial.bluetooth.jsr82.Jsr82BluetoothCommunicationEndpointService;
+import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
+import interactivespaces.service.comm.serial.internal.rxtx.RxtxSerialCommunicationEndpointService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,11 +28,11 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * OSGi bundle activator for the bluetooth communication service.
- *
+ * An OSGI bundle activator for the serial communication service.
+ * 
  * @author Keith M. Hughes
  */
-public class BluetoothCommunicationEndpointServiceBundleActivator implements BundleActivator {
+public class SerialCommunicationBundleActivator implements BundleActivator {
 
 	/**
 	 * OSGi service tracker for the interactive spaces environment.
@@ -42,7 +42,7 @@ public class BluetoothCommunicationEndpointServiceBundleActivator implements Bun
 	/**
 	 * The communication endpoint service created by this bundle.
 	 */
-	private BluetoothCommunicationEndpointService bluetoothCommService;
+	private RxtxSerialCommunicationEndpointService serialCommService;
 
 	/**
 	 * OSGi bundle context for this bundle.
@@ -65,15 +65,15 @@ public class BluetoothCommunicationEndpointServiceBundleActivator implements Bun
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		bluetoothCommService.shutdown();
-		bluetoothCommService = null;
+		serialCommService.shutdown();
+		serialCommService = null;
 
 		interactiveSpacesEnvironmentTracker
 				.getMyService()
 				.getServiceRegistry()
 				.unregisterService(
-						BluetoothCommunicationEndpointService.SERVICE_NAME,
-						bluetoothCommService);
+						SerialCommunicationEndpointService.SERVICE_NAME,
+						serialCommService);
 
 		interactiveSpacesEnvironmentTracker.close();
 		interactiveSpacesEnvironmentTracker = null;
@@ -84,15 +84,15 @@ public class BluetoothCommunicationEndpointServiceBundleActivator implements Bun
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			bluetoothCommService = new Jsr82BluetoothCommunicationEndpointService();
+			serialCommService = new RxtxSerialCommunicationEndpointService();
 			interactiveSpacesEnvironmentTracker
 					.getMyService()
 					.getServiceRegistry()
 					.registerService(
-							BluetoothCommunicationEndpointService.SERVICE_NAME,
-							bluetoothCommService);
+							SerialCommunicationEndpointService.SERVICE_NAME,
+							serialCommService);
 
-			bluetoothCommService.startup();
+			serialCommService.startup();
 		}
 	}
 
@@ -134,4 +134,5 @@ public class BluetoothCommunicationEndpointServiceBundleActivator implements Bun
 			return serviceReference.get();
 		}
 	}
+
 }

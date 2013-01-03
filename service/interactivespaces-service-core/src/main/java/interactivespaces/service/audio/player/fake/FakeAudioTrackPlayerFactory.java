@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.internal;
+package interactivespaces.service.audio.player.fake;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class FakeAudioTrackPlayerFactory implements AudioTrackPlayerFactory {
+	
 	/**
 	 * A fake track length, in milliseconds.
 	 */

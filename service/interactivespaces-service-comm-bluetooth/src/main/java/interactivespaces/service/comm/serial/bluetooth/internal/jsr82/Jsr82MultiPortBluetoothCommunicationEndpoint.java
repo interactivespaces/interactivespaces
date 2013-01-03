@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.bluetooth.jsr82;
+package interactivespaces.service.comm.serial.bluetooth.internal.jsr82;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

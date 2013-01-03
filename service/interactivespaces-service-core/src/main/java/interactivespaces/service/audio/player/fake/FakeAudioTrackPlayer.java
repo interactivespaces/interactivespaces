@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.internal;
+package interactivespaces.service.audio.player.fake;
 
 import interactivespaces.service.audio.player.PlayableAudioTrack;
 import interactivespaces.service.audio.player.AudioTrackPlayer;

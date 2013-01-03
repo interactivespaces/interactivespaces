@@ -14,9 +14,7 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-core')
-  
-  compile project(':service:interactivespaces-service-mail-common')
+  compile project(':service:interactivespaces-service-core')
   
   compile 'javax.mail:com.springsource.javax.mail:1.4.1'
   

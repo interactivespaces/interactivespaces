@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.rxtx;
+package interactivespaces.service.comm.serial.internal.rxtx;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
