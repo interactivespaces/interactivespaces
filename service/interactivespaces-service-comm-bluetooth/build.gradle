@@ -32,7 +32,7 @@ jar {
 				'interactivespaces.service.comm.serial.bluetooth.internal.osgi.BluetoothCommunicationEndpointServiceBundleActivator'
 
 		instruction 'Export-Package',
-				'interactivespaces.hardware.drivers.*'
+				'interactivespaces.hardware.driver.*'
 	}
 }
 

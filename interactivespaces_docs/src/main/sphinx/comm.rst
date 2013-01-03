@@ -27,6 +27,9 @@ The JAR file should be copied into the *bootstrap* folder of the Space Controlle
 Edit the file and look for a line with the prefix *path:*. Change the rest of the line to
 point at the RXTX jar you have installed on the computer.
 
+If the controller runs on a Linux device, the user which runs the controller must
+be in the *dialout* Linux group to use serial devices.
+
 Now restart the Space Controller and the Serial Comm support will be available.
 
 Using Serial Comm Support
@@ -62,8 +65,11 @@ The JAR file should be copied into the *bootstrap* folder of the Space Controlle
 Edit the file and look for a line with the prefix *path:*. Change the rest of the line to
 point at the Bluecove jar you have installed on the computer.
 
-If you are running on Linux, you will need to add a second *path:* line to *comm-serial-bluecove.ext*.
+If the controller are running on Linux, you will need to add a second *path:* line to *comm-serial-bluecove.ext*.
 This line should point to the Bluecove GPL jar.
+Also, the user which runs the controller must
+be in the *lp* Linux group to use bluetooth devices.
+
 
 Now restart the Space Controller and the Bluetooth Comm support will be available.
 

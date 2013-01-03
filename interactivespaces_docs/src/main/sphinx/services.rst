@@ -86,3 +86,30 @@ For more details about what you can do with the Mail Receiver Service, see the
 :javadoc:`interactivespaces.service.mail.receiver.MailReceiverService` 
 Javadoc.
 
+Speech Services
+===============
+
+For more details about what you can do with the Speech Synthesis Service, see the
+:javadoc:`interactivespaces.service.speech.synthesis.SpeechSynthesisService` 
+Javadoc.
+
+Chat Service
+===============
+
+The Chat Service provides support for both reading from and writing to chat services.
+The current implementation only supports XMPP-based chat.
+
+For more details about what you can do with the Chat Service, see the
+:javadoc:`interactivespaces.service.comm.chat.ChatService` 
+Javadoc.
+
+Twitter Service
+===============
+
+The Twitter Service provides support for both sending Twitter Status updates and
+being notified of any tweets containing a specified hashtag.
+
+For more details about what you can do with the Chat Service, see the
+:javadoc:`interactivespaces.service.comm.twitter.TwitterService` 
+Javadoc.
+
