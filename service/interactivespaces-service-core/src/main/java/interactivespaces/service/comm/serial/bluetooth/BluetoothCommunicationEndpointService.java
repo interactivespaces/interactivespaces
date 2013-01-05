@@ -16,6 +16,8 @@
 
 package interactivespaces.service.comm.serial.bluetooth;
 
+import java.util.List;
+
 import interactivespaces.service.SupportedService;
 
 /**
@@ -29,6 +31,20 @@ public interface BluetoothCommunicationEndpointService extends SupportedService 
 	 * The name of the service.
 	 */
 	public static final String SERVICE_NAME = "comm.bluetooth";
+	
+	/**
+	 * Get the local bluetooth information.
+	 * 
+	 * @return the local information if bluetooth if available.
+	 */
+	BluetoothDevice getLocalBluetoothInformation();
+	
+	/**
+	 * Get a discovery for remote devices.
+	 * 
+	 * @return a list of remote devices discovered.
+	 */
+	List<BluetoothDevice> discoverRemoteDevices();
 	
 	/**
 	 * Get a bluetooth endpoint which uses separate ports for sending and

@@ -19,12 +19,14 @@ package interactivespaces.service.comm.serial.bluetooth.internal.jsr82;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
 import interactivespaces.service.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
+import interactivespaces.service.comm.serial.bluetooth.BluetoothDevice;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.DiscoveryListener;
@@ -37,17 +39,18 @@ import com.intel.bluetooth.BlueCoveConfigProperties;
 
 /**
  * A bluetooth connection service using Jsr82.
- *
+ * 
  * @author Keith M. Hughes
  * @since Dec 21, 2012
  */
-public class Jsr82BluetoothCommunicationEndpointService implements BluetoothCommunicationEndpointService {
-	
+public class Jsr82BluetoothCommunicationEndpointService implements
+		BluetoothCommunicationEndpointService {
+
 	/**
 	 * Space environment for this service.
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
-	
+
 	@Override
 	public void startup() {
 		System.setProperty(
@@ -60,40 +63,54 @@ public class Jsr82BluetoothCommunicationEndpointService implements BluetoothComm
 		// Nothing to do for now
 	}
 
-	public List<RemoteDevice> getDevices() {
-		final List<RemoteDevice> devices = Lists.newArrayList();
+	@Override
+	public BluetoothDevice getLocalBluetoothInformation() {
+		try {
+			LocalDevice localDevice = LocalDevice.getLocalDevice();
+
+			String bluetoothAddress = localDevice.getBluetoothAddress();
+			String friendlyName = localDevice.getFriendlyName();
+
+			DeviceClass dc = localDevice.getDeviceClass();
+
+			return new BluetoothDevice(bluetoothAddress, friendlyName,
+					dc.getMajorDeviceClass(), dc.getMinorDeviceClass());
+		} catch (BluetoothStateException e) {
+			throw new InteractiveSpacesException(
+					"Could not obtain local bluetooth information", e);
+		}
+	}
+
+	@Override
+	public List<BluetoothDevice> discoverRemoteDevices() {
+		final List<BluetoothDevice> devices = Lists.newArrayList();
 
 		try {
 			final CountDownLatch done = new CountDownLatch(1);
 
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 
-			System.out.println("Address: " + localDevice.getBluetoothAddress());
-
-			System.out.println("Name: " + localDevice.getFriendlyName());
-
 			DiscoveryAgent agent = localDevice.getDiscoveryAgent();
 
-			System.out.println("Starting device inquiry…");
+			spaceEnvironment.getLog().info("Starting device inquiry");
 
-			boolean blah = agent.startInquiry(DiscoveryAgent.GIAC,
+			boolean started = agent.startInquiry(DiscoveryAgent.GIAC,
 					new DiscoveryListener() {
 
 						@Override
 						public void deviceDiscovered(RemoteDevice device,
 								DeviceClass deviceClass) {
 							try {
-								System.out.println("Device discovered: "
-										+ device.getBluetoothAddress());
-								System.out.println(device.getFriendlyName(true));
-								devices.add(device);
-								if (deviceClass.getMajorDeviceClass() == 1280
-										&& deviceClass.getMinorDeviceClass() == 4) {
-									System.out.println("Is a Wii remote!!");
-								}
+								devices.add(new BluetoothDevice(device
+										.getBluetoothAddress(), device
+										.getFriendlyName(true), deviceClass
+										.getMajorDeviceClass(), deviceClass
+										.getMinorDeviceClass()));
 							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								spaceEnvironment
+										.getLog()
+										.error("Error during bluetooth device discover",
+												e);
 							}
 
 						}
@@ -104,25 +121,31 @@ public class Jsr82BluetoothCommunicationEndpointService implements BluetoothComm
 
 							case DiscoveryListener.INQUIRY_COMPLETED:
 
-								System.out.println("INQUIRY_COMPLETED");
+								spaceEnvironment.getLog().info(
+										"Bluetooth discover inquiry completed");
 
 								break;
 
 							case DiscoveryListener.INQUIRY_TERMINATED:
 
-								System.out.println("INQUIRY_TERMINATED");
+								spaceEnvironment
+										.getLog()
+										.info("Bluetooth discover inquiry terminated");
 
 								break;
 
 							case DiscoveryListener.INQUIRY_ERROR:
 
-								System.out.println("INQUIRY_ERROR");
+								spaceEnvironment.getLog().error(
+										"Bluetooth discover inquiry error");
 
 								break;
 
 							default:
 
-								System.out.println("Unknown Response Code");
+								spaceEnvironment
+										.getLog()
+										.warn("Bluetooth discover inquiry unknown response code");
 
 								break;
 
@@ -132,13 +155,15 @@ public class Jsr82BluetoothCommunicationEndpointService implements BluetoothComm
 
 						@Override
 						public void serviceSearchCompleted(int arg0, int arg1) {
-							System.out.println("Service complete");
+							spaceEnvironment.getLog().info(
+									"Bluetooth service search completed.");
 						}
 
 						@Override
 						public void servicesDiscovered(int arg0,
 								ServiceRecord[] arg1) {
-							System.out.println("Service discovered");
+							spaceEnvironment.getLog().info(
+									"Bluetooth service discovered.");
 						}
 					});
 
@@ -154,7 +179,8 @@ public class Jsr82BluetoothCommunicationEndpointService implements BluetoothComm
 	@Override
 	public BluetoothCommunicationEndpoint newDualEndpoint(String address,
 			int receivePort, int sendPort) {
-		return new Jsr82MultiPortBluetoothCommunicationEndpoint(address, receivePort, sendPort);
+		return new Jsr82MultiPortBluetoothCommunicationEndpoint(address,
+				receivePort, sendPort);
 	}
 
 	@Override
