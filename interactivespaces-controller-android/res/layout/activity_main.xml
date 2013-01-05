@@ -9,6 +9,21 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/interactivespaces_version"
+        tools:context=".MainActivity" />
+
+    <TextView
+        android:id="@+id/myInteractivespacesVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/value_unknown"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        tools:context=".MainActivity" />
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/device_serial"
         tools:context=".MainActivity" />
 

@@ -19,6 +19,7 @@
     <string name="controller_name">Controller Name</string>
     <string name="controller_description">Controller Description</string>
     <string name="host_id">Host ID</string>
+    <string name="interactivespaces_version">Interactive Spaces Version</string>
     
     <string name="value_unknown">Unknown</string>
  

@@ -24,6 +24,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -46,7 +49,7 @@ public class InteractiveSpacesRootActivity extends Activity {
 	 * Key in the intent extras for error messages.
 	 */
 	public static final String INTENT_EXTRA_ERROR_MESSAGE = "error.message";
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -125,6 +128,17 @@ public class InteractiveSpacesRootActivity extends Activity {
 	public void updateView(Context context) {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(this);
+
+		TextView interactivespacesVersionView = (TextView) findViewById(R.id.myInteractivespacesVersion);
+		try {
+			PackageManager pm = getPackageManager();
+			PackageInfo pi = pm.getPackageInfo(
+					"interactivespaces.controller.android", 0);
+			interactivespacesVersionView.setText(pi.versionName);
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		TextView deviceSerialView = (TextView) findViewById(R.id.myDeviceSerial);
 		deviceSerialView.setText(Settings.Secure.getString(

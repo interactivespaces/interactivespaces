@@ -508,7 +508,14 @@ the License.
 									<type>jar</type> 
 									<overWrite>true</overWrite> 
 								</artifactItem> 
-								
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-comm-twitter</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+   																
    								<!-- xmpp service -->
 								<artifactItem> 
 								    <groupId>org.apache.servicemix.bundles</groupId> 
@@ -517,7 +524,14 @@ the License.
 									<type>jar</type> 
 									<overWrite>true</overWrite> 
 								</artifactItem>
-
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>interactivespaces-service-comm-chat</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+								
 								<!-- Audio Player Service -->
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
