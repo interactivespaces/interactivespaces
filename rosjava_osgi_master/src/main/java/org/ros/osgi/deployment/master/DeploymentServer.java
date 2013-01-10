@@ -20,26 +20,28 @@ import java.util.List;
 
 /**
  * Deploys features to a remote system.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface DeploymentServer {
-	
+
 	/**
 	 * Start up the deployment server.
 	 */
 	void startup();
-	
+
 	/**
 	 * Shut down the deployment server.
 	 */
 	void shutdown();
-	
+
 	/**
 	 * Deploy a set of features to a node.
 	 * 
-	 * @param node The node to receive the features.
-	 * @param features The features  to be deployed to the node.
+	 * @param node
+	 *            the node to receive the features
+	 * @param features
+	 *            the features to be deployed to the node
 	 */
 	void deployFeature(String node, List<String> features);
 }

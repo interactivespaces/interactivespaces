@@ -38,7 +38,8 @@ public enum ActivityState {
 	DEACTIVATE_FAILURE("space.activity.state.deactivate.failure", true, true, true), 
 	SHUTDOWN_ATTEMPT("space.activity.state.shutdown.attempt", false, false, false), 
 	SHUTDOWN_FAILURE("space.activity.state.shutdown.failure", false, true, true), 
-	CRASHED("space.activity.state.crashed", false, true, true);
+	CRASHED("space.activity.state.crashed", false, true, true),
+	DELETE_ATTEMPT("space.activity.state.deletion.attempt", false, false, true);
 
 	/**
 	 * Text description of the state.

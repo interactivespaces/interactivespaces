@@ -103,8 +103,8 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 				spaceEnvironment.getExecutorService(),
 				spaceEnvironment.getLog());
 
-		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
-				spaceEnvironment.getLog());
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(
+				this, spaceEnvironment.getLog());
 
 		webServer.setWebSocketHandlerFactory("", webSocketFactory);
 
@@ -140,13 +140,15 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 		if (liveActivity != null) {
 			Map<String, Object> data = Maps.newHashMap();
 
-			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_TYPE, WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY);
+			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_TYPE,
+					WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY);
 			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_UUID, uuid);
 			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_ID, liveActivity.getId());
-			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS, state.getDescription());
+			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS,
+					state.getDescription());
 
-			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment.getTimeProvider()
-					.getCurrentTime()));
+			data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME, new Date(
+					spaceEnvironment.getTimeProvider().getCurrentTime()));
 
 			webSocketFactory.sendJson(data);
 		} else {

@@ -16,8 +16,6 @@
 
 package interactivespaces.master.server.services.internal;
 
-import interactivespaces.activity.ActivityState;
-import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ControllerRepository;
@@ -81,21 +79,8 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 		}
 
 		@Override
-		public void onSpaceControllerStatusChange(String uuid,
-				SpaceControllerState state) {
-			// state.CONNECT_FAILURE
-		}
-
-		@Override
 		public void onSpaceControllerHeartbeat(String uuid, long timestamp) {
 			handleSpaceControllerHeartbeat(uuid, timestamp);
-		}
-
-		@Override
-		public void onLiveActivityStateChange(String uuid,
-				ActivityState oldState, ActivityState newState) {
-			// TODO Auto-generated method stub
-
 		}
 	};
 

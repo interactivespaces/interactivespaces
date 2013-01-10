@@ -159,7 +159,7 @@ public interface UiControllerManager {
 	UiControllerManager deployAllActivityInstances(String id);
 
 	/**
-	 * Deploy the specified live activity.
+	 * Deploy the specified live activity to its controller.
 	 * 
 	 * @param id
 	 *            ID of the live activity.
@@ -167,6 +167,16 @@ public interface UiControllerManager {
 	 * @return the controller manager which performed the operation.
 	 */
 	UiControllerManager deployLiveActivity(String id);
+
+	/**
+	 * Delete the specified live activity from its controller.
+	 * 
+	 * @param id
+	 *            ID of the live activity
+	 * 
+	 * @return the controller manager which performed the operation.
+	 */
+	UiControllerManager deleteLiveActivity(String id);
 
 	/**
 	 * Configure a live activity on its controller.

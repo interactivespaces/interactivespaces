@@ -37,6 +37,12 @@ function deleteLiveActivity() {
         window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/delete.html'
     }
 }
+
+function remoteDeleteLiveActivity() {
+    if (confirm("Are you sure you want to delete the activity from its controller?")) {
+        doAjaxCommand('remotedelete');
+    }
+}
 </script>
 
 
@@ -56,6 +62,7 @@ function deleteLiveActivity() {
 <li><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></li>
 <li><button type="button" id="editMetadataButton" 
     onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></li>
+<li><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></li>
 <#if !(liveactivitygroups?has_content)>
 <li><button type="button" onclick="deleteLiveActivity()" title="Delete activity on master">Delete</button></li>
 </#if>

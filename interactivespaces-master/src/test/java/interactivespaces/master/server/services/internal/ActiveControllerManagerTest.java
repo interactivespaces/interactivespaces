@@ -237,6 +237,24 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 	}
 
 	/**
+	 * Make sure an activity deletes.
+	 */
+	@Test
+	public void testActivityDeletion() {
+		LiveActivity app = liveActivity(10);
+
+		activeControllerManager.deleteLiveActivity(app);
+
+		ActiveLiveActivity activeLiveActivity = activeControllerManager
+				.getActiveLiveActivity(app);
+		assertActiveActivityState(activeLiveActivity, false, 0, false, 0,
+				ActivityState.UNKNOWN, ActivityState.DELETE_ATTEMPT);
+
+		Mockito.verify(activityDeploymentManager, Mockito.times(1))
+				.deleteLiveActivity(app);
+	}
+
+	/**
 	 * Make sure an activity starts up.
 	 */
 	@Test

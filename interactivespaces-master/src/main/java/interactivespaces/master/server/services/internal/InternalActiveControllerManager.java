@@ -51,6 +51,14 @@ public interface InternalActiveControllerManager extends
 	void deployActiveActivity(ActiveLiveActivity activeLiveActivity);
 
 	/**
+	 * Delete a active activity.
+	 * 
+	 * @param activeLiveActivity
+	 *            the active live activity to delete
+	 */
+	void deleteActiveActivity(ActiveLiveActivity activeLiveActivity);
+
+	/**
 	 * Configure a active activity.
 	 * 
 	 * <p>

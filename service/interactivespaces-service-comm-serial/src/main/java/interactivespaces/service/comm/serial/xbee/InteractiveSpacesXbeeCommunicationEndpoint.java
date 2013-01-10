@@ -16,10 +16,10 @@
 
 package interactivespaces.service.comm.serial.xbee;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
-
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.internal.rxtx.RxtxSerialCommunicationEndpoint;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * An nteractive Spaces implementation of an XBee communication endpoint.
@@ -114,7 +114,7 @@ public class InteractiveSpacesXbeeCommunicationEndpoint implements
 		/**
 		 * Where bytes are written for the frame
 		 */
-		private ByteOutputStream bos = new ByteOutputStream();
+		private ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		private int checksum = 0;
 		private int length = 0;
@@ -138,7 +138,7 @@ public class InteractiveSpacesXbeeCommunicationEndpoint implements
 			checksum = 0xff - checksum;
 			bos.write(checksum);
 			
-			byte[] bytes = bos.getBytes();
+			byte[] bytes = bos.toByteArray();
 			
 			// Get proper length into the frame.
 			bytes[1] = (byte)((length >> 8) & 0xff);

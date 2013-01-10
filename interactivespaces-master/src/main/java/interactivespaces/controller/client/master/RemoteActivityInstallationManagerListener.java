@@ -33,4 +33,15 @@ public interface RemoteActivityInstallationManagerListener {
 	 */
 	void onRemoteActivityInstall(String uuid,
 			RemoteActivityInstallStatus status);
+
+	/**
+	 * An activity has been deleted.
+	 * 
+	 * @param uuid
+	 *            uuid of the activity which was being deleted
+	 * @param status
+	 *            status of the install
+	 */
+	void onRemoteActivityDelete(String uuid,
+			RemoteActivityInstallStatus status);
 }

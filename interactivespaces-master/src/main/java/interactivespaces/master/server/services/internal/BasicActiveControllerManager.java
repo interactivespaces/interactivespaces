@@ -185,7 +185,7 @@ public class BasicActiveControllerManager implements
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
 			LiveActivity activity = liveActivity.getLiveActivity();
 			spaceEnvironment.getLog().info(
-					String.format("Deploying activity %s to controller %s",
+					String.format("Deploying live activity %s to controller %s",
 							activity.getUuid(), activity.getController()
 									.getHostId()));
 		}
@@ -198,6 +198,31 @@ public class BasicActiveControllerManager implements
 		}
 
 		activityDeploymentManager.deployLiveActivity(activity);
+	}
+
+	@Override
+	public void deleteLiveActivity(LiveActivity activity) {
+		deleteActiveActivity(getActiveLiveActivity(activity));
+	}
+
+	@Override
+	public void deleteActiveActivity(ActiveLiveActivity liveActivity) {
+		if (spaceEnvironment.getLog().isInfoEnabled()) {
+			LiveActivity activity = liveActivity.getLiveActivity();
+			spaceEnvironment.getLog().info(
+					String.format("Deleting live activity %s from controller %s",
+							activity.getUuid(), activity.getController()
+									.getHostId()));
+		}
+
+		LiveActivity activity;
+		synchronized (liveActivity) {
+			liveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
+
+			activity = liveActivity.getLiveActivity();
+		}
+
+		activityDeploymentManager.deleteLiveActivity(activity);
 	}
 
 	@Override
@@ -779,6 +804,7 @@ public class BasicActiveControllerManager implements
 				// error or something
 				// that is currently being shown.
 				active.setDeployState(ActivityState.UNKNOWN);
+				active.setRuntimeState(ActivityState.UNKNOWN);
 
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deleted successfully",

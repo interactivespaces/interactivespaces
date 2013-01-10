@@ -26,11 +26,19 @@ import interactivespaces.domain.basic.LiveActivity;
 public interface ActivityDeploymentManager {
 
 	/**
-	 * Install the live activity to its controller.
+	 * Delete the live activity to its controller.
 	 * 
 	 * @param liveActivity
-	 *            The activity to install.
+	 *            the activity to deploy
 	 */
 	void deployLiveActivity(LiveActivity liveActivity);
+
+	/**
+	 * Delete the live activity from its controller.
+	 * 
+	 * @param liveActivity
+	 *            the activity to delete
+	 */
+	void deleteLiveActivity(LiveActivity liveActivity);
 
 }

@@ -324,6 +324,19 @@ public class BasicUiControllerManager implements UiControllerManager {
 	}
 
 	@Override
+	public UiControllerManager deleteLiveActivity(String id) {
+		LiveActivity activity = activityRepository.getLiveActivityById(id);
+		if (activity == null) {
+			throw new EntityNotFoundInteractiveSpacesException(String.format(
+					"Live Activity with ID %s not found", id));
+		}
+
+		activeControllerManager.deleteLiveActivity(activity);
+
+		return this;
+	}
+
+	@Override
 	public UiControllerManager deployLiveActivity(String id) {
 		LiveActivity activity = activityRepository.getLiveActivityById(id);
 		if (activity == null) {

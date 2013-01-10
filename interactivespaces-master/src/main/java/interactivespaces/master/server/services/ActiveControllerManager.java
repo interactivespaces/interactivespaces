@@ -96,9 +96,17 @@ public interface ActiveControllerManager {
 	 * Deploy an activity on a controller.
 	 * 
 	 * @param activity
-	 *            The activity to deploy.
+	 *            the activity to deploy
 	 */
 	void deployLiveActivity(LiveActivity activity);
+
+	/**
+	 * Delete an activity on a controller.
+	 * 
+	 * @param activity
+	 *            the activity to delete
+	 */
+	void deleteLiveActivity(LiveActivity activity);
 
 	/**
 	 * Configure an activity on a controller.

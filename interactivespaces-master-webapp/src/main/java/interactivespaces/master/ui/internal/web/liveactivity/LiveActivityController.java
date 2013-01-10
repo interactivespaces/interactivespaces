@@ -109,21 +109,6 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/liveactivity/{id}/delete.html", method = RequestMethod.GET)
-	public ModelAndView deleteActivity(@PathVariable String id) {
-		ModelAndView mav = getModelAndView();
-		try {
-			uiActivityManager.deleteLiveActivity(id);
-
-			mav.clear();
-			mav.setViewName("redirect:/liveactivity/all.html");
-		} catch (EntityNotFoundInteractiveSpacesException e) {
-			mav.setViewName("liveactivity/LiveActivityNonexistent");
-		}
-
-		return mav;
-	}
-
 	@RequestMapping(value = "/liveactivity/all.json", method = RequestMethod.GET)
 	public @ResponseBody
 	Map<String, ? extends Object> listActivitiesJson(
@@ -308,6 +293,33 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 
 			return JsonSupport.getSuccessJsonResponse(statusData);
 		} else {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	@RequestMapping(value = "/liveactivity/{id}/delete.html", method = RequestMethod.GET)
+	public ModelAndView deleteActivity(@PathVariable String id) {
+		ModelAndView mav = getModelAndView();
+		try {
+			uiActivityManager.deleteLiveActivity(id);
+
+			mav.clear();
+			mav.setViewName("redirect:/liveactivity/all.html");
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			mav.setViewName("liveactivity/LiveActivityNonexistent");
+		}
+
+		return mav;
+	}
+
+	@RequestMapping(value = "/liveactivity/{id}/remotedelete.json", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, ? extends Object> remoteDeleteActivity(@PathVariable String id) {
+		try {
+			uiControllerManager.deleteLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
 			return getNoSuchLiveActivityResult();
 		}
 	}

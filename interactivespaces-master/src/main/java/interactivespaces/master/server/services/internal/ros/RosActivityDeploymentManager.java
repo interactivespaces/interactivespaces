@@ -45,6 +45,11 @@ public class RosActivityDeploymentManager implements ActivityDeploymentManager {
 		activityDeployer.deployActivity(activity);
 	}
 
+	@Override
+	public void deleteLiveActivity(LiveActivity activity) {
+		activityDeployer.deleteActivity(activity);
+	}
+
 	/**
 	 * @param activityDeployer
 	 *            the activityDeployer to set
@@ -60,5 +65,4 @@ public class RosActivityDeploymentManager implements ActivityDeploymentManager {
 	public void setRosDeploymentManager(DeploymentServer rosDeploymentManager) {
 		this.rosDeploymentManager = rosDeploymentManager;
 	}
-
 }
