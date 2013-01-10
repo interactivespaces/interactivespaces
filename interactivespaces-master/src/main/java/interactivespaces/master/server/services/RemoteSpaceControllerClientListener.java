@@ -74,6 +74,16 @@ public interface RemoteSpaceControllerClientListener {
 	void onLiveActivityInstall(String uuid, boolean success);
 
 	/**
+	 * An activity has been deleted.
+	 * 
+	 * @param uuid
+	 *            uuid of the activity
+	 * @param success
+	 *            {@code true} if the deletion was successful
+	 */
+	void onLiveActivityDelete(String uuid, boolean success);
+
+	/**
 	 * A remote activity has deployment status.
 	 * 
 	 * @param uuid

@@ -659,7 +659,10 @@ public class BasicActiveControllerManager implements
 	 * Get the active controller for the given UUID in a thread-friendly way.
 	 * 
 	 * @param uuid
-	 * @return
+	 *            the UUID of the controller
+	 * 
+	 * @return the active controller associated with the uuid, or {@code null}
+	 *         if none
 	 */
 	ActiveSpaceController getActiveControllerByUuid(String uuid) {
 		synchronized (activeSpaceControllers) {
@@ -671,7 +674,10 @@ public class BasicActiveControllerManager implements
 	 * Get the active activity for the given UUID in a thread-friendly way.
 	 * 
 	 * @param uuid
-	 * @return
+	 *            the UUID of the activity
+	 * 
+	 * @return the active activity associated with the UUID or {@code null} if
+	 *         none
 	 */
 	ActiveLiveActivity getActiveActivityByUuid(String uuid) {
 		synchronized (activeActivities) {
@@ -758,6 +764,32 @@ public class BasicActiveControllerManager implements
 			}
 
 			controllerListeners.signalActivityInstall(uuid, success,
+					spaceEnvironment.getTimeProvider().getCurrentTime());
+		} else {
+			logUnknownLiveActivity(uuid);
+		}
+	}
+
+	@Override
+	public void onLiveActivityDelete(String uuid, boolean success) {
+		ActiveLiveActivity active = getActiveActivityByUuid(uuid);
+		if (active != null) {
+			if (success) {
+				// If not running, should update the status as there may be an
+				// error or something
+				// that is currently being shown.
+				active.setDeployState(ActivityState.UNKNOWN);
+
+				spaceEnvironment.getLog().info(
+						String.format("Live activity %s deleted successfully",
+								uuid));
+			} else {
+				spaceEnvironment.getLog().info(
+						String.format("Live activity %s delete failed",
+								uuid));
+			}
+
+			controllerListeners.signalActivityDelete(uuid, success,
 					spaceEnvironment.getTimeProvider().getCurrentTime());
 		} else {
 			logUnknownLiveActivity(uuid);

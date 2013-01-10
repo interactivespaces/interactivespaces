@@ -56,6 +56,12 @@ public abstract class SpaceControllerListenerSupport implements
 	}
 
 	@Override
+	public void onLiveActivityDelete(String uuid, boolean success,
+			long timestamp) {
+		// Default is do nothing.
+	}
+
+	@Override
 	public void onLiveActivityStateChange(String uuid, ActivityState oldState,
 			ActivityState newState) {
 		// Default is do nothing.

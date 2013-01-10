@@ -119,12 +119,29 @@ public class SpaceControllerListenerHelper {
 	 * @param success
 	 *            {@code true} if the install was successful
 	 * @param timestamp
-	 *            timestamp of the dpeloyment
+	 *            timestamp of the deployment
 	 */
 	public void signalActivityInstall(String uuid, boolean success,
 			long timestamp) {
 		for (SpaceControllerListener listener : listeners) {
 			listener.onLiveActivityInstall(uuid, success, timestamp);
+		}
+	}
+
+	/**
+	 * Send the on deletion message to all listeners.
+	 * 
+	 * @param uuid
+	 *            UUID of the live activity
+	 * @param success
+	 *            {@code true} if the deletion was successful
+	 * @param timestamp
+	 *            timestamp of the deletion
+	 */
+	public void signalActivityDelete(String uuid, boolean success,
+			long timestamp) {
+		for (SpaceControllerListener listener : listeners) {
+			listener.onLiveActivityDelete(uuid, success, timestamp);
 		}
 	}
 

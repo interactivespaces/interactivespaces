@@ -45,6 +45,8 @@ import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
 import org.ros.message.interactivespaces_msgs.ControllerFullStatus;
 import org.ros.message.interactivespaces_msgs.ControllerRequest;
 import org.ros.message.interactivespaces_msgs.ControllerStatus;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
 import org.ros.node.Node;
@@ -114,6 +116,16 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	private MessageDeserializer<LiveActivityDeployStatus> liveActivityDeployStatusDeserializer;
 
 	/**
+	 * ROS message serializer for a live activity delete request
+	 */
+	private MessageSerializer<LiveActivityDeleteRequest> liveActivityDeleteRequestSerializer;
+
+	/**
+	 * ROS message deserializer for a live activity delete status
+	 */
+	private MessageDeserializer<LiveActivityDeleteStatus> liveActivityDeleteStatusDeserializer;
+
+	/**
 	 * ROS message deserializer for the full controller status
 	 */
 	private MessageDeserializer<ControllerFullStatus> controllerFullStatusDeserializer;
@@ -135,6 +147,14 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 		liveActivityDeployStatusDeserializer = node
 				.getMessageSerializationFactory().newMessageDeserializer(
 						"interactivespaces_msgs/LiveActivityDeployStatus");
+
+		liveActivityDeleteRequestSerializer = node
+				.getMessageSerializationFactory().newMessageSerializer(
+						"interactivespaces_msgs/LiveActivityDeleteRequest");
+
+		liveActivityDeleteStatusDeserializer = node
+				.getMessageSerializationFactory().newMessageDeserializer(
+						"interactivespaces_msgs/LiveActivityDeleteStatus");
 
 		controllerFullStatusDeserializer = node
 				.getMessageSerializationFactory().newMessageDeserializer(
@@ -207,6 +227,16 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 				.serialize(request);
 		sendControllerRequest(liveActivity.getController(),
 				ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY,
+				serialize.array());
+	}
+
+	@Override
+	public void deleteActivity(LiveActivity liveActivity,
+			LiveActivityDeleteRequest request) {
+		ByteBuffer serialize = liveActivityDeleteRequestSerializer
+				.serialize(request);
+		sendControllerRequest(liveActivity.getController(),
+				ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY,
 				serialize.array());
 	}
 
@@ -357,12 +387,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			break;
 
 		case ControllerStatus.STATUS_FULL:
-			ByteBuffer payloadBuffer = ByteBuffer.wrap(status.data);
-			payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-					.limit(status.data.length);
-
 			ControllerFullStatus fullStatus = controllerFullStatusDeserializer
-					.deserialize(payloadBuffer);
+					.deserialize(getStatusDataByteBuffer(status));
 
 			log.info(String.format(
 					"Received controller full status %s, %d activities",
@@ -376,12 +402,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			break;
 
 		case ControllerStatus.STATUS_ACTIVITY_INSTALL:
-			ByteBuffer deployStatusBuffer = ByteBuffer.wrap(status.data);
-			deployStatusBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-					.limit(status.data.length);
-
 			LiveActivityDeployStatus deployStatus = liveActivityDeployStatusDeserializer
-					.deserialize(deployStatusBuffer);
+					.deserialize(getStatusDataByteBuffer(status));
 
 			remoteControllerClientListeners
 					.signalActivityInstall(
@@ -390,10 +412,36 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
 			break;
 
+		case ControllerStatus.STATUS_ACTIVITY_DELETE:
+			LiveActivityDeleteStatus deleteStatus = liveActivityDeleteStatusDeserializer
+					.deserialize(getStatusDataByteBuffer(status));
+
+			remoteControllerClientListeners
+					.signalActivityDelete(
+							deleteStatus.uuid,
+							deleteStatus.status == LiveActivityDeleteStatus.STATUS_SUCCESS);
+
+			break;
+
 		default:
 			log.warn(String.format("Unknown status type %d, for controller %s",
 					status.status, status.uuid));
 		}
+	}
+
+	/**
+	 * get a byte buffer for the controller status data.
+	 * 
+	 * @param status
+	 *            the controller status object
+	 * 
+	 * @return a bytebuffer ready to read
+	 */
+	public ByteBuffer getStatusDataByteBuffer(ControllerStatus status) {
+		ByteBuffer deleteStatusBuffer = ByteBuffer.wrap(status.data);
+		deleteStatusBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
+				.limit(status.data.length);
+		return deleteStatusBuffer;
 	}
 
 	/**

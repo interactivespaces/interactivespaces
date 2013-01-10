@@ -23,7 +23,7 @@ import interactivespaces.domain.basic.LiveActivity;
  * 
  * @author Keith M. Hughes
  */
-public interface RemoteActivityDeployer {
+public interface RemoteActivityInstallationManager {
 	
 	/**
 	 * Start the deployer up.
@@ -36,11 +36,18 @@ public interface RemoteActivityDeployer {
 	void shutdown();
 
 	/**
-	 * Deploy an activity to
+	 * Deploy an activity to its space controller
 	 * 
 	 * @param activity
 	 */
 	void deployActivity(LiveActivity activity);
+
+	/**
+	 * Delete an activity from its space controller
+	 * 
+	 * @param activity
+	 */
+	void deleteActivity(LiveActivity activity);
 
 	/**
 	 * Add a listener to the installer.
@@ -48,7 +55,7 @@ public interface RemoteActivityDeployer {
 	 * @param listener
 	 *            the listener to add
 	 */
-	void addListener(RemoteActivityDeployerListener listener);
+	void addListener(RemoteActivityInstallationManagerListener listener);
 
 	/**
 	 * Remove a listener to the installer.
@@ -59,5 +66,5 @@ public interface RemoteActivityDeployer {
 	 * @param listener
 	 *            the listener to remove
 	 */
-	void removeListener(RemoteActivityDeployerListener listener);
+	void removeListener(RemoteActivityInstallationManagerListener listener);
 }

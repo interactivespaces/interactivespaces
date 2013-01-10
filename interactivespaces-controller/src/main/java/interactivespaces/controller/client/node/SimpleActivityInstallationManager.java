@@ -201,7 +201,7 @@ public class SimpleActivityInstallationManager implements
 	}
 
 	@Override
-	public void removeActivity(String uuid) {
+	public boolean removeActivity(String uuid) {
 		// TODO(keith): Move this elsewhere
 		InstalledLiveActivity activity = controllerRepository
 				.getInstalledLiveActivityByUuid(uuid);
@@ -211,7 +211,11 @@ public class SimpleActivityInstallationManager implements
 			activityStorageManager.removeActivityLocation(uuid);
 
 			notifyRemovedActivity(uuid);
+
+			return true;
 		}
+
+		return false;
 	}
 
 	@Override

@@ -77,6 +77,18 @@ public interface SpaceControllerListener {
 	void onLiveActivityInstall(String uuid, boolean success, long timestamp);
 
 	/**
+	 * An activity has been deleted.
+	 * 
+	 * @param uuid
+	 *            uuid of the activity
+	 * @param success
+	 *            {@code true} if the deletion was successful
+	 * @param timestamp
+	 *            timestamp of the event
+	 */
+	void onLiveActivityDelete(String uuid, boolean success, long timestamp);
+
+	/**
 	 * A live activity has had a state change.
 	 * 
 	 * @param activity

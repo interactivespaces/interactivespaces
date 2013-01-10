@@ -16,7 +16,7 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
-import interactivespaces.controller.client.master.RemoteActivityDeployer;
+import interactivespaces.controller.client.master.RemoteActivityInstallationManager;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActivityDeploymentManager;
 
@@ -33,7 +33,7 @@ public class RosActivityDeploymentManager implements ActivityDeploymentManager {
 	/**
 	 * Deployer for activities.
 	 */
-	private RemoteActivityDeployer activityDeployer;
+	private RemoteActivityInstallationManager activityDeployer;
 
 	/**
 	 * The ROS OSGI deployment manager.
@@ -49,7 +49,7 @@ public class RosActivityDeploymentManager implements ActivityDeploymentManager {
 	 * @param activityDeployer
 	 *            the activityDeployer to set
 	 */
-	public void setActivityDeployer(RemoteActivityDeployer activityDeployer) {
+	public void setActivityDeployer(RemoteActivityInstallationManager activityDeployer) {
 		this.activityDeployer = activityDeployer;
 	}
 

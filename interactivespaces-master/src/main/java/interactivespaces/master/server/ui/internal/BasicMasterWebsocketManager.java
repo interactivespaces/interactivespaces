@@ -129,6 +129,11 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	}
 
 	@Override
+	public void onLiveActivityDelete(String uuid, boolean success) {
+		// Don't care
+	}
+
+	@Override
 	public void onLiveActivityStateChange(String uuid, ActivityState state) {
 		LiveActivity liveActivity = activityRepository
 				.getLiveActivityByUuid(uuid);

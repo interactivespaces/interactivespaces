@@ -17,8 +17,8 @@
 package interactivespaces.controller.client.master.internal;
 
 import interactivespaces.activity.repository.ActivityRepositoryServer;
-import interactivespaces.controller.client.master.RemoteActivityDeployer;
-import interactivespaces.controller.client.master.RemoteActivityDeployerListener;
+import interactivespaces.controller.client.master.RemoteActivityInstallationManager;
+import interactivespaces.controller.client.master.RemoteActivityInstallationManagerListener;
 import interactivespaces.controller.client.master.RemoteActivityInstallStatus;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.RemoteControllerClient;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.logging.Log;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
 
 /**
@@ -34,7 +35,7 @@ import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
  * 
  * @author Keith M. Hughes
  */
-public class RosRemoteActivityDeployer implements RemoteActivityDeployer {
+public class RosRemoteActivityInstallationManager implements RemoteActivityInstallationManager {
 	
 	/**
 	 * The client for making calls to a remote space controller.
@@ -49,7 +50,7 @@ public class RosRemoteActivityDeployer implements RemoteActivityDeployer {
 	/**
 	 * All listeners for installer events.
 	 */
-	private List<RemoteActivityDeployerListener> listeners = new CopyOnWriteArrayList<RemoteActivityDeployerListener>();
+	private List<RemoteActivityInstallationManagerListener> listeners = new CopyOnWriteArrayList<RemoteActivityInstallationManagerListener>();
 
 	/**
 	 * Logger for this installer.
@@ -79,12 +80,24 @@ public class RosRemoteActivityDeployer implements RemoteActivityDeployer {
 	}
 
 	@Override
-	public void addListener(RemoteActivityDeployerListener listener) {
+	public void deleteActivity(LiveActivity activity) {
+		LiveActivityDeleteRequest request = new LiveActivityDeleteRequest();
+		request.uuid = activity.getUuid();
+		request.identifying_name = activity.getActivity()
+				.getIdentifyingName();
+		request.version = activity.getActivity().getVersion();
+		request.force = 1;
+
+		remoteControllerClient.deleteActivity(activity, request);
+	}
+
+	@Override
+	public void addListener(RemoteActivityInstallationManagerListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(RemoteActivityDeployerListener listener) {
+	public void removeListener(RemoteActivityInstallationManagerListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -208,7 +221,7 @@ public class RosRemoteActivityDeployer implements RemoteActivityDeployer {
 	 */
 	private void signalListenersOnInstall(String uuid,
 			RemoteActivityInstallStatus status) {
-		for (RemoteActivityDeployerListener listener : listeners) {
+		for (RemoteActivityInstallationManagerListener listener : listeners) {
 			listener.onRemoteActivityInstall(uuid, status);
 		}
 	}

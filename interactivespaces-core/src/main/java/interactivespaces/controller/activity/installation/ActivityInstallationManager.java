@@ -54,7 +54,7 @@ public interface ActivityInstallationManager {
 	 *            identifying name of the activity
 	 * @param version
 	 *            version of the activity
-	 *            
+	 * 
 	 * @return the timestamp from when the activity was installed
 	 */
 	Date installActivity(String uuid, String activityIdentifyingName,
@@ -64,9 +64,11 @@ public interface ActivityInstallationManager {
 	 * Delete an activity from the file system.
 	 * 
 	 * @param uuid
-	 *            UUID of the activity.
+	 *            UUID of the activity
+	 * 
+	 * @return {@code true} if the activity was found and removed
 	 */
-	void removeActivity(String uuid);
+	boolean removeActivity(String uuid);
 
 	/**
 	 * Delete the packed activity from file system.
@@ -85,8 +87,7 @@ public interface ActivityInstallationManager {
 	 * @param listener
 	 *            The new listener.
 	 */
-	void addActivityInstallationListener(
-			ActivityInstallationListener listener);
+	void addActivityInstallationListener(ActivityInstallationListener listener);
 
 	/**
 	 * Remove an activity installation listener.

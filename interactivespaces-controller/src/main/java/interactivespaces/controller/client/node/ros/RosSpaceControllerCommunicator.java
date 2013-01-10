@@ -19,7 +19,7 @@ package interactivespaces.controller.client.node.ros;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
-import interactivespaces.controller.client.node.SpaceControllerActivityInstaller;
+import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerControl;
 import interactivespaces.controller.client.node.SpaceControllerHeartbeat;
@@ -45,6 +45,8 @@ import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
 import org.ros.message.interactivespaces_msgs.ControllerFullStatus;
 import org.ros.message.interactivespaces_msgs.ControllerRequest;
 import org.ros.message.interactivespaces_msgs.ControllerStatus;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
 import org.ros.node.Node;
@@ -116,6 +118,16 @@ public class RosSpaceControllerCommunicator implements
 	private MessageSerializer<LiveActivityDeployStatus> liveActivityDeployStatusSerializer;
 
 	/**
+	 * ROS message deserializer for live activity deletetion requests
+	 */
+	private MessageDeserializer<LiveActivityDeleteRequest> liveActivityDeleteRequestDeserializer;
+
+	/**
+	 * ROS message serializer for live activity deletion statuses
+	 */
+	private MessageSerializer<LiveActivityDeleteStatus> liveActivityDeleteStatusSerializer;
+
+	/**
 	 * ROS message deserializer for the activity configuration requests
 	 */
 	private MessageDeserializer<ActivityConfigurationRequest> activityConfigurationRequestDeserializer;
@@ -123,7 +135,7 @@ public class RosSpaceControllerCommunicator implements
 	/**
 	 * Activity installer for the controller
 	 */
-	private SpaceControllerActivityInstaller spaceControllerActivityInstaller;
+	private SpaceControllerActivityInstallationManager spaceControllerActivityInstallManager;
 
 	/**
 	 * The space environment for this communicator.
@@ -131,10 +143,10 @@ public class RosSpaceControllerCommunicator implements
 	private InteractiveSpacesEnvironment spaceEnvironment;
 
 	public RosSpaceControllerCommunicator(
-			SpaceControllerActivityInstaller spaceControllerActivityInstaller,
+			SpaceControllerActivityInstallationManager spaceControllerActivityInstaller,
 			RosEnvironment rosEnvironment,
 			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceControllerActivityInstaller = spaceControllerActivityInstaller;
+		this.spaceControllerActivityInstallManager = spaceControllerActivityInstaller;
 		this.rosEnvironment = rosEnvironment;
 		this.spaceEnvironment = spaceEnvironment;
 	}
@@ -205,6 +217,14 @@ public class RosSpaceControllerCommunicator implements
 		liveActivityDeployRequestDeserializer = node
 				.getMessageSerializationFactory().newMessageDeserializer(
 						"interactivespaces_msgs/LiveActivityDeployRequest");
+
+		liveActivityDeleteStatusSerializer = node
+				.getMessageSerializationFactory().newMessageSerializer(
+						"interactivespaces_msgs/LiveActivityDeleteStatus");
+
+		liveActivityDeleteRequestDeserializer = node
+				.getMessageSerializationFactory().newMessageDeserializer(
+						"interactivespaces_msgs/LiveActivityDeleteRequest");
 	}
 
 	@Override
@@ -255,14 +275,14 @@ public class RosSpaceControllerCommunicator implements
 			break;
 
 		case ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY:
-			ByteBuffer payloadBuffer = ByteBuffer.wrap(request.payload);
-			payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-					.limit(request.payload.length);
+			handleLiveActivityDeployment(liveActivityDeployRequestDeserializer
+					.deserialize(getPayloadBuffer(request)));
 
-			LiveActivityDeployRequest deployRequest = liveActivityDeployRequestDeserializer
-					.deserialize(payloadBuffer);
+			break;
 
-			handleLiveActivityDeployment(deployRequest);
+		case ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY:
+			handleLiveActivityDeletion(liveActivityDeleteRequestDeserializer
+					.deserialize(getPayloadBuffer(request)));
 
 			break;
 
@@ -271,6 +291,17 @@ public class RosSpaceControllerCommunicator implements
 					String.format("Unknown ROS controller request %d",
 							request.operation));
 		}
+	}
+
+	/**
+	 * @param request
+	 * @return
+	 */
+	public ByteBuffer getPayloadBuffer(ControllerRequest request) {
+		ByteBuffer payloadBuffer = ByteBuffer.wrap(request.payload);
+		payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
+				.limit(request.payload.length);
+		return payloadBuffer;
 	}
 
 	/**
@@ -334,7 +365,7 @@ public class RosSpaceControllerCommunicator implements
 	 */
 	private void handleLiveActivityDeployment(
 			LiveActivityDeployRequest deployRequest) {
-		LiveActivityDeployStatus deployStatus = spaceControllerActivityInstaller
+		LiveActivityDeployStatus deployStatus = spaceControllerActivityInstallManager
 				.handleDeploymentRequest(deployRequest);
 
 		ControllerStatus status = new ControllerStatus();
@@ -343,6 +374,28 @@ public class RosSpaceControllerCommunicator implements
 
 		ByteBuffer serialize = liveActivityDeployStatusSerializer
 				.serialize(deployStatus);
+		status.data = serialize.array();
+
+		controllerStatusPublisher.publish(status);
+	}
+
+	/**
+	 * Handle a live activity deletion request.
+	 * 
+	 * @param deleteRequest
+	 *            the deletion request
+	 */
+	private void handleLiveActivityDeletion(
+			LiveActivityDeleteRequest deleteRequest) {
+		LiveActivityDeleteStatus deleteStatus = spaceControllerActivityInstallManager
+				.handleDeleteRequest(deleteRequest);
+
+		ControllerStatus status = new ControllerStatus();
+		status.uuid = controllerControl.getControllerInfo().getUuid();
+		status.status = ControllerStatus.STATUS_ACTIVITY_DELETE;
+
+		ByteBuffer serialize = liveActivityDeleteStatusSerializer
+				.serialize(deleteStatus);
 		status.data = serialize.array();
 
 		controllerStatusPublisher.publish(status);
@@ -510,12 +563,12 @@ public class RosSpaceControllerCommunicator implements
 	}
 
 	/**
-	 * @param spaceControllerActivityInstaller
-	 *            the spaceControllerActivityInstaller to set
+	 * @param spaceControllerActivityInstallManager
+	 *            the spaceControllerActivityInstallManager to set
 	 */
-	public void setSpaceControllerActivityInstaller(
-			SpaceControllerActivityInstaller spaceControllerActivityInstaller) {
-		this.spaceControllerActivityInstaller = spaceControllerActivityInstaller;
+	public void setSpaceControllerActivityInstallManager(
+			SpaceControllerActivityInstallationManager spaceControllerActivityInstaller) {
+		this.spaceControllerActivityInstallManager = spaceControllerActivityInstaller;
 	}
 
 	/**

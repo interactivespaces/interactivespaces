@@ -42,7 +42,7 @@ public interface BluetoothCommunicationEndpointService extends SupportedService 
 	/**
 	 * Get a discovery for remote devices.
 	 * 
-	 * @return a list of remote devices discovered.
+	 * @return a list of remote devices discovered
 	 */
 	List<BluetoothDevice> discoverRemoteDevices();
 	

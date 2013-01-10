@@ -17,11 +17,11 @@
 package interactivespaces.controller.client.master;
 
 /**
- * A listener for events from a {@link RemoteActivityDeployer}.
+ * A listener for events from a {@link RemoteActivityInstallationManager}.
  * 
  * @author Keith M. Hughes
  */
-public interface RemoteActivityDeployerListener {
+public interface RemoteActivityInstallationManagerListener {
 
 	/**
 	 * An activity has been installed.

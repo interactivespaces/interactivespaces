@@ -130,6 +130,20 @@ public class RemoteControllerClientListenerHelper {
 	}
 
 	/**
+	 * Send the on deletion message to all listeners.
+	 * 
+	 * @param uuid
+	 *            UUID of the activity.
+	 * @param success
+	 *            {@code true} if the deletion was successful
+	 */
+	public void signalActivityDelete(String uuid, boolean success) {
+		for (RemoteSpaceControllerClientListener listener : listeners) {
+			listener.onLiveActivityDelete(uuid, success);
+		}
+	}
+
+	/**
 	 * Send the activity state change message to all listeners.
 	 * 
 	 * @param uuid

@@ -17,21 +17,24 @@
 package interactivespaces.controller.client.node.ros;
 
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
-import interactivespaces.controller.client.node.SpaceControllerActivityInstaller;
+import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.Date;
 
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
+import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
 import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
 
 /**
- * The controller side of the deployer for Interactive Spaces live activities.
+ * The controller side of the installation manager for Interactive Spaces live
+ * activities.
  * 
  * @author Keith M. Hughes
  */
-public class RosSpaceControllerActivityInstaller implements
-		SpaceControllerActivityInstaller {
+public class RosSpaceControllerActivityInstallationManager implements
+		SpaceControllerActivityInstallationManager {
 
 	/**
 	 * The Spaces environment being used.
@@ -43,7 +46,7 @@ public class RosSpaceControllerActivityInstaller implements
 	 */
 	private ActivityInstallationManager activityInstallationManager;
 
-	public RosSpaceControllerActivityInstaller(
+	public RosSpaceControllerActivityInstallationManager(
 			ActivityInstallationManager activityInstallationManager,
 			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.activityInstallationManager = activityInstallationManager;
@@ -81,7 +84,8 @@ public class RosSpaceControllerActivityInstaller implements
 
 			status = LiveActivityDeployStatus.STATUS_SUCCESS;
 		} catch (Exception e) {
-			spaceEnvironment.getLog().error("Could not install live activity",
+			spaceEnvironment.getLog().error(
+					String.format("Could not install live activity %s", uuid),
 					e);
 
 			success = false;
@@ -89,7 +93,7 @@ public class RosSpaceControllerActivityInstaller implements
 			activityInstallationManager.removePackedActivity(uuid);
 		}
 
-		return createResult(request, status, success, installedDate);
+		return createDeployResult(request, status, success, installedDate);
 	}
 
 	/**
@@ -105,7 +109,7 @@ public class RosSpaceControllerActivityInstaller implements
 	 *            date to mark it if successful
 	 * @return an appropriately filled out deployment status
 	 */
-	private LiveActivityDeployStatus createResult(
+	private LiveActivityDeployStatus createDeployResult(
 			LiveActivityDeployRequest request, int status, boolean success,
 			Date installedDate) {
 		LiveActivityDeployStatus result = new LiveActivityDeployStatus();
@@ -118,5 +122,42 @@ public class RosSpaceControllerActivityInstaller implements
 		}
 
 		return result;
+	}
+
+	@Override
+	public LiveActivityDeleteStatus handleDeleteRequest(
+			LiveActivityDeleteRequest request) {
+		boolean success = false;
+
+		try {
+			success = activityInstallationManager.removeActivity(request.uuid);
+		} catch (Exception e) {
+			spaceEnvironment.getLog().error(
+					String.format("Could not delete live activity %s",
+							request.uuid), e);
+		}
+
+		return createDeleteResponse(request, success);
+	}
+
+	/**
+	 * Create the delete response to the request.
+	 * 
+	 * @param request
+	 *            the deletion request
+	 * @param success
+	 *            {@code true} if the activity was deleted
+	 * 
+	 * @return the response to be sent back
+	 */
+	public LiveActivityDeleteStatus createDeleteResponse(
+			LiveActivityDeleteRequest request, boolean success) {
+		LiveActivityDeleteStatus status = new LiveActivityDeleteStatus();
+		status.uuid = request.uuid;
+		status.time_deleted = spaceEnvironment.getTimeProvider()
+				.getCurrentTime();
+		status.status = success ? LiveActivityDeleteStatus.STATUS_SUCCESS
+				: LiveActivityDeleteStatus.STATUS_FAILURE;
+		return status;
 	}
 }

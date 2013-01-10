@@ -303,7 +303,7 @@ PROPAGATION_REQUIRED
 
     <bean
         id="interactivespaces.activity.deployer.remote"
-        class="interactivespaces.controller.client.master.internal.RosRemoteActivityDeployer"
+        class="interactivespaces.controller.client.master.internal.RosRemoteActivityInstallationManager"
         destroy-method="shutdown"
         init-method="startup" >
 
