@@ -16,7 +16,7 @@
 dependencies {
 	compile project(':service:interactivespaces-service-core')
 
-	compile 'org.codehaus.groovy:groovy-all:1.8.4'
+	compile 'org.codehaus.groovy:groovy-all:2.0.6'
 	compile 'org.python:org.python:2.5.2'
 	compile 'org.mozilla:rhino:1.7R4'
 
