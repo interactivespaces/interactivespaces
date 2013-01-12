@@ -56,7 +56,7 @@ public class XBeeApiConstants {
 	/**
 	 * XBee API frame type for sending a TX command.
 	 */
-	public static final int FRAME_TYPE_TX_SEND = 0x10;
+	public static final int FRAME_TYPE_TX_REQUEST = 0x10;
 
 	/**
 	 * XBee API frame type for a response for a TX command.
@@ -72,4 +72,9 @@ public class XBeeApiConstants {
 	 * XBee API frame type for receiving an RX I/O packet.
 	 */
 	public static final int FRAME_TYPE_RX_IO = 0x92;
+	
+	/**
+	 * The AT command SL (lower order word of address).
+	 */
+	public static final int[] AT_COMMAND_SL = new int[] { 0x53, 0x4c };
 }

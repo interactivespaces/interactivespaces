@@ -14,33 +14,27 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.xbee;
-
-import interactivespaces.comm.CommunicationEndpoint;
+package interactivespaces.service.comm.serial.xbee.internal;
 
 /**
- * An XBee communication endpoint.
+ * XBee frame for sending an AT request to the local radio.
  * 
  * @author Keith M. Hughes
  */
-public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
+public class AtLocalRequestXBeeFrame extends RequestXBeeFrame {
 
 	/**
-	 * Add a listener to the endpoint.
-	 * 
-	 * @param listener
-	 *            the listener to add
+	 * Construct an AT Local command XBee
+	 * @param command
+	 *            the AT command to send
+	 * @param frameNumber
+	 *            the frame number
 	 */
-	void addListener(XBeeResponseListener listener);
+	public AtLocalRequestXBeeFrame(int[] command, int frameNumber) {
+		super(XBeeApiConstants.FRAME_TYPE_AT_LOCAL_SEND_IMMEDIATE);
 
-	/**
-	 * Remove a listener from the endpoint.
-	 * 
-	 * <p>
-	 * Does nothing if the listener was never added
-	 * 
-	 * @param listener
-	 *            the listener to remove
-	 */
-	void removeListener(XBeeResponseListener listener);
+		add(frameNumber);
+
+		add(command);
+	}
 }

@@ -27,7 +27,7 @@ import java.io.IOException;
  * 
  * @author Keith M. Hughes
  */
-public class XBeeFrameWriter {
+public class RequestXBeeFrame {
 
 	/**
 	 * Where bytes are written for the frame
@@ -50,7 +50,7 @@ public class XBeeFrameWriter {
 	 * @param frameType
 	 *            the type of frame
 	 */
-	public XBeeFrameWriter(int frameType) {
+	public RequestXBeeFrame(int frameType) {
 		bos.write(XBeeApiConstants.FRAME_START_BYTE);
 
 		// Save room for length
