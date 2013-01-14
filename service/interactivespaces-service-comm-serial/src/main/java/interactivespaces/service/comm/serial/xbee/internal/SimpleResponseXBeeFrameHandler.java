@@ -33,7 +33,7 @@ public class SimpleResponseXBeeFrameHandler implements ResponseXBeeFrameHandler 
 	/**
 	 * The frame parser for this handler.
 	 */
-	private XBeeResponseFrameParser parser = new EscapedXBeeResponseFrameParser();
+	private XBeeResponseFrameParser parser = new SimpleXBeeResponseFrameParser();
 
 	@Override
 	public void handle(XBeeCommunicationEndpoint endpoint,

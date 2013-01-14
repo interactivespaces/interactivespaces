@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
  * 
  * @author Keith M. Hughes
  */
-public class EscapedXBeeResponseFrameParser implements XBeeResponseFrameParser {
+public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
 	@Override
 	public AtLocalResponseXBeeFrame parseAtLocalResponse(
