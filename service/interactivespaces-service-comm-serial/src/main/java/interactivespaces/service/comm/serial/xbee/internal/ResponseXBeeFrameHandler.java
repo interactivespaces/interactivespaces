@@ -35,14 +35,17 @@ public interface ResponseXBeeFrameHandler {
 	 * 
 	 * @param endpoint
 	 *            the endpoint which got the frame
-	 * @param frame
-	 *            the raw frame to parse
+	 * @param reader
+	 *            the reader for frame bytes
+	 * @param packetLength
+	 *            the length of the frame, in bytes
 	 * @param listeners
 	 *            the listeners to send the response to
 	 * @param log
 	 *            the logger for the parsing
 	 */
-	void handle(XBeeCommunicationEndpoint endpoint, byte[] frame,
+	void handle(XBeeCommunicationEndpoint endpoint,
+			EscapedXBeeFrameReader reader, int packetLength,
 			List<XBeeResponseListener> listeners, Log log);
 
 }

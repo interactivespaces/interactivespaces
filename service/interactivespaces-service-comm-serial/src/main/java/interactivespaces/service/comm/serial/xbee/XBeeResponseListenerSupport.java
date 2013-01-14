@@ -16,9 +16,10 @@
 
 package interactivespaces.service.comm.serial.xbee;
 
+import interactivespaces.service.comm.serial.xbee.internal.AtLocalResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.internal.AtRemoteResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.internal.RxResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.internal.TxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.internal.TxStatusXBeeFrame;
 
 /**
  * An {@link XBeeResponseListener} with do nothing methods for all listeners.
@@ -32,14 +33,20 @@ import interactivespaces.service.comm.serial.xbee.internal.TxResponseXBeeFrame;
 public class XBeeResponseListenerSupport implements XBeeResponseListener {
 
 	@Override
+	public void onAtLocalXBeeResponse(XBeeCommunicationEndpoint endpoint,
+			AtLocalResponseXBeeFrame response) {
+		// Default is do nothing
+	}
+
+	@Override
 	public void onAtRemoteXBeeResponse(XBeeCommunicationEndpoint endpoint,
 			AtRemoteResponseXBeeFrame response) {
 		// Default is do nothing
 	}
 
 	@Override
-	public void onTxResponseXBeeResponse(XBeeCommunicationEndpoint endpoint,
-			TxResponseXBeeFrame response) {
+	public void onTxStatusXBeeResponse(XBeeCommunicationEndpoint endpoint,
+			TxStatusXBeeFrame response) {
 		// Default is do nothing
 	}
 

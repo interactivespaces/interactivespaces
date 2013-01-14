@@ -17,53 +17,40 @@
 package interactivespaces.service.comm.serial.xbee.internal;
 
 /**
- * A response frame for a remote AT request.
+ * ABee response frame for AT Local calls.
  * 
  * @author Keith M. Hughes
  */
-public class AtRemoteResponseXBeeFrame {
+public class AtLocalResponseXBeeFrame {
 
 	/**
-	 * The frame ID for the response.
+	 * ID for the frame.
 	 */
 	private int frameId;
-
-	/**
-	 * The 64 bit address for the response
-	 */
-	private XBeeAddress64 address64;
-
-	/**
-	 * The 16 bit address for the response
-	 */
-	private XBeeAddress16 address16;
 
 	/**
 	 * The AT command.
 	 */
 	private byte[] atCommand;
-	
+
 	/**
 	 * The AT command as a string.
 	 */
 	private String atCommandString;
 
 	/**
-	 * The status of the command.
+	 * The status of the atCommand.
 	 */
 	private int commandStatus;
 
 	/**
-	 * Data from the command.
+	 * The commandData for the atCommand.
 	 */
 	private byte[] commandData;
 
-	public AtRemoteResponseXBeeFrame(int frameId, XBeeAddress64 address64,
-			XBeeAddress16 address16, byte[] atCommand, int commandStatus,
-			byte[] commandData) {
+	public AtLocalResponseXBeeFrame(int frameId, byte[] atCommand,
+			int commandStatus, byte[] commandData) {
 		this.frameId = frameId;
-		this.address64 = address64;
-		this.address16 = address16;
 		this.atCommand = atCommand;
 		this.commandStatus = commandStatus;
 		this.commandData = commandData;
@@ -79,24 +66,6 @@ public class AtRemoteResponseXBeeFrame {
 	}
 
 	/**
-	 * Get the 64 bit address of the sender of the AT Remote response.
-	 * 
-	 * @return the sender's 64 bit address
-	 */
-	public XBeeAddress64 getAddress64() {
-		return address64;
-	}
-
-	/**
-	 * Get the 16 bit address of the sender of the AT Remote response.
-	 * 
-	 * @return the sender's 16 bit address
-	 */
-	public XBeeAddress16 getAddress16() {
-		return address16;
-	}
-
-	/**
 	 * @return the atCommand
 	 */
 	public byte[] getAtCommand() {
@@ -104,19 +73,17 @@ public class AtRemoteResponseXBeeFrame {
 	}
 
 	/**
-	 * Get the AT command as a string.
-	 * 
-	 * @return the AT command
-	 */
-	public String getAtCommandString() {
-		return atCommandString;
-	}
-
-	/**
 	 * @return the commandStatus
 	 */
 	public int getCommandStatus() {
 		return commandStatus;
+	}
+
+	/**
+	 * @return the commandData
+	 */
+	public byte[] getCommandData() {
+		return commandData;
 	}
 	
 	/**
@@ -128,17 +95,9 @@ public class AtRemoteResponseXBeeFrame {
 		return commandStatus == XBeeApiConstants.AT_COMMAND_STATUS_SUCCESS;
 	}
 
-	/**
-	 * @return the commandData
-	 */
-	public byte[] getCommandData() {
-		return commandData;
-	}
-
 	@Override
 	public String toString() {
-		return "AtRemoteResponseXBeeFrame [frameId=" + frameId + ", address64="
-				+ address64 + ", address16=" + address16 + ", atCommand="
+		return "AtLocalResponseXBeeFrame [frameId=" + frameId + ", atCommand="
 				+ atCommandString + ", commandStatus=" + commandStatus + "]";
 	}
 }

@@ -16,9 +16,10 @@
 
 package interactivespaces.service.comm.serial.xbee;
 
+import interactivespaces.service.comm.serial.xbee.internal.AtLocalResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.internal.AtRemoteResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.internal.RxResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.internal.TxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.internal.TxStatusXBeeFrame;
 
 /**
  * 
@@ -27,6 +28,17 @@ import interactivespaces.service.comm.serial.xbee.internal.TxResponseXBeeFrame;
  * @since Jan 12, 2013
  */
 public interface XBeeResponseListener {
+
+	/**
+	 * A local AT response has been received.
+	 * 
+	 * @param endpoint
+	 *            the endpoint that received the response
+	 * @param response
+	 *            the response frame
+	 */
+	void onAtLocalXBeeResponse(XBeeCommunicationEndpoint endpoint,
+			AtLocalResponseXBeeFrame response);
 
 	/**
 	 * A remote AT response has been received.
@@ -40,15 +52,15 @@ public interface XBeeResponseListener {
 			AtRemoteResponseXBeeFrame response);
 
 	/**
-	 * A TX response has been received.
+	 * A TX status has been received.
 	 * 
 	 * @param endpoint
 	 *            the endpoint that received the response
 	 * @param response
-	 *            the response frame
+	 *            the status frame
 	 */
-	void onTxResponseXBeeResponse(XBeeCommunicationEndpoint endpoint,
-			TxResponseXBeeFrame response);
+	void onTxStatusXBeeResponse(XBeeCommunicationEndpoint endpoint,
+			TxStatusXBeeFrame response);
 
 	/**
 	 * An RX response has been received.

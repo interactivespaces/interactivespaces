@@ -21,6 +21,10 @@ import interactivespaces.comm.CommunicationEndpoint;
 /**
  * An XBee communication endpoint.
  * 
+ * <p>
+ * This communication endpoint assumes the XBee is a Series 2 radio in escaped
+ * API mode (AP=2).
+ * 
  * @author Keith M. Hughes
  */
 public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {

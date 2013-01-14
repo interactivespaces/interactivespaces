@@ -16,11 +16,9 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * The base for all XBee Frame Writers.
@@ -38,9 +36,10 @@ public class RequestXBeeFrame {
 	 * The checksum for the frame.
 	 */
 	private int checksum = 0;
-	
+
 	/**
-	 * The total number of bytes in the frame counted in the length field of the frame.
+	 * The total number of bytes in the frame counted in the length field of the
+	 * frame.
 	 */
 	private int length = 0;
 
@@ -51,12 +50,6 @@ public class RequestXBeeFrame {
 	 *            the type of frame
 	 */
 	public RequestXBeeFrame(int frameType) {
-		bos.write(XBeeApiConstants.FRAME_START_BYTE);
-
-		// Save room for length
-		bos.write(0x00);
-		bos.write(0x00);
-
 		add(frameType);
 	}
 
@@ -67,7 +60,7 @@ public class RequestXBeeFrame {
 	 *            the byte to add
 	 */
 	public void add(int b) {
-		bos.write(b);
+		writeByte(b);
 		checksum += b;
 		length++;
 	}
@@ -82,8 +75,8 @@ public class RequestXBeeFrame {
 		int b1 = (i >> 8) & 0xff;
 		int b2 = i & 0xff;
 
-		bos.write(b1);
-		bos.write(b2);
+		writeByte(b1);
+		writeByte(b2);
 		checksum += b1 + b2;
 		length += 2;
 	}
@@ -95,14 +88,8 @@ public class RequestXBeeFrame {
 	 *            the bytes to add
 	 */
 	public void add(byte[] ba) {
-		try {
-			bos.write(ba);
-		} catch (IOException e) {
-			throw new InteractiveSpacesException(
-					"Error while writing bytes into XBee frame", e);
-		}
-
 		for (byte b : ba) {
+			writeByte(b);
 			checksum += ((int) b & 0xff);
 		}
 		length += ba.length;
@@ -119,7 +106,7 @@ public class RequestXBeeFrame {
 	 */
 	public void add(int[] ia) {
 		for (int i : ia) {
-			bos.write(i);
+			writeByte(i);
 			checksum += i & 0xff;
 		}
 		length += ia.length;
@@ -134,15 +121,52 @@ public class RequestXBeeFrame {
 	public void write(SerialCommunicationEndpoint commEndpoint) {
 		checksum &= 0xff;
 		checksum = 0xff - checksum;
-		bos.write(checksum);
+		writeByte(checksum);
 
 		byte[] bytes = bos.toByteArray();
 
 		// Get proper length into the frame.
-		bytes[1] = (byte) ((length >> 8) & 0xff);
-		bytes[2] = (byte) (length & 0xff);
+		int lengthUpper = ((length >> 8) & 0xff);
+		int lengthLower = (length & 0xff);
+
+		commEndpoint.write(XBeeApiConstants.FRAME_START_BYTE);
+		
+		writeByte(lengthUpper, commEndpoint);
+		writeByte(lengthLower, commEndpoint);
 
 		commEndpoint.write(bytes);
 		commEndpoint.flush();
+	}
+
+	/**
+	 * Write a value appropriately escaped value to the endpoint.
+	 * 
+	 * @param value
+	 *            the value to write
+	 * @param commEndpoint
+	 *            the endpoint
+	 */
+	private void writeByte(int value, SerialCommunicationEndpoint commEndpoint) {
+		if (XBeeApiConstants.isEscaped(value)) {
+			commEndpoint.write(XBeeApiConstants.ESCAPE_BYTE);
+			commEndpoint.write(XBeeApiConstants.ESCAPE_BYTE_VALUE ^ value);
+		} else {
+			commEndpoint.write(value);
+		}
+	}
+
+	/**
+	 * Write a value appropriately escaped value to the internal byte stream.
+	 * 
+	 * @param value
+	 *            the value to write
+	 */
+	private void writeByte(int value) {
+		if (XBeeApiConstants.isEscaped(value)) {
+			bos.write(XBeeApiConstants.ESCAPE_BYTE);
+			bos.write(XBeeApiConstants.ESCAPE_BYTE_VALUE ^ value);
+		} else {
+			bos.write(value);
+		}
 	}
 }

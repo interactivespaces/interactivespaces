@@ -21,6 +21,7 @@ import interactivespaces.service.comm.serial.internal.rxtx.RxtxSerialCommunicati
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListener;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListenerSupport;
+import interactivespaces.util.ByteUtils;
 import interactivespaces.util.concurrency.CancellableLoop;
 
 import java.util.List;
@@ -56,18 +57,35 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 					executor, log1);
 			endpoint1.startup();
 			endpoint1.addListener(new XBeeResponseListenerSupport() {
-				
+
 				@Override
-				public void onRxXBeeResponse(XBeeCommunicationEndpoint endpoint,
+				public void onAtLocalXBeeResponse(
+						XBeeCommunicationEndpoint endpoint,
+						AtLocalResponseXBeeFrame response) {
+					log1.info(response);
+					log1.info(ByteUtils.toHexString(response.getCommandData()));
+				}
+
+				@Override
+				public void onRxXBeeResponse(
+						XBeeCommunicationEndpoint endpoint,
 						RxResponseXBeeFrame response) {
 					log1.info(response);
 				}
 
 				@Override
-				public void onTxResponseXBeeResponse(
+				public void onTxStatusXBeeResponse(
 						XBeeCommunicationEndpoint endpoint,
-						TxResponseXBeeFrame response) {
+						TxStatusXBeeFrame response) {
 					log1.info(response);
+				}
+
+				@Override
+				public void onAtRemoteXBeeResponse(
+						XBeeCommunicationEndpoint endpoint,
+						AtRemoteResponseXBeeFrame response) {
+					log1.info(response);
+					log1.info(ByteUtils.toHexString(response.getCommandData()));
 				}
 			});
 
@@ -75,23 +93,27 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 					new RxtxSerialCommunicationEndpoint("/dev/ttyUSB1"),
 					executor, log2);
 			endpoint2.startup();
-			
+
 			endpoint2.addListener(new XBeeResponseListenerSupport() {
-				
+
 				@Override
-				public void onRxXBeeResponse(XBeeCommunicationEndpoint endpoint,
+				public void onAtLocalXBeeResponse(
+						XBeeCommunicationEndpoint endpoint,
+						AtLocalResponseXBeeFrame response) {
+					log1.info(response);
+					log1.info(ByteUtils.toHexString(response.getCommandData()));
+				}
+
+				@Override
+				public void onRxXBeeResponse(
+						XBeeCommunicationEndpoint endpoint,
 						RxResponseXBeeFrame response) {
 					log2.info(response);
-				}
-				
-				@Override
-				public void onAtRemoteXBeeResponse(XBeeCommunicationEndpoint endpoint,
-						AtRemoteResponseXBeeFrame response) {
-					log2.info(response);
+					log2.info(ByteUtils.toHexString(response.getReceivedData()));
 				}
 			});
 
-			endpoint1.test2();
+			endpoint2.test();
 			try {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
@@ -105,7 +127,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 			if (endpoint1 != null) {
 				endpoint1.shutdown();
 			}
-			
+
 			if (endpoint2 != null) {
 				endpoint2.shutdown();
 			}
@@ -120,14 +142,19 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 	private SerialCommunicationEndpoint commEndpoint;
 
 	/**
+	 * reader for the XBee frames.
+	 */
+	private EscapedXBeeFrameReader reader;
+
+	/**
 	 * Future for the reader loop.
 	 */
-	private Future<?> readerLoop;
+	private Future<?> readerLoopFuture;
 
 	/**
 	 * Parser for response frames.
 	 */
-	private ResponseXBeeFrameHandler frameHandler = new EscapedResponseXBeeFrameHandler();
+	private ResponseXBeeFrameHandler frameHandler = new SimpleResponseXBeeFrameHandler();
 
 	/**
 	 * The listeners for the endpoint.
@@ -150,25 +177,27 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 		this.commEndpoint = commEndpoint;
 		this.executorService = executorService;
 		this.log = log;
+
+		this.reader = new EscapedXBeeFrameReader(commEndpoint);
 	}
 
 	@Override
 	public void startup() {
 		commEndpoint.startup();
 
-		CancellableLoop loop = new CancellableLoop() {
+		CancellableLoop readerLoop = new CancellableLoop() {
 			@Override
 			protected void loop() throws InterruptedException {
 				readFrame();
 			}
 		};
 
-		readerLoop = executorService.submit(loop);
+		readerLoopFuture = executorService.submit(readerLoop);
 	}
 
 	@Override
 	public void shutdown() {
-		readerLoop.cancel(true);
+		readerLoopFuture.cancel(true);
 
 		if (commEndpoint != null) {
 			commEndpoint.shutdown();
@@ -177,23 +206,36 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 	}
 
 	public void test() {
-		RequestXBeeFrame content = new AtLocalRequestXBeeFrame(
-				XBeeApiConstants.AT_COMMAND_SL, 0x11);
+		RequestXBeeFrame content1 = new AtLocalRequestXBeeFrame(
+				XBeeApiConstants.AT_COMMAND_AP, 0x7d);
+		// content1.add(0x02);
 
-		content.write(commEndpoint);
+		content1.write(commEndpoint);
+		//
+		// try {
+		// Thread.sleep(1000);
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		//
+		// RequestXBeeFrame content2 = new AtLocalRequestXBeeFrame(
+		// XBeeApiConstants.AT_COMMAND_SL, 0x12);
+		//
+		// content2.write(commEndpoint);
 	}
 
 	public void test1() {
 		RequestXBeeFrame content = new AtRemoteRequestXBeeFrame(
-				new XBeeAddress64(0x00, 0x13, 0xa2, 0x00, 0x40, 0x7b, 0xd2,
-						0xe3), XBeeApiConstants.AT_COMMAND_SL, 0x11, 0);
+				new XBeeAddress64("0013a200407bd2e3"),
+				XBeeApiConstants.AT_COMMAND_SL, 0x11, 0);
 
 		content.write(commEndpoint);
 	}
 
 	public void test2() {
 		RequestXBeeFrame content = new TxRequestXBeeFrame(new XBeeAddress64(
-				0x00, 0x13, 0xa2, 0x00, 0x40, 0x7b, 0xd2, 0xe3), 0x11, 0, 0);
+				"0013a200407bd2e3"), 0x03, 0, 0);
 		content.add16(1234);
 
 		content.write(commEndpoint);
@@ -213,33 +255,16 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 	 * Read a frame from the connected XBee
 	 */
 	private void readFrame() {
-		// Read until either the frame start byte is read or the end of stream
-		// is reached.
-		int b;
-		while ((b = commEndpoint.read()) != XBeeApiConstants.FRAME_START_BYTE
-				&& b != -1)
-			;
-
-		int highLength = commEndpoint.read();
-		int lowLength = commEndpoint.read();
-		int length = (highLength & 0xff) << 8 | (lowLength & 0xff);
-
-		byte[] frame = new byte[length];
-
-		int pos = 0;
-		int bytesRead = 0;
-		int bytesLeft = length;
-		while ((bytesRead = commEndpoint.read(frame, pos, bytesLeft)) != -1) {
-
-			bytesLeft -= bytesRead;
-			pos += bytesRead;
-			if (bytesLeft == 0)
-				break;
+		if (!reader.waitForStartFrame()) {
+			log.warn("End of XBee serial stream detected");
+			return;
 		}
 
-		// Go past checksum
-		commEndpoint.read();
+		int length = reader.readPacketLength();
 
-		frameHandler.handle(this, frame, listeners, log);
+		frameHandler.handle(this, reader, length, listeners, log);
+
+		// Go past checksum
+		reader.readByte();
 	}
 }

@@ -20,7 +20,6 @@ import interactivespaces.util.ByteUtils;
 
 import java.util.Arrays;
 
-
 /**
  * 64 bit address for an XBee
  * 
@@ -44,6 +43,17 @@ public class XBeeAddress64 {
 	 * The address for the xbee.
 	 */
 	private int[] address;
+
+	public XBeeAddress64(String addr) {
+		this(Integer.valueOf(addr.substring(0, 2), 16), Integer.valueOf(
+				addr.substring(2, 4), 16), Integer.valueOf(
+				addr.substring(4, 6), 16), Integer.valueOf(
+				addr.substring(6, 8), 16), Integer.valueOf(
+				addr.substring(8, 10), 16), Integer.valueOf(
+				addr.substring(10, 12), 16), Integer.valueOf(
+				addr.substring(12, 14), 16), Integer.valueOf(
+				addr.substring(14, 16), 16));
+	}
 
 	/**
 	 * Construct an XBee 64 address using the individual bytes.
@@ -96,7 +106,6 @@ public class XBeeAddress64 {
 			return false;
 		return true;
 	}
-	
 
 	@Override
 	public String toString() {

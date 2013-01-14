@@ -24,18 +24,31 @@ package interactivespaces.service.comm.serial.xbee.internal;
 public class RxResponseXBeeFrame {
 
 	/**
-	 * The 64 bit address for the response
+	 * The 64 bit address for the remote radio
 	 */
 	private XBeeAddress64 address64;
 
 	/**
-	 * The 16 bit address for the response
+	 * The 16 bit address for the remote radio
 	 */
 	private XBeeAddress16 address16;
 
-	public RxResponseXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16) {
+	/**
+	 * The receive options.
+	 */
+	private int receiveOptions;
+
+	/**
+	 * The data received from the remote radio.
+	 */
+	private byte[] receivedData;
+
+	public RxResponseXBeeFrame(XBeeAddress64 address64,
+			XBeeAddress16 address16, int receiveOptions, byte[] receivedData) {
 		this.address64 = address64;
 		this.address16 = address16;
+		this.receiveOptions = receiveOptions;
+		this.receivedData = receivedData;
 	}
 
 	/**
@@ -56,9 +69,23 @@ public class RxResponseXBeeFrame {
 		return address16;
 	}
 
+	/**
+	 * @return the receiveOptions
+	 */
+	public int getReceiveOptions() {
+		return receiveOptions;
+	}
+
+	/**
+	 * @return the receivedData
+	 */
+	public byte[] getReceivedData() {
+		return receivedData;
+	}
+
 	@Override
 	public String toString() {
 		return "RxResponseXBeeFrame [address64=" + address64 + ", address16="
-				+ address16 + "]";
+				+ address16 + ", receiveOptions=" + receiveOptions + "]";
 	}
 }
