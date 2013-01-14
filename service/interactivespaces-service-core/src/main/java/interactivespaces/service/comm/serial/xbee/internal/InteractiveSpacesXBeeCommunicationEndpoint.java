@@ -17,31 +17,26 @@
 package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
-import interactivespaces.service.comm.serial.internal.rxtx.RxtxSerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListener;
-import interactivespaces.service.comm.serial.xbee.XBeeResponseListenerSupport;
-import interactivespaces.util.ByteUtils;
 import interactivespaces.util.concurrency.CancellableLoop;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
 
 /**
- * An nteractive Spaces implementation of an XBee communication endpoint.
+ * An Interactive Spaces implementation of an XBee communication endpoint.
  * 
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesXBeeCommunicationEndpoint implements
 		XBeeCommunicationEndpoint {
 
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 
 		ScheduledExecutorService executor = Executors
 				.newScheduledThreadPool(10);
@@ -135,7 +130,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 			executor.shutdown();
 		}
 	}
-
+*/
 	/**
 	 * The communication endpoint for speaking with the XBee.
 	 */

@@ -24,6 +24,10 @@ import org.apache.commons.logging.Log;
 /**
  * A service for obtaining XBee communication endpoints.
  * 
+ * <p>
+ * This communication endpoint assumes the XBee is a Series 2 radio in escaped
+ * API mode (AP=2).
+ * 
  * @author Keith M. Hughes
  */
 public interface XBeeCommunicationEndpointService extends SupportedService {

@@ -24,7 +24,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import org.apache.commons.logging.Log;
 
 /**
- * An XBee communications endpoint service using the Interactoive Spaces XBee
+ * An XBee communications endpoint service using the Interactive Spaces XBee
  * library.
  * 
  * @author Keith M. Hughes
