@@ -58,6 +58,20 @@ public interface WebServer extends ManagedResource {
 	void addStaticContentHandler(String uriPrefix, File baseDir);
 
 	/**
+	 * Add in a new dynamic content handler to the server.
+	 * 
+	 * <p>
+	 * Content handlers are attempted in the order added. The first prefix which
+	 * matches will be run.
+	 * 
+	 * @param uriPrefix
+	 *            URI prefix for the content
+	 * @param handler
+	 *            dynamic request handler
+	 */
+	void addDynamicContentHandler(String uriPrefix, HttpDynamicRequestHandler handler);
+
+	/**
 	 * Set the factory for creating web socket handlers.
 	 * 
 	 * @param webSocketUriPrefix

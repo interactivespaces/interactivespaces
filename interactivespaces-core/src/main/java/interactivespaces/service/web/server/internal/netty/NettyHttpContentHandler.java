@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 
 /**
  * Handle HTTP content from Netty.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface NettyHttpContentHandler {
@@ -31,16 +31,23 @@ public interface NettyHttpContentHandler {
 	/**
 	 * Is the request handled by this handler?
 	 * 
-	 * @param req Request which has come in.
+	 * @param req
+	 *            Request which has come in.
 	 * 
 	 * @return True if the request is handled by this handler, false otherwise.
 	 */
 	boolean isHandledBy(HttpRequest req);
 
 	/**
+	 * Handle the web request
+	 * 
 	 * @param ctx
+	 *            the channel handler context
 	 * @param req
+	 *            the request
+	 * 
 	 * @throws IOException
+	 *             something bad happened
 	 */
 	void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req)
 			throws IOException;

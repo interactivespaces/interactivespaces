@@ -72,9 +72,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * Factory for HTTP data objects. Used for post events.
 	 * 
 	 * <p>
-	 * The factory will keep all in memory until it gets too big, then writes to disk.
+	 * The factory will keep all in memory until it gets too big, then writes to
+	 * disk.
 	 */
-	private static final HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(true);
+	private static final HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(
+			true);
 
 	/**
 	 * The web socket path used by this handler.
@@ -222,6 +224,10 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 			// The method handled the request if the return value was true.
 		} else {
 			// Nothing we handle.
+			webServer.getLog().warn(
+					String.format("Web server has no handlers for request %s",
+							req.getUri()));
+
 			sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1,
 					FORBIDDEN));
 		}
@@ -242,7 +248,15 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 		if (req.getMethod() == GET) {
 			for (NettyHttpContentHandler handler : httpContentHandlers) {
 				if (handler.isHandledBy(req)) {
-					handler.handleWebRequest(ctx, req);
+					try {
+						handler.handleWebRequest(ctx, req);
+					} catch (Exception e) {
+						webServer
+								.getLog()
+								.error(String.format(
+										"Exception when handling web request %s",
+										req.getUri()), e);
+					}
 
 					return true;
 				}
@@ -429,7 +443,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * @param res
 	 *            the response which is being written
 	 */
-	private void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req,
+	public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req,
 			HttpResponse res) {
 		// Generate an error page if response status code is not OK (200).
 		if (res.getStatus().getCode() != HttpResponseStatus.OK.getCode()) {
@@ -482,12 +496,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 			WebSocketFrame frame) {
 		Channel channel = ctx.getChannel();
 
-		NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel
-				.getId());
+		NettyWebServerWebSocketConnection handler = webSocketConnections
+				.get(channel.getId());
 		if (handler != null) {
 			handler.handleWebSocketFrame(ctx, frame);
 		} else {
-			
+
 			throw new RuntimeException(
 					"Web socket frame request from unregistered channel");
 		}
@@ -499,8 +513,8 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * @param channel
 	 */
 	private void webSocketChannelClosing(Channel channel) {
-		NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel
-				.getId());
+		NettyWebServerWebSocketConnection handler = webSocketConnections
+				.get(channel.getId());
 		if (handler != null) {
 			// Is a web socket handler. Remove it and tell the handler it is
 			// done.
@@ -513,9 +527,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 * Send an error to the remote machine.
 	 * 
 	 * @param ctx
+	 *            handler context
 	 * @param status
+	 *            the status to send
 	 */
-	void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+	public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 		response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
 		response.setContent(ChannelBuffers.copiedBuffer(
@@ -533,5 +549,14 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 */
 	public void setWebSocketUriPrefix() {
 		// return webSocketPath;
+	}
+
+	/**
+	 * Get the web server the handler is attached to.
+	 * 
+	 * @return the web server
+	 */
+	public NettyWebServer getWebServer() {
+		return webServer;
 	}
 }

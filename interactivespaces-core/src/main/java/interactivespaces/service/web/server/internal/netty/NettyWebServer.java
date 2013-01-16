@@ -18,6 +18,7 @@ package interactivespaces.service.web.server.internal.netty;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
@@ -151,6 +152,13 @@ public class NettyWebServer implements WebServer {
 
 		serverHandler.addHttpContentHandler(new NettyStaticContentHandler(
 				serverHandler, uriPrefix, baseDir));
+	}
+
+	@Override
+	public void addDynamicContentHandler(String uriPrefix,
+			HttpDynamicRequestHandler handler) {
+		serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(
+				serverHandler, uriPrefix, handler));
 	}
 
 	@Override

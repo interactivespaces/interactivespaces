@@ -46,6 +46,7 @@ import org.jboss.netty.handler.stream.ChunkedFile;
  * @author Keith M. Hughes
  */
 public class NettyStaticContentHandler implements NettyHttpContentHandler {
+
 	/**
 	 * The parent content handler for this handler.
 	 */
@@ -61,9 +62,19 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	 */
 	private File baseDir;
 	
-	public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String uriPrefix, File baseDir) {
+	public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String up, File baseDir) {
 		this.parentHandler = parentHandler;
-		this.uriPrefix = uriPrefix.endsWith("/") ? uriPrefix : uriPrefix + "/";
+		
+		StringBuilder uriPrefix = new StringBuilder();
+		if (!up.startsWith("/")) {
+			uriPrefix.append('/');
+		}
+		uriPrefix.append(up);
+		if (!up.endsWith("/")) {
+			uriPrefix.append('/');
+		}
+		this.uriPrefix = uriPrefix.toString();
+		
 		this.baseDir = baseDir;
 	}
 	
@@ -76,6 +87,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req)
 			throws IOException {
 		String url = req.getUri();
+		
+		// Strip off query parameters, if any, as we don't care.
 		int pos = url.indexOf('?');
 		if (pos != -1)
 			url = url.substring(0, pos);
