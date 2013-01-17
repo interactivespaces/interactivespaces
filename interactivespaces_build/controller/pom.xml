@@ -420,7 +420,7 @@ the License.
 								<artifactItem>
 									<groupId>io.netty</groupId>
 									<artifactId>netty</artifactId>
-									<version>3.6.0.Final</version>
+									<version>3.6.2.Final</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -547,7 +547,14 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-
+                                <artifactItem>
+                                    <groupId>javazoom</groupId>
+                                    <artifactId>interactivespaces.javazoom.jlayer</artifactId>
+                                    <version>1.0.1</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                                
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
                                     <artifactId>interactivespaces-service-speech-synthesis</artifactId>

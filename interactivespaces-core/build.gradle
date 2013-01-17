@@ -22,7 +22,7 @@ dependencies {
 	}
 
 	compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.guava:11_1'
-	compile 'io.netty:netty:3.6.0.Final'
+	compile 'io.netty:netty:3.6.2.Final'
 	
 	compile 'org.codehaus.jackson:jackson-core-asl:1.8.4'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.8.4'

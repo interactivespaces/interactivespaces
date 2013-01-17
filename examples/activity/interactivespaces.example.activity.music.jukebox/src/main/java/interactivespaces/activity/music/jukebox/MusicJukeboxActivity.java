@@ -16,7 +16,6 @@
 
 package interactivespaces.activity.music.jukebox;
 
-import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.impl.ros.BaseRosActivity;
 import interactivespaces.activity.music.jukebox.internal.JukeboxOperation;
 import interactivespaces.activity.music.jukebox.internal.JukeboxOperationListener;
@@ -27,7 +26,7 @@ import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrack;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
-import interactivespaces.service.audio.player.internal.NativeAudioTrackPlayerFactory;
+import interactivespaces.service.audio.player.internal.JLayerAudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.internal.ScanningFileAudioRepository;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
@@ -52,11 +51,6 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	public static final String CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME = "music.jukebox.control.ros.topic.name";
 
 	public static final String CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME = "music.jukebox.announce.ros.topic.name";
-
-	/**
-	 * Control of the speech server.
-	 */
-	private NativeActivityRunner musicPlayer;
 
 	/**
 	 * The music repository this is a jukebox for.
@@ -99,8 +93,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 			tracksAlreadyPlayed = Sets.newHashSet();
 
 			// TODO(keith): Get from a service repository.
-			trackPlayerFactory = new NativeAudioTrackPlayerFactory(getController()
-					.getNativeActivityRunnerFactory(), getLog());
+			trackPlayerFactory = new JLayerAudioTrackPlayerFactory();
 
 			setupRosTopics(configuration);
 			startMusicRepository(configuration);
@@ -124,11 +117,6 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 		if (jukeboxControlSubscribers != null) {
 			jukeboxControlSubscribers.shutdown();
 			jukeboxControlSubscribers = null;
-		}
-
-		if (musicPlayer != null) {
-			musicPlayer.shutdown();
-			musicPlayer = null;
 		}
 
 		if (musicRepository != null) {
