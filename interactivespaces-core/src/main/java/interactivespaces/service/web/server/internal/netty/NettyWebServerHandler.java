@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -463,6 +464,49 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	/**
+	 * Add in the global response headers.
+	 * 
+	 * @param res
+	 *            the response to be sent to the client
+	 */
+	private void addGlobalHttpResponseHeaders(HttpResponse res) {
+		addHttpResponseHeaderMap(res, webServer.getGlobalHttpContentHeaders());
+	}
+
+	/**
+	 * Add in HTTP response headers.
+	 * 
+	 * <p>
+	 * The global headers will be added as well.
+	 * 
+	 * @param res
+	 *            the response to be sent to the client
+	 * @param headers
+	 *            the headers to add
+	 */
+	public void addHttpResponseHeaders(HttpResponse res,
+			Map<String, String> headers) {
+		// The global headers should go in first in case they are being overridden.
+		addGlobalHttpResponseHeaders(res);
+		addHttpResponseHeaderMap(res, headers);
+	}
+
+	/**
+	 * Add in HTTP response headers from the given map.
+	 * 
+	 * @param res
+	 *            the response to be sent to the client
+	 * @param headers
+	 *            the headers to add
+	 */
+	private void addHttpResponseHeaderMap(HttpResponse res,
+			Map<String, String> headers) {
+		for (Entry<String, String> entry : headers.entrySet()) {
+			res.addHeader(entry.getKey(), entry.getValue());
+		}
+	}
+
+	/**
 	 * Send a success response to the client.
 	 * 
 	 * @param ctx
@@ -472,8 +516,10 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 */
 	private void sendSuccessHttpResponse(ChannelHandlerContext ctx,
 			HttpRequest req) {
-		sendHttpResponse(ctx, req, new DefaultHttpResponse(
-				HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+		DefaultHttpResponse res = new DefaultHttpResponse(
+						HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+		addGlobalHttpResponseHeaders(res);
+		sendHttpResponse(ctx, req, res);
 	}
 
 	@Override

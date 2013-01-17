@@ -25,6 +25,7 @@ import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -39,6 +40,8 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
+
+import com.google.common.collect.Maps;
 
 /**
  * A web server based on Netty.
@@ -78,9 +81,20 @@ public class NettyWebServer implements WebServer {
 	 */
 	private NioServerSocketChannelFactory channelFactory;
 
+	/**
+	 * Threadpool for the boss threads.
+	 */
 	private ScheduledExecutorService bossThreadPool;
 
+	/**
+	 * Threadpool for the worker threads.
+	 */
 	private ScheduledExecutorService workerThreadPool;
+
+	/**
+	 * HTTP headers to be sent on all responses.
+	 */
+	private Map<String, String> globalHttpContentHeaders = Maps.newHashMap();
 
 	/**
 	 * Logger for the web server.
@@ -113,7 +127,7 @@ public class NettyWebServer implements WebServer {
 				workerThreadPool);
 
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-		
+
 		// Set up the event pipeline factory.
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
@@ -138,7 +152,7 @@ public class NettyWebServer implements WebServer {
 		if (allChannels != null) {
 			ChannelGroupFuture future = allChannels.close();
 			future.awaitUninterruptibly();
-			
+
 			channelFactory = null;
 			allChannels = null;
 		}
@@ -146,19 +160,34 @@ public class NettyWebServer implements WebServer {
 
 	@Override
 	public void addStaticContentHandler(String uriPrefix, File baseDir) {
+		addStaticContentHandler(uriPrefix, baseDir, null);
+	}
+
+	@Override
+	public void addStaticContentHandler(String uriPrefix, File baseDir,
+			Map<String, String> extraHttpContentHeaders) {
 		if (!baseDir.exists())
 			throw new InteractiveSpacesException(String.format(
 					"Cannot find web folder %s", baseDir.getAbsolutePath()));
 
 		serverHandler.addHttpContentHandler(new NettyStaticContentHandler(
-				serverHandler, uriPrefix, baseDir));
+				serverHandler, uriPrefix, baseDir, extraHttpContentHeaders));
 	}
 
 	@Override
 	public void addDynamicContentHandler(String uriPrefix,
 			HttpDynamicRequestHandler handler) {
-		serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(
-				serverHandler, uriPrefix, handler));
+		addDynamicContentHandler(uriPrefix, handler, null);
+	}
+
+	@Override
+	public void addDynamicContentHandler(String uriPrefix,
+			HttpDynamicRequestHandler handler,
+			Map<String, String> extraHttpContentHeaders) {
+		serverHandler
+				.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(
+						serverHandler, uriPrefix, handler,
+						extraHttpContentHeaders));
 	}
 
 	@Override
@@ -183,6 +212,16 @@ public class NettyWebServer implements WebServer {
 		return port;
 	}
 
+	@Override
+	public void addContentHeader(String name, String value) {
+		globalHttpContentHeaders.put(name, value);
+	}
+
+	@Override
+	public void addContentHeaders(Map<String, String> headers) {
+		globalHttpContentHeaders.putAll(headers);
+	}
+
 	/**
 	 * Get the worker thread pool.
 	 * 
@@ -202,9 +241,18 @@ public class NettyWebServer implements WebServer {
 	}
 
 	/**
+	 * Get the content headers which should go onto every HTTP response.
+	 * 
+	 * @return the globalHttpContentHeaders
+	 */
+	public Map<String, String> getGlobalHttpContentHeaders() {
+		return globalHttpContentHeaders;
+	}
+
+	/**
 	 * Get the web server's logger.
 	 * 
-	 * @return
+	 * @return the logger
 	 */
 	public Log getLog() {
 		return log;

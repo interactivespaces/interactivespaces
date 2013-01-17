@@ -17,6 +17,7 @@
 package interactivespaces.service.web.server;
 
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * A response for an HTTP request.
@@ -31,4 +32,30 @@ public interface HttpResponse {
 	 * @return the output stream for the response
 	 */
 	OutputStream getOutputStream();
+
+	/**
+	 * Add an HTTP content header that will go out with the HTTP response.
+	 * 
+	 * @param name
+	 *            name of the header
+	 * @param value
+	 *            value of the header
+	 */
+	void addContentHeader(String name, String value);
+
+	/**
+	 * Add an HTTP content header that will go out with the HTTP response.
+	 * 
+	 * @param headers
+	 *            the headers to add, the key is the header name, value is the
+	 *            header value
+	 */
+	void addContentHeaders(Map<String, String> headers);
+
+	/**
+	 * Get the content headers that have been added.
+	 * 
+	 * @return the key is the header name, the value is the header value
+	 */
+	Map<String, String> getContentHeaders();
 }

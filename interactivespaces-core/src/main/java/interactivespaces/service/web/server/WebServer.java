@@ -19,6 +19,7 @@ package interactivespaces.service.web.server;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * A web server for Interactive Spaces activities.
@@ -47,8 +48,8 @@ public interface WebServer extends ManagedResource {
 	 * Add in a new static content handler to the server.
 	 * 
 	 * <p>
-	 * Content handlers are attempted in the order added. The first prefix which
-	 * matches will be run.
+	 * See {@link #addStaticContentHandler(String, File, Map)}, the content
+	 * header map value will be {@code null}.
 	 * 
 	 * @param uriPrefix
 	 *            URI prefix for the content.
@@ -56,6 +57,40 @@ public interface WebServer extends ManagedResource {
 	 *            The base directory for the content.
 	 */
 	void addStaticContentHandler(String uriPrefix, File baseDir);
+
+	/**
+	 * Add in a new static content handler to the server.
+	 * 
+	 * <p>
+	 * Content handlers are attempted in the order added. The first prefix which
+	 * matches will be run.
+	 * 
+	 * @param uriPrefix
+	 *            URI prefix for the content
+	 * @param baseDir
+	 *            the base directory for the content
+	 * @param extraHttpContentHeaders
+	 *            extra content headers to add to every response, can be
+	 *            {@code null}
+	 */
+	void addStaticContentHandler(String uriPrefix, File baseDir,
+			Map<String, String> extraHttpContentHeaders);
+
+	/**
+	 * Add in a new dynamic content handler to the server.
+	 * 
+	 * <p>
+	 * See
+	 * {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)}
+	 * , the content header map value will be {@code null}.
+	 * 
+	 * @param uriPrefix
+	 *            URI prefix for the content
+	 * @param handler
+	 *            dynamic request handler
+	 */
+	void addDynamicContentHandler(String uriPrefix,
+			HttpDynamicRequestHandler handler);
 
 	/**
 	 * Add in a new dynamic content handler to the server.
@@ -68,8 +103,13 @@ public interface WebServer extends ManagedResource {
 	 *            URI prefix for the content
 	 * @param handler
 	 *            dynamic request handler
+	 * @param extraHttpContentHeaders
+	 *            extra HTTP content headers to add to all responses to the
+	 *            handler, can be {@code null}
 	 */
-	void addDynamicContentHandler(String uriPrefix, HttpDynamicRequestHandler handler);
+	void addDynamicContentHandler(String uriPrefix,
+			HttpDynamicRequestHandler handler,
+			Map<String, String> extraHttpContentHeaders);
 
 	/**
 	 * Set the factory for creating web socket handlers.
@@ -107,4 +147,23 @@ public interface WebServer extends ManagedResource {
 	 * @return the port
 	 */
 	int getPort();
+
+	/**
+	 * Add an HTTP content header that will go out with every HTTP response.
+	 * 
+	 * @param name
+	 *            name of the header
+	 * @param value
+	 *            value of the header
+	 */
+	void addContentHeader(String name, String value);
+
+	/**
+	 * Add an HTTP content header that will go out with every HTTP response.
+	 * 
+	 * @param headers
+	 *            the headers to add, the key is the header name, value is the
+	 *            header value
+	 */
+	void addContentHeaders(Map<String, String> headers);
 }

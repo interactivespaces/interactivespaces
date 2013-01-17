@@ -23,6 +23,7 @@ import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.WebServer;
 
 import java.io.File;
 import java.util.Map;
@@ -41,6 +42,11 @@ public class BaseWebServerActivity extends BaseActivity implements
 		MultipleConnectionWebSocketHandler, HttpFileUploadListener {
 
 	/**
+	 * The JSON mapper.
+	 */
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+
+	/**
 	 * Web socket handler for the connection to the browser.
 	 */
 	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
@@ -48,17 +54,16 @@ public class BaseWebServerActivity extends BaseActivity implements
 	/**
 	 * The web server component.
 	 */
-	private WebServerActivityComponent webServer;
+	private WebServerActivityComponent webServerComponent;
 
 	@Override
 	public void commonActivitySetup() {
-		addActivityComponent(new WebServerActivityComponent());
+		webServerComponent = addActivityComponent(new WebServerActivityComponent());
 
-		webServer = getComponent(WebServerActivityComponent.COMPONENT_NAME);
 		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
 				getLog());
-		webServer.setWebSocketHandlerFactory(webSocketFactory);
-		webServer.setHttpFileUploadListener(this);
+		webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
+		webServerComponent.setHttpFileUploadListener(this);
 	}
 
 	/**
@@ -70,10 +75,8 @@ public class BaseWebServerActivity extends BaseActivity implements
 	 *            the message to send
 	 */
 	public String jsonStringify(Map<String, Object> map) {
-		ObjectMapper mapper = new ObjectMapper();
-
 		try {
-			return mapper.writeValueAsString(map);
+			return MAPPER.writeValueAsString(map);
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(
 					"Could not serialize JSON object as string", e);
@@ -89,9 +92,8 @@ public class BaseWebServerActivity extends BaseActivity implements
 	 */
 	public Map<String, Object> jsonParse(String data) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
 			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) mapper.readValue(
+			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
 					data, Map.class);
 			return map;
 		} catch (Exception e) {
@@ -109,7 +111,7 @@ public class BaseWebServerActivity extends BaseActivity implements
 	 *            the base directory where the content will be found
 	 */
 	public void addStaticContent(String uriPrefix, File baseDir) {
-		webServer.addStaticContent(uriPrefix, baseDir);
+		webServerComponent.addStaticContent(uriPrefix, baseDir);
 	}
 
 	/**
@@ -265,5 +267,14 @@ public class BaseWebServerActivity extends BaseActivity implements
 	 */
 	public void onHttpFileUpload(HttpFileUpload fileUpload) {
 		// The default is do nothing.
+	}
+	
+	/**
+	 * Get the web server for the activity.
+	 * 
+	 * @return the web server
+	 */
+	public WebServer getWebServer() {
+		return webServerComponent.getWebServer();
 	}
 }

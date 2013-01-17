@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Map;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -40,9 +41,11 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 
+import com.google.common.collect.Maps;
+
 /**
  * Handle content for Netty.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class NettyStaticContentHandler implements NettyHttpContentHandler {
@@ -51,20 +54,30 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	 * The parent content handler for this handler.
 	 */
 	private NettyWebServerHandler parentHandler;
-	
+
 	/**
 	 * The URI prefix to be handled by this handler.
 	 */
 	private String uriPrefix;
-	
+
 	/**
 	 * Base directory for content served by this handler.
 	 */
 	private File baseDir;
-	
-	public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String up, File baseDir) {
+
+	/**
+	 * Extra headers to add to the response.
+	 */
+	private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
+
+	public NettyStaticContentHandler(NettyWebServerHandler parentHandler,
+			String up, File baseDir, Map<String, String> extraHttpContentHeaders) {
 		this.parentHandler = parentHandler;
-		
+
+		if (extraHttpContentHeaders != null) {
+			this.extraHttpContentHeaders.putAll(extraHttpContentHeaders);
+		}
+
 		StringBuilder uriPrefix = new StringBuilder();
 		if (!up.startsWith("/")) {
 			uriPrefix.append('/');
@@ -74,27 +87,28 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 			uriPrefix.append('/');
 		}
 		this.uriPrefix = uriPrefix.toString();
-		
+
 		this.baseDir = baseDir;
 	}
-	
+
 	@Override
 	public boolean isHandledBy(HttpRequest req) {
 		return req.getUri().startsWith(uriPrefix);
 	}
-	
+
 	@Override
 	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req)
 			throws IOException {
 		String url = req.getUri();
-		
+
 		// Strip off query parameters, if any, as we don't care.
 		int pos = url.indexOf('?');
 		if (pos != -1)
 			url = url.substring(0, pos);
-		
+
 		int luriPrefixLength = uriPrefix.length();
-		String filepath = url.substring(url.indexOf(uriPrefix) + luriPrefixLength);
+		String filepath = url.substring(url.indexOf(uriPrefix)
+				+ luriPrefixLength);
 
 		// TODO(keith): Make sure this doesn't allow wandering outside of the
 		// file hierarchy rooted at baseDir (e.g. ../../.. type paths.
@@ -110,6 +124,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 		long fileLength = raf.length();
 
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+		parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
 		setContentLength(response, fileLength);
 
 		Channel ch = ctx.getChannel();
@@ -124,8 +139,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 			writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, 8192));
 		} else {
 			// No encryption - use zero-copy.
-			final FileRegion region = new DefaultFileRegion(
-					raf.getChannel(), 0, fileLength);
+			final FileRegion region = new DefaultFileRegion(raf.getChannel(),
+					0, fileLength);
 			writeFuture = ch.write(region);
 			writeFuture.addListener(new ChannelFutureProgressListener() {
 				@Override
@@ -134,8 +149,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 				}
 
 				@Override
-				public void operationProgressed(ChannelFuture arg0,
-						long arg1, long arg2, long arg3) throws Exception {
+				public void operationProgressed(ChannelFuture arg0, long arg1,
+						long arg2, long arg3) throws Exception {
 					// Do nothing
 				}
 

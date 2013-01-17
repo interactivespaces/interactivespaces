@@ -19,34 +19,65 @@ package interactivespaces.service.web.server.internal.netty;
 import interactivespaces.service.web.server.HttpResponse;
 
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
+import com.google.common.collect.Maps;
+
 /**
  * A Netty-based HttpResponse
- *
+ * 
  * @author Keith M. Hughes
  */
 public class NettyHttpResponse implements HttpResponse {
-	
+
 	/**
 	 * The Netty handler context.
 	 */
 	private ChannelHandlerContext ctx;
-	
+
+	/**
+	 * The channel buffer for writing content.
+	 */
 	private ChannelBuffer channelBuffer;
 	
-	public NettyHttpResponse(ChannelHandlerContext ctx) {
+	/**
+	 * Content headers to add to the response.
+	 */
+	private Map<String, String> contentHeaders = Maps.newHashMap();
+
+	public NettyHttpResponse(ChannelHandlerContext ctx,
+			Map<String, String> extraHttpContentHeaders) {
 		this.ctx = ctx;
 		channelBuffer = ChannelBuffers.dynamicBuffer();
+		
+		if (extraHttpContentHeaders != null) {
+			contentHeaders.putAll(extraHttpContentHeaders);
+		}
 	}
 
 	@Override
 	public OutputStream getOutputStream() {
 		return new ChannelBufferOutputStream(channelBuffer);
+	}
+
+	@Override
+	public void addContentHeader(String name, String value) {
+		contentHeaders.put(name,  value);
+	}
+
+	@Override
+	public void addContentHeaders(Map<String, String> headers) {
+		contentHeaders.putAll(headers);
+	}
+
+	@Override
+	public Map<String, String> getContentHeaders() {
+		return contentHeaders;
 	}
 
 	/**

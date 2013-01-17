@@ -19,12 +19,15 @@ package interactivespaces.service.web.server.internal.netty;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
+
+import com.google.common.collect.Maps;
 
 /**
  * A Netty handler for {@link HttpDynamicRequestHandler}.
@@ -49,10 +52,19 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 	 */
 	private String uriPrefix;
 
+	/**
+	 * Extra headers to add to the response.
+	 */
+	private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
+
 	public NettyHttpDynamicRequestHandlerHandler(
 			NettyWebServerHandler parentHandler, String up,
-			HttpDynamicRequestHandler requestHandler) {
+			HttpDynamicRequestHandler requestHandler, Map<String, String> extraHttpContentHeaders) {
 		this.parentHandler = parentHandler;
+
+		if (extraHttpContentHeaders != null) {
+			this.extraHttpContentHeaders.putAll(extraHttpContentHeaders);
+		}
 
 		StringBuilder uriPrefix = new StringBuilder();
 		if (!up.startsWith("/")) {
@@ -77,7 +89,7 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 			throws IOException {
 		interactivespaces.service.web.server.HttpRequest request = new NettyHttpRequest(
 				req, parentHandler.getWebServer().getLog());
-		NettyHttpResponse response = new NettyHttpResponse(ctx);
+		NettyHttpResponse response = new NettyHttpResponse(ctx, extraHttpContentHeaders);
 
 		DefaultHttpResponse res;
 		try {
@@ -87,6 +99,7 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 					HttpResponseStatus.OK);
 			res.setContent(response.getChannelBuffer());
 
+			parentHandler.addHttpResponseHeaders(res, response.getContentHeaders());
 			parentHandler.sendHttpResponse(ctx, req, res);
 		} catch (Exception e) {
 			parentHandler
