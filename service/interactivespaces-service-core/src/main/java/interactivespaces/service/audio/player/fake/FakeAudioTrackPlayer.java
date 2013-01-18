@@ -16,8 +16,8 @@
 
 package interactivespaces.service.audio.player.fake;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
 
 import org.apache.commons.logging.Log;
 

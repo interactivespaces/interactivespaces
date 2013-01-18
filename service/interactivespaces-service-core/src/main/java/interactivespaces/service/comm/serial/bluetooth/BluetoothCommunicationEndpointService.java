@@ -16,9 +16,9 @@
 
 package interactivespaces.service.comm.serial.bluetooth;
 
-import java.util.List;
-
 import interactivespaces.service.SupportedService;
+
+import java.util.List;
 
 /**
  * A service for bluetooth connections.

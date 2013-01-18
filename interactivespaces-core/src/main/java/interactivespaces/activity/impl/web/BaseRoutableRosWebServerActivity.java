@@ -17,41 +17,89 @@
 package interactivespaces.activity.impl.web;
 
 import java.io.File;
+import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.WebServer;
 
 /**
  * A web server activity which allows for ROS routes.
- *  
+ * 
  * @author Keith M. Hughes
  */
 public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 		implements MultipleConnectionWebSocketHandler, HttpFileUploadListener {
 
 	/**
+	 * The JSON mapper.
+	 */
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+
+	/**
 	 * Web socket handler for the connection to the browser.
 	 */
 	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
-	private WebServerActivityComponent webServer;
+
+	/**
+	 * The web server component.
+	 */
+	private WebServerActivityComponent webServerComponent;
 
 	@Override
 	public void commonActivitySetup() {
 		super.commonActivitySetup();
 
-		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
-				getLog());
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(
+				this, getLog());
 
-		addActivityComponent(new WebServerActivityComponent());
-		webServer = getComponent(WebServerActivityComponent.COMPONENT_NAME);
-		webServer.setWebSocketHandlerFactory(webSocketFactory);
-		webServer.setHttpFileUploadListener(this);
+		webServerComponent = addActivityComponent(new WebServerActivityComponent());
+		webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
+		webServerComponent.setHttpFileUploadListener(this);
 	}
-	
+
+	/**
+	 * Convert a map to a JSON string.
+	 * 
+	 * @param map
+	 *            the map to convert
+	 */
+	public String jsonStringify(Map<String, Object> map) {
+		try {
+			return MAPPER.writeValueAsString(map);
+		} catch (Exception e) {
+			throw new InteractiveSpacesException(
+					"Could not serialize JSON object as string", e);
+		}
+	}
+
+	/**
+	 * Parse a JSON string and return the map.
+	 * 
+	 * @param data
+	 *            the JSON string
+	 * 
+	 * @return the map for the string
+	 */
+	public Map<String, Object> jsonParse(String data) {
+		try {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
+					data, Map.class);
+			return map;
+		} catch (Exception e) {
+			throw new InteractiveSpacesException("Could not parse JSON string",
+					e);
+		}
+	}
+
 	/**
 	 * Add static content for the web server to serve.
 	 * 
@@ -61,7 +109,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 *            the base directory where the content will be found
 	 */
 	public void addStaticContent(String uriPrefix, File baseDir) {
-		webServer.addStaticContent(uriPrefix, baseDir);
+		webServerComponent.addStaticContent(uriPrefix, baseDir);
 	}
 
 	/**
@@ -132,6 +180,8 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 * 
 	 * @param connectionId
 	 *            ID for the web socket connection
+	 * @param data
+	 *            the data to send
 	 */
 	public void sendWebSocketString(String connectionId, String data) {
 		webSocketFactory.sendString(connectionId, data);
@@ -206,5 +256,14 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 */
 	public void onHttpFileUpload(HttpFileUpload fileUpload) {
 		// The default is do nothing.
+	}
+
+	/**
+	 * Get the web server for the activity.
+	 * 
+	 * @return the web server
+	 */
+	public WebServer getWebServer() {
+		return webServerComponent.getWebServer();
 	}
 }

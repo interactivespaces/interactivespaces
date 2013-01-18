@@ -16,6 +16,7 @@
 
 package interactivespaces.service.script;
 
+import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.execution.BaseActivityExecutionContext;
 
