@@ -22,17 +22,33 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * An audio track player factory for JLayer players.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class JLayerAudioTrackPlayerFactory implements AudioTrackPlayerFactory {
 
+	/**
+	 * The space environment to run in.
+	 */
+	private InteractiveSpacesEnvironment spaceEnvironment;
+
 	@Override
 	public AudioTrackPlayer newTrackPlayer(PlayableAudioTrack track,
 			Configuration configuration, Log log) {
-		return new JLayerAudioTrackPlayer(configuration, track, log);
+		return new JLayerAudioTrackPlayer(configuration, track,
+				spaceEnvironment.getExecutorService(), log);
+	}
+
+	/**
+	 * @param spaceEnvironment
+	 *            the spaceEnvironment to set
+	 */
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
+		this.spaceEnvironment = spaceEnvironment;
 	}
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.music.jukebox.internal;
+package interactivespaces.service.audio.player.jukebox;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioRepository;
@@ -76,7 +76,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 			Configuration configuration, AudioRepository musicRepository,
 			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
-			JukeboxOperationListener listener, Log log) {
+			AudioJukeboxListener listener, Log log) {
 		super(configuration, trackPlayerFactory, executor, listener, log);
 
 		this.tracksAlreadyPlayed = tracksAlreadyPlayed;
@@ -93,7 +93,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 
 	@Override
 	public synchronized void start() {
-		log.error("Starting music jukebox shuffle play");
+		log.info("Starting music jukebox shuffle play");
 		if (!isRunning) {
 			playingFuture = executor.scheduleAtFixedRate(runnable, 0, 500,
 					TimeUnit.MILLISECONDS);
@@ -109,7 +109,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 
 	@Override
 	public synchronized void stop() {
-		log.info("Stopping music jukebox shuffle play");
+		log.info("Stopping music jukebox shuffle play " + isRunning);
 		if (isRunning) {
 			playingFuture.cancel(true);
 			if (player != null && player.isPlaying()) {
@@ -135,7 +135,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 				return;
 			} else {
 				player = null;
-				listener.onTrackStop(this, currentTrack);
+				listener.onJukeboxTrackStop(this, currentTrack);
 			}
 		}
 
@@ -145,7 +145,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 			player = trackPlayerFactory.newTrackPlayer(currentTrack, configuration, log);
 			player.start(0, 0);
 
-			listener.onTrackStart(this, currentTrack);
+			listener.onJukeboxTrackStart(this, currentTrack);
 		} catch (Exception e) {
 			log.error(String.format("Could not start up track %s", currentTrack), e);
 		}

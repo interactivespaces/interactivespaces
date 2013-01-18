@@ -175,18 +175,18 @@ public class NettyWebServer implements WebServer {
 	}
 
 	@Override
-	public void addDynamicContentHandler(String uriPrefix,
+	public void addDynamicContentHandler(String uriPrefix, boolean usePath,
 			HttpDynamicRequestHandler handler) {
-		addDynamicContentHandler(uriPrefix, handler, null);
+		addDynamicContentHandler(uriPrefix, usePath, handler, null);
 	}
 
 	@Override
-	public void addDynamicContentHandler(String uriPrefix,
+	public void addDynamicContentHandler(String uriPrefix, boolean usePath,
 			HttpDynamicRequestHandler handler,
 			Map<String, String> extraHttpContentHeaders) {
 		serverHandler
 				.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(
-						serverHandler, uriPrefix, handler,
+						serverHandler, uriPrefix, usePath, handler,
 						extraHttpContentHeaders));
 	}
 

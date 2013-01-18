@@ -86,11 +86,13 @@ public interface WebServer extends ManagedResource {
 	 * 
 	 * @param uriPrefix
 	 *            URI prefix for the content
+	 * @param usePath
+	 * 			{@code true} if the path will be used for processing requests
 	 * @param handler
 	 *            dynamic request handler
 	 */
 	void addDynamicContentHandler(String uriPrefix,
-			HttpDynamicRequestHandler handler);
+			boolean usePath, HttpDynamicRequestHandler handler);
 
 	/**
 	 * Add in a new dynamic content handler to the server.
@@ -101,6 +103,8 @@ public interface WebServer extends ManagedResource {
 	 * 
 	 * @param uriPrefix
 	 *            URI prefix for the content
+	 * @param usePath
+	 * 			{@code true} if the path will be used for processing requests
 	 * @param handler
 	 *            dynamic request handler
 	 * @param extraHttpContentHeaders
@@ -108,6 +112,7 @@ public interface WebServer extends ManagedResource {
 	 *            handler, can be {@code null}
 	 */
 	void addDynamicContentHandler(String uriPrefix,
+			boolean usePath,
 			HttpDynamicRequestHandler handler,
 			Map<String, String> extraHttpContentHeaders);
 

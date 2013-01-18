@@ -58,7 +58,7 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 	private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
 	public NettyHttpDynamicRequestHandlerHandler(
-			NettyWebServerHandler parentHandler, String up,
+			NettyWebServerHandler parentHandler, String up, boolean usePath,
 			HttpDynamicRequestHandler requestHandler, Map<String, String> extraHttpContentHeaders) {
 		this.parentHandler = parentHandler;
 
@@ -71,7 +71,7 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 			uriPrefix.append('/');
 		}
 		uriPrefix.append(up);
-		if (!up.endsWith("/")) {
+		if (usePath && !up.endsWith("/")) {
 			uriPrefix.append('/');
 		}
 		this.uriPrefix = uriPrefix.toString();

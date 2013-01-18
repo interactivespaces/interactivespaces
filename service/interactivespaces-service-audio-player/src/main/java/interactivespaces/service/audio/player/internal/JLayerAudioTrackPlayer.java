@@ -23,8 +23,10 @@ import interactivespaces.service.audio.player.PlayableAudioTrack;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import javazoom.jl.player.advanced.PlaybackListener;
@@ -58,14 +60,27 @@ public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
 	 */
 	private AdvancedPlayer player;
 
+	/**
+	 * The file stream for the audio file.
+	 */
 	private FileInputStream istream;
-	
+
+	/**
+	 * {@code true} if playing.
+	 */
 	private AtomicBoolean playing = new AtomicBoolean(false);
 
+	/**
+	 * Executor service for getting threads to play in.
+	 */
+	private ScheduledExecutorService executorService;
+
 	public JLayerAudioTrackPlayer(Configuration configuration,
-			PlayableAudioTrack ptrack, Log log) {
+			PlayableAudioTrack ptrack,
+			ScheduledExecutorService executorService, Log log) {
 		this.configuration = configuration;
 		this.ptrack = ptrack;
+		this.executorService = executorService;
 		this.log = log;
 	}
 
@@ -91,11 +106,24 @@ public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
 				@Override
 				public void playbackStarted(PlaybackEvent event) {
 					playing.set(true);
-				} 
-				
+				}
+
 			});
-			
-			player.play();
+
+			// The JLayer play() method runs entirely in the calling thread,
+			// which means it blocks
+			// until the song is complete. So run in its own thread.
+			executorService.submit(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						player.play();
+					} catch (JavaLayerException e) {
+						log.error("JLayer player failed during MP3 playback", e);
+					}
+				}
+			});
 		} catch (Exception e) {
 			throw new InteractiveSpacesException((String.format(
 					"Cannot create audio player for file %s",
@@ -105,7 +133,11 @@ public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
 
 	@Override
 	public void stop() {
-		player.stop();
+		try {
+			player.stop();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

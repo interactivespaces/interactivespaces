@@ -20,18 +20,12 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
-import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Hashtable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -53,21 +47,14 @@ public class ZXingBarcodeHttpDynamicRequestHandler implements
 	 */
 	public static final String QUERY_PARAMETER_NAME_CONTENT = "content";
 
-	public static void main(String[] args) {
-		Log log = new Jdk14Logger("foo");
-		ScheduledExecutorService threadpool = Executors
-				.newScheduledThreadPool(100);
-		NettyWebServer server = new NettyWebServer("goober", 10011, threadpool,
-				log);
-		server.addDynamicContentHandler("foo",
-				new ZXingBarcodeHttpDynamicRequestHandler());
-
-		server.startup();
-	}
-
 	@Override
 	public void handle(HttpRequest request, HttpResponse response) {
 		String barcodeContent = getBarcodeContent(request);
+		if (barcodeContent == null) {
+			throw new InteractiveSpacesException(String.format(
+					"No content for barcode generator for URL %s",
+					request.getUri()));
+		}
 
 		try {
 			Charset charset = Charset.forName("UTF-8");

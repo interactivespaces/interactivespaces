@@ -71,6 +71,7 @@ jar {
 				'interactivespaces.util.uuid',
 				'interactivespaces.util.web',
 				'interactivespaces.service.web.server',
+				'interactivespaces.service.web.server.handler.barcode',
 				'com.informix.jdbc.*;resolution:="optional"',
 				'javax.xml.*;resolution:="optional"',
 				'javax.imageio;resolution:="optional"',

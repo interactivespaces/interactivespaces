@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.music.jukebox.internal;
+package interactivespaces.service.audio.player.jukebox;
 
 /**
  * An operation happening within the jukebox.

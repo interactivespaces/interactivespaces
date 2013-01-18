@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.music.jukebox.internal;
+package interactivespaces.service.audio.player.jukebox;
 
 import interactivespaces.service.audio.player.PlayableAudioTrack;
 
@@ -23,7 +23,8 @@ import interactivespaces.service.audio.player.PlayableAudioTrack;
  * 
  * @author Keith M. Hughes
  */
-public interface JukeboxOperationListener {
+public interface AudioJukeboxListener {
+	
 	/**
 	 * A track is being started.
 	 * 
@@ -32,7 +33,7 @@ public interface JukeboxOperationListener {
 	 * @param track
 	 *            the track being started
 	 */
-	void onTrackStart(JukeboxOperation operation, PlayableAudioTrack track);
+	void onJukeboxTrackStart(JukeboxOperation operation, PlayableAudioTrack track);
 
 	/**
 	 * A track is done.
@@ -42,7 +43,7 @@ public interface JukeboxOperationListener {
 	 * @param track
 	 *            the track being completed
 	 */
-	void onTrackStop(JukeboxOperation operation, PlayableAudioTrack track);
+	void onJukeboxTrackStop(JukeboxOperation operation, PlayableAudioTrack track);
 
 	/**
 	 * This operation is done running.
@@ -50,5 +51,5 @@ public interface JukeboxOperationListener {
 	 * @param operation
 	 *            the operation which completed
 	 */
-	void onOperationComplete(JukeboxOperation operation);
+	void onJukeboxOperationComplete(JukeboxOperation operation);
 }

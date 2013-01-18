@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.music.jukebox.internal;
+package interactivespaces.service.audio.player.jukebox;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
@@ -48,7 +48,7 @@ public abstract class BaseJukeboxOperation implements JukeboxOperation {
 	/**
 	 * Listener for the operation.
 	 */
-	protected JukeboxOperationListener listener;
+	protected AudioJukeboxListener listener;
 
 	/**
 	 * Log where all should be written.
@@ -58,7 +58,7 @@ public abstract class BaseJukeboxOperation implements JukeboxOperation {
 	public BaseJukeboxOperation(Configuration configuration,
 			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
-			JukeboxOperationListener listener, Log log) {
+			AudioJukeboxListener listener, Log log) {
 		this.configuration = configuration;
 		this.trackPlayerFactory = trackPlayerFactory;
 		this.executor = executor;

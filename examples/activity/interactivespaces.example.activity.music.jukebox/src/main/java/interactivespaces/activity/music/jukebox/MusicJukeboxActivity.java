@@ -17,28 +17,23 @@
 package interactivespaces.activity.music.jukebox;
 
 import interactivespaces.activity.impl.ros.BaseRosActivity;
-import interactivespaces.activity.music.jukebox.internal.JukeboxOperation;
-import interactivespaces.activity.music.jukebox.internal.JukeboxOperationListener;
-import interactivespaces.activity.music.jukebox.internal.PlayTrackJukeboxOperation;
-import interactivespaces.activity.music.jukebox.internal.ShuffleJukeboxOperation;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrack;
-import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
 import interactivespaces.service.audio.player.internal.JLayerAudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.internal.ScanningFileAudioRepository;
+import interactivespaces.service.audio.player.jukebox.AudioJukebox;
+import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
+import interactivespaces.service.audio.player.jukebox.BasicAudioJukebox;
+import interactivespaces.service.audio.player.jukebox.JukeboxOperation;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
-
-import java.util.Set;
 
 import org.ros.message.MessageListener;
 import org.ros.message.interactivespaces_msgs.MusicJukeboxAnnounce;
 import org.ros.message.interactivespaces_msgs.MusicJukeboxControl;
 import org.ros.node.Node;
-
-import com.google.common.collect.Sets;
 
 /**
  * The Music Jukebox activity.
@@ -46,7 +41,7 @@ import com.google.common.collect.Sets;
  * @author Keith M. Hughes
  */
 public class MusicJukeboxActivity extends BaseRosActivity implements
-		JukeboxOperationListener {
+		AudioJukeboxListener {
 
 	public static final String CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME = "music.jukebox.control.ros.topic.name";
 
@@ -68,20 +63,9 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	private RosPublishers<MusicJukeboxAnnounce> jukeboxAnnouncePublishers;
 
 	/**
-	 * A set of all tracks played since this jukebox was started.
+	 * The jukebox to use for playing.
 	 */
-	private Set<PlayableAudioTrack> tracksAlreadyPlayed;
-
-	/**
-	 * Current operation the jukebox is doing. Can be {@code null} if nothing is
-	 * happening.
-	 */
-	private JukeboxOperation currentOperation;
-
-	/**
-	 * The factory for track players.
-	 */
-	private AudioTrackPlayerFactory trackPlayerFactory;
+	private AudioJukebox jukebox;
 
 	@Override
 	public void onActivityStartup() {
@@ -90,14 +74,20 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 		try {
 			Configuration configuration = getConfiguration();
 
-			tracksAlreadyPlayed = Sets.newHashSet();
-
-			// TODO(keith): Get from a service repository.
-			trackPlayerFactory = new JLayerAudioTrackPlayerFactory();
-
 			setupRosTopics(configuration);
 			startMusicRepository(configuration);
 
+			// TODO(keith): Get from a service repository.
+			JLayerAudioTrackPlayerFactory trackPlayerFactory = new JLayerAudioTrackPlayerFactory();
+			trackPlayerFactory.setSpaceEnvironment(getSpaceEnvironment());
+
+			jukebox = new BasicAudioJukebox(musicRepository,
+					trackPlayerFactory, getSpaceEnvironment()
+							.getExecutorService(), configuration, getLog());
+			jukebox.setListener(this);
+			
+			jukebox.startup();
+			
 			getLog().info("Music jukebox ready to spin the tunes!");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -107,7 +97,10 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 
 	@Override
 	public void onActivityCleanup() {
-		shutdownCurrentOperation();
+		if (jukebox != null) {
+			jukebox.shutdown();
+			jukebox = null;
+		}
 
 		if (jukeboxAnnouncePublishers != null) {
 			jukeboxAnnouncePublishers.shutdown();
@@ -127,12 +120,12 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 
 	@Override
 	public void onActivityActivate() {
-		startShuffleTrackOperation();
+		jukebox.startShuffleTrackOperation();
 	}
 
 	@Override
 	public void onActivityDeactivate() {
-		shutdownCurrentOperation();
+		jukebox.shutdownCurrentOperation();
 	}
 
 	/**
@@ -189,7 +182,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 			// TODO(keith): Add track queueing operation
 			switch (request.operation) {
 			case MusicJukeboxControl.OPERATION_PLAY_TRACK:
-				startPlayTrackOperation(request.id, request.begin,
+				jukebox.startPlayTrackOperation(request.id, request.begin,
 						request.duration);
 
 				break;
@@ -199,12 +192,12 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 				break;
 
 			case MusicJukeboxControl.OPERATION_SHUFFLE:
-				startShuffleTrackOperation();
+				jukebox.startShuffleTrackOperation();
 
 				break;
 
 			case MusicJukeboxControl.OPERATION_STOP:
-				shutdownCurrentOperation();
+				jukebox.shutdownCurrentOperation();
 
 				break;
 			default:
@@ -219,69 +212,9 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 		}
 	}
 
-	/**
-	 * Start playing a track.
-	 * 
-	 * @param id
-	 * @param begin
-	 * @param duration
-	 */
-	private void startPlayTrackOperation(String id, long begin, long duration) {
-		getLog().info(
-				String.format("Beginning track play of %s at %d:%d", id, begin,
-						duration));
-
-		PlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
-		if (ptrack != null) {
-			startNewOperation(new PlayTrackJukeboxOperation(ptrack, begin,
-					duration, getConfiguration(), trackPlayerFactory,
-					getController().getSpaceEnvironment().getExecutorService(),
-					this, getLog()));
-		} else {
-			getLog().warn(String.format("Unable to find track %s", id));
-		}
-	}
-
-	/**
-	 * Start a shuffle operation.
-	 */
-	private void startShuffleTrackOperation() {
-		getLog().info("Beginning shuffle play");
-
-		startNewOperation(new ShuffleJukeboxOperation(tracksAlreadyPlayed,
-				getConfiguration(), musicRepository, trackPlayerFactory,
-				getController().getSpaceEnvironment().getExecutorService(),
-				this, getLog()));
-	}
-
-	/**
-	 * Start up a new operation.
-	 * 
-	 * <p>
-	 * If there is an old one, it will be stopped.
-	 * 
-	 * @param newOperation
-	 *            the new operation to run
-	 */
-	private void startNewOperation(JukeboxOperation newOperation) {
-		shutdownCurrentOperation();
-		currentOperation = newOperation;
-		newOperation.start();
-	}
-
-	/**
-	 * Shutdown and remove the current operation, if there is one.
-	 */
-	private void shutdownCurrentOperation() {
-		if (currentOperation != null) {
-			currentOperation.stop();
-
-			currentOperation = null;
-		}
-	}
-
 	@Override
-	public void onTrackStart(JukeboxOperation operation, PlayableAudioTrack ptrack) {
+	public void onJukeboxTrackStart(JukeboxOperation operation,
+			PlayableAudioTrack ptrack) {
 		if (getLog().isInfoEnabled()) {
 			getLog().info(String.format("Playing %s", ptrack));
 		}
@@ -296,7 +229,8 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	}
 
 	@Override
-	public void onTrackStop(JukeboxOperation operation, PlayableAudioTrack ptrack) {
+	public void onJukeboxTrackStop(JukeboxOperation operation,
+			PlayableAudioTrack ptrack) {
 		// Everyone gets told we have completed the track.
 		if (getLog().isInfoEnabled()) {
 			getLog().info(String.format("Done playing %s", ptrack));
@@ -307,10 +241,8 @@ public class MusicJukeboxActivity extends BaseRosActivity implements
 	}
 
 	@Override
-	public void onOperationComplete(JukeboxOperation operation) {
+	public void onJukeboxOperationComplete(JukeboxOperation operation) {
 		getLog().info("Operation completed");
-
-		currentOperation = null;
 	}
 
 }

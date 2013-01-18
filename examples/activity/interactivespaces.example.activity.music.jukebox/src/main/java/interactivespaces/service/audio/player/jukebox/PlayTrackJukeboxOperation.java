@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.music.jukebox.internal;
+package interactivespaces.service.audio.player.jukebox;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
@@ -71,7 +71,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 			long duration, Configuration configuration,
 			AudioTrackPlayerFactory trackPlayerFactory,
 			ScheduledExecutorService executor,
-			JukeboxOperationListener listener, Log log) {
+			AudioJukeboxListener listener, Log log) {
 		super(configuration, trackPlayerFactory, executor, listener, log);
 
 		this.track = track;
@@ -94,7 +94,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 
 		}
 
-		listener.onTrackStart(this, track);
+		listener.onJukeboxTrackStart(this, track);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 			}
 		}
 
-		listener.onTrackStop(this, track);
+		listener.onJukeboxTrackStop(this, track);
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
 				return;
 			} else {
 				player = null;
-				listener.onTrackStop(this, track);
-				listener.onOperationComplete(this);
+				listener.onJukeboxTrackStop(this, track);
+				listener.onJukeboxOperationComplete(this);
 
 				playingFuture.cancel(true);
 			}
