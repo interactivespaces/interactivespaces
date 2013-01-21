@@ -17,7 +17,7 @@
 package interactivespaces.service.speech.synthesis.internal.osgi;
 
 import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
-import interactivespaces.service.speech.synthesis.internal.festival.FestivalSpeechSynthesisService;
+import interactivespaces.service.speech.synthesis.internal.freetts.FreeTtsSpeechSynthesisService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -81,7 +81,7 @@ public class SpeechSynthesisServiceOsgiBundleActivator implements BundleActivato
 	 */
 	private void gotAnotherReference() {
 		synchronized (serviceLock) {
-			speechSynthesisService = new FestivalSpeechSynthesisService();
+			speechSynthesisService = new FreeTtsSpeechSynthesisService();
 
 			interactiveSpacesEnvironmentTracker.getMyService()
 					.getServiceRegistry()

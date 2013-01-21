@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+
 import com.google.common.collect.Maps;
 
 /**
@@ -222,6 +224,11 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 
 	@Override
 	public SpeechSynthesisPlayer newPlayer() {
+		return newPlayer(spaceEnvironment.getLog());
+	}
+
+	@Override
+	public SpeechSynthesisPlayer newPlayer(Log log) {
 		return new FestivalSpeechSynthesisPlayer();
 	}
 

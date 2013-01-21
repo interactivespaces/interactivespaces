@@ -18,13 +18,15 @@ package interactivespaces.service.speech.synthesis;
 
 import interactivespaces.service.SupportedService;
 
+import org.apache.commons.logging.Log;
+
 /**
  * A service for speech synthesis.
  * 
  * @author Keith M. Hughes
  */
 public interface SpeechSynthesisService extends SupportedService {
-	
+
 	/**
 	 * Name of the service.
 	 */
@@ -32,6 +34,17 @@ public interface SpeechSynthesisService extends SupportedService {
 
 	/**
 	 * Get a new speed synthesis player.
+	 * 
+	 * @param log
+	 *            the logger to use for this player
+	 */
+	SpeechSynthesisPlayer newPlayer(Log log);
+
+	/**
+	 * Get a new speed synthesis player.
+	 * 
+	 * <p>
+	 * Will be placed on the container logger.
 	 */
 	SpeechSynthesisPlayer newPlayer();
 }

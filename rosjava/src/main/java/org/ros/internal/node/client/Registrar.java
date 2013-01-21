@@ -125,7 +125,7 @@ public class Registrar implements TopicManagerListener, ServiceManagerListener {
 	}
 
 	@Override
-	public void onPublisherAdded(final DefaultPublisher<?> publisher) {
+	public void onPublisherAdded(DefaultPublisher<?> publisher) {
 		registerPublisher(publisher);
 	}
 

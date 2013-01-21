@@ -35,7 +35,7 @@ public class SpeechSynthesisExampleActivity extends BaseRoutableRosActivity {
 	private SpeechSynthesisPlayer speechPlayer;
 
 	@Override
-	public void onActivityStartup() {
+	public void onActivitySetup() {
 		SpeechSynthesisService speechSynthesisService = getSpaceEnvironment()
 				.getServiceRegistry().getRequiredService(
 						SpeechSynthesisService.SERVICE_NAME);

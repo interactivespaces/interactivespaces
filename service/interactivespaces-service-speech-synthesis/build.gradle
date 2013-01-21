@@ -13,8 +13,16 @@
  * the License.
  */
 
+configurations {
+    includeInJar
+}
+
 dependencies {
 	compile project(':service:interactivespaces-service-core')
+	
+	includeInJar fileTree(dir: 'libs', include: '*.jar')
+	
+	configurations.provided.extendsFrom(configurations.includeInJar)
 	
 	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -23,12 +31,23 @@ dependencies {
 }
 
 jar {
-	manifest {
+    from configurations.includeInJar.collect { File file -> file.isDirectory() ? file : zipTree(file) }
+
+		manifest {
 		version = osgiVersion
 		symbolicName = 'interactivespaces.service.speech.synthesis'
 		
 		instruction 'Bundle-Activator',
 				'interactivespaces.service.speech.synthesis.internal.osgi.SpeechSynthesisServiceOsgiBundleActivator'
+		
+		instruction 'Private-Package',
+			'interactivespaces.service.speech.synthesis.internal'
+		
+		instruction 'Import-Package',
+			'!com.sun.speech.freetts.*',
+		    'org.w3c.dom',
+			'javax.sound.*;resolution:="optional"',
+			'*'
 	}
 }
 
