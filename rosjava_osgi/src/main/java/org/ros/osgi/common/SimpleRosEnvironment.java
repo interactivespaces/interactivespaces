@@ -167,12 +167,12 @@ public class SimpleRosEnvironment implements RosEnvironment {
 
 	@Override
 	public Node newNode(NodeConfiguration configuration) {
-		return nodeFactory.newNode(configuration);
+		return nodeFactory.newNode(configuration, true);
 	}
 
 	@Override
 	public Node newNode(NodeConfiguration configuration, Collection<NodeListener> listeners) {
-		return nodeFactory.newNode(configuration, listeners);
+		return nodeFactory.newNode(configuration, listeners, true);
 	}
 
 	@Override

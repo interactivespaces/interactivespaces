@@ -275,7 +275,7 @@ public class StandardSpaceController implements SpaceController,
 
 		obtainControllerInfo();
 		confirmUuid();
-		
+
 		setEnvironmentValues();
 
 		activityComponentFactory = new CoreExistingActivityComponentFactory();
@@ -338,7 +338,8 @@ public class StandardSpaceController implements SpaceController,
 	 * Set values in the space environment that the controller provides.
 	 */
 	public void setEnvironmentValues() {
-		spaceEnvironment.setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER, nativeActivityRunnerFactory);
+		spaceEnvironment.setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER,
+				nativeActivityRunnerFactory);
 	}
 
 	/**
@@ -452,7 +453,7 @@ public class StandardSpaceController implements SpaceController,
 				activityStateTransitioners.clear();
 
 				shutdownAllActivities();
-				
+
 				shutdownCoreControllerServices();
 
 				controllerHeartbeatControl.cancel(true);
@@ -610,7 +611,7 @@ public class StandardSpaceController implements SpaceController,
 		} catch (Exception e) {
 			ActivityStatus status = new ActivityStatus(
 					ActivityState.STARTUP_FAILURE, e.getMessage());
-			controllerCommunicator.publishActivityStatus(uuid, status);
+			publishActivityStatus(uuid, status);
 		}
 	}
 
@@ -628,13 +629,7 @@ public class StandardSpaceController implements SpaceController,
 			InstalledLiveActivity ia = controllerRepository
 					.getInstalledLiveActivityByUuid(uuid);
 			if (ia != null) {
-				eventQueue.addEvent(new Runnable() {
-					@Override
-					public void run() {
-						controllerCommunicator.publishActivityStatus(uuid,
-								LIVE_ACTIVITY_READY_STATUS);
-					}
-				});
+				publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
 			} else {
 				// TODO(keith): Tell master the controller doesn't exist.
 				spaceEnvironment.getLog().warn(
@@ -657,13 +652,7 @@ public class StandardSpaceController implements SpaceController,
 			spaceEnvironment.getLog().info(
 					String.format("Reporting activity status %s for %s", uuid,
 							activityStatus));
-			eventQueue.addEvent(new Runnable() {
-				@Override
-				public void run() {
-					controllerCommunicator.publishActivityStatus(
-							activity.getUuid(), activityStatus);
-				}
-			});
+			publishActivityStatus(activity.getUuid(), activityStatus);
 		} else {
 			InstalledLiveActivity liveActivity = controllerRepository
 					.getInstalledLiveActivityByUuid(uuid);
@@ -671,8 +660,7 @@ public class StandardSpaceController implements SpaceController,
 				spaceEnvironment.getLog().info(
 						String.format("Reporting activity status %s for %s",
 								uuid, LIVE_ACTIVITY_READY_STATUS));
-				controllerCommunicator.publishActivityStatus(uuid,
-						LIVE_ACTIVITY_READY_STATUS);
+				publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
 			} else {
 				spaceEnvironment.getLog().warn(
 						String.format(
@@ -680,6 +668,24 @@ public class StandardSpaceController implements SpaceController,
 								uuid));
 			}
 		}
+	}
+
+	/**
+	 * Publish an activity status in a safe manner
+	 * 
+	 * @param uuid
+	 *            uuid of the activity
+	 * @param status
+	 *            the status
+	 */
+	private void publishActivityStatus(final String uuid,
+			final ActivityStatus status) {
+		eventQueue.addEvent(new Runnable() {
+			@Override
+			public void run() {
+				controllerCommunicator.publishActivityStatus(uuid, status);
+			}
+		});
 	}
 
 	@Override
@@ -808,9 +814,10 @@ public class StandardSpaceController implements SpaceController,
 	 *            The activity to start up.
 	 */
 	private void attemptActivityStartup(ActiveControllerActivity activity) {
+		String uuid = activity.getUuid();
 		spaceEnvironment.getLog().info(
 				String.format("Attempting startup of activity %s",
-						activity.getUuid()));
+						uuid));
 
 		try {
 			switch (activity.getActivityState()) {
@@ -831,8 +838,10 @@ public class StandardSpaceController implements SpaceController,
 			}
 		} catch (Exception e) {
 			spaceEnvironment.getLog().error(
-					String.format("Unable to start activity %s",
-							activity.getUuid()), e);
+					String.format("Unable to start activity %s",							uuid), e);
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.STARTUP_FAILURE, e.getMessage());
+			publishActivityStatus(uuid, status);
 		}
 	}
 
@@ -1078,7 +1087,7 @@ public class StandardSpaceController implements SpaceController,
 				webSocketClientService);
 		webSocketClientService.startup();
 	}
-	
+
 	private void shutdownCoreControllerServices() {
 		ServiceRegistry serviceRegistry = getSpaceEnvironment()
 				.getServiceRegistry();

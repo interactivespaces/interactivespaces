@@ -123,7 +123,7 @@ public class DefaultNodeMainExecutor implements NodeMainExecutor {
           nodeListenersCopy.addAll(nodeListeners);
         }
         // The new Node will call onStart().
-        Node node = nodeFactory.newNode(nodeConfigurationCopy, nodeListenersCopy);
+        Node node = nodeFactory.newNode(nodeConfigurationCopy, nodeListenersCopy, false);
         nodeMains.put(node, nodeMain);
       }
     });

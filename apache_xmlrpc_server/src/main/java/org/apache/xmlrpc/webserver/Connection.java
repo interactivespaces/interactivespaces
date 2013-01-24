@@ -179,8 +179,9 @@ public class Connection implements ThreadPool.InterruptableTask, ServerStreamCon
                     String cLength = line.substring("content-length:".length());
                     requestData.setContentLength(Integer.parseInt(cLength.trim()));
                 } else if (lineLower.startsWith("connection:")) {
-                    requestData.setKeepAlive(serverConfig.isKeepAliveEnabled()
-                            &&  lineLower.indexOf("keep-alive") > -1);
+                    boolean pKeepAlive = serverConfig.isKeepAliveEnabled()
+                            &&  lineLower.indexOf("keep-alive") > -1;
+					requestData.setKeepAlive(pKeepAlive);
                 } else if (lineLower.startsWith("authorization:")) {
                     String credentials = line.substring("authorization:".length());
                     HttpUtil.parseAuthorization(requestData, credentials);
@@ -224,9 +225,13 @@ public class Connection implements ThreadPool.InterruptableTask, ServerStreamCon
                 webServer.log(t);
             }
         } finally {
-            try { output.close(); } catch (Throwable ignore) {}
-            try { input.close(); } catch (Throwable ignore) {}
-            try { socket.close(); } catch (Throwable ignore) {}
+//            try { output.close(); } catch (Throwable ignore) {}
+//        	System.out.println("Output closed");
+//            try { input.close(); } catch (Throwable ignore) {}
+//        	System.out.println("Input closed");
+            try { 
+            	socket.close(); 
+            } catch (Throwable ignore) {}
         }
     }
 

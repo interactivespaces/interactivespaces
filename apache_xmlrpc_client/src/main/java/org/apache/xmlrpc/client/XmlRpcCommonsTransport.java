@@ -27,16 +27,20 @@ import java.io.OutputStream;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnection;
+import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcRequest;
@@ -60,14 +64,19 @@ public class XmlRpcCommonsTransport extends XmlRpcHttpTransport {
 	private static final String userAgent = USER_AGENT + " (Jakarta Commons httpclient Transport)";
 	protected PostMethod method;
 	private int contentLength = -1;
-	private XmlRpcHttpClientConfig config;      
+	private XmlRpcHttpClientConfig config;
+	private HttpConnectionManager connectionManager;
 
 	/** Creates a new instance.
 	 * @param pFactory The factory, which created this transport.
 	 */
 	public XmlRpcCommonsTransport(XmlRpcCommonsTransportFactory pFactory) {
 		super(pFactory.getClient(), userAgent);
-        HttpClient httpClient = pFactory.getHttpClient();
+		connectionManager = new SimpleHttpConnectionManager(true);
+		HttpConnectionManagerParams p = new HttpConnectionManagerParams();
+		p.setLinger(0);
+		connectionManager.setParams(p);
+		HttpClient httpClient = pFactory.getHttpClient();
         if (httpClient == null) {
             httpClient = newHttpClient();
         }
@@ -79,7 +88,7 @@ public class XmlRpcCommonsTransport extends XmlRpcHttpTransport {
 	}
 
     protected HttpClient newHttpClient() {
-        return new HttpClient();
+		return new HttpClient(connectionManager);
     }
 
     protected void initHttpHeaders(XmlRpcRequest pRequest) throws XmlRpcClientException {

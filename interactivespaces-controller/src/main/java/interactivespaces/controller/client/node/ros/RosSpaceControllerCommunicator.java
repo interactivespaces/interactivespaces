@@ -408,58 +408,65 @@ public class RosSpaceControllerCommunicator implements
 	 *            The ROS request.
 	 */
 	private void handleActivityRuntimeRequest(
-			ControllerActivityRuntimeRequest request) {
-		switch (request.operation) {
-		case ControllerActivityRuntimeRequest.OPERATION_STARTUP:
-			controllerControl.startupActivity(request.uuid);
+			final ControllerActivityRuntimeRequest request) {
+		spaceEnvironment.getExecutorService().submit(new Runnable() {
+			public void run() {
+				switch (request.operation) {
+				case ControllerActivityRuntimeRequest.OPERATION_STARTUP:
+					controllerControl.startupActivity(request.uuid);
 
-			break;
+					break;
 
-		case ControllerActivityRuntimeRequest.OPERATION_ACTIVATE:
-			controllerControl.activateActivity(request.uuid);
+				case ControllerActivityRuntimeRequest.OPERATION_ACTIVATE:
+					controllerControl.activateActivity(request.uuid);
 
-			break;
+					break;
 
-		case ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE:
-			controllerControl.deactivateActivity(request.uuid);
+				case ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE:
+					controllerControl.deactivateActivity(request.uuid);
 
-			break;
+					break;
 
-		case ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN:
-			controllerControl.shutdownActivity(request.uuid);
+				case ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN:
+					controllerControl.shutdownActivity(request.uuid);
 
-			break;
+					break;
 
-		case ControllerActivityRuntimeRequest.OPERATION_STATUS:
-			controllerControl.statusActivity(request.uuid);
+				case ControllerActivityRuntimeRequest.OPERATION_STATUS:
+					controllerControl.statusActivity(request.uuid);
 
-			break;
+					break;
 
-		case ControllerActivityRuntimeRequest.OPERATION_CONFIGURE:
-			ByteBuffer payloadBuffer = ByteBuffer.wrap(request.data);
-			payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-					.limit(request.data.length);
+				case ControllerActivityRuntimeRequest.OPERATION_CONFIGURE:
+					ByteBuffer payloadBuffer = ByteBuffer.wrap(request.data);
+					payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
+							.limit(request.data.length);
 
-			ActivityConfigurationRequest configurationRequest = activityConfigurationRequestDeserializer
-					.deserialize(payloadBuffer);
+					ActivityConfigurationRequest configurationRequest = activityConfigurationRequestDeserializer
+							.deserialize(payloadBuffer);
 
-			handleActivityConfigurationRequest(request.uuid,
-					configurationRequest);
+					handleActivityConfigurationRequest(request.uuid,
+							configurationRequest);
 
-			break;
+					break;
 
-		default:
-			spaceEnvironment.getLog().error(
-					String.format("Unknown ROS activity runtime request %d",
-							request.operation));
-		}
+				default:
+					spaceEnvironment.getLog().error(
+							String.format(
+									"Unknown ROS activity runtime request %d",
+									request.operation));
+				}
+			}
+		});
 	}
 
 	/**
 	 * Handle a configuration request.
 	 * 
 	 * @param uuid
+	 *            uuid of the activity
 	 * @param configurationRequest
+	 *            the configuration request
 	 */
 	private void handleActivityConfigurationRequest(String uuid,
 			ActivityConfigurationRequest configurationRequest) {

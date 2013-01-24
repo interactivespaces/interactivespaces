@@ -110,14 +110,19 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 	 * changed, it will destroy the current version and load a new one.
 	 */
 	private void prepare() {
+		if (!executable.exists()) {
+			throw new InteractiveSpacesException(String.format(
+					"Bundle %s does not exist", executable));
+		}
+
 		try {
-//			JarFile bundleJar = new JarFile(executable);
-//			Manifest manifest = bundleJar.getManifest();
-//			Attributes mainAttributes = manifest.getMainAttributes();
-//			bundleJar.close();
-//			System.out.println(mainAttributes.getValue("Bundle-SymbolicName"));
-//			System.out.println(mainAttributes.getValue("Bundle-Version"));
-			
+			// JarFile bundleJar = new JarFile(executable);
+			// Manifest manifest = bundleJar.getManifest();
+			// Attributes mainAttributes = manifest.getMainAttributes();
+			// bundleJar.close();
+			// System.out.println(mainAttributes.getValue("Bundle-SymbolicName"));
+			// System.out.println(mainAttributes.getValue("Bundle-Version"));
+
 			// If there is a bundle loaded and it hasn't been modified,
 			// no reason to load.
 			if (bundle != null) {

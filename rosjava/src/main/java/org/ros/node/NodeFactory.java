@@ -33,7 +33,7 @@ public interface NodeFactory {
    *          the {@link NodeConfiguration} for the new {@link Node}
    * @return a new {@link Node}
    */
-  Node newNode(NodeConfiguration configuration);
+  Node newNode(NodeConfiguration configuration, boolean usePinger);
 
   /**
    * Build a new {@link Node} with the given {@link NodeConfiguration} and
@@ -44,7 +44,9 @@ public interface NodeFactory {
    * @param listeners
    *          a collection of {@link NodeListener} instances which will be
    *          registered with the node (can be {@code null})
+   * @param usePinger
+   * 		{@code true} if should use a master pinger
    * @return a new {@link Node}
    */
-  Node newNode(NodeConfiguration configuration, Collection<NodeListener> listeners);
+  Node newNode(NodeConfiguration configuration, Collection<NodeListener> listeners, boolean usePinger);
 }

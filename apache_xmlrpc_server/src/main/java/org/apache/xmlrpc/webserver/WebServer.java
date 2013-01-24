@@ -185,6 +185,7 @@ public class WebServer implements Runnable {
 				if (serverSocket.getSoTimeout() <= 0) {
 					serverSocket.setSoTimeout(4096);
 				}
+				serverSocket.setReuseAddress(true);
 				return;
 			} catch (BindException e) {
 				if (i == 10) {
@@ -326,6 +327,7 @@ public class WebServer implements Runnable {
 					Socket socket = serverSocket.accept();
 					try {
 						socket.setTcpNoDelay(true);
+						socket.setSoLinger(true, 1);
 					} catch (SocketException socketOptEx) {
 						log(socketOptEx);
 					}

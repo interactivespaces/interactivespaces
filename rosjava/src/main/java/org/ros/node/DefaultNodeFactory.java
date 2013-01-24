@@ -30,20 +30,27 @@ import org.ros.internal.node.MasterPinger;
  */
 public class DefaultNodeFactory implements NodeFactory {
 
-  private final ScheduledExecutorService scheduledExecutorService;
+	private final ScheduledExecutorService scheduledExecutorService;
 
-  public DefaultNodeFactory(ScheduledExecutorService scheduledExecutorService) {
-    this.scheduledExecutorService = new SharedScheduledExecutorService(scheduledExecutorService);
-  }
+	public DefaultNodeFactory(ScheduledExecutorService scheduledExecutorService) {
+		this.scheduledExecutorService = new SharedScheduledExecutorService(
+				scheduledExecutorService);
+	}
 
-  @Override
-  public Node newNode(NodeConfiguration nodeConfiguration, Collection<NodeListener> listeners) {
-	 
-    return new DefaultNode(nodeConfiguration, listeners, scheduledExecutorService, new MasterPinger());
-  }
+	@Override
+	public Node newNode(NodeConfiguration nodeConfiguration,
+			Collection<NodeListener> listeners, boolean usePinger) {
 
-  @Override
-  public Node newNode(NodeConfiguration nodeConfiguration) {
-    return newNode(nodeConfiguration, null);
-  }
+		MasterPinger pinger = null;
+		if (usePinger) {
+			pinger = new MasterPinger();
+		}
+		return new DefaultNode(nodeConfiguration, listeners,
+				scheduledExecutorService, pinger);
+	}
+
+	@Override
+	public Node newNode(NodeConfiguration nodeConfiguration, boolean usePinger) {
+		return newNode(nodeConfiguration, null, usePinger);
+	}
 }

@@ -98,7 +98,7 @@ public class DefaultNodeTest {
     NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(host, masterServer.getUri());
     //nodeConfiguration.set
     nodeConfiguration.setNodeName("node");
-    Node node = nodeFactory.newNode(nodeConfiguration);
+    Node node = nodeFactory.newNode(nodeConfiguration, false);
     InetSocketAddress nodeAddress = ((DefaultNode) node).getAddress();
     assertTrue(nodeAddress.getPort() > 0);
     assertEquals(nodeAddress.getHostName(), host);
@@ -110,7 +110,7 @@ public class DefaultNodeTest {
     String host = "1.2.3.4";
     NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(host, masterServer.getUri());
     nodeConfiguration.setNodeName("node");
-    Node node = nodeFactory.newNode(nodeConfiguration);
+    Node node = nodeFactory.newNode(nodeConfiguration, false);
     InetSocketAddress nodeAddress = ((DefaultNode) node).getAddress();
     assertTrue(nodeAddress.getPort() > 0);
     assertEquals(nodeAddress.getHostName(), host);
@@ -122,7 +122,7 @@ public class DefaultNodeTest {
     String host = "2001:0db8:85a3:0000:0000:8a2e:0370:7334";
     NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(host, masterServer.getUri());
     nodeConfiguration.setNodeName("node");
-    Node node = nodeFactory.newNode(nodeConfiguration);
+    Node node = nodeFactory.newNode(nodeConfiguration, false);
     InetSocketAddress nodeAddress = ((DefaultNode) node).getAddress();
     assertTrue(nodeAddress.getPort() > 0);
     assertEquals(nodeAddress.getHostName(), host);
@@ -131,7 +131,7 @@ public class DefaultNodeTest {
 
   @Test
   public void testCreatePrivate() {
-    Node node = nodeFactory.newNode(privateNodeConfiguration);
+    Node node = nodeFactory.newNode(privateNodeConfiguration, false);
     InetSocketAddress nodeAddress = ((DefaultNode) node).getAddress();
     assertTrue(nodeAddress.getPort() > 0);
     assertTrue(nodeAddress.getAddress().isLoopbackAddress());
@@ -141,7 +141,7 @@ public class DefaultNodeTest {
   @SuppressWarnings("unchecked")
   //@Test
   public void testPubSubRegistration() throws InterruptedException {
-    Node node = nodeFactory.newNode(privateNodeConfiguration);
+    Node node = nodeFactory.newNode(privateNodeConfiguration, false);
     ((DefaultNode) node).getRegistrar().setRetryDelay(1, TimeUnit.MILLISECONDS);
 
     RosoutLogger rosoutLogger = (RosoutLogger) node.getLog();
@@ -184,7 +184,7 @@ public class DefaultNodeTest {
     NodeConfiguration nodeConfiguration = NodeConfiguration.newPrivate(masterUri);
     nodeConfiguration.setParentResolver(NameResolver.newFromNamespace("/ns1"));
     nodeConfiguration.setNodeName("test_resolver");
-    Node node = nodeFactory.newNode(nodeConfiguration);
+    Node node = nodeFactory.newNode(nodeConfiguration, false);
 
     assertGraphNameEquals("/foo", node.resolveName("/foo"));
     assertGraphNameEquals("/ns1/foo", node.resolveName("foo"));
@@ -224,7 +224,7 @@ public class DefaultNodeTest {
     NodeConfiguration nodeConfiguration =
         NodeConfiguration.newPublic(masterUri.getHost(), masterUri);
     nodeConfiguration.setNodeName("test_addresses");
-    Node node = nodeFactory.newNode(nodeConfiguration);
+    Node node = nodeFactory.newNode(nodeConfiguration, false);
 
     URI nodeUri = node.getUri();
     assertTrue(nodeUri.getPort() > 0);
