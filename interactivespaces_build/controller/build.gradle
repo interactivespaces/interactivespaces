@@ -1,0 +1,45 @@
+apply plugin: 'izpack'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.1'
+    }
+}
+
+dependencies {
+    izpack files('../libs/izpack-standalone-compiler-4.3.5.jar')
+}
+
+ext {
+	version = "1.3.2"
+}
+
+task prepareIzpack(type: Copy) {
+	destinationDir = "$buildDir/assemble/izpack" as File
+	from('installer/izpack/resources') {
+		into 'resources'
+		filter(ReplaceTokens, tokens: ['griffon.version': version])
+	}
+	into('binary') {
+		with distBinSpec
+	}
+	into('source'){
+		with distSourceSpec
+	}
+}
+
+izPackCreateInstaller.dependsOn prepareIzpack
+
+izpack {
+    baseDir = file("target/staging")
+    installFile = file('src/izpack/install.xml')
+    outputFile = file("$buildDir/distributions/interactivespaces-controller-installer-${version}.jar")
+    compression = 'deflate'
+    compressionLevel = 9
+    appProperties = ['app.group': 'interactivespaces', 'app.name': 'Interactive Spaces Controller',
+                     'app.version': ext.version, 'app.subpath': "interactivespaces/controller"]
+}

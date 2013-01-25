@@ -38,7 +38,13 @@ the License.
 			<artifactId>plexus-utils</artifactId>
 			<version>1.5.6</version>
 		</dependency>
-
+		
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.0-alpha-2</version>
+        </dependency>
+ 
 	</dependencies>
 
 	<build>
@@ -48,14 +54,32 @@ the License.
 		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
-
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>properties-maven-plugin</artifactId>
+              <version>1.0-alpha-2</version>
+              <executions>
+                <execution>
+                  <phase>initialize</phase>
+                  <goals>
+                    <goal>read-project-properties</goal>
+                  </goals>
+                  <configuration>
+                    <files>
+                      <file>${basedir}/../../gradle.properties</file>
+                    </files>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+		    
 			<!-- configure the compiler to use 1.6 -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<source>1.6</source>
-					<target>1.65</target>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 
@@ -96,7 +120,7 @@ the License.
 										dir="${basedir}/../../interactivespaces_lib/src/main/python/release/controller" />
 								</copy>
 								<copy todir="${staging.dir}/lib/python/PyLib">
-									<fileset dir="/home/khughes/software/jython/jython2.5.2/Lib" />
+									<fileset dir="${jython.home}/Lib" />
 								</copy>
 							</tasks>
 						</configuration>

@@ -2,3 +2,24 @@ Building Interactive Spaces requires the following dependencies:
 
 The Android SDK
 The RXTX Java serial communications library.
+The Bluecove Bluetooth Library
+Jython
+
+Create a file in the root folder of the Interactive Spaces project called
+gradle.properties.
+
+This file should contain the following properties. Each of the properties
+ending in .home say where you have a package installed. The examples
+below give a fake place where each software package is installed, you will
+change these to match where you installed the particular packages.
+
+android.sdk.home = /home/you/software/android/android-sdk-linux_86
+rxtx.home = /usr/share/java/RXTXcomm.jar
+bluecove.home = /home/you/software/bluecove/bluecove-2.1.0.jar
+jython.home = /home/you/software/jython/jython2.5.2
+
+The Android controller is built for a given minimum version of Android.
+The following example shows building the Androind controller for Ice Cream
+Sandwich.
+
+android.platform = android-16
