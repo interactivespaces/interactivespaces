@@ -182,7 +182,9 @@ public class Files {
 	 * Input stream will be closed upon completion.
 	 * 
 	 * @param in
+	 *            the input strem being copied
 	 * @param file
+	 *            the file where the input stream's contents will be copied
 	 * 
 	 * @throws IOException
 	 */

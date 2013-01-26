@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<activity builder="java">
-    <name>Arduino Analog Sensor with Java Example</name>
-    <description>
-A Java Activity which reads from an analog sensor on an Arduino board with serial communication
-    </description>
-    <version>1.0.0</version>
-    <identifyingName>interactivespaces.example.activity.arduino.analog.java</identifyingName>
-</activity>

@@ -9,18 +9,19 @@ Spaces.
 The number of examples will continue to grow as more functionality is placed
 into Interactive Spaces.
 
-The Simple Events
+Hello World: The Simple Events
 ============================
 
 These activities merely log some Interactive Spaces events which take
 place when a Live Activity runs. These examples can help you understand 
 what events happen in what order.
 
-They are written in a variety of programming languages.
+They are written in a variety of programming languages and are found in the
+*examples/basics/hello* folder of the workbench.
 
-* interactivespaces-example-activity-java-simple
-* interactivespaces-example-activity-script-javascript
-* interactivespaces-example-activity-script-python
+* interactivespaces.example.activity.hello
+* interactivespaces.example.activity.hello.javascript
+* interactivespaces.example.activity.hello.python
 
 You will need to hit the *Configure* button to see the configuration update
 event. *Edit Config* should be used first if you have never configured
@@ -30,21 +31,11 @@ If you want less output from these Activities, find *onActivityCheckState*
 and change *info* to *debug*. This means that checking activity state will
 only be logged if the logging level for the activity is set to DEBUG.
 
-Native Activities
-===================
+For fun, there is also a talking Hello World example. Just turn up your computer's speakers
+and enjoy.
 
-You can start and stop native activities with Interactive Spaces. This
-makes it easy for you to write activities in openFrameworks and other languages
-that don't run inside the Interactive Spaces container.
+* interactivespaces.example.activity.hello.speech
 
-* interactivespaces-example-activity-native
-
-This example uses the Linux *mpg321* to play an audio file found in the
-activity.
-
-If you want to use Interactive Spaces communication protocols, which you should,
-you will need to have your Activity speak with something directly running in
-Interactive Spaces. Sockets and Web Sockets are supported out of the box.
 
 Web Activities
 ==============
@@ -132,9 +123,22 @@ USB in the modern world.
 The examples given with Interactive Spaces typically connect to Arduino microcontrollers and read
 read or write to sensors connected to the device.
 
-* interactivespaces.example.activity.arduino.analog.java
+These examples are found in the *examples/comm/serial* folder of the workbench.
 
-The Arduino example connects to the Arduino and expects a value from an analog port
+You need to configure your controller to work with serial, please see the chapter on 
+Interactive Spaces Comm Support for instructions.
+
+* interactivespaces.example.activity.arduino.echo
+
+This Arduino example is very simple. When you activate the Live Activity, it will generate
+a random 8 bit number and write it to the serial port. The source for this activity includes
+an Arduino sketch called *Echo* which will read any bytes which come over the serial connection
+and write them back. The example will only log the values to keep the example simple, so
+make sure to look at the controller's logs.
+
+* interactivespaces.example.activity.arduino.analog.trigger
+
+This Arduino example connects to the Arduino and expects a value from an analog port
 to be written. The Arduino code for the example is included in the workbench.
 
 The activity will write on a route if the value read from the Arduino goes over some
@@ -176,6 +180,22 @@ on the example route used for all the examples.
 
 * interactivespaces.example.activity.speech.synthesis
 
+
+Native Activities
+===================
+
+You can start and stop native activities with Interactive Spaces. This
+makes it easy for you to write activities in openFrameworks and other languages
+that don't run inside the Interactive Spaces container.
+
+* interactivespaces-example-activity-native
+
+This example uses the Linux *mpg321* to play an audio file found in the
+activity.
+
+If you want to use Interactive Spaces communication protocols, which you should,
+you will need to have your Activity speak with something directly running in
+Interactive Spaces. Sockets and Web Sockets are supported out of the box.
 
 Android
 =============

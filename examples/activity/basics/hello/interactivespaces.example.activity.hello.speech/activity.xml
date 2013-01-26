@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Simple Hello Speech Activity Example</name>
+    <description>
+A speech synthesis activity which speaks some of the Activity lifecycle events.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.hello.speech</identifyingName>
+</activity>

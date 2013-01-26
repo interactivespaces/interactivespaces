@@ -66,8 +66,12 @@ public class ManagedResourceWithTask implements ManagedResource {
 
 	@Override
 	public void shutdown() {
-		future.cancel(true);
+		if (future != null) {
+			future.cancel(true);
+			future = null;
+		}
 
 		resource.shutdown();
+		resource = null;
 	}
 }

@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 apply plugin: 'izpack'
 
 buildscript {
@@ -20,22 +22,20 @@ ext {
 
 task prepareIzpack(type: Copy) {
 	destinationDir = "$buildDir/assemble/izpack" as File
-	from('installer/izpack/resources') {
-		into 'resources'
-		filter(ReplaceTokens, tokens: ['griffon.version': version])
+	from("$buildDir/../../..") {
+		include "LICENSE*.txt"
+		include "NOTICE.txt"
 	}
-	into('binary') {
-		with distBinSpec
-	}
-	into('source'){
-		with distSourceSpec
-	}
+	from("$buildDir/../../template-common")
+	from("$buildDir/../../common")
+	from("$buildDir/../template")
+	from("$buildDir/../src/izpack")
 }
 
 izPackCreateInstaller.dependsOn prepareIzpack
 
 izpack {
-    baseDir = file("target/staging")
+    baseDir = file("$buildDir/assemble/izpack")
     installFile = file('src/izpack/install.xml')
     outputFile = file("$buildDir/distributions/interactivespaces-controller-installer-${version}.jar")
     compression = 'deflate'
