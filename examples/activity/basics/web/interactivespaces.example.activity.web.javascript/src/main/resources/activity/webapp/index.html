@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<!-- Tested In Chrome. -->
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Simple Web Activity Example</title>
+
+    <script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
+
+    <script type="text/javascript">
+
+var ws; 
+
+$(document).ready(function () {
+  ws = new WebSocket("ws://localhost:9000/websocket"); 
+
+  ws.onopen = function(event) { 
+      $('#status').text("The WebSocket Connection Is Open."); 
+  }
+
+  ws.onmessage = function(event) { 
+      var data = JSON.parse(event.data);
+      $('#image').attr("src", data.imageUrl);
+  }
+
+  ws.onclose = function(event) { 
+      $('#status').text("The WebSocket Connection Has Been Closed."); 
+  }
+}); 
+
+function clicked() {
+  var message = JSON.stringify({message: 'The web browser button was clicked'});
+  ws.send(message);
+}
+
+</script>
+
+</head>
+
+<body>
+
+    <h1>Web Socket Activity Example</h1>
+
+    <div id="status"></div><br/>
+
+<p style="margin-top: 36pt;">
+<img src="" id="image" alt="Picture goes here" />
+</p>
+
+<button type="button" onclick="clicked();">Click</button>
+</body>
+
+</html>

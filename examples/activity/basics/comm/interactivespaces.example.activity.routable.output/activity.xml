@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <activity builder="java">
-    <name>Routable Output Java</name>
+    <name>Routable Output Java Example</name>
     <description>
 An example of writing to a route in Java.
     </description>

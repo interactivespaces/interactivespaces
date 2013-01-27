@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<activity>
-    <name>Web Activity Example</name>
-    <description>
-An example of an activity which consists only of a web page and a browser.
-    </description>
-    <version>1.0.0</version>
-    <identifyingName>interactivespaces.example.activity.web</identifyingName>
-</activity>

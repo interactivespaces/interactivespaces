@@ -16,9 +16,16 @@
 
 from interactivespaces.activity.impl.ros import BaseRoutableRosActivity
 
-class ExampleInputRoutablePythonActivity(BaseRoutableRosActivity):
+class ExampleOutputRoutablePythonActivity(BaseRoutableRosActivity):
 
-    def onNewInputJson(self, channelName, message):
-        self.log.info("Got message on input channel " + channelName)
-        self.log.info(message)
+    def onActivityActivate(self):
+        self.log.info("Activated")
+        message = {}
+        message["message"] = "yipee! activated!"
+        self.sendOutputJson("output1", message)
 
+    def onActivityDeactivate(self):
+        self.log.info("Deactivated")
+        message = {}
+        message["message"] = "bummer! deactivated!"
+        self.sendOutputJson("output1", message)

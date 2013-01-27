@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Routable Output Python Activity Example</name>
+    <description>
+An example of a Routable Interactive Spaces Activity written in Python which outputs on a route to another activity.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.routable.output.python</identifyingName>
+</activity>
