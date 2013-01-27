@@ -16,12 +16,16 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.AtRemoteRequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+
 /**
  * XBee frame for sending an AT request to a remote radio.
  * 
  * @author Keith M. Hughes
  */
-public class AtRemoteRequestXBeeFrame extends RequestXBeeFrame {
+public class AtRemoteRequestXBeeFrameImpl extends BaseRequestXBeeFrame implements AtRemoteRequestXBeeFrame {
 
 	/**
 	 * Construct an AT Remote command XBee with fully specified address.
@@ -37,7 +41,7 @@ public class AtRemoteRequestXBeeFrame extends RequestXBeeFrame {
 	 * @param options
 	 *            options for the frame
 	 */
-	public AtRemoteRequestXBeeFrame(XBeeAddress64 address64,
+	public AtRemoteRequestXBeeFrameImpl(XBeeAddress64 address64,
 			XBeeAddress16 address16, int[] command, int frameNumber, int options) {
 		super(XBeeApiConstants.FRAME_TYPE_AT_REMOTE_SEND);
 
@@ -63,9 +67,9 @@ public class AtRemoteRequestXBeeFrame extends RequestXBeeFrame {
 	 * @param options
 	 *            options for the frame
 	 */
-	public AtRemoteRequestXBeeFrame(XBeeAddress64 address64, int[] command,
+	public AtRemoteRequestXBeeFrameImpl(XBeeAddress64 address64, int[] command,
 			int frameNumber, int options) {
-		this(address64, XBeeAddress16.BROADCAST_ADDRESS, command, frameNumber,
+		this(address64, XBeeAddress16Impl.BROADCAST_ADDRESS, command, frameNumber,
 				options);
 	}
 }

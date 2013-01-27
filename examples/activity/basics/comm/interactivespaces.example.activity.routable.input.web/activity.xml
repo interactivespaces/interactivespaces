@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Routable Input Web Example Activity</name>
+    <description>
+A Java-based routable input activity which uses a browser for display of the routed messages.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.routable.input.web</identifyingName>
+</activity>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<!-- Tested In Chrome. -->
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Routable Output Web Activity Example</title>
+
+<script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
+
+<script type="text/javascript">
+
+var ws; 
+
+$(document).ready(function () {
+  ws = new WebSocket("ws://localhost:9102/websocket"); 
+
+  ws.onopen = function(event) { 
+  }
+
+  ws.onmessage = function(event) { 
+  }
+
+  ws.onclose = function(event) { 
+  }
+}); 
+
+function clicked() {
+  var command = JSON.stringify({message: $('#message').val()});
+  ws.send(command);
+}
+
+</script>
+
+</head>
+
+<body>
+
+<h1>Routable Output Web Activity Example</h1>
+
+<h2>Message</h2>
+
+<textarea id="message" rows="10" cols="40"></textarea>
+
+<button type="button" onclick="clicked();">Send</button>
+</body>
+
+</html>

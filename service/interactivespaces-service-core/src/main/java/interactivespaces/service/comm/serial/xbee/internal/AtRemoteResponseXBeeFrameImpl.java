@@ -16,12 +16,16 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+
 /**
- * A response frame for a remote AT request.
+ * A response frame for an XBee remote AT request.
  * 
  * @author Keith M. Hughes
  */
-public class AtRemoteResponseXBeeFrame {
+public class AtRemoteResponseXBeeFrameImpl implements AtRemoteResponseXBeeFrame {
 
 	/**
 	 * The frame ID for the response.
@@ -58,7 +62,7 @@ public class AtRemoteResponseXBeeFrame {
 	 */
 	private byte[] commandData;
 
-	public AtRemoteResponseXBeeFrame(int frameId, XBeeAddress64 address64,
+	public AtRemoteResponseXBeeFrameImpl(int frameId, XBeeAddress64 address64,
 			XBeeAddress16 address16, byte[] atCommand, int commandStatus,
 			byte[] commandData) {
 		this.frameId = frameId;
@@ -71,73 +75,49 @@ public class AtRemoteResponseXBeeFrame {
 		atCommandString = new String(atCommand);
 	}
 
-	/**
-	 * @return the frameId
-	 */
+	@Override
 	public int getFrameId() {
 		return frameId;
 	}
 
-	/**
-	 * Get the 64 bit address of the sender of the AT Remote response.
-	 * 
-	 * @return the sender's 64 bit address
-	 */
+	@Override
 	public XBeeAddress64 getAddress64() {
 		return address64;
 	}
 
-	/**
-	 * Get the 16 bit address of the sender of the AT Remote response.
-	 * 
-	 * @return the sender's 16 bit address
-	 */
+	@Override
 	public XBeeAddress16 getAddress16() {
 		return address16;
 	}
 
-	/**
-	 * @return the atCommand
-	 */
+	@Override
 	public byte[] getAtCommand() {
 		return atCommand;
 	}
 
-	/**
-	 * Get the AT command as a string.
-	 * 
-	 * @return the AT command
-	 */
+	@Override
 	public String getAtCommandString() {
 		return atCommandString;
 	}
 
-	/**
-	 * @return the commandStatus
-	 */
+	@Override
 	public int getCommandStatus() {
 		return commandStatus;
 	}
 	
-	/**
-	 * Was the command successful?
-	 * 
-	 * @return {@code true} if successful
-	 */
+	@Override
 	public boolean isSuccess() {
 		return commandStatus == XBeeApiConstants.AT_COMMAND_STATUS_SUCCESS;
 	}
 
-	/**
-	 * @return the commandData
-	 */
+	@Override
 	public byte[] getCommandData() {
 		return commandData;
 	}
 
 	@Override
 	public String toString() {
-		return "AtRemoteResponseXBeeFrame [frameId=" + frameId + ", address64="
+		return "AtRemoteResponseXBeeFrameImpl [frameId=" + frameId + ", address64="
 				+ address64 + ", address16=" + address16 + ", atCommand="
 				+ atCommandString + ", commandStatus=" + commandStatus + "]";
 	}

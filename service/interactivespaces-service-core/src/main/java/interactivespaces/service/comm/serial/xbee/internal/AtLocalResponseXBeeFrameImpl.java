@@ -16,12 +16,14 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
+
 /**
- * ABee response frame for AT Local calls.
+ * XBee response frame for AT Local calls.
  * 
  * @author Keith M. Hughes
  */
-public class AtLocalResponseXBeeFrame {
+public class AtLocalResponseXBeeFrameImpl implements AtLocalResponseXBeeFrame {
 
 	/**
 	 * ID for the frame.
@@ -48,7 +50,7 @@ public class AtLocalResponseXBeeFrame {
 	 */
 	private byte[] commandData;
 
-	public AtLocalResponseXBeeFrame(int frameId, byte[] atCommand,
+	public AtLocalResponseXBeeFrameImpl(int frameId, byte[] atCommand,
 			int commandStatus, byte[] commandData) {
 		this.frameId = frameId;
 		this.atCommand = atCommand;
@@ -58,46 +60,34 @@ public class AtLocalResponseXBeeFrame {
 		atCommandString = new String(atCommand);
 	}
 
-	/**
-	 * @return the frameId
-	 */
+	@Override
 	public int getFrameId() {
 		return frameId;
 	}
 
-	/**
-	 * @return the atCommand
-	 */
+	@Override
 	public byte[] getAtCommand() {
 		return atCommand;
 	}
 
-	/**
-	 * @return the commandStatus
-	 */
+	@Override
 	public int getCommandStatus() {
 		return commandStatus;
 	}
 
-	/**
-	 * @return the commandData
-	 */
+	@Override
 	public byte[] getCommandData() {
 		return commandData;
 	}
 	
-	/**
-	 * Was the command successful?
-	 * 
-	 * @return {@code true} if successful
-	 */
+	@Override
 	public boolean isSuccess() {
 		return commandStatus == XBeeApiConstants.AT_COMMAND_STATUS_SUCCESS;
 	}
 
 	@Override
 	public String toString() {
-		return "AtLocalResponseXBeeFrame [frameId=" + frameId + ", atCommand="
+		return "AtLocalResponseXBeeFrameImpl [frameId=" + frameId + ", atCommand="
 				+ atCommandString + ", commandStatus=" + commandStatus + "]";
 	}
 }

@@ -16,6 +16,10 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.TxStatusXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListener;
 

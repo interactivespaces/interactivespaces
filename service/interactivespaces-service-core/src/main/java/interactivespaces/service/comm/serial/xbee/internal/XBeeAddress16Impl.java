@@ -16,71 +16,46 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
 import interactivespaces.util.ByteUtils;
 
 import java.util.Arrays;
 
 /**
- * 64 bit address for an XBee
+ * 16 bit address for an XBee
  * 
  * @author Keith M. Hughes
  */
-public class XBeeAddress64 {
+public class XBeeAddress16Impl implements XBeeAddress16 {
 
 	/**
-	 * The magic address for the coordinator radio.
+	 * The magic address for the either broadcase or to unknown radio.
 	 */
-	public static final XBeeAddress64 COORDINATOR_ADDRESS = new XBeeAddress64(
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-
-	/**
-	 * The magic address for broadacasting to all radios.
-	 */
-	public static final XBeeAddress64 BROADCAST_ADDRESS = new XBeeAddress64(
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff);
+	public static final XBeeAddress16 BROADCAST_ADDRESS = new XBeeAddress16Impl(
+			0xff, 0xfe);
 
 	/**
 	 * The address for the xbee.
 	 */
 	private int[] address;
 
-	public XBeeAddress64(String addr) {
-		this(Integer.valueOf(addr.substring(0, 2), 16), Integer.valueOf(
-				addr.substring(2, 4), 16), Integer.valueOf(
-				addr.substring(4, 6), 16), Integer.valueOf(
-				addr.substring(6, 8), 16), Integer.valueOf(
-				addr.substring(8, 10), 16), Integer.valueOf(
-				addr.substring(10, 12), 16), Integer.valueOf(
-				addr.substring(12, 14), 16), Integer.valueOf(
-				addr.substring(14, 16), 16));
-	}
-
 	/**
-	 * Construct an XBee 64 address using the individual bytes.
+	 * Construct an XBee 16 address using the individual bytes.
 	 * 
 	 * <p>
 	 * First is the most significant byte
 	 * 
 	 * @param a1
+	 * 		high order portion of address
 	 * @param a2
-	 * @param a3
-	 * @param a4
-	 * @param a5
-	 * @param a6
-	 * @param a7
-	 * @param a8
+	 * 		low order portion of address
 	 */
-	public XBeeAddress64(int a1, int a2, int a3, int a4, int a5, int a6,
-			int a7, int a8) {
-		address = new int[] { a1, a2, a3, a4, a5, a6, a7, a8 };
+	public XBeeAddress16Impl(int a1, int a2) {
+		address = new int[] { a1, a2 };
 	}
 
-	/**
-	 * Add the address to an XBee frame.
-	 * 
-	 * @param frameWriter
-	 *            the frame to add the address to
-	 */
+	@Override
 	public void write(RequestXBeeFrame frameWriter) {
 		frameWriter.add(address);
 	}
@@ -101,7 +76,7 @@ public class XBeeAddress64 {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		XBeeAddress64 other = (XBeeAddress64) obj;
+		XBeeAddress16Impl other = (XBeeAddress16Impl) obj;
 		if (!Arrays.equals(address, other.address))
 			return false;
 		return true;
@@ -109,6 +84,6 @@ public class XBeeAddress64 {
 
 	@Override
 	public String toString() {
-		return "XBeeAddress64 [address=" + ByteUtils.toHexString(address) + "]";
+		return "XBeeAddress16Impl [address=" + ByteUtils.toHexString(address) + "]";
 	}
 }

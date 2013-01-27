@@ -14,27 +14,38 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.xbee.internal;
+package interactivespaces.service.comm.serial.xbee;
 
 /**
- * XBee frame for sending an AT request to the local radio.
+ * A response frame for an XBee TX request.
  * 
  * @author Keith M. Hughes
  */
-public class AtLocalRequestXBeeFrame extends RequestXBeeFrame {
+public interface TxStatusXBeeFrame {
 
 	/**
-	 * Construct an AT Local command XBee
-	 * @param command
-	 *            the AT command to send
-	 * @param frameNumber
-	 *            the frame number
+	 * @return the frameId
 	 */
-	public AtLocalRequestXBeeFrame(int[] command, int frameNumber) {
-		super(XBeeApiConstants.FRAME_TYPE_AT_LOCAL_SEND_IMMEDIATE);
+	int getFrameId();
 
-		add(frameNumber);
+	/**
+	 * @return the address16
+	 */
+	XBeeAddress16 getAddress16();
 
-		add(command);
-	}
+	/**
+	 * @return the transmitRetryCount
+	 */
+	int getTransmitRetryCount();
+
+	/**
+	 * @return the deliveryStatus
+	 */
+	int getDeliveryStatus();
+
+	/**
+	 * @return the discoveryStatus
+	 */
+	int getDiscoveryStatus();
+
 }

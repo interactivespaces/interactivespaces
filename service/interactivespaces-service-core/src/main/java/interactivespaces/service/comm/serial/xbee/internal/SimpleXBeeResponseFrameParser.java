@@ -16,6 +16,13 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.TxStatusXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+
 import org.apache.commons.logging.Log;
 
 /**
@@ -39,7 +46,7 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
 		byte[] commandData = reader.readData(bytesLeft - 4);
 
-		return new AtLocalResponseXBeeFrame(frameId, new byte[] {
+		return new AtLocalResponseXBeeFrameImpl(frameId, new byte[] {
 				atCommandUpper, atCommandLower }, commandStatus, commandData);
 	}
 
@@ -60,7 +67,7 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
 		byte[] commandData = reader.readData(bytesLeft - 14);
 
-		return new AtRemoteResponseXBeeFrame(frameId, address64, address16,
+		return new AtRemoteResponseXBeeFrameImpl(frameId, address64, address16,
 				new byte[] { atCommandUpper, atCommandLower }, commandStatus,
 				commandData);
 	}
@@ -76,7 +83,7 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 		int deliveryStatus = reader.readByte();
 		int discoveryStatus = reader.readByte();
 
-		return new TxStatusXBeeFrame(frameId, address16, transmitRetryCount,
+		return new TxStatusXBeeFrameImpl(frameId, address16, transmitRetryCount,
 				deliveryStatus, discoveryStatus);
 	}
 
@@ -92,7 +99,7 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
 		byte[] receivedData = reader.readData(bytesLeft - 11);
 
-		return new RxResponseXBeeFrame(address64, address16, receiveOptions, receivedData);
+		return new RxResponseXBeeFrameImpl(address64, address16, receiveOptions, receivedData);
 	}
 
 	/**
@@ -104,7 +111,7 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 	 * @return the XBee 64 bit address
 	 */
 	private XBeeAddress64 parseXBeeAddress64(EscapedXBeeFrameReader reader) {
-		return new XBeeAddress64(reader.readByte(), reader.readByte(),
+		return new XBeeAddress64Impl(reader.readByte(), reader.readByte(),
 				reader.readByte(), reader.readByte(), reader.readByte(),
 				reader.readByte(), reader.readByte(), reader.readByte());
 	}
@@ -118,6 +125,6 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 	 * @return the XBee 16 bit address
 	 */
 	private XBeeAddress16 parseXBeeAddress16(EscapedXBeeFrameReader reader) {
-		return new XBeeAddress16(reader.readByte(), reader.readByte());
+		return new XBeeAddress16Impl(reader.readByte(), reader.readByte());
 	}
 }

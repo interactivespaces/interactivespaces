@@ -16,10 +16,6 @@
 
 package interactivespaces.service.comm.serial.xbee;
 
-import interactivespaces.service.comm.serial.xbee.internal.AtLocalResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.internal.AtRemoteResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.internal.RxResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.internal.TxStatusXBeeFrame;
 
 /**
  * 

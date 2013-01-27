@@ -16,12 +16,15 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.TxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+
 /**
  * A response frame for an XBee TX request.
  * 
  * @author Keith M. Hughes
  */
-public class TxStatusXBeeFrame {
+public class TxResponseXBeeFrameImpl implements TxResponseXBeeFrame {
 
 	/**
 	 * ID of the frame for the TX request that gave this response
@@ -48,7 +51,7 @@ public class TxStatusXBeeFrame {
 	 */
 	private int discoveryStatus;
 
-	public TxStatusXBeeFrame(int frameId, XBeeAddress16 address16,
+	public TxResponseXBeeFrameImpl(int frameId, XBeeAddress16 address16,
 			int transmitRetryCount, int deliveryStatus, int discoveryStatus) {
 		this.frameId = frameId;
 		this.address16 = address16;
@@ -57,44 +60,49 @@ public class TxStatusXBeeFrame {
 		this.discoveryStatus = discoveryStatus;
 	}
 
-	/**
-	 * @return the frameId
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.ITxResponseXBeeFrame#getFrameId()
 	 */
+	@Override
 	public int getFrameId() {
 		return frameId;
 	}
 
-	/**
-	 * @return the address16
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.ITxResponseXBeeFrame#getAddress16()
 	 */
+	@Override
 	public XBeeAddress16 getAddress16() {
 		return address16;
 	}
 
-	/**
-	 * @return the transmitRetryCount
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.ITxResponseXBeeFrame#getTransmitRetryCount()
 	 */
+	@Override
 	public int getTransmitRetryCount() {
 		return transmitRetryCount;
 	}
 
-	/**
-	 * @return the deliveryStatus
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.ITxResponseXBeeFrame#getDeliveryStatus()
 	 */
+	@Override
 	public int getDeliveryStatus() {
 		return deliveryStatus;
 	}
 
-	/**
-	 * @return the discoveryStatus
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.ITxResponseXBeeFrame#getDiscoveryStatus()
 	 */
+	@Override
 	public int getDiscoveryStatus() {
 		return discoveryStatus;
 	}
 
 	@Override
 	public String toString() {
-		return "TxStatusXBeeFrame [frameId=" + frameId + ", address16="
+		return "TxResponseXBeeFrameImpl [frameId=" + frameId + ", address16="
 				+ address16 + ", transmitRetryCount=" + transmitRetryCount
 				+ ", deliveryStatus=" + deliveryStatus + ", discoveryStatus="
 				+ discoveryStatus + "]";

@@ -16,12 +16,16 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+
 /**
  * A response frame for an XBee RX.
  * 
  * @author Keith M. Hughes
  */
-public class RxResponseXBeeFrame {
+public class RxResponseXBeeFrameImpl implements RxResponseXBeeFrame {
 
 	/**
 	 * The 64 bit address for the remote radio
@@ -43,7 +47,7 @@ public class RxResponseXBeeFrame {
 	 */
 	private byte[] receivedData;
 
-	public RxResponseXBeeFrame(XBeeAddress64 address64,
+	public RxResponseXBeeFrameImpl(XBeeAddress64 address64,
 			XBeeAddress16 address16, int receiveOptions, byte[] receivedData) {
 		this.address64 = address64;
 		this.address16 = address16;
@@ -51,41 +55,41 @@ public class RxResponseXBeeFrame {
 		this.receivedData = receivedData;
 	}
 
-	/**
-	 * Get the 64 bit address of the sender of the RX frame.
-	 * 
-	 * @return the sender's 64 bit address
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.IRxResponseXBeeFrame#getAddress64()
 	 */
+	@Override
 	public XBeeAddress64 getAddress64() {
 		return address64;
 	}
 
-	/**
-	 * Get the 16 bit address of the sender of the RX frame.
-	 * 
-	 * @return the sender's 16 bit address
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.IRxResponseXBeeFrame#getAddress16()
 	 */
+	@Override
 	public XBeeAddress16 getAddress16() {
 		return address16;
 	}
 
-	/**
-	 * @return the receiveOptions
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.IRxResponseXBeeFrame#getReceiveOptions()
 	 */
+	@Override
 	public int getReceiveOptions() {
 		return receiveOptions;
 	}
 
-	/**
-	 * @return the receivedData
+	/* (non-Javadoc)
+	 * @see interactivespaces.service.comm.serial.xbee.internal.IRxResponseXBeeFrame#getReceivedData()
 	 */
+	@Override
 	public byte[] getReceivedData() {
 		return receivedData;
 	}
 
 	@Override
 	public String toString() {
-		return "RxResponseXBeeFrame [address64=" + address64 + ", address16="
+		return "RxResponseXBeeFrameImpl [address64=" + address64 + ", address16="
 				+ address16 + ", receiveOptions=" + receiveOptions + "]";
 	}
 }

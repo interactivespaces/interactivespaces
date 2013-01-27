@@ -64,13 +64,18 @@ Web Socket Activities
 ---------------------
 
 The following Activities are browser based, but use Web Sockets so that
-the Activity code running in the browser can communicate with other 
-Live Activities in the space. The web socket connection connects to the
-Live Activity which is running the web browser and server.
+the Activity code running in the browser can communicate with the Live Activity
+which is running it on the Space Controller.
 
 * interactivespaces.example.activity.web
 * interactivespaces.example.activity.web.javascript
 * interactivespaces.example.activity.web.python
+
+Pushing the Activate and Deactivate buttons will show different pictures. Pushing
+the button in the browser will send a message to the controlling Live Activity which
+will be printed in the Controller's logs.
+
+The first example is written in Java, the other two are written in Javascript and Python.
 
 Routable Activities
 ===================
@@ -113,6 +118,28 @@ Want some fun? Run the following route example which will listen on the same rou
 examples above, but will speak the message sent over the route rather than just logging it.
 
 * interactivespaces.example.activity.routable.input.speech
+
+It is very easy to have a browser based web application use routes. It requires you to
+write a Live Activity which will communicate with the browser application over a web socket
+connection and will listen to routes or write to routes.
+
+* interactivespaces.example.activity.routable.input.web
+* interactivespaces.example.activity.routable.output.web
+
+The above two examples demonstrate how to do this. The output activity will send the text
+typed into its message box if the Live Activity is activated and you click the *Send* button
+in the browser application. The input activity will put the message into the browser's window
+if it is activated.
+
+These two web apps do not need to be run together, you can have any combination of all the
+routable examples. Run two or three of the routable input examples and two of the
+routable output examples. Try the simple routable output example in Python and the
+web routable input. Or run the web routable output and the speech routable input. Any
+message you type into the browser's text box will then be spoken by the speech activity.
+Pretty cool, eh?
+
+
+
 
 Native Activities
 -----------------

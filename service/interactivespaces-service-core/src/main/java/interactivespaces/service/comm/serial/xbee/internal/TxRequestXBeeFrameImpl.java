@@ -16,6 +16,10 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
+import interactivespaces.service.comm.serial.xbee.TxRequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+
 /**
  * XBee frame for sending a transmit request to a remote radio.
  * 
@@ -24,10 +28,10 @@ package interactivespaces.service.comm.serial.xbee.internal;
  * 
  * @author Keith M. Hughes
  */
-public class TxRequestXBeeFrame extends RequestXBeeFrame {
+public class TxRequestXBeeFrameImpl extends BaseRequestXBeeFrame implements TxRequestXBeeFrame {
 
 	/**
-	 * Construct a Remote transmit XBee request with fully specified address.
+	 * Construct an XBee Remote transmit request with fully specified address.
 	 * 
 	 * @param address64
 	 *            the 64 bit destination address
@@ -41,7 +45,7 @@ public class TxRequestXBeeFrame extends RequestXBeeFrame {
 	 * @param options
 	 *            options for the frame
 	 */
-	public TxRequestXBeeFrame(XBeeAddress64 address64,
+	public TxRequestXBeeFrameImpl(XBeeAddress64 address64,
 			XBeeAddress16 address16, int frameNumber, int broadcastRadius,
 			int options) {
 		super(XBeeApiConstants.FRAME_TYPE_TX_REQUEST);
@@ -69,9 +73,9 @@ public class TxRequestXBeeFrame extends RequestXBeeFrame {
 	 * @param options
 	 *            options for the frame
 	 */
-	public TxRequestXBeeFrame(XBeeAddress64 address64, int frameNumber,
+	public TxRequestXBeeFrameImpl(XBeeAddress64 address64, int frameNumber,
 			int broadcastRadius, int options) {
-		this(address64, XBeeAddress16.BROADCAST_ADDRESS, frameNumber,
+		this(address64, XBeeAddress16Impl.BROADCAST_ADDRESS, frameNumber,
 				broadcastRadius, options);
 	}
 }

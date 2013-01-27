@@ -17,6 +17,8 @@
 package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 
 import java.io.ByteArrayOutputStream;
 
@@ -25,7 +27,7 @@ import java.io.ByteArrayOutputStream;
  * 
  * @author Keith M. Hughes
  */
-public class RequestXBeeFrame {
+public class BaseRequestXBeeFrame implements RequestXBeeFrame {
 
 	/**
 	 * Where bytes are written for the frame
@@ -49,28 +51,18 @@ public class RequestXBeeFrame {
 	 * @param frameType
 	 *            the type of frame
 	 */
-	public RequestXBeeFrame(int frameType) {
+	public BaseRequestXBeeFrame(int frameType) {
 		add(frameType);
 	}
 
-	/**
-	 * Add a new byte to the frame.
-	 * 
-	 * @param b
-	 *            the byte to add
-	 */
+	@Override
 	public void add(int b) {
 		writeByte(b);
 		checksum += b;
 		length++;
 	}
 
-	/**
-	 * Add a new 16-bit integer to the frame.
-	 * 
-	 * @param i
-	 *            the integer to add
-	 */
+	@Override
 	public void add16(int i) {
 		int b1 = (i >> 8) & 0xff;
 		int b2 = i & 0xff;
@@ -81,12 +73,7 @@ public class RequestXBeeFrame {
 		length += 2;
 	}
 
-	/**
-	 * Add an array of bytes to the frame.
-	 * 
-	 * @param ba
-	 *            the bytes to add
-	 */
+	@Override
 	public void add(byte[] ba) {
 		for (byte b : ba) {
 			writeByte(b);
@@ -95,15 +82,7 @@ public class RequestXBeeFrame {
 		length += ba.length;
 	}
 
-	/**
-	 * Add an array of bytes to the frame.
-	 * 
-	 * <p>
-	 * The bottom 8 bits of each integer is added.
-	 * 
-	 * @param ia
-	 *            the bytes to add
-	 */
+	@Override
 	public void add(int[] ia) {
 		for (int i : ia) {
 			writeByte(i);
@@ -112,13 +91,8 @@ public class RequestXBeeFrame {
 		length += ia.length;
 	}
 
-	/**
-	 * Write the frame to the XBee.
-	 * 
-	 * @param commEndpoint
-	 *            the communication endpoint for the XBee
-	 */
-	public void write(SerialCommunicationEndpoint commEndpoint) {
+	@Override
+	public void write(XBeeCommunicationEndpoint xbeeEndpoint) {
 		checksum &= 0xff;
 		checksum = 0xff - checksum;
 		writeByte(checksum);
@@ -129,8 +103,10 @@ public class RequestXBeeFrame {
 		int lengthUpper = ((length >> 8) & 0xff);
 		int lengthLower = (length & 0xff);
 
+		SerialCommunicationEndpoint commEndpoint = xbeeEndpoint
+				.getSerialCommunicationEndpoint();
 		commEndpoint.write(XBeeApiConstants.FRAME_START_BYTE);
-		
+
 		writeByte(lengthUpper, commEndpoint);
 		writeByte(lengthLower, commEndpoint);
 

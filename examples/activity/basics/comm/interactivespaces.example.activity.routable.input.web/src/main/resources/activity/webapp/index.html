@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<!-- Tested In Chrome. -->
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Routable Input Web Activity Example</title>
+
+<script type="text/javascript" charset="utf-8" src="js/jquery-1.6.2.min.js"></script>
+
+<script type="text/javascript">
+
+var ws; 
+
+$(document).ready(function () {
+  ws = new WebSocket("ws://localhost:9101/websocket"); 
+
+  ws.onopen = function(event) { 
+  }
+
+  ws.onmessage = function(event) { 
+    var data = JSON.parse(event.data);
+	$('#message').html(data.message);
+  }
+
+  ws.onclose = function(event) { 
+  }
+}); 
+
+</script>
+
+</head>
+
+<body>
+
+<h1>Routable Input Web Activity Example</h1>
+
+<h2>Message</h2>
+
+<div id="message">
+</div>
+
+</body>
+
+</html>
