@@ -4,6 +4,6 @@
     <description>
 A music jukebox activity.
     </description>
-    <version>0.0.1-preview</version>
+    <version>1.0.0</version>
     <identifyingName>interactivespaces.activity.music.jukebox</identifyingName>
 </activity>
