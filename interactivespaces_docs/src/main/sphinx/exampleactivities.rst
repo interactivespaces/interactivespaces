@@ -9,6 +9,16 @@ Spaces.
 The number of examples will continue to grow as more functionality is placed
 into Interactive Spaces.
 
+Remember, the artifact you want to upload to the Interactive Spaces Master is the *zip* file
+found in the *build* folder of the example. For example, to upload the simplest Hello World
+Activity, load the file *interactivespaces.example.activity.hello-1.0.0.zip* found
+in the folder *examples/basics/hello/interactivespaces.example.activity.hello/build* in the
+Workbench install folder.
+
+
+
+Beware, sometimes there will also be a *jar* file, do not use that one.
+
 Hello World: The Simple Events
 ============================
 
@@ -194,6 +204,32 @@ The activity will write on a route if the value read from the Arduino goes over 
 value. This gives an example of responding to a hardware event and informing any listening 
 activities of the event. If the speech example is activated, it will speak when the
 message is sent.
+
+XBee
+----
+
+Interactive Spaces can control XBee radios directly. This makes it possible for you to
+communicate with remote hardware wirelessly.
+
+The radios must contain the API firmware and be set with AP=2 (escaped protocol).
+
+* interactivespaces.example.comm.xbee.coordinator
+* interactivespaces.example.comm.xbee.endpoint
+
+The first example runs on a coordinator radio. When you activate the activity it will
+first send a local AT AP informational command and log the result. It will then transmit
+the number 1234 in hex to the endpoint radio. Once the endpoint radio receives the packet,
+the coordinator activity will print out the status packets. 
+The endpoint activity will log the received packet.
+
+Both activities must be told which serial USB connection the radio is on using the
+configuration parameter *space.hardware.serial.port*. For example, on a Linux 
+box, a typical value would be */dev/ttyUSB0*.
+
+The coordinator activity needs the configuration parameter 
+*xbee.remote.address64*, which gives the 64 bit address for the endpoint radio.
+Addresses will look like *0013a200407bd2e3*.
+
 
 Hardware
 ========
