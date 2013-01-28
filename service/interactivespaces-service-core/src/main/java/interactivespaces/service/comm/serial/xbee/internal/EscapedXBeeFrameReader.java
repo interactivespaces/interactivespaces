@@ -18,6 +18,7 @@ package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
 /**
  * An XBee frame reader which supports the Escaped API.

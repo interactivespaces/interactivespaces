@@ -19,7 +19,6 @@ package interactivespaces.service.comm.serial.xbee.internal;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.AtLocalRequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.AtRemoteRequestXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.TxRequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
@@ -42,59 +41,6 @@ import org.apache.commons.logging.Log;
 public class InteractiveSpacesXBeeCommunicationEndpoint implements
 		XBeeCommunicationEndpoint {
 
-	/*
-	 * public static void main(String[] args) {
-	 * 
-	 * ScheduledExecutorService executor = Executors
-	 * .newScheduledThreadPool(10);
-	 * 
-	 * final Log log1 = new Jdk14Logger("endpoint1"); final Log log2 = new
-	 * Jdk14Logger("endpoint2");
-	 * 
-	 * InteractiveSpacesXBeeCommunicationEndpoint endpoint1 = null;
-	 * InteractiveSpacesXBeeCommunicationEndpoint endpoint2 = null; try {
-	 * endpoint1 = new InteractiveSpacesXBeeCommunicationEndpoint( new
-	 * RxtxSerialCommunicationEndpoint("/dev/ttyUSB0"), executor, log1);
-	 * endpoint1.startup(); endpoint1.addListener(new
-	 * XBeeResponseListenerSupport() {
-	 * 
-	 * @Override public void onAtLocalXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, AtLocalResponseXBeeFrameImpl response) { log1.info(response);
-	 * log1.info(ByteUtils.toHexString(response.getCommandData())); }
-	 * 
-	 * @Override public void onRxXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, RxResponseXBeeFrameImpl response) { log1.info(response); }
-	 * 
-	 * @Override public void onTxStatusXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, TxStatusXBeeFrameImpl response) { log1.info(response); }
-	 * 
-	 * @Override public void onAtRemoteXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, AtRemoteResponseXBeeFrameImpl response) { log1.info(response);
-	 * log1.info(ByteUtils.toHexString(response.getCommandData())); } });
-	 * 
-	 * endpoint2 = new InteractiveSpacesXBeeCommunicationEndpoint( new
-	 * RxtxSerialCommunicationEndpoint("/dev/ttyUSB1"), executor, log2);
-	 * endpoint2.startup();
-	 * 
-	 * endpoint2.addListener(new XBeeResponseListenerSupport() {
-	 * 
-	 * @Override public void onAtLocalXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, AtLocalResponseXBeeFrameImpl response) { log1.info(response);
-	 * log1.info(ByteUtils.toHexString(response.getCommandData())); }
-	 * 
-	 * @Override public void onRxXBeeResponse( XBeeCommunicationEndpoint
-	 * endpoint, RxResponseXBeeFrameImpl response) { log2.info(response);
-	 * log2.info(ByteUtils.toHexString(response.getReceivedData())); } });
-	 * 
-	 * endpoint2.test(); try { Thread.sleep(5000); } catch (InterruptedException
-	 * e) { // TODO Auto-generated catch block e.printStackTrace(); }
-	 * System.out.println("Done"); } catch (Exception e) { e.printStackTrace();
-	 * } finally { if (endpoint1 != null) { endpoint1.shutdown(); }
-	 * 
-	 * if (endpoint2 != null) { endpoint2.shutdown(); }
-	 * 
-	 * executor.shutdown(); } }
-	 */
 	/**
 	 * The communication endpoint for speaking with the XBee.
 	 */
@@ -130,6 +76,8 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 	 */
 	private Log log;
 
+	private CancellableLoop readerLoop;
+
 	public InteractiveSpacesXBeeCommunicationEndpoint(
 			SerialCommunicationEndpoint commEndpoint,
 			ScheduledExecutorService executorService, Log log) {
@@ -142,12 +90,18 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 
 	@Override
 	public void startup() {
+		log.info("Starting up XBee connection");
 		commEndpoint.startup();
 
-		CancellableLoop readerLoop = new CancellableLoop() {
+		readerLoop = new CancellableLoop() {
 			@Override
 			protected void loop() throws InterruptedException {
 				readFrame();
+			}
+
+			@Override
+			protected void handleException(Exception e) {
+				log.error("Error while reading XBee frame", e);
 			}
 		};
 
@@ -156,48 +110,20 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements
 
 	@Override
 	public void shutdown() {
-		readerLoopFuture.cancel(true);
+		log.info("Shutting down XBee connection");
+
+		if (readerLoop != null) {
+			readerLoop.cancel();
+			readerLoopFuture.cancel(true);
+			
+			readerLoop = null;
+			readerLoopFuture = null;
+		}
 
 		if (commEndpoint != null) {
 			commEndpoint.shutdown();
 			commEndpoint = null;
 		}
-	}
-
-	public void test() {
-		RequestXBeeFrame content1 = new AtLocalRequestXBeeFrameImpl(
-				XBeeApiConstants.AT_COMMAND_AP, 0x7d);
-		// content1.add(0x02);
-
-		content1.write(this);
-		//
-		// try {
-		// Thread.sleep(1000);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		//
-		// BaseRequestXBeeFrame content2 = new AtLocalRequestXBeeFrameImpl(
-		// XBeeApiConstants.AT_COMMAND_SL, 0x12);
-		//
-		// content2.write(commEndpoint);
-	}
-
-	public void test1() {
-		RequestXBeeFrame content = new AtRemoteRequestXBeeFrameImpl(
-				new XBeeAddress64Impl("0013a200407bd2e3"),
-				XBeeApiConstants.AT_COMMAND_SL, 0x11, 0);
-
-		content.write(this);
-	}
-
-	public void test2() {
-		RequestXBeeFrame content = new TxRequestXBeeFrameImpl(
-				new XBeeAddress64Impl("0013a200407bd2e3"), 0x03, 0, 0);
-		content.add16(1234);
-
-		content.write(this);
 	}
 
 	@Override

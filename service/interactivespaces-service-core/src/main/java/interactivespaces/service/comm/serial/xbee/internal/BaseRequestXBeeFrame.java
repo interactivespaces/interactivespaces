@@ -18,6 +18,7 @@ package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 
 import java.io.ByteArrayOutputStream;
@@ -112,6 +113,7 @@ public class BaseRequestXBeeFrame implements RequestXBeeFrame {
 
 		commEndpoint.write(bytes);
 		commEndpoint.flush();
+		System.out.println("Done writing frame");
 	}
 
 	/**

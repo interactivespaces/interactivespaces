@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.comm.serial.xbee.internal;
+package interactivespaces.service.comm.serial.xbee;
 
 /**
  * Constants for working with the XBee API

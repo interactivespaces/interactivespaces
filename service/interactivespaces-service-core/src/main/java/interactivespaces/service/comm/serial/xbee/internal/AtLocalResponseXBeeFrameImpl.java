@@ -17,6 +17,7 @@
 package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
 /**
  * XBee response frame for AT Local calls.

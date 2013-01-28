@@ -37,7 +37,7 @@ public class RxtxSerialCommunicationEndpoint implements
 		SerialCommunicationEndpoint {
 
 	/**
-	 * The mp of parity enums to their {@link SerialPort} equivalents.
+	 * The map of parity enums to their {@link SerialPort} equivalents.
 	 */
 	private static final EnumMap<Parity, Integer> SERIAL_PORT_PARITY_VALUES = Maps
 			.newEnumMap(Parity.class);

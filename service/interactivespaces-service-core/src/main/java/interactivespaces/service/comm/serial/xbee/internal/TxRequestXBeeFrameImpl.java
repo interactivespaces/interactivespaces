@@ -19,6 +19,7 @@ package interactivespaces.service.comm.serial.xbee.internal;
 import interactivespaces.service.comm.serial.xbee.TxRequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
 /**
  * XBee frame for sending a transmit request to a remote radio.

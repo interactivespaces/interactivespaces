@@ -19,6 +19,7 @@ package interactivespaces.service.comm.serial.xbee.internal;
 import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
 /**
  * A response frame for an XBee remote AT request.

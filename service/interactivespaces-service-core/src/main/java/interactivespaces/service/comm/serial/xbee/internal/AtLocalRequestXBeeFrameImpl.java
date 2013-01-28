@@ -17,6 +17,7 @@
 package interactivespaces.service.comm.serial.xbee.internal;
 
 import interactivespaces.service.comm.serial.xbee.AtLocalRequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
 /**
  * XBee frame for sending an AT request to the local radio.

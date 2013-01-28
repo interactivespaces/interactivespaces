@@ -6,12 +6,12 @@ import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.TxStatusXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListenerSupport;
 import interactivespaces.service.comm.serial.xbee.internal.TxRequestXBeeFrameImpl;
 import interactivespaces.service.comm.serial.xbee.internal.XBeeAddress64Impl;
-import interactivespaces.service.comm.serial.xbee.internal.XBeeApiConstants;
 import interactivespaces.util.ByteUtils;
 
 /**
@@ -46,10 +46,6 @@ public class XBeeCoordinatorExampleActivity extends BaseActivity {
 
 		xbee = service.newXBeeCommunicationEndpoint(portName, getLog());
 
-		// Let IS manage the connection, which eans we don't have to start it or
-		// shut it down.
-		addManagedResource(xbee);
-
 		xbee.addListener(new XBeeResponseListenerSupport() {
 
 			@Override
@@ -81,20 +77,30 @@ public class XBeeCoordinatorExampleActivity extends BaseActivity {
 				getLog().info(ByteUtils.toHexString(response.getCommandData()));
 			}
 		});
+
+		// Let IS manage the connection, which eans we don't have to start it or
+		// shut it down.
+		addManagedResource(xbee);
 	}
 
 	@Override
 	public void onActivityStartup() {
-		// Ask the local radio what version of the AP protocol it is using.
-		RequestXBeeFrame atLocalRequest = xbee.newAtLocalRequestXBeeFrame(
-				XBeeApiConstants.AT_COMMAND_AP, 0x7d);
-
-		atLocalRequest.write(xbee);
 	}
 
 	@Override
 	public void onActivityActivate() {
-		// Send a TX packet to the remote tradio. It will have frame ID 3.
+		// Ask the local radio what version of the AP protocol it is using.
+		//
+		// Using the escape code for the frame ID to make sure escapes are
+		// happening properly.
+		RequestXBeeFrame atLocalRequest = xbee.newAtLocalRequestXBeeFrame(
+				XBeeApiConstants.AT_COMMAND_AP, 0x7d);
+
+		atLocalRequest.write(xbee);
+		
+		getLog().info("Wrote AT command");
+		
+		// Send a TX packet to the remote radio. It will have frame ID 3.
 		RequestXBeeFrame txRequest = new TxRequestXBeeFrameImpl(
 				new XBeeAddress64Impl(getConfiguration()
 						.getRequiredPropertyString(
@@ -103,5 +109,7 @@ public class XBeeCoordinatorExampleActivity extends BaseActivity {
 		txRequest.add16(1234);
 
 		txRequest.write(xbee);
+		
+		getLog().info("Wrote TX request");
 	}
 }
