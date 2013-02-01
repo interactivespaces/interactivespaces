@@ -34,7 +34,7 @@ public interface NettyHttpContentHandler {
 	 * @param req
 	 *            Request which has come in.
 	 * 
-	 * @return True if the request is handled by this handler, false otherwise.
+	 * @return {@code true} if the request is handled by this handler
 	 */
 	boolean isHandledBy(HttpRequest req);
 

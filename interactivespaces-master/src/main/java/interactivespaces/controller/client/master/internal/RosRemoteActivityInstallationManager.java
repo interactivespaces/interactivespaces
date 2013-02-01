@@ -17,26 +17,27 @@
 package interactivespaces.controller.client.master.internal;
 
 import interactivespaces.activity.repository.ActivityRepositoryServer;
+import interactivespaces.controller.client.master.RemoteActivityInstallStatus;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManager;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManagerListener;
-import interactivespaces.controller.client.master.RemoteActivityInstallStatus;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces_msgs.LiveActivityDeleteRequest;
+import interactivespaces_msgs.LiveActivityDeployRequest;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.logging.Log;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
 
 /**
  * A ROS-based Interactive Spaces activity installer.
  * 
  * @author Keith M. Hughes
  */
-public class RosRemoteActivityInstallationManager implements RemoteActivityInstallationManager {
-	
+public class RosRemoteActivityInstallationManager implements
+		RemoteActivityInstallationManager {
+
 	/**
 	 * The client for making calls to a remote space controller.
 	 */
@@ -68,25 +69,25 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
 
 	@Override
 	public void deployActivity(LiveActivity activity) {
-		LiveActivityDeployRequest request = new LiveActivityDeployRequest();
-		request.uuid = activity.getUuid();
-		request.identifying_name = activity.getActivity()
-				.getIdentifyingName();
-		request.version = activity.getActivity().getVersion();
-		request.activity_source_uri = repositoryServer
-				.getActivityUri(activity.getActivity());
+		LiveActivityDeployRequest request = remoteControllerClient
+				.newLiveActivityDeployRequest();
+		request.setUuid(activity.getUuid());
+		request.setIdentifyingName(activity.getActivity().getIdentifyingName());
+		request.setVersion(activity.getActivity().getVersion());
+		request.setActivitySourceUri(repositoryServer.getActivityUri(activity
+				.getActivity()));
 
 		remoteControllerClient.deployActivity(activity, request);
 	}
 
 	@Override
 	public void deleteActivity(LiveActivity activity) {
-		LiveActivityDeleteRequest request = new LiveActivityDeleteRequest();
-		request.uuid = activity.getUuid();
-		request.identifying_name = activity.getActivity()
-				.getIdentifyingName();
-		request.version = activity.getActivity().getVersion();
-		request.force = 1;
+		LiveActivityDeleteRequest request = remoteControllerClient
+				.newLiveActivityDeleteRequest();
+		request.setUuid(activity.getUuid());
+		request.setIdentifyingName(activity.getActivity().getIdentifyingName());
+		request.setVersion(activity.getActivity().getVersion());
+		request.setForce(1);
 
 		remoteControllerClient.deleteActivity(activity, request);
 	}
@@ -97,7 +98,8 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
 	}
 
 	@Override
-	public void removeListener(RemoteActivityInstallationManagerListener listener) {
+	public void removeListener(
+			RemoteActivityInstallationManagerListener listener) {
 		listeners.remove(listener);
 	}
 
@@ -125,7 +127,8 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
 	}
 
 	/**
-	 * @param remoteControllerClient the remoteControllerClient to set
+	 * @param remoteControllerClient
+	 *            the remoteControllerClient to set
 	 */
 	public void setRemoteControllerClient(
 			RemoteControllerClient remoteControllerClient) {

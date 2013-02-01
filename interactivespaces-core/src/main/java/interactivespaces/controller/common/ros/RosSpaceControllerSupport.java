@@ -16,11 +16,13 @@
 
 package interactivespaces.controller.common.ros;
 
+import interactivespaces_msgs.ControllerActivityRuntimeRequest;
+import interactivespaces_msgs.ControllerActivityStatus;
+import interactivespaces_msgs.ControllerRequest;
+import interactivespaces_msgs.ControllerStatus;
+
 import org.ros.message.MessageListener;
-import org.ros.message.interactivespaces_msgs.ControllerActivityRuntimeRequest;
-import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
-import org.ros.message.interactivespaces_msgs.ControllerRequest;
-import org.ros.message.interactivespaces_msgs.ControllerStatus;
+import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.PublisherListener;
@@ -49,7 +51,7 @@ public class RosSpaceControllerSupport {
 	 * @return The subscriber.
 	 */
 	static public Subscriber<ControllerStatus> getControllerStatusSubscriber(
-			Node node, String remoteNode,
+			ConnectedNode node, String remoteNode,
 			MessageListener<ControllerStatus> messageListener,
 			SubscriberListener<ControllerStatus> subscriberListener) {
 		Subscriber<ControllerStatus> newSubscriber = node.newSubscriber("/"
@@ -73,7 +75,7 @@ public class RosSpaceControllerSupport {
 	 * @return The publisher.
 	 */
 	static public Publisher<ControllerRequest> getControllerRequestPublisher(
-			Node node, String remoteNode,
+			ConnectedNode node, String remoteNode,
 			PublisherListener<ControllerRequest> publisherListener) {
 		Publisher<ControllerRequest> newPublisher = node.newPublisher("/"
 				+ remoteNode + "/"
@@ -101,7 +103,7 @@ public class RosSpaceControllerSupport {
 	 * @return The subscriber.
 	 */
 	static public Subscriber<ControllerActivityStatus> getControllerActivityStatusSubscriber(
-			Node node, String remoteNode,
+			ConnectedNode node, String remoteNode,
 			MessageListener<ControllerActivityStatus> messageListener,
 			SubscriberListener<ControllerActivityStatus> subscriberListener) {
 		Subscriber<ControllerActivityStatus> newSubscriber = node
@@ -124,17 +126,16 @@ public class RosSpaceControllerSupport {
 	 * Get a publisher for controller activity runtime requests.
 	 * 
 	 * @param node
-	 *            The node which will host the subscriber.
+	 *            the node which will host the subscriber
 	 * @param remoteNode
-	 *            The name of the remote node.
+	 *            the name of the remote node
 	 * @param publisherListener
-	 *            A publisher listener. Can be {@code null}.
+	 *            a publisher listener, can be {@code null}.
 	 * 
 	 * @return The publisher.
 	 */
 	static public Publisher<ControllerActivityRuntimeRequest> getControllerActivityRuntimeRequestPublisher(
-			Node node,
-			String remoteNode,
+			ConnectedNode node, String remoteNode,
 			PublisherListener publisherListener) {
 		Publisher<ControllerActivityRuntimeRequest> newPublisher = node
 				.newPublisher(

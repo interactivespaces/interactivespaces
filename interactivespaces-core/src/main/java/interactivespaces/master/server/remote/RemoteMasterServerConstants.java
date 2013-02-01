@@ -16,6 +16,8 @@
 
 package interactivespaces.master.server.remote;
 
+import interactivespaces_msgs.MasterServerData;
+
 /**
  * Useful constants for the master server.
  *
@@ -31,7 +33,7 @@ public class RemoteMasterServerConstants {
 	/**
 	 * The topic message type for the master server topic.
 	 */
-	public static final String MASTER_SERVER_TOPIC_MESSAGE_TYPE = "interactivespaces_msgs/MasterServerData";
+	public static final String MASTER_SERVER_TOPIC_MESSAGE_TYPE = MasterServerData._TYPE;
 
 	/**
 	 * The topic message type for the master server controller description topic.

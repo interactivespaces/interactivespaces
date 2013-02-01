@@ -64,7 +64,16 @@ public class IncomingMessageQueue<MessageType> {
   }
 
   private final class Dispatcher extends CancellableLoop {
-    @Override
+	  
+	
+	@Override
+	protected void setup() {
+		// TODO Auto-generated method stub
+		super.setup();
+		Thread.currentThread().setName("ROS-TOPIC-READER_DISPATCHER");
+	}
+
+	@Override
     public void loop() throws InterruptedException {
       final MessageType message = messages.take();
       latchedMessage = message;

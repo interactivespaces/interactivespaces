@@ -14,11 +14,7 @@
  */
 
  dependencies {
-  compile project(':rosjava')
-  
-//  compile('ros:message.osgi_msgs:0.0.0-SNAPSHOT') {
-//    exclude module: 'rosjava_bootstrap'
-//  }
+  compile project(':nrosjava')
 
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
   

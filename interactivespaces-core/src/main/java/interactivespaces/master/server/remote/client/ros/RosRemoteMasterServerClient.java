@@ -19,13 +19,15 @@ package interactivespaces.master.server.remote.client.ros;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.remote.RemoteMasterServerConstants;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
+import interactivespaces_msgs.ControllerDescription;
+import interactivespaces_msgs.MasterServerData;
 
-import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.ros.message.MessageSerializer;
-import org.ros.message.interactivespaces_msgs.ControllerDescription;
-import org.ros.message.interactivespaces_msgs.MasterServerData;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.topic.Publisher;
 import org.ros.osgi.common.RosEnvironment;
@@ -40,7 +42,7 @@ public class RosRemoteMasterServerClient implements RemoteMasterServerClient {
 	/**
 	 * ROS node the client is attached to.
 	 */
-	private Node node;
+	private ConnectedNode node;
 
 	/**
 	 * Message serializer for controller descriptions.
@@ -59,6 +61,7 @@ public class RosRemoteMasterServerClient implements RemoteMasterServerClient {
 		configuration.setNodeName("interactivespaces/master/client");
 
 		node = rosEnvironment.newNode(configuration);
+
 		controllerDescriptionSerializer = node
 				.getMessageSerializationFactory()
 				.newMessageSerializer(
@@ -79,18 +82,21 @@ public class RosRemoteMasterServerClient implements RemoteMasterServerClient {
 
 	@Override
 	public void sendControllerDescription(SpaceController controller) {
-		ControllerDescription description = new ControllerDescription();
-		description.uuid = controller.getUuid();
-		description.name = controller.getName();
-		description.description = controller.getDescription();
-		description.host_id = controller.getHostId();
+		ControllerDescription description = node.getTopicMessageFactory()
+				.newFromType(ControllerDescription._TYPE);
+		description.setUuid(controller.getUuid());
+		description.setName(controller.getName());
+		description.setDescription(controller.getDescription());
+		description.setHostId(controller.getHostId());
 
-		MasterServerData data = new MasterServerData();
-		data.data_type = MasterServerData.DATA_TYPE_CONTROLLER_STARTUP;
+		MasterServerData data = masterTopicPublisher.newMessage();
+		data.setDataType(MasterServerData.DATA_TYPE_CONTROLLER_STARTUP);
 
-		ByteBuffer serialize = controllerDescriptionSerializer
-				.serialize(description);
-		data.data = serialize.array();
+		ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(
+				ByteOrder.LITTLE_ENDIAN, 256);
+
+		controllerDescriptionSerializer.serialize(description, serialize);
+		data.setData(serialize);
 
 		masterTopicPublisher.publish(data);
 	}

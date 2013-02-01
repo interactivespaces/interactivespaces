@@ -22,19 +22,18 @@ import interactivespaces.master.server.remote.RemoteMasterServerConstants;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
 import interactivespaces.master.server.remote.master.RemoteMasterServerListener;
 import interactivespaces.master.server.services.internal.ros.MasterRosContext;
+import interactivespaces_msgs.ControllerDescription;
+import interactivespaces_msgs.MasterServerData;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.logging.Log;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageListener;
-import org.ros.message.interactivespaces_msgs.ControllerDescription;
-import org.ros.message.interactivespaces_msgs.MasterServerData;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
+
+import com.google.common.collect.Lists;
 
 /**
  * A ROS-based {@link RemoteMasterServer}.
@@ -66,13 +65,18 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 	/**
 	 * All listeners for master server events.
 	 */
-	private List<RemoteMasterServerListener> listeners = new CopyOnWriteArrayList<RemoteMasterServerListener>();
+	private List<RemoteMasterServerListener> listeners = Lists
+			.newCopyOnWriteArrayList();
 
 	@Override
 	public void startup() {
 		log.error("Starting up ROS master server");
-		Node node = masterRosContext.getNode();
+		ConnectedNode node = masterRosContext.getNode();
 
+		// TODO(ROS): Part of ROS update
+		// masterTopicSubscriber = node.newSubscriber(
+		// RemoteMasterServerConstants.MASTER_SERVER_TOPIC_NAME,
+		// RemoteMasterServerConstants.MASTER_SERVER_TOPIC_MESSAGE_TYPE);
 		masterTopicSubscriber = node.newSubscriber(
 				RemoteMasterServerConstants.MASTER_SERVER_TOPIC_NAME,
 				RemoteMasterServerConstants.MASTER_SERVER_TOPIC_MESSAGE_TYPE);
@@ -116,14 +120,10 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 	 */
 	private void handleMasterServerData(MasterServerData data) {
 
-		switch (data.data_type) {
+		switch (data.getDataType()) {
 		case MasterServerData.DATA_TYPE_CONTROLLER_STARTUP:
-			ByteBuffer payloadBuffer = ByteBuffer.wrap(data.data);
-			payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-					.limit(data.data.length);
-
 			ControllerDescription controllerDescription = controllerDescriptionDeserializer
-					.deserialize(payloadBuffer);
+					.deserialize(data.getData());
 
 			handleControllerDescription(controllerDescription);
 
@@ -131,7 +131,7 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 
 		default:
 			log.error(String.format("Unknown MasterServerData data type %d",
-					data.data_type));
+					data.getDataType()));
 		}
 	}
 
@@ -142,14 +142,16 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 	 */
 	private void handleControllerDescription(
 			ControllerDescription controllerDescription) {
-		log.info(String.format("Controller %s (Host ID %s) is online.",
-				controllerDescription.uuid, controllerDescription.host_id));
+		if (log.isInfoEnabled()) {
+			log.info(String.format("Controller %s (Host ID %s) is online.",
+					controllerDescription.getUuid(), controllerDescription.getHostId()));
+		}
 
 		SpaceController controller = new SimpleSpaceController();
-		controller.setUuid(controllerDescription.uuid);
-		controller.setName(controllerDescription.name);
-		controller.setDescription(controllerDescription.description);
-		controller.setHostId(controllerDescription.host_id);
+		controller.setUuid(controllerDescription.getUuid());
+		controller.setName(controllerDescription.getName());
+		controller.setDescription(controllerDescription.getDescription());
+		controller.setHostId(controllerDescription.getHostId());
 
 		signalControllerRegisteration(controller);
 	}

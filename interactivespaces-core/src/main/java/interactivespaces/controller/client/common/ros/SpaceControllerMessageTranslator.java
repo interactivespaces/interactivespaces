@@ -21,7 +21,7 @@ import interactivespaces.activity.ActivityStatus;
 
 import java.util.Map;
 
-import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
+import interactivespaces_msgs.ControllerActivityStatus;
 
 import com.google.common.collect.Maps;
 

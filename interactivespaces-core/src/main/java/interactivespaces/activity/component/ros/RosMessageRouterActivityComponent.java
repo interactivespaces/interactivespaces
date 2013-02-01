@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.ros.message.Message;
 import org.ros.message.MessageListener;
 
 import com.google.common.collect.Lists;
@@ -43,8 +42,7 @@ import com.google.common.collect.Maps;
  * 
  * @author Keith M. Hughes
  */
-public class RosMessageRouterActivityComponent<T extends Message> extends
-		BaseActivityComponent {
+public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent {
 
 	/**
 	 * Name of the component.
@@ -100,6 +98,14 @@ public class RosMessageRouterActivityComponent<T extends Message> extends
 	 * All topic outputs
 	 */
 	private Map<String, RosPublishers<T>> outputs = Maps.newConcurrentMap();
+
+	/**
+	 * A publisher collection to be used as a message factory.
+	 * 
+	 * <p>
+	 * Null if there are no outputs for this component.
+	 */
+	private RosPublishers<T> messageFactory;
 
 	public RosMessageRouterActivityComponent(String rosMessageType,
 			RoutableInputMessageListener<T> messageListener) {
@@ -240,6 +246,10 @@ public class RosMessageRouterActivityComponent<T extends Message> extends
 							getComponentContext().getActivity().getLog());
 					outputs.put(outputName, publishers);
 
+					// Only matters that we get one. They are all for the same
+					// message type, so will take the last one.
+					messageFactory = publishers;
+
 					publishers.addPublishers(rosActivity.getMainNode(),
 							rosMessageType, outputTopicNames, latch);
 				}
@@ -267,6 +277,24 @@ public class RosMessageRouterActivityComponent<T extends Message> extends
 	@Override
 	public boolean isComponentRunning() {
 		return running;
+	}
+
+	/**
+	 * Create a new message to send.
+	 * 
+	 * <p>
+	 * This will only work if there are output routes for the topic.
+	 * 
+	 * @return the new message.
+	 */
+	public T newMessage() {
+		if (messageFactory != null) {
+			return messageFactory.newMessage();
+		} else {
+			throw new InteractiveSpacesException(String.format(
+					"No publishers to provide a message of type %s",
+					rosMessageType));
+		}
 	}
 
 	/**

@@ -14,8 +14,9 @@
  * the License.
  */
 
-include 'rosjava_bootstrap', 'apache_xmlrpc_common', 'apache_xmlrpc_client',
-        'apache_xmlrpc_server', 'rosjava', 'rosjava_geometry',
+include 'nrosjava_bootstrap', 'nrosjava_messages', 
+        'apache_xmlrpc_common', 'apache_xmlrpc_client', 'apache_xmlrpc_server',
+        'nrosjava', 'nrosjava_geometry',
         'interactivespaces-core',
 	'interactivespaces-system',
 	'interactivespaces-database',

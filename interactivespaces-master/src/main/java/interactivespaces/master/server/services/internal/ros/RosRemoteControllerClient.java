@@ -26,30 +26,33 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
+import interactivespaces_msgs.ActivityConfigurationParameterRequest;
+import interactivespaces_msgs.ActivityConfigurationRequest;
+import interactivespaces_msgs.ControllerActivityRuntimeRequest;
+import interactivespaces_msgs.ControllerActivityStatus;
+import interactivespaces_msgs.ControllerFullStatus;
+import interactivespaces_msgs.ControllerRequest;
+import interactivespaces_msgs.ControllerStatus;
+import interactivespaces_msgs.LiveActivityDeleteRequest;
+import interactivespaces_msgs.LiveActivityDeleteStatus;
+import interactivespaces_msgs.LiveActivityDeployRequest;
+import interactivespaces_msgs.LiveActivityDeployStatus;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.ros.message.MessageDeserializer;
+import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
 import org.ros.message.MessageSerializer;
-import org.ros.message.interactivespaces_msgs.ActivityConfigurationParameterRequest;
-import org.ros.message.interactivespaces_msgs.ActivityConfigurationRequest;
-import org.ros.message.interactivespaces_msgs.ControllerActivityRuntimeRequest;
-import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
-import org.ros.message.interactivespaces_msgs.ControllerFullStatus;
-import org.ros.message.interactivespaces_msgs.ControllerRequest;
-import org.ros.message.interactivespaces_msgs.ControllerStatus;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.topic.CountDownPublisherListener;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
@@ -62,8 +65,6 @@ import com.google.common.collect.Lists;
  * @author Keith M. Hughes
  */
 public class RosRemoteControllerClient implements RemoteControllerClient {
-
-	private static final byte[] NO_ACTIVITY_REQUEST_DATA = new byte[0];
 
 	/**
 	 * Default number of milliseconds to wait for a controller connection.
@@ -89,6 +90,16 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * The ROS environment the client is running in.
 	 */
 	private MasterRosContext masterRosContext;
+
+	/**
+	 * The main ROS node for the master.
+	 */
+	private ConnectedNode masterNode;
+
+	/**
+	 * Message factory for ROS messages.
+	 */
+	private MessageFactory rosMessageFactory;
 
 	/**
 	 * Listener for all controller status message updates.
@@ -138,31 +149,32 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	@Override
 	public void startup() {
 		log.info("Starting up ROS remote controller");
-		Node node = masterRosContext.getNode();
+		masterNode = masterRosContext.getNode();
+		rosMessageFactory = masterNode.getTopicMessageFactory();
 
-		liveActivityDeployRequestSerializer = node
+		liveActivityDeployRequestSerializer = masterNode
 				.getMessageSerializationFactory().newMessageSerializer(
-						"interactivespaces_msgs/LiveActivityDeployRequest");
+						LiveActivityDeployRequest._TYPE);
 
-		liveActivityDeployStatusDeserializer = node
+		liveActivityDeployStatusDeserializer = masterNode
 				.getMessageSerializationFactory().newMessageDeserializer(
-						"interactivespaces_msgs/LiveActivityDeployStatus");
+						LiveActivityDeployStatus._TYPE);
 
-		liveActivityDeleteRequestSerializer = node
+		liveActivityDeleteRequestSerializer = masterNode
 				.getMessageSerializationFactory().newMessageSerializer(
-						"interactivespaces_msgs/LiveActivityDeleteRequest");
+						LiveActivityDeleteRequest._TYPE);
 
-		liveActivityDeleteStatusDeserializer = node
+		liveActivityDeleteStatusDeserializer = masterNode
 				.getMessageSerializationFactory().newMessageDeserializer(
-						"interactivespaces_msgs/LiveActivityDeleteStatus");
+						LiveActivityDeleteStatus._TYPE);
 
-		controllerFullStatusDeserializer = node
+		controllerFullStatusDeserializer = masterNode
 				.getMessageSerializationFactory().newMessageDeserializer(
-						"interactivespaces_msgs/ControllerFullStatus");
+						ControllerFullStatus._TYPE);
 
-		activityConfigurationRequestSerializer = node
+		activityConfigurationRequestSerializer = masterNode
 				.getMessageSerializationFactory().newMessageSerializer(
-						"interactivespaces_msgs/ActivityConfigurationRequest");
+						ActivityConfigurationRequest._TYPE);
 
 		controllerStatusListener = new MessageListener<ControllerStatus>() {
 			@Override
@@ -223,21 +235,40 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	@Override
 	public void deployActivity(LiveActivity liveActivity,
 			LiveActivityDeployRequest request) {
-		ByteBuffer serialize = liveActivityDeployRequestSerializer
-				.serialize(request);
+		ChannelBuffer serialize = newSerializeBuffer();
+		liveActivityDeployRequestSerializer.serialize(request, serialize);
 		sendControllerRequest(liveActivity.getController(),
-				ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY,
-				serialize.array());
+				ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY, serialize);
+	}
+
+	@Override
+	public LiveActivityDeployRequest newLiveActivityDeployRequest() {
+		return rosMessageFactory.newFromType(LiveActivityDeployRequest._TYPE);
 	}
 
 	@Override
 	public void deleteActivity(LiveActivity liveActivity,
 			LiveActivityDeleteRequest request) {
-		ByteBuffer serialize = liveActivityDeleteRequestSerializer
-				.serialize(request);
+		ChannelBuffer serialize = newSerializeBuffer();
+		liveActivityDeleteRequestSerializer.serialize(request, serialize);
 		sendControllerRequest(liveActivity.getController(),
-				ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY,
-				serialize.array());
+				ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY, serialize);
+	}
+
+	@Override
+	public LiveActivityDeleteRequest newLiveActivityDeleteRequest() {
+		return rosMessageFactory.newFromType(LiveActivityDeleteRequest._TYPE);
+	}
+
+	/**
+	 * Get a properly created serialization buffer.
+	 * 
+	 * @return a properly created serialization buffer
+	 */
+	public ChannelBuffer newSerializeBuffer() {
+		ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(
+				ByteOrder.LITTLE_ENDIAN, 256);
+		return serialize;
 	}
 
 	@Override
@@ -248,59 +279,56 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 		if (configuration != null) {
 			for (ConfigurationParameter parameter : configuration
 					.getParameters()) {
-				ActivityConfigurationParameterRequest newParameter = new ActivityConfigurationParameterRequest();
-				newParameter.operation = ActivityConfigurationParameterRequest.OPERATION_ADD;
-				newParameter.name = parameter.getName();
-				newParameter.value = parameter.getValue();
+				ActivityConfigurationParameterRequest newParameter = rosMessageFactory
+						.newFromType(ActivityConfigurationParameterRequest._TYPE);
+				newParameter
+						.setOperation(ActivityConfigurationParameterRequest.OPERATION_ADD);
+				newParameter.setName(parameter.getName());
+				newParameter.setValue(parameter.getValue());
 
 				parameterRequests.add(newParameter);
 			}
 		}
 
-		ActivityConfigurationRequest request = new ActivityConfigurationRequest();
-		request.parameters = parameterRequests;
+		ActivityConfigurationRequest request = rosMessageFactory
+				.newFromType(ActivityConfigurationRequest._TYPE);
+		request.setParameters(parameterRequests);
 
-		ByteBuffer serialize = activityConfigurationRequestSerializer
-				.serialize(request);
+		ChannelBuffer serialize = newSerializeBuffer();
+		activityConfigurationRequestSerializer.serialize(request, serialize);
 
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_CONFIGURE,
-				serialize.array());
+				ControllerActivityRuntimeRequest.OPERATION_CONFIGURE, serialize);
 	}
 
 	@Override
 	public void startupActivity(LiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_STARTUP,
-				NO_ACTIVITY_REQUEST_DATA);
+				ControllerActivityRuntimeRequest.OPERATION_STARTUP, null);
 	}
 
 	@Override
 	public void activateActivity(LiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_ACTIVATE,
-				NO_ACTIVITY_REQUEST_DATA);
+				ControllerActivityRuntimeRequest.OPERATION_ACTIVATE, null);
 	}
 
 	@Override
 	public void deactivateActivity(LiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE,
-				NO_ACTIVITY_REQUEST_DATA);
+				ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE, null);
 	}
 
 	@Override
 	public void shutdownActivity(LiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN,
-				NO_ACTIVITY_REQUEST_DATA);
+				ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN, null);
 	}
 
 	@Override
 	public void statusActivity(LiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
-				ControllerActivityRuntimeRequest.OPERATION_STATUS,
-				NO_ACTIVITY_REQUEST_DATA);
+				ControllerActivityRuntimeRequest.OPERATION_STATUS, null);
 	}
 
 	/**
@@ -332,12 +360,13 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 *            any data to be sent with the request (can be {@code null})
 	 */
 	private void sendControllerRequest(SpaceController controller,
-			int operation, byte[] payload) {
-		ControllerRequest request = new ControllerRequest();
-		request.operation = operation;
+			int operation, ChannelBuffer payload) {
+		ControllerRequest request = rosMessageFactory
+				.newFromType(ControllerRequest._TYPE);
+		request.setOperation(operation);
 
 		if (payload != null) {
-			request.payload = payload;
+			request.setPayload(payload);
 		}
 
 		SpaceControllerCommunicator communicator = getCommunicator(controller,
@@ -358,15 +387,19 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 *            The operation requested.
 	 */
 	private void sendActivityRuntimeRequest(LiveActivity activity,
-			int operation, byte[] data) {
-		ControllerActivityRuntimeRequest request = new ControllerActivityRuntimeRequest();
-		request.uuid = activity.getUuid();
-		request.data = data;
+			int operation, ChannelBuffer data) {
+		ControllerActivityRuntimeRequest request = rosMessageFactory
+				.newFromType(ControllerActivityRuntimeRequest._TYPE);
+		request.setUuid(activity.getUuid());
+
+		if (data != null) {
+			request.setData(data);
+		}
 
 		SpaceControllerCommunicator communicator = getCommunicator(
 				activity.getController(), true);
 
-		request.operation = operation;
+		request.setOperation(operation);
 
 		communicator.sendActivityRuntimeRequest(request);
 	}
@@ -378,24 +411,30 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 *            The status update.
 	 */
 	private void handleRemoteControllerStatusUpdate(ControllerStatus status) {
-		switch (status.status) {
+		switch (status.getStatus()) {
 		case ControllerStatus.STATUS_HEARTBEAT:
 			long timestamp = System.currentTimeMillis();
 			remoteControllerClientListeners.signalSpaceControllerHeartbeat(
-					status.uuid, timestamp);
+					status.getUuid(), timestamp);
 
 			break;
 
 		case ControllerStatus.STATUS_FULL:
 			ControllerFullStatus fullStatus = controllerFullStatusDeserializer
-					.deserialize(getStatusDataByteBuffer(status));
+					.deserialize(status.getData());
 
-			log.info(String.format(
-					"Received controller full status %s, %d activities",
-					status.uuid, fullStatus.activities.size()));
-			for (ControllerActivityStatus activity : fullStatus.activities) {
-				log.info(String.format("\tActivity %s, %d\n", activity.uuid,
-						activity.status));
+			List<ControllerActivityStatus> activities = fullStatus
+					.getActivities();
+			if (log.isInfoEnabled()) {
+				log.info(String.format(
+						"Received controller full status %s, %d activities",
+						status.getUuid(), activities.size()));
+			}
+			for (ControllerActivityStatus activity : activities) {
+				if (log.isInfoEnabled()) {
+					log.info(String.format("\tActivity %s, %d\n",
+							activity.getUuid(), activity.getStatus()));
+				}
 				handleRemoteActivityStatusUpdate(activity);
 			}
 
@@ -403,45 +442,30 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
 		case ControllerStatus.STATUS_ACTIVITY_INSTALL:
 			LiveActivityDeployStatus deployStatus = liveActivityDeployStatusDeserializer
-					.deserialize(getStatusDataByteBuffer(status));
+					.deserialize(status.getData());
 
 			remoteControllerClientListeners
 					.signalActivityInstall(
-							deployStatus.uuid,
-							deployStatus.status == LiveActivityDeployStatus.STATUS_SUCCESS);
+							deployStatus.getUuid(),
+							deployStatus.getStatus() == LiveActivityDeployStatus.STATUS_SUCCESS);
 
 			break;
 
 		case ControllerStatus.STATUS_ACTIVITY_DELETE:
 			LiveActivityDeleteStatus deleteStatus = liveActivityDeleteStatusDeserializer
-					.deserialize(getStatusDataByteBuffer(status));
+					.deserialize(status.getData());
 
 			remoteControllerClientListeners
 					.signalActivityDelete(
-							deleteStatus.uuid,
-							deleteStatus.status == LiveActivityDeleteStatus.STATUS_SUCCESS);
+							deleteStatus.getUuid(),
+							deleteStatus.getStatus() == LiveActivityDeleteStatus.STATUS_SUCCESS);
 
 			break;
 
 		default:
 			log.warn(String.format("Unknown status type %d, for controller %s",
-					status.status, status.uuid));
+					status.getStatus(), status.getUuid()));
 		}
-	}
-
-	/**
-	 * get a byte buffer for the controller status data.
-	 * 
-	 * @param status
-	 *            the controller status object
-	 * 
-	 * @return a bytebuffer ready to read
-	 */
-	public ByteBuffer getStatusDataByteBuffer(ControllerStatus status) {
-		ByteBuffer deleteStatusBuffer = ByteBuffer.wrap(status.data);
-		deleteStatusBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-				.limit(status.data.length);
-		return deleteStatusBuffer;
 	}
 
 	/**
@@ -454,7 +478,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			ControllerActivityStatus status) {
 		ActivityState newState;
 
-		switch (status.status) {
+		switch (status.getStatus()) {
 		case ControllerActivityStatus.STATUS_UNKNOWN:
 			newState = ActivityState.UNKNOWN;
 			break;
@@ -523,11 +547,13 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			newState = ActivityState.UNKNOWN;
 		}
 
-		log.info(String.format("Remote activity %s has reported state %s",
-				status.uuid, newState));
+		if (log.isInfoEnabled()) {
+			log.info(String.format("Remote activity %s has reported state %s",
+					status.getUuid(), newState));
+		}
 
-		remoteControllerClientListeners.signalActivityStateChange(status.uuid,
-				newState);
+		remoteControllerClientListeners.signalActivityStateChange(
+				status.getUuid(), newState);
 	}
 
 	@Override
@@ -671,7 +697,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 		 * @param activityStatusListener
 		 *            the listener for activity status messages
 		 */
-		public void startup(Node node, String remoteNode,
+		public void startup(ConnectedNode node, String remoteNode,
 				MessageListener<ControllerStatus> controllerStatusListener,
 				MessageListener<ControllerActivityStatus> activityStatusListener) {
 			publisherListener = CountDownPublisherListener.newFromCounts(2, 2,

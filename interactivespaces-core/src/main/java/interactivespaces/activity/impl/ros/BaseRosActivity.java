@@ -20,7 +20,7 @@ import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.activity.ros.RosActivity;
 
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.osgi.common.RosEnvironment;
 
 /**
@@ -49,7 +49,7 @@ public abstract class BaseRosActivity extends BaseActivity
 	}
 
 	@Override
-	public Node getMainNode() {
+	public ConnectedNode getMainNode() {
 		return rosActivityComponent.getNode();
 	}
 }

@@ -21,6 +21,7 @@ import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
+import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeConfiguration;
 import org.ros.osgi.common.RosEnvironment;
@@ -56,7 +57,7 @@ public class RosActivityComponent extends BaseActivityComponent {
 	/**
 	 * The node for this component.
 	 */
-	private Node node;
+	private ConnectedNode node;
 
 	/**
 	 * Node name for the ROS node.
@@ -137,7 +138,7 @@ public class RosActivityComponent extends BaseActivityComponent {
 	 * 
 	 * @return the ROS node associated with this component
 	 */
-	public Node getNode() {
+	public ConnectedNode getNode() {
 		return node;
 	}
 

@@ -23,6 +23,10 @@ import interactivespaces.controller.client.node.SpaceControllerActivityInstallat
 import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerControl;
 import interactivespaces.controller.client.node.SpaceControllerHeartbeat;
+import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteRequest;
+import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteStatus;
+import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployRequest;
+import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployStatus;
 import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
@@ -30,26 +34,29 @@ import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
 import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerClient;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
+import interactivespaces_msgs.ActivityConfigurationParameterRequest;
+import interactivespaces_msgs.ActivityConfigurationRequest;
+import interactivespaces_msgs.ControllerActivityRuntimeRequest;
+import interactivespaces_msgs.ControllerActivityStatus;
+import interactivespaces_msgs.ControllerFullStatus;
+import interactivespaces_msgs.ControllerRequest;
+import interactivespaces_msgs.ControllerStatus;
+import interactivespaces_msgs.LiveActivityDeleteRequest;
+import interactivespaces_msgs.LiveActivityDeleteStatus;
+import interactivespaces_msgs.LiveActivityDeployRequest;
+import interactivespaces_msgs.LiveActivityDeployStatus;
 
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Map;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageDeserializer;
+import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
 import org.ros.message.MessageSerializer;
-import org.ros.message.interactivespaces_msgs.ActivityConfigurationParameterRequest;
-import org.ros.message.interactivespaces_msgs.ActivityConfigurationRequest;
-import org.ros.message.interactivespaces_msgs.ControllerActivityRuntimeRequest;
-import org.ros.message.interactivespaces_msgs.ControllerActivityStatus;
-import org.ros.message.interactivespaces_msgs.ControllerFullStatus;
-import org.ros.message.interactivespaces_msgs.ControllerRequest;
-import org.ros.message.interactivespaces_msgs.ControllerStatus;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.topic.DefaultPublisherListener;
 import org.ros.node.topic.Publisher;
@@ -80,7 +87,12 @@ public class RosSpaceControllerCommunicator implements
 	/**
 	 * The node for the controller.
 	 */
-	private Node node;
+	private ConnectedNode node;
+
+	/**
+	 * Message factory for creating messages.
+	 */
+	private MessageFactory rosMessageFactory;
 
 	/**
 	 * Publisher for controller status.
@@ -158,12 +170,18 @@ public class RosSpaceControllerCommunicator implements
 		nodeConfiguration.setNodeName("interactivespaces/controller");
 
 		node = rosEnvironment.newNode(nodeConfiguration);
+		rosMessageFactory = node.getTopicMessageFactory();
 
 		PublisherListener<ControllerStatus> controllerStatusPublisherListener = new DefaultPublisherListener<ControllerStatus>() {
 			@Override
-			public void onNewSubscriber(Publisher<ControllerStatus> publisher) {
-				spaceEnvironment.getLog().info(
-						"New subscriber for controller status");
+			public void onNewSubscriber(Publisher<ControllerStatus> publisher,
+					SubscriberIdentifier subscriber) {
+				if (spaceEnvironment.getLog().isInfoEnabled()) {
+					spaceEnvironment.getLog().info(
+							String.format(
+									"New subscriber for controller status %s",
+									subscriber.getNodeIdentifier()));
+				}
 			}
 		};
 
@@ -257,8 +275,9 @@ public class RosSpaceControllerCommunicator implements
 	 * @param request
 	 *            The ROS request.
 	 */
-	private void handleControllerRequest(ControllerRequest request) {
-		switch (request.operation) {
+	private void handleControllerRequest(
+			interactivespaces_msgs.ControllerRequest request) {
+		switch (request.getOperation()) {
 		case ControllerRequest.OPERATION_STATUS:
 			publishControllerFullStatus();
 
@@ -276,32 +295,21 @@ public class RosSpaceControllerCommunicator implements
 
 		case ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY:
 			handleLiveActivityDeployment(liveActivityDeployRequestDeserializer
-					.deserialize(getPayloadBuffer(request)));
+					.deserialize(request.getPayload()));
 
 			break;
 
 		case ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY:
 			handleLiveActivityDeletion(liveActivityDeleteRequestDeserializer
-					.deserialize(getPayloadBuffer(request)));
+					.deserialize(request.getPayload()));
 
 			break;
 
 		default:
 			spaceEnvironment.getLog().error(
 					String.format("Unknown ROS controller request %d",
-							request.operation));
+							request.getOperation()));
 		}
-	}
-
-	/**
-	 * @param request
-	 * @return
-	 */
-	public ByteBuffer getPayloadBuffer(ControllerRequest request) {
-		ByteBuffer payloadBuffer = ByteBuffer.wrap(request.payload);
-		payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-				.limit(request.payload.length);
-		return payloadBuffer;
 	}
 
 	/**
@@ -313,46 +321,54 @@ public class RosSpaceControllerCommunicator implements
 		SimpleSpaceController controllerInfo = controllerControl
 				.getControllerInfo();
 
-		ControllerStatus status = new ControllerStatus();
-		status.uuid = controllerInfo.getUuid();
-		status.status = ControllerStatus.STATUS_FULL;
+		ControllerStatus status = rosMessageFactory
+				.newFromType(ControllerStatus._TYPE);
+		status.setUuid(controllerInfo.getUuid());
+		status.setStatus(ControllerStatus.STATUS_FULL);
 
-		ControllerFullStatus fullStatus = new ControllerFullStatus();
-		fullStatus.name = controllerInfo.getName();
-		fullStatus.description = controllerInfo.getDescription();
-		fullStatus.host_id = controllerInfo.getHostId();
+		ControllerFullStatus fullStatus = rosMessageFactory
+				.newFromType(ControllerFullStatus._TYPE);
+		fullStatus.setName(controllerInfo.getName());
+		fullStatus.setDescription(controllerInfo.getDescription());
+		fullStatus.setHostId(controllerInfo.getHostId());
 
 		for (InstalledLiveActivity activity : controllerControl
 				.getAllInstalledLiveActivities()) {
-			ControllerActivityStatus cas = new ControllerActivityStatus();
-			cas.uuid = activity.getUuid();
+			ControllerActivityStatus cas = rosMessageFactory
+					.newFromType(ControllerActivityStatus._TYPE);
+			cas.setUuid(activity.getUuid());
 
 			ActiveControllerActivity activeActivity = controllerControl
-					.getActiveActivityByUuid(cas.uuid);
+					.getActiveActivityByUuid(cas.getUuid());
 			if (activeActivity != null) {
 				ActivityState state = activeActivity.getInstance()
 						.getActivityStatus().getState();
-				cas.status = translateActivityState(state);
-				spaceEnvironment
-						.getLog()
-						.info(String
-								.format("Full status live activity %s status %s, returning %d",
-										cas.uuid, state, cas.status));
+				cas.setStatus(translateActivityState(state));
+
+				if (spaceEnvironment.getLog().isInfoEnabled()) {
+					spaceEnvironment
+							.getLog()
+							.info(String
+									.format("Full status live activity %s status %s, returning %d",
+											cas.getUuid(), state,
+											cas.getStatus()));
+				}
 			} else {
-				cas.status = ControllerActivityStatus.STATUS_READY;
+				cas.setStatus(ControllerActivityStatus.STATUS_READY);
 				spaceEnvironment
 						.getLog()
-						.info(String
+						.warn(String
 								.format("Full status live activity %s not found, returning READY",
-										cas.uuid));
+										cas.getUuid()));
 			}
 
-			fullStatus.activities.add(cas);
+			fullStatus.getActivities().add(cas);
 		}
 
-		ByteBuffer serialize = controllerFullStatusMessageSerializer
-				.serialize(fullStatus);
-		status.data = serialize.array();
+		ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(
+				ByteOrder.LITTLE_ENDIAN, 256);
+		controllerFullStatusMessageSerializer.serialize(fullStatus, serialize);
+		status.setData(serialize);
 
 		controllerStatusPublisher.publish(status);
 	}
@@ -365,18 +381,81 @@ public class RosSpaceControllerCommunicator implements
 	 */
 	private void handleLiveActivityDeployment(
 			LiveActivityDeployRequest deployRequest) {
-		LiveActivityDeployStatus deployStatus = spaceControllerActivityInstallManager
-				.handleDeploymentRequest(deployRequest);
+		SpaceControllerLiveActivityDeployRequest controllerDeployRequest = getControllerDeploymentRequest(deployRequest);
+		SpaceControllerLiveActivityDeployStatus controllerDeployStatus = spaceControllerActivityInstallManager
+				.handleDeploymentRequest(controllerDeployRequest);
+		LiveActivityDeployStatus deployStatus = getDeployStatus(controllerDeployStatus);
 
-		ControllerStatus status = new ControllerStatus();
-		status.uuid = controllerControl.getControllerInfo().getUuid();
-		status.status = ControllerStatus.STATUS_ACTIVITY_INSTALL;
+		ControllerStatus status = rosMessageFactory
+				.newFromType(ControllerStatus._TYPE);
+		status.setUuid(controllerControl.getControllerInfo().getUuid());
+		status.setStatus(ControllerStatus.STATUS_ACTIVITY_INSTALL);
 
-		ByteBuffer serialize = liveActivityDeployStatusSerializer
-				.serialize(deployStatus);
-		status.data = serialize.array();
+		ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(
+				ByteOrder.LITTLE_ENDIAN, 256);
+		liveActivityDeployStatusSerializer.serialize(deployStatus, serialize);
+		status.setData(serialize);
 
 		controllerStatusPublisher.publish(status);
+	}
+
+	/**
+	 * Get the controller deployment request for a communicator deployment
+	 * request.
+	 * 
+	 * @param deployRequest
+	 *            the communicator deployment request
+	 * 
+	 * @return the controller deployment request
+	 */
+	public SpaceControllerLiveActivityDeployRequest getControllerDeploymentRequest(
+			LiveActivityDeployRequest deployRequest) {
+		SpaceControllerLiveActivityDeployRequest controllerDeployRequest = new SpaceControllerLiveActivityDeployRequest(
+				deployRequest.getUuid(), deployRequest.getActivitySourceUri(),
+				deployRequest.getIdentifyingName(), deployRequest.getVersion());
+		return controllerDeployRequest;
+	}
+
+	/**
+	 * Get the communicator deployment status.
+	 * 
+	 * @param controllerDeployStatus
+	 *            the controller deploy status
+	 * 
+	 * @return the communicator deployment status
+	 */
+	public LiveActivityDeployStatus getDeployStatus(
+			SpaceControllerLiveActivityDeployStatus controllerDeployStatus) {
+		LiveActivityDeployStatus deployStatus = rosMessageFactory
+				.newFromType(LiveActivityDeployStatus._TYPE);
+
+		deployStatus.setUuid(controllerDeployStatus.getUuid());
+		deployStatus.setTimeDeployed(controllerDeployStatus.getTimeDeployed());
+
+		switch (controllerDeployStatus.getStatus()) {
+		case SpaceControllerLiveActivityDeployStatus.STATUS_SUCCESS:
+			deployStatus.setStatus(LiveActivityDeployStatus.STATUS_SUCCESS);
+			break;
+
+		case SpaceControllerLiveActivityDeployStatus.STATUS_FAILURE_COPY:
+			deployStatus
+					.setStatus(LiveActivityDeployStatus.STATUS_FAILURE_COPY);
+			break;
+
+		case SpaceControllerLiveActivityDeployStatus.STATUS_FAILURE_UNPACK:
+			deployStatus
+					.setStatus(LiveActivityDeployStatus.STATUS_FAILURE_UNPACK);
+			break;
+
+		default:
+			spaceEnvironment
+					.getLog()
+					.warn(String
+							.format("Unknown space controller activity deploy status %d",
+									controllerDeployStatus.getStatus()));
+
+		}
+		return deployStatus;
 	}
 
 	/**
@@ -387,18 +466,74 @@ public class RosSpaceControllerCommunicator implements
 	 */
 	private void handleLiveActivityDeletion(
 			LiveActivityDeleteRequest deleteRequest) {
-		LiveActivityDeleteStatus deleteStatus = spaceControllerActivityInstallManager
-				.handleDeleteRequest(deleteRequest);
+		SpaceControllerLiveActivityDeleteRequest controllerDeleteRequest = getSpaceControllerLiveActivityDeleteRequest(deleteRequest);
+		SpaceControllerLiveActivityDeleteStatus controllerDeleteStatus = spaceControllerActivityInstallManager
+				.handleDeleteRequest(controllerDeleteRequest);
+		LiveActivityDeleteStatus deleteStatus = getLiveActivityDeleteStatus(controllerDeleteStatus);
 
-		ControllerStatus status = new ControllerStatus();
-		status.uuid = controllerControl.getControllerInfo().getUuid();
-		status.status = ControllerStatus.STATUS_ACTIVITY_DELETE;
+		ControllerStatus status = rosMessageFactory
+				.newFromType(ControllerStatus._TYPE);
+		status.setUuid(controllerControl.getControllerInfo().getUuid());
+		status.setStatus(ControllerStatus.STATUS_ACTIVITY_DELETE);
 
-		ByteBuffer serialize = liveActivityDeleteStatusSerializer
-				.serialize(deleteStatus);
-		status.data = serialize.array();
+		ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(
+				ByteOrder.LITTLE_ENDIAN, 256);
+		liveActivityDeleteStatusSerializer.serialize(deleteStatus, serialize);
+		status.setData(serialize);
 
 		controllerStatusPublisher.publish(status);
+	}
+
+	/**
+	 * Get the controller live activity delete request from the communicator
+	 * delete request.
+	 * 
+	 * @param deleteRequest
+	 *            the communicator delete request
+	 * 
+	 * @return the controller delete request
+	 */
+	public SpaceControllerLiveActivityDeleteRequest getSpaceControllerLiveActivityDeleteRequest(
+			LiveActivityDeleteRequest deleteRequest) {
+		SpaceControllerLiveActivityDeleteRequest controllerDeleteRequest = new SpaceControllerLiveActivityDeleteRequest(
+				deleteRequest.getUuid(), deleteRequest.getIdentifyingName(),
+				deleteRequest.getVersion());
+		return controllerDeleteRequest;
+	}
+
+	/**
+	 * Get the communicator live activity delete status from the controller
+	 * delete status.
+	 * 
+	 * @param controllerDeleteStatus
+	 *            the controller delete status
+	 * 
+	 * @return the communicator live activity delete status
+	 */
+	public LiveActivityDeleteStatus getLiveActivityDeleteStatus(
+			SpaceControllerLiveActivityDeleteStatus controllerDeleteStatus) {
+		LiveActivityDeleteStatus deleteStatus = rosMessageFactory
+				.newFromType(LiveActivityDeleteStatus._TYPE);
+		deleteStatus.setUuid(controllerDeleteStatus.getUuid());
+		deleteStatus.setTimeDeleted(controllerDeleteStatus.getTimeDeleted());
+
+		switch (controllerDeleteStatus.getStatus()) {
+		case SpaceControllerLiveActivityDeleteStatus.STATUS_SUCCESS:
+			deleteStatus.setStatus(LiveActivityDeleteStatus.STATUS_SUCCESS);
+			break;
+
+		case SpaceControllerLiveActivityDeleteStatus.STATUS_FAILURE:
+			deleteStatus.setStatus(LiveActivityDeleteStatus.STATUS_FAILURE);
+			break;
+
+		default:
+			spaceEnvironment
+					.getLog()
+					.warn(String
+							.format("Unknown space controller activity delete status %d",
+									controllerDeleteStatus.getStatus()));
+		}
+		return deleteStatus;
 	}
 
 	/**
@@ -411,41 +546,38 @@ public class RosSpaceControllerCommunicator implements
 			final ControllerActivityRuntimeRequest request) {
 		spaceEnvironment.getExecutorService().submit(new Runnable() {
 			public void run() {
-				switch (request.operation) {
+				String uuid = request.getUuid();
+				switch (request.getOperation()) {
 				case ControllerActivityRuntimeRequest.OPERATION_STARTUP:
-					controllerControl.startupActivity(request.uuid);
+					controllerControl.startupActivity(uuid);
 
 					break;
 
 				case ControllerActivityRuntimeRequest.OPERATION_ACTIVATE:
-					controllerControl.activateActivity(request.uuid);
+					controllerControl.activateActivity(uuid);
 
 					break;
 
 				case ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE:
-					controllerControl.deactivateActivity(request.uuid);
+					controllerControl.deactivateActivity(uuid);
 
 					break;
 
 				case ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN:
-					controllerControl.shutdownActivity(request.uuid);
+					controllerControl.shutdownActivity(uuid);
 
 					break;
 
 				case ControllerActivityRuntimeRequest.OPERATION_STATUS:
-					controllerControl.statusActivity(request.uuid);
+					controllerControl.statusActivity(uuid);
 
 					break;
 
 				case ControllerActivityRuntimeRequest.OPERATION_CONFIGURE:
-					ByteBuffer payloadBuffer = ByteBuffer.wrap(request.data);
-					payloadBuffer.order(ByteOrder.LITTLE_ENDIAN).position(0)
-							.limit(request.data.length);
-
 					ActivityConfigurationRequest configurationRequest = activityConfigurationRequestDeserializer
-							.deserialize(payloadBuffer);
+							.deserialize(request.getData());
 
-					handleActivityConfigurationRequest(request.uuid,
+					handleActivityConfigurationRequest(uuid,
 							configurationRequest);
 
 					break;
@@ -454,7 +586,7 @@ public class RosSpaceControllerCommunicator implements
 					spaceEnvironment.getLog().error(
 							String.format(
 									"Unknown ROS activity runtime request %d",
-									request.operation));
+									request.getOperation()));
 				}
 			}
 		});
@@ -472,9 +604,11 @@ public class RosSpaceControllerCommunicator implements
 			ActivityConfigurationRequest configurationRequest) {
 		Map<String, Object> values = Maps.newHashMap();
 
-		for (ActivityConfigurationParameterRequest parameterRequest : configurationRequest.parameters) {
-			if (parameterRequest.operation == ActivityConfigurationParameterRequest.OPERATION_ADD) {
-				values.put(parameterRequest.name, parameterRequest.value);
+		for (ActivityConfigurationParameterRequest parameterRequest : configurationRequest
+				.getParameters()) {
+			if (parameterRequest.getOperation() == ActivityConfigurationParameterRequest.OPERATION_ADD) {
+				values.put(parameterRequest.getName(),
+						parameterRequest.getValue());
 			}
 		}
 
@@ -484,9 +618,10 @@ public class RosSpaceControllerCommunicator implements
 	@Override
 	public void publishActivityStatus(String uuid, ActivityStatus astatus) {
 		try {
-			ControllerActivityStatus status = new ControllerActivityStatus();
-			status.uuid = uuid;
-			status.status = translateActivityState(astatus.getState());
+			ControllerActivityStatus status = rosMessageFactory
+					.newFromType(ControllerActivityStatus._TYPE);
+			status.setUuid(uuid);
+			status.setStatus(translateActivityState(astatus.getState()));
 
 			activityStatusPublisher.publish(status);
 		} catch (Exception e) {
@@ -601,20 +736,21 @@ public class RosSpaceControllerCommunicator implements
 	 * @author Keith M. Hughes
 	 */
 	private class RosControllerHeartbeat implements SpaceControllerHeartbeat {
+		
 		/**
 		 * heartbeatLoop status is always the same, so create once.
 		 */
 		private ControllerStatus status;
 
 		public RosControllerHeartbeat() {
-			status = new ControllerStatus();
-			status.status = ControllerStatus.STATUS_HEARTBEAT;
+			status = rosMessageFactory.newFromType(ControllerStatus._TYPE);
+			status.setStatus(ControllerStatus.STATUS_HEARTBEAT);
 		}
 
 		@Override
 		public void heartbeat() {
 			// In case the UUID changed.
-			status.uuid = controllerControl.getControllerInfo().getUuid();
+			status.setUuid(controllerControl.getControllerInfo().getUuid());
 			controllerStatusPublisher.publish(status);
 		}
 	}

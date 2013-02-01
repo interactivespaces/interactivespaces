@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.ros.master.uri.MasterUriProvider;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeListener;
 import org.ros.node.NodeMain;
@@ -84,7 +84,7 @@ public interface RosEnvironment {
 	 * Get the node configuration to be used as a public node for this
 	 * environment.
 	 * 
-	 * @return
+	 * @return the public node configuration
 	 */
 	NodeConfiguration getPublicNodeConfiguration();
 
@@ -92,7 +92,7 @@ public interface RosEnvironment {
 	 * Get a public node configuration where names will be resolved via the node
 	 * name returned by {@link #getNodeName()}.
 	 * 
-	 * @return
+	 * @return the public node configuration
 	 */
 	NodeConfiguration getPublicNodeConfigurationWithNodeName();
 
@@ -107,7 +107,7 @@ public interface RosEnvironment {
 	 * @param subname
 	 *            The next level of node name.
 	 * 
-	 * @return
+	 * @return the public node configuration
 	 */
 	NodeConfiguration getPublicNodeConfigurationWithNodeName(String subname);
 
@@ -127,7 +127,7 @@ public interface RosEnvironment {
 	 * 
 	 * @return a newly created node.
 	 */
-	Node newNode(NodeConfiguration configuration);
+	ConnectedNode newNode(NodeConfiguration configuration);
 
 	/**
 	 * Create a node from the given node configuration with the given set of
@@ -140,7 +140,7 @@ public interface RosEnvironment {
 	 * 
 	 * @return a newly created node.
 	 */
-	Node newNode(NodeConfiguration nodeConfiguration,
+	ConnectedNode newNode(NodeConfiguration nodeConfiguration,
 			Collection<NodeListener> listeners);
 
 	/**

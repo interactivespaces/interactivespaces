@@ -51,7 +51,16 @@ public class OutgoingMessageQueue<MessageType> {
   private MessageType latchedMessage;
 
   private final class Writer extends CancellableLoop {
-    @Override
+	  
+	@Override
+	protected void setup() {
+		// TODO Auto-generated method stub
+		super.setup();
+		
+		Thread.currentThread().setName("ROS-TOPIC-WRITER");
+	}
+
+	@Override
     public void loop() throws InterruptedException {
       writeMessageToChannel(messages.take());
     }

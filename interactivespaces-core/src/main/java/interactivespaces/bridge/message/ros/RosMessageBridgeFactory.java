@@ -20,8 +20,7 @@ import interactivespaces.bridge.message.MessageBridge;
 import interactivespaces.bridge.message.MessageBridgeFactory;
 
 import org.apache.commons.logging.Log;
-import org.ros.message.Message;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 
 /**
  * A {@link MessageBridgeFactory} for ROS messages.
@@ -37,20 +36,20 @@ public class RosMessageBridgeFactory implements MessageBridgeFactory {
 	/**
 	 * Node for the factory to use.
 	 */
-	private Node node;
+	private ConnectedNode node;
 
 	/**
 	 * @param node
 	 *            the ROS node all bridges should be attached to
 	 */
-	public RosMessageBridgeFactory(Node node) {
+	public RosMessageBridgeFactory(ConnectedNode node) {
 		this.node = node;
 		specificationCompiler = new OgnlRosMessageBridgeSpecificationCompiler();
 	}
 
 	@Override
 	public MessageBridge newMessageBridge(String specification, Log log) {
-		RosMessageBridgeSpecification<Message, Message> spec = specificationCompiler
+		RosMessageBridgeSpecification<Object, Object> spec = specificationCompiler
 				.compile(specification);
 		
 		return new RosRosMessageBridge(node, spec, log);

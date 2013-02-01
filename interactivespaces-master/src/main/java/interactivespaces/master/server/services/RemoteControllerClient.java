@@ -20,8 +20,8 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
 
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
+import interactivespaces_msgs.LiveActivityDeleteRequest;
+import interactivespaces_msgs.LiveActivityDeployRequest;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -106,6 +106,13 @@ public interface RemoteControllerClient {
 			LiveActivityDeployRequest request);
 
 	/**
+	 * Create a new deploy request.
+	 * 
+	 * @return a new deploy request
+	 */
+	LiveActivityDeployRequest newLiveActivityDeployRequest();
+	
+	/**
 	 * Delete a live activity from its controller.
 	 * 
 	 * @param liveActivity
@@ -118,6 +125,13 @@ public interface RemoteControllerClient {
 	void deleteActivity(LiveActivity liveActivity,
 			LiveActivityDeleteRequest request);
 
+	/**
+	 * Create a new delete request.
+	 * 
+	 * @return a new delete request
+	 */
+	LiveActivityDeleteRequest newLiveActivityDeleteRequest();
+	
 	/**
 	 * Fully configure an activity on its controller.
 	 * 

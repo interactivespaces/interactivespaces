@@ -16,10 +16,13 @@
 
 package interactivespaces.util.ros;
 
+import interactivespaces.InteractiveSpacesException;
+
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.ros.node.Node;
+import org.ros.internal.node.topic.SubscriberIdentifier;
+import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.PublisherListener;
 
@@ -67,7 +70,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	 * @param messageType
 	 *            the message type for all of the publishers
 	 */
-	public void addPublishers(Node node, String messageType, String topicNames) {
+	public void addPublishers(ConnectedNode node, String messageType, String topicNames) {
 		addPublishers(node, messageType, topicNames, false);
 	}
 
@@ -87,7 +90,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	 *            {@code true} if the publisher should always send the last
 	 *            message sent to any new subscribers
 	 */
-	public void addPublishers(Node node, String messageType, String topicNames,
+	public void addPublishers(ConnectedNode node, String messageType, String topicNames,
 			boolean latch) {
 		log.error("Adding publishers");
 		for (String topicName : topicNames.split(SEPARATOR)) {
@@ -113,6 +116,19 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	public void publishMessage(T message) {
 		for (Publisher<T> publisher : publishers) {
 			publisher.publish(message);
+		}
+	}
+	
+	/**
+	 * Create an instance of the message.
+	 * 
+	 * @return an instance of the message
+	 */
+	public T newMessage() {
+		if (!publishers.isEmpty()) {
+			return publishers.get(0).newMessage();
+		} else {
+			throw new InteractiveSpacesException("No publishers found to create a message");
 		}
 	}
 
@@ -157,9 +173,10 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	}
 
 	@Override
-	public void onNewSubscriber(Publisher<T> publisher) {
-		log.info(String.format("Publisher for topic %s has a new subscriber",
-				publisher.getTopicName()));
+	public void onNewSubscriber(Publisher<T> publisher,
+			SubscriberIdentifier subscriberIdentifier) {
+		log.info(String.format("Publisher for topic %s has a new subscriber %s",
+				publisher.getTopicName(), subscriberIdentifier.getNodeIdentifier()));
 	}
 
 	@Override

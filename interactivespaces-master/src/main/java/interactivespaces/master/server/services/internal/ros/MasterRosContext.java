@@ -16,15 +16,20 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.commons.logging.Log;
+import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.NodeConfiguration;
-import org.ros.node.NodeMain;
+import org.ros.node.NodeListener;
 import org.ros.osgi.common.RosEnvironment;
+
+import com.google.common.collect.Lists;
 
 /**
  * A ROS context for the master.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class MasterRosContext {
@@ -35,15 +40,10 @@ public class MasterRosContext {
 	private RosEnvironment rosEnvironment;
 
 	/**
-	 * Node main for this client.
-	 */
-	private NodeMain nodeMain;
-
-	/**
 	 * Node for this client.
 	 */
-	private Node node;
-	
+	private ConnectedNode node;
+
 	/**
 	 * Logger for this node.
 	 */
@@ -51,12 +51,43 @@ public class MasterRosContext {
 
 	public void startup() {
 		log.error("Starting up master ROS context");
-		
+
 		final NodeConfiguration nodeConfiguration = rosEnvironment
 				.getPublicNodeConfigurationWithNodeName();
 		nodeConfiguration.setNodeName("interactivespaces/master");
-		
-		node = rosEnvironment.newNode(nodeConfiguration);
+
+		final CountDownLatch registrationLatch = new CountDownLatch(1);
+
+		NodeListener listener = new NodeListener() {
+
+			@Override
+			public void onStart(ConnectedNode connectedNode) {
+				setConnectedNode(connectedNode);
+				registrationLatch.countDown();
+			}
+
+			@Override
+			public void onShutdownComplete(Node node) {
+				log.error(String
+						.format("Got ROS node complete shutdown for Interactive Spaces master node %s",
+								node.getName()));
+			}
+
+			@Override
+			public void onShutdown(Node node) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(Node node, Throwable throwable) {
+				log.error(
+						String.format(
+								"Got ROS node error for Interactive Spaces master node %s",
+								node.getName()), throwable);
+			}
+		};
+		rosEnvironment.newNode(nodeConfiguration, Lists.newArrayList(listener));
 	}
 
 	public void shutdown() {
@@ -64,28 +95,30 @@ public class MasterRosContext {
 			node.shutdown();
 		}
 	}
-	
-	public Node getNode() {
+
+	public ConnectedNode getNode() {
 		return node;
 	}
-	
+
 	public RosEnvironment getRosEnvironment() {
 		return rosEnvironment;
 	}
-	
-	private void nodeStartup(Node node) {
+
+	private void setConnectedNode(ConnectedNode node) {
 		this.node = node;
 	}
 
 	/**
-	 * @param rosEnvironment the rosEnvironment to set
+	 * @param rosEnvironment
+	 *            the rosEnvironment to set
 	 */
 	public void setRosEnvironment(RosEnvironment rosEnvironment) {
 		this.rosEnvironment = rosEnvironment;
 	}
 
 	/**
-	 * @param log the log to set
+	 * @param log
+	 *            the log to set
 	 */
 	public void setLog(Log log) {
 		this.log = log;

@@ -39,7 +39,7 @@ public class RosOsgiDeploymentSupport {
 	 */
 	public static void setNamespaceForDeployment(NodeConfiguration configuration, String remoteNodeName) {
 		configuration.setParentResolver(new NameResolver(
-				new GraphName(remoteNodeName + "/" + OsgiConstants.DEPLOYMENT_ROOT_NAME), 
+				GraphName.of(remoteNodeName + "/" + OsgiConstants.DEPLOYMENT_ROOT_NAME), 
 				new HashMap<GraphName,GraphName>()));
 	}
 }

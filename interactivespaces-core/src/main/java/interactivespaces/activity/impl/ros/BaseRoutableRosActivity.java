@@ -21,6 +21,7 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.component.ros.RoutableInputMessageListener;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
+import interactivespaces_msgs.GenericMessage;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,7 +29,6 @@ import java.util.Map;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ros.message.interactivespaces_msgs.GenericMessage;
 
 /**
  * An {@link Activity} which provides a set of named input ROS topics and a set
@@ -60,7 +60,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 					@Override
 					public void onNewRoutableInputMessage(String channelName,
 							GenericMessage message) {
-						if ("json".equals(message.type)) {
+						if ("json".equals(message.getType())) {
 							try {
 								callOnNewInputJson(channelName, message);
 							} catch (Exception e) {
@@ -143,11 +143,11 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	 *            the message to send
 	 */
 	public void sendOutputJson(String channelName, Map<String, Object> message) {
-		GenericMessage outgoing = new GenericMessage();
+		GenericMessage outgoing = router.newMessage();
 
 		try {
-			outgoing.type = "json";
-			outgoing.message = MAPPER.writeValueAsString(message);
+			outgoing.setType("json");
+			outgoing.setMessage(MAPPER.writeValueAsString(message));
 
 			router.writeOutputMessage(channelName, outgoing);
 		} catch (Exception e) {
@@ -167,10 +167,10 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	 *            the message to send
 	 */
 	public void sendOutputString(String channelName, String message) {
-		GenericMessage outgoing = new GenericMessage();
+		GenericMessage outgoing = router.newMessage();
 		try {
-			outgoing.type = "string";
-			outgoing.message = message;
+			outgoing.setType("string");
+			outgoing.setMessage(message);
 
 			router.writeOutputMessage(channelName, outgoing);
 		} catch (Exception e) {
@@ -201,7 +201,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 		try {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					message.message, Map.class);
+					message.getMessage(), Map.class);
 			onNewInputJson(channelName, map);
 		} finally {
 			getExecutionContext().exitMethod(invocation);
@@ -221,7 +221,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 				.enterMethod();
 
 		try {
-			onNewInputString(channelName, message.message);
+			onNewInputString(channelName, message.getMessage());
 		} finally {
 			getExecutionContext().exitMethod(invocation);
 		}

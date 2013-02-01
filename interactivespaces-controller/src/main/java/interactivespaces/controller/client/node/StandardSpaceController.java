@@ -290,16 +290,6 @@ public class StandardSpaceController implements SpaceController,
 		alertStatusManager = new SimpleAlertStatusManager();
 		alertStatusManager.setLog(spaceEnvironment.getLog());
 
-		controllerHeartbeat = controllerCommunicator
-				.newSpaceControllerHeartbeat();
-		controllerHeartbeatControl = getSpaceEnvironment().getExecutorService()
-				.scheduleAtFixedRate(new Runnable() {
-					@Override
-					public void run() {
-						controllerHeartbeat.heartbeat();
-					}
-				}, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
-
 		activityWatcher = new SpaceControllerActivityWatcher(spaceEnvironment);
 		activityWatcher.addListener(this);
 		activityWatcherControl = getSpaceEnvironment().getExecutorService()
@@ -315,6 +305,17 @@ public class StandardSpaceController implements SpaceController,
 				.addActivityInstallationListener(activityInstallationListener);
 
 		controllerCommunicator.onStartup();
+
+		controllerHeartbeat = controllerCommunicator
+				.newSpaceControllerHeartbeat();
+		controllerHeartbeatControl = getSpaceEnvironment().getExecutorService()
+				.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						controllerHeartbeat.heartbeat();
+					}
+				}, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
+		
 
 		startupCoreControllerServices();
 

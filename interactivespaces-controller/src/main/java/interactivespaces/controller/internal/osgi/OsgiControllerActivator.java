@@ -22,8 +22,8 @@ import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
+import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.internal.osgi.OsgiActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.ros.RosSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
@@ -60,7 +60,7 @@ public class OsgiControllerActivator implements BundleActivator {
 	private SimpleActivityStorageManager activityStorageManager;
 	private FileLocalSpaceControllerRepository controllerRepository;
 	private SimpleActivityInstallationManager activityInstallationManager;
-	private RosSpaceControllerActivityInstallationManager controllerActivityInstaller;
+	private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
 	private StandardSpaceController spaceController;
 	private OsgiControllerShell controllerShell;
 
@@ -173,7 +173,7 @@ public class OsgiControllerActivator implements BundleActivator {
 								ActiveControllerActivityFactory.class.getName(),
 								controllerActivityFactory, null);
 
-				controllerActivityInstaller = new RosSpaceControllerActivityInstallationManager(
+				controllerActivityInstaller = new SimpleSpaceControllerActivityInstallationManager(
 						activityInstallationManager, spaceEnvironment);
 				controllerActivityInstaller.startup();
 

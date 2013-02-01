@@ -17,10 +17,6 @@ dependencies {
   compile project(':rosjava_osgi_node')
 
   compile project(':interactivespaces-core')
-  
-  compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
-    exclude module: 'rosjava_bootstrap'
-  }
 
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
   

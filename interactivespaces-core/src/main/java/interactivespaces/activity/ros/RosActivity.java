@@ -18,7 +18,7 @@ package interactivespaces.activity.ros;
 
 import interactivespaces.activity.Activity;
 
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.osgi.common.RosEnvironment;
 
 /**
@@ -39,5 +39,5 @@ public interface RosActivity extends Activity {
 	 * Get the main ROS node for this activity.
 	 * @return
 	 */
-	Node getMainNode();
+	ConnectedNode getMainNode();
 }

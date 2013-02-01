@@ -19,10 +19,9 @@ package interactivespaces.bridge.message.ros;
 import interactivespaces.bridge.message.MessageBridge;
 
 import org.apache.commons.logging.Log;
-import org.ros.message.Message;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
@@ -39,22 +38,22 @@ public class RosRosMessageBridge implements MessageBridge {
 	 * <p>
 	 * The bridge does not own the node, so should not shut it down.
 	 */
-	private Node node;
+	private ConnectedNode node;
 
 	/**
 	 * The bridge specification for the message bridge.
 	 */
-	private RosMessageBridgeSpecification<Message, Message> bridgeSpecification;
+	private RosMessageBridgeSpecification<Object, Object> bridgeSpecification;
 
 	/**
 	 * The subscriber for the source messages.
 	 */
-	private Subscriber<Message> subscriber;
+	private Subscriber<Object> subscriber;
 
 	/**
 	 * The publisher for the destination messages.
 	 */
-	private Publisher<Message> publisher;
+	private Publisher<Object> publisher;
 
 	/**
 	 * Logger for messages.
@@ -67,8 +66,8 @@ public class RosRosMessageBridge implements MessageBridge {
 	 *            bridge does not own the node
 	 */
 	public RosRosMessageBridge(
-			Node node,
-			RosMessageBridgeSpecification<Message, Message> bridgeSpecification,
+			ConnectedNode node,
+			RosMessageBridgeSpecification<Object, Object> bridgeSpecification,
 			Log log) {
 		this.node = node;
 		this.bridgeSpecification = bridgeSpecification;
@@ -78,16 +77,16 @@ public class RosRosMessageBridge implements MessageBridge {
 	@Override
 	public void startup() {
 		publisher = node.newPublisher(
-				new GraphName(bridgeSpecification.getDestinationTopicName()),
+				GraphName.of(bridgeSpecification.getDestinationTopicName()),
 				bridgeSpecification.getDestinationTopicMessageType());
 
 		subscriber = node.newSubscriber(
-				new GraphName(bridgeSpecification.getSourceTopicName()),
+				GraphName.of(bridgeSpecification.getSourceTopicName()),
 				bridgeSpecification.getSourceTopicMessageType());
 
-		subscriber.addMessageListener(new MessageListener<Message>() {
+		subscriber.addMessageListener(new MessageListener<Object>() {
 			@Override
-			public void onNewMessage(Message sourceMessage) {
+			public void onNewMessage(Object sourceMessage) {
 				translateAndPublishMessage(sourceMessage);
 			}
 		});
@@ -105,9 +104,9 @@ public class RosRosMessageBridge implements MessageBridge {
 	 * @param sourceMessage
 	 *            the message which came in from the source
 	 */
-	private void translateAndPublishMessage(Message sourceMessage) {
+	private void translateAndPublishMessage(Object sourceMessage) {
 		try {
-			Message destinationMessage = node.getMessageFactory().newMessage(
+			Object destinationMessage = node.getTopicMessageFactory().newFromType(
 					bridgeSpecification.getDestinationTopicMessageType());
 
 			bridgeSpecification.execute(sourceMessage, destinationMessage);

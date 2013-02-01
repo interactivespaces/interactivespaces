@@ -19,8 +19,9 @@ package interactivespaces.util.ros;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.ros.internal.node.topic.PublisherIdentifier;
 import org.ros.message.MessageListener;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.SubscriberListener;
 
@@ -68,16 +69,17 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
 	 *            The listener which all subscribers will call when a message is
 	 *            received.
 	 */
-	public void addSubscribers(Node node, String messageType,
+	public void addSubscribers(ConnectedNode node, String messageType,
 			String topicNames, MessageListener<T> listener) {
-		log.error("Adding subscribers");
+		log.info("Adding topic subscribers");
 		for (String topicName : topicNames.split(SEPARATOR)) {
 			topicName = topicName.trim();
 			if (!topicName.isEmpty()) {
-				log.error(String.format("Adding subscriber topic %s", topicName));
+				log.info(String
+						.format("Adding subscriber topic %s", topicName));
 				Subscriber<T> newSubscriber = node.newSubscriber(topicName,
 						messageType);
-				log.error(String.format("Added subscriber topic %s", topicName));
+				log.info(String.format("Added subscriber topic %s", topicName));
 				newSubscriber.addSubscriberListener(this);
 				newSubscriber.addMessageListener(listener);
 				subscribers.add(newSubscriber);
@@ -126,9 +128,14 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
 	}
 
 	@Override
-	public void onNewPublisher(Subscriber<T> subscriber) {
-		log.info(String.format("Subscriber for topic %s has a new publisher",
-				subscriber.getTopicName()));
+	public void onNewPublisher(Subscriber<T> subscriber,
+			PublisherIdentifier publisher) {
+		if (log.isInfoEnabled()) {
+			log.info(String.format(
+					"Subscriber for topic %s has a new publisher %s",
+					subscriber.getTopicName(), publisher.getNodeIdentifier()
+							.getName()));
+		}
 	}
 
 	@Override

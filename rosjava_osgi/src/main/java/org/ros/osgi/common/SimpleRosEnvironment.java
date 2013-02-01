@@ -20,8 +20,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.DefaultScheduledExecutorService;
@@ -29,6 +33,7 @@ import org.ros.exception.RosRuntimeException;
 import org.ros.master.uri.MasterUriProvider;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
+import org.ros.node.ConnectedNode;
 import org.ros.node.DefaultNodeFactory;
 import org.ros.node.DefaultNodeMainExecutor;
 import org.ros.node.Node;
@@ -38,6 +43,7 @@ import org.ros.node.NodeListener;
 import org.ros.node.NodeMain;
 import org.ros.node.NodeMainExecutor;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -150,7 +156,7 @@ public class SimpleRosEnvironment implements RosEnvironment {
 		}
 
 		nodeRunner = DefaultNodeMainExecutor.newDefault(executorService);
-		
+
 		nodeFactory = new DefaultNodeFactory(executorService);
 	}
 
@@ -166,13 +172,68 @@ public class SimpleRosEnvironment implements RosEnvironment {
 	}
 
 	@Override
-	public Node newNode(NodeConfiguration configuration) {
-		return nodeFactory.newNode(configuration, true);
+	public ConnectedNode newNode(NodeConfiguration configuration) {
+		// TODO(ROS): Part of ROS update
+		// return nodeFactory.newNode(configuration, true);
+		return newNode(configuration, null);
 	}
 
 	@Override
-	public Node newNode(NodeConfiguration configuration, Collection<NodeListener> listeners) {
-		return nodeFactory.newNode(configuration, listeners, true);
+	public ConnectedNode newNode(NodeConfiguration configuration,
+			Collection<NodeListener> listeners) {
+		// TODO(ROS): Part of ROS update
+		// return nodeFactory.newNode(configuration, listeners, true);
+		final AtomicReference<ConnectedNode> node = new AtomicReference<ConnectedNode>();
+
+		final CountDownLatch registeredLatch = new CountDownLatch(1);
+
+		NodeListener registrationListener = new NodeListener() {
+
+			@Override
+			public void onStart(ConnectedNode connectedNode) {
+				node.set(connectedNode);
+				registeredLatch.countDown();
+			}
+
+			@Override
+			public void onShutdownComplete(Node node) {
+				log.info(String.format("Shut down complete for node %s",
+						node.getName()));
+			}
+
+			@Override
+			public void onShutdown(Node node) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onError(Node node, Throwable throwable) {
+				log.error(String.format("Error for node %s", node.getName()),
+						throwable);
+			}
+		};
+
+		List<NodeListener> fullListeners = Lists
+				.newArrayList(registrationListener);
+		if (listeners != null) {
+			fullListeners.addAll(listeners);
+		}
+
+		Node bareNode = nodeFactory.newNode(configuration, fullListeners);
+
+		try {
+			if (registeredLatch.await(10000, TimeUnit.MILLISECONDS)) {
+
+				return node.get();
+			} else {
+				throw new RuntimeException(String.format(
+						"No registration connection made for ROS node %s",
+						bareNode.getName()));
+			}
+		} catch (InterruptedException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -193,7 +254,8 @@ public class SimpleRosEnvironment implements RosEnvironment {
 			conf.setLog(log);
 			return conf;
 		} else if (masterUri != null) {
-			NodeConfiguration conf = NodeConfiguration.newPublic(host, masterUri);
+			NodeConfiguration conf = NodeConfiguration.newPublic(host,
+					masterUri);
 			conf.setLog(log);
 			return conf;
 		} else {
@@ -204,8 +266,8 @@ public class SimpleRosEnvironment implements RosEnvironment {
 	@Override
 	public NodeConfiguration getPublicNodeConfigurationWithNodeName() {
 		NodeConfiguration configuration = getPublicNodeConfiguration();
-		configuration.setParentResolver(new NameResolver(new GraphName(
-				getNodeName()), new HashMap<GraphName, GraphName>()));
+		configuration.setParentResolver(new NameResolver(GraphName
+				.of(getNodeName()), new HashMap<GraphName, GraphName>()));
 
 		return configuration;
 	}
@@ -214,8 +276,8 @@ public class SimpleRosEnvironment implements RosEnvironment {
 	public NodeConfiguration getPublicNodeConfigurationWithNodeName(
 			String subname) {
 		NodeConfiguration configuration = getPublicNodeConfiguration();
-		configuration.setParentResolver(new NameResolver(new GraphName(
-				getNodeName() + "/" + subname),
+		configuration.setParentResolver(new NameResolver(GraphName
+				.of(getNodeName() + "/" + subname),
 				new HashMap<GraphName, GraphName>()));
 
 		return configuration;

@@ -16,6 +16,11 @@
 
 package interactivespaces.controller.common.ros;
 
+import interactivespaces_msgs.ControllerActivityRuntimeRequest;
+import interactivespaces_msgs.ControllerActivityStatus;
+import interactivespaces_msgs.ControllerRequest;
+import interactivespaces_msgs.ControllerStatus;
+
 /**
  * A collection of constants for working with Interactive Spaces space
  * controllers.
@@ -32,7 +37,7 @@ public class RosSpaceControllerConstants {
 	/**
 	 * Topic message type for controller requests.
 	 */
-	public static final String CONTROLLER_REQUEST_MESSAGE_TYPE = "interactivespaces_msgs/ControllerRequest";
+	public static final String CONTROLLER_REQUEST_MESSAGE_TYPE = ControllerRequest._TYPE;
 
 	/**
 	 * Topic name for controller status updates.
@@ -42,7 +47,7 @@ public class RosSpaceControllerConstants {
 	/**
 	 * Topic message type for controller status updates.
 	 */
-	public static final String CONTROLLER_STATUS_MESSAGE_TYPE = "interactivespaces_msgs/ControllerStatus";
+	public static final String CONTROLLER_STATUS_MESSAGE_TYPE = ControllerStatus._TYPE;
 
 	/**
 	 * Topic name for activity runtime requests.
@@ -52,7 +57,7 @@ public class RosSpaceControllerConstants {
 	/**
 	 * Topic message type for activity runtime requests.
 	 */
-	public static final String ACTIVITY_RUNTIME_REQUEST_MESSAGE_TYPE = "interactivespaces_msgs/ControllerActivityRuntimeRequest";
+	public static final String ACTIVITY_RUNTIME_REQUEST_MESSAGE_TYPE = ControllerActivityRuntimeRequest._TYPE;
 
 	/**
 	 * Topic name for activity runtime status updates.
@@ -62,5 +67,5 @@ public class RosSpaceControllerConstants {
 	/**
 	 * Topic message type for activity runtime status updates.
 	 */
-	public static final String ACTIVITY_RUNTIME_STATUS_MESSAGE_TYPE = "interactivespaces_msgs/ControllerActivityStatus";
+	public static final String ACTIVITY_RUNTIME_STATUS_MESSAGE_TYPE = ControllerActivityStatus._TYPE;
 }

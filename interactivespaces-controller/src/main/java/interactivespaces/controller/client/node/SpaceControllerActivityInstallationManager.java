@@ -16,11 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeleteStatus;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployRequest;
-import org.ros.message.interactivespaces_msgs.LiveActivityDeployStatus;
-
 /**
  * The controller-side installation manager.
  * 
@@ -46,8 +41,8 @@ public interface SpaceControllerActivityInstallationManager {
 	 * 
 	 * @return the status for the deployment
 	 */
-	LiveActivityDeployStatus handleDeploymentRequest(
-			LiveActivityDeployRequest request);
+	SpaceControllerLiveActivityDeployStatus handleDeploymentRequest(
+			SpaceControllerLiveActivityDeployRequest request);
 
 	/**
 	 * Handle a delete request and return a delete status.
@@ -57,6 +52,6 @@ public interface SpaceControllerActivityInstallationManager {
 	 * 
 	 * @return the status for the deletion
 	 */
-	LiveActivityDeleteStatus handleDeleteRequest(
-			LiveActivityDeleteRequest request);
+	SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(
+			SpaceControllerLiveActivityDeleteRequest request);
 }

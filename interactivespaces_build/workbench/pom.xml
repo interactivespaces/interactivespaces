@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-workbench-installer</artifactId>
-	<version>1.3.2</version>
+	<version>1.4.0</version>
 
 	<name>Interactive Spaces Workbench</name>
 
@@ -223,7 +223,7 @@ the License.
 								<!-- ROS bundles needed -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
-									<artifactId>rosjava_bootstrap</artifactId>
+									<artifactId>nrosjava_bootstrap</artifactId>
 									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
@@ -232,34 +232,6 @@ the License.
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava</artifactId>
 									<version>${project.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>ros</groupId>
-									<artifactId>message.roscpp</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>ros</groupId>
-									<artifactId>message.rosgraph_msgs</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>ros</groupId>
-									<artifactId>message.std_msgs</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>ros</groupId>
-									<artifactId>message.test_ros</artifactId>
-									<version>0.0.0-SNAPSHOT</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
