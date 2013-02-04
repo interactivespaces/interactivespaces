@@ -16,8 +16,11 @@
 
 package org.ros.internal.transport.tcp;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import java.net.SocketAddress;
+import java.nio.ByteOrder;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,90 +33,111 @@ import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.socket.nio.NioClientBossPool;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
+import org.jboss.netty.util.HashedWheelTimer;
 import org.ros.exception.RosRuntimeException;
 
-import java.net.SocketAddress;
-import java.nio.ByteOrder;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class TcpClient {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(TcpClient.class);
+	private static final boolean DEBUG = false;
+	private static final Log log = LogFactory.getLog(TcpClient.class);
 
-  private static final int DEFAULT_CONNECTION_TIMEOUT_DURATION = 5;
-  private static final TimeUnit DEFAULT_CONNECTION_TIMEOUT_UNIT = TimeUnit.SECONDS;
-  private static final boolean DEFAULT_KEEP_ALIVE = true;
+	private static final int DEFAULT_CONNECTION_TIMEOUT_DURATION = 5;
+	private static final TimeUnit DEFAULT_CONNECTION_TIMEOUT_UNIT = TimeUnit.SECONDS;
+	private static final boolean DEFAULT_KEEP_ALIVE = true;
 
-  private final ChannelGroup channelGroup;
-  private final ChannelFactory channelFactory;
-  private final ChannelBufferFactory channelBufferFactory;
-  private final ClientBootstrap bootstrap;
-  private final List<NamedChannelHandler> namedChannelHandlers;
-  
-  private Channel channel;
+	private final ChannelGroup channelGroup;
+	private final ChannelFactory channelFactory;
+	private final ChannelBufferFactory channelBufferFactory;
+	private final ClientBootstrap bootstrap;
+	private final List<NamedChannelHandler> namedChannelHandlers;
 
-  public TcpClient(ChannelGroup channelGroup, Executor executor) {
-    this.channelGroup = channelGroup;
-    channelFactory = new NioClientSocketChannelFactory(executor, executor);
-    channelBufferFactory = new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN);
-    bootstrap = new ClientBootstrap(channelFactory);
-    bootstrap.setOption("bufferFactory", channelBufferFactory);
-    setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT_DURATION, DEFAULT_CONNECTION_TIMEOUT_UNIT);
-    setKeepAlive(DEFAULT_KEEP_ALIVE);
-    namedChannelHandlers = Lists.newArrayList();
-  }
+	private Channel channel;
+	private HashedWheelTimer nettyTimer;
 
-  public void setConnectionTimeout(long duration, TimeUnit unit) {
-    bootstrap.setOption("connectionTimeoutMillis", TimeUnit.MILLISECONDS.convert(duration, unit));
-  }
+	public TcpClient(ChannelGroup channelGroup, Executor executor) {
+		this.channelGroup = channelGroup;
+		nettyTimer = new HashedWheelTimer();
+		channelFactory = new NioClientSocketChannelFactory(
+				new NioClientBossPool(executor, 1),
+				new NioWorkerPool(executor, Runtime.getRuntime()
+						.availableProcessors() * 2));
+		channelBufferFactory = new HeapChannelBufferFactory(
+				ByteOrder.LITTLE_ENDIAN);
+		bootstrap = new ClientBootstrap(channelFactory);
+		bootstrap.setOption("bufferFactory", channelBufferFactory);
+		setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT_DURATION,
+				DEFAULT_CONNECTION_TIMEOUT_UNIT);
+		setKeepAlive(DEFAULT_KEEP_ALIVE);
+		namedChannelHandlers = Lists.newArrayList();
+	}
 
-  public void setKeepAlive(boolean value) {
-    bootstrap.setOption("keepAlive", value);
-  }
+	public void setConnectionTimeout(long duration, TimeUnit unit) {
+		bootstrap.setOption("connectionTimeoutMillis",
+				TimeUnit.MILLISECONDS.convert(duration, unit));
+	}
 
-  public void addNamedChannelHandler(NamedChannelHandler namedChannelHandler) {
-    namedChannelHandlers.add(namedChannelHandler);
-  }
+	public void setKeepAlive(boolean value) {
+		bootstrap.setOption("keepAlive", value);
+	}
 
-  public void addAllNamedChannelHandlers(List<NamedChannelHandler> namedChannelHandlers) {
-    this.namedChannelHandlers.addAll(namedChannelHandlers);
-  }
+	public void addNamedChannelHandler(NamedChannelHandler namedChannelHandler) {
+		namedChannelHandlers.add(namedChannelHandler);
+	}
 
-  public Channel connect(String connectionName, SocketAddress socketAddress) {
-    TcpClientPipelineFactory tcpClientPipelineFactory = new TcpClientPipelineFactory(channelGroup) {
-      @Override
-      public ChannelPipeline getPipeline() {
-        ChannelPipeline pipeline = super.getPipeline();
-        for (NamedChannelHandler namedChannelHandler : namedChannelHandlers) {
-          pipeline.addLast(namedChannelHandler.getName(), namedChannelHandler);
-        }
-        return pipeline;
-      }
-    };
-    bootstrap.setPipelineFactory(tcpClientPipelineFactory);
-    ChannelFuture future = bootstrap.connect(socketAddress).awaitUninterruptibly();
-    if (future.isSuccess()) {
-      channel = future.getChannel();
-      if (DEBUG) {
-        log.info("Connected to: " + socketAddress);
-      }
-    } else {
-      // We expect the first connection to succeed. If not, fail fast.
-      throw new RosRuntimeException("Connection exception: " + socketAddress, future.getCause());
-    }
-    return channel;
-  }
+	public void addAllNamedChannelHandlers(
+			List<NamedChannelHandler> namedChannelHandlers) {
+		this.namedChannelHandlers.addAll(namedChannelHandlers);
+	}
 
-  public ChannelFuture write(ChannelBuffer buffer) {
-    Preconditions.checkNotNull(channel);
-    Preconditions.checkNotNull(buffer);
-    return channel.write(buffer);
-  }
+	public Channel connect(String connectionName, SocketAddress socketAddress) {
+		TcpClientPipelineFactory tcpClientPipelineFactory = new TcpClientPipelineFactory(
+				channelGroup) {
+			@Override
+			public ChannelPipeline getPipeline() {
+				ChannelPipeline pipeline = super.getPipeline();
+				for (NamedChannelHandler namedChannelHandler : namedChannelHandlers) {
+					pipeline.addLast(namedChannelHandler.getName(),
+							namedChannelHandler);
+				}
+				return pipeline;
+			}
+		};
+		bootstrap.setPipelineFactory(tcpClientPipelineFactory);
+		ChannelFuture future = bootstrap.connect(socketAddress)
+				.awaitUninterruptibly();
+		if (future.isSuccess()) {
+			channel = future.getChannel();
+			if (DEBUG) {
+				log.info("Connected to: " + socketAddress);
+			}
+		} else {
+			// We expect the first connection to succeed. If not, fail fast.
+			throw new RosRuntimeException("Connection exception: "
+					+ socketAddress, future.getCause());
+		}
+		return channel;
+	}
+
+	public ChannelFuture write(ChannelBuffer buffer) {
+		Preconditions.checkNotNull(channel);
+		Preconditions.checkNotNull(buffer);
+		return channel.write(buffer);
+	}
+
+	/**
+	 * Shutdown the client.
+	 */
+	public void shutdown() {
+		bootstrap.shutdown();
+		nettyTimer.stop();
+	}
 }

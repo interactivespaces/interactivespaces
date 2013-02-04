@@ -59,6 +59,8 @@ public abstract class CancellableLoop implements Runnable {
       handleInterruptedException(e);
     } finally {
       thread = null;
+      
+      cleanup();
     }
   }
 
@@ -67,6 +69,13 @@ public abstract class CancellableLoop implements Runnable {
    * the first call to {@link #loop()}.
    */
   protected void setup() {
+  }
+
+  /**
+   * The cleanup block for the loop. This will be called exactly once when the
+   * loop has shut down.
+   */
+  protected void cleanup() {
   }
 
   /**

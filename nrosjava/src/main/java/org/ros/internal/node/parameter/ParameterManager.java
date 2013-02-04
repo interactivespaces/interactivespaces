@@ -69,4 +69,13 @@ public class ParameterManager {
     }
     return numberOfListeners;
   }
+  
+  /**
+   * Shut down the parameter manager.
+   */
+  public void shutdown() {
+	  for (ListenerGroup<ParameterListener>  group : listeners.values()) {
+		  group.shutdown();
+	  }
+  }
 }

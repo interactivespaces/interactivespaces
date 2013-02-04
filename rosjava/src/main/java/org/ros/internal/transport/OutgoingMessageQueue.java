@@ -54,9 +54,6 @@ public class OutgoingMessageQueue<MessageType> {
 	  
 	@Override
 	protected void setup() {
-		// TODO Auto-generated method stub
-		super.setup();
-		
 		Thread.currentThread().setName("ROS-TOPIC-WRITER");
 	}
 

@@ -71,6 +71,9 @@ public class IncomingMessageQueue<T> {
     messageDispatcher.addListener(messageListener, queueCapacity);
   }
 
+  /**
+   * Shut the queue down.
+   */
   public void shutdown() {
     messageDispatcher.cancel();
   }

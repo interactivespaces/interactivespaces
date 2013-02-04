@@ -40,7 +40,7 @@ public class TcpClientManager {
   public TcpClientManager(Executor executor) {
     this.executor = executor;
     channelGroup = new DefaultChannelGroup();
-    tcpClients = Lists.newArrayList();
+    tcpClients = Lists.newCopyOnWriteArrayList();
     namedChannelHandlers = Lists.newArrayList();
   }
 
@@ -77,10 +77,11 @@ public class TcpClientManager {
    */
   public void shutdown() {
     channelGroup.close().awaitUninterruptibly();
+    
+    // Shut down each client. This will free up many of their resources.
+    for (TcpClient client : tcpClients) {
+    	client.shutdown();
+    }
     tcpClients.clear();
-    // We don't call channelFactory.releaseExternalResources() or
-    // bootstrap.releaseExternalResources() since the only external resource is
-    // the ExecutorService which must remain in the control of the overall
-    // application.
   }
 }

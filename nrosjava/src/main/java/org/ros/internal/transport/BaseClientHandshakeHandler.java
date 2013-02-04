@@ -31,70 +31,90 @@ import java.util.concurrent.ExecutorService;
  * 
  * @author damonkohler@google.com (Damon Kohler)
  */
-public abstract class BaseClientHandshakeHandler extends AbstractNamedChannelHandler {
+public abstract class BaseClientHandshakeHandler extends
+		AbstractNamedChannelHandler {
 
-  private final ClientHandshake clientHandshake;
-  private final ListenerGroup<ClientHandshakeListener> clientHandshakeListeners;
+	private final ClientHandshake clientHandshake;
+	private final ListenerGroup<ClientHandshakeListener> clientHandshakeListeners;
 
-  public BaseClientHandshakeHandler(ClientHandshake clientHandshake, ExecutorService executorService) {
-    this.clientHandshake = clientHandshake;
-    clientHandshakeListeners = new ListenerGroup<ClientHandshakeListener>(executorService);
-  }
+	public BaseClientHandshakeHandler(ClientHandshake clientHandshake,
+			ExecutorService executorService) {
+		this.clientHandshake = clientHandshake;
+		clientHandshakeListeners = new ListenerGroup<ClientHandshakeListener>(
+				executorService);
+	}
 
-  public void addListener(ClientHandshakeListener clientHandshakeListener) {
-    clientHandshakeListeners.add(clientHandshakeListener);
-  }
+	public void addListener(ClientHandshakeListener clientHandshakeListener) {
+		clientHandshakeListeners.add(clientHandshakeListener);
+	}
 
-  @Override
-  public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    super.channelConnected(ctx, e);
-    e.getChannel().write(clientHandshake.getOutgoingConnectionHeader().encode());
-  }
+	@Override
+	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+			throws Exception {
+		super.channelConnected(ctx, e);
+		e.getChannel().write(
+				clientHandshake.getOutgoingConnectionHeader().encode());
+	}
 
-  @Override
-  public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-    ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
-    ConnectionHeader connectionHeader = ConnectionHeader.decode(buffer);
-    if (clientHandshake.handshake(connectionHeader)) {
-      onSuccess(connectionHeader, ctx, e);
-      signalOnSuccess(connectionHeader);
-    } else {
-      onFailure(clientHandshake.getErrorMessage(), ctx, e);
-      signalOnFailure(clientHandshake.getErrorMessage());
-    }
-  }
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
+			throws Exception {
+		try {
+			ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
+			ConnectionHeader connectionHeader = ConnectionHeader.decode(buffer);
+			if (clientHandshake.handshake(connectionHeader)) {
+				onSuccess(connectionHeader, ctx, e);
+				signalOnSuccess(connectionHeader);
+			} else {
+				onFailure(clientHandshake.getErrorMessage(), ctx, e);
+				signalOnFailure(clientHandshake.getErrorMessage());
+			}
+		} finally {
+			// Assume can shut the listener down after signaled.
+			clientHandshakeListeners.shutdown();
+		}
+	}
 
-  /**
-   * Called when the {@link ClientHandshake} succeeds and will block the network
-   * thread until it returns.
-   * <p>
-   * This must block in order to allow changes to the pipeline to be made before
-   * further messages arrive.
-   * 
-   * @param incommingConnectionHeader
-   * @param ctx
-   * @param e
-   */
-  protected abstract void onSuccess(ConnectionHeader incommingConnectionHeader,
-      ChannelHandlerContext ctx, MessageEvent e);
+	/**
+	 * Called when the {@link ClientHandshake} succeeds and will block the
+	 * network thread until it returns.
+	 * <p>
+	 * This must block in order to allow changes to the pipeline to be made
+	 * before further messages arrive.
+	 * 
+	 * @param incommingConnectionHeader
+	 * @param ctx
+	 * @param e
+	 */
+	protected abstract void onSuccess(
+			ConnectionHeader incommingConnectionHeader,
+			ChannelHandlerContext ctx, MessageEvent e);
 
-  private void signalOnSuccess(final ConnectionHeader incommingConnectionHeader) {
-    clientHandshakeListeners.signal(new SignalRunnable<ClientHandshakeListener>() {
-      @Override
-      public void run(ClientHandshakeListener listener) {
-        listener.onSuccess(clientHandshake.getOutgoingConnectionHeader(), incommingConnectionHeader);
-      }
-    });
-  }
+	private void signalOnSuccess(
+			final ConnectionHeader incommingConnectionHeader) {
+		clientHandshakeListeners
+				.signal(new SignalRunnable<ClientHandshakeListener>() {
+					@Override
+					public void run(ClientHandshakeListener listener) {
+						listener.onSuccess(
+								clientHandshake.getOutgoingConnectionHeader(),
+								incommingConnectionHeader);
+					}
+				});
+	}
 
-  protected abstract void onFailure(String errorMessage, ChannelHandlerContext ctx, MessageEvent e);
+	protected abstract void onFailure(String errorMessage,
+			ChannelHandlerContext ctx, MessageEvent e);
 
-  private void signalOnFailure(final String errorMessage) {
-    clientHandshakeListeners.signal(new SignalRunnable<ClientHandshakeListener>() {
-      @Override
-      public void run(ClientHandshakeListener listener) {
-        listener.onFailure(clientHandshake.getOutgoingConnectionHeader(), errorMessage);
-      }
-    });
-  }
+	private void signalOnFailure(final String errorMessage) {
+		clientHandshakeListeners
+				.signal(new SignalRunnable<ClientHandshakeListener>() {
+					@Override
+					public void run(ClientHandshakeListener listener) {
+						listener.onFailure(
+								clientHandshake.getOutgoingConnectionHeader(),
+								errorMessage);
+					}
+				});
+	}
 }

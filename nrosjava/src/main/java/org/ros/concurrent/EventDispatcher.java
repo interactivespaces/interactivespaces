@@ -16,30 +16,77 @@
 
 package org.ros.concurrent;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
  * 
  * @param <T>
- *          the listener type
+ *            the listener type
  */
 public class EventDispatcher<T> extends CancellableLoop {
 
-  private final T listener;
-  private final CircularBlockingDeque<SignalRunnable<T>> events;
+	private final T listener;
+	private final CircularBlockingDeque<SignalRunnable<T>> events;
 
-  public EventDispatcher(T listener, int queueCapacity) {
-    this.listener = listener;
-    events = new CircularBlockingDeque<SignalRunnable<T>>(queueCapacity);
-  }
+	private final CountDownLatch fullyShutdownLatch = new CountDownLatch(1);
+	
+	private AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
-  public void signal(final SignalRunnable<T> signalRunnable) {
-    events.addLast(signalRunnable);
-  }
+	public EventDispatcher(T listener, int queueCapacity) {
+		this.listener = listener;
+		events = new CircularBlockingDeque<SignalRunnable<T>>(queueCapacity);
+	}
 
-  @Override
-  public void loop() throws InterruptedException {
-    SignalRunnable<T> signalRunnable = events.takeFirst();
-    signalRunnable.run(listener);
-  }
+	public void signal(final SignalRunnable<T> signalRunnable) {
+		if (isShuttingDown.get()) {
+			try {
+				fullyShutdownLatch.await();
+			} catch (InterruptedException e) {
+				// Don't care
+			}
+			
+			// Just in case something came in while we were waiting.
+			// Done this way so always in order it was supposed to happen.
+			events.addLast(signalRunnable);
+			flush();
+		} else {
+			events.addLast(signalRunnable);
+		}
+	}
+
+	@Override
+	public void loop() throws InterruptedException {
+		SignalRunnable<T> signalRunnable = events.takeFirst();
+		signalRunnable.run(listener);
+	}
+
+	@Override
+	protected void cleanup() {
+		isShuttingDown.set(true);
+		flush();
+		fullyShutdownLatch.countDown();
+	}
+
+	/**
+	 * Flush all events out of the event dispatcher.
+	 * 
+	 * <p>
+	 * This is run after the dispatcher is shut down and empties out any events
+	 * which have not been written.
+	 */
+	private void flush() {
+		while (!events.isEmpty()) {
+			try {
+				SignalRunnable<T> signalRunnable = events.takeFirst();
+				signalRunnable.run(listener);
+			} catch (InterruptedException e) {
+				// Don't care
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 }

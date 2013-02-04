@@ -56,7 +56,13 @@ public class OutgoingMessageQueue<T> {
   private T latchedMessage;
 
   private final class Writer extends CancellableLoop {
-    @Override
+	  
+	@Override
+	protected void setup() {
+		Thread.currentThread().setName("ros-outgoing-writer-thread");
+	}
+
+	@Override
     public void loop() throws InterruptedException {
       T message = deque.takeFirst();
       final ChannelBuffer buffer = messageBufferPool.acquire();

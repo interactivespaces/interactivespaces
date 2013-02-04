@@ -111,11 +111,10 @@ public class TcpRosServer {
       outgoingChannel.close().awaitUninterruptibly();
     }
     incomingChannelGroup.close().awaitUninterruptibly();
-    // NOTE(damonkohler): We are purposely not calling
-    // channelFactory.releaseExternalResources() or
-    // bootstrap.releaseExternalResources() since only external resources are
-    // the ExecutorService and control of that must remain with the overall
-    // application.
+    
+    bootstrap.shutdown();
+    bootstrap = null;
+    
     outgoingChannel = null;
   }
 

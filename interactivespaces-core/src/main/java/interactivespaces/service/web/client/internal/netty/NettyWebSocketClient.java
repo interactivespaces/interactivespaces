@@ -26,6 +26,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.Log;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -33,7 +34,9 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.socket.nio.NioClientBossPool;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.handler.codec.http.HttpRequestEncoder;
 import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -80,6 +83,11 @@ public class NettyWebSocketClient implements WebSocketClient {
 	 */
 	private Channel channel;
 
+	/**
+	 * Bootstrap for the connections.
+	 */
+	private ClientBootstrap bootstrap;
+
 	public NettyWebSocketClient(URI uri, WebSocketHandler handler,
 			Executor threadPool, Log log) {
 		this.uri = uri;
@@ -90,8 +98,10 @@ public class NettyWebSocketClient implements WebSocketClient {
 
 	@Override
 	public void startup() {
-		ClientBootstrap bootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(threadPool, threadPool));
+		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
+				new NioClientBossPool(threadPool, 1), new NioWorkerPool(
+						threadPool,
+						Runtime.getRuntime().availableProcessors() * 2)));
 
 		try {
 			// Make sure the client socket doesn't stick around too long.
@@ -187,6 +197,9 @@ public class NettyWebSocketClient implements WebSocketClient {
 				channel.close();
 				channel = null;
 			}
+
+			bootstrap.shutdown();
+			bootstrap = null;
 		}
 	}
 }

@@ -40,9 +40,9 @@ public class MasterRegistrationTest extends RosTest {
         publisher.addListener(publisherListener);
       }
     }, nodeConfiguration);
-    assertTrue(publisherListener.awaitMasterRegistrationSuccess(1, TimeUnit.SECONDS));
+    assertTrue(publisherListener.awaitMasterRegistrationSuccess(10, TimeUnit.SECONDS));
     publisher.shutdown();
-    assertTrue(publisherListener.awaitMasterUnregistrationSuccess(1, TimeUnit.SECONDS));
+    assertTrue(publisherListener.awaitMasterUnregistrationSuccess(10, TimeUnit.SECONDS));
   }
 
   @Test

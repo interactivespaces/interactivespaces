@@ -409,27 +409,30 @@ public class DefaultNode implements ConnectedNode {
     for (Subscriber<?> subscriber : topicParticipantManager.getSubscribers()) {
       subscriber.shutdown();
     }
-    for (ServiceServer<?, ?> serviceServer : serviceManager.getServers()) {
-      try {
-        Response<Integer> response =
-            masterClient.unregisterService(slaveServer.toNodeIdentifier(), serviceServer);
-        if (DEBUG) {
-          if (response.getResult() == 0) {
-            System.err.println("Failed to unregister service: " + serviceServer.getName());
-          }
-        }
-      } catch (XmlRpcTimeoutException e) {
-        log.error(e);
-      } catch (RemoteException e) {
-        log.error(e);
-      }
-    }
-    for (ServiceClient<?, ?> serviceClient : serviceManager.getClients()) {
-      serviceClient.shutdown();
-    }
+	for (ServiceServer<?, ?> serviceServer : serviceManager.getServers()) {
+		try {
+			Response<Integer> response = masterClient.unregisterService(
+					slaveServer.toNodeIdentifier(), serviceServer);
+			if (DEBUG) {
+				if (response.getResult() == 0) {
+					System.err.println("Failed to unregister service: "
+							+ serviceServer.getName());
+				}
+			}
+		} catch (XmlRpcTimeoutException e) {
+			log.error(e);
+		} catch (RemoteException e) {
+			log.error(e);
+		}
+	}
+
+	serviceManager.shutdown();
+	
+    parameterManager.shutdown();
     registrar.shutdown();
     slaveServer.shutdown();
     signalOnShutdownComplete();
+    nodeListeners.shutdown();
   }
 
   @Override

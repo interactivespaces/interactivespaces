@@ -101,6 +101,11 @@ public class NettyWebServer implements WebServer {
 	 */
 	private Log log;
 
+	/**
+	 * Bootstrap for the server.
+	 */
+	private ServerBootstrap bootstrap;
+
 	public NettyWebServer(String serverName, int port,
 			ScheduledExecutorService threadPool, Log log) {
 		this(serverName, port, threadPool, threadPool, log);
@@ -126,7 +131,7 @@ public class NettyWebServer implements WebServer {
 		channelFactory = new NioServerSocketChannelFactory(bossThreadPool,
 				workerThreadPool);
 
-		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
+		bootstrap = new ServerBootstrap(channelFactory);
 
 		// Set up the event pipeline factory.
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -155,6 +160,9 @@ public class NettyWebServer implements WebServer {
 
 			channelFactory = null;
 			allChannels = null;
+			
+			bootstrap.shutdown();
+			bootstrap = null;
 		}
 	}
 

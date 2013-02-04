@@ -72,6 +72,7 @@ abstract class Client<T extends XmlRpcEndpoint> {
     xmlRpcEndpoint =
         interfaceClass.cast(factory.newInstance(getClass().getClassLoader(), interfaceClass, "",
             XMLRPC_TIMEOUT));
+    
   }
 
   /**
