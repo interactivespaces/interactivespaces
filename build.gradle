@@ -27,6 +27,7 @@ buildscript {
     classpath 'bmuschko:gradle-izpack-plugin:0.2.1'
     classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
   }
+
 }
 
 allprojects {
@@ -53,6 +54,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'eclipse'
+    apply from: 'https://github.com/valkolovos/gradle_cobertura/raw/master/repo/gradle_cobertura/gradle_cobertura/1.0/coberturainit.gradle'
 
     if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'

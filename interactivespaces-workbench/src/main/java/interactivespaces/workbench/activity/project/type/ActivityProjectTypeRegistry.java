@@ -42,8 +42,6 @@ public interface ActivityProjectTypeRegistry {
 	 * 
 	 * @param type
 	 *            the project type to register
-	 * 
-	 * @return the project type, or {@code null} if none for the given name
 	 */
 	void registerActivityProjectType(ActivityProjectType type);
 }

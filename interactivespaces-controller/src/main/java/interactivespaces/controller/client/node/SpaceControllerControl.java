@@ -48,7 +48,7 @@ public interface SpaceControllerControl extends SpaceController {
 	/**
 	 * Get all live activities installed on this controller.
 	 * 
-	 * @returnAll locally installed activities.
+	 * @return all locally installed activities
 	 */
 	List<InstalledLiveActivity> getAllInstalledLiveActivities();
 
@@ -56,9 +56,9 @@ public interface SpaceControllerControl extends SpaceController {
 	 * Get an activity by UUID.
 	 * 
 	 * @param uuid
-	 *            The UUID of the activity.
+	 *            the UUID of the activity
 	 * 
-	 * @return The activity with the given UUID. null if no such activity.
+	 * @return the activity with the given UUID, {@code null} if no such activity
 	 */
 	ActiveControllerActivity getActiveActivityByUuid(String uuid);
 }

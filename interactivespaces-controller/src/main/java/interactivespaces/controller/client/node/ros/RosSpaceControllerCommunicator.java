@@ -16,6 +16,7 @@
 
 package interactivespaces.controller.client.node.ros;
 
+import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
@@ -334,6 +335,8 @@ public class RosSpaceControllerCommunicator implements
 
 		for (InstalledLiveActivity activity : controllerControl
 				.getAllInstalledLiveActivities()) {
+			System.out.println("activity in statusall is "
+					+ activity.getIdentifyingName());
 			ControllerActivityStatus cas = rosMessageFactory
 					.newFromType(ControllerActivityStatus._TYPE);
 			cas.setUuid(activity.getUuid());
@@ -341,8 +344,15 @@ public class RosSpaceControllerCommunicator implements
 			ActiveControllerActivity activeActivity = controllerControl
 					.getActiveActivityByUuid(cas.getUuid());
 			if (activeActivity != null) {
-				ActivityState state = activeActivity.getInstance()
-						.getActivityStatus().getState();
+				System.out.println("Active activity in statusall is "
+						+ activity.getIdentifyingName());
+				Activity instance = activeActivity.getInstance();
+				ActivityState state = null;
+				if (instance != null) {
+					state = instance.getActivityStatus().getState();
+				} else {
+					state = ActivityState.READY;
+				}
 				cas.setStatus(translateActivityState(state));
 
 				if (spaceEnvironment.getLog().isInfoEnabled()) {
@@ -736,7 +746,7 @@ public class RosSpaceControllerCommunicator implements
 	 * @author Keith M. Hughes
 	 */
 	private class RosControllerHeartbeat implements SpaceControllerHeartbeat {
-		
+
 		/**
 		 * heartbeatLoop status is always the same, so create once.
 		 */

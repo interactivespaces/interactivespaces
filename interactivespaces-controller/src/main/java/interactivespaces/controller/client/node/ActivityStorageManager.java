@@ -58,7 +58,6 @@ public interface ActivityStorageManager {
 	/**
 	 * Get the filesystem for the activity/
 	 * 
-	 * 
 	 * <p>
 	 * Will create the file system if it doesn't exist.
 	 * 
@@ -74,8 +73,6 @@ public interface ActivityStorageManager {
 	 * 
 	 * @param uuid
 	 *            UUID of the activity
-	 * 
-	 * @return root folder of the activity.
 	 */
 	void removeActivityLocation(String uuid);
 }

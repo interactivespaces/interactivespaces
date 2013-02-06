@@ -22,16 +22,16 @@ import java.util.List;
 
 /**
  * Repository domain objects for the local controller.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface LocalSpaceControllerRepository {
-	
+
 	/**
 	 * Start the repository up.
 	 */
 	void startup();
-	
+
 	/**
 	 * Shut the repository down.
 	 */
@@ -45,7 +45,7 @@ public interface LocalSpaceControllerRepository {
 	/**
 	 * Get all locally installed activities.
 	 * 
-	 * @returnAll locally installed activities.
+	 * @return all locally installed activities
 	 */
 	List<InstalledLiveActivity> getAllInstalledLiveActivities();
 
@@ -53,9 +53,10 @@ public interface LocalSpaceControllerRepository {
 	 * Get a locally installed activity by UUID.
 	 * 
 	 * @param uuid
-	 * 		UUID of the activity.
+	 *            UUID of the activity.
 	 * 
-	 * @return The requested activity, or null if no activity with that UUID.
+	 * @return the requested activity, or {@code null} if no activity with that
+	 *         UUID
 	 */
 	InstalledLiveActivity getInstalledLiveActivityByUuid(String uuid);
 
@@ -63,9 +64,9 @@ public interface LocalSpaceControllerRepository {
 	 * Save an activity.
 	 * 
 	 * @param activity
-	 * 		The activity to save.
+	 *            the activity to save
 	 * 
-	 * @return The saved activity.
+	 * @return the saved activity
 	 */
 	InstalledLiveActivity saveInstalledLiveActivity(
 			InstalledLiveActivity activity);
@@ -74,9 +75,8 @@ public interface LocalSpaceControllerRepository {
 	 * Delete an activity from the repository.
 	 * 
 	 * @param activity
-	 * 		The activity to delete.
+	 *            the activity to delete
 	 */
-	void deleteInstalledLiveActivity(
-			InstalledLiveActivity activity);
+	void deleteInstalledLiveActivity(InstalledLiveActivity activity);
 
 }

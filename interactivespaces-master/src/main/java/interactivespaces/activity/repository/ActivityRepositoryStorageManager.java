@@ -16,10 +16,10 @@
 
 package interactivespaces.activity.repository;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 
 import java.io.InputStream;
-
 
 /**
  * A storage manager for the Interactive Spaces activity repository.
@@ -27,7 +27,7 @@ import java.io.InputStream;
  * @author Keith M. Hughes
  */
 public interface ActivityRepositoryStorageManager {
-	
+
 	/**
 	 * Start the storage manager up.
 	 */
@@ -43,11 +43,11 @@ public interface ActivityRepositoryStorageManager {
 	 * Get the base location of the repository.
 	 * 
 	 * TODO(keith): This must go away, we do not want the HTTP server to have
-	 * direct access to the file system, but rather look up an activity by
-	 * its identifying name and version. but then we need a web server handler
-	 * that can look up file names.
+	 * direct access to the file system, but rather look up an activity by its
+	 * identifying name and version. but then we need a web server handler that
+	 * can look up file names.
 	 * 
-	 * @return
+	 * @return the base location of the repository
 	 */
 	String getRepositoryBaseLocation();
 
@@ -55,17 +55,19 @@ public interface ActivityRepositoryStorageManager {
 	 * Get the name the activity has in the repository.
 	 * 
 	 * @param activity
-	 *            The activity in the repository.
-	 * @return The fully qualified name of the activity.
+	 *            the activity in the repository
+	 * 
+	 * @return the fully qualified name of the activity
 	 */
 	String getRepositoryActivityName(Activity activity);
 
 	/**
-	 * Add an activity to the repository.
+	 * Does the repository contain an activity?
 	 * 
 	 * @param activity
-	 *            The activity to be represented.
-	 * @returns True if the repository contains the activity, fals
+	 *            the activity to be checked
+	 * 
+	 * @return {@code true} if the repository contains the activity
 	 */
 	boolean containsActivity(Activity activity);
 
@@ -73,10 +75,10 @@ public interface ActivityRepositoryStorageManager {
 	 * Stage an activity.
 	 * 
 	 * @param activityStream
-	 *            A stream of the incoming activity.
+	 *            a stream of the incoming activity
 	 * 
-	 * @return An opaque handle on the activity. Do not make any assumptions
-	 *         on this handle, it can change.
+	 * @return an opaque handle on the activity, do not make any assumptions on
+	 *         this handle, it can change
 	 */
 	String stageActivity(InputStream activityStream);
 
@@ -90,12 +92,19 @@ public interface ActivityRepositoryStorageManager {
 	void removeStagedActivity(String stageHandle);
 
 	/**
-	 * Get an {@link InputStream} for the description file in the staged activity.
+	 * Get an {@link InputStream} for the description file in the staged
+	 * activity.
 	 * 
 	 * @param stageHandle
-	 * 		The handle which was returned by {@link #stageActivity(InputStream)
+	 *            the handle which was returned by
+	 *            {@link #stageActivity(InputStream)}
 	 * 
-	 * @return		
+	 * @return the input stream for the description file for the requested
+	 *         staged activity
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if the stage handle is invalid or the activity contains no
+	 *             description file
 	 */
 	InputStream getStagedActivityDescription(String stageHandle);
 
@@ -103,10 +112,9 @@ public interface ActivityRepositoryStorageManager {
 	 * Add an activity to the repository.
 	 * 
 	 * @param activity
-	 *            The activity the stream represents.
-	 * 
+	 *            the activity the stream represents
 	 * @param activityStream
-	 *            Stream containing the activity.
+	 *            stream containing the activity
 	 */
 	void addActivity(Activity activity, String stageHandle);
 

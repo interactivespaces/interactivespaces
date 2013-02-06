@@ -126,21 +126,22 @@ public interface SpaceController {
 	
 	/**
 	 * Get the activity component factory for the controller.
-	 * @return
+	 * 
+	 * @return the factory for activity components
 	 */
 	ActivityComponentFactory getActivityComponentFactory();
 
 	/**
 	 * Get the Interactive Spaces environment.
 	 * 
-	 * @return
+	 * @return the space environment
 	 */
 	InteractiveSpacesEnvironment getSpaceEnvironment();
 
 	/**
 	 * Get information about the controller.
 	 * 
-	 * @return
+	 * @return information about the controller
 	 */
 	SimpleSpaceController getControllerInfo();
 }

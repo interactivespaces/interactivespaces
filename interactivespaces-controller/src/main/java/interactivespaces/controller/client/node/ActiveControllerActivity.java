@@ -227,7 +227,7 @@ public class ActiveControllerActivity implements ActivityControl {
 	/**
 	 * Get the last known activity status. Does not sample the activity.
 	 * 
-	 * @return
+	 * @return the cached activity status
 	 */
 	public ActivityStatus getCachedActivityStatus() {
 		return cachedActivityStatus;
@@ -237,7 +237,7 @@ public class ActiveControllerActivity implements ActivityControl {
 	 * get the instance of the activity.
 	 * 
 	 * @return the instance (can be {@code null} if the activity has not been
-	 *         started.
+	 *         started)
 	 */
 	public Activity getInstance() {
 		synchronized (instanceLock) {
