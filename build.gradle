@@ -60,13 +60,21 @@ subprojects {
       apply plugin: 'osgi'
     }
 
+    // Add in configuratations to the standard Java build
     configurations {
+      // dependencies which are provided by the container.
       provided
     }
 
     sourceSets {
-      main { compileClasspath += configurations.provided }
+      main { 
+           // Provided libraries should be on the compile classpath, though
+           // not in the compile configuration.
+      	   compileClasspath += configurations.provided 
+      }
     }
+
+    // Provided dependencies need to be available to eclipse.
     eclipse.classpath.plusConfigurations += configurations.provided
 
     sourceCompatibility = 1.6

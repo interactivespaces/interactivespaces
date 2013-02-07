@@ -15,17 +15,11 @@
  
 dependencies {
   compile project(':interactivespaces-core')
+  compile project(':interactivespaces-master')
+
   compile project(':interactivespaces-database')
   compile project(':service:interactivespaces-service-script')
   compile project(':service:interactivespaces-service-scheduler')
-  compile project(':interactivespaces-master')
-  
-  compile ('ros.rosjava_core:rosjava:0.0.0-SNAPSHOT')
-  compile ('ros.rosjava_core:rosjava_actionlib:0.0.0-SNAPSHOT')
-  
-  compile('ros:message.interactivespaces_msgs:0.0.0-SNAPSHOT') {
-    exclude module: 'rosjava_bootstrap'
-  }
 
   compile ('org.springframework:spring-web:3.1.1.RELEASE')
   compile ('org.springframework:spring-webmvc:3.1.1.RELEASE')
