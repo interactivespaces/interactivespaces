@@ -16,8 +16,12 @@
 
 package interactivespaces.service.web.server;
 
+import com.google.common.collect.Multimap;
+
 import java.io.OutputStream;
-import java.util.Map;
+import java.net.HttpCookie;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * A response for an HTTP request.
@@ -42,7 +46,7 @@ public interface HttpResponse {
 	 *            value of the header
 	 */
 	void addContentHeader(String name, String value);
-
+	
 	/**
 	 * Add an HTTP content header that will go out with the HTTP response.
 	 * 
@@ -50,12 +54,25 @@ public interface HttpResponse {
 	 *            the headers to add, the key is the header name, value is the
 	 *            header value
 	 */
-	void addContentHeaders(Map<String, String> headers);
+	void addContentHeaders(Multimap<String, String> headers);
+	
+	
+	/**
+	 * Add the given cookie to the response.
+	 * @param cookies
+	 */
+	void addCookie(HttpCookie cookie);
+	
+	/**
+	 * Add a set of cookies to the response.
+	 * @param cookie
+	 */
+	void addCookies(Set<HttpCookie> cookie);
 
 	/**
 	 * Get the content headers that have been added.
 	 * 
 	 * @return the key is the header name, the value is the header value
 	 */
-	Map<String, String> getContentHeaders();
+	Multimap<String, String> getContentHeaders();
 }
