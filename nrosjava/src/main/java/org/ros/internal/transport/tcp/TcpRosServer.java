@@ -49,87 +49,93 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class TcpRosServer {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(TcpRosServer.class);
+	private static final boolean DEBUG = false;
+	private static final Log log = LogFactory.getLog(TcpRosServer.class);
 
-  private final BindAddress bindAddress;
-  private final AdvertiseAddress advertiseAddress;
-  private final TopicParticipantManager topicParticipantManager;
-  private final ServiceManager serviceManager;
-  private final ScheduledExecutorService executorService;
+	private final BindAddress bindAddress;
+	private final AdvertiseAddress advertiseAddress;
+	private final TopicParticipantManager topicParticipantManager;
+	private final ServiceManager serviceManager;
+	private final ScheduledExecutorService executorService;
 
-  private ChannelFactory channelFactory;
-  private ServerBootstrap bootstrap;
-  private Channel outgoingChannel;
-  private ChannelGroup incomingChannelGroup;
+	private ChannelFactory channelFactory;
+	private ServerBootstrap bootstrap;
+	private Channel outgoingChannel;
+	private ChannelGroup incomingChannelGroup;
 
-  public TcpRosServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress,
-      TopicParticipantManager topicParticipantManager, ServiceManager serviceManager,
-      ScheduledExecutorService executorService) {
-    this.bindAddress = bindAddress;
-    this.advertiseAddress = advertiseAddress;
-    this.topicParticipantManager = topicParticipantManager;
-    this.serviceManager = serviceManager;
-    this.executorService = executorService;
-  }
+	public TcpRosServer(BindAddress bindAddress,
+			AdvertiseAddress advertiseAddress,
+			TopicParticipantManager topicParticipantManager,
+			ServiceManager serviceManager,
+			ScheduledExecutorService executorService) {
+		this.bindAddress = bindAddress;
+		this.advertiseAddress = advertiseAddress;
+		this.topicParticipantManager = topicParticipantManager;
+		this.serviceManager = serviceManager;
+		this.executorService = executorService;
+	}
 
-  public void start() {
-    Preconditions.checkState(outgoingChannel == null);
-    channelFactory = new NioServerSocketChannelFactory(executorService, executorService);
-    bootstrap = new ServerBootstrap(channelFactory);
-    bootstrap.setOption("child.bufferFactory",
-        new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
-    bootstrap.setOption("child.keepAlive", true);
-    incomingChannelGroup = new DefaultChannelGroup();
-    bootstrap.setPipelineFactory(new TcpServerPipelineFactory(incomingChannelGroup,
-        topicParticipantManager, serviceManager));
+	public void start() {
+		Preconditions.checkState(outgoingChannel == null);
+		channelFactory = new NioServerSocketChannelFactory(executorService,
+				executorService);
+		bootstrap = new ServerBootstrap(channelFactory);
+		bootstrap.setOption("child.bufferFactory",
+				new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
+		bootstrap.setOption("child.keepAlive", true);
+		incomingChannelGroup = new DefaultChannelGroup();
+		bootstrap.setPipelineFactory(new TcpServerPipelineFactory(
+				incomingChannelGroup, topicParticipantManager, serviceManager));
 
-    outgoingChannel = bootstrap.bind(bindAddress.toInetSocketAddress());
-    advertiseAddress.setPortCallable(new Callable<Integer>() {
-      @Override
-      public Integer call() throws Exception {
-        return ((InetSocketAddress) outgoingChannel.getLocalAddress()).getPort();
-      }
-    });
-    if (DEBUG) {
-      log.info("Bound to: " + bindAddress);
-      log.info("Advertising: " + advertiseAddress);
-    }
-  }
+		outgoingChannel = bootstrap.bind(bindAddress.toInetSocketAddress());
+		advertiseAddress.setPortCallable(new Callable<Integer>() {
+			@Override
+			public Integer call() throws Exception {
+				return ((InetSocketAddress) outgoingChannel.getLocalAddress())
+						.getPort();
+			}
+		});
+		if (DEBUG) {
+			log.info("Bound to: " + bindAddress);
+			log.info("Advertising: " + advertiseAddress);
+		}
+	}
 
-  /**
-   * Close all incoming connections and the server socket.
-   * 
-   * <p>
-   * Calling this method more than once has no effect.
-   */
-  public void shutdown() {
-    if (DEBUG) {
-      log.info("Shutting down: " + getAddress());
-    }
-    if (outgoingChannel != null) {
-      outgoingChannel.close().awaitUninterruptibly();
-    }
-    incomingChannelGroup.close().awaitUninterruptibly();
-    
-    bootstrap.shutdown();
-    bootstrap = null;
-    
-    outgoingChannel = null;
-  }
+	/**
+	 * Close all incoming connections and the server socket.
+	 * 
+	 * <p>
+	 * Calling this method more than once has no effect.
+	 */
+	public void shutdown() {
+		if (DEBUG) {
+			log.info("Shutting down: " + getAddress());
+		}
+		if (outgoingChannel != null) {
+			outgoingChannel.close().awaitUninterruptibly();
+		}
+		incomingChannelGroup.close().awaitUninterruptibly();
 
-  /**
-   * @return the advertise-able {@link InetSocketAddress} of this
-   *         {@link TcpRosServer}
-   */
-  public InetSocketAddress getAddress() {
-    return advertiseAddress.toInetSocketAddress();
-  }
+		if (bootstrap != null) {
+			bootstrap.shutdown();
+			bootstrap = null;
+		}
 
-  /**
-   * @return the {@link AdvertiseAddress} of this {@link TcpRosServer}
-   */
-  public AdvertiseAddress getAdvertiseAddress() {
-    return advertiseAddress;
-  }
+		outgoingChannel = null;
+	}
+
+	/**
+	 * @return the advertise-able {@link InetSocketAddress} of this
+	 *         {@link TcpRosServer}
+	 */
+	public InetSocketAddress getAddress() {
+		return advertiseAddress.toInetSocketAddress();
+	}
+
+	/**
+	 * @return the {@link AdvertiseAddress} of this {@link TcpRosServer}
+	 */
+	public AdvertiseAddress getAdvertiseAddress() {
+		return advertiseAddress;
+	}
 }

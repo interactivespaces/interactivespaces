@@ -57,7 +57,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
 		levels.put(LOG_LEVEL_DEBUG, Level.DEBUG);
 		levels.put(LOG_LEVEL_INFO, Level.INFO);
 		levels.put(LOG_LEVEL_OFF, Level.OFF);
-		levels.put(LOG_LEVEL_TRACE, Level.TRACE);
+		levels.put(LOG_LEVEL_TRACE, Level.DEBUG);
 		levels.put(LOG_LEVEL_WARN, Level.WARN);
 
 		log4jLevels = Collections.unmodifiableMap(levels);
