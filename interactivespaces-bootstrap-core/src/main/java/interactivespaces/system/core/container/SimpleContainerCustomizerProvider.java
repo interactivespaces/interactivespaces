@@ -32,12 +32,39 @@ public class SimpleContainerCustomizerProvider implements
 	/**
 	 * The command line arguments from container startup.
 	 */
-	private List<String> commandLineArguments = new ArrayList<String>();
-	
+	private List<String> commandLineArguments;
+
 	/**
 	 * The services from the container.
 	 */
 	private Map<String, Object> services = new HashMap<String, Object>();
+
+	/**
+	 * @code true} if the container is controllable from files
+	 */
+	private boolean fileControllable;
+
+	/**
+	 * Create a customizer which has no command line arguments and is not file
+	 * controllable.
+	 */
+	public SimpleContainerCustomizerProvider() {
+		this(new ArrayList<String>(), false);
+	}
+
+	/**
+	 * Construct a customizer provider.
+	 * 
+	 * @param commandLineArguments
+	 *            the command line arguments to use
+	 * @param fileControllable
+	 *            {@code true} if the container is file controllable
+	 */
+	public SimpleContainerCustomizerProvider(List<String> commandLineArguments,
+			boolean fileControllable) {
+		this.commandLineArguments = commandLineArguments;
+		this.fileControllable = fileControllable;
+	}
 
 	@Override
 	public List<String> getCommandLineArguments() {
@@ -59,6 +86,12 @@ public class SimpleContainerCustomizerProvider implements
 	 *            the service
 	 */
 	public void addService(String name, Object service) {
-		services.put(name,  service);
+		services.put(name, service);
 	}
+
+	@Override
+	public boolean isFileControllable() {
+		return fileControllable;
+	}
+
 }

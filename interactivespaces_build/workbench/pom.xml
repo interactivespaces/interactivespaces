@@ -213,12 +213,12 @@ the License.
 									<overWrite>true</overWrite>
 								</artifactItem>  -->
 								<artifactItem>
-    <groupId>org.apache.servicemix.bundles</groupId>
-    <artifactId>org.apache.servicemix.bundles.jdom</artifactId>
-    <version>1.1_4</version>
+                                    <groupId>org.apache.servicemix.bundles</groupId>
+                                    <artifactId>org.apache.servicemix.bundles.jdom</artifactId>
+                                    <version>1.1_4</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-</artifactItem>
+                                </artifactItem>
 
 								<!-- ROS bundles needed -->
 								<artifactItem>
@@ -228,9 +228,16 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
+                                <artifactItem>
+                                    <groupId>interactivespaces</groupId>
+                                    <artifactId>nrosjava_messages</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
-									<artifactId>rosjava</artifactId>
+									<artifactId>nrosjava</artifactId>
 									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>

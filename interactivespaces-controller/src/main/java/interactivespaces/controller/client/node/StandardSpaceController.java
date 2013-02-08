@@ -243,6 +243,14 @@ public class StandardSpaceController implements SpaceController,
 
 	private WebSocketClientService webSocketClientService;
 
+	/**
+	 * File control for the controller.
+	 * 
+	 * <p>
+	 * This can be {@code null} if it wasn't requested.
+	 */
+	private SpaceControllerFileControl fileControl;
+
 	public StandardSpaceController(
 			ActivityInstallationManager activityInstallationManager,
 			LocalSpaceControllerRepository controllerRepository,
@@ -315,8 +323,8 @@ public class StandardSpaceController implements SpaceController,
 						controllerHeartbeat.heartbeat();
 					}
 				}, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
-		
 
+		startupControllerControl();
 		startupCoreControllerServices();
 
 		startupAutostartActivities();
@@ -452,6 +460,11 @@ public class StandardSpaceController implements SpaceController,
 				spaceEnvironment.getLog().info("Controller shutting down");
 
 				activityStateTransitioners.clear();
+
+				if (fileControl != null) {
+					fileControl.shutdown();
+					fileControl = null;
+				}
 
 				shutdownAllActivities();
 
@@ -817,8 +830,7 @@ public class StandardSpaceController implements SpaceController,
 	private void attemptActivityStartup(ActiveControllerActivity activity) {
 		String uuid = activity.getUuid();
 		spaceEnvironment.getLog().info(
-				String.format("Attempting startup of activity %s",
-						uuid));
+				String.format("Attempting startup of activity %s", uuid));
 
 		try {
 			switch (activity.getActivityState()) {
@@ -839,7 +851,7 @@ public class StandardSpaceController implements SpaceController,
 			}
 		} catch (Exception e) {
 			spaceEnvironment.getLog().error(
-					String.format("Unable to start activity %s",							uuid), e);
+					String.format("Unable to start activity %s", uuid), e);
 			ActivityStatus status = new ActivityStatus(
 					ActivityState.STARTUP_FAILURE, e.getMessage());
 			publishActivityStatus(uuid, status);
@@ -1069,6 +1081,22 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	public ActivityListener getActivityListener() {
 		return activityListener;
+	}
+
+	/**
+	 * Potentially start up any controller control points.
+	 */
+	private void startupControllerControl() {
+		boolean startupFileControl = Boolean
+				.parseBoolean(spaceEnvironment
+						.getSystemConfiguration()
+						.getRequiredPropertyString(
+								InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE));
+		if (startupFileControl) {
+			fileControl = new SpaceControllerFileControl(this,
+					spaceSystemControl, spaceEnvironment);
+			fileControl.startup();
+		}
 	}
 
 	/**

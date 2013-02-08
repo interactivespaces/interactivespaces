@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A directory watcher which informs about batchs of files added.
+ * A directory watcher which informs about batches of files added.
  * 
  * <p>
  * There is no notification of deletions.

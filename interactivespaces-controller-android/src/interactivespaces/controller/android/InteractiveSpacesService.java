@@ -41,7 +41,7 @@ import android.util.Log;
 public class InteractiveSpacesService extends Service {
 
 	/**
-	 * The lock for keeping the phone from sleping.
+	 * The lock for keeping the phone from sleeping.
 	 */
 	private PowerManager.WakeLock wakelock;
 

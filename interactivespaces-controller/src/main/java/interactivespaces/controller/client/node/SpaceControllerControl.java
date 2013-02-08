@@ -26,7 +26,6 @@ import interactivespaces.controller.domain.InstalledLiveActivity;
  * Control points for a {@link SpaceController}.
  * 
  * @author Keith M. Hughes
- * @since Aug 24, 2012
  */
 public interface SpaceControllerControl extends SpaceController {
 

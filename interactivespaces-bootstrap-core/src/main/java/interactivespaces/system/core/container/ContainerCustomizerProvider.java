@@ -47,4 +47,11 @@ public interface ContainerCustomizerProvider {
 	 *         value being the service
 	 */
 	Map<String, Object> getServices();
+	
+	/**
+	 * Is the container supposed to be controllable from a file system standpoint?
+	 * 
+	 * @return {@code true} if the container is file controllable
+	 */
+	boolean isFileControllable();
 }

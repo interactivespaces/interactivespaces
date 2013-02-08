@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
- * A basic {@link BatchDirectoryWatcher}/
+ * A basic {@link BatchDirectoryWatcher}.
  * 
  * @author Keith M. Hughes
  */
@@ -97,6 +97,9 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher,
 			// after the watcher starts running.
 			throw new IllegalArgumentException(String.format(
 					"%s is not a directory", directory));
+		} else {
+			// It doesn't exist yet. Assume it eventually will.
+			directoriesWatched.add(directory);
 		}
 	}
 
@@ -145,7 +148,7 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher,
 	private Set<File> scanAllDirectories() {
 		Set<File> currentScan = Sets.newHashSet();
 		for (File directory : directoriesWatched) {
-			if (directory.exists()) {
+			if (directory.exists() && directory.isDirectory()) {
 				for (File file : directory.listFiles()) {
 					currentScan.add(file);
 				}
