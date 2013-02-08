@@ -51,7 +51,7 @@ public class MasterSlaveIntegrationTest {
 
   @Before
   public void setUp() {
-    executorService = Executors.newScheduledThreadPool(10);
+    executorService = Executors.newScheduledThreadPool(30);
     masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate());
     masterServer.start();
     masterClient = new MasterClient(masterServer.getUri());
