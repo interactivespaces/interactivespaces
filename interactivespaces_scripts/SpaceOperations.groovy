@@ -63,11 +63,15 @@ abstract class MachineOperator {
   }
 
   def startControllers(controller, space, options, errors) {
-    println "startcontrollers unsupported"
+    println "start controllers unsupported"
   }
 
   def stopControllers(controller, space, options, errors) {
-    println "stopcontrollers unsupported"
+    println "stop controllers unsupported"
+  }
+
+  def harshStopControllers(controller, space, options, errors) {
+    println "Harsh stop controllers unsupported"
   }
 
   def sendConfigurations(controller, space, options, errors) {
@@ -126,7 +130,37 @@ abstract class MachineOperator {
   }
 }
 
-class OsxMachineOperator extends MachineOperator {
+// useful base class for Unix-based operating systems, includes Macs
+abstract class NixMachineOperator extends MachineOperator {
+
+  def startControllers(controller, space, options, errors) {
+    def machine = controller.machine
+    println "Start for ${controller.name} on ${machine.host}"
+
+    doCommand(machine, "sh -c 'cd ${controller.folder} ; nohup java -server -jar interactivespaces-launcher-1.4.0.jar --noshell &>/dev/null &'", options, errors, true)
+  }
+
+  def stopControllers(controller, space, options, errors) {
+    def machine = controller.machine
+    println "Stop for ${controller.name} on ${machine.host}"
+
+      doCommand(machine, "mkdir -p ${controller.folder}/run/control", options, errors)
+      doCommand(machine, "touch ${controller.folder}/run/control/shutdown", options, errors)
+  }
+
+  def harshStopControllers(controller, space, options, errors) {
+    def machine = controller.machine
+    println "Harsh stop for ${controller.name} on ${machine.host}"
+
+      doCommand(machine, "kill -9 `cat ${controller.folder}/run/interactivespaces.pid`", options, errors)
+      doCommand(machine, "rm ${controller.folder}/run/interactivespaces.pid", options, errors)
+  }
+}
+
+class LinuxMachineOperator extends NixMachineOperator {
+}
+
+class OsxMachineOperator extends NixMachineOperator {
   def setupAutostart(controller, space, options, errors) {
     def machine = controller.machine
     println "Setting up autostart for ${controller.name} on ${machine.host}"
@@ -148,20 +182,6 @@ class OsxMachineOperator extends MachineOperator {
 
     doCommand(machine, "mkdir -p ${machine.systemFolder}", options, errors)
     doCommand(machine, "touch ${keepaliveFile}", options, errors)
-  }
-
-  def startControllers(controller, space, options, errors) {
-    def machine = controller.machine
-    println "Start for ${controller.name} on ${machine.host}"
-
-    doCommand(machine, "sh -c 'cd ${controller.folder} ; nohup java -server -jar interactivespaces-launcher-1.0.0.jar --noshell &>/dev/null &'", options, errors, true)
-  }
-
-  def stopControllers(controller, space, options, errors) {
-    def machine = controller.machine
-    println "Stop for ${controller.name} on ${machine.host}"
-
-      doCommand(machine, "kill -9 `cat ${controller.folder}/run/interactivespaces.pid`", options, errors)
   }
 
   def autostartFolder(machine) {
@@ -203,7 +223,8 @@ public class SpaceDescription extends BuilderSupport {
   private boolean handlingDefaults
 
   private machineOperators = [
-    osx: new OsxMachineOperator()
+    osx: new OsxMachineOperator(),
+    linux: new LinuxMachineOperator()
   ]
 
   protected void setParent(Object parent, Object child) {
@@ -346,71 +367,4 @@ public class SpaceDescription extends BuilderSupport {
       threadPool.shutdown()
     }
   }
-}
-
-static ExpandoMetaClass createEMC(Class clazz, Closure cl) {
-  ExpandoMetaClass emc = new ExpandoMetaClass(clazz, false)
-
-  cl(emc)
-
-  emc.initialize()
-
-  return emc
-}
-
-def cli = new CliBuilder(
-    usage:'SpaceOperationsRunner [options] description operation targets\noperation is one of list, deploy, startControllers, stopControllers',
-    )
-cli.t('Test the operation, just shows the commands what would be run')
-cli.v('Be verbose, showing commands as they are being done')
-cli.i('This is an initial installation')
-cli.s('Space Operations folder', args: 1)
-
-if (args) {
-  def opts = cli.parse(args)
-  def dfile = opts.arguments()[0]
-  def operation = opts.arguments()[1]
-  def description = new File(dfile).getText()
-
-  def script = """
-SpaceDescription.make {
-$description
-}
-"""
-
-  def desc = Eval.me(script)
-
-  def options = [:]
-  options['verbose'] = opts.v
-  options['test'] = opts.t
-  options['initial'] = opts.i
-  println "Performing operation $operation on description $dfile"
-
-  def error = false
-
-  def controllerFilters = []
-  if (opts.arguments().size > 2) {
-    def controllers = opts.arguments()[2..-1]
-    if (!controllers.isEmpty()) {
-      controllers.each {e -> 
-        if (e.startsWith(':')) {
-          def value = e.substring(1).trim()
-          if (!value) {
-            println "Bad tag field $e"
-            error = true
-          }
-
-          controllerFilters << { c -> (c.tags) ? c.tags.contains(value) : false }
-       } else {
-          controllerFilters << { c -> c.name == e}
-        }
-      }
-    }
-  }
-
-  if (!error) {
-    desc.doOperation(operation, options, controllerFilters)
-  }
-} else {
-  println cli.usage()
 }

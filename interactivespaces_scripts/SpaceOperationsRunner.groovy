@@ -1,18 +1,15 @@
 def cli = new CliBuilder(
-    usage:'SpaceOperationsRunner [options] description operation targets\noperation is one of list, deploy, startControllers, stopControllers',
+    usage:'SpaceOperationsRunner [options] description operation targets\noperation is one of list, deploy, startControllers, stopControllers, harshStopControllers',
     )
 cli.t('Test the operation, just shows the commands what would be run')
 cli.v('Be verbose, showing commands as they are being done')
 cli.i('This is an initial installation')
-cli.s('Space Operations folder', args: 1)
 
 if (args) {
   def opts = cli.parse(args)
   def dfile = opts.arguments()[0]
   def operation = opts.arguments()[1]
-  def opsFile = (opts.s) ? new File(new File(opts.s), 'SpaceOperations.groovy') :
-      new File('SpaceOperations.groovy')
-  def operations = opsFile.getText()
+  def operations = new File('SpaceOperations.groovy').getText()
   def description = new File(dfile).getText()
 
   def script = """
@@ -28,6 +25,7 @@ $description
   options['verbose'] = opts.v
   options['test'] = opts.t
   options['initial'] = opts.i
+
   println "Performing operation $operation on description $dfile"
 
   def error = false
