@@ -18,6 +18,7 @@ package interactivespaces.workbench.activity.project.builder.java;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
+import interactivespaces.util.io.Files;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
@@ -288,9 +289,8 @@ public class JavaActivityBuilder implements ActivityBuilder {
 
 			analyzer.setProperty("Bundle-SymbolicName", project
 					.getActivityDescription().getIdentifyingName());
-			
-			String version = project
-					.getActivityDescription().getVersion();
+
+			String version = project.getActivityDescription().getVersion();
 			int pos = version.indexOf("-");
 			if (pos != -1) {
 				version = version.substring(0, pos);

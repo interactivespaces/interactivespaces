@@ -23,6 +23,7 @@ import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
+import interactivespaces.util.io.Files;
 import interactivespaces.workbench.activity.project.ActivityProject;
 import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
 import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
@@ -51,7 +52,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
@@ -168,6 +168,23 @@ public class InteractiveSpacesWorkbench {
 		}
 
 		activityProjectPackager.packageActivityProject(project, context);
+	}
+
+	/**
+	 * Clean a project.
+	 * 
+	 * @param project
+	 *            the project to be built
+	 */
+	public void cleanActivityProject(ActivityProject project) {
+		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
+				project, this);
+
+		File buildDirectory = context.getBuildDirectory();
+
+		if (buildDirectory.exists()) {
+			Files.deleteDirectoryContents(buildDirectory);
+		}
 	}
 
 	/**
@@ -477,6 +494,9 @@ public class InteractiveSpacesWorkbench {
 			if ("build".equals(command)) {
 				System.out.println("Building project");
 				buildActivityProject(project);
+			} else if ("clean".equals(command)) {
+				System.out.println("Cleaning project");
+				cleanActivityProject(project);
 			} else if ("ide".equals(command)) {
 				System.out.println("Building project IDE project");
 				generateIdeActivityProject(project, commands.remove(0));

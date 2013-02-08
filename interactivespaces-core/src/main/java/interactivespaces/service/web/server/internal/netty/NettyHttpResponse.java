@@ -140,7 +140,7 @@ public class NettyHttpResponse implements HttpResponse {
       nettyCookie.setVersion(cookie.getVersion());
       nettyCookie.setSecure(cookie.getSecure());
       nettyCookie.setDiscard(cookie.getDiscard());
-      nettyCookie.setHttpOnly(cookie.isHttpOnly());
+      //nettyCookie.setHttpOnly(cookie.isHttpOnly());
 
       return nettyCookie;
     }
