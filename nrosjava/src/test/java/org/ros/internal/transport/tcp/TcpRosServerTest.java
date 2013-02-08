@@ -41,7 +41,7 @@ public class TcpRosServerTest {
 
   @Before
   public void setup() {
-    executorService = Executors.newScheduledThreadPool(20);
+    executorService = Executors.newScheduledThreadPool(80);
   }
 
   @After
