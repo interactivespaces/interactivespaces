@@ -19,14 +19,27 @@ package interactivespaces.service.web.server.internal.netty;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpRequest;
 
+import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
+import org.jboss.netty.handler.codec.http.Cookie;
+import org.jboss.netty.handler.codec.http.CookieDecoder;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
  * An HTTP request that proxies the Netty HTTP request
@@ -45,10 +58,13 @@ public class NettyHttpRequest implements HttpRequest {
 	 */
 	private Log log;
 	
+	private Multimap<String, String> headers;
+	
 	public NettyHttpRequest(
 			org.jboss.netty.handler.codec.http.HttpRequest request, Log log) {
 		this.request = request;
 		this.log = log;
+		headers = null;
 	}
 
 	@Override
@@ -92,4 +108,108 @@ public class NettyHttpRequest implements HttpRequest {
 	public Log getLog() {
 		return log;
 	}
+	
+	/**
+	 * Return the map of key:value pairs of strings making up the header for
+	 * this request.
+	 * 
+	 * @return the map of all header key:value pairs
+	 */
+	@Override
+	public Multimap<String, String> getHeaders() {
+	  if (headers == null) {
+	    buildHeaders();
+	  }
+	  return headers;
+	}
+	
+	/**
+	 * Return the value of the header string associated with the given key,
+	 * or null if no such key is present. 
+	 * 
+	 */
+	@Override
+	public Set<String> getHeader(String key) {
+	  if (headers == null) {
+	    buildHeaders();
+	  }
+	  if (headers.containsKey(key)) {
+	    return Sets.newHashSet(headers.get(key));
+	  }
+	  
+	  return null;
+	}
+	
+	private void buildHeaders() {
+      headers = HashMultimap.create();
+      
+      for (Entry<String, String> header : request.getHeaders()) {
+        headers.put(header.getKey(), header.getValue());
+      } 
+	}
+
+  /* 
+   */
+  @Override
+  public HttpCookie getCookie(String key) {
+    Collection<HttpCookie> cookies = getCookies();
+    for (HttpCookie cookie : cookies) {
+      if (key.equals(cookie.getName())) {
+        return cookie;
+      }
+    }
+    
+    return null;
+  }
+
+  /*
+   */
+  @Override
+  public Set<HttpCookie> getCookies() {
+    
+    Collection<String> cookieHeader = getHeader("Cookie");
+    if (cookieHeader == null) {
+      return Sets.newHashSet();
+    }
+    Collection<HttpCookie> cookies = Sets.newHashSet();
+    for (String cookie : cookieHeader) {
+      cookies.addAll(Collections2.transform(
+          new CookieDecoder().decode(cookie),
+          new Function<Cookie, HttpCookie>() {
+            @Override
+            public HttpCookie apply(final Cookie cookie) {
+              return convertFromNettyCookie(cookie);
+            }
+          }));
+    }
+    return Sets.newHashSet(cookies);
+  }
+  
+  public static HttpCookie convertFromNettyCookie(Cookie cookie) {
+    HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
+    httpCookie.setComment(cookie.getComment());
+    httpCookie.setDomain(cookie.getDomain());
+    httpCookie.setMaxAge(cookie.getMaxAge());
+    httpCookie.setPath(cookie.getPath());
+    httpCookie.setPortlist(createPortString(cookie.getPorts()));
+    httpCookie.setVersion(cookie.getVersion());
+    httpCookie.setSecure(cookie.isSecure());
+    httpCookie.setDiscard(cookie.isDiscard());
+    httpCookie.setHttpOnly(cookie.isHttpOnly());
+    
+    return httpCookie;
+  }
+  
+  private static String createPortString(Set<Integer> ports) {
+    StringBuilder portString = new StringBuilder(); 
+    Iterator<Integer> iter = ports.iterator();
+    while (iter.hasNext()) {
+      portString.append(String.valueOf(iter.next()));
+      if (iter.hasNext()) {
+        portString.append(",");
+      }
+    }
+    
+    return portString.toString();
+  }
 }

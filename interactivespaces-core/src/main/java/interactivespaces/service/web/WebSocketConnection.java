@@ -50,4 +50,11 @@ public interface WebSocketConnection {
 	 *            data to write
 	 */
 	void writeDataAsString(String data);
+	
+	/**
+	 * Return the user id of the user who opened this socket connection
+	 * 
+	 * @return the user id of the user who opened this connection.
+	 */
+	String getUser();
 }

@@ -16,6 +16,8 @@
 
 package interactivespaces.service.web.server;
 
+import com.google.common.collect.Multimap;
+
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
@@ -171,4 +173,20 @@ public interface WebServer extends ManagedResource {
 	 *            header value
 	 */
 	void addContentHeaders(Map<String, String> headers);
+	
+	/**
+	 * Set the AuthProvider to use with this server, if no auth provider is set
+	 * on a server, it should not attempt any kind of access control.  Setting the
+	 * auth provider to null should disable authorization checking on a server.
+	 * @param authProvider
+	 */
+	void setAuthProvider(HttpAuthProvider authProvider);
+	
+	/**
+	 * Set the access manager for this webserver.  The access manager will only
+	 * be used if the auth provider is set.
+	 * @param accessManager
+	 */
+	void setAccessManager(WebResourceAccessManager accessManager);
+	
 }

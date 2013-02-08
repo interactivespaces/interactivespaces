@@ -17,6 +17,8 @@
 package interactivespaces.service.web.server.internal.netty;
 
 import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.Set;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -45,10 +47,11 @@ public interface NettyHttpContentHandler {
 	 *            the channel handler context
 	 * @param req
 	 *            the request
-	 * 
+	 * @param cookiesToAdd           
+	 *            cookies to be set on the response
 	 * @throws IOException
 	 *             something bad happened
 	 */
-	void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req)
+	void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
 			throws IOException;
 }

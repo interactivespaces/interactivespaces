@@ -19,6 +19,7 @@ package interactivespaces.service.web.server.internal.netty;
 import interactivespaces.service.web.WebSocketConnection;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.service.web.server.WebResourceAccessManager;
 
 import java.util.Map;
 
@@ -64,13 +65,19 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	 * Logger for this handler.
 	 */
 	private Log log;
+	
+	/**
+	 * The id for the user who initiated this socket connection.
+	 */
+	private String user;
 
-	public NettyWebServerWebSocketConnection(Channel channel,
+	public NettyWebServerWebSocketConnection(Channel channel, String user,
 			WebSocketServerHandshaker handshaker,
 			WebServerWebSocketHandlerFactory handlerFactory, Log log) {
 		this.channel = channel;
 		this.handshaker = handshaker;
 		this.log = log;
+		this.user = user;
 		handler = handlerFactory.newWebSocketHandler(this);
 	}
 
@@ -88,7 +95,7 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	 *            the web socket frame that has come in
 	 */
 	public void handleWebSocketFrame(ChannelHandlerContext ctx,
-			WebSocketFrame frame) {
+			WebSocketFrame frame, WebResourceAccessManager accessManager) {
 		if (frame instanceof CloseWebSocketFrame) {
 			handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
 			return;
@@ -100,11 +107,15 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 			String message = String
 					.format("Could not process web socket frame. %s frame types not supported",
 							frame.getClass().getName());
-			log.error(message);
 			throw new UnsupportedOperationException(message);
 		}
 
 		String textData = ((TextWebSocketFrame) frame).getText();
+		if (accessManager != null) {
+		  if (!accessManager.allowWebsocketCall(getUser(), textData)) {
+		    return;
+		  }
+		}
 		try {
 			handler.onReceive(MAPPER.readValue(textData, Map.class));
 		} catch (Exception e) {
@@ -138,6 +149,11 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 		channel.close();
 	}
 
+	@Override
+	public String getUser() {
+	  return user;
+	}
+	
 	/**
 	 * Get the handler this endpoint is using.
 	 * 

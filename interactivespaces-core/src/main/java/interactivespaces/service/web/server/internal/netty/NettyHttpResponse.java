@@ -19,14 +19,22 @@ package interactivespaces.service.web.server.internal.netty;
 import interactivespaces.service.web.server.HttpResponse;
 
 import java.io.OutputStream;
+import java.net.HttpCookie;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.handler.codec.http.Cookie;
+import org.jboss.netty.handler.codec.http.CookieEncoder;
+import org.jboss.netty.handler.codec.http.DefaultCookie;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 /**
  * A Netty-based HttpResponse
@@ -48,10 +56,22 @@ public class NettyHttpResponse implements HttpResponse {
 	/**
 	 * Content headers to add to the response.
 	 */
-	private Map<String, String> contentHeaders = Maps.newHashMap();
-
+	private Multimap<String, String> contentHeaders = HashMultimap.create();
+	
+	private Multimap<String, HttpCookie> cookies = HashMultimap.create();
+	
 	public NettyHttpResponse(ChannelHandlerContext ctx,
-			Map<String, String> extraHttpContentHeaders) {
+	      Map<String, String> extraHttpContentHeaders) {
+	  this.ctx = ctx;
+	  channelBuffer = ChannelBuffers.dynamicBuffer();
+	  for (String key : extraHttpContentHeaders.keySet()) {
+	    contentHeaders.put(key, extraHttpContentHeaders.get(key));
+	  }
+
+	}
+	
+	public NettyHttpResponse(ChannelHandlerContext ctx,
+			Multimap<String, String> extraHttpContentHeaders) {
 		this.ctx = ctx;
 		channelBuffer = ChannelBuffers.dynamicBuffer();
 		
@@ -71,12 +91,12 @@ public class NettyHttpResponse implements HttpResponse {
 	}
 
 	@Override
-	public void addContentHeaders(Map<String, String> headers) {
+	public void addContentHeaders(Multimap<String, String> headers) {
 		contentHeaders.putAll(headers);
 	}
 
 	@Override
-	public Map<String, String> getContentHeaders() {
+	public Multimap<String, String> getContentHeaders() {
 		return contentHeaders;
 	}
 
@@ -86,4 +106,55 @@ public class NettyHttpResponse implements HttpResponse {
 	public ChannelBuffer getChannelBuffer() {
 		return channelBuffer;
 	}
+
+
+    @Override
+    public void addCookie(HttpCookie cookie) {
+      cookies.put(cookie.getName(), cookie);      
+      reencodeCookies();
+    }
+    
+    private void reencodeCookies() {
+      CookieEncoder encoder = new CookieEncoder(false);
+      for (HttpCookie value: cookies.values()) {
+        encoder.addCookie(createNettyCookie(value));
+        contentHeaders.put("Set-Cookie", encoder.encode());
+      }
+    }
+    
+    @Override
+    public void addCookies(Set<HttpCookie> newCookies) {
+      for (HttpCookie cookie : newCookies) {
+        cookies.put(cookie.getName(), cookie);
+      }
+      reencodeCookies();
+    }
+    
+    public static Cookie createNettyCookie(HttpCookie cookie) {
+      Cookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
+      nettyCookie.setComment(cookie.getComment());
+      nettyCookie.setDomain(cookie.getDomain());
+      nettyCookie.setMaxAge((int)cookie.getMaxAge());
+      nettyCookie.setPath(cookie.getPath());
+      nettyCookie.setPorts(createPortList(cookie.getPortlist()));
+      nettyCookie.setVersion(cookie.getVersion());
+      nettyCookie.setSecure(cookie.getSecure());
+      nettyCookie.setDiscard(cookie.getDiscard());
+      nettyCookie.setHttpOnly(cookie.isHttpOnly());
+
+      return nettyCookie;
+    }
+    
+    private static Set<Integer> createPortList(String portString) {
+      if (portString == null) {
+        return Sets.newHashSet();
+      }
+      String[] portStrings = portString.split(",");
+      Set<Integer> ports = Sets.newHashSet();
+      for (String port : portStrings) {
+        ports.add(Integer.valueOf(port));
+      }
+      return ports;
+    }
+    
 }

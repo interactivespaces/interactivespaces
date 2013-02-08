@@ -16,13 +16,17 @@
 
 package interactivespaces.service.web.server;
 
+import com.google.common.collect.Multimap;
+
+import java.net.HttpCookie;
 import java.net.URI;
+import java.util.Set;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 
 /**
- * An HHTP request coming into the server.
+ * An HTTP request coming into the server.
  * 
  * @author Keith M. Hughes
  */
@@ -48,4 +52,31 @@ public interface HttpRequest {
 	 * @return the logger to use
 	 */
 	Log getLog();
+	
+	/**
+	 * Get the header for this request
+	 * 
+	 * @return the header for the http message
+	 */
+	Multimap<String, String> getHeaders();
+	
+	/**
+	 * Return the set of header strings for the given key.
+	 * @param key
+	 * @return 
+	 */
+	Set<String> getHeader(String key);
+	
+	/**
+	 * Return the cookie which has the given name, if it exists.
+	 * @param name
+	 * @return
+	 */
+	HttpCookie getCookie(String name);
+	
+	/**
+	 * Return a map of all cookie values set on the request.
+	 * @return
+	 */
+	Set<HttpCookie> getCookies();
 }
