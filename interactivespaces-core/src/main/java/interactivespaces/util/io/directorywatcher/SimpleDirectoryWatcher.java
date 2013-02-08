@@ -95,6 +95,9 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 			// after the watcher starts running.
 			throw new IllegalArgumentException(String.format(
 					"%s is not a directory", directory));
+		} else {
+			// Assume the directory will be added at some point
+			directoriesWatched.add(directory);
 		}
 	}
 
@@ -156,7 +159,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 	protected Set<File> scanAllDirectories() {
 		Set<File> currentScan = Sets.newHashSet();
 		for (File directory : directoriesWatched) {
-			if (directory.exists()) {
+			if (directory.exists() && directory.isDirectory()) {
 				for (File file : directory.listFiles()) {
 					currentScan.add(file);
 				}

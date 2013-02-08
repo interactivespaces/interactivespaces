@@ -178,8 +178,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
 		configurationProvider.load();
 
-		containerCustomizerProvider = new SimpleContainerCustomizerProvider();
-		containerCustomizerProvider.getCommandLineArguments().addAll(args);
+		containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
 	}
 
 	/**

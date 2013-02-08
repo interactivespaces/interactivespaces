@@ -226,6 +226,14 @@ public class GeneralInteractiveSpacesSupportActivator implements
 
 		spaceEnvironment.setValue("environment.ros", rosEnvironment);
 
+		// Potentially request the container to permit file control.
+		spaceEnvironment
+				.getSystemConfiguration()
+				.setValue(
+						InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE,
+						Boolean.toString(containerCustomizerProvider
+								.isFileControllable()));
+
 		customizeContainer();
 	}
 

@@ -26,7 +26,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.HttpCookie;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -35,11 +38,13 @@ import org.jboss.netty.channel.ChannelFutureProgressListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.FileRegion;
+import org.jboss.netty.handler.codec.http.CookieEncoder;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
+
 
 import com.google.common.collect.Maps;
 
@@ -64,6 +69,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	 * Base directory for content served by this handler.
 	 */
 	private File baseDir;
+	
 
 	/**
 	 * Extra headers to add to the response.
@@ -97,7 +103,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	}
 
 	@Override
-	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req)
+	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
 			throws IOException {
 		String url = req.getUri();
 
@@ -125,6 +131,14 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
 		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 		parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
+		if (cookiesToAdd != null) {
+	      CookieEncoder encoder = new CookieEncoder(true);
+	      for (HttpCookie value: cookiesToAdd) {
+	        encoder.addCookie(NettyHttpResponse.createNettyCookie(value));
+	        response.addHeader("Set-Cookie", encoder.encode());
+	      }
+		}
+	     
 		setContentLength(response, fileLength);
 
 		Channel ch = ctx.getChannel();

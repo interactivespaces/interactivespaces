@@ -67,6 +67,16 @@ public interface InteractiveSpacesEnvironment {
 	public static final String CONFIGURATION_HOSTNAME = "interactivespaces.host";
 
 	/**
+	 * Configuration property which will be @code true} if the container should
+	 * be file controllable.
+	 * 
+	 * <p>
+	 * This is a suggestion, the container may not be file controllable. This is
+	 * used to request that the controller be file controllable.
+	 */
+	public static final String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE = "interactivespaces.container.control.file";
+
+	/**
 	 * The log level for warnings and above.
 	 */
 	public static final String LOG_LEVEL_WARN = LoggingProvider.LOG_LEVEL_WARN;

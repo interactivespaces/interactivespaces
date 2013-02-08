@@ -202,4 +202,9 @@ public class NettyWebSocketClient implements WebSocketClient {
 			bootstrap = null;
 		}
 	}
+	
+	@Override
+	public String getUser() {
+	  return "";
+	}
 }

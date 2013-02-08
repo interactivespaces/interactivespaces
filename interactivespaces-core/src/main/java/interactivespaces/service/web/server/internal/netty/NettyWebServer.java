@@ -22,6 +22,8 @@ import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.service.web.server.HttpAuthProvider;
+import interactivespaces.service.web.server.WebResourceAccessManager;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -42,6 +44,7 @@ import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 /**
  * A web server based on Netty.
@@ -264,5 +267,16 @@ public class NettyWebServer implements WebServer {
 	 */
 	public Log getLog() {
 		return log;
+	}
+	
+	@Override
+	public void setAuthProvider(HttpAuthProvider authProvider) {
+	  serverHandler.setAuthProvider(authProvider);
+	  
+	}
+	
+	@Override
+	public void setAccessManager(WebResourceAccessManager accessManager) {
+	  serverHandler.setAccessManager(accessManager);
 	}
 }

@@ -18,7 +18,6 @@ package interactivespaces.activity;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
-import sun.org.mozilla.javascript.JavaAdapter;
 
 /**
  * A collection of property names used in the Interactive Spaces system
