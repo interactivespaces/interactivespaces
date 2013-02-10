@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Test Routable Int3 Input</name>
+    <description>
+A test for routes. This will send triplets of three integers that are increasing on a route.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.test.activity.routable.int3.input</identifyingName>
+</activity>

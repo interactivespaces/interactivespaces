@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>Test Routable Int3 Output</name>
+    <description>
+An Interactive Spaces test which outputs 3 ints which are increasing by 1 with each transmission.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.test.activity.routable.int3.output</identifyingName>
+</activity>
