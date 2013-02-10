@@ -133,6 +133,23 @@ public class BasicUiControllerManager implements UiControllerManager {
 	}
 
 	@Override
+	public UiControllerManager forceStatusFromAllControllers() {
+		for (SpaceController controller : controllerRepository
+				.getAllSpaceControllers()) {
+			try {
+				activeControllerManager.forceStatusController(controller);
+			} catch (Exception e) {
+				spaceEnvironment.getLog().error(
+						String.format(
+								"Unable to force the status from controller %s (%s)",
+								controller.getUuid(), controller.getName()), e);
+			}
+		}
+
+		return this;
+	}
+
+	@Override
 	public UiControllerManager shutdownControllers(List<String> ids) {
 		for (String id : ids) {
 			SpaceController controller = controllerRepository

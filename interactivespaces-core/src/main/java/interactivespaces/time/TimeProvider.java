@@ -22,6 +22,16 @@ package interactivespaces.time;
  * @author Keith M. Hughes
  */
 public interface TimeProvider {
+	
+	/**
+	 * Start up the time provider.
+	 */
+	void startup();
+	
+	/**
+	 * Shut down the time provider.
+	 */
+	void shutdown();
 
 	/**
 	 * Get the current time.

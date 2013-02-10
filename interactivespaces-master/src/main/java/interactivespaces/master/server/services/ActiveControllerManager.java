@@ -79,10 +79,22 @@ public interface ActiveControllerManager {
 	/**
 	 * Request a status from a controller node.
 	 * 
+	 * <p>
+	 * This will be a noop if the controller has never been connected
+	 * or has been disconnected.
+	 * 
 	 * @param controller
-	 *            The node.
+	 *            the controller
 	 */
 	void statusController(SpaceController controller);
+
+	/**
+	 * Force request a status from a controller node.
+	 * 
+	 * @param controller
+	 *            the controller
+	 */
+	void forceStatusController(SpaceController controller);
 
 	/**
 	 * Shutdown all activities on a controller node.

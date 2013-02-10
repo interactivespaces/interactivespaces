@@ -24,6 +24,16 @@ package interactivespaces.time;
 public class LocalTimeProvider implements TimeProvider {
 
 	@Override
+	public void startup() {
+		// Nothing to do
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do
+	}
+
+	@Override
 	public long getCurrentTime() {
 		return System.currentTimeMillis();
 	}

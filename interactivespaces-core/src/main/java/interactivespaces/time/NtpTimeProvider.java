@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.net.ntp.NTPUDPClient;
@@ -47,20 +48,61 @@ public class NtpTimeProvider implements TimeProvider {
 	 * The host for the NTP server.
 	 */
 	private final InetAddress host;
+
+	/**
+	 * The threadpool
+	 */
 	private final ScheduledExecutorService scheduledExecutorService;
+
+	/**
+	 * A local provider of time.
+	 */
 	private final LocalTimeProvider localTimeProvider;
+
+	/**
+	 * The NTP client
+	 */
 	private final NTPUDPClient ntpClient;
 
-	private long offset;
+	/**
+	 * The time drift offset
+	 */
+	private AtomicLong offset;
+
+	/**
+	 * Update period for the time provider
+	 */
+	private long updatePeriod;
+
+	/**
+	 * Time unit for the update period for the time provider.
+	 */
+	private TimeUnit updatePeriodTimeUnit;
+
+	/**
+	 * The thread reading the NTP client.
+	 */
 	private ScheduledFuture<?> scheduledFuture;
 
+	/**
+	 * Logging for provider.
+	 */
 	private Log log;
 
 	/**
 	 * @param host
 	 *            the NTP host to use
+	 * @param updatePeriod
+	 *            how often the time should be updated from NTP
+	 * @param updatePeriodTimeUnit
+	 *            time units for the update period
+	 * @param scheduledExecutorService
+	 *            thread pool to use
+	 * @param log
+	 *            logger for the provider
 	 */
-	public NtpTimeProvider(InetAddress host,
+	public NtpTimeProvider(InetAddress host, long updatePeriod,
+			TimeUnit updatePeriodTimeUnit,
 			ScheduledExecutorService scheduledExecutorService, Log log) {
 		this.host = host;
 		this.scheduledExecutorService = scheduledExecutorService;
@@ -68,7 +110,7 @@ public class NtpTimeProvider implements TimeProvider {
 
 		localTimeProvider = new LocalTimeProvider();
 		ntpClient = new NTPUDPClient();
-		offset = 0;
+		offset = new AtomicLong(0);
 		scheduledFuture = null;
 	}
 
@@ -82,8 +124,11 @@ public class NtpTimeProvider implements TimeProvider {
 		for (int i = 0; i < SAMPLE_SIZE; i++) {
 			offsets.add(computeOffset());
 		}
-		offset = CollectionMath.median(offsets);
-		log.info(String.format("NTP time offset: %d ms", offset));
+		offset.set(CollectionMath.median(offsets));
+
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("NTP time offset: %d ms", offset));
+		}
 	}
 
 	private long computeOffset() throws IOException {
@@ -101,22 +146,14 @@ public class NtpTimeProvider implements TimeProvider {
 		}
 	}
 
-	/**
-	 * Starts periodically updating the current time offset periodically.
-	 * 
-	 * <p>
-	 * The first time update happens immediately.
-	 * 
-	 * <p>
-	 * Note that errors thrown while periodically updating time will be logged
-	 * but not rethrown.
-	 * 
-	 * @param period
-	 *            time between updates
-	 * @param unit
-	 *            unit of period
-	 */
-	public void startPeriodicUpdates(long period, TimeUnit unit) {
+	@Override
+	public void startup() {
+		// Starts periodically updating the current time offset periodically.
+		//
+		// The first time update happens immediately.
+		//
+		// Note that errors thrown while periodically updating time will be
+		// logged but not rethrown.
 		scheduledFuture = scheduledExecutorService.scheduleAtFixedRate(
 				new Runnable() {
 					@Override
@@ -127,13 +164,11 @@ public class NtpTimeProvider implements TimeProvider {
 							log.error("Periodic NTP update failed.", e);
 						}
 					}
-				}, 0, period, unit);
+				}, 0, updatePeriod, updatePeriodTimeUnit);
 	}
 
-	/**
-	 * Stops periodically updating the current time offset.
-	 */
-	public void stopPeriodicUpdates() {
+	@Override
+	public void shutdown() {
 		Preconditions.checkNotNull(scheduledFuture);
 		scheduledFuture.cancel(true);
 		scheduledFuture = null;
@@ -142,6 +177,6 @@ public class NtpTimeProvider implements TimeProvider {
 	@Override
 	public long getCurrentTime() {
 		long currentTime = localTimeProvider.getCurrentTime();
-		return currentTime + offset;
+		return currentTime + offset.get();
 	}
 }

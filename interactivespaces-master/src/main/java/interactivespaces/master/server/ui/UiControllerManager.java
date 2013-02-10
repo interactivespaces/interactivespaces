@@ -75,11 +75,20 @@ public interface UiControllerManager {
 	UiControllerManager shutdownAllControllers();
 
 	/**
-	 * Get the status from all controllers in the repository.
+	 * Get the status from all controllers in the repository that are not
+	 * marked unknown. This means no one has tried connecting.
 	 * 
 	 * @return the controller manager which performed the operation.
 	 */
 	UiControllerManager statusFromAllControllers();
+
+	/**
+	 * Get the status from all controllers in the repository, whether or not
+	 * they are connected.
+	 * 
+	 * @return the controller manager which performed the operation.
+	 */
+	UiControllerManager forceStatusFromAllControllers();
 
 	/**
 	 * Connect to all controllers listed.

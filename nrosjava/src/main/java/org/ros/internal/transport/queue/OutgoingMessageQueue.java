@@ -16,7 +16,7 @@
 
 package org.ros.internal.transport.queue;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,12 +27,13 @@ import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.ros.concurrent.CancellableLoop;
-import org.ros.concurrent.CircularBlockingDeque;
+import org.ros.concurrent.MessageBlockingQueue;
+import org.ros.concurrent.MessageBlockingQueueFactory;
 import org.ros.internal.message.MessageBufferPool;
 import org.ros.internal.message.MessageBuffers;
 import org.ros.message.MessageSerializer;
 
-import java.util.concurrent.ExecutorService;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -45,7 +46,7 @@ public class OutgoingMessageQueue<T> {
   private static final int DEQUE_CAPACITY = 16;
 
   private final MessageSerializer<T> serializer;
-  private final CircularBlockingDeque<T> deque;
+  private final MessageBlockingQueue<T> deque;
   private final ChannelGroup channelGroup;
   private final Writer writer;
   private final MessageBufferPool messageBufferPool;
@@ -64,7 +65,7 @@ public class OutgoingMessageQueue<T> {
 
 	@Override
     public void loop() throws InterruptedException {
-      T message = deque.takeFirst();
+      T message = deque.take();
       final ChannelBuffer buffer = messageBufferPool.acquire();
       serializer.serialize(message, buffer);
       if (DEBUG) {
@@ -86,7 +87,7 @@ public class OutgoingMessageQueue<T> {
 
   public OutgoingMessageQueue(MessageSerializer<T> serializer, ExecutorService executorService) {
     this.serializer = serializer;
-    deque = new CircularBlockingDeque<T>(DEQUE_CAPACITY);
+    deque = MessageBlockingQueueFactory.newMessageBlockingQueue(DEQUE_CAPACITY, false);
     channelGroup = new DefaultChannelGroup();
     writer = new Writer();
     messageBufferPool = new MessageBufferPool();
@@ -109,8 +110,12 @@ public class OutgoingMessageQueue<T> {
    *          the message to add to the queue
    */
   public void add(T message) {
-    deque.addLast(message);
-    setLatchedMessage(message);
+    try {
+		deque.put(message);
+		setLatchedMessage(message);
+	} catch (InterruptedException e) {
+		// Fon't care
+	}
   }
 
   private void setLatchedMessage(T message) {

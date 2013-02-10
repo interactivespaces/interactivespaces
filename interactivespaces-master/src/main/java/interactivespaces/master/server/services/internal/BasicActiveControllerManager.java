@@ -129,6 +129,19 @@ public class BasicActiveControllerManager implements
 						controller.getHostId()));
 
 		// To make sure something is listening for the request.
+		ActiveSpaceController active = getActiveSpaceController(controller);
+		if (!SpaceControllerState.UNKNOWN.equals(active.getState())) {
+			remoteControllerClient.requestStatus(controller);
+		}
+	}
+
+	@Override
+	public void forceStatusController(SpaceController controller) {
+		spaceEnvironment.getLog().info(
+				String.format("Forcing status request from controller %s",
+						controller.getHostId()));
+
+		// To make sure something is listening for the request.
 		getActiveSpaceController(controller);
 		remoteControllerClient.requestStatus(controller);
 	}
@@ -185,7 +198,8 @@ public class BasicActiveControllerManager implements
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
 			LiveActivity activity = liveActivity.getLiveActivity();
 			spaceEnvironment.getLog().info(
-					String.format("Deploying live activity %s to controller %s",
+					String.format(
+							"Deploying live activity %s to controller %s",
 							activity.getUuid(), activity.getController()
 									.getHostId()));
 		}
@@ -210,7 +224,8 @@ public class BasicActiveControllerManager implements
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
 			LiveActivity activity = liveActivity.getLiveActivity();
 			spaceEnvironment.getLog().info(
-					String.format("Deleting live activity %s from controller %s",
+					String.format(
+							"Deleting live activity %s from controller %s",
 							activity.getUuid(), activity.getController()
 									.getHostId()));
 		}
@@ -811,8 +826,7 @@ public class BasicActiveControllerManager implements
 								uuid));
 			} else {
 				spaceEnvironment.getLog().info(
-						String.format("Live activity %s delete failed",
-								uuid));
+						String.format("Live activity %s delete failed", uuid));
 			}
 
 			controllerListeners.signalActivityDelete(uuid, success,

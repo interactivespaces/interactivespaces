@@ -269,6 +269,14 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
 		return JsonSupport.getSimpleSuccessJsonResponse();
 	}
 
+	@RequestMapping(value = "/spacecontroller/all/forcestatus.json", method = RequestMethod.GET)
+	public @ResponseBody
+	Map<String, ? extends Object> forceStatusAllControllers() {
+		uiControllerManager.forceStatusFromAllControllers();
+
+		return JsonSupport.getSimpleSuccessJsonResponse();
+	}
+
 	@RequestMapping(value = "/spacecontroller/all/activities/shutdown.html", method = RequestMethod.GET)
 	public String shutdownAllActivitiesAllControllers() {
 		uiControllerManager.shutdownAllActivitiesAllControllers();

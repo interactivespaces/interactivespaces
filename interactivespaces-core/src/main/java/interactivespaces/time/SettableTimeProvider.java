@@ -32,6 +32,16 @@ public class SettableTimeProvider implements TimeProvider {
 	private long currentTime;
 
 	@Override
+	public void startup() {
+		// Nothing to do
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do
+	}
+
+	@Override
 	public long getCurrentTime() {
 		return currentTime;
 	}

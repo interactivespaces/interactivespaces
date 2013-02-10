@@ -16,12 +16,13 @@
 
 package org.ros.internal.transport.queue;
 
-import org.ros.concurrent.CircularBlockingDeque;
+import java.util.concurrent.ExecutorService;
+
+import org.ros.concurrent.MessageBlockingQueue;
+import org.ros.concurrent.MessageBlockingQueueFactory;
 import org.ros.internal.transport.tcp.NamedChannelHandler;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageListener;
-
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -43,8 +44,8 @@ public class IncomingMessageQueue<T> {
   private final MessageDispatcher<T> messageDispatcher;
 
   public IncomingMessageQueue(MessageDeserializer<T> deserializer, ExecutorService executorService) {
-    CircularBlockingDeque<LazyMessage<T>> lazyMessages =
-        new CircularBlockingDeque<LazyMessage<T>>(DEQUE_CAPACITY);
+    MessageBlockingQueue<LazyMessage<T>> lazyMessages =
+    		MessageBlockingQueueFactory.newMessageBlockingQueue(DEQUE_CAPACITY, false);
     messageReceiver = new MessageReceiver<T>(lazyMessages, deserializer);
     messageDispatcher = new MessageDispatcher<T>(lazyMessages, executorService);
     executorService.execute(messageDispatcher);

@@ -52,8 +52,9 @@ function shutdownAllAppsAllControllers() {
 <div class="commandBar"><ul>
 <li><button type="button" id="connectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/connect.html'" title="Connect to all known controllers">Connect All</button></li>
 <li><button type="button" id="disconnectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/disconnect.html'" title="Disconnect from all known controllers">Disconnect All</button></li>
-<li><button type="button" id="statusAllButton" onclick="doAjaxCommand('status')" title="Status from all known controllers">Status All</button></li>
-<li><button type="button" id="shutdownAactivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
+<li><button type="button" id="statusAllButton" onclick="doAjaxCommand('status')" title="Status from all controllers that claim they are in some sort of connection">Status All</button></li>
+<li><button type="button" id="forceStatusAllButton" onclick="doAjaxCommand('forcestatus')" title="Status from all controllers, whether or not they have been connected">Force Status All</button></li>
+<li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
 <li><button type="button" id="shutdownAllButton" onclick="shutdownAllControllers();" title="Shut down all connected controllers">Shutdown All</button></li>
 <li><button type="button" id="newButton" onclick="window.location='/interactivespaces/spacecontroller/new.html?mode=embedded'" title="Create a new controller">New</button></li>
 </ul></div>

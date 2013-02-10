@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EventDispatcher<T> extends CancellableLoop {
 
 	private final T listener;
-	private final CircularBlockingDeque<SignalRunnable<T>> events;
+	private final MessageBlockingQueue<SignalRunnable<T>> events;
 
 	private final CountDownLatch fullyShutdownLatch = new CountDownLatch(1);
 	
@@ -36,7 +36,7 @@ public class EventDispatcher<T> extends CancellableLoop {
 
 	public EventDispatcher(T listener, int queueCapacity) {
 		this.listener = listener;
-		events = new CircularBlockingDeque<SignalRunnable<T>>(queueCapacity);
+		events = MessageBlockingQueueFactory.newMessageBlockingQueue(queueCapacity, false);
 	}
 
 	public void signal(final SignalRunnable<T> signalRunnable) {
@@ -49,16 +49,24 @@ public class EventDispatcher<T> extends CancellableLoop {
 			
 			// Just in case something came in while we were waiting.
 			// Done this way so always in order it was supposed to happen.
-			events.addLast(signalRunnable);
+			try {
+				events.put(signalRunnable);
+			} catch (InterruptedException e) {
+				// Don't care.
+			}
 			flush();
 		} else {
-			events.addLast(signalRunnable);
+			try {
+				events.put(signalRunnable);
+			} catch (InterruptedException e) {
+				// Don't care.
+			}
 		}
 	}
 
 	@Override
 	public void loop() throws InterruptedException {
-		SignalRunnable<T> signalRunnable = events.takeFirst();
+		SignalRunnable<T> signalRunnable = events.take();
 		signalRunnable.run(listener);
 	}
 
@@ -79,7 +87,7 @@ public class EventDispatcher<T> extends CancellableLoop {
 	private void flush() {
 		while (!events.isEmpty()) {
 			try {
-				SignalRunnable<T> signalRunnable = events.takeFirst();
+				SignalRunnable<T> signalRunnable = events.take();
 				signalRunnable.run(listener);
 			} catch (InterruptedException e) {
 				// Don't care
