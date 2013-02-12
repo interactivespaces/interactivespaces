@@ -38,7 +38,7 @@ public class IncomingMessageQueue<T> {
    * {@link IncomingMessageQueue#addListener(MessageListener, int)} which are
    * consumed by user provided {@link MessageListener}s.
    */
-  private static final int DEQUE_CAPACITY = 16;
+  private static final int DEQUE_CAPACITY = 512;
 
   private final MessageReceiver<T> messageReceiver;
   private final MessageDispatcher<T> messageDispatcher;

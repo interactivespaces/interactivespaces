@@ -43,7 +43,7 @@ public class OutgoingMessageQueue<T> {
   private static final boolean DEBUG = false;
   private static final Log log = LogFactory.getLog(OutgoingMessageQueue.class);
 
-  private static final int DEQUE_CAPACITY = 16;
+  private static final int DEQUE_CAPACITY = 512;
 
   private final MessageSerializer<T> serializer;
   private final MessageBlockingQueue<T> deque;

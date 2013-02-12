@@ -1,6 +1,30 @@
 Advanced Master Usage
 ********************
 
+The `run` Folder
+================
+
+The folder where the Master is installed contains a subfolder named `run`.
+This folder contains information about the running system and allows control of the
+Master through files.
+
+The PID File
+------------
+
+The `run` folder contains a file called `interactivespaces.pid`. This file gives the
+Process ID (or PID) of the operating system process the Master is running under. The
+file contains only the Process ID number with nothing else, including no end of line
+characters.
+
+This file should not exist when the Master starts. If the Master 
+tries to start and this file exists, the Master will complain about the
+existence of the file and shut itself down. This prevents the Master from
+having multiple instances running at the same time from the same installation.
+
+The PID file is deleted when the Master is cleanly shut down. Should the Master 
+crash, the PID file will be left and must be deleted before the Master
+can be started again.
+
 Automatic Activity Import
 =========================
 

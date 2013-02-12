@@ -38,7 +38,7 @@ function shutdownAllControllers() {
     }
 }
 
-function shutdownAllAppsAllControllers() {
+function shutdownAllActivitiesAllControllers() {
     if (confirm("Are you sure you want to shut down all applications on all controllers?")) {
         window.location='/interactivespaces/spacecontroller/all/activities/shutdown.html';
     }

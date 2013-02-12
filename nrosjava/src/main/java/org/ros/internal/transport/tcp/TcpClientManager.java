@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
+import org.jboss.netty.util.HashedWheelTimer;
 
 import java.net.SocketAddress;
 import java.util.Collection;
@@ -36,9 +37,12 @@ public class TcpClientManager {
   private final Collection<TcpClient> tcpClients;
   private final List<NamedChannelHandler> namedChannelHandlers;
   private final Executor executor;
+  private final HashedWheelTimer nettyTimer;
 
   public TcpClientManager(Executor executor) {
     this.executor = executor;
+	nettyTimer = new HashedWheelTimer();
+
     channelGroup = new DefaultChannelGroup();
     tcpClients = Lists.newCopyOnWriteArrayList();
     namedChannelHandlers = Lists.newArrayList();
@@ -64,7 +68,7 @@ public class TcpClientManager {
    * @return a new {@link TcpClient}
    */
   public TcpClient connect(String connectionName, SocketAddress socketAddress) {
-    TcpClient tcpClient = new TcpClient(channelGroup, executor);
+    TcpClient tcpClient = new TcpClient(channelGroup, nettyTimer, executor);
     tcpClient.addAllNamedChannelHandlers(namedChannelHandlers);
     tcpClient.connect(connectionName, socketAddress);
     tcpClients.add(tcpClient);
@@ -83,5 +87,7 @@ public class TcpClientManager {
     	client.shutdown();
     }
     tcpClients.clear();
+    
+    nettyTimer.stop();
   }
 }

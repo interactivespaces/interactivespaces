@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ListenerGroup<T> {
 
-	private final static int DEFAULT_QUEUE_CAPACITY = 128;
+	private final static int DEFAULT_QUEUE_CAPACITY = 512;
 
 	private final ExecutorService executorService;
 	private final Collection<EventDispatcher<T>> eventDispatchers;

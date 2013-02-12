@@ -63,9 +63,9 @@ public class TcpClient {
 	private Channel channel;
 	private HashedWheelTimer nettyTimer;
 
-	public TcpClient(ChannelGroup channelGroup, Executor executor) {
+	public TcpClient(ChannelGroup channelGroup, HashedWheelTimer nettyTimer, Executor executor) {
 		this.channelGroup = channelGroup;
-		nettyTimer = new HashedWheelTimer();
+		this.nettyTimer = nettyTimer;
 		channelFactory = new NioClientSocketChannelFactory(
 				new NioClientBossPool(executor, 1),
 				new NioWorkerPool(executor, Runtime.getRuntime()
@@ -138,6 +138,5 @@ public class TcpClient {
 	 */
 	public void shutdown() {
 		bootstrap.shutdown();
-		nettyTimer.stop();
 	}
 }

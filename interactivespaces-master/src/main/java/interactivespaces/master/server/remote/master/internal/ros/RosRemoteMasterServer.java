@@ -41,6 +41,8 @@ import com.google.common.collect.Lists;
  * @author Keith M. Hughes
  */
 public class RosRemoteMasterServer implements RemoteMasterServer {
+	
+	public static final int SIZE_MESSAGE_QUEUE = 1024;
 
 	/**
 	 * The ROS environment the client is running in.
@@ -86,7 +88,7 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 					public void onNewMessage(MasterServerData data) {
 						handleMasterServerData(data);
 					}
-				});
+				}, SIZE_MESSAGE_QUEUE);
 
 		controllerDescriptionDeserializer = node
 				.getMessageSerializationFactory()

@@ -272,7 +272,7 @@ public class Files {
 	 * Will recursively delete subdirectories.
 	 * 
 	 * @param file
-	 *            The directory to be deleted.
+	 *            the directory to be deleted
 	 */
 	static public void deleteDirectoryContents(File file) {
 		File[] files = file.listFiles();

@@ -24,7 +24,7 @@ Controllers are needed on the same host computer, two separate installs must be 
 on that Host Computer and each Space Controller must have a different Host ID and UUID.
 
 The PID file is deleted when the Space Controller is cleanly shut down. Should the Space 
-Controller crash, the PID file will be left and must be deleted before the pace Controller
+Controller crash, the PID file will be left and must be deleted before the Space Controller
 can be started again.
 
 The `control` Folder

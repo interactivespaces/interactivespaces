@@ -16,10 +16,14 @@
 
 package org.ros.internal.node.client;
 
-import com.google.common.base.Preconditions;
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.concurrent.Holder;
 import org.ros.concurrent.RetryingExecutorService;
 import org.ros.exception.RosRuntimeException;
@@ -33,13 +37,9 @@ import org.ros.internal.node.topic.DefaultPublisher;
 import org.ros.internal.node.topic.DefaultSubscriber;
 import org.ros.internal.node.topic.PublisherIdentifier;
 import org.ros.internal.node.topic.TopicParticipantManagerListener;
+import org.ros.log.RosLogFactory;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
 
 /**
  * Manages topic, and service registrations of a {@link SlaveServer} with the
@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class Registrar implements TopicParticipantManagerListener, ServiceManagerListener {
 
   private static final boolean DEBUG = true;
-  private static final Log log = LogFactory.getLog(Registrar.class);
+  private static final Log log = RosLogFactory.getLog(Registrar.class);
 
   private static final int SHUTDOWN_TIMEOUT = 5;
   private static final TimeUnit SHUTDOWN_TIMEOUT_UNITS = TimeUnit.SECONDS;
