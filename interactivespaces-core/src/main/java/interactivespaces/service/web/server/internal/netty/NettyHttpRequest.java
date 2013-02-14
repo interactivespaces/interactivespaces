@@ -195,7 +195,6 @@ public class NettyHttpRequest implements HttpRequest {
     httpCookie.setVersion(cookie.getVersion());
     httpCookie.setSecure(cookie.isSecure());
     httpCookie.setDiscard(cookie.isDiscard());
-    //httpCookie.setHttpOnly(cookie.isHttpOnly());
     
     return httpCookie;
   }
