@@ -369,7 +369,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 	 */
 	private boolean tryWebSocketUpgradeRequest(final ChannelHandlerContext ctx,
 			HttpRequest req, final String user) {
-		if (!req.getUri().equals(fullWebSocketUriPrefix)) {
+		if (!req.getUri().startsWith(fullWebSocketUriPrefix)) {
 			return false;
 		}
 			

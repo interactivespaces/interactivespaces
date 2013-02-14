@@ -124,6 +124,9 @@ public class NettyHttpResponse implements HttpResponse {
     
     @Override
     public void addCookies(Set<HttpCookie> newCookies) {
+      if (newCookies == null) {
+        return;
+      }
       for (HttpCookie cookie : newCookies) {
         cookies.put(cookie.getName(), cookie);
       }
@@ -140,7 +143,6 @@ public class NettyHttpResponse implements HttpResponse {
       nettyCookie.setVersion(cookie.getVersion());
       nettyCookie.setSecure(cookie.getSecure());
       nettyCookie.setDiscard(cookie.getDiscard());
-      //nettyCookie.setHttpOnly(cookie.isHttpOnly());
 
       return nettyCookie;
     }
