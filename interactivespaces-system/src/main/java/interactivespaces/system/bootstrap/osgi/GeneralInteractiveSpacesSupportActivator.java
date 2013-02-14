@@ -32,18 +32,24 @@ import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.system.internal.osgi.OsgiInteractiveSpacesSystemControl;
 import interactivespaces.system.internal.osgi.RosOsgiInteractiveSpacesEnvironment;
 import interactivespaces.time.LocalTimeProvider;
+import interactivespaces.time.NtpTimeProvider;
+import interactivespaces.time.TimeProvider;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.net.URI;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.ros.address.InetAddressFactory;
 import org.ros.concurrent.DefaultScheduledExecutorService;
+import org.ros.log.RosLogFactory;
 import org.ros.master.uri.MasterUriProvider;
 import org.ros.master.uri.StaticMasterUriProvider;
 import org.ros.master.uri.SwitchableMasterUriProvider;
@@ -122,6 +128,8 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 */
 	private ContainerCustomizerProvider containerCustomizerProvider;
 
+	private TimeProvider timeProvider;
+
 	@Override
 	public void start(BundleContext context) throws Exception {
 		String baseInstallDirProperty = context
@@ -134,10 +142,23 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			setupSpaceEnvironment(context, baseInstallDir);
 
 			registerServices(context);
+
+			timeProvider.startup();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		timeProvider.shutdown();
+
+		systemConfigurationStorageManager.shutdown();
+		systemConfigurationStorageManager = null;
+
+		rosEnvironment.shutdown();
+		rosEnvironment = null;
 	}
 
 	/**
@@ -219,7 +240,9 @@ public class GeneralInteractiveSpacesSupportActivator implements
 
 		setupSystemConfiguration(context, containerProperties);
 
-		spaceEnvironment.setTimeProvider(new LocalTimeProvider());
+		timeProvider = getTimeProvider(containerProperties,
+				loggingProvider.getLog());
+		spaceEnvironment.setTimeProvider(timeProvider);
 
 		setupRosEnvironment(context, containerProperties,
 				loggingProvider.getLog());
@@ -235,6 +258,42 @@ public class GeneralInteractiveSpacesSupportActivator implements
 								.isFileControllable()));
 
 		customizeContainer();
+	}
+
+	/**
+	 * Get the time provider to use.
+	 * 
+	 * @return the time provider to use
+	 */
+	public TimeProvider getTimeProvider(
+			Map<String, String> containerProperties, Log log) {
+		String provider = containerProperties
+				.get(InteractiveSpacesEnvironment.CONFIGURATION_PROVIDER_TIME);
+		if (provider == null) {
+			provider = InteractiveSpacesEnvironment.CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT;
+		}
+
+		if (InteractiveSpacesEnvironment.CONFIGURATION_VALUE_PROVIDER_TIME_NTP
+				.equals(provider)) {
+			String host = containerProperties
+					.get(InteractiveSpacesEnvironment.CONFIGURATION_PROVIDER_TIME_NTP_URL);
+			if (host != null) {
+				InetAddress ntpAddress = InetAddressFactory
+						.newFromHostString(host);
+				// TODO(keith): Make sure got valid address. Also, move copy of
+				// factory class into IS.
+				return new NtpTimeProvider(ntpAddress, 10L, TimeUnit.SECONDS,
+						executorService, log);
+			} else {
+				log.warn(String
+						.format("Could not find host for NTP time provider. No value for configuration %s",
+								InteractiveSpacesEnvironment.CONFIGURATION_PROVIDER_TIME_NTP_URL));
+
+				return new LocalTimeProvider();
+			}
+		} else {
+			return new LocalTimeProvider();
+		}
 	}
 
 	/**
@@ -262,6 +321,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 */
 	private void setupRosEnvironment(BundleContext context,
 			Map<String, String> containerProperties, Log log) {
+		RosLogFactory.setLog(log);
 		rosEnvironment = new SimpleRosEnvironment();
 		rosEnvironment.setExecutorService(executorService);
 		rosEnvironment.setLog(spaceEnvironment.getLog());
@@ -352,14 +412,5 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		}
 
 		spaceEnvironment.setSystemConfiguration(systemConfiguration);
-	}
-
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		systemConfigurationStorageManager.shutdown();
-		systemConfigurationStorageManager = null;
-
-		rosEnvironment.shutdown();
-		rosEnvironment = null;
 	}
 }

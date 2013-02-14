@@ -16,10 +16,10 @@
 
 package org.ros.internal.node.topic;
 
-import com.google.common.base.Preconditions;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.ros.concurrent.ListenerGroup;
@@ -28,6 +28,7 @@ import org.ros.internal.node.server.NodeIdentifier;
 import org.ros.internal.transport.ConnectionHeader;
 import org.ros.internal.transport.ConnectionHeaderFields;
 import org.ros.internal.transport.queue.OutgoingMessageQueue;
+import org.ros.log.RosLogFactory;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageSerializer;
 import org.ros.node.topic.DefaultPublisherListener;
@@ -35,8 +36,7 @@ import org.ros.node.topic.Publisher;
 import org.ros.node.topic.PublisherListener;
 import org.ros.node.topic.Subscriber;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
 
 /**
  * Default implementation of a {@link Publisher}.
@@ -46,8 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultPublisher<T> extends DefaultTopicParticipant implements
 		Publisher<T> {
 
-	private static final boolean DEBUG = false;
-	private static final Log log = LogFactory.getLog(DefaultPublisher.class);
+	private static final Log log = RosLogFactory.getLog(DefaultPublisher.class);
 
 	/**
 	 * The maximum delay before shutdown will begin even if all
@@ -150,8 +149,8 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements
 
 	@Override
 	public void publish(T message) {
-		if (DEBUG) {
-			log.info(String.format("Publishing message %s on topic %s.",
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("Publishing message %s on topic %s.",
 					message, getTopicName()));
 		}
 		outgoingMessageQueue.add(message);
@@ -166,9 +165,9 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements
 	 */
 	public ChannelBuffer finishHandshake(ConnectionHeader incomingHeader) {
 		ConnectionHeader topicDefinitionHeader = getTopicDeclarationHeader();
-		if (DEBUG) {
-			log.info("Subscriber handshake header: " + incomingHeader);
-			log.info("Publisher handshake header: " + topicDefinitionHeader);
+		if (log.isDebugEnabled()) {
+			log.debug("Subscriber handshake header: " + incomingHeader);
+			log.debug("Publisher handshake header: " + topicDefinitionHeader);
 		}
 		// TODO(damonkohler): Return errors to the subscriber over the wire.
 		String incomingType = incomingHeader
@@ -208,8 +207,8 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements
 	 */
 	public void addSubscriber(SubscriberIdentifier subscriberIdentifer,
 			Channel channel) {
-		if (DEBUG) {
-			log.info(String.format(
+		if (log.isDebugEnabled()) {
+			log.debug(String.format(
 					"Adding subscriber %s channel %s to publisher %s.",
 					subscriberIdentifer, channel, this));
 		}
@@ -330,8 +329,7 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements
 			}, timeout, unit);
 		} catch (InterruptedException e) {
 			// Ignored since we do not guarantee that all listeners will finish
-			// before
-			// shutdown begins.
+			// before shutdown begins.
 		}
 	}
 

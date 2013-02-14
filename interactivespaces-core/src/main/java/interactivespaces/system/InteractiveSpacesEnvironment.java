@@ -67,7 +67,7 @@ public interface InteractiveSpacesEnvironment {
 	public static final String CONFIGURATION_HOSTNAME = "interactivespaces.host";
 
 	/**
-	 * Configuration property which will be @code true} if the container should
+	 * Configuration property which will be {@code true} if the container should
 	 * be file controllable.
 	 * 
 	 * <p>
@@ -75,6 +75,35 @@ public interface InteractiveSpacesEnvironment {
 	 * used to request that the controller be file controllable.
 	 */
 	public static final String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE = "interactivespaces.container.control.file";
+
+	/**
+	 * Configuration property which says what the time provider should be.
+	 */
+	public static final String CONFIGURATION_PROVIDER_TIME = "interactivespaces.provider.time";
+
+	/**
+	 * Configuration property value which says what the time provider should be
+	 * local.
+	 */
+	public static final String CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL = "local";
+
+	/**
+	 * Configuration property value which says what the time provider should be
+	 * ntp.
+	 */
+	public static final String CONFIGURATION_VALUE_PROVIDER_TIME_NTP = "ntp";
+
+	/**
+	 * Configuration property which says what the URL of the NTP time provider
+	 * should be.
+	 */
+	public static final String CONFIGURATION_PROVIDER_TIME_NTP_URL = "interactivespaces.provider.time.ntp.url";
+
+	/**
+	 * Configuration property value which says what the default time provider
+	 * should be.
+	 */
+	public static final String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT = CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL;
 
 	/**
 	 * The log level for warnings and above.

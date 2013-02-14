@@ -16,11 +16,11 @@
 
 package org.ros.internal.node.server.master;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
 import org.ros.internal.node.client.SlaveClient;
@@ -29,6 +29,7 @@ import org.ros.internal.node.server.SlaveServer;
 import org.ros.internal.node.server.XmlRpcServer;
 import org.ros.internal.node.topic.TopicParticipant;
 import org.ros.internal.node.xmlrpc.MasterXmlRpcEndpointImpl;
+import org.ros.log.RosLogFactory;
 import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.node.Node;
@@ -36,9 +37,8 @@ import org.ros.node.service.ServiceServer;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 
 /**
  * The {@link MasterServer} provides naming and registration services to the
@@ -55,8 +55,8 @@ import java.util.List;
  */
 public class MasterServer extends XmlRpcServer implements MasterRegistrationListener {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(MasterServer.class);
+  private static final boolean DEBUG = true;
+  private static final Log log = RosLogFactory.getLog(MasterServer.class);
 
   /**
    * Position in the {@link #getSystemState()} for publisher information.

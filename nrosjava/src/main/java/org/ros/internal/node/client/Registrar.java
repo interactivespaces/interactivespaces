@@ -50,7 +50,6 @@ import com.google.common.base.Preconditions;
  */
 public class Registrar implements TopicParticipantManagerListener, ServiceManagerListener {
 
-  private static final boolean DEBUG = true;
   private static final Log log = RosLogFactory.getLog(Registrar.class);
 
   private static final int SHUTDOWN_TIMEOUT = 5;
@@ -76,8 +75,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
     retryingExecutorService = new RetryingExecutorService(executorService);
     nodeIdentifier = null;
     running = false;
-    if (DEBUG) {
-      log.info("MasterXmlRpcEndpoint URI: " + masterClient.getRemoteUri());
+    if (log.isDebugEnabled()) {
+      log.debug("MasterXmlRpcEndpoint URI: " + masterClient.getRemoteUri());
     }
   }
 
@@ -109,16 +108,13 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
     boolean success;
     try {
       Response<T> response = callable.call();
-      if (DEBUG) {
-        log.info(response);
+      if (log.isDebugEnabled()) {
+        log.debug(response);
       }
       success = response.isSuccess();
     } catch (Exception e) {
-      if (DEBUG) {
-        log.error("Exception caught while communicating with master.", e);
-      } else {
-        log.error("Exception caught while communicating with master.");
-      }
+      log.error("Exception caught while communicating with master.", e);
+
       success = false;
     }
     return success;
@@ -126,8 +122,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onPublisherAdded(final DefaultPublisher<?> publisher) {
-    if (DEBUG) {
-      log.info("Registering publisher: " + publisher);
+    if (log.isDebugEnabled()) {
+      log.debug("Registering publisher: " + publisher);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
@@ -158,8 +154,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onPublisherRemoved(final DefaultPublisher<?> publisher) {
-    if (DEBUG) {
-      log.info("Unregistering publisher: " + publisher);
+    if (log.isDebugEnabled()) {
+      log.debug("Unregistering publisher: " + publisher);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
@@ -190,8 +186,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onSubscriberAdded(final DefaultSubscriber<?> subscriber) {
-    if (DEBUG) {
-      log.info("Registering subscriber: " + subscriber);
+    if (log.isDebugEnabled()) {
+      log.debug("Registering subscriber: " + subscriber);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
@@ -227,8 +223,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onSubscriberRemoved(final DefaultSubscriber<?> subscriber) {
-    if (DEBUG) {
-      log.info("Unregistering subscriber: " + subscriber);
+    if (log.isDebugEnabled()) {
+      log.debug("Unregistering subscriber: " + subscriber);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
@@ -248,6 +244,7 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
       }
     });
     if (!submitted) {
+      log.warn("Master unregistration never submitted");
       executorService.execute(new Runnable() {
         @Override
         public void run() {
@@ -259,8 +256,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onServiceServerAdded(final DefaultServiceServer<?, ?> serviceServer) {
-    if (DEBUG) {
-      log.info("Registering service: " + serviceServer);
+    if (log.isDebugEnabled()) {
+      log.debug("Registering service: " + serviceServer);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
@@ -291,8 +288,8 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   @Override
   public void onServiceServerRemoved(final DefaultServiceServer<?, ?> serviceServer) {
-    if (DEBUG) {
-      log.info("Unregistering service: " + serviceServer);
+    if (log.isDebugEnabled()) {
+      log.debug("Unregistering service: " + serviceServer);
     }
     boolean submitted = submit(new Callable<Boolean>() {
       @Override
