@@ -25,16 +25,21 @@ import java.io.File;
  * 
  * <p>
  * It is safe to have multiple threads copying content.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface HttpContentCopier extends ManagedResource {
-	
+
 	/**
 	 * Copy the contents from the source URI to the destination file.
 	 * 
+	 * <p>
+	 * This method blocks until the transfer is complete or it fails.
+	 * 
 	 * @param sourceUri
+	 *            the URI to copy the content from
 	 * @param destination
+	 *            where to copy the content to
 	 */
 	void copy(String sourceUri, File destination);
 }

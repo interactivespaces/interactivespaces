@@ -92,7 +92,13 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 	}
 
 	/**
+	 * Transfer the content from the HTTP input stream to the destination file.
+	 * 
 	 * @param in
+	 *            the HTTP result
+	 * @param destination
+	 *            the file to copy the content to
+	 *            
 	 * @throws IOException
 	 */
 	protected void transferFile(InputStream in, File destination)
