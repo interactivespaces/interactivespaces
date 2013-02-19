@@ -16,12 +16,13 @@
 
 package interactivespaces.service.web.server;
 
-import com.google.common.collect.Multimap;
+import interactivespaces.service.web.HttpResponseCode;
 
 import java.io.OutputStream;
 import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Set;
+
+import com.google.common.collect.Multimap;
 
 /**
  * A response for an HTTP request.
@@ -29,6 +30,36 @@ import java.util.Set;
  * @author Keith M. Hughes
  */
 public interface HttpResponse {
+
+	/**
+	 * Set the HTTP response code.
+	 * 
+	 * <p>
+	 * For legal values, see {@link HttpResponseCode}.
+	 * 
+	 * <p>
+	 * If this is not called, an OK response will be used unless there is an
+	 * error.
+	 * 
+	 * @param responseCode
+	 *            the HTTP response code
+	 */
+	void setResponseCode(int responseCode);
+
+	/**
+	 * Get the HTTP response code.
+	 * 
+	 * <p>
+	 * For legal values, see {@link HttpResponseCode}.
+	 * 
+	 * <p>
+	 * This can be changed multiple times, the only value that matters for the
+	 * reponse is the value when the response is actually returned to the
+	 * client.
+	 * 
+	 * @return the HTTP response code
+	 */
+	int getResponseCode();
 
 	/**
 	 * Get the output stream for the response.
@@ -46,7 +77,7 @@ public interface HttpResponse {
 	 *            value of the header
 	 */
 	void addContentHeader(String name, String value);
-	
+
 	/**
 	 * Add an HTTP content header that will go out with the HTTP response.
 	 * 
@@ -55,16 +86,17 @@ public interface HttpResponse {
 	 *            header value
 	 */
 	void addContentHeaders(Multimap<String, String> headers);
-	
-	
+
 	/**
 	 * Add the given cookie to the response.
+	 * 
 	 * @param cookies
 	 */
 	void addCookie(HttpCookie cookie);
-	
+
 	/**
 	 * Add a set of cookies to the response.
+	 * 
 	 * @param cookie
 	 */
 	void addCookies(Set<HttpCookie> cookie);

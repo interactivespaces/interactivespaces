@@ -16,11 +16,13 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.HttpResponse;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +46,49 @@ import com.google.common.collect.Sets;
 public class NettyHttpResponse implements HttpResponse {
 
 	/**
+	 * Create a Netty representation of a cookie.
+	 * 
+	 * @param cookie
+	 *            the standard Java cookie
+	 * 
+	 * @return the Netty cookie
+	 */
+	public static Cookie createNettyCookie(HttpCookie cookie) {
+		Cookie nettyCookie = new DefaultCookie(cookie.getName(),
+				cookie.getValue());
+		nettyCookie.setComment(cookie.getComment());
+		nettyCookie.setDomain(cookie.getDomain());
+		nettyCookie.setMaxAge((int) cookie.getMaxAge());
+		nettyCookie.setPath(cookie.getPath());
+		nettyCookie.setPorts(createPortList(cookie.getPortlist()));
+		nettyCookie.setVersion(cookie.getVersion());
+		nettyCookie.setSecure(cookie.getSecure());
+		nettyCookie.setDiscard(cookie.getDiscard());
+
+		return nettyCookie;
+	}
+
+	/**
+	 * Get the ports list from a cookie port string.
+	 * 
+	 * @param portString
+	 *            port list from a cookie, can be {@code null}
+	 * 
+	 * @return the ports from the cookie
+	 */
+	private static Set<Integer> createPortList(String portString) {
+		if (portString == null) {
+			return Sets.newHashSet();
+		}
+		String[] portStrings = portString.split(",");
+		Set<Integer> ports = Sets.newHashSet();
+		for (String port : portStrings) {
+			ports.add(Integer.valueOf(port));
+		}
+		return ports;
+	}
+
+	/**
 	 * The Netty handler context.
 	 */
 	private ChannelHandlerContext ctx;
@@ -52,42 +97,87 @@ public class NettyHttpResponse implements HttpResponse {
 	 * The channel buffer for writing content.
 	 */
 	private ChannelBuffer channelBuffer;
-	
+
+	/**
+	 * The output stream for writing on the channel buffer.
+	 */
+	private ChannelBufferOutputStream outputStream;
+
 	/**
 	 * Content headers to add to the response.
 	 */
 	private Multimap<String, String> contentHeaders = HashMultimap.create();
-	
-	private Multimap<String, HttpCookie> cookies = HashMultimap.create();
-	
-	public NettyHttpResponse(ChannelHandlerContext ctx,
-	      Map<String, String> extraHttpContentHeaders) {
-	  this.ctx = ctx;
-	  channelBuffer = ChannelBuffers.dynamicBuffer();
-	  for (String key : extraHttpContentHeaders.keySet()) {
-	    contentHeaders.put(key, extraHttpContentHeaders.get(key));
-	  }
 
+	/**
+	 * The cookies associated with the response.
+	 */
+	private Multimap<String, HttpCookie> cookies = HashMultimap.create();
+
+	/**
+	 * The HTTP response code to be used for the response.
+	 */
+	private int responseCode = HttpResponseCode.OK;
+
+	/**
+	 * Construct a new response.
+	 * 
+	 * @param ctx
+	 *            the Netty context for the connection to the client
+	 * @param extraHttpContentHeaders
+	 *            a map of content headers, can be {@code null}
+	 */
+	public NettyHttpResponse(ChannelHandlerContext ctx,
+			Map<String, String> extraHttpContentHeaders) {
+		this.ctx = ctx;
+		channelBuffer = ChannelBuffers.dynamicBuffer();
+
+		if (extraHttpContentHeaders != null) {
+			for (String key : extraHttpContentHeaders.keySet()) {
+				contentHeaders.put(key, extraHttpContentHeaders.get(key));
+			}
+		}
 	}
-	
+
+	/**
+	 * Construct a new response.
+	 * 
+	 * @param ctx
+	 *            the Netty context for the connection to the client
+	 * @param extraHttpContentHeaders
+	 *            a multimap of content headers, can be {@code null}
+	 */
 	public NettyHttpResponse(ChannelHandlerContext ctx,
 			Multimap<String, String> extraHttpContentHeaders) {
 		this.ctx = ctx;
 		channelBuffer = ChannelBuffers.dynamicBuffer();
-		
+
 		if (extraHttpContentHeaders != null) {
 			contentHeaders.putAll(extraHttpContentHeaders);
 		}
 	}
 
 	@Override
+	public void setResponseCode(int responseCode) {
+		this.responseCode = responseCode;
+	}
+
+	@Override
+	public int getResponseCode() {
+		return responseCode;
+	}
+
+	@Override
 	public OutputStream getOutputStream() {
-		return new ChannelBufferOutputStream(channelBuffer);
+		if (outputStream == null) {
+			outputStream = new ChannelBufferOutputStream(channelBuffer);
+		}
+
+		return outputStream;
 	}
 
 	@Override
 	public void addContentHeader(String name, String value) {
-		contentHeaders.put(name,  value);
+		contentHeaders.put(name, value);
 	}
 
 	@Override
@@ -97,66 +187,66 @@ public class NettyHttpResponse implements HttpResponse {
 
 	@Override
 	public Multimap<String, String> getContentHeaders() {
+		reencodeCookies();
+
 		return contentHeaders;
 	}
 
 	/**
-	 * @return the channelBuffer
+	 * Get the channel buffer containing the response.
+	 * 
+	 * <p>
+	 * Once this is called, the output stream used for writing the response is
+	 * closed.
+	 * 
+	 * @return the channel buffer
 	 */
 	public ChannelBuffer getChannelBuffer() {
+		try {
+			if (outputStream != null) {
+				outputStream.flush();
+			}
+		} catch (IOException e) {
+			throw new InteractiveSpacesException(
+					"Could not flush HTTP dynamic output stream", e);
+		} finally {
+			if (outputStream != null) {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					throw new InteractiveSpacesException(
+							"Could not close HTTP dynamic output stream", e);
+				}
+			}
+		}
+
 		return channelBuffer;
 	}
 
+	@Override
+	public void addCookie(HttpCookie cookie) {
+		cookies.put(cookie.getName(), cookie);
+	}
 
-    @Override
-    public void addCookie(HttpCookie cookie) {
-      cookies.put(cookie.getName(), cookie);      
-      reencodeCookies();
-    }
-    
-    private void reencodeCookies() {
-      CookieEncoder encoder = new CookieEncoder(false);
-      for (HttpCookie value: cookies.values()) {
-        encoder.addCookie(createNettyCookie(value));
-        contentHeaders.put("Set-Cookie", encoder.encode());
-      }
-    }
-    
-    @Override
-    public void addCookies(Set<HttpCookie> newCookies) {
-      if (newCookies == null) {
-        return;
-      }
-      for (HttpCookie cookie : newCookies) {
-        cookies.put(cookie.getName(), cookie);
-      }
-      reencodeCookies();
-    }
-    
-    public static Cookie createNettyCookie(HttpCookie cookie) {
-      Cookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
-      nettyCookie.setComment(cookie.getComment());
-      nettyCookie.setDomain(cookie.getDomain());
-      nettyCookie.setMaxAge((int)cookie.getMaxAge());
-      nettyCookie.setPath(cookie.getPath());
-      nettyCookie.setPorts(createPortList(cookie.getPortlist()));
-      nettyCookie.setVersion(cookie.getVersion());
-      nettyCookie.setSecure(cookie.getSecure());
-      nettyCookie.setDiscard(cookie.getDiscard());
+	@Override
+	public void addCookies(Set<HttpCookie> newCookies) {
+		if (newCookies == null) {
+			return;
+		}
 
-      return nettyCookie;
-    }
-    
-    private static Set<Integer> createPortList(String portString) {
-      if (portString == null) {
-        return Sets.newHashSet();
-      }
-      String[] portStrings = portString.split(",");
-      Set<Integer> ports = Sets.newHashSet();
-      for (String port : portStrings) {
-        ports.add(Integer.valueOf(port));
-      }
-      return ports;
-    }
-    
+		for (HttpCookie cookie : newCookies) {
+			cookies.put(cookie.getName(), cookie);
+		}
+	}
+
+	/**
+	 * Reencode all cookies for output.
+	 */
+	private void reencodeCookies() {
+		CookieEncoder encoder = new CookieEncoder(false);
+		for (HttpCookie value : cookies.values()) {
+			encoder.addCookie(createNettyCookie(value));
+			contentHeaders.put("Set-Cookie", encoder.encode());
+		}
+	}
 }

@@ -20,7 +20,6 @@ import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 
 import java.io.IOException;
 import java.net.HttpCookie;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,9 +29,7 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 
 /**
  * A Netty handler for {@link HttpDynamicRequestHandler}.
@@ -64,7 +61,8 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 
 	public NettyHttpDynamicRequestHandlerHandler(
 			NettyWebServerHandler parentHandler, String up, boolean usePath,
-			HttpDynamicRequestHandler requestHandler, Map<String, String> extraHttpContentHeaders) {
+			HttpDynamicRequestHandler requestHandler,
+			Map<String, String> extraHttpContentHeaders) {
 		this.parentHandler = parentHandler;
 
 		if (extraHttpContentHeaders != null) {
@@ -90,11 +88,12 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 	}
 
 	@Override
-	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
-			throws IOException {
+	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req,
+			Set<HttpCookie> cookiesToAdd) throws IOException {
 		interactivespaces.service.web.server.HttpRequest request = new NettyHttpRequest(
 				req, parentHandler.getWebServer().getLog());
-		NettyHttpResponse response = new NettyHttpResponse(ctx, extraHttpContentHeaders);
+		NettyHttpResponse response = new NettyHttpResponse(ctx,
+				extraHttpContentHeaders);
 		response.addCookies(cookiesToAdd);
 
 		DefaultHttpResponse res;
@@ -102,10 +101,11 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 			requestHandler.handle(request, response);
 
 			res = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-					HttpResponseStatus.OK);
+					HttpResponseStatus.valueOf(response.getResponseCode()));
 			res.setContent(response.getChannelBuffer());
 
-			parentHandler.addHttpResponseHeaders(res, response.getContentHeaders());
+			parentHandler.addHttpResponseHeaders(res,
+					response.getContentHeaders());
 			parentHandler.sendHttpResponse(ctx, req, res);
 		} catch (Exception e) {
 			parentHandler
