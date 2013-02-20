@@ -17,6 +17,7 @@
 package interactivespaces.util.i18n;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A source of internationalization data.
@@ -49,4 +50,10 @@ public interface I18nSource {
 	 * @return the formatted message.
 	 */
 	String getMessage(String messageKey, List<String> args);
+	
+	/**
+	 * Get te locale for the source.
+	 * @return
+	 */
+	Locale getLocale();
 }

@@ -92,13 +92,34 @@ public class Files {
 	}
 
 	/**
+	 * Copy the source directory to the destination directory.
+	 * 
+	 * <p>
+	 * The copy includes all subdirectories, their subdirectories, etc.
+	 * 
+	 * <p>
+	 * The destination directory is cleaned out before the source directory is
+	 * copied.
+	 * 
+	 * @param srcDir
+	 *            the source directory
+	 * @param destDir
+	 *            the destination directory
+	 */
+	public static final void cleanDuplicateDirectory(File srcDir, File destDir) {
+		Files.directoryExists(destDir);
+		Files.deleteDirectoryContents(destDir);
+		Files.copyDirectory(srcDir, destDir, true);
+	}
+
+	/**
 	 * Copy the contents of the source directory to the destination directory.
 	 * 
 	 * <p>
 	 * This includes all subdirectories, their subdirectories, etc.
 	 * 
 	 * @param sourceDir
-	 *            the source irectory
+	 *            the source directory
 	 * @param destDir
 	 *            the destination directory (which will be created if necessary)
 	 * @param overwrite

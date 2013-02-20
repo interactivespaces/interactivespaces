@@ -21,6 +21,7 @@ import interactivespaces.InteractiveSpacesException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -29,11 +30,32 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Use the Java ResourceBundle API to provide internationalization services.
+ * 
+ * <p>
+ * Java resource bundles for internationalization use files with a particular
+ * naming convention. The overall bundle has a prefix name giving the name of
+ * the collection, e.g. {@code messages}. The extension will be
+ * {@code .properties}. Next, the language code is used after the base. So, for
+ * example {@code messages_fr.properties} will give the properties in French.
+ * 
+ * <p>
+ * If you need country specific modifications, you then add the country code.
+ * For example, for France, the file would be {@code messages_fr_FR.properties}.
+ * 
+ * <p>
+ * There will be one of these files for each language, all contained in the same
+ * folder.
+ * 
+ * <p>
+ * A file with the name {@code messages.properties} will give default values
+ * when a particular language cannot be found.
  * 
  * @author Keith M. Hughes
  */
@@ -118,6 +140,40 @@ public class ResourceBundleI18nProvider implements I18nProvider {
 	}
 
 	@Override
+	public Set<Locale> getSupportedLocales() {
+		Set<Locale> locales = Sets.newHashSet();
+
+		// Only take the ones with the _ as these are the locale specific
+		// entries.
+		final String prefix = baseName + "_";
+		for (File messageFile : baseFolder.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.startsWith(prefix)
+						&& name.endsWith("." + BUNDLE_FILE_EXTENSION);
+			}
+		})) {
+			int beginIndex = baseName.length() + 1;
+			String fileName = messageFile.getName();
+			String languageCode = new String(fileName.substring(beginIndex,
+					beginIndex + 2));
+
+			// Is there a country code?
+			String countryCode = null;
+			if (fileName.indexOf("_", beginIndex + 2) != -1) {
+				countryCode = new String(fileName.substring(beginIndex + 3,
+						beginIndex + 5));
+
+				locales.add(new Locale(languageCode, countryCode));
+			} else {
+				locales.add(new Locale(languageCode));
+			}
+		}
+
+		return locales;
+	}
+
+	@Override
 	public I18nSource getSource(Locale locale) {
 		try {
 			return new JavaI18nSource(ResourceBundle.getBundle(baseName,
@@ -154,6 +210,7 @@ public class ResourceBundleI18nProvider implements I18nProvider {
 
 		public JavaI18nSource(ResourceBundle bundle, Locale locale) {
 			this.bundle = bundle;
+			this.locale = locale;
 
 			formatter = new MessageFormat("");
 			formatter.setLocale(locale);
@@ -177,6 +234,11 @@ public class ResourceBundleI18nProvider implements I18nProvider {
 			} else {
 				return null;
 			}
+		}
+
+		@Override
+		public Locale getLocale() {
+			return locale;
 		}
 	}
 }

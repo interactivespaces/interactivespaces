@@ -19,6 +19,7 @@ package interactivespaces.util.i18n;
 import interactivespaces.InteractiveSpacesException;
 
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Provide internationalization sources.
@@ -26,6 +27,13 @@ import java.util.Locale;
  * @author Keith M. Hughes
  */
 public interface I18nProvider {
+	
+	/**
+	 * Get the locales supported by the provider.
+	 * 
+	 * @return the locales supported by the provider
+	 */
+	Set<Locale> getSupportedLocales();
 
 	/**
 	 * Get an internalization source for a particular language.
