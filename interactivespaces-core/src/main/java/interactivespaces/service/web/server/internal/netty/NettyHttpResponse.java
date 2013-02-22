@@ -109,11 +109,6 @@ public class NettyHttpResponse implements HttpResponse {
 	private Multimap<String, String> contentHeaders = HashMultimap.create();
 
 	/**
-	 * The cookies associated with the response.
-	 */
-	private Multimap<String, HttpCookie> cookies = HashMultimap.create();
-
-	/**
 	 * The HTTP response code to be used for the response.
 	 */
 	private int responseCode = HttpResponseCode.OK;
@@ -187,8 +182,6 @@ public class NettyHttpResponse implements HttpResponse {
 
 	@Override
 	public Multimap<String, String> getContentHeaders() {
-		reencodeCookies();
-
 		return contentHeaders;
 	}
 
@@ -225,7 +218,9 @@ public class NettyHttpResponse implements HttpResponse {
 
 	@Override
 	public void addCookie(HttpCookie cookie) {
-		cookies.put(cookie.getName(), cookie);
+	  CookieEncoder encoder = new CookieEncoder(false);  
+      encoder.addCookie(createNettyCookie(cookie));
+      contentHeaders.put("Set-Cookie", encoder.encode());
 	}
 
 	@Override
@@ -233,20 +228,12 @@ public class NettyHttpResponse implements HttpResponse {
 		if (newCookies == null) {
 			return;
 		}
-
+		CookieEncoder encoder = new CookieEncoder(false);        
 		for (HttpCookie cookie : newCookies) {
-			cookies.put(cookie.getName(), cookie);
+		  encoder.addCookie(createNettyCookie(cookie));
+		  contentHeaders.put("Set-Cookie", encoder.encode());
 		}
 	}
 
-	/**
-	 * Reencode all cookies for output.
-	 */
-	private void reencodeCookies() {
-		CookieEncoder encoder = new CookieEncoder(false);
-		for (HttpCookie value : cookies.values()) {
-			encoder.addCookie(createNettyCookie(value));
-			contentHeaders.put("Set-Cookie", encoder.encode());
-		}
-	}
+
 }
