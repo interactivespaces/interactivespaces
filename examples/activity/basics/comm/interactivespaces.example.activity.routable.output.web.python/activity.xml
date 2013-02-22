@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity>
+    <name>Routable Output Web Python Example Activity</name>
+    <description>
+An example Python-based web activity which uses web sockets to communicate between the Live Activity and the browser application and routes to talk to others.
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespaces.example.activity.routable.output.web.python</identifyingName>
+</activity>

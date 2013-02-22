@@ -32,9 +32,19 @@ public interface MessageBlockingQueue<T> {
 	 * <p>
 	 * This will block if nothing is available.
 	 * 
-	 * @return
+	 * @return the item to send
 	 */
 	T take() throws InterruptedException;
+
+	/**
+	 * Take an entry from the queue if there is anything to take.
+	 * 
+	 * <p>
+	 * This will not block if nothing is available.
+	 * 
+	 * @return the head of the queue, or {@code null} if nothing in the queue
+	 */
+	T poll();
 
 	/**
 	 * Put an item into the queue.

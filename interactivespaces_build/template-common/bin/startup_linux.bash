@@ -8,4 +8,4 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR/..
 
 # Start up Interactive Spaces
-java -jar interactivespaces-launcher-${interactivespaces.version}.jar
+java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar

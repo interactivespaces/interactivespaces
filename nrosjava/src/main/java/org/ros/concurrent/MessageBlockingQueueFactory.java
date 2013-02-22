@@ -50,6 +50,11 @@ public class MessageBlockingQueueFactory {
 				}
 
 				@Override
+				public T poll() {
+					return deque.poll();
+				}
+
+				@Override
 				public void put(T entry) {
 					deque.addLast(entry);
 				}
@@ -68,6 +73,11 @@ public class MessageBlockingQueueFactory {
 				@Override
 				public T take() throws InterruptedException {
 					return queue.take();
+				}
+
+				@Override
+				public T poll() {
+					return queue.poll();
 				}
 
 				@Override

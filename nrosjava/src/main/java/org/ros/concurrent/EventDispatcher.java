@@ -31,14 +31,21 @@ public class EventDispatcher<T> extends CancellableLoop {
 	private final MessageBlockingQueue<SignalRunnable<T>> events;
 
 	private final CountDownLatch fullyShutdownLatch = new CountDownLatch(1);
-	
+
 	private AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
 	public EventDispatcher(T listener, int queueCapacity) {
 		this.listener = listener;
-		events = MessageBlockingQueueFactory.newMessageBlockingQueue(queueCapacity, false);
+		events = MessageBlockingQueueFactory.newMessageBlockingQueue(
+				queueCapacity, false);
 	}
 
+	/**
+	 * A signal must take place.
+	 * 
+	 * @param signalRunnable
+	 *            the runnable that contains the signal
+	 */
 	public void signal(final SignalRunnable<T> signalRunnable) {
 		if (isShuttingDown.get()) {
 			try {
@@ -46,7 +53,7 @@ public class EventDispatcher<T> extends CancellableLoop {
 			} catch (InterruptedException e) {
 				// Don't care
 			}
-			
+
 			// Just in case something came in while we were waiting.
 			// Done this way so always in order it was supposed to happen.
 			try {
@@ -85,12 +92,10 @@ public class EventDispatcher<T> extends CancellableLoop {
 	 * which have not been written.
 	 */
 	private void flush() {
-		while (!events.isEmpty()) {
+		SignalRunnable<T> signalRunnable;
+		while ((signalRunnable = events.poll()) != null) {
 			try {
-				SignalRunnable<T> signalRunnable = events.take();
 				signalRunnable.run(listener);
-			} catch (InterruptedException e) {
-				// Don't care
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
