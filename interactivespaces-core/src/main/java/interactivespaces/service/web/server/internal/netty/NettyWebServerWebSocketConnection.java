@@ -24,6 +24,7 @@ import interactivespaces.service.web.server.WebResourceAccessManager;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -44,7 +45,12 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
+
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
 
 	/**
 	 * The channel for this web socket handler.

@@ -34,6 +34,13 @@ public interface I18nProvider {
 	 * @return the locales supported by the provider
 	 */
 	Set<Locale> getSupportedLocales();
+	
+	/**
+	 * Get all supported sources from the provider.
+	 * 
+	 * @return all supported sources from the provider
+	 */
+	Set<I18nSource> getAllSupportedSources();
 
 	/**
 	 * Get an internalization source for a particular language.

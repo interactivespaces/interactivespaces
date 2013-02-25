@@ -28,6 +28,7 @@ import interactivespaces.service.web.server.WebServer;
 import java.io.File;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -44,7 +45,12 @@ public class BaseWebServerActivity extends BaseActivity implements
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
+
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
 
 	/**
 	 * Web socket handler for the connection to the browser.

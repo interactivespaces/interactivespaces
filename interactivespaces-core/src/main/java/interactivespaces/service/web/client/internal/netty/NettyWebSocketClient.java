@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.Log;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -54,9 +55,14 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketVersion;
 public class NettyWebSocketClient implements WebSocketClient {
 
 	/**
-	 * JSON mapper.
+	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
+
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
 
 	/**
 	 * The connection URI.

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
@@ -36,7 +37,12 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
+
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
 
 	/**
 	 * The read/write lock.

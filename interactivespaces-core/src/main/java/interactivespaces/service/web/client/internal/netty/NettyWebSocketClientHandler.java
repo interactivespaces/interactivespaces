@@ -21,6 +21,7 @@ import java.util.Map;
 import interactivespaces.service.web.WebSocketHandler;
 
 import org.apache.commons.logging.Log;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -44,7 +45,15 @@ import org.jboss.netty.util.CharsetUtil;
 
 public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
 
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	/**
+	 * The JSON mapper.
+	 */
+	private static final ObjectMapper MAPPER;
+
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
 
 	/**
 	 * The handshaker for the connection.

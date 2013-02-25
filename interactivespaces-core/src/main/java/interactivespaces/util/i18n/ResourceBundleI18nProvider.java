@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
@@ -127,10 +128,10 @@ public class ResourceBundleI18nProvider implements I18nProvider {
 						stream = new FileInputStream(file);
 					}
 					if (stream != null) {
-						BufferedInputStream bis = new BufferedInputStream(
-								stream);
-						bundle = new PropertyResourceBundle(bis);
-						bis.close();
+						InputStreamReader reader = new InputStreamReader(
+								new BufferedInputStream(stream), "UTF-8");
+						bundle = new PropertyResourceBundle(reader);
+						reader.close();
 					}
 				}
 				return bundle;
@@ -171,6 +172,17 @@ public class ResourceBundleI18nProvider implements I18nProvider {
 		}
 
 		return locales;
+	}
+
+	@Override
+	public Set<I18nSource> getAllSupportedSources() {
+		Set<I18nSource> sources = Sets.newHashSet();
+
+		for (Locale locale : getSupportedLocales()) {
+			sources.add(getSource(locale));
+		}
+
+		return sources;
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import interactivespaces_msgs.GenericMessage;
 import java.io.IOException;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -41,8 +42,13 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
 
+	static {
+		MAPPER = new ObjectMapper();
+		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+	}
+	
 	/**
 	 * Router for input and output messages.
 	 */
@@ -199,9 +205,11 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 				.enterMethod();
 
 		try {
+			String msg = message.getMessage();
+
 			@SuppressWarnings("unchecked")
 			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					message.getMessage(), Map.class);
+					msg, Map.class);
 			onNewInputJson(channelName, map);
 		} finally {
 			getExecutionContext().exitMethod(invocation);

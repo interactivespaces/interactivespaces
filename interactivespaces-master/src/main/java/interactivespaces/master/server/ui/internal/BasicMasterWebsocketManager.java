@@ -65,7 +65,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 
 	private static final String WEBSOCKET_STATUS_PARAMETER_NAME_TYPE = "type";
 
-	private static final String WEBSOCKET_COMMAND_EXTENSION_PREFIX = "extension-";
+	private static final String WEBSOCKET_COMMAND_EXTENSION_PREFIX = "/extension/";
 
 	/**
 	 * The space environment.
