@@ -1,17 +1,10 @@
-<!-- 
-Copyright (C) 2012 Google Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License. You may obtain a copy of
-the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
-the License.
- -->
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+	the specific language governing permissions and limitations under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -38,13 +31,13 @@ the License.
 			<artifactId>plexus-utils</artifactId>
 			<version>1.5.6</version>
 		</dependency>
-		
-        <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>properties-maven-plugin</artifactId>
-            <version>1.0-alpha-2</version>
-        </dependency>
- 
+
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>properties-maven-plugin</artifactId>
+			<version>1.0-alpha-2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -54,25 +47,25 @@ the License.
 		<finalName>${project.artifactId}</finalName>
 
 		<plugins>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>properties-maven-plugin</artifactId>
-              <version>1.0-alpha-2</version>
-              <executions>
-                <execution>
-                  <phase>initialize</phase>
-                  <goals>
-                    <goal>read-project-properties</goal>
-                  </goals>
-                  <configuration>
-                    <files>
-                      <file>${basedir}/../../gradle.properties</file>
-                    </files>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-		    
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>${basedir}/../../gradle.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- configure the compiler to use 1.6 -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -96,12 +89,12 @@ the License.
 						</goals>
 						<configuration>
 							<tasks>
-                                <copy todir="${staging.dir}">
-                                    <fileset file="${basedir}/../../LICENSE.txt" />
-                                    <fileset file="${basedir}/../../LICENSE.thirdparties.txt" />
-                                    <fileset file="${basedir}/../../NOTICE.txt" />
-                                </copy>
-							    <copy todir="${staging.dir}">
+								<copy todir="${staging.dir}">
+									<fileset file="${basedir}/../../LICENSE.txt" />
+									<fileset file="${basedir}/../../LICENSE.thirdparties.txt" />
+									<fileset file="${basedir}/../../NOTICE.txt" />
+								</copy>
+								<copy todir="${staging.dir}">
 									<fileset dir="${basedir}/../template-common" />
 								</copy>
 								<copy todir="${staging.dir}">
@@ -184,31 +177,31 @@ the License.
 									<overWrite>true</overWrite>
 									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-bootstrap-core</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
-                                </artifactItem>
 								<artifactItem>
-                                    <groupId>org.apache.commons</groupId>
-                                    <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                                    <version>1.1.1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.log4j</groupId>
-                                    <artifactId>com.springsource.org.apache.log4j</artifactId>
-                                    <version>1.2.16</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
-                                </artifactItem>
-								
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-bootstrap-core</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.commons</groupId>
+									<artifactId>com.springsource.org.apache.commons.logging</artifactId>
+									<version>1.1.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.log4j</groupId>
+									<artifactId>com.springsource.org.apache.log4j</artifactId>
+									<version>1.2.16</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
+								</artifactItem>
+
 								<!-- Bootstrap folder -->
 
 								<!-- OSGi bundles needed -->
@@ -263,80 +256,80 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>nrosjava_messages</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
 								<artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>nrosjava_geometry</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-								<artifactItem>
-									<groupId>commons-pool</groupId>
-                                    <artifactId>commons-pool</artifactId>
-                                    <version>1.6</version>
+									<groupId>interactivespaces</groupId>
+									<artifactId>nrosjava_messages</artifactId>
+									<version>${project.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.commons</groupId>
-                                    <artifactId>com.springsource.org.apache.commons.io</artifactId>
-                                    <version>1.4.0</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
 								<artifactItem>
-                                    <groupId>org.apache.servicemix.bundles</groupId>
-                                    <artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
-                                    <version>1.0.2_2</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-				<artifactItem>
-                                    <groupId>org.apache.servicemix.bundles</groupId>
-                                    <artifactId>org.apache.servicemix.bundles.rome</artifactId>
-                                    <version>1.0_1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-				  <artifactItem>
-                                    <groupId>org.apache.servicemix.bundles</groupId>
-                                    <artifactId>org.apache.servicemix.bundles.jdom</artifactId>
-                                    <version>1.1_4</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>nrosjava_geometry</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
 								<artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>apache_xmlrpc_common</artifactId>
-                                    <version>3.1.3</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>apache_xmlrpc_client</artifactId>
-                                    <version>3.1.3</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>apache_xmlrpc_server</artifactId>
-                                    <version>3.1.3</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
+									<groupId>commons-pool</groupId>
+									<artifactId>commons-pool</artifactId>
+									<version>1.6</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.commons</groupId>
+									<artifactId>com.springsource.org.apache.commons.io</artifactId>
+									<version>1.4.0</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.servicemix.bundles</groupId>
+									<artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
+									<version>1.0.2_2</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.servicemix.bundles</groupId>
+									<artifactId>org.apache.servicemix.bundles.rome</artifactId>
+									<version>1.0_1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.servicemix.bundles</groupId>
+									<artifactId>org.apache.servicemix.bundles.jdom</artifactId>
+									<version>1.1_4</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>apache_xmlrpc_common</artifactId>
+									<version>3.1.3</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>apache_xmlrpc_client</artifactId>
+									<version>3.1.3</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>apache_xmlrpc_server</artifactId>
+									<version>3.1.3</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
 								<artifactItem>
 									<groupId>com.google.guava</groupId>
-                                    <artifactId>guava</artifactId>
-                                    <version>12.0</version>
+									<artifactId>guava</artifactId>
+									<version>12.0</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -402,29 +395,13 @@ the License.
 								</artifactItem>
 
 								<!-- ROS zeroconf -->
-								<!-- 
-								<artifactItem>
-									<groupId>interactivespaces</groupId>
-									<artifactId>rosjava_zeroconf_common</artifactId>
-									<version>${project.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.jmdns</groupId>
-									<artifactId>jmdns</artifactId>
-									<version>3.4.1</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								<artifactItem>
-									<groupId>interactivespaces</groupId>
-									<artifactId>rosjava_zeroconf_node</artifactId>
-									<version>${project.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-								</artifactItem>
-								 -->
+								<!-- <artifactItem> <groupId>interactivespaces</groupId> <artifactId>rosjava_zeroconf_common</artifactId> 
+									<version>${project.version}</version> <type>jar</type> <overWrite>true</overWrite> 
+									</artifactItem> <artifactItem> <groupId>javax.jmdns</groupId> <artifactId>jmdns</artifactId> 
+									<version>3.4.1</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem> 
+									<artifactItem> <groupId>interactivespaces</groupId> <artifactId>rosjava_zeroconf_node</artifactId> 
+									<version>${project.version}</version> <type>jar</type> <overWrite>true</overWrite> 
+									</artifactItem> -->
 
 								<!-- Core Interactive Spaces -->
 								<artifactItem>
@@ -476,7 +453,7 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-								
+
 								<!-- Expression language -->
 								<artifactItem>
 									<groupId>org.apache.commons</groupId>
@@ -492,94 +469,94 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>joda-time</groupId>
-                                    <artifactId>joda-time</artifactId>
-                                    <version>2.1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-
-                                <!-- Interactive Spaces System -->
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-system</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-core</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                
-                                <!-- Twitter service -->
-   								<artifactItem> 
-   								    <groupId>org.twitter4j</groupId> 
-   								    <artifactId>interactivespaces.org.twitter4j</artifactId> 
-									<version>3.0.3</version> 
-									<type>jar</type> 
-									<overWrite>true</overWrite> 
-								</artifactItem> 
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-comm-twitter</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-   																
-   								<!-- xmpp service -->
-								<artifactItem> 
-								    <groupId>org.apache.servicemix.bundles</groupId> 
-								    <artifactId>org.apache.servicemix.bundles.smack</artifactId> 
-									<version>3.2.1_1</version> 
-									<type>jar</type> 
-									<overWrite>true</overWrite> 
+								<artifactItem>
+									<groupId>joda-time</groupId>
+									<artifactId>joda-time</artifactId>
+									<version>2.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-comm-chat</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-								
+
+								<!-- Interactive Spaces System -->
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-system</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-core</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
+								<!-- Twitter service -->
+								<artifactItem>
+									<groupId>org.twitter4j</groupId>
+									<artifactId>interactivespaces.org.twitter4j</artifactId>
+									<version>3.0.3</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-comm-twitter</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
+								<!-- xmpp service -->
+								<artifactItem>
+									<groupId>org.apache.servicemix.bundles</groupId>
+									<artifactId>org.apache.servicemix.bundles.smack</artifactId>
+									<version>3.2.1_1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-comm-chat</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
 								<!-- Audio Player Service -->
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-audio-player</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.farng.mp3</groupId>
-                                    <artifactId>jid3lib</artifactId>
-                                    <version>0.5.4</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>javazoom</groupId>
-                                    <artifactId>interactivespaces.javazoom.jlayer</artifactId>
-                                    <version>1.0.1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-speech-synthesis</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-audio-player</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.farng.mp3</groupId>
+									<artifactId>jid3lib</artifactId>
+									<version>0.5.4</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>javazoom</groupId>
+									<artifactId>interactivespaces.javazoom.jlayer</artifactId>
+									<version>1.0.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-speech-synthesis</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+
 								<!-- Interactive Spaces scheduler -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
@@ -604,13 +581,13 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-activity-wrapper-script</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-activity-wrapper-script</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
 
 								<!--Interactive Spaces controller -->
 								<artifactItem>
@@ -661,45 +638,54 @@ the License.
 								</artifactItem>
 
 								<artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-comm-serial</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${staging.dir}/extras</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-comm-bluetooth</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${staging.dir}/extras</outputDirectory>
-                                </artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-comm-serial</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/extras</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-comm-bluetooth</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/extras</outputDirectory>
+								</artifactItem>
+								
+								<!-- USB Service -->
+								<artifactItem>
+									<groupId>net.java.dev.jna</groupId>
+									<artifactId>jna</artifactId>
+									<version>3.5.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${staging.dir}/extras</outputDirectory>
+								</artifactItem>
+								<!--Interactive Spaces web services -->
+								<artifactItem>
+									<groupId>com.google.zxing</groupId>
+									<artifactId>interactivespaces.com.google.zxing.core</artifactId>
+									<version>2.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.google.zxing</groupId>
+									<artifactId>interactivespaces.com.google.zxing.javase</artifactId>
+									<version>2.1</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+								<artifactItem>
+									<groupId>interactivespaces</groupId>
+									<artifactId>interactivespaces-service-web</artifactId>
+									<version>${project.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
 
-                                <!--Interactive Spaces web services -->
-                                <artifactItem>
-                                    <groupId>com.google.zxing</groupId>
-                                    <artifactId>interactivespaces.com.google.zxing.core</artifactId>
-                                    <version>2.1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.google.zxing</groupId>
-                                    <artifactId>interactivespaces.com.google.zxing.javase</artifactId>
-                                    <version>2.1</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>interactivespaces</groupId>
-                                    <artifactId>interactivespaces-service-web</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                                																
 							</artifactItems>
 
 							<outputDirectory>${staging.dir}/bootstrap</outputDirectory>

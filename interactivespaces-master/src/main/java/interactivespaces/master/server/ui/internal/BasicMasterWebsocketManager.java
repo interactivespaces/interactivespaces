@@ -16,16 +16,22 @@
 
 package interactivespaces.master.server.ui.internal;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MasterWebsocketManager;
+import interactivespaces.master.server.ui.UiActivityManager;
+import interactivespaces.master.server.ui.UiControllerManager;
+import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -90,6 +96,21 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	 * Repository for all activity entities..
 	 */
 	private ActivityRepository activityRepository;
+
+	/**
+	 * The UI manager for activities.
+	 */
+	private UiActivityManager uiActivityManager;
+
+	/**
+	 * The UI manager for spaces.
+	 */
+	private UiSpaceManager uiSpaceManager;
+
+	/**
+	 * The UI manager for controllers.
+	 */
+	private UiControllerManager uiControllerManager;
 
 	@Override
 	public void startup() {
@@ -215,8 +236,410 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 			result.put("command", command);
 
 			webSocketFactory.sendJson(connectionId, result);
+		} else if (COMMAND_LIVE_ACTIVITY_VIEW.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityView(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_DEPLOY.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityDeploy(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_CONFIGURE.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityConfigure(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_CONFIGURATION_GET.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityGetConfiguration(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_CONFIGURATION_SET.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivitySetConfiguration(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_METADATA_SET.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivitySetMetadata(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_STARTUP.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityStartup(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_ACTIVATE.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityActivate(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_DEACTIVATE.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityDeactivate(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_SHUTDOWN.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityShutdown(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_STATUS.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityStatus(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_DELETE_LOCAL.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityDelete(calleeArgs));
+		} else if (COMMAND_LIVE_ACTIVITY_DELETE_REMOTE.equals(command)) {
+			webSocketFactory.sendJson(connectionId,
+					liveActivityRemoteDelete(calleeArgs));
 		} else {
 			// For now nothing else.
+		}
+	}
+
+	/**
+	 * Get all data on a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityView(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+		if (liveactivity != null) {
+			Map<String, Object> data = Maps.newHashMap();
+
+			uiActivityManager.getLiveActivityViewJsonData(liveactivity, data);
+
+			return JsonSupport.getSuccessJsonResponse(data);
+		} else {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Deploy a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityDeploy(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.deployLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Configure a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityConfigure(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.configureLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Get the configuration for a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityGetConfiguration(
+			Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			return JsonSupport.getSuccessJsonResponse(uiActivityManager
+					.getLiveActivityConfiguration(id));
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Set the configuration for a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivitySetConfiguration(
+			Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		Map<String, String> config = getRequiredMapArg(args, "config");
+		try {
+
+			uiActivityManager.configureLiveActivity(id,
+					(Map<String, String>) config);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+			// return JsonSupport
+			// .getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Set the metadata for a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivitySetMetadata(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		Map<String, Object> metadata = getRequiredMapArg(args, "metadata");
+
+		return uiActivityManager.updateLiveActivityMetadata(id, metadata);
+		// return JsonSupport
+		// .getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+	}
+
+	/**
+	 * Startup a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityStartup(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.startupLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Activate a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityActivate(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.activateLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Deactivate a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityDeactivate(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.deactivateLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Shutdown a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityShutdown(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.shutdownLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Request the status of a live activity.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityStatus(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		LiveActivity activity = activityRepository.getLiveActivityById(id);
+		if (activity != null) {
+			// Get an update from the controller
+			uiControllerManager.statusLiveActivity(id);
+
+			Map<String, Object> statusData = Maps.newHashMap();
+
+			uiActivityManager.getLiveActivityStatusJsonData(activity,
+					statusData);
+
+			return JsonSupport.getSuccessJsonResponse(statusData);
+		} else {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Delete a live activity from the master model.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityDelete(Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiActivityManager.deleteLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Dlete a live activity on its space controller.
+	 * 
+	 * @param args
+	 *            args from the websocket call
+	 * 
+	 * @return call response for the request
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if no ID, ID is not a live activity, or some other issue
+	 */
+	private Map<String, Object> liveActivityRemoteDelete(
+			Map<String, Object> args) {
+		String id = getRequiredStringArg(args, "id");
+		try {
+			uiControllerManager.deleteLiveActivity(id);
+
+			return JsonSupport.getSimpleSuccessJsonResponse();
+		} catch (EntityNotFoundInteractiveSpacesException e) {
+			return getNoSuchLiveActivityResult();
+		}
+	}
+
+	/**
+	 * Get a JSON error response for no such live activity.
+	 * 
+	 * @return the JSON result
+	 */
+	private Map<String, Object> getNoSuchLiveActivityResult() {
+		return JsonSupport
+				.getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+	}
+
+	/**
+	 * Get a required string argument from the args map.
+	 * 
+	 * @param args
+	 *            the args map
+	 * @param argName
+	 *            the argument
+	 * 
+	 * @return the value of the arg
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if there is no value for the requested arg
+	 */
+	private String getRequiredStringArg(Map<String, Object> args, String argName) {
+		String value = (String) args.get(argName);
+		if (value != null) {
+			return value;
+		} else {
+			throw new InteractiveSpacesException("Unknown argument " + argName);
+		}
+	}
+
+	/**
+	 * Get a required string argument from the args map.
+	 * 
+	 * @param args
+	 *            the args map
+	 * @param argName
+	 *            the argument
+	 * 
+	 * @return the value of the arg
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if there is no value for the requested arg
+	 */
+	private <K, V> Map<K, V> getRequiredMapArg(Map<String, Object> args,
+			String argName) {
+		Object value = args.get(argName);
+		if (value != null) {
+			if (Map.class.isAssignableFrom(value.getClass())) {
+				@SuppressWarnings("unchecked")
+				Map<K, V> value2 = (Map<K, V>) value;
+				return value2;
+			} else {
+				throw new InteractiveSpacesException("Argument not map "
+						+ argName);
+			}
+		} else {
+			throw new InteractiveSpacesException("Unknown argument " + argName);
 		}
 	}
 
@@ -252,5 +675,29 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	 */
 	public void setActivityRepository(ActivityRepository activityRepository) {
 		this.activityRepository = activityRepository;
+	}
+
+	/**
+	 * @param uiActivityManager
+	 *            the uiActivityManager to set
+	 */
+	public void setUiActivityManager(UiActivityManager uiActivityManager) {
+		this.uiActivityManager = uiActivityManager;
+	}
+
+	/**
+	 * @param uiSpaceManager
+	 *            the uiSpaceManager to set
+	 */
+	public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
+		this.uiSpaceManager = uiSpaceManager;
+	}
+
+	/**
+	 * @param uiControllerManager
+	 *            the uiControllerManager to set
+	 */
+	public void setUiControllerManager(UiControllerManager uiControllerManager) {
+		this.uiControllerManager = uiControllerManager;
 	}
 }
