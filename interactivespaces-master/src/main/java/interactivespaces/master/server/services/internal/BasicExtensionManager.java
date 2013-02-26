@@ -218,6 +218,7 @@ public class BasicExtensionManager implements ExtensionManager {
 	private void initializeStartupExtensions() {
 		startupExtensionsDirectoryWatcher = new SimpleBatchDirectoryWatcher();
 		startupExtensionsDirectoryWatcher.addDirectory(new File(
+				spaceEnvironment.getFilesystem().getInstallDirectory(),
 				STARTUP_EXTENSIONS_DIRECTORY));
 		startupExtensionsDirectoryWatcher
 				.addBatchDirectoryWatcherListener(new BatchDirectoryWatcherListener() {
@@ -263,7 +264,8 @@ public class BasicExtensionManager implements ExtensionManager {
 	 */
 	private void initializeApiExtensions() {
 		apiExtensionsDirectoryWatcher = new SimpleDirectoryWatcher();
-		apiExtensionsDirectoryWatcher.addDirectory(new File(
+		apiExtensionsDirectoryWatcher.addDirectory(new File(spaceEnvironment
+				.getFilesystem().getInstallDirectory(),
 				API_EXTENSIONS_DIRECTORY));
 		apiExtensionsDirectoryWatcher
 				.addDirectoryWatcherListener(new DirectoryWatcherListener() {
@@ -427,7 +429,8 @@ public class BasicExtensionManager implements ExtensionManager {
 	}
 
 	/**
-	 * @param uiMasterSupportManager the uiMasterSupportManager to set
+	 * @param uiMasterSupportManager
+	 *            the uiMasterSupportManager to set
 	 */
 	public void setUiMasterSupportManager(
 			UiMasterSupportManager uiMasterSupportManager) {

@@ -59,11 +59,19 @@ Activities that the master knows about and deploys them.
     print "%s: %s" % (liveActivity.id, liveActivity.name)
     uiControllerManager.deployLiveActivity(liveActivity.id)
 
-Master Extensions
+Named Scripts
+-------------
+
+The Master also supports Named Scripts, which are scripts stored in the master database.
+These scripts are run from the Master Webapp or the Master API. They can also be
+scheduled to run via the scheduler.
+
+
+Startup Master Extensions
 ---------
 
-One way to script the Master is through the use of Master Extensions.
-Extensions are run after the master starts up.
+One way to script the Master is through the use of Startup Master Extensions.
+These extensions are run after the master starts up.
 
 During startup, the Master will look in the folder *extensions/startup*
 in the same folder where your master is installed. These files will
@@ -86,12 +94,63 @@ run immediately. But next time the master starts, the order will be
 2. 005-banana.groovy
 3. 011-foo.groovy
 
-Named Scripts
--------------
+API Master Extensions
+---------
 
-The Master also supports Named Scripts, which are scripts stored in the master database.
-These scripts are run from the Master Webapp or the Master API. They can also be
-scheduled to run via the scheduler.
+API Master Extensions allow you to add special extensions to the Master WebSocket API.
+
+The Master looks for API Extensions in the folder *extensions/api*
+in the same folder where your master is installed. Extensions can be added to
+this folder before the Master is started and while it is running.
+
+For the first example, suppose you have the file *extensions/api/settings-get.groovy*,
+which is a Groovy based script. You could call it with the following web socket call.
+
+.. code-block:: javascript
+
+  {command: '/extension/settings-get', args: {map: 'b'}}
+
+The script in *extensions/api/settings-get.groovy* could be something like
+
+.. code-block:: groovy
+
+  def map = spaceEnvironment.getValue('master.settings.map')
+  if (map) {
+    [result: "success", data: map.getMap(args.map)]
+  } else {
+    [result: "failure", reason: "no map"]
+  }
+
+This script is written to get a *SimpleMapPersister* named *master.settings.map* in
+the Space Environment. If the map is there, the Script returns the map with the
+name *args.map*, which, in the example call given above, would have a
+value of *b*. *args* is a map of arguments for the call.
+The *b* map would then be sent over the web socket channel. If the persister doesn't
+exist, a map giving a failure result would be returned.
+
+Then suppose there was a script called *extensions/api/settings-put.groovy* which
+is called with the following command
+
+.. code-block:: javascript
+
+  { command: '/extension/settings-put', args: {map: 'b', data: {e: 'f', g: 'h'}}}
+
+with the script contents being
+
+.. code-block:: groovy
+
+  def map = spaceEnvironment.getValue('master.settings.map')
+  if (map) {
+    map.putMap(args.map, args.data)
+  
+    [result: "success"]
+  } else {
+    [result: "failure", reason: "no map"]
+  }
+
+Here we get the same persisted map and put the data from the call into the map,
+with the example call above map *b* will get the data *{e: 'f', g: 'h'}*.
+
 
 System Objects Available
 -------------------------
