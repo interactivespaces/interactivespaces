@@ -450,7 +450,16 @@
 
 		<property name="bundleContext" ref="bundleContext" />
 	</bean>
+	
+    <bean id="interactivespaces.master.control.file"
+        class="interactivespaces.master.server.control.MasterFileControl"
+        destroy-method="shutdown" init-method="startup">
 
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+
+        <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
+    </bean>
+	
 	<osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
 		ref="interactivespaces.master.activity.ui" />
 

@@ -25,6 +25,27 @@ The PID file is deleted when the Master is cleanly shut down. Should the Master
 crash, the PID file will be left and must be deleted before the Master
 can be started again.
 
+The `control` Folder
+--------------------
+
+The `run` folder can contain a subfolder called `control`. This subfolder allows control
+of the Master by files which are added to it.
+
+For example, creating a file called `shutdown` in this folder will shut the master
+down softly.
+
+The `control` folder can be created after the Master has been started.
+
+This kind of control of the Master is useful for automated starts and stops
+of the Master. A job scheduling system on the Master's host computer, for example
+CRON on a Linux box, can start the Master up before it is needed. A second job 
+could then write `shutdown` into the control when the master is no longer needed.
+
+Space Controllers are not automatically shut down if the Master is shut down.
+Stopping the Master while Space Controllers are running is currently not supported,
+make sure you shut down all Space Controllers before shutting the Master down.
+The SpaceOperations script helps with this task.
+
 Automatic Activity Import
 =========================
 
