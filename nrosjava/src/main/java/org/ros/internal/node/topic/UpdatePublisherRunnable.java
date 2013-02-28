@@ -17,7 +17,6 @@
 package org.ros.internal.node.topic;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.exception.RemoteException;
 import org.ros.internal.node.client.SlaveClient;
 import org.ros.internal.node.response.Response;
@@ -26,6 +25,7 @@ import org.ros.internal.node.server.SlaveServer;
 import org.ros.internal.node.xmlrpc.XmlRpcTimeoutException;
 import org.ros.internal.transport.ProtocolDescription;
 import org.ros.internal.transport.ProtocolNames;
+import org.ros.log.RosLogFactory;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
@@ -38,7 +38,7 @@ import org.ros.node.topic.Subscriber;
  */
 class UpdatePublisherRunnable<MessageType> implements Runnable {
 
-  private static final Log log = LogFactory.getLog(UpdatePublisherRunnable.class);
+  private static final Log log = RosLogFactory.getLog(UpdatePublisherRunnable.class);
 
   private final DefaultSubscriber<MessageType> subscriber;
   private final PublisherIdentifier publisherIdentifier;

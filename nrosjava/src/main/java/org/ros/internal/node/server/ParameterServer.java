@@ -23,8 +23,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.internal.node.client.SlaveClient;
+import org.ros.log.RosLogFactory;
 import org.ros.namespace.GraphName;
 
 import com.google.common.base.Preconditions;
@@ -41,7 +41,7 @@ import com.google.common.collect.Sets;
  */
 public class ParameterServer {
 
-  private static final Log log = LogFactory.getLog(ParameterServer.class);
+  private static final Log log = RosLogFactory.getLog(ParameterServer.class);
 
   private final Map<String, Object> tree;
   private final Multimap<GraphName, NodeIdentifier> subscribers;

@@ -52,7 +52,7 @@ public class MasterSlaveIntegrationTest {
   @Before
   public void setUp() {
     executorService = Executors.newScheduledThreadPool(30);
-    masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate());
+    masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
     masterServer.start();
     masterClient = new MasterClient(masterServer.getUri());
     TopicParticipantManager topicParticipantManager = new TopicParticipantManager();

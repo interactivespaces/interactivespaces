@@ -16,17 +16,21 @@
 
 package org.ros.internal.node.topic;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Sets;
+import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.concurrent.ListenerGroup;
 import org.ros.concurrent.SignalRunnable;
 import org.ros.internal.node.server.NodeIdentifier;
 import org.ros.internal.transport.ProtocolNames;
 import org.ros.internal.transport.queue.IncomingMessageQueue;
 import org.ros.internal.transport.tcp.TcpClientManager;
+import org.ros.log.RosLogFactory;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageListener;
 import org.ros.node.topic.DefaultSubscriberListener;
@@ -34,12 +38,8 @@ import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.SubscriberListener;
 
-import java.net.InetSocketAddress;
-import java.util.Collection;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
 
 /**
  * Default implementation of a {@link Subscriber}.
@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultSubscriber<T> extends DefaultTopicParticipant implements
 		Subscriber<T> {
 
-	private static final Log log = LogFactory.getLog(DefaultPublisher.class);
+	private static final Log log = RosLogFactory.getLog(DefaultPublisher.class);
 
 	/**
 	 * The maximum delay before shutdown will begin even if all

@@ -16,12 +16,6 @@
 
 package org.ros.concurrent;
 
-import com.google.common.collect.Maps;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.ros.exception.RosRuntimeException;
-
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -34,6 +28,12 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.ros.exception.RosRuntimeException;
+import org.ros.log.RosLogFactory;
+
+import com.google.common.collect.Maps;
+
 /**
  * Wraps an {@link ScheduledExecutorService} to execute {@link Callable}s with
  * retries.
@@ -42,8 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RetryingExecutorService {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(RetryingExecutorService.class);
+  private static final Log log = RosLogFactory.getLog(RetryingExecutorService.class);
 
   private static final long DEFAULT_RETRY_DELAY = 5;
   private static final TimeUnit DEFAULT_RETRY_TIME_UNIT = TimeUnit.SECONDS;
@@ -71,9 +70,7 @@ public class RetryingExecutorService {
         throw new RosRuntimeException(e.getCause());
       }
       if (retry) {
-        if (DEBUG) {
-          log.info("Retry requested.");
-        }
+        log.debug("Retry requested in RetryingExecutorService.");
         scheduledExecutorService.schedule(new Runnable() {
           @Override
           public void run() {

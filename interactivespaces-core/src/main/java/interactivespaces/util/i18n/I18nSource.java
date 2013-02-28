@@ -52,8 +52,9 @@ public interface I18nSource {
 	String getMessage(String messageKey, List<String> args);
 	
 	/**
-	 * Get te locale for the source.
-	 * @return
+	 * Get the locale for the source.
+	 * 
+	 * @return the locale for the source
 	 */
 	Locale getLocale();
 }

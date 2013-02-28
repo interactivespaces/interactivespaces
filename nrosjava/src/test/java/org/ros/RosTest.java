@@ -25,6 +25,8 @@ import org.ros.node.DefaultNodeMainExecutor;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,16 +38,18 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public abstract class RosTest {
 
+  protected ScheduledExecutorService executorService;
   protected RosCore rosCore;
   protected NodeConfiguration nodeConfiguration;
   protected NodeMainExecutor nodeMainExecutor;
 
   @Before
   public void setUp() throws InterruptedException {
-    rosCore = RosCore.newPrivate();
+	executorService = Executors.newScheduledThreadPool(100);
+    rosCore = RosCore.newPrivate(executorService);
     rosCore.start();
     assertTrue(rosCore.awaitStart(1, TimeUnit.SECONDS));
-    nodeMainExecutor = DefaultNodeMainExecutor.newDefault();
+    nodeMainExecutor = DefaultNodeMainExecutor.newDefault(executorService);
     nodeConfiguration = NodeConfiguration.newPrivate(rosCore.getUri());
   }
 
@@ -53,5 +57,10 @@ public abstract class RosTest {
   public void tearDown() {
     nodeMainExecutor.shutdown();
     rosCore.shutdown();
+    executorService.shutdown();
+  }
+  
+  public ScheduledExecutorService getExecutorService() {
+	  return executorService;
   }
 }

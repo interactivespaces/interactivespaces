@@ -16,20 +16,6 @@
 
 package org.ros.internal.node.xmlrpc;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.ros.internal.node.response.Response;
-import org.ros.internal.node.response.StatusCode;
-import org.ros.internal.node.server.ServerException;
-import org.ros.internal.node.server.SlaveServer;
-import org.ros.internal.node.topic.DefaultPublisher;
-import org.ros.internal.node.topic.DefaultSubscriber;
-import org.ros.internal.transport.ProtocolDescription;
-import org.ros.namespace.GraphName;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,13 +25,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.ros.internal.node.response.Response;
+import org.ros.internal.node.response.StatusCode;
+import org.ros.internal.node.server.ServerException;
+import org.ros.internal.node.server.SlaveServer;
+import org.ros.internal.node.topic.DefaultPublisher;
+import org.ros.internal.node.topic.DefaultSubscriber;
+import org.ros.internal.transport.ProtocolDescription;
+import org.ros.log.RosLogFactory;
+import org.ros.namespace.GraphName;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
+  private static final Log log = RosLogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
 
   private final SlaveServer slave;
 
@@ -196,8 +195,8 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
       return Response.newError(e.getMessage(), null).toList();
     }
     List<Object> response = Response.newSuccess(protocol.toString(), protocol.toList()).toList();
-    if (DEBUG) {
-      log.info("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
+    if (log.isDebugEnabled()) {
+      log.debug("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
           + response.toString());
     }
     return response;

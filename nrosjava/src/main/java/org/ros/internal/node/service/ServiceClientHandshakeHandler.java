@@ -16,20 +16,20 @@
 
 package org.ros.internal.node.service;
 
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.MessageEvent;
 import org.ros.internal.transport.BaseClientHandshakeHandler;
 import org.ros.internal.transport.ConnectionHeader;
 import org.ros.internal.transport.tcp.TcpClientPipelineFactory;
+import org.ros.log.RosLogFactory;
 import org.ros.message.MessageDeserializer;
 import org.ros.node.service.ServiceResponseListener;
 import org.ros.node.service.ServiceServer;
-
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Performs a handshake with the connected {@link ServiceServer}.
@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutorService;
  */
 class ServiceClientHandshakeHandler<T, S> extends BaseClientHandshakeHandler {
 
-  private static final Log log = LogFactory.getLog(ServiceClientHandshakeHandler.class);
+  private static final Log log = RosLogFactory.getLog(ServiceClientHandshakeHandler.class);
   
   private final Queue<ServiceResponseListener<S>> responseListeners;
   private final MessageDeserializer<S> deserializer;

@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.internal.node.service.ServiceIdentifier;
+import org.ros.log.RosLogFactory;
 import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.node.service.ServiceServer;
@@ -40,7 +40,7 @@ import com.google.common.collect.Maps;
  */
 public class MasterRegistrationManagerImpl {
 
-  private static final Log log = LogFactory.getLog(MasterRegistrationManagerImpl.class);
+  private static final Log log = RosLogFactory.getLog(MasterRegistrationManagerImpl.class);
 
   /**
    * A map from node names to the information about the mode.

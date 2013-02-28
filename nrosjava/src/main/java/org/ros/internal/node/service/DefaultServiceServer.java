@@ -16,10 +16,10 @@
 
 package org.ros.internal.node.service;
 
-import com.google.common.base.Preconditions;
+import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandler;
 import org.ros.address.AdvertiseAddress;
@@ -29,6 +29,7 @@ import org.ros.internal.message.service.ServiceDescription;
 import org.ros.internal.node.topic.DefaultPublisher;
 import org.ros.internal.transport.ConnectionHeader;
 import org.ros.internal.transport.ConnectionHeaderFields;
+import org.ros.log.RosLogFactory;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageSerializer;
@@ -38,8 +39,7 @@ import org.ros.node.service.ServiceResponseBuilder;
 import org.ros.node.service.ServiceServer;
 import org.ros.node.service.ServiceServerListener;
 
-import java.net.URI;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Preconditions;
 
 /**
  * Default implementation of a {@link ServiceServer}.
@@ -48,8 +48,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(DefaultPublisher.class);
+  private static final Log log = RosLogFactory.getLog(DefaultPublisher.class);
 
   private final ServiceDeclaration serviceDeclaration;
   private final ServiceResponseBuilder<T, S> serviceResponseBuilder;
@@ -96,8 +95,8 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
   }
 
   public ChannelBuffer finishHandshake(ConnectionHeader incomingConnectionHeader) {
-    if (DEBUG) {
-      log.info("Client handshake header: " + incomingConnectionHeader);
+    if (log.isDebugEnabled()) {
+      log.debug("Client handshake header: " + incomingConnectionHeader);
     }
     ConnectionHeader connectionHeader = toDeclaration().toConnectionHeader();
     String expectedChecksum = connectionHeader.getField(ConnectionHeaderFields.MD5_CHECKSUM);
@@ -106,8 +105,8 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
     // TODO(damonkohler): Pull out header field comparison logic.
     Preconditions.checkState(incomingChecksum.equals(expectedChecksum)
         || incomingChecksum.equals("*"));
-    if (DEBUG) {
-      log.info("Server handshake header: " + connectionHeader);
+    if (log.isDebugEnabled()) {
+      log.debug("Server handshake header: " + connectionHeader);
     }
     return connectionHeader.encode();
   }

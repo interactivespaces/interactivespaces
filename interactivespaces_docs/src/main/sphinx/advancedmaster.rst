@@ -148,8 +148,8 @@ with the script contents being
     [result: "failure", reason: "no map"]
   }
 
-Here we get the same persisted map and put the data from the call into the map,
-with the example call above map *b* will get the data *{e: 'f', g: 'h'}*.
+Here we get the same persisted map from the previous example, map *b*, 
+and put the data *{e: 'f', g: 'h'}* into the map.
 
 
 System Objects Available

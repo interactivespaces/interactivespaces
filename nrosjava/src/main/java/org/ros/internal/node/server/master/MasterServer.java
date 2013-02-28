@@ -19,6 +19,7 @@ package org.ros.internal.node.server.master;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.ros.address.AdvertiseAddress;
@@ -55,7 +56,6 @@ import com.google.common.collect.Lists;
  */
 public class MasterServer extends XmlRpcServer implements MasterRegistrationListener {
 
-  private static final boolean DEBUG = true;
   private static final Log log = RosLogFactory.getLog(MasterServer.class);
 
   /**
@@ -84,8 +84,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   private final MasterRegistrationManagerImpl masterRegistrationManager;
 
-  public MasterServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress) {
-    super(bindAddress, advertiseAddress);
+  public MasterServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService executorService) {
+    super(bindAddress, advertiseAddress, executorService);
     masterRegistrationManager = new MasterRegistrationManagerImpl(this);
   }
 
@@ -93,9 +93,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    * Start the {@link MasterServer}.
    */
   public void start() {
-    if (DEBUG) {
-      log.info("Starting master server.");
-    }
+    log.debug("Starting master server.");
+
     super.start(MasterXmlRpcEndpointImpl.class, new MasterXmlRpcEndpointImpl(this));
   }
 
@@ -153,8 +152,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   public List<URI> registerSubscriber(GraphName nodeName, URI nodeSlaveUri, GraphName topicName,
       String topicMessageType) {
-    if (DEBUG) {
-      log.info(String.format(
+    if (log.isDebugEnabled()) {
+      log.debug(String.format(
           "Registering subscriber %s with message type %s on node %s with URI %s", topicName,
           topicMessageType, nodeName, nodeSlaveUri));
     }
@@ -181,8 +180,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    * @return {@code true} if the {@link Subscriber} was registered
    */
   public boolean unregisterSubscriber(GraphName nodeName, GraphName topicName) {
-    if (DEBUG) {
-      log.info(String.format("Unregistering subscriber for %s on node %s.", topicName, nodeName));
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Unregistering subscriber for %s on node %s.", topicName, nodeName));
     }
     synchronized (masterRegistrationManager) {
       return masterRegistrationManager.unregisterSubscriber(nodeName, topicName);
@@ -206,8 +205,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   public List<URI> registerPublisher(GraphName nodeName, URI nodeSlaveUri, GraphName topicName,
       String topicMessageType) {
-    if (DEBUG) {
-      log.info(String.format(
+    if (log.isDebugEnabled()) {
+      log.debug(String.format(
           "Registering publisher %s with message type %s on node %s with URI %s.", topicName,
           topicMessageType, nodeName, nodeSlaveUri));
     }
@@ -238,8 +237,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    *          IRIs for all subscribers
    */
   private void publisherUpdate(TopicRegistrationInfo topicInfo, List<URI> subscriberSlaveUris) {
-    if (DEBUG) {
-      log.info("Publisher update: " + topicInfo.getTopicName());
+    if (log.isDebugEnabled()) {
+      log.debug("Publisher update: " + topicInfo.getTopicName());
     }
     List<URI> publisherUris = Lists.newArrayList();
     for (NodeRegistrationInfo publisherNodeInfo : topicInfo.getPublishers()) {
@@ -279,8 +278,8 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    * @return {@code true} if the {@link Publisher} was unregistered
    */
   public boolean unregisterPublisher(GraphName nodeName, GraphName topicName) {
-    if (DEBUG) {
-      log.info(String.format("Unregistering publisher for %s on %s.", topicName, nodeName));
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Unregistering publisher for %s on %s.", topicName, nodeName));
     }
     synchronized (masterRegistrationManager) {
       return masterRegistrationManager.unregisterPublisher(nodeName, topicName);

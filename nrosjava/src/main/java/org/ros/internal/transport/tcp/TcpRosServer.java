@@ -16,10 +16,12 @@
 
 package org.ros.internal.transport.tcp;
 
-import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.buffer.HeapChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
@@ -31,11 +33,9 @@ import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
 import org.ros.internal.node.service.ServiceManager;
 import org.ros.internal.node.topic.TopicParticipantManager;
+import org.ros.log.RosLogFactory;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteOrder;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Preconditions;
 
 /**
  * The TCP server which is used for data communication between publishers and
@@ -49,8 +49,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class TcpRosServer {
 
-	private static final boolean DEBUG = false;
-	private static final Log log = LogFactory.getLog(TcpRosServer.class);
+	private static final Log log = RosLogFactory.getLog(TcpRosServer.class);
 
 	private final BindAddress bindAddress;
 	private final AdvertiseAddress advertiseAddress;
@@ -95,9 +94,8 @@ public class TcpRosServer {
 						.getPort();
 			}
 		});
-		if (DEBUG) {
-			log.info("Bound to: " + bindAddress);
-			log.info("Advertising: " + advertiseAddress);
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("Bound to: %s, Advertising: %s", bindAddress, advertiseAddress));
 		}
 	}
 
@@ -108,8 +106,8 @@ public class TcpRosServer {
 	 * Calling this method more than once has no effect.
 	 */
 	public void shutdown() {
-		if (DEBUG) {
-			log.info("Shutting down: " + getAddress());
+		if (log.isDebugEnabled()) {
+			log.debug("Shutting down: " + getAddress());
 		}
 		if (outgoingChannel != null) {
 			outgoingChannel.close().awaitUninterruptibly();

@@ -64,6 +64,7 @@ public class DefaultNodeTest extends RosTest {
   }
 
   private void checkNodeAddress(final String host) throws InterruptedException {
+	System.out.println(rosCore.getUri());
     final Holder<InetSocketAddress> holder = Holder.newEmpty();
     NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(host, rosCore.getUri());
     nodeMainExecutor.execute(new AbstractNodeMain() {
@@ -192,7 +193,7 @@ public class DefaultNodeTest extends RosTest {
 
   @Test
   public void testPublicAddresses() throws InterruptedException {
-    RosCore rosCore = RosCore.newPublic();
+    RosCore rosCore = RosCore.newPublic(getExecutorService());
     rosCore.start();
     assertTrue(rosCore.awaitStart(1, TimeUnit.SECONDS));
 

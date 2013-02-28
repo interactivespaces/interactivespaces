@@ -16,17 +16,17 @@
 
 package org.ros.internal.transport;
 
+import java.io.IOException;
+import java.nio.channels.Channels;
+
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.ros.exception.RosRuntimeException;
-
-import java.io.IOException;
-import java.nio.channels.Channels;
+import org.ros.log.RosLogFactory;
 
 /**
  * Adds new {@link Channels} to the provided {@link ChannelGroup}.
@@ -35,8 +35,7 @@ import java.nio.channels.Channels;
  */
 public class ConnectionTrackingHandler extends SimpleChannelHandler {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(ConnectionTrackingHandler.class);
+  private static final Log log = RosLogFactory.getLog(ConnectionTrackingHandler.class);
 
   /**
    * The channel group the connection is to be part of.
@@ -49,8 +48,8 @@ public class ConnectionTrackingHandler extends SimpleChannelHandler {
 
   @Override
   public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    if (DEBUG) {
-      log.info("Channel opened: " + e.getChannel());
+    if (log.isDebugEnabled()) {
+      log.debug("Channel opened: " + e.getChannel());
     }
     channelGroup.add(e.getChannel());
     super.channelOpen(ctx, e);
@@ -58,8 +57,8 @@ public class ConnectionTrackingHandler extends SimpleChannelHandler {
 
   @Override
   public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-    if (DEBUG) {
-      log.info("Channel closed: " + e.getChannel());
+    if (log.isDebugEnabled()) {
+      log.debug("Channel closed: " + e.getChannel());
     }
     super.channelClosed(ctx, e);
   }
@@ -72,12 +71,8 @@ public class ConnectionTrackingHandler extends SimpleChannelHandler {
       // (e.g. network failure, connection reset by peer, shutting down, etc.)
       // and should not be fatal. However, in all cases the channel should be
       // closed.
-      if (DEBUG) {
-        log.error("Channel exception: " + ctx.getChannel(), e.getCause());
-      } else {
-        log.error("Channel exception: " + e.getCause());
-      }
-    } else {
+      log.error("Channel exception: " + ctx.getChannel(), e.getCause());
+     } else {
       throw new RosRuntimeException(e.getCause());
     }
   }

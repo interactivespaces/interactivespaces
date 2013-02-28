@@ -16,6 +16,15 @@
 
 package org.ros.node;
 
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.apache.commons.logging.Log;
+import org.ros.concurrent.DefaultScheduledExecutorService;
+import org.ros.log.RosLogFactory;
+import org.ros.namespace.GraphName;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -25,15 +34,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.ros.concurrent.DefaultScheduledExecutorService;
-import org.ros.namespace.GraphName;
-
-import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-
 /**
  * Executes {@link NodeMain}s in separate threads.
  * 
@@ -41,8 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class DefaultNodeMainExecutor implements NodeMainExecutor {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(DefaultNodeMainExecutor.class);
+  private static final Log log = RosLogFactory.getLog(DefaultNodeMainExecutor.class);
 
   private final NodeFactory nodeFactory;
   private final ScheduledExecutorService scheduledExecutorService;
@@ -123,8 +122,8 @@ public class DefaultNodeMainExecutor implements NodeMainExecutor {
     final NodeConfiguration nodeConfigurationCopy = NodeConfiguration.copyOf(nodeConfiguration);
     nodeConfigurationCopy.setDefaultNodeName(nodeMain.getDefaultNodeName());
     Preconditions.checkNotNull(nodeConfigurationCopy.getNodeName(), "Node name not specified.");
-    if (DEBUG) {
-      log.info("Starting node: " + nodeConfigurationCopy.getNodeName());
+    if (log.isDebugEnabled()) {
+      log.debug("Starting node: " + nodeConfigurationCopy.getNodeName());
     }
     scheduledExecutorService.execute(new Runnable() {
       @Override

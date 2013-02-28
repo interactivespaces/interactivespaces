@@ -16,27 +16,26 @@
 
 package org.ros.internal.transport;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.ros.exception.RosRuntimeException;
-import org.ros.internal.message.MessageBuffers;
-
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.commons.logging.Log;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.ros.exception.RosRuntimeException;
+import org.ros.internal.message.MessageBuffers;
+import org.ros.log.RosLogFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class ConnectionHeader {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(ConnectionHeader.class);
+  private static final Log log = RosLogFactory.getLog(ConnectionHeader.class);
 
   private final Map<String, String> fields;
 
@@ -72,8 +71,8 @@ public class ConnectionHeader {
         fields.put(keyAndValue[0], keyAndValue[1]);
       }
     }
-    if (DEBUG) {
-      log.info("Decoded header: " + fields);
+    if (log.isDebugEnabled()) {
+      log.debug("Decoded header: " + fields);
     }
     ConnectionHeader connectionHeader = new ConnectionHeader();
     connectionHeader.mergeFields(fields);

@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferFactory;
@@ -38,6 +37,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.ros.exception.RosRuntimeException;
+import org.ros.log.RosLogFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -47,8 +47,7 @@ import com.google.common.collect.Lists;
  */
 public class TcpClient {
 
-	private static final boolean DEBUG = false;
-	private static final Log log = LogFactory.getLog(TcpClient.class);
+	private static final Log log = RosLogFactory.getLog(TcpClient.class);
 
 	private static final int DEFAULT_CONNECTION_TIMEOUT_DURATION = 5;
 	private static final TimeUnit DEFAULT_CONNECTION_TIMEOUT_UNIT = TimeUnit.SECONDS;
@@ -116,8 +115,8 @@ public class TcpClient {
 				.awaitUninterruptibly();
 		if (future.isSuccess()) {
 			channel = future.getChannel();
-			if (DEBUG) {
-				log.info("Connected to: " + socketAddress);
+			if (log.isDebugEnabled()) {
+				log.debug("Connected to: " + socketAddress);
 			}
 		} else {
 			// We expect the first connection to succeed. If not, fail fast.

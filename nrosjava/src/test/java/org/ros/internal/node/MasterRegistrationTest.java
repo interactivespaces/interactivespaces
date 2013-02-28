@@ -66,9 +66,9 @@ public class MasterRegistrationTest extends RosTest {
     }, nodeConfiguration);
 
     assertTrue(publisherListener.awaitMasterRegistrationFailure(1, TimeUnit.SECONDS));
-    rosCore = RosCore.newPrivate(port);
+    rosCore = RosCore.newPrivate(port, getExecutorService());
     rosCore.start();
-    assertTrue(rosCore.awaitStart(1, TimeUnit.SECONDS));
+    assertTrue(rosCore.awaitStart(5, TimeUnit.SECONDS));
     assertTrue(publisherListener.awaitMasterRegistrationSuccess(1, TimeUnit.SECONDS));
     publisher.shutdown();
     assertTrue(publisherListener.awaitMasterUnregistrationSuccess(1, TimeUnit.SECONDS));

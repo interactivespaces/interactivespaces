@@ -39,7 +39,7 @@ public class NtpTimeProviderTest extends RosTest {
   public void testNtpUbuntuCom() throws InterruptedException {
     final NtpTimeProvider ntpTimeProvider =
         new NtpTimeProvider(InetAddressFactory.newFromHostString("ntp.ubuntu.com"),
-            Executors.newScheduledThreadPool(Integer.MAX_VALUE));
+            getExecutorService());
     final CountDownLatch latch = new CountDownLatch(1);
     nodeConfiguration.setTimeProvider(ntpTimeProvider);
     nodeMainExecutor.execute(new AbstractNodeMain() {

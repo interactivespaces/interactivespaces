@@ -58,7 +58,7 @@ public class SlaveServer extends XmlRpcServer {
       AdvertiseAddress xmlRpcAdvertiseAddress, MasterClient master,
       TopicParticipantManager topicParticipantManager, ServiceManager serviceManager,
       ParameterManager parameterManager, ScheduledExecutorService executorService) {
-    super(xmlRpcBindAddress, xmlRpcAdvertiseAddress);
+    super(xmlRpcBindAddress, xmlRpcAdvertiseAddress, executorService);
     this.nodeName = nodeName;
     this.masterClient = master;
     this.topicParticipantManager = topicParticipantManager;

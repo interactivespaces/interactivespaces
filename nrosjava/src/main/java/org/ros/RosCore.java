@@ -16,14 +16,15 @@
 
 package org.ros;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
 import org.ros.internal.node.server.master.MasterServer;
 
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
+import com.google.common.annotations.VisibleForTesting;
 
 // TODO(damonkohler): Add /rosout node.
 /**
@@ -40,28 +41,28 @@ public class RosCore {
 
   private final MasterServer masterServer;
 
-  public static RosCore newPublic(String host, int port) {
-    return new RosCore(BindAddress.newPublic(port), new AdvertiseAddress(host));
+  public static RosCore newPublic(String host, int port, ScheduledExecutorService executorService) {
+    return new RosCore(BindAddress.newPublic(port), new AdvertiseAddress(host), executorService);
   }
 
-  public static RosCore newPublic(int port) {
-    return new RosCore(BindAddress.newPublic(port), AdvertiseAddress.newPublic());
+  public static RosCore newPublic(int port, ScheduledExecutorService executorService) {
+    return new RosCore(BindAddress.newPublic(port), AdvertiseAddress.newPublic(), executorService);
   }
 
-  public static RosCore newPublic() {
-    return new RosCore(BindAddress.newPublic(), AdvertiseAddress.newPublic());
+  public static RosCore newPublic(ScheduledExecutorService executorService) {
+    return new RosCore(BindAddress.newPublic(), AdvertiseAddress.newPublic(), executorService);
   }
 
-  public static RosCore newPrivate(int port) {
-    return new RosCore(BindAddress.newPrivate(port), AdvertiseAddress.newPrivate());
+  public static RosCore newPrivate(int port, ScheduledExecutorService executorService) {
+    return new RosCore(BindAddress.newPrivate(port), AdvertiseAddress.newPrivate(), executorService);
   }
 
-  public static RosCore newPrivate() {
-    return new RosCore(BindAddress.newPrivate(), AdvertiseAddress.newPrivate());
+  public static RosCore newPrivate(ScheduledExecutorService executorService) {
+    return new RosCore(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
   }
 
-  private RosCore(BindAddress bindAddress, AdvertiseAddress advertiseAddress) {
-    masterServer = new MasterServer(bindAddress, advertiseAddress);
+  private RosCore(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService executorService) {
+    masterServer = new MasterServer(bindAddress, advertiseAddress, executorService);
   }
 
   public void start() {

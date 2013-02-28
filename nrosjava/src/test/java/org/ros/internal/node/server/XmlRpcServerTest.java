@@ -21,7 +21,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.ros.address.Address;
 import org.ros.address.AdvertiseAddress;
@@ -35,11 +39,23 @@ public class XmlRpcServerTest {
 
   class FakeNode implements XmlRpcEndpoint {
   }
+  
+  private ScheduledExecutorService executorService;
+
+  @Before
+  public void before() {
+    executorService = Executors.newScheduledThreadPool(100);
+  }
+
+  @After
+  public void after() {
+    executorService.shutdown();
+  }
 
   @Test
   public void testGetPublicUri() {
     BindAddress bindAddress = BindAddress.newPublic();
-    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, new AdvertiseAddress("override"));
+    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, new AdvertiseAddress("override"), executorService);
     try {
       xmlRpcServer.getUri();
       fail("Should not have succeeded before startup.");
@@ -48,6 +64,7 @@ public class XmlRpcServerTest {
 
     xmlRpcServer.start(FakeNode.class, new FakeNode());
     URI uri = xmlRpcServer.getUri();
+
     assertEquals("override", uri.getHost());
     assertTrue(uri.getPort() > 0);
 
@@ -57,7 +74,7 @@ public class XmlRpcServerTest {
   @Test
   public void testGetPrivateUri() {
     BindAddress bindAddress = BindAddress.newPrivate();
-    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, AdvertiseAddress.newPrivate());
+    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, AdvertiseAddress.newPrivate(), executorService);
     try {
       xmlRpcServer.getUri();
       fail("Should not have succeeded before startup.");

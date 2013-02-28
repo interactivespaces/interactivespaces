@@ -32,23 +32,23 @@ public class JavaCoreController extends BaseCoreController {
 	 * The master.
 	 */
 	private RosCore master;
-	
+
 	@Override
 	public void startup() {
 		try {
 			NodeConfiguration configuration = rosEnvironment
 					.getPublicNodeConfiguration();
 			URI masterUri = configuration.getMasterUri();
-			master = RosCore
-					.newPublic(masterUri.getHost(), masterUri.getPort());
+			master = RosCore.newPublic(masterUri.getHost(),
+					masterUri.getPort(), rosEnvironment.getExecutorService());
 			master.start();
 
 			master.awaitStart();
-			
+
 			signalCoreStartup();
-			
+
 			started = true;
-			
+
 		} catch (InterruptedException e) {
 			// TODO(keith): Decide what to do about exception.
 			rosEnvironment.getLog().error("Could not start up master", e);
@@ -60,7 +60,7 @@ public class JavaCoreController extends BaseCoreController {
 	@Override
 	public void shutdown() {
 		started = false;
-		
+
 		master.shutdown();
 		master = null;
 	}

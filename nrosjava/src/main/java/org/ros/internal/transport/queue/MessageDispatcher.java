@@ -19,12 +19,12 @@ package org.ros.internal.transport.queue;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.concurrent.EventDispatcher;
 import org.ros.concurrent.ListenerGroup;
 import org.ros.concurrent.MessageBlockingQueue;
 import org.ros.concurrent.SignalRunnable;
+import org.ros.log.RosLogFactory;
 import org.ros.message.MessageListener;
 
 /**
@@ -35,8 +35,7 @@ import org.ros.message.MessageListener;
  */
 public class MessageDispatcher<T> extends CancellableLoop {
 
-  private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(MessageDispatcher.class);
+  private static final Log log = RosLogFactory.getLog(MessageDispatcher.class);
 
   private final MessageBlockingQueue<LazyMessage<T>> lazyMessages;
   private final ListenerGroup<MessageListener<T>> messageListeners;
@@ -67,8 +66,8 @@ public class MessageDispatcher<T> extends CancellableLoop {
    * @see ListenerGroup#add(Object, int)
    */
   public void addListener(MessageListener<T> messageListener, int limit) {
-    if (DEBUG) {
-      log.info("Adding listener.");
+    if (log.isDebugEnabled()) {
+      log.debug("Adding listener to Message Dispatcher.");
     }
     synchronized (mutex) {
       EventDispatcher<MessageListener<T>> eventDispatcher =
@@ -117,9 +116,9 @@ public class MessageDispatcher<T> extends CancellableLoop {
     LazyMessage<T> lazyMessage = lazyMessages.take();
     synchronized (mutex) {
       latchedMessage = lazyMessage;
-      if (DEBUG) {
-        log.info("Dispatching message: " + latchedMessage.get());
-      }
+//      if (log.isDebugEnabled()) {
+//        log.debug("Dispatching message: " + latchedMessage.get());
+//      }
       messageListeners.signal(newSignalRunnable(latchedMessage));
     }
   }
