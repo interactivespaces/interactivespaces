@@ -8,4 +8,10 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd $DIR/..
 
 # Start up Interactive Spaces
-java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar
+if [ $# == 0 ] || [ $1 == "foreground" ]; then
+  java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar
+fi
+
+if [ "$1" == "background" ]; then
+  nohup java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar --noshell &>/dev/null &
+fi
