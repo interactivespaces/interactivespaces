@@ -30,7 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ActivityComponentContext {
 
 	/**
-	 * This lock is for components to check wheter they should e considered
+	 * This lock is for components to check whether they should be considered
 	 * running.
 	 */
 	private ReadWriteLock runningLock = new ReentrantReadWriteLock(true);

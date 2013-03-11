@@ -110,10 +110,10 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 					new PongWebSocketFrame(frame.getBinaryData()));
 			return;
 		} else if (!(frame instanceof TextWebSocketFrame)) {
-			String message = String
+			log.warn(String
 					.format("Could not process web socket frame. %s frame types not supported",
-							frame.getClass().getName());
-			throw new UnsupportedOperationException(message);
+							frame.getClass().getName()));
+			return;
 		}
 
 		String textData = ((TextWebSocketFrame) frame).getText();

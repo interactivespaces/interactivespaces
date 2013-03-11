@@ -16,17 +16,16 @@
 
 package interactivespaces.service.web.client.internal.netty;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.logging.Log;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.service.web.client.WebSocketClientService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.apache.commons.logging.Log;
 
 /**
  * A {@link WebSocketClientService} based on Netty.

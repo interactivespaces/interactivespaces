@@ -122,7 +122,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 				getController().getActivityComponentFactory());
 
 		managedCommands = new CommandCollection(getSpaceEnvironment()
-				.getExecutorService());
+				.getExecutorService(), getLog());
 
 		boolean running = false;
 		componentContext.lockRunningSet();

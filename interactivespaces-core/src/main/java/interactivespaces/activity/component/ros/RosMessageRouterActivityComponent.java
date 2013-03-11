@@ -308,8 +308,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	void handleNewMessage(String channelName, T message) {
 		try {
 			if (getComponentContext().lockReadRunningRead()) {
-				// Send the message out to the
-				// listener.
+				// Send the message out to the listener.
 				messageListener.onNewRoutableInputMessage(channelName, message);
 			}
 		} catch (Exception e) {

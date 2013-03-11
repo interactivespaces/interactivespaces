@@ -31,6 +31,7 @@ import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Lists;
 
@@ -418,6 +419,11 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 		 * The component context this handler is part of.
 		 */
 		private ActivityComponentContext activityComponentContext;
+		
+		/**
+		 * Is the handler connected to the remote endpoint?
+		 */
+		private AtomicBoolean connected = new AtomicBoolean(false);
 
 		/**
 		 * 
@@ -442,6 +448,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				activityComponentContext.getActivity().getLog()
 						.error("Error during web socket connection", e);
 			} finally {
+				connected.set(true);
 				activityComponentContext.unlockReadRunningRead();
 			}
 		}

@@ -21,8 +21,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.logging.Log;
 
 /**
  * A collection of scheduled commands which can be shut down as a whole.
@@ -47,8 +48,14 @@ public class CommandCollection {
 	 */
 	private ScheduledExecutorService executorService;
 
-	public CommandCollection(ScheduledExecutorService executorService) {
+	/**
+	 * The logger for the collection.
+	 */
+	private Log log;
+
+	public CommandCollection(ScheduledExecutorService executorService, Log log) {
 		this.executorService = executorService;
+		this.log = log;
 	}
 
 	/**
@@ -58,7 +65,7 @@ public class CommandCollection {
 	 *            the command to run
 	 */
 	public void submit(Runnable command) {
-		futures.add(executorService.submit(command));
+		futures.add(executorService.submit(newWrappedTask(command, false)));
 	}
 
 	/**
@@ -72,7 +79,8 @@ public class CommandCollection {
 	 *            units on how soon to start
 	 */
 	public void schedule(Runnable command, long delay, TimeUnit unit) {
-		futures.add(executorService.schedule(command, delay, unit));
+		futures.add(executorService.schedule(newWrappedTask(command, false),
+				delay, unit));
 	}
 
 	/**
@@ -81,6 +89,10 @@ public class CommandCollection {
 	 * execution and the commencement of the next. If any execution of the task
 	 * encounters an exception, the exception is ignored. The task will only
 	 * terminate via cancellation or termination of the executor.
+	 * 
+	 * <p>
+	 * If the command throws an exception, it will not be repeated. The
+	 * exception will be logged.
 	 * 
 	 * @param command
 	 *            the command to run
@@ -93,8 +105,62 @@ public class CommandCollection {
 	 */
 	public void scheduleAtFixedRate(Runnable command, long initialDelay,
 			long period, TimeUnit unit) {
-		futures.add(executorService.scheduleAtFixedRate(command, initialDelay,
-				period, unit));
+		scheduleAtFixedRate(command, initialDelay, period, unit, true);
+	}
+
+	/**
+	 * Executes a periodic command that starts after the given initial delay,
+	 * and subsequently with the given delay between the termination of one
+	 * execution and the commencement of the next. If any execution of the task
+	 * encounters an exception, the exception is ignored. The task will only
+	 * terminate via cancellation or termination of the executor.
+	 * 
+	 * <p>
+	 * If the command throws an exception, the exception will be logged.
+	 * 
+	 * @param command
+	 *            the command to run
+	 * @param initialDelay
+	 *            how soon in the future to run it the first time
+	 * @param delay
+	 *            how long to delay between subsequent executions
+	 * @param unit
+	 *            time units for both delays
+	 * @param allowTerminate
+	 *            {@code true} if the task should be allowed to terminate if it
+	 *            throws an exception
+	 */
+	public void scheduleAtFixedRate(Runnable command, long initialDelay,
+			long period, TimeUnit unit, boolean allowTerminate) {
+		futures.add(executorService.scheduleAtFixedRate(
+				newWrappedTask(command, allowTerminate), initialDelay, period,
+				unit));
+	}
+
+	/**
+	 * Executes a periodic command that starts after the given initial delay,
+	 * and subsequently with the given delay between the termination of one
+	 * execution and the commencement of the next. If any execution of the task
+	 * encounters an exception, subsequent executions are suppressed. Otherwise,
+	 * the task will only terminate via cancellation or termination of the
+	 * executor.
+	 * 
+	 * <p>
+	 * If the command throws an exception, it will not be repeated. The
+	 * exception will be logged.
+	 * 
+	 * @param command
+	 *            the command to run
+	 * @param initialDelay
+	 *            how soon in the future to run it the first time
+	 * @param delay
+	 *            how long to delay between subsequent executions
+	 * @param unit
+	 *            time units for both delays
+	 */
+	public void scheduleWithFixedDelay(Runnable command, long initialDelay,
+			long delay, TimeUnit unit) {
+		scheduleWithFixedDelay(command, initialDelay, delay, unit, true);
 	}
 
 	/**
@@ -113,11 +179,15 @@ public class CommandCollection {
 	 *            how long to delay between subsequent executions
 	 * @param unit
 	 *            time units for both delays
+	 * @param allowTerminate
+	 *            {@code true} if the task should be allowed to terminate if it
+	 *            throws an exception
 	 */
 	public void scheduleWithFixedDelay(Runnable command, long initialDelay,
-			long delay, TimeUnit unit) {
-		futures.add(executorService.scheduleWithFixedDelay(command,
-				initialDelay, delay, unit));
+			long delay, TimeUnit unit, boolean allowTerminate) {
+		futures.add(executorService.scheduleWithFixedDelay(
+				newWrappedTask(command, allowTerminate), initialDelay, delay,
+				unit));
 	}
 
 	/**
@@ -128,5 +198,53 @@ public class CommandCollection {
 			f.cancel(true);
 		}
 		futures.clear();
+	}
+
+	/**
+	 * Get a wrapped task.
+	 * 
+	 * @param runnable
+	 *            the runnable to be done in the task
+	 * @param allowTerminate
+	 *            {@code true} if the task should be allowed to terminate if it
+	 *            throws an exception (only makes sense for repeating tasks)
+	 * 
+	 * @return the wrapped task
+	 */
+	private WrappedTask newWrappedTask(Runnable runnable, boolean allowTerminate) {
+		return new WrappedTask(runnable, allowTerminate);
+	}
+
+	/**
+	 * A runnable that logs exceptions.
+	 * 
+	 * @author Keith M. Hughes
+	 */
+	private class WrappedTask implements Runnable {
+
+		/**
+		 * The actual runnable to be run.
+		 */
+		private Runnable delegate;
+
+		private boolean allowTerminate;
+
+		public WrappedTask(Runnable delegate, boolean allowTerminate) {
+			this.delegate = delegate;
+			this.allowTerminate = allowTerminate;
+		}
+
+		@Override
+		public void run() {
+			try {
+				delegate.run();
+			} catch (Exception e) {
+				log.error("Exception caught during Managed Command", e);
+
+				if (allowTerminate) {
+					throw new RuntimeException();
+				}
+			}
+		}
 	}
 }
