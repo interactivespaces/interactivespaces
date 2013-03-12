@@ -237,7 +237,7 @@ public class ManagedCommands {
 		public void run() {
 			try {
 				delegate.run();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error("Exception caught during Managed Command", e);
 
 				if (allowTerminate) {

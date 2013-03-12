@@ -44,7 +44,7 @@ public class SimpleAlertStatusManager implements AlertStatusManager {
 		log.error(String.format("ALERT: Activity %s has serious issues: %s\n", 
 				activity.getInstance().getName(), status.getState().toString()));
 		log.error(status.getDescription());
-		Exception e = activity.getActivityStatus().getException();
+		Throwable e = activity.getActivityStatus().getException();
 		if (e != null) {
 			log.error("Exception involved", e);
 		}

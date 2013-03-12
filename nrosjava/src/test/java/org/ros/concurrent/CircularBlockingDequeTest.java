@@ -21,15 +21,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -40,7 +39,7 @@ public class CircularBlockingDequeTest {
 
   @Before
   public void before() {
-    executorService = Executors.newCachedThreadPool();
+    executorService = new DefaultScheduledExecutorService();
   }
 
   @Test

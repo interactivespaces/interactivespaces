@@ -39,14 +39,14 @@ public class ActivityStatus {
 	 * <p>
 	 * Can be {@code null}.
 	 */
-	private final Exception exception;
+	private final Throwable exception;
 
 	public ActivityStatus(ActivityState state, String description) {
 		this(state, description, null);
 	}
 
 	public ActivityStatus(ActivityState state,
-			String description, Exception exception) {
+			String description, Throwable exception) {
 		this.state = state;
 		this.description = description;
 		this.exception = exception;
@@ -69,7 +69,7 @@ public class ActivityStatus {
 	/**
 	 * @return the exception
 	 */
-	public Exception getException() {
+	public Throwable getException() {
 		return exception;
 	}
 

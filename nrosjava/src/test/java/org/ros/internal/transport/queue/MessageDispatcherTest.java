@@ -21,12 +21,12 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.concurrent.MessageBlockingQueue;
 import org.ros.concurrent.MessageBlockingQueueFactory;
 import org.ros.internal.message.DefaultMessageFactory;
@@ -49,7 +49,7 @@ public class MessageDispatcherTest {
 
   @Before
   public void before() {
-    executorService = Executors.newCachedThreadPool();
+    executorService = new DefaultScheduledExecutorService();
     lazyMessages = MessageBlockingQueueFactory.newMessageBlockingQueue(128,false);
     messageFactory = new DefaultMessageFactory(new MessageDefinitionReflectionProvider());
   }

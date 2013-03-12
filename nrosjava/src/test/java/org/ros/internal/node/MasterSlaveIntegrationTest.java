@@ -19,11 +19,15 @@ package org.ros.internal.node;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.internal.node.client.MasterClient;
 import org.ros.internal.node.client.SlaveClient;
 import org.ros.internal.node.parameter.ParameterManager;
@@ -33,10 +37,6 @@ import org.ros.internal.node.server.master.MasterServer;
 import org.ros.internal.node.service.ServiceManager;
 import org.ros.internal.node.topic.TopicParticipantManager;
 import org.ros.namespace.GraphName;
-
-import java.net.URI;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -51,7 +51,7 @@ public class MasterSlaveIntegrationTest {
 
   @Before
   public void setUp() {
-    executorService = Executors.newScheduledThreadPool(30);
+    executorService = new DefaultScheduledExecutorService();
     masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
     masterServer.start();
     masterClient = new MasterClient(masterServer.getUri());

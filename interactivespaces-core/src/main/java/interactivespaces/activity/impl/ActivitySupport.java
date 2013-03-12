@@ -244,7 +244,7 @@ public abstract class ActivitySupport implements Activity {
 	 *            Exception that occurred. Can be null.
 	 */
 	protected void setActivityStatus(ActivityState state, String description,
-			Exception exception) {
+			Throwable exception) {
 		setActivityStatus(new ActivityStatus(state, description, exception));
 	}
 
