@@ -134,8 +134,9 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				CONFIGURATION_WEBAPP_WEB_SERVER_PORT, WEB_SERVER_PORT_DEFAULT);
 		WebServerService webServerService = activity.getSpaceEnvironment()
 				.getServiceRegistry().getService(WebServerService.SERVICE_NAME);
-		webServer = webServerService.newWebServer(String.format("%sWebServer",
-				activity.getName()), webServerPort, activity.getLog());
+		webServer = webServerService.newWebServer(
+				String.format("%sWebServer", activity.getName()),
+				webServerPort, activity.getLog());
 
 		webContentPath = "/" + activity.getName();
 		webContentUrl = "http://localhost:" + webServer.getPort()
@@ -419,7 +420,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 		 * The component context this handler is part of.
 		 */
 		private ActivityComponentContext activityComponentContext;
-		
+
 		/**
 		 * Is the handler connected to the remote endpoint?
 		 */
@@ -440,73 +441,88 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void onConnect() {
-			try {
-				if (activityComponentContext.lockReadRunningRead()) {
-					delegate.onConnect();
+			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						delegate.onConnect();
+					} catch (Exception e) {
+						activityComponentContext.getActivity().getLog()
+								.error("Error during web socket connection", e);
+					} finally {
+						connected.set(true);
+					}
 				}
-			} catch (Exception e) {
-				activityComponentContext.getActivity().getLog()
-						.error("Error during web socket connection", e);
-			} finally {
-				connected.set(true);
-				activityComponentContext.unlockReadRunningRead();
-			}
+			});
 		}
 
 		@Override
 		public void onClose() {
-			try {
-				if (activityComponentContext.lockReadRunningRead()) {
-					delegate.onClose();
+			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						delegate.onClose();
+					} catch (Exception e) {
+						activityComponentContext.getActivity().getLog()
+								.error("Error during web socket close", e);
+					}
 				}
-			} catch (Exception e) {
-				activityComponentContext.getActivity().getLog()
-						.error("Error during web socket close", e);
-			} finally {
-				activityComponentContext.unlockReadRunningRead();
-			}
+			});
 		}
 
 		@Override
-		public void onReceive(Object data) {
-			try {
-				if (activityComponentContext.lockReadRunningRead()) {
-					delegate.onReceive(data);
+		public void onReceive(final Object data) {
+			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						delegate.onReceive(data);
+					} catch (Exception e) {
+						activityComponentContext
+								.getActivity()
+								.getLog()
+								.error("Error during web socket data receive",
+										e);
+					}
 				}
-			} catch (Exception e) {
-				activityComponentContext.getActivity().getLog()
-						.error("Error during web socket data receive", e);
-			} finally {
-				activityComponentContext.unlockReadRunningRead();
-			}
+			});
 		}
 
 		@Override
-		public void sendJson(Object data) {
-			try {
-				if (activityComponentContext.lockReadRunningRead()) {
-					delegate.sendJson(data);
+		public void sendJson(final Object data) {
+			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						delegate.sendJson(data);
+					} catch (Exception e) {
+						activityComponentContext
+								.getActivity()
+								.getLog()
+								.error("Error during web socket JSON sending",
+										e);
+					}
 				}
-			} catch (Exception e) {
-				activityComponentContext.getActivity().getLog()
-						.error("Error during web socket JSON sending", e);
-			} finally {
-				activityComponentContext.unlockReadRunningRead();
-			}
+			});
 		}
 
 		@Override
-		public void sendString(String data) {
-			try {
-				if (activityComponentContext.lockReadRunningRead()) {
-					delegate.sendString(data);
+		public void sendString(final String data) {
+			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						delegate.sendString(data);
+					} catch (Exception e) {
+						activityComponentContext
+								.getActivity()
+								.getLog()
+								.error("Error during web socket string sending",
+										e);
+					}
 				}
-			} catch (Exception e) {
-				activityComponentContext.getActivity().getLog()
-						.error("Error during web socket string sending", e);
-			} finally {
-				activityComponentContext.unlockReadRunningRead();
-			}
+			});
 		}
 	}
 }

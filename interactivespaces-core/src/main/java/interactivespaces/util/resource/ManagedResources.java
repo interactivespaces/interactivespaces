@@ -36,12 +36,21 @@ import com.google.common.collect.Lists;
  * 
  * @author Keith M. Hughes
  */
-public class ManagedResourceCollection {
+public class ManagedResources {
 
 	/**
 	 * The managed resources.
 	 */
 	private List<ManagedResource> resources = Lists.newArrayList();
+	
+	/**
+	 * Logger for the managed resources.
+	 */
+	private Log log;
+
+	public ManagedResources(Log log) {
+		this.log = log;
+	}
 
 	/**
 	 * Add a new resource to the collection.
@@ -74,11 +83,8 @@ public class ManagedResourceCollection {
 	 * <p>
 	 * Do not call {@link #shutdownResources(Log)} if an exception is thrown out
 	 * of this method.
-	 * 
-	 * @param log
-	 *            the log for logging events on.
 	 */
-	public void startupResources(Log log) {
+	public void startupResources() {
 		List<ManagedResource> startedResources = Lists.newArrayList();
 
 		for (ManagedResource resource : resources) {
@@ -87,7 +93,7 @@ public class ManagedResourceCollection {
 
 				startedResources.add(resource);
 			} catch (Exception e) {
-				shutdownResources(startedResources, log);
+				shutdownResources(startedResources);
 
 				throw new InteractiveSpacesException(
 						"Could not start up all managed resources", e);
@@ -101,12 +107,9 @@ public class ManagedResourceCollection {
 	 * <p>
 	 * This will make a best attempt. A shutdown will be attempted on all
 	 * resources, even if some throw an exception.
-	 * 
-	 * @param log
-	 *            the log for exceptions and general reporting.
 	 */
-	public void shutdownResources(Log log) {
-		shutdownResources(resources, log);
+	public void shutdownResources() {
+		shutdownResources(resources);
 	}
 
 	/**
@@ -117,7 +120,7 @@ public class ManagedResourceCollection {
 	 * @param log
 	 *            the log for exceptions and general reporting.
 	 */
-	private void shutdownResources(List<ManagedResource> resources, Log log) {
+	private void shutdownResources(List<ManagedResource> resources) {
 		for (ManagedResource resource : resources) {
 			try {
 				resource.shutdown();

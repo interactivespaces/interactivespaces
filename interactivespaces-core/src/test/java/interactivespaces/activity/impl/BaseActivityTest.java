@@ -33,12 +33,15 @@ import interactivespaces.time.TimeProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 
 import com.google.common.collect.Lists;
 
@@ -49,6 +52,8 @@ import com.google.common.collect.Lists;
  */
 public class BaseActivityTest {
 	private BaseActivity activity;
+
+	private ScheduledExecutorService executorService;
 
 	private Log log;
 
@@ -65,9 +70,13 @@ public class BaseActivityTest {
 
 	private List<ActivityComponent> componentsToAdd;
 
+	private boolean activityStarted;
+
 	@Before
 	public void setup() {
 		componentsToAdd = Lists.newArrayList();
+
+		executorService = new DefaultScheduledExecutorService();
 
 		InteractiveSpacesEnvironment spaceEnvironment = Mockito
 				.mock(InteractiveSpacesEnvironment.class);
@@ -75,6 +84,8 @@ public class BaseActivityTest {
 		Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(
 				timeProvider);
 		Mockito.when(timeProvider.getCurrentTime()).thenReturn(1000L);
+		Mockito.when(spaceEnvironment.getExecutorService()).thenReturn(
+				executorService);
 
 		log = Mockito.mock(Log.class);
 		controller = Mockito.mock(SpaceController.class);
@@ -96,6 +107,17 @@ public class BaseActivityTest {
 		activity.setLog(log);
 
 		activityInOrder = Mockito.inOrder(activity);
+
+		// In general th activity will be started
+		activityStarted = true;
+	}
+
+	@After
+	public void cleanup() {
+		if (activityStarted) {
+			activity.getActivityComponentContext().shutdownEventQueue();
+		}
+		executorService.shutdown();
 	}
 
 	/**
@@ -115,7 +137,7 @@ public class BaseActivityTest {
 		assertEquals(ActivityState.RUNNING, activity.getActivityStatus()
 				.getState());
 
-		assertActivityComponentContextRunning(true);
+		assertActivityComponentContextProcessing(true);
 	}
 
 	/**
@@ -123,6 +145,7 @@ public class BaseActivityTest {
 	 */
 	@Test
 	public void testCleanActivate() {
+		activity.startup();
 		activity.activate();
 
 		activityInOrder.verify(activity).onActivityActivate();
@@ -136,6 +159,8 @@ public class BaseActivityTest {
 	 */
 	@Test
 	public void testCleanDeactivate() {
+		activity.startup();
+		activity.activate();
 		activity.deactivate();
 
 		activityInOrder.verify(activity).onActivityDeactivate();
@@ -151,6 +176,7 @@ public class BaseActivityTest {
 		activity.startup();
 		activity.shutdown();
 
+		activityInOrder.verify(activity).onActivityPreShutdown();
 		activityInOrder.verify(activity).onActivityShutdown();
 		activityInOrder.verify(activity).onActivityCleanup();
 
@@ -159,7 +185,7 @@ public class BaseActivityTest {
 		assertEquals(ActivityState.READY, activity.getActivityStatus()
 				.getState());
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -178,7 +204,7 @@ public class BaseActivityTest {
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
 				Mockito.eq(e));
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -203,7 +229,7 @@ public class BaseActivityTest {
 		componentInOrder.verify(component).configureComponent(configuration,
 				activity.getActivityComponentContext());
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -226,7 +252,7 @@ public class BaseActivityTest {
 				activity.getActivityComponentContext());
 		componentInOrder.verify(component).startupComponent();
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -259,7 +285,7 @@ public class BaseActivityTest {
 		componentInOrder.verify(component).startupComponent();
 		componentInOrder.verify(component2).shutdownComponent();
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -283,7 +309,7 @@ public class BaseActivityTest {
 				activity.getActivityComponentContext());
 		componentInOrder.verify(component).startupComponent();
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -294,6 +320,7 @@ public class BaseActivityTest {
 		Exception e = new RuntimeException();
 		Mockito.doThrow(e).when(activity).onActivityActivate();
 
+		activity.startup();
 		activity.activate();
 
 		activityInOrder.verify(activity).onActivityActivate();
@@ -311,6 +338,8 @@ public class BaseActivityTest {
 		Exception e = new RuntimeException();
 		Mockito.doThrow(e).when(activity).onActivityDeactivate();
 
+		activity.startup();
+		activity.activate();
 		activity.deactivate();
 
 		activityInOrder.verify(activity).onActivityDeactivate();
@@ -318,6 +347,34 @@ public class BaseActivityTest {
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
 				Mockito.eq(e));
+	}
+
+	/**
+	 * Test that a broken onPreShutdown works.
+	 */
+	@Test
+	public void testBrokenPreShutdown() {
+		Exception e = new RuntimeException();
+		Mockito.doThrow(e).when(activity).onActivityPreShutdown();
+
+		activity.startup();
+		activity.shutdown();
+
+		activityInOrder.verify(activity).onActivityPreShutdown();
+		Mockito.verify(activity, Mockito.never()).onActivityShutdown();
+
+		// Cleanup must always be called.
+		activityInOrder.verify(activity).onActivityCleanup();
+
+		assertEquals(ActivityState.SHUTDOWN_FAILURE, activity
+				.getActivityStatus().getState());
+		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
+				Mockito.eq(e));
+
+		// Everything is shut down
+		componentInOrder.verify(component).shutdownComponent();
+
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -344,7 +401,7 @@ public class BaseActivityTest {
 		// Everything is shut down
 		componentInOrder.verify(component).shutdownComponent();
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -371,7 +428,7 @@ public class BaseActivityTest {
 		// Everything is shut down
 		componentInOrder.verify(component).shutdownComponent();
 
-		assertActivityComponentContextRunning(false);
+		assertActivityComponentContextProcessing(false);
 	}
 
 	/**
@@ -379,6 +436,7 @@ public class BaseActivityTest {
 	 */
 	@Test
 	public void testStatusListener() {
+		activityStarted = false;
 		ActivityListener listener = Mockito.mock(ActivityListener.class);
 
 		ActivityStatus oldStatus = activity.getActivityStatus();
@@ -396,20 +454,16 @@ public class BaseActivityTest {
 				Mockito.eq(newStatus));
 	}
 
-	/**eq
-	 * Assert the expected value of the activity component context running
+	/**
+	 * eq Assert the expected value of the activity component context running
 	 * status.
 	 * 
 	 * @param expected
 	 *            expected value of the component context running status
 	 */
-	private void assertActivityComponentContextRunning(boolean expected) {
-		try {
-			assertEquals(expected, activity.getActivityComponentContext()
-					.lockReadRunningRead());
-		} finally {
-			activity.getActivityComponentContext().unlockReadRunningRead();
-		}
+	private void assertActivityComponentContextProcessing(boolean expected) {
+		assertEquals(expected, activity.getActivityComponentContext()
+				.isActivityEventQueueRunning());
 	}
 
 	private class MyBaseActivity extends BaseActivity {

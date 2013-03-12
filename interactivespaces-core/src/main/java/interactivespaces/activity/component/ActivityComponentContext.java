@@ -17,10 +17,7 @@
 package interactivespaces.activity.component;
 
 import interactivespaces.activity.Activity;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import interactivespaces.util.concurrency.AcceptingPriorityEventQueue;
 
 /**
  * A context for {@link ActivityComponent} instances to run in.
@@ -28,17 +25,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Keith M. Hughes
  */
 public class ActivityComponentContext {
-
-	/**
-	 * This lock is for components to check whether they should be considered
-	 * running.
-	 */
-	private ReadWriteLock runningLock = new ReentrantReadWriteLock(true);
-
-	/**
-	 * {@code true} if the components should be considered running.
-	 */
-	private boolean running = false;
 
 	/**
 	 * The activity the components are running for.
@@ -56,6 +42,11 @@ public class ActivityComponentContext {
 	private ActivityComponentFactory componentFactory;
 
 	/**
+	 * The event queue for the activity.
+	 */
+	private AcceptingPriorityEventQueue eventQueue;
+
+	/**
 	 * @param activity
 	 *            the activity which will use this context
 	 * @param components
@@ -69,6 +60,9 @@ public class ActivityComponentContext {
 		this.activity = activity;
 		this.components = components;
 		this.componentFactory = componentFactory;
+
+		eventQueue = new AcceptingPriorityEventQueue(
+				activity.getSpaceEnvironment(), activity.getLog());
 	}
 
 	/**
@@ -102,64 +96,59 @@ public class ActivityComponentContext {
 	}
 
 	/**
-	 * Get a read lock on the running status.
+	 * Set whether or not the event activity queue is accepting or not.
 	 * 
-	 * <p>
-	 * There can be multiple reads simultaneously.
-	 * 
-	 * <p>
-	 * This must be paired with an {@link #unlockReadRunningRead()} call,
-	 * preferably in a finally block.
-	 * 
-	 * @return {@code true} if the components should be considered running.
+	 * @param accepting
 	 */
-	public boolean lockReadRunningRead() {
-		runningLock.readLock().lock();
-
-		return running;
+	public void setActivityEventQueueAccepting(boolean accepting) {
+		eventQueue.setAccepting(accepting);
 	}
 
 	/**
-	 * Unlock the read lock on the running status.
+	 * Start the event queue running.
 	 */
-	public void unlockReadRunningRead() {
-		runningLock.readLock().unlock();
+	public void startupEventQueue() {
+		eventQueue.startup();
 	}
 
 	/**
-	 * Do a write lock on the running status.
+	 * Shut the event queue down. Also stops the event queue from accepting.
 	 * 
 	 * <p>
-	 * There can be only 1 write.
-	 * 
-	 * <p>
-	 * This must be paired with an {@link #unlockRunningSet()} call, preferably
-	 * in a finally block.
+	 * This is safe to call even if the event queue never started,
 	 */
-	public void lockRunningSet() {
-		runningLock.writeLock().lock();
+	public void shutdownEventQueue() {
+		eventQueue.stopAcceptingAndShutdown();
 	}
 
 	/**
-	 * Unlock the write lock on the running status and set running.
+	 * Is the activity queue still running?
 	 * 
-	 * @param running
-	 * 		the value to set running to
+	 * @return {@code true} if running
 	 */
-	public void unlockRunningSet(boolean running) {
-		this.running = running;
-		runningLock.writeLock().unlock();
+	public boolean isActivityEventQueueRunning() {
+		return eventQueue.isRunning();
 	}
 
 	/**
-	 * Should the components consider themselves running?
+	 * Add in an event into the event queue with the default priority
 	 * 
-	 * @return {@code true} if the components should be considered running
+	 * @param event
+	 *            the event to add
 	 */
-	public void clearRunning() {
-		Lock writeLock = runningLock.writeLock();
-		writeLock.lock();
-		this.running = false;
-		writeLock.unlock();
+	public void addActivityEventQueueEvent(Runnable event) {
+		eventQueue.addEvent(event);
+	}
+
+	/**
+	 * Add in an event with a given priority.
+	 * 
+	 * @param event
+	 *            the event to add
+	 * @param priority
+	 *            the priority for the event, lower values are done first
+	 */
+	public void addActivityEventQueueEvent(Runnable event, int priority) {
+		eventQueue.addEvent(event, priority);
 	}
 }

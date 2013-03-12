@@ -24,9 +24,9 @@ import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.hardware.driver.Driver;
-import interactivespaces.util.concurrency.CommandCollection;
+import interactivespaces.util.concurrency.ManagedCommands;
 import interactivespaces.util.resource.ManagedResource;
-import interactivespaces.util.resource.ManagedResourceCollection;
+import interactivespaces.util.resource.ManagedResources;
 
 import java.util.Map;
 
@@ -51,12 +51,12 @@ public abstract class BaseActivity extends ActivitySupport implements
 	/**
 	 * The collection of managed resources for the activity.
 	 */
-	private ManagedResourceCollection managedResources = new ManagedResourceCollection();
+	private ManagedResources managedResources;
 
 	/**
 	 * The commands which are being managed.
 	 */
-	private CommandCollection managedCommands;
+	private ManagedCommands managedCommands;
 
 	/**
 	 * Get one of the components for the activity.
@@ -88,11 +88,11 @@ public abstract class BaseActivity extends ActivitySupport implements
 	 * method will be called with the activity's space environment and log.
 	 * 
 	 * @param driver
-	 * 		the driver to add to the activity
+	 *            the driver to add to the activity
 	 */
 	public void addDriver(Driver driver) {
 		driver.prepare(getSpaceEnvironment(), getLog());
-		
+
 		addManagedResource(driver);
 	}
 
@@ -120,18 +120,19 @@ public abstract class BaseActivity extends ActivitySupport implements
 
 		componentContext = new ActivityComponentContext(this, components,
 				getController().getActivityComponentFactory());
+		
+		managedResources = new ManagedResources(getLog());
 
-		managedCommands = new CommandCollection(getSpaceEnvironment()
+		managedCommands = new ManagedCommands(getSpaceEnvironment()
 				.getExecutorService(), getLog());
 
-		boolean running = false;
-		componentContext.lockRunningSet();
+		componentContext.setActivityEventQueueAccepting(true);
 		try {
 			commonActivitySetup();
 
 			callOnActivitySetup();
 
-			managedResources.startupResources(getLog());
+			managedResources.startupResources();
 
 			components
 					.configureComponents(getConfiguration(), componentContext);
@@ -140,7 +141,6 @@ public abstract class BaseActivity extends ActivitySupport implements
 			callOnActivityStartup();
 
 			setActivityStatus(ActivityState.RUNNING, null);
-			running = true;
 
 			if (getLog().isInfoEnabled()) {
 				getLog().info(
@@ -150,13 +150,15 @@ public abstract class BaseActivity extends ActivitySupport implements
 								(getSpaceEnvironment().getTimeProvider()
 										.getCurrentTime() - beginStartTime)));
 			}
-		} catch (Exception e) {
 
+			// We won't shut the event queue down if startup fails
+			// because it is being started last and any failures would
+			// have happened before it starts processing.
+			componentContext.startupEventQueue();
+		} catch (Exception e) {
 			logException("Could not start activity up", e);
 
 			setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
-		} finally {
-			componentContext.unlockRunningSet(running);
 		}
 	}
 
@@ -167,7 +169,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 	 *         not been started, though will be available for any startup
 	 *         callbacks.
 	 */
-	public CommandCollection getManagedCommands() {
+	public ManagedCommands getManagedCommands() {
 		return managedCommands;
 	}
 
@@ -302,16 +304,26 @@ public abstract class BaseActivity extends ActivitySupport implements
 
 	@Override
 	public void shutdown() {
-		componentContext.clearRunning();
+		boolean cleanShutdown = true;
+
+		try {
+			callOnActivityPreShutdown();
+		} catch (Exception e) {
+			logException("Error while calling onActivityPreShutdown", e);
+			cleanShutdown = false;
+		}
+
+		componentContext.shutdownEventQueue();
 
 		if (managedCommands != null) {
 			managedCommands.shutdownAll();
 			managedCommands = null;
 		}
 
-		boolean cleanShutdown = true;
 		try {
-			callOnActivityShutdown();
+			if (cleanShutdown) {
+				callOnActivityShutdown();
+			}
 		} catch (Exception e) {
 			logException("Error while calling onActivityShutdown", e);
 			cleanShutdown = false;
@@ -339,7 +351,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 			cleanShutdown = false;
 		}
 
-		managedResources.shutdownResources(getLog());
+		managedResources.shutdownResources();
 		managedResources.clear();
 
 		if (cleanShutdown) {
@@ -347,6 +359,20 @@ public abstract class BaseActivity extends ActivitySupport implements
 		} else {
 			setActivityStatus(ActivityState.SHUTDOWN_FAILURE,
 					"Failures during shutdown");
+		}
+	}
+
+	/**
+	 * Properly call {@link #onActivityPreShutdown()}.
+	 */
+	private void callOnActivityPreShutdown() {
+		ActivityMethodInvocation invocation = getExecutionContext()
+				.enterMethod();
+
+		try {
+			onActivityPreShutdown();
+		} finally {
+			getExecutionContext().exitMethod(invocation);
 		}
 	}
 
@@ -485,8 +511,13 @@ public abstract class BaseActivity extends ActivitySupport implements
 	}
 
 	@Override
+	public void onActivityPreShutdown() {
+		// Default is nothing on pre shutdown.
+	}
+
+	@Override
 	public void onActivityShutdown() {
-		// Default is nothing on on shutdown.
+		// Default is nothing on shutdown.
 	}
 
 	@Override

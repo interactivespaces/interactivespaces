@@ -305,12 +305,16 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 * @param message
 	 *            the message that came in
 	 */
-	void handleNewMessage(String channelName, T message) {
+	void handleNewMessage(final String channelName, final T message) {
 		try {
-			if (getComponentContext().lockReadRunningRead()) {
-				// Send the message out to the listener.
-				messageListener.onNewRoutableInputMessage(channelName, message);
-			}
+			getComponentContext().addActivityEventQueueEvent(new Runnable() {
+				@Override
+				public void run() {
+					// Send the message out to the listener.
+					messageListener.onNewRoutableInputMessage(channelName,
+							message);
+				}
+			});
 		} catch (Exception e) {
 			getComponentContext()
 					.getActivity()
@@ -318,8 +322,6 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 					.error(String.format(
 							"Error after receiving routing message for channel %s",
 							channelName), e);
-		} finally {
-			getComponentContext().unlockReadRunningRead();
 		}
 	}
 
@@ -335,36 +337,42 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 * @param message
 	 *            message to send
 	 */
-	public void writeOutputMessage(String outputChannelName, T message) {
-		try {
-			if (getComponentContext().lockReadRunningRead()) {
-				if (outputChannelName != null) {
-					RosPublishers<T> output = outputs.get(outputChannelName);
-					if (output != null) {
-						output.publishMessage(message);
+	public void writeOutputMessage(final String outputChannelName,
+			final T message) {
+		getComponentContext().addActivityEventQueueEvent(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (outputChannelName != null) {
+						final RosPublishers<T> output = outputs
+								.get(outputChannelName);
+						if (output != null) {
+							output.publishMessage(message);
+
+						} else {
+							getComponentContext()
+									.getActivity()
+									.getLog()
+									.error(String
+											.format("Unknown route output channel %s. Message dropped.",
+													outputChannelName));
+						}
 					} else {
 						getComponentContext()
 								.getActivity()
 								.getLog()
-								.error(String
-										.format("Unknown route output channel %s. Message dropped.",
-												outputChannelName));
+								.error("Route output channel has no name. Message dropped.");
 					}
-				} else {
+				} catch (Exception e) {
 					getComponentContext()
 							.getActivity()
 							.getLog()
-							.error("Route output channel has no name. Message dropped.");
+							.error(String.format(
+									"Error writing message on channel %s",
+									outputChannelName), e);
 				}
 			}
-		} catch (Exception e) {
-			getComponentContext()
-					.getActivity()
-					.getLog()
-					.error(String.format("Error writing message on channel %s",
-							outputChannelName), e);
-		} finally {
-			getComponentContext().unlockReadRunningRead();
-		}
+		});
+
 	}
 }

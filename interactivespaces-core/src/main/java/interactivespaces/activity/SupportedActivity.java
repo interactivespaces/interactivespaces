@@ -58,6 +58,15 @@ public interface SupportedActivity {
 	void onActivityStartup();
 
 	/**
+	 * Called before the shutdown of the activity.
+	 * 
+	 * <p>
+	 * This method should throw an exception if it can't shutdown. Any
+	 * exceptions thrown will be caught.
+	 */
+	void onActivityPreShutdown();
+
+	/**
 	 * Called during the shutdown of the activity.
 	 * 
 	 * <p>

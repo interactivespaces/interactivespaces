@@ -33,9 +33,8 @@ import org.apache.commons.logging.Log;
  * adding commands and shutting the lot down.
  * 
  * @author Keith M. Hughes
- * @since Jul 10, 2012
  */
-public class CommandCollection {
+public class ManagedCommands {
 
 	/**
 	 * All futures in collection.
@@ -53,7 +52,7 @@ public class CommandCollection {
 	 */
 	private Log log;
 
-	public CommandCollection(ScheduledExecutorService executorService, Log log) {
+	public ManagedCommands(ScheduledExecutorService executorService, Log log) {
 		this.executorService = executorService;
 		this.log = log;
 	}
@@ -242,6 +241,9 @@ public class CommandCollection {
 				log.error("Exception caught during Managed Command", e);
 
 				if (allowTerminate) {
+					// TODO(keith): Not entirely happy with this. maybe
+					// eventually put the future into this instance and shut it
+					// down.
 					throw new RuntimeException();
 				}
 			}

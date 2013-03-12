@@ -25,12 +25,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * Tests for the {@link ManagedResourceCollection} class.
+ * Tests for the {@link ManagedResources} class.
  *
  * @author Keith M. Hughes
  */
-public class ManagedResourceCollectionTest {
-	private ManagedResourceCollection resources;
+public class ManagedResourcesTest {
+	private ManagedResources resources;
 
 	private Log log;
 
@@ -38,7 +38,7 @@ public class ManagedResourceCollectionTest {
 	public void setup() {
 		log = Mockito.mock(Log.class);
 
-		resources = new ManagedResourceCollection();
+		resources = new ManagedResources(log);
 
 	}
 
@@ -53,8 +53,8 @@ public class ManagedResourceCollectionTest {
 		resources.addResource(resource1);
 		resources.addResource(resource2);
 		
-		resources.startupResources(log);
-		resources.shutdownResources(log);
+		resources.startupResources();
+		resources.shutdownResources();
 		
 		Mockito.verify(resource1, Mockito.times(1)).startup();
 		Mockito.verify(resource1, Mockito.times(1)).shutdown();
@@ -80,7 +80,7 @@ public class ManagedResourceCollectionTest {
 		resources.addResource(resource3);
 		
 		try {
-			resources.startupResources(log);
+			resources.startupResources();
 			
 			fail();
 		} catch (Exception e1) {
@@ -111,8 +111,8 @@ public class ManagedResourceCollectionTest {
 		resources.addResource(resource2);
 		resources.addResource(resource3);
 		
-		resources.startupResources(log);
-		resources.shutdownResources(log);
+		resources.startupResources();
+		resources.shutdownResources();
 		
 		Mockito.verify(resource1, Mockito.times(1)).startup();
 		Mockito.verify(resource1, Mockito.times(1)).shutdown();

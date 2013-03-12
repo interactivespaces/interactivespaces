@@ -105,7 +105,7 @@ public class SequentialEventQueue {
 	}
 
 	/**
-	 * Process events until the event processing thead is interrupted.
+	 * Process events until the event processing thread is interrupted.
 	 */
 	private void processEvents() {
 		try {
