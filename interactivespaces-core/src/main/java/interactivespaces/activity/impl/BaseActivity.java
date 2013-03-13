@@ -155,7 +155,13 @@ public abstract class BaseActivity extends ActivitySupport implements
 			// because it is being started last and any failures would
 			// have happened before it starts processing.
 			componentContext.startupEventQueue();
-		} catch (Exception e) {
+
+			try {
+				callOnActivityPostStartup();
+			} catch (Throwable e) {
+				logException("Exception while running Post Startup", e);
+			}
+		} catch (Throwable e) {
 			logException("Could not start activity up", e);
 
 			setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
@@ -196,6 +202,20 @@ public abstract class BaseActivity extends ActivitySupport implements
 
 		try {
 			onActivityStartup();
+		} finally {
+			getExecutionContext().exitMethod(invocation);
+		}
+	}
+
+	/**
+	 * Properly call {@link #onActivityPostStartup()}.
+	 */
+	private final void callOnActivityPostStartup() {
+		ActivityMethodInvocation invocation = getExecutionContext()
+				.enterMethod();
+
+		try {
+			onActivityPostStartup();
 		} finally {
 			getExecutionContext().exitMethod(invocation);
 		}
@@ -508,6 +528,11 @@ public abstract class BaseActivity extends ActivitySupport implements
 	@Override
 	public void onActivityStartup() {
 		// Default is nothing on startup.
+	}
+
+	@Override
+	public void onActivityPostStartup() {
+		// Default is nothing on post startup.
 	}
 
 	@Override
