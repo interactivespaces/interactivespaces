@@ -17,6 +17,8 @@
 package interactivespaces.activity.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityState;
@@ -114,9 +116,6 @@ public class BaseActivityTest {
 
 	@After
 	public void cleanup() {
-		if (activityStarted) {
-			activity.getActivityComponentContext().shutdownEventQueue();
-		}
 		executorService.shutdown();
 	}
 
@@ -138,7 +137,7 @@ public class BaseActivityTest {
 		assertEquals(ActivityState.RUNNING, activity.getActivityStatus()
 				.getState());
 
-		assertActivityComponentContextProcessing(true);
+		assertTrue(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -186,7 +185,36 @@ public class BaseActivityTest {
 		assertEquals(ActivityState.READY, activity.getActivityStatus()
 				.getState());
 
-		assertActivityComponentContextProcessing(false);
+		ActivityComponentContext activityComponentContext = activity.getActivityComponentContext();
+		assertFalse(activityComponentContext.areHandlersAllowed());
+		assertTrue(activityComponentContext.waitOnNoProcessingHandlings(500, 1000));
+	}
+
+	/**
+	 * Test that a clean shutdown works even if a handler hasn't returned.
+	 */
+	@Test
+	public void testShutdownWithRunningHandler() {
+		activity.startup();
+		
+		activity.getActivityComponentContext().enterHandler();
+		
+		activity.shutdown();
+
+		activityInOrder.verify(activity).onActivityPreShutdown();
+		activityInOrder.verify(activity).onActivityShutdown();
+		activityInOrder.verify(activity).onActivityCleanup();
+
+		componentInOrder.verify(component).shutdownComponent();
+
+		assertEquals(ActivityState.READY, activity.getActivityStatus()
+				.getState());
+
+		ActivityComponentContext activityComponentContext = activity.getActivityComponentContext();
+		assertFalse(activityComponentContext.areHandlersAllowed());
+		assertTrue(activityComponentContext.areProcessingHandlers());
+		
+		Mockito.verify(log, Mockito.times(1)).warn(Mockito.anyString());
 	}
 
 	/**
@@ -208,7 +236,7 @@ public class BaseActivityTest {
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
 				Mockito.eq(e));
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -236,7 +264,7 @@ public class BaseActivityTest {
 		componentInOrder.verify(component).configureComponent(configuration,
 				activity.getActivityComponentContext());
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -262,7 +290,7 @@ public class BaseActivityTest {
 				activity.getActivityComponentContext());
 		componentInOrder.verify(component).startupComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -298,7 +326,7 @@ public class BaseActivityTest {
 		componentInOrder.verify(component).startupComponent();
 		componentInOrder.verify(component2).shutdownComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -324,7 +352,7 @@ public class BaseActivityTest {
 				activity.getActivityComponentContext());
 		componentInOrder.verify(component).startupComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -349,8 +377,8 @@ public class BaseActivityTest {
 		assertEquals(ActivityState.RUNNING, activity.getActivityStatus()
 				.getState());
 
-		assertActivityComponentContextProcessing(true);
-		
+		assertTrue(activity.getActivityComponentContext().areHandlersAllowed());
+
 		// Make sure the failure is logged.
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
 				Mockito.eq(e));
@@ -418,7 +446,7 @@ public class BaseActivityTest {
 		// Everything is shut down
 		componentInOrder.verify(component).shutdownComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -445,7 +473,7 @@ public class BaseActivityTest {
 		// Everything is shut down
 		componentInOrder.verify(component).shutdownComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -472,7 +500,7 @@ public class BaseActivityTest {
 		// Everything is shut down
 		componentInOrder.verify(component).shutdownComponent();
 
-		assertActivityComponentContextProcessing(false);
+		assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 	}
 
 	/**
@@ -496,18 +524,6 @@ public class BaseActivityTest {
 		Mockito.verify(listener, Mockito.times(1)).onActivityStatusChange(
 				Mockito.any(Activity.class), Mockito.eq(oldStatus),
 				Mockito.eq(newStatus));
-	}
-
-	/**
-	 * eq Assert the expected value of the activity component context running
-	 * status.
-	 * 
-	 * @param expected
-	 *            expected value of the component context running status
-	 */
-	private void assertActivityComponentContextProcessing(boolean expected) {
-		assertEquals(expected, activity.getActivityComponentContext()
-				.isActivityEventQueueRunning());
 	}
 
 	private class MyBaseActivity extends BaseActivity {

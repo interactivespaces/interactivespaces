@@ -93,7 +93,7 @@ public class TopicIntegrationTest extends RosTest {
       }
     }, nodeConfiguration);
 
-    assertTrue(messageReceived.await(4, TimeUnit.SECONDS));
+    assertTrue(messageReceived.await(5, TimeUnit.SECONDS));
   }
 
   /**

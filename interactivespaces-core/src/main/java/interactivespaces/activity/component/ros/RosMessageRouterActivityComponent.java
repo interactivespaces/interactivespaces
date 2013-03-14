@@ -30,7 +30,9 @@ import interactivespaces.util.ros.RosSubscribers;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.logging.Log;
 import org.ros.message.MessageListener;
 
 import com.google.common.collect.Lists;
@@ -106,6 +108,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 * Null if there are no outputs for this component.
 	 */
 	private RosPublishers<T> messageFactory;
+
+	/**
+	 * A creator for handler invocation IDs.
+	 */
+	private AtomicLong handlerInvocationId = new AtomicLong();
 
 	public RosMessageRouterActivityComponent(String rosMessageType,
 			RoutableInputMessageListener<T> messageListener) {
@@ -263,15 +270,26 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	public void shutdownComponent() {
 		running = false;
 
-		for (RosPublishers<T> output : outputs.values()) {
-			output.shutdown();
-		}
-		outputs.clear();
+		Log log = getComponentContext().getActivity().getLog();
+		log.info("Shutting down ROS message router activity component");
+
+		long timeStart = System.currentTimeMillis();
 
 		for (RosSubscribers<T> input : inputs.values()) {
 			input.shutdown();
 		}
 		inputs.clear();
+
+		for (RosPublishers<T> output : outputs.values()) {
+			output.shutdown();
+		}
+		outputs.clear();
+
+		if (log.isInfoEnabled()) {
+			log.info(String
+					.format("ROS message router activity component shut down in %d msecs",
+							System.currentTimeMillis() - timeStart));
+		}
 	}
 
 	@Override
@@ -306,23 +324,37 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 *            the message that came in
 	 */
 	void handleNewMessage(final String channelName, final T message) {
-		getComponentContext().addActivityEventQueueEvent(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// Send the message out to the listener.
-					messageListener.onNewRoutableInputMessage(channelName,
-							message);
-				} catch (Throwable e) {
-					getComponentContext()
-							.getActivity()
-							.getLog()
-							.error(String
-									.format("Error after receiving routing message for channel %s",
-											channelName), e);
-				}
+		try {
+			getComponentContext().enterHandler();
+
+			long start = System.currentTimeMillis();
+			String handlerInvocationId = newHandlerInvocationId();
+			Log log = getComponentContext().getActivity().getLog();
+			if (log.isDebugEnabled()) {
+				log.debug(String.format(
+						"Entering ROS route message handler invocation %s",
+						handlerInvocationId));
 			}
-		});
+
+			// Send the message out to the listener.
+			messageListener.onNewRoutableInputMessage(channelName, message);
+
+			if (log.isDebugEnabled()) {
+				log.debug(String
+						.format("Exiting ROS route message handler invocation %s in %d msecs",
+								handlerInvocationId, System.currentTimeMillis()
+										- start));
+			}
+		} catch (Throwable e) {
+			getComponentContext()
+					.getActivity()
+					.getLog()
+					.error(String.format(
+							"Error after receiving routing message for channel %s",
+							channelName), e);
+		} finally {
+			getComponentContext().exitHandler();
+		}
 	}
 
 	/**
@@ -339,39 +371,46 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 */
 	public void writeOutputMessage(final String outputChannelName,
 			final T message) {
-		getComponentContext().addActivityEventQueueEvent(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (outputChannelName != null) {
-						final RosPublishers<T> output = outputs
-								.get(outputChannelName);
-						if (output != null) {
-							output.publishMessage(message);
+		try {
+			getComponentContext().enterHandler();
 
-						} else {
-							getComponentContext()
-									.getActivity()
-									.getLog()
-									.error(String
-											.format("Unknown route output channel %s. Message dropped.",
-													outputChannelName));
-						}
-					} else {
-						getComponentContext()
-								.getActivity()
-								.getLog()
-								.error("Route output channel has no name. Message dropped.");
-					}
-				} catch (Throwable e) {
+			if (outputChannelName != null) {
+				final RosPublishers<T> output = outputs.get(outputChannelName);
+				if (output != null) {
+					output.publishMessage(message);
+
+				} else {
 					getComponentContext()
 							.getActivity()
 							.getLog()
-							.error(String.format(
-									"Error writing message on channel %s",
-									outputChannelName), e);
+							.error(String
+									.format("Unknown route output channel %s. Message dropped.",
+											outputChannelName));
 				}
+			} else {
+				getComponentContext()
+						.getActivity()
+						.getLog()
+						.error("Route output channel has no name. Message dropped.");
 			}
-		});
+		} catch (Throwable e) {
+			getComponentContext()
+					.getActivity()
+					.getLog()
+					.error(String.format("Error writing message on channel %s",
+							outputChannelName), e);
+		} finally {
+			getComponentContext().exitHandler();
+		}
+	}
+
+	/**
+	 * 
+	 * Create a new handler invocation ID.
+	 * 
+	 * @return a unique ID for the handler invocation
+	 */
+	private String newHandlerInvocationId() {
+		return Long.toHexString(handlerInvocationId.getAndIncrement());
 	}
 }

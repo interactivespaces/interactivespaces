@@ -70,7 +70,8 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	 * @param messageType
 	 *            the message type for all of the publishers
 	 */
-	public void addPublishers(ConnectedNode node, String messageType, String topicNames) {
+	public void addPublishers(ConnectedNode node, String messageType,
+			String topicNames) {
 		addPublishers(node, messageType, topicNames, false);
 	}
 
@@ -90,16 +91,27 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	 *            {@code true} if the publisher should always send the last
 	 *            message sent to any new subscribers
 	 */
-	public void addPublishers(ConnectedNode node, String messageType, String topicNames,
-			boolean latch) {
-		log.error("Adding publishers");
+	public void addPublishers(ConnectedNode node, String messageType,
+			String topicNames, boolean latch) {
+		if (log.isInfoEnabled()) {
+			log.info(String
+					.format("Adding publishers for topic names %s with message type %s",
+							topicNames, messageType));
+		}
+
 		for (String topicName : topicNames.split(SEPARATOR)) {
 			topicName = topicName.trim();
 			if (!topicName.isEmpty()) {
-				log.error(String.format("Adding publisher topic %s", topicName));
+				if (log.isInfoEnabled()) {
+					log.info(String.format("Adding publisher topic %s",
+							topicName));
+				}
 				Publisher<T> publisher = node.newPublisher(topicName,
 						messageType);
-				log.error(String.format("Added publisher topic %s", topicName));
+				if (log.isInfoEnabled()) {
+					log.info(String.format("Added publisher topic %s",
+							topicName));
+				}
 				publisher.addListener(this);
 				publisher.setLatchMode(latch);
 				publishers.add(publisher);
@@ -118,7 +130,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
 			publisher.publish(message);
 		}
 	}
-	
+
 	/**
 	 * Create an instance of the message.
 	 * 
@@ -128,7 +140,8 @@ public class RosPublishers<T> implements PublisherListener<T> {
 		if (!publishers.isEmpty()) {
 			return publishers.get(0).newMessage();
 		} else {
-			throw new InteractiveSpacesException("No publishers found to create a message");
+			throw new InteractiveSpacesException(
+					"No publishers found to create a message");
 		}
 	}
 
@@ -175,8 +188,10 @@ public class RosPublishers<T> implements PublisherListener<T> {
 	@Override
 	public void onNewSubscriber(Publisher<T> publisher,
 			SubscriberIdentifier subscriberIdentifier) {
-		log.info(String.format("Publisher for topic %s has a new subscriber %s",
-				publisher.getTopicName(), subscriberIdentifier.getNodeIdentifier()));
+		log.info(String.format(
+				"Publisher for topic %s has a new subscriber %s",
+				publisher.getTopicName(),
+				subscriberIdentifier.getNodeIdentifier()));
 	}
 
 	@Override

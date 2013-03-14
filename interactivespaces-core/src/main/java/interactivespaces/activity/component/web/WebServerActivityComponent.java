@@ -33,6 +33,8 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.logging.Log;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -170,14 +172,24 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	public void startupComponent() {
 		webServer.startup();
 		getComponentContext().getActivity().getLog()
-				.debug("web server component started up");
+				.info("web server component started up");
 	}
 
 	@Override
 	public void shutdownComponent() {
+		long start = System.currentTimeMillis();
+		Log log = getComponentContext().getActivity().getLog();
+		log.info("Shutting down web server activity component");
+		
 		if (webServer != null) {
 			webServer.shutdown();
 			webServer = null;
+		}
+
+		if (log.isInfoEnabled()) {
+			log.info(String.format(
+					"Web server activity component shut down in %s msecs",
+					System.currentTimeMillis() - start));
 		}
 	}
 
@@ -441,88 +453,74 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void onConnect() {
-			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						delegate.onConnect();
-					} catch (Throwable e) {
-						activityComponentContext.getActivity().getLog()
-								.error("Error during web socket connection", e);
-					} finally {
-						connected.set(true);
-					}
-				}
-			});
+			try {
+				activityComponentContext.enterHandler();
+
+				delegate.onConnect();
+			} catch (Throwable e) {
+				activityComponentContext.getActivity().getLog()
+						.error("Error during web socket connection", e);
+			} finally {
+				connected.set(true);
+
+				activityComponentContext.exitHandler();
+			}
 		}
 
 		@Override
 		public void onClose() {
-			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						delegate.onClose();
-					} catch (Throwable e) {
-						activityComponentContext.getActivity().getLog()
-								.error("Error during web socket close", e);
-					}
-				}
-			});
+			try {
+				activityComponentContext.enterHandler();
+
+				delegate.onClose();
+			} catch (Throwable e) {
+				activityComponentContext.getActivity().getLog()
+						.error("Error during web socket close", e);
+			} finally {
+				activityComponentContext.exitHandler();
+			}
 		}
 
 		@Override
 		public void onReceive(final Object data) {
-			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						delegate.onReceive(data);
-					} catch (Throwable e) {
-						activityComponentContext
-								.getActivity()
-								.getLog()
-								.error("Error during web socket data receive",
-										e);
-					}
-				}
-			});
+			try {
+				activityComponentContext.enterHandler();
+
+				delegate.onReceive(data);
+			} catch (Throwable e) {
+				activityComponentContext.getActivity().getLog()
+						.error("Error during web socket data receive", e);
+			} finally {
+				activityComponentContext.exitHandler();
+			}
 		}
 
 		@Override
 		public void sendJson(final Object data) {
-			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						delegate.sendJson(data);
-					} catch (Throwable e) {
-						activityComponentContext
-								.getActivity()
-								.getLog()
-								.error("Error during web socket JSON sending",
-										e);
-					}
-				}
-			});
+			try {
+				activityComponentContext.enterHandler();
+
+				delegate.sendJson(data);
+			} catch (Throwable e) {
+				activityComponentContext.getActivity().getLog()
+						.error("Error during web socket JSON sending", e);
+			} finally {
+				activityComponentContext.exitHandler();
+			}
 		}
 
 		@Override
 		public void sendString(final String data) {
-			activityComponentContext.addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						delegate.sendString(data);
-					} catch (Throwable e) {
-						activityComponentContext
-								.getActivity()
-								.getLog()
-								.error("Error during web socket string sending",
-										e);
-					}
-				}
-			});
+			try {
+				activityComponentContext.enterHandler();
+
+				delegate.sendString(data);
+			} catch (Throwable e) {
+				activityComponentContext.getActivity().getLog()
+						.error("Error during web socket string sending", e);
+			} finally {
+				activityComponentContext.exitHandler();
+			}
 		}
 	}
 }

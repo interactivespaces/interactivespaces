@@ -39,6 +39,18 @@ public abstract class BaseActivity extends ActivitySupport implements
 		SupportedActivity {
 
 	/**
+	 * The maximum amount of time to wait for all handlers to complete, in
+	 * msecs.
+	 */
+	private static final int SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME = 3000;
+
+	/**
+	 * How long to wait between samples when checking for event handlers to
+	 * complete, in msecs.
+	 */
+	private static final int SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME = 500;
+
+	/**
 	 * All components in the activity.
 	 */
 	private ActivityComponentCollection components = new ActivityComponentCollection();;
@@ -120,13 +132,13 @@ public abstract class BaseActivity extends ActivitySupport implements
 
 		componentContext = new ActivityComponentContext(this, components,
 				getController().getActivityComponentFactory());
-		
+
 		managedResources = new ManagedResources(getLog());
 
 		managedCommands = new ManagedCommands(getSpaceEnvironment()
 				.getExecutorService(), getLog());
 
-		componentContext.setActivityEventQueueAccepting(true);
+		componentContext.beginStartupPhase();
 		try {
 			commonActivitySetup();
 
@@ -151,10 +163,8 @@ public abstract class BaseActivity extends ActivitySupport implements
 										.getCurrentTime() - beginStartTime)));
 			}
 
-			// We won't shut the event queue down if startup fails
-			// because it is being started last and any failures would
-			// have happened before it starts processing.
-			componentContext.startupEventQueue();
+			// Let everything start running before Post Startup
+			componentContext.endStartupPhase(true);
 
 			try {
 				callOnActivityPostStartup();
@@ -162,6 +172,8 @@ public abstract class BaseActivity extends ActivitySupport implements
 				logException("Exception while running Post Startup", e);
 			}
 		} catch (Throwable e) {
+			componentContext.endStartupPhase(false);
+
 			logException("Could not start activity up", e);
 
 			setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
@@ -333,7 +345,17 @@ public abstract class BaseActivity extends ActivitySupport implements
 			cleanShutdown = false;
 		}
 
-		componentContext.shutdownEventQueue();
+		componentContext.beginShutdownPhase();
+		boolean handlersAllComplete = componentContext
+				.waitOnNoProcessingHandlings(
+						SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME,
+						SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME);
+		if (!handlersAllComplete) {
+			getLog().warn(
+					String.format(
+							"Handlers still running after %d msecs of shutdown",
+							SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME));
+		}
 
 		if (managedCommands != null) {
 			managedCommands.shutdownAll();

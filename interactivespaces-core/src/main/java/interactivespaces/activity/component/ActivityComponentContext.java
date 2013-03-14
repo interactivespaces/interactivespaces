@@ -17,7 +17,13 @@
 package interactivespaces.activity.component;
 
 import interactivespaces.activity.Activity;
+import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.util.concurrency.AcceptingPriorityEventQueue;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A context for {@link ActivityComponent} instances to run in.
@@ -25,6 +31,11 @@ import interactivespaces.util.concurrency.AcceptingPriorityEventQueue;
  * @author Keith M. Hughes
  */
 public class ActivityComponentContext {
+
+	/**
+	 * The amount of time, in msecs, that handlers will wait for startup.
+	 */
+	public static final long STARTUP_LATCH_TIMEOUT = 5000;
 
 	/**
 	 * The activity the components are running for.
@@ -42,9 +53,19 @@ public class ActivityComponentContext {
 	private ActivityComponentFactory componentFactory;
 
 	/**
-	 * The event queue for the activity.
+	 * The latch that threads can wait on for startup completion.
 	 */
-	private AcceptingPriorityEventQueue eventQueue;
+	private CountDownLatch startupLatch = new CountDownLatch(1);
+
+	/**
+	 * {@code true} if handlers are allowed to run.
+	 */
+	private AtomicBoolean handlersAllowed = new AtomicBoolean();
+
+	/**
+	 * Keeps count of the number of handlers running.
+	 */
+	private AtomicInteger numberProcessingHandlers = new AtomicInteger();
 
 	/**
 	 * @param activity
@@ -60,9 +81,6 @@ public class ActivityComponentContext {
 		this.activity = activity;
 		this.components = components;
 		this.componentFactory = componentFactory;
-
-		eventQueue = new AcceptingPriorityEventQueue(
-				activity.getSpaceEnvironment(), activity.getLog());
 	}
 
 	/**
@@ -96,59 +114,116 @@ public class ActivityComponentContext {
 	}
 
 	/**
-	 * Set whether or not the event activity queue is accepting or not.
+	 * Begin the setup phase
+	 */
+	public void beginStartupPhase() {
+		// Nothing required at the moment
+	}
+
+	/**
+	 * End the setup phase
 	 * 
-	 * @param accepting
+	 * @param success
+	 *            {@code true} if the setup was successful
 	 */
-	public void setActivityEventQueueAccepting(boolean accepting) {
-		eventQueue.setAccepting(accepting);
+	public void endStartupPhase(boolean success) {
+		handlersAllowed.set(success);
+		startupLatch.countDown();
+	}
+	
+	/**
+	 * Shutdown has begun.
+	 */
+	public void beginShutdownPhase() {
+		handlersAllowed.set(false);
 	}
 
 	/**
-	 * Start the event queue running.
+	 * Are handler allowed to run?
+	 * 
+	 * @return {@code true} if handlers can run
 	 */
-	public void startupEventQueue() {
-		eventQueue.startup();
+	public boolean areHandlersAllowed() {
+		return handlersAllowed.get();
 	}
 
 	/**
-	 * Shut the event queue down. Also stops the event queue from accepting.
+	 * A handler has been entered.
+	 */
+	public void enterHandler() {
+		numberProcessingHandlers.incrementAndGet();
+	}
+
+	/**
+	 * A handler has been exited.
+	 */
+	public void exitHandler() {
+		if (numberProcessingHandlers.decrementAndGet() < 0) {
+			getActivity().getLog().error(
+					"There are more handler exits than enters");
+		}
+
+	}
+
+	/**
+	 * Are there still handlers which are processing data?
+	 * 
+	 * @return {@code true} if there are handlers in the midst of processing
+	 */
+	public boolean areProcessingHandlers() {
+		return numberProcessingHandlers.get() != 0;
+	}
+
+	/**
+	 * Block until there are no longer handlers which are processing.
+	 * 
+	 * @param sampleTime
+	 *            how often sampling should take place for whether there are
+	 *            processing handler, in milliseconds
+	 * @param maxSamplingTime
+	 *            how long should sampling take place before punting, in msecs
+	 * 
+	 * @return {@code true} if there are no more processing handlers
+	 */
+	public boolean waitOnNoProcessingHandlings(long sampleTime,
+			long maxSamplingTime) {
+		long start = System.currentTimeMillis();
+		while (areProcessingHandlers()
+				&& (System.currentTimeMillis() - start) < maxSamplingTime) {
+			InteractiveSpacesUtilities.delay(sampleTime);
+		}
+
+		return !areProcessingHandlers();
+	}
+
+	/**
+	 * Wait for the context to complete startup, whether successfully or
+	 * unsuccessfully.
 	 * 
 	 * <p>
-	 * This is safe to call even if the event queue never started,
-	 */
-	public void shutdownEventQueue() {
-		eventQueue.stopAcceptingAndShutdown();
-	}
-
-	/**
-	 * Is the activity queue still running?
+	 * This method should be called before any handler runs, it will return
+	 * immediately if startup has completed.
 	 * 
-	 * @return {@code true} if running
-	 */
-	public boolean isActivityEventQueueRunning() {
-		return eventQueue.isRunning();
-	}
-
-	/**
-	 * Add in an event into the event queue with the default priority
+	 * <p>
+	 * The await will not be for longer than a preset amount of time.
 	 * 
-	 * @param event
-	 *            the event to add
+	 * @return {@code true} if startup was successful before timeout
 	 */
-	public void addActivityEventQueueEvent(Runnable event) {
-		eventQueue.addEvent(event);
-	}
+	public boolean awaitStartup() {
+		try {
+			boolean succeed = startupLatch.await(STARTUP_LATCH_TIMEOUT,
+					TimeUnit.MILLISECONDS);
 
-	/**
-	 * Add in an event with a given priority.
-	 * 
-	 * @param event
-	 *            the event to add
-	 * @param priority
-	 *            the priority for the event, lower values are done first
-	 */
-	public void addActivityEventQueueEvent(Runnable event, int priority) {
-		eventQueue.addEvent(event, priority);
+			if (!succeed) {
+				getActivity()
+						.getLog()
+						.warn(String
+								.format("Event handler timed out after %d msecs waiting for activity startup",
+										STARTUP_LATCH_TIMEOUT));
+			}
+			return succeed;
+		} catch (InterruptedException e) {
+			return false;
+		}
 	}
 }

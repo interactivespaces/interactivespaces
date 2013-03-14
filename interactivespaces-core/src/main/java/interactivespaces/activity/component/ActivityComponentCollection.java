@@ -83,7 +83,7 @@ public class ActivityComponentCollection {
 				newOrder.add(component);
 			}
 		}
-		
+
 		components.clear();
 		components.addAll(newOrder);
 	}
@@ -96,8 +96,8 @@ public class ActivityComponentCollection {
 		try {
 			for (ActivityComponent component : components) {
 				component.getComponentContext().getActivity().getLog()
-				.info("Starting component " + component.getName());
-				
+						.info("Starting component " + component.getName());
+
 				component.startupComponent();
 				startedComponents.add(component);
 			}
@@ -106,7 +106,7 @@ public class ActivityComponentCollection {
 			for (ActivityComponent component : startedComponents) {
 				component.shutdownComponent();
 			}
-			
+
 			throw e;
 		}
 	}
