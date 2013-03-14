@@ -163,9 +163,8 @@ public class ActivityComponentContextTest {
 			@Override
 			public void run() {
 				startLatch.countDown();
-				context.awaitStartup();
 				
-				if (context.areHandlersAllowed()) {
+				if (context.canHandlerRun()) {
 					countAllowedHandlers.incrementAndGet();
 				}
 				
@@ -202,9 +201,8 @@ public class ActivityComponentContextTest {
 			@Override
 			public void run() {
 				startLatch.countDown();
-				context.awaitStartup();
 				
-				if (context.areHandlersAllowed()) {
+				if (context.canHandlerRun()) {
 					countAllowedHandlers.incrementAndGet();
 				}
 				

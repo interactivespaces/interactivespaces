@@ -453,6 +453,10 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void onConnect() {
+			if (!activityComponentContext.canHandlerRun()) {
+				return;
+			}
+			
 			try {
 				activityComponentContext.enterHandler();
 
@@ -469,6 +473,10 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void onClose() {
+			if (!activityComponentContext.canHandlerRun()) {
+				return;
+			}
+			
 			try {
 				activityComponentContext.enterHandler();
 
@@ -483,6 +491,10 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void onReceive(final Object data) {
+			if (!activityComponentContext.canHandlerRun()) {
+				return;
+			}
+			
 			try {
 				activityComponentContext.enterHandler();
 
@@ -497,6 +509,10 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void sendJson(final Object data) {
+			if (!activityComponentContext.canHandlerRun()) {
+				return;
+			}
+			
 			try {
 				activityComponentContext.enterHandler();
 
@@ -511,6 +527,10 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
 		@Override
 		public void sendString(final String data) {
+			if (!activityComponentContext.canHandlerRun()) {
+				return;
+			}
+			
 			try {
 				activityComponentContext.enterHandler();
 

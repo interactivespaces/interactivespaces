@@ -324,6 +324,10 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 *            the message that came in
 	 */
 	void handleNewMessage(final String channelName, final T message) {
+		if (!getComponentContext().canHandlerRun()) {
+			return;
+		}
+		
 		try {
 			getComponentContext().enterHandler();
 
@@ -371,6 +375,10 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 */
 	public void writeOutputMessage(final String outputChannelName,
 			final T message) {
+		if (!getComponentContext().canHandlerRun()) {
+			return;
+		}
+		
 		try {
 			getComponentContext().enterHandler();
 

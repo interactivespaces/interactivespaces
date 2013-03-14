@@ -130,7 +130,7 @@ public class ActivityComponentContext {
 		handlersAllowed.set(success);
 		startupLatch.countDown();
 	}
-	
+
 	/**
 	 * Shutdown has begun.
 	 */
@@ -171,7 +171,7 @@ public class ActivityComponentContext {
 	 * @return {@code true} if there are handlers in the midst of processing
 	 */
 	public boolean areProcessingHandlers() {
-		return numberProcessingHandlers.get() != 0;
+		return numberProcessingHandlers.get() > 0;
 	}
 
 	/**
@@ -225,5 +225,18 @@ public class ActivityComponentContext {
 		} catch (InterruptedException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Can a handler run?
+	 * 
+	 * <p>
+	 * This call requires both {@link #areHandlersAllowed()} and
+	 * {@link #awaitStartup()} to both be {@code true}.
+	 * 
+	 * @return {@code true} if a handle can run.
+	 */
+	public boolean canHandlerRun() {
+		return awaitStartup() && areHandlersAllowed();
 	}
 }

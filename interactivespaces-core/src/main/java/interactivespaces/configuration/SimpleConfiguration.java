@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link Configuration} based on Java properties files.
+ * A simple {@link Configuration}.
  *
  * @author Keith M. Hughes
  */
