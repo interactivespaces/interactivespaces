@@ -306,23 +306,23 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 	 *            the message that came in
 	 */
 	void handleNewMessage(final String channelName, final T message) {
-		try {
-			getComponentContext().addActivityEventQueueEvent(new Runnable() {
-				@Override
-				public void run() {
+		getComponentContext().addActivityEventQueueEvent(new Runnable() {
+			@Override
+			public void run() {
+				try {
 					// Send the message out to the listener.
 					messageListener.onNewRoutableInputMessage(channelName,
 							message);
+				} catch (Throwable e) {
+					getComponentContext()
+							.getActivity()
+							.getLog()
+							.error(String
+									.format("Error after receiving routing message for channel %s",
+											channelName), e);
 				}
-			});
-		} catch (Exception e) {
-			getComponentContext()
-					.getActivity()
-					.getLog()
-					.error(String.format(
-							"Error after receiving routing message for channel %s",
-							channelName), e);
-		}
+			}
+		});
 	}
 
 	/**
@@ -363,7 +363,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 								.getLog()
 								.error("Route output channel has no name. Message dropped.");
 					}
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					getComponentContext()
 							.getActivity()
 							.getLog()
@@ -373,6 +373,5 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 				}
 			}
 		});
-
 	}
 }

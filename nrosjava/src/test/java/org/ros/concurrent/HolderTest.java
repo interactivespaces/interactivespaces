@@ -21,11 +21,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Test;
-
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.Test;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -67,7 +66,7 @@ public class HolderTest {
   public void testHolderAwait() throws InterruptedException {
     final Holder<String> holder = Holder.newEmpty();
     final String message = "Hello, world!";
-    ExecutorService executorService = Executors.newCachedThreadPool();
+    ExecutorService executorService = new DefaultScheduledExecutorService();
     executorService.execute(new Runnable() {
       @Override
       public void run() {

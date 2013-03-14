@@ -18,16 +18,16 @@ package org.ros;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.node.DefaultNodeMainExecutor;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is a base class for tests that sets up and tears down a {@link RosCore}
@@ -45,7 +45,7 @@ public abstract class RosTest {
 
   @Before
   public void setUp() throws InterruptedException {
-	executorService = Executors.newScheduledThreadPool(100);
+	executorService = new DefaultScheduledExecutorService();
     rosCore = RosCore.newPrivate(executorService);
     rosCore.start();
     assertTrue(rosCore.awaitStart(1, TimeUnit.SECONDS));

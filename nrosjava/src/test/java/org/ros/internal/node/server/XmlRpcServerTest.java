@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.After;
@@ -30,6 +29,7 @@ import org.junit.Test;
 import org.ros.address.Address;
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.internal.node.xmlrpc.XmlRpcEndpoint;
 
 /**
@@ -44,7 +44,7 @@ public class XmlRpcServerTest {
 
   @Before
   public void before() {
-    executorService = Executors.newScheduledThreadPool(100);
+    executorService = new DefaultScheduledExecutorService();
   }
 
   @After

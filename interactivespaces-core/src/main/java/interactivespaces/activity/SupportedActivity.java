@@ -58,6 +58,22 @@ public interface SupportedActivity {
 	void onActivityStartup();
 
 	/**
+	 * Called after the startup of the activity.
+	 * 
+	 * <p>
+	 * Once this is called, the activity is assumed to be fully configured,
+	 * initialized, and running. There can be some race conditions with native
+	 * activity startup (they may not be fully started, so waiting until you
+	 * receive websocket or other connections is wise when using native
+	 * compoenents), so do be aware of this.
+	 * 
+	 * <p>
+	 * The activity will be considered running even if this method throws an
+	 * exception. The exception will be properly logged.
+	 */
+	void onActivityPostStartup();
+
+	/**
 	 * Called before the shutdown of the activity.
 	 * 
 	 * <p>

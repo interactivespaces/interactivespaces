@@ -129,6 +129,7 @@ public class BaseActivityTest {
 
 		activityInOrder.verify(activity).onActivitySetup();
 		activityInOrder.verify(activity).onActivityStartup();
+		activityInOrder.verify(activity).onActivityPostStartup();
 
 		componentInOrder.verify(component).configureComponent(configuration,
 				activity.getActivityComponentContext());
@@ -199,6 +200,9 @@ public class BaseActivityTest {
 		activity.startup();
 
 		activityInOrder.verify(activity).onActivitySetup();
+		Mockito.verify(activity, Mockito.never()).onActivityStartup();
+		Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
 		assertEquals(ActivityState.STARTUP_FAILURE, activity
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
@@ -221,6 +225,9 @@ public class BaseActivityTest {
 		activity.startup();
 
 		activityInOrder.verify(activity).onActivitySetup();
+		Mockito.verify(activity, Mockito.never()).onActivityStartup();
+		Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
 		assertEquals(ActivityState.STARTUP_FAILURE, activity
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
@@ -243,6 +250,9 @@ public class BaseActivityTest {
 		activity.startup();
 
 		activityInOrder.verify(activity).onActivitySetup();
+		Mockito.verify(activity, Mockito.never()).onActivityStartup();
+		Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
 		assertEquals(ActivityState.STARTUP_FAILURE, activity
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
@@ -272,6 +282,9 @@ public class BaseActivityTest {
 		activity.startup();
 
 		activityInOrder.verify(activity).onActivitySetup();
+		Mockito.verify(activity, Mockito.never()).onActivityStartup();
+		Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
 		assertEquals(ActivityState.STARTUP_FAILURE, activity
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
@@ -300,6 +313,8 @@ public class BaseActivityTest {
 
 		activityInOrder.verify(activity).onActivitySetup();
 		activityInOrder.verify(activity).onActivityStartup();
+		Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
 		assertEquals(ActivityState.STARTUP_FAILURE, activity
 				.getActivityStatus().getState());
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
@@ -310,6 +325,35 @@ public class BaseActivityTest {
 		componentInOrder.verify(component).startupComponent();
 
 		assertActivityComponentContextProcessing(false);
+	}
+
+	/**
+	 * Test that a clean startup with broken Post Startup will actually end up
+	 * with a running activity.
+	 */
+	@Test
+	public void testBrokenPostStartup() {
+		Exception e = new RuntimeException();
+		Mockito.doThrow(e).when(activity).onActivityPostStartup();
+
+		activity.startup();
+
+		activityInOrder.verify(activity).onActivitySetup();
+		activityInOrder.verify(activity).onActivityStartup();
+		activityInOrder.verify(activity).onActivityPostStartup();
+
+		componentInOrder.verify(component).configureComponent(configuration,
+				activity.getActivityComponentContext());
+		componentInOrder.verify(component).startupComponent();
+
+		assertEquals(ActivityState.RUNNING, activity.getActivityStatus()
+				.getState());
+
+		assertActivityComponentContextProcessing(true);
+		
+		// Make sure the failure is logged.
+		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
+				Mockito.eq(e));
 	}
 
 	/**

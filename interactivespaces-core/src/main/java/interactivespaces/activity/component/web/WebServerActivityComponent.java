@@ -446,7 +446,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				public void run() {
 					try {
 						delegate.onConnect();
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						activityComponentContext.getActivity().getLog()
 								.error("Error during web socket connection", e);
 					} finally {
@@ -463,7 +463,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				public void run() {
 					try {
 						delegate.onClose();
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						activityComponentContext.getActivity().getLog()
 								.error("Error during web socket close", e);
 					}
@@ -478,7 +478,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				public void run() {
 					try {
 						delegate.onReceive(data);
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						activityComponentContext
 								.getActivity()
 								.getLog()
@@ -496,7 +496,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				public void run() {
 					try {
 						delegate.sendJson(data);
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						activityComponentContext
 								.getActivity()
 								.getLog()
@@ -514,7 +514,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 				public void run() {
 					try {
 						delegate.sendString(data);
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						activityComponentContext
 								.getActivity()
 								.getLog()
