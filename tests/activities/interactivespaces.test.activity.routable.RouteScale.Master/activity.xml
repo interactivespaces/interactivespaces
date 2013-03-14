@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<activity builder="java">
+    <name>RouteMaster</name>
+    <description>
+A test activity that reads and routes a large number of routes
+    </description>
+    <version>1.0.0</version>
+    <identifyingName>interactivespace.test.activity.routable.RouteScale.Master</identifyingName>
+</activity>
