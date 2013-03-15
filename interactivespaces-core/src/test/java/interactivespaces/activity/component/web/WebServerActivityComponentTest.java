@@ -283,26 +283,6 @@ public class WebServerActivityComponentTest {
 	}
 
 	/**
-	 * Test the sendJson of the web socket handler when context won't allow it
-	 * to run.
-	 */
-	@Test
-	public void testMyWebServerWebSocketHandlerSendJsonNoRun() {
-		Mockito.when(activityComponentContext.canHandlerRun())
-				.thenReturn(false);
-
-		Object data = new Object();
-
-		handler.sendJson(data);
-
-		Mockito.verify(delegate, Mockito.never()).sendJson(data);
-
-		Mockito.verify(activityComponentContext, Mockito.never())
-				.enterHandler();
-		Mockito.verify(activityComponentContext, Mockito.never()).exitHandler();
-	}
-
-	/**
 	 * Test the sendString of the web socket handler.
 	 */
 	@Test
@@ -344,25 +324,5 @@ public class WebServerActivityComponentTest {
 
 		Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(),
 				Mockito.eq(e));
-	}
-
-	/**
-	 * Test the sendString of the web socket handler when context won't allow it
-	 * to run.
-	 */
-	@Test
-	public void testMyWebServerWebSocketHandlerSendStringNoRun() {
-		Mockito.when(activityComponentContext.canHandlerRun())
-				.thenReturn(false);
-
-		String data = "yowza";
-
-		handler.sendString(data);
-
-		Mockito.verify(delegate, Mockito.never()).sendString(data);
-
-		Mockito.verify(activityComponentContext, Mockito.never())
-				.enterHandler();
-		Mockito.verify(activityComponentContext, Mockito.never()).exitHandler();
 	}
 }

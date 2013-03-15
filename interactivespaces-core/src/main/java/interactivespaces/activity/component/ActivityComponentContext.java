@@ -18,7 +18,6 @@ package interactivespaces.activity.component;
 
 import interactivespaces.activity.Activity;
 import interactivespaces.util.InteractiveSpacesUtilities;
-import interactivespaces.util.concurrency.AcceptingPriorityEventQueue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
