@@ -190,8 +190,6 @@
 
 		<property name="spaceEnvironment" ref="interactivespaces.environment" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
-
 		<property name="repositoryStorageManager"
 			ref="interactivespaces.activity.repository.storage" />
 	</bean>

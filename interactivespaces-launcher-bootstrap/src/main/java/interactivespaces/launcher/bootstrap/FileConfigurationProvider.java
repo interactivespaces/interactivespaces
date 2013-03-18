@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
- * A configuration provider from a map..
+ * A configuration provider from a file.
  * 
  * @author Keith M. Hughes
  */

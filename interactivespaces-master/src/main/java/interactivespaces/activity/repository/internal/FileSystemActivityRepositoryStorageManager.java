@@ -33,8 +33,9 @@ import java.util.zip.ZipFile;
 import com.google.common.collect.Maps;
 
 /**
- * A {@link ActivityRepositoryStorageManager} which stores activities in the file system.
- *
+ * A {@link ActivityRepositoryStorageManager} which stores activities in the
+ * file system.
+ * 
  * <p>
  * This storage manager assumes that staged activities are stored as ZIP files.
  * 
@@ -92,7 +93,11 @@ public class FileSystemActivityRepositoryStorageManager implements
 		Configuration systemConfiguration = spaceEnvironment
 				.getSystemConfiguration();
 
+		File baseInstallDir = spaceEnvironment.getFilesystem()
+				.getInstallDirectory();
+
 		stagingDirectory = new File(
+				baseInstallDir,
 				systemConfiguration
 						.getRequiredPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION));
 		// TODO(keith): Good utility function?
@@ -121,7 +126,7 @@ public class FileSystemActivityRepositoryStorageManager implements
 		repositoryPath = systemConfiguration.getPropertyString(
 				CONFIGURATION_REPOSITORY_ACTIVITY_LOCATION,
 				DEFAULT_REPOSITORY_ACTIVITY_LOCATION);
-		repositoryBaseLocation = new File(repositoryPath);
+		repositoryBaseLocation = new File(baseInstallDir, repositoryPath);
 	}
 
 	@Override
@@ -141,9 +146,8 @@ public class FileSystemActivityRepositoryStorageManager implements
 
 	@Override
 	public String getRepositoryActivityName(Activity activity) {
-		return activity.getIdentifyingName() + "-"
-				+ activity.getVersion() + "."
-				+ ACTIVITY_ARCHIVE_EXTENSION;
+		return activity.getIdentifyingName() + "-" + activity.getVersion()
+				+ "." + ACTIVITY_ARCHIVE_EXTENSION;
 	}
 
 	@Override
@@ -160,7 +164,8 @@ public class FileSystemActivityRepositoryStorageManager implements
 
 			return handle;
 		} catch (IOException e) {
-			throw new InteractiveSpacesException("Could not stage activity file", e);
+			throw new InteractiveSpacesException(
+					"Could not stage activity file", e);
 		}
 	}
 
@@ -200,7 +205,8 @@ public class FileSystemActivityRepositoryStorageManager implements
 			if (stagingFile != null) {
 				Files.copyFile(stagingFile, getRepositoryFile(activity));
 			} else {
-				throw new InteractiveSpacesException("Unknown staging handle " + stageHandle);
+				throw new InteractiveSpacesException("Unknown staging handle "
+						+ stageHandle);
 			}
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
@@ -224,7 +230,8 @@ public class FileSystemActivityRepositoryStorageManager implements
 	 * @param spaceEnvironment
 	 *            the spaceEnvironment to set
 	 */
-	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;
 	}
 

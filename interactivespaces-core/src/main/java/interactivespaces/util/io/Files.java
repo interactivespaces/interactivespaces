@@ -368,7 +368,7 @@ public class Files {
 	 */
 	public static void directoryExists(File dir) {
 		if (dir.exists()) {
-			if (dir.isFile()) {
+			if (!dir.isDirectory()) {
 				throw new InteractiveSpacesException(String.format(
 						"%s is not a directory", dir.getAbsolutePath()));
 			}

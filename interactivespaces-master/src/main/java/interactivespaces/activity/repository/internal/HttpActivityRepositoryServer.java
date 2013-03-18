@@ -25,7 +25,6 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.File;
 
-import org.apache.commons.logging.Log;
 import org.ros.osgi.common.RosEnvironment;
 
 /**
@@ -33,8 +32,19 @@ import org.ros.osgi.common.RosEnvironment;
  * 
  * @author Keith M. Hughes
  */
-public class HttpActivityRepositoryServer implements
-		ActivityRepositoryServer {
+public class HttpActivityRepositoryServer implements ActivityRepositoryServer {
+
+	/**
+	 * Default port for the HTTP server which serves activities during
+	 * deployment.
+	 */
+	public static final String CONFIGURATION_PROPERTY_ACTIVITY_RESPOSITORY_SERVER_PORT = "interactivespaces.repository.activities.server.port";
+
+	/**
+	 * Default port for the HTTP server which serves activities during
+	 * deployment.
+	 */
+	public static final int ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT = 10000;
 
 	/**
 	 * The internal name given to the web server being used for the activity
@@ -77,30 +87,36 @@ public class HttpActivityRepositoryServer implements
 	 */
 	private ActivityRepositoryStorageManager repositoryStorageManager;
 
-	/**
-	 * Logger for this server.
-	 */
-	private Log log;
-
 	@Override
 	public void startup() {
-		repositoryPort = 10000;
-		repositoryServer = new NettyWebServer(
-				ACTIVITY_REPOSITORY_SERVER_NAME, repositoryPort,
+		repositoryPort = spaceEnvironment
+				.getSystemConfiguration()
+				.getPropertyInteger(
+						CONFIGURATION_PROPERTY_ACTIVITY_RESPOSITORY_SERVER_PORT,
+						ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT);
+		repositoryServer = new NettyWebServer(ACTIVITY_REPOSITORY_SERVER_NAME,
+				repositoryPort, spaceEnvironment.getExecutorService(),
 				spaceEnvironment.getExecutorService(),
-				spaceEnvironment.getExecutorService(), log);
+				spaceEnvironment.getLog());
 
 		repositoryServer.startup();
 
-		// TODO(keith): Web server should bind to a host or localhost. Add
-		// getHost()
-		// method.
 		String webappPath = "/" + repositoryUrlPathPrefix;
 		repositoryBaseUrl = "http://" + rosEnvironment.getHost() + ":"
 				+ repositoryServer.getPort() + webappPath;
 
-		repositoryServer.addStaticContentHandler(webappPath, new File(
-				repositoryStorageManager.getRepositoryBaseLocation()));
+		File repositoryBaseFolder = new File(
+				repositoryStorageManager.getRepositoryBaseLocation());
+		repositoryServer.addStaticContentHandler(webappPath, repositoryBaseFolder);
+
+		spaceEnvironment.getLog().info(
+				String.format(
+						"HTTP Activity repository started with base URL %s",
+						repositoryBaseUrl));
+		spaceEnvironment.getLog().info(
+				String.format(
+						"HTTP Activity repository serving from %s",
+						repositoryBaseFolder.getAbsolutePath()));
 	}
 
 	@Override
@@ -111,12 +127,9 @@ public class HttpActivityRepositoryServer implements
 	@Override
 	public String getActivityUri(Activity activity) {
 		// TODO(keith): Get this from something fancier which we can store apps
-		// in,
-		// get their meta-data, etc.
-		return repositoryBaseUrl
-				+ "/"
-				+ repositoryStorageManager
-						.getRepositoryActivityName(activity);
+		// in, get their meta-data, etc.
+		return repositoryBaseUrl + "/"
+				+ repositoryStorageManager.getRepositoryActivityName(activity);
 	}
 
 	/**
@@ -131,7 +144,8 @@ public class HttpActivityRepositoryServer implements
 	 * @param spaceEnvironment
 	 *            the spaceEnvironment to set
 	 */
-	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;
 	}
 
@@ -143,13 +157,4 @@ public class HttpActivityRepositoryServer implements
 			ActivityRepositoryStorageManager repositoryStorageManager) {
 		this.repositoryStorageManager = repositoryStorageManager;
 	}
-
-	/**
-	 * @param log
-	 *            the log to set
-	 */
-	public void setLog(Log log) {
-		this.log = log;
-	}
-
 }

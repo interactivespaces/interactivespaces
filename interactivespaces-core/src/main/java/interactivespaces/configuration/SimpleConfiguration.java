@@ -66,5 +66,7 @@ public class SimpleConfiguration extends BaseConfiguration {
 		if (parent != null) {
 			parent.addCollapsedEntries(map);
 		}
+		
+		map.putAll(values);
 	}
 }
