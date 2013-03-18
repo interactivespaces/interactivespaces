@@ -20,16 +20,25 @@ import example
 from interactivespaces.activity.impl import BaseActivity
 
 class HelloActivity(BaseActivity):
+    def onActivitySetup(self):
+        self.log.info("Hello Python Activity setup")
+
     def onActivityStartup(self):
         releaseTest()
         example.test()
         self.log.info("Hello Python Activity startup")
+
+    def onActivityPostStartup(self):
+        self.log.info("Hello Python Activity post startup")
 
     def onActivityActivate(self):
         self.log.info("Hello Python Activity activated")
 
     def onActivityDeactivate(self):
         self.log.info("Hello Python Activity deactivated")
+
+    def onActivityPreShutdown(self):
+        self.log.info("Hello Python Activity pre shutting down")
 
     def onActivityShutdown(self):
         self.log.info("Hello Python Activity shutting down")

@@ -23,12 +23,20 @@ interactivespaces.activity.impl.BaseActivity {
         this.getLog().info("Hello Javascript Activity startup");
     },
 
+    onActivityPostStartup: function() {
+        this.getLog().info("Hello Javascript Activity post startup");
+    },
+
     onActivityActivate: function() {
         this.getLog().info("Hello Javascript Activity activate");
     },
 
     onActivityDeactivate: function() {
         this.getLog().info("Hello Javascript Activity deactivate");
+    },
+
+    onActivityPreShutdown: function() {
+        this.getLog().info("Hello Javascript Activity pre shutdown");
     },
 
     onActivityShutdown: function() {

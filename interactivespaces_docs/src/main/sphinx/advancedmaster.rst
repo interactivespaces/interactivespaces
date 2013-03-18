@@ -311,6 +311,97 @@ The service will be called *automationManager* in your script.
 You can find detailed documentation in the
 :javadoc:`interactivespaces.master.server.services.AutomationManager` Javadoc.
 
+Moving Ports for the Master
+===========================
+
+Sometimes you might not be able to use the default ports that the Interactive Spaces
+Master uses.
+
+The Master contains a ROS master used by the core communication facilities provided
+by Interactive Spaces. The file `config/container.conf` contains a line
+like
+
+::
+
+  org.ros.master.uri=http://masterhost:11311/
+
+where `masterhost` is the host name for the machine the Master is running on.
+The port, here `11311`, can be changed on this line to any other port. For
+example, if the ROS master should run on port `11312`, this line should become
+
+::
+
+  org.ros.master.uri=http://masterhost:11312/
+
+
+The Master Web Application's port, `8080` by default, can be changed with the configuration
+property `org.osgi.service.http.port`. This property is set in `config/container.conf`.
+
+The Master uses an HTTP server for deploying Live Activities to their controllers. The controller
+receives a URL for this server when the Master tells it a Live Activity is being deployed to
+the controller. The port for this HTTP server can be changed with the
+configuration property `interactivespaces.master.api.websocket.port`. The default value of
+`10000` is used if this property doesn't exist. This configuration property should be set
+in `config/interactivespaces/master.conf`.
+
+Notification for Issues
+=======================
+
+The Space Controllers are constantly sending a heartbeat back to the Master so that the master
+knows the Space Controllers are still connected and alive. If a Space Controller dies or loses
+network connectivity, it is possible to receive an alert.
+
+Email Alerts
+------------
+
+The only alert mechanism available out of the box is an email-based one.
+The alert mechanism will send an email containing information about the alert
+to a group of email addresses.
+
+The email alert mechasigm is configured through the file `config/mail.conf`.
+A sample file is given below.
+
+::
+
+  interactivespaces.mail.smtp.host=192.168.172.12
+  interactivespaces.mail.smtp.port=25
+
+  interactivespaces.service.alert.notifier.mail.to = person1@foo.com person2@foo.com
+  interactivespaces.service.alert.notifier.mail.from = interactivespaces@foo.com
+  interactivespaces.service.alert.notifier.mail.subject = Death, doom, and destruction in My Space
+
+The property `interactivespaces.mail.smtp.host` specifies a host running an SMTP server which
+will relay the alert. The` property `interactivespaces.mail.smtp.port` can
+be used to specify the port this SMTP server is listening on.
+
+The property `interactivespaces.service.alert.notifier.mail.to` specifies who should
+receive the alert email. The recipient email addresses on this list are separated by
+spaces or tabs, and there can be as many addresses as are needed.
+
+The property `interactivespaces.service.alert.notifier.mail.from` specifies what the
+From address of the email will be.
+
+The property `interactivespaces.service.alert.notifier.mail.subject` gives
+the Subject line the alert email will have.
+
+A sample email, though the format is subject to change, for losing contact with a Space Controller
+is
+
+::
+
+  No space controller heartbeat in 30881 milliseconds
+
+  ID: 56
+  UUID: 83aab854-ead1-482e-8ce5-0fcca7b508e8
+  Name: The Living Room Controller
+  HostId: livingroomcontroller
+
+
+
+
+
+
+
 
 
 

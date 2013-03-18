@@ -39,6 +39,11 @@ public class HelloActivity extends BaseActivity {
 	}
 
 	@Override
+	public void onActivityPostStartup() {
+		getLog().info("Hello Activity post startup");
+	}
+
+	@Override
 	public void onActivityActivate() {
 		getLog().info("Hello Activity activate");
 	}
@@ -46,6 +51,11 @@ public class HelloActivity extends BaseActivity {
 	@Override
 	public void onActivityDeactivate() {
 		getLog().info("Hello Activity deactivate");
+	}
+
+	@Override
+	public void onActivityPreShutdown() {
+		getLog().info("Hello Activity pre shutdown");
 	}
 
 	@Override

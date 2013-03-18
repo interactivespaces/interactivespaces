@@ -17,6 +17,11 @@ public class SimpleJavaActivity extends BaseActivity {
 		getLog().info("Activity ${project.activityDescription.identifyingName} startup");
 	}
 
+    @Override
+    public void onActivityPostStartup() {
+        getLog().info("Activity ${project.activityDescription.identifyingName} post startup");
+    }
+
 	@Override
 	public void onActivityActivate() {
 		getLog().info("Activity ${project.activityDescription.identifyingName} activate");
@@ -26,6 +31,11 @@ public class SimpleJavaActivity extends BaseActivity {
 	public void onActivityDeactivate() {
 		getLog().info("Activity ${project.activityDescription.identifyingName} deactivate");
 	}
+
+    @Override
+    public void onActivityPreShutdown() {
+        getLog().info("Activity ${project.activityDescription.identifyingName} pre shutdown");
+    }
 
 	@Override
 	public void onActivityShutdown() {

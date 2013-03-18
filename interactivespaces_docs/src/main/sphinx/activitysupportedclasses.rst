@@ -38,7 +38,8 @@ This is the first event method called
 and is called only once. Very minimal things will be set up for the Activity.
 The method should be used to set anything up that 
 doesn't require access to Activity Components or any other configured 
-items.
+items. This means that routes, web socket servers, and other communication
+channels are not available.
 
 The following resources are available:
 
@@ -46,6 +47,9 @@ The following resources are available:
 * the Activity's initial configuration
 * the Activity's log
 * The Space Controller the Activity is running in
+
+This method should throw an exception if it can't properly setup. This will cause
+the Activity startup to fail.
 
 .. _onActivityStartup-reference-label:
 
@@ -55,14 +59,51 @@ The following resources are available:
 
 This method is called once when the Activity is starting up.
 It is called after 
-The Activity is fully configured and all
+the Activity is fully configured and all
 Activity components, such as web servers and communication channels,
-are running.
+are running, though are not processing events yet. Incoming messages on routes
+and web socket communications with the web servers are not handled until this
+method has completed. It is not recommended that messages be sent out during
+this method. Messages should be sent in
+ref:`onActivityPostStartup <onActivityPostStartup-reference-label>`.
 
-This method should throw an exception if it can't properly start.
+
+This method should throw an exception if it can't properly start. This will cause
+the Activity startup to fail.
 
 It is called after
 :ref:`onActivitySetup <onActivitySetup-reference-label>`.
+
+.. _onActivityPostStartup-reference-label:
+
+
+``void onActivityPostStartup()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method is called once after the Activity has completed starting up.
+
+At this point everything is fully running, event handlers are processing events,
+and it is completely safe to start sending messages via routes.
+
+Do be aware, though, that not all web socket connections will necessarily be made
+at this point. Initial data for web socket can be created in the
+:ref:`onActivityStartup <onActivityStartup-reference-label>`
+event and sent once the web socket ``onConnect`` event is received.
+
+If this method throws an exception, the Activity will still start.
+
+It is called after
+:ref:`onActivityStartup <onActivityStartup-reference-label>`.
+
+.. _onActivityPreShutdown-reference-label:
+
+``void onActivityPreShutdown()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method is called first when the Activity is shutting down. It provides
+an opportunity to send out messages on any communication channels before
+those channels are shutdown in
+:ref:`onActivityShutdown <onActivityShutdown-reference-label>`.
 
 .. _onActivityShutdown-reference-label:
 
@@ -72,15 +113,19 @@ It is called after
 This method is called when the Activity is shutting down.
 It should be
 used to properly shut down anything that the Activity needed that wasn't
-automatically supported (such as components).
+automatically supported (such as components). Any communication channels
+such as routes or websockets will not be available during this call.
 
 This method should throw an exception if it can't shutdown.
 
-There is another method called 
-:ref:`onActivityCleanup <onActivityCleanup-reference-label>` which will
-always be called whether the activity shuts down or crashes. It is called
-after ``onActivityShutdown``, even if ``onActivityShutdown`` throws an
-exception.
+This method is called after
+:ref:`onActivityPreShutdown <onActivityPreShutdown-reference-label>`.
+
+Do consider doing any shutdown cleanup of your Activity in
+:ref:`onActivityCleanup <onActivityCleanup-reference-label>`
+as it is called whether the Activity shuts down or crashes.
+
+
 
 ``void onActivityActivate()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -7,6 +7,10 @@ interactivespaces.activity.impl.BaseActivity {
         this.getLog().info("${project.activityDescription.identifyingName} startup");
     },
 
+    onActivityPostStartup: function() {
+        this.getLog().info("${project.activityDescription.identifyingName} post startup");
+    },
+
     onActivityActivate: function() {
         this.getLog().info("Activity ${project.activityDescription.identifyingName} activate");
     },
@@ -14,6 +18,10 @@ interactivespaces.activity.impl.BaseActivity {
     onActivityDeactivate: function() {
         this.getLog().info("Activity ${project.activityDescription.identifyingName} deactivate");
     }
+
+    onActivityPreShutdown: function() {
+        this.getLog().info("Activity ${project.activityDescription.identifyingName} pre shutdown");
+    },
 
     onActivityShutdown: function() {
         this.getLog().info("Activity ${project.activityDescription.identifyingName} shutdown");
