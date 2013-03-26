@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.activity.installation;
 
+import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
+
 /**
  * A listener for events from activity installs.
  *
@@ -42,6 +44,8 @@ public interface ActivityInstallationListener {
 	 * 
 	 * @param uuid
 	 * 		UUID of the removed activity.
+	 * @param result
+	 * 		result of the removal
 	 */
-	void onActivityRemove(String uuid);
+	void onActivityRemove(String uuid, RemoveActivityResult result);
 }

@@ -18,6 +18,8 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 /**
  * A support implementation of {@link SpaceControllerListener} which provides
@@ -50,13 +52,14 @@ public abstract class SpaceControllerListenerSupport implements
 	}
 
 	@Override
-	public void onLiveActivityInstall(String uuid, boolean success,
-			long timestamp) {
+	public void onLiveActivityInstall(String uuid,
+			LiveActivityInstallResult result, long timestamp) {
 		// Default is do nothing.
 	}
 
 	@Override
-	public void onLiveActivityDelete(String uuid, boolean success,
+	public void onLiveActivityDelete(String uuid,
+			LiveActivityDeleteResult result,
 			long timestamp) {
 		// Default is do nothing.
 	}

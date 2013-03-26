@@ -35,6 +35,7 @@ import interactivespaces.controller.activity.configuration.ActivityConfiguration
 import interactivespaces.controller.activity.configuration.SimpleActivityConfiguration;
 import interactivespaces.controller.activity.installation.ActivityInstallationListener;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
+import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatcher;
 import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatcherListener;
 import interactivespaces.controller.domain.InstalledLiveActivity;
@@ -212,8 +213,8 @@ public class StandardSpaceController implements SpaceController,
 		}
 
 		@Override
-		public void onActivityRemove(String uuid) {
-			handleActivityRemove(uuid);
+		public void onActivityRemove(String uuid, RemoveActivityResult result) {
+			handleActivityRemove(uuid, result);
 		}
 	};
 
@@ -621,6 +622,10 @@ public class StandardSpaceController implements SpaceController,
 						String.format(
 								"Activity %s does not exist on controller",
 								uuid));
+
+				ActivityStatus status = new ActivityStatus(
+						ActivityState.DOESNT_EXIST, "Activity does not exist");
+				publishActivityStatus(uuid, status);
 			}
 		} catch (Exception e) {
 			ActivityStatus status = new ActivityStatus(
@@ -650,6 +655,10 @@ public class StandardSpaceController implements SpaceController,
 						String.format(
 								"Activity %s does not exist on controller",
 								uuid));
+
+				ActivityStatus status = new ActivityStatus(
+						ActivityState.DOESNT_EXIST, "Activity does not exist");
+				publishActivityStatus(uuid, status);
 			}
 		}
 	}
@@ -680,8 +689,80 @@ public class StandardSpaceController implements SpaceController,
 						String.format(
 								"Activity %s does not exist on controller",
 								uuid));
+
+				ActivityStatus status = new ActivityStatus(
+						ActivityState.DOESNT_EXIST, "Activity does not exist");
+				publishActivityStatus(uuid, status);
 			}
 		}
+	}
+
+	@Override
+	public void activateActivity(String uuid) {
+		spaceEnvironment.getLog().info(
+				String.format("Activating activity %s", uuid));
+
+		// Can create since can immediately request activate
+		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+		if (activity != null) {
+			attemptActivityActivate(activity);
+		} else {
+			spaceEnvironment.getLog().warn(
+					String.format("Activity %s does not exist on controller",
+							uuid));
+
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.DOESNT_EXIST, "Activity does not exist");
+			publishActivityStatus(uuid, status);
+		}
+	}
+
+	@Override
+	public void deactivateActivity(String uuid) {
+		spaceEnvironment.getLog().info(
+				String.format("Deactivating activity %s", uuid));
+
+		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+		if (activity != null) {
+			attemptActivityDeactivate(activity);
+		} else {
+			spaceEnvironment.getLog().warn(
+					String.format("Activity %s does not exist on controller",
+							uuid));
+
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.DOESNT_EXIST, "Activity does not exist");
+			publishActivityStatus(uuid, status);
+		}
+	}
+
+	@Override
+	public void configureActivity(String uuid, Map<String, Object> configuration) {
+		spaceEnvironment.getLog().info(
+				String.format("Configuring activity %s", uuid));
+
+		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+		if (activity != null) {
+			activity.updateConfiguration(configuration);
+		} else {
+			spaceEnvironment.getLog().warn(
+					String.format("Activity %s does not exist on controller",
+							uuid));
+
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.DOESNT_EXIST, "Activity does not exist");
+			publishActivityStatus(uuid, status);
+		}
+	}
+
+	@Override
+	public NativeActivityRunnerFactory getNativeActivityRunnerFactory() {
+		return nativeActivityRunnerFactory;
+	}
+
+	@Override
+	public ActiveControllerActivity getActiveActivityByUuid(String uuid) {
+		return getActiveActivityByUuid(uuid, false);
 	}
 
 	/**
@@ -700,62 +781,6 @@ public class StandardSpaceController implements SpaceController,
 				controllerCommunicator.publishActivityStatus(uuid, status);
 			}
 		});
-	}
-
-	@Override
-	public void activateActivity(String uuid) {
-		spaceEnvironment.getLog().info(
-				String.format("Activating activity %s", uuid));
-
-		// Can create since can immediately request activate
-		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
-		if (activity != null) {
-			attemptActivityActivate(activity);
-		} else {
-			spaceEnvironment.getLog().warn(
-					String.format("Activity %s does not exist on controller",
-							uuid));
-		}
-	}
-
-	@Override
-	public void deactivateActivity(String uuid) {
-		spaceEnvironment.getLog().info(
-				String.format("Deactivating activity %s", uuid));
-
-		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
-		if (activity != null) {
-			attemptActivityDeactivate(activity);
-		} else {
-			spaceEnvironment.getLog().warn(
-					String.format("Activity %s does not exist on controller",
-							uuid));
-		}
-	}
-
-	@Override
-	public void configureActivity(String uuid, Map<String, Object> configuration) {
-		spaceEnvironment.getLog().info(
-				String.format("Configuring activity %s", uuid));
-
-		ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
-		if (activity != null) {
-			activity.updateConfiguration(configuration);
-		} else {
-			spaceEnvironment.getLog().warn(
-					String.format("Activity %s does not exist on controller",
-							uuid));
-		}
-	}
-
-	@Override
-	public NativeActivityRunnerFactory getNativeActivityRunnerFactory() {
-		return nativeActivityRunnerFactory;
-	}
-
-	@Override
-	public ActiveControllerActivity getActiveActivityByUuid(String uuid) {
-		return getActiveActivityByUuid(uuid, false);
 	}
 
 	/**
@@ -1065,10 +1090,18 @@ public class StandardSpaceController implements SpaceController,
 	 * 
 	 * @param uuid
 	 *            UUID of the installed activity.
+	 * @param result
+	 *            result of the removal
 	 */
-	private void handleActivityRemove(String uuid) {
+	private void handleActivityRemove(String uuid, RemoveActivityResult result) {
 		spaceEnvironment.getLog().info(
 				String.format("Removed activity %s", uuid));
+
+		if (result == RemoveActivityResult.DOESNT_EXIST) {
+			ActivityStatus status = new ActivityStatus(
+					ActivityState.DOESNT_EXIST, "Activity does not exist");
+			publishActivityStatus(uuid, status);
+		}
 	}
 
 	/**
@@ -1117,6 +1150,9 @@ public class StandardSpaceController implements SpaceController,
 		webSocketClientService.startup();
 	}
 
+	/**
+	 * Shutdown the core services provided by all controllers.
+	 */
 	private void shutdownCoreControllerServices() {
 		ServiceRegistry serviceRegistry = getSpaceEnvironment()
 				.getServiceRegistry();

@@ -18,6 +18,8 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -116,15 +118,15 @@ public class SpaceControllerListenerHelper {
 	 * 
 	 * @param uuid
 	 *            UUID of the live activity
-	 * @param success
-	 *            {@code true} if the install was successful
+	 * @param result
+	 *            result of the install
 	 * @param timestamp
 	 *            timestamp of the deployment
 	 */
-	public void signalActivityInstall(String uuid, boolean success,
-			long timestamp) {
+	public void signalActivityInstall(String uuid,
+			LiveActivityInstallResult result, long timestamp) {
 		for (SpaceControllerListener listener : listeners) {
-			listener.onLiveActivityInstall(uuid, success, timestamp);
+			listener.onLiveActivityInstall(uuid, result, timestamp);
 		}
 	}
 
@@ -133,15 +135,15 @@ public class SpaceControllerListenerHelper {
 	 * 
 	 * @param uuid
 	 *            UUID of the live activity
-	 * @param success
-	 *            {@code true} if the deletion was successful
+	 * @param result
+	 *            result of the deletion
 	 * @param timestamp
 	 *            timestamp of the deletion
 	 */
-	public void signalActivityDelete(String uuid, boolean success,
-			long timestamp) {
+	public void signalActivityDelete(String uuid,
+			LiveActivityDeleteResult result, long timestamp) {
 		for (SpaceControllerListener listener : listeners) {
-			listener.onLiveActivityDelete(uuid, success, timestamp);
+			listener.onLiveActivityDelete(uuid, result, timestamp);
 		}
 	}
 

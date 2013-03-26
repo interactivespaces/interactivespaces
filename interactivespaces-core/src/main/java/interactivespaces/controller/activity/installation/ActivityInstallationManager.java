@@ -61,16 +61,6 @@ public interface ActivityInstallationManager {
 			String version);
 
 	/**
-	 * Delete an activity from the file system.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity
-	 * 
-	 * @return {@code true} if the activity was found and removed
-	 */
-	boolean removeActivity(String uuid);
-
-	/**
 	 * Delete the packed activity from file system.
 	 * 
 	 * <p>
@@ -80,6 +70,16 @@ public interface ActivityInstallationManager {
 	 *            UUID of the activity.
 	 */
 	void removePackedActivity(String uuid);
+
+	/**
+	 * Delete an activity from the file system.
+	 * 
+	 * @param uuid
+	 *            UUID of the activity
+	 * 
+	 * @return result of the removal
+	 */
+	RemoveActivityResult removeActivity(String uuid);
 
 	/**
 	 * Add in a new activity installation listener.
@@ -100,4 +100,15 @@ public interface ActivityInstallationManager {
 	 */
 	void removeActivityInstallationListener(
 			ActivityInstallationListener listener);
+	
+	/**
+	 * Results for trying to remove an activity from the system.
+	 *
+	 * @author Keith M. Hughes
+	 */
+	public enum RemoveActivityResult {
+		SUCCESS,
+		FAILURE,
+		DOESNT_EXIST
+	}
 }

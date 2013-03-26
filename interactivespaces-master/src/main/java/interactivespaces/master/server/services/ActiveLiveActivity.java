@@ -68,7 +68,7 @@ public class ActiveLiveActivity {
 	 * This is local knowledge about what is true about the remote version of
 	 * the activity.
 	 */
-	private ActivityState deployState = ActivityState.READY;
+	private ActivityState deployState = ActivityState.UNKNOWN;
 
 	/**
 	 * The last state update. {@code null} means there hasn't been one yet.

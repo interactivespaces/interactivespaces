@@ -201,24 +201,6 @@ public class SimpleActivityInstallationManager implements
 	}
 
 	@Override
-	public boolean removeActivity(String uuid) {
-		// TODO(keith): Move this elsewhere
-		InstalledLiveActivity activity = controllerRepository
-				.getInstalledLiveActivityByUuid(uuid);
-		if (activity != null) {
-			controllerRepository.deleteInstalledLiveActivity(activity);
-
-			activityStorageManager.removeActivityLocation(uuid);
-
-			notifyRemovedActivity(uuid);
-
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
 	public void removePackedActivity(String uuid) {
 		File stagedLocation = null;
 		synchronized (uuidToTemporary) {
@@ -238,6 +220,27 @@ public class SimpleActivityInstallationManager implements
 		}
 	}
 
+	@Override
+	public RemoveActivityResult removeActivity(String uuid) {
+		// TODO(keith): Move this elsewhere
+		RemoveActivityResult result;
+		InstalledLiveActivity activity = controllerRepository
+				.getInstalledLiveActivityByUuid(uuid);
+		if (activity != null) {
+			controllerRepository.deleteInstalledLiveActivity(activity);
+
+			activityStorageManager.removeActivityLocation(uuid);
+
+			result = RemoveActivityResult.SUCCESS;
+		} else {
+			result = RemoveActivityResult.DOESNT_EXIST;
+		}
+
+		notifyRemovedActivity(uuid, result);
+
+		return result;
+	}
+
 	/**
 	 * Notify everyone who needs to know that an activity has been installed.
 	 * 
@@ -254,11 +257,13 @@ public class SimpleActivityInstallationManager implements
 	 * Notify everyone who needs to know that an activity has been removed.
 	 * 
 	 * @param uuid
-	 *            UUID of the installed activity.
+	 *            UUID of the removed activity
+	 * @param result
+	 *            result of the removal
 	 */
-	private void notifyRemovedActivity(String uuid) {
+	private void notifyRemovedActivity(String uuid, RemoveActivityResult result) {
 		for (ActivityInstallationListener listener : getListeners()) {
-			listener.onActivityRemove(uuid);
+			listener.onActivityRemove(uuid, result);
 		}
 	}
 

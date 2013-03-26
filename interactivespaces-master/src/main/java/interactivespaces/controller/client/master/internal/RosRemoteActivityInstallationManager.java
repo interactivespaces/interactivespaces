@@ -104,21 +104,6 @@ public class RosRemoteActivityInstallationManager implements
 	}
 
 	/**
-	 * Signal all listeners about the status of the install.
-	 * 
-	 * @param uuid
-	 *            uuid of the activity which was installed
-	 * @param status
-	 *            status of the install
-	 */
-	private void signalListenersOnInstall(String uuid,
-			RemoteActivityInstallStatus status) {
-		for (RemoteActivityInstallationManagerListener listener : listeners) {
-			listener.onRemoteActivityInstall(uuid, status);
-		}
-	}
-
-	/**
 	 * @param repositoryServer
 	 *            The repository server to use. Can be null.
 	 */

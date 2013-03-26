@@ -17,6 +17,7 @@
 package interactivespaces.controller.client.node.internal;
 
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
+import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteRequest;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteStatus;
@@ -125,10 +126,10 @@ public class SimpleSpaceControllerActivityInstallationManager implements
 	@Override
 	public SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(
 			SpaceControllerLiveActivityDeleteRequest request) {
-		boolean success = false;
+		RemoveActivityResult result = RemoveActivityResult.FAILURE;
 
 		try {
-			success = activityInstallationManager.removeActivity(request
+			result = activityInstallationManager.removeActivity(request
 					.getUuid());
 		} catch (Exception e) {
 			spaceEnvironment.getLog().error(
@@ -136,7 +137,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements
 							request.getUuid()), e);
 		}
 
-		return createDeleteResponse(request, success);
+		return createDeleteResponse(request, result);
 	}
 
 	/**
@@ -144,16 +145,29 @@ public class SimpleSpaceControllerActivityInstallationManager implements
 	 * 
 	 * @param request
 	 *            the deletion request
-	 * @param success
-	 *            {@code true} if the activity was deleted
+	 * @param result
+	 *            result of the deletion request
 	 * 
 	 * @return the response to be sent back
 	 */
 	public SpaceControllerLiveActivityDeleteStatus createDeleteResponse(
-			SpaceControllerLiveActivityDeleteRequest request, boolean success) {
+			SpaceControllerLiveActivityDeleteRequest request,
+			RemoveActivityResult result) {
+		int status;
+		switch (result) {
+		case SUCCESS:
+			status = LiveActivityDeleteStatus.STATUS_SUCCESS;
+			break;
+
+		case DOESNT_EXIST:
+			status = LiveActivityDeleteStatus.STATUS_DOESNT_EXIST;
+			break;
+
+		default:
+			status = LiveActivityDeleteStatus.STATUS_FAILURE;
+		}
+
 		return new SpaceControllerLiveActivityDeleteStatus(request.getUuid(),
-				success ? LiveActivityDeleteStatus.STATUS_SUCCESS
-						: LiveActivityDeleteStatus.STATUS_FAILURE,
-				spaceEnvironment.getTimeProvider().getCurrentTime());
+				status, spaceEnvironment.getTimeProvider().getCurrentTime());
 	}
 }

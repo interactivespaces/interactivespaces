@@ -27,6 +27,8 @@ import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesE
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MasterWebsocketManager;
 import interactivespaces.master.server.ui.UiActivityManager;
@@ -145,12 +147,12 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	}
 
 	@Override
-	public void onLiveActivityInstall(String uuid, boolean success) {
+	public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result) {
 		// Don't care
 	}
 
 	@Override
-	public void onLiveActivityDelete(String uuid, boolean success) {
+	public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
 		// Don't care
 	}
 

@@ -72,7 +72,7 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 
 	@Override
 	public void startup() {
-		log.error("Starting up ROS master server");
+		log.info("Starting up ROS master server");
 		ConnectedNode node = masterRosContext.getNode();
 
 		// TODO(ROS): Part of ROS update

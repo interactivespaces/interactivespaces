@@ -18,6 +18,8 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 /**
  * A listener for events from controllers which are controlled by a
@@ -69,24 +71,24 @@ public interface SpaceControllerListener {
 	 * 
 	 * @param uuid
 	 *            uuid of the activity
-	 * @param success
-	 *            {@code true} if the deployment was successful
+	 * @param result
+	 *            result of the installation attempt
 	 * @param timestamp
 	 *            timestamp of the event
 	 */
-	void onLiveActivityInstall(String uuid, boolean success, long timestamp);
+	void onLiveActivityInstall(String uuid, LiveActivityInstallResult result, long timestamp);
 
 	/**
 	 * An activity has been deleted.
 	 * 
 	 * @param uuid
 	 *            uuid of the activity
-	 * @param success
-	 *            {@code true} if the deletion was successful
+	 * @param result
+	 *            result from the deletion attempt
 	 * @param timestamp
 	 *            timestamp of the event
 	 */
-	void onLiveActivityDelete(String uuid, boolean success, long timestamp);
+	void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result, long timestamp);
 
 	/**
 	 * A live activity has had a state change.

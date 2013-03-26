@@ -25,6 +25,8 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
@@ -444,10 +446,18 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			LiveActivityDeployStatus deployStatus = liveActivityDeployStatusDeserializer
 					.deserialize(status.getData());
 
-			remoteControllerClientListeners
-					.signalActivityInstall(
-							deployStatus.getUuid(),
-							deployStatus.getStatus() == LiveActivityDeployStatus.STATUS_SUCCESS);
+			LiveActivityInstallResult result;
+			switch (deployStatus.getStatus()) {
+			case LiveActivityDeployStatus.STATUS_SUCCESS:
+				result = LiveActivityInstallResult.SUCCESS;
+				break;
+
+			default:
+				result = LiveActivityInstallResult.FAIL;
+			}
+
+			remoteControllerClientListeners.signalActivityInstall(
+					deployStatus.getUuid(), result);
 
 			break;
 
@@ -455,10 +465,22 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			LiveActivityDeleteStatus deleteStatus = liveActivityDeleteStatusDeserializer
 					.deserialize(status.getData());
 
-			remoteControllerClientListeners
-					.signalActivityDelete(
-							deleteStatus.getUuid(),
-							deleteStatus.getStatus() == LiveActivityDeleteStatus.STATUS_SUCCESS);
+			LiveActivityDeleteResult deleteResult;
+			switch (deleteStatus.getStatus()) {
+			case LiveActivityDeleteStatus.STATUS_SUCCESS:
+				deleteResult = LiveActivityDeleteResult.SUCCESS;
+				break;
+
+			case LiveActivityDeleteStatus.STATUS_DOESNT_EXIST:
+				deleteResult = LiveActivityDeleteResult.DOESNT_EXIST;
+				break;
+
+			default:
+				deleteResult = LiveActivityDeleteResult.FAIL;
+			}
+
+			remoteControllerClientListeners.signalActivityDelete(
+					deleteStatus.getUuid(), deleteResult);
 
 			break;
 

@@ -18,6 +18,8 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 /**
  * A listener for changes in activity states.
@@ -68,20 +70,20 @@ public interface RemoteSpaceControllerClientListener {
 	 * 
 	 * @param uuid
 	 *            uuid of the activity
-	 * @param success
-	 *            {@code true} if the deployment was successful
+	 * @param result
+	 *            result of the install
 	 */
-	void onLiveActivityInstall(String uuid, boolean success);
+	void onLiveActivityInstall(String uuid, LiveActivityInstallResult result);
 
 	/**
 	 * An activity has been deleted.
 	 * 
 	 * @param uuid
 	 *            uuid of the activity
-	 * @param success
-	 *            {@code true} if the deletion was successful
+	 * @param result
+	 *            result of the delete
 	 */
-	void onLiveActivityDelete(String uuid, boolean success);
+	void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result);
 
 	/**
 	 * A remote activity has deployment status.

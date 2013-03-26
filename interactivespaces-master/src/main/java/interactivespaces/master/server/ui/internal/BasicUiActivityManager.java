@@ -31,6 +31,7 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerSupport;
+import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MetadataJsonSupport;
 import interactivespaces.master.server.ui.UiActivityManager;
@@ -78,9 +79,9 @@ public class BasicUiActivityManager implements UiActivityManager {
 	public void startup() {
 		controllerListener = new SpaceControllerListenerSupport() {
 			@Override
-			public void onLiveActivityInstall(String uuid, boolean success,
+			public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result,
 					long timestamp) {
-				if (success) {
+				if (result == LiveActivityInstallResult.SUCCESS) {
 					updateLiveActivityDeploymentTime(uuid, timestamp);
 				}
 			}

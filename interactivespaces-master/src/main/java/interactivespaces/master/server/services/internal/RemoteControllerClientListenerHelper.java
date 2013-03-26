@@ -21,7 +21,8 @@ import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.google.common.collect.Lists;
 
 /**
  * A helper class for working with {@link RemoteSpaceControllerClientListener}
@@ -37,7 +38,8 @@ public class RemoteControllerClientListenerHelper {
 	/**
 	 * Listeners registered with helper.
 	 */
-	private List<RemoteSpaceControllerClientListener> listeners = new CopyOnWriteArrayList<RemoteSpaceControllerClientListener>();
+	private List<RemoteSpaceControllerClientListener> listeners = Lists
+			.newCopyOnWriteArrayList();
 
 	/**
 	 * Add in a new event listener.
@@ -109,7 +111,8 @@ public class RemoteControllerClientListenerHelper {
 	 * @param state
 	 *            the new state
 	 */
-	public void signalSpaceControllerStatusChange(String uuid, SpaceControllerState state) {
+	public void signalSpaceControllerStatusChange(String uuid,
+			SpaceControllerState state) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
 			listener.onSpaceControllerStatusChange(uuid, state);
 		}
@@ -120,12 +123,13 @@ public class RemoteControllerClientListenerHelper {
 	 * 
 	 * @param uuid
 	 *            UUID of the activity.
-	 * @param success
-	 *            {@code true} if the install was successful
+	 * @param result
+	 *            the result of the install
 	 */
-	public void signalActivityInstall(String uuid, boolean success) {
+	public void signalActivityInstall(String uuid,
+			LiveActivityInstallResult result) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
-			listener.onLiveActivityInstall(uuid, success);
+			listener.onLiveActivityInstall(uuid, result);
 		}
 	}
 
@@ -134,12 +138,13 @@ public class RemoteControllerClientListenerHelper {
 	 * 
 	 * @param uuid
 	 *            UUID of the activity.
-	 * @param success
-	 *            {@code true} if the deletion was successful
+	 * @param result
+	 *            result of the deletion
 	 */
-	public void signalActivityDelete(String uuid, boolean success) {
+	public void signalActivityDelete(String uuid,
+			LiveActivityDeleteResult result) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
-			listener.onLiveActivityDelete(uuid, success);
+			listener.onLiveActivityDelete(uuid, result);
 		}
 	}
 
@@ -151,8 +156,7 @@ public class RemoteControllerClientListenerHelper {
 	 * @param status
 	 *            Deploy status of the remote activity.
 	 */
-	public void signalActivityStateChange(String uuid,
-			ActivityState state) {
+	public void signalActivityStateChange(String uuid, ActivityState state) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
 			listener.onLiveActivityStateChange(uuid, state);
 		}

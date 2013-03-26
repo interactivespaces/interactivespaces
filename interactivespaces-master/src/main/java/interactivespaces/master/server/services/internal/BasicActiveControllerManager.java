@@ -783,19 +783,22 @@ public class BasicActiveControllerManager implements
 	}
 
 	@Override
-	public void onLiveActivityInstall(String uuid, boolean success) {
+	public void onLiveActivityInstall(String uuid,
+			LiveActivityInstallResult result) {
 		ActiveLiveActivity active = getActiveActivityByUuid(uuid);
 		if (active != null) {
-			if (success) {
+			switch (result) {
+			case SUCCESS:
 				// If not running, should update the status as there may be an
-				// error or something
-				// that is currently being shown.
+				// error or something that is currently being shown.
 				active.setDeployState(ActivityState.READY);
 
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deployed successfully",
 								uuid));
-			} else {
+				
+				break;
+			case FAIL:
 				active.setDeployState(ActivityState.DEPLOY_FAILURE);
 
 				spaceEnvironment.getLog().info(
@@ -803,7 +806,7 @@ public class BasicActiveControllerManager implements
 								uuid));
 			}
 
-			controllerListeners.signalActivityInstall(uuid, success,
+			controllerListeners.signalActivityInstall(uuid, result,
 					spaceEnvironment.getTimeProvider().getCurrentTime());
 		} else {
 			logUnknownLiveActivity(uuid);
@@ -811,25 +814,42 @@ public class BasicActiveControllerManager implements
 	}
 
 	@Override
-	public void onLiveActivityDelete(String uuid, boolean success) {
+	public void onLiveActivityDelete(String uuid,
+			LiveActivityDeleteResult result) {
 		ActiveLiveActivity active = getActiveActivityByUuid(uuid);
 		if (active != null) {
-			if (success) {
+			switch (result) {
+			case SUCCESS:
 				// If not running, should update the status as there may be an
-				// error or something
-				// that is currently being shown.
+				// error or something that is currently being shown.
 				active.setDeployState(ActivityState.UNKNOWN);
 				active.setRuntimeState(ActivityState.UNKNOWN);
+				active.getLiveActivity().setLastDeployDate(null);
 
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deleted successfully",
 								uuid));
-			} else {
+
+				break;
+
+			case DOESNT_EXIST:
+				active.setDeployState(ActivityState.DOESNT_EXIST);
+				active.setRuntimeState(ActivityState.DOESNT_EXIST);
+
+				spaceEnvironment
+						.getLog()
+						.info(String
+								.format("Live activity %s deletion attempt failed because it isn't on the controller",
+										uuid));
+
+				break;
+				
+			default:
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s delete failed", uuid));
 			}
 
-			controllerListeners.signalActivityDelete(uuid, success,
+			controllerListeners.signalActivityDelete(uuid, result,
 					spaceEnvironment.getTimeProvider().getCurrentTime());
 		} else {
 			logUnknownLiveActivity(uuid);
