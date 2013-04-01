@@ -16,7 +16,6 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.domain.basic.LiveActivity;
 
 /**
  * Handles deployment of activities to controllers.
@@ -31,7 +30,7 @@ public interface ActivityDeploymentManager {
 	 * @param liveActivity
 	 *            the activity to deploy
 	 */
-	void deployLiveActivity(LiveActivity liveActivity);
+	void deployLiveActivity(ActiveLiveActivity liveActivity);
 
 	/**
 	 * Delete the live activity from its controller.
@@ -39,6 +38,5 @@ public interface ActivityDeploymentManager {
 	 * @param liveActivity
 	 *            the activity to delete
 	 */
-	void deleteLiveActivity(LiveActivity liveActivity);
-
+	void deleteLiveActivity(ActiveLiveActivity liveActivity);
 }

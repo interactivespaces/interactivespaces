@@ -67,7 +67,7 @@ public interface InternalActiveControllerManager extends
 	 * @param activeLiveActivity
 	 *            the active live activity to configure
 	 */
-	void configureActiveActivity(ActiveLiveActivity activeLiveActivity);
+	void configureActiveLiveActivity(ActiveLiveActivity activeLiveActivity);
 
 	/**
 	 * Start a active activity.

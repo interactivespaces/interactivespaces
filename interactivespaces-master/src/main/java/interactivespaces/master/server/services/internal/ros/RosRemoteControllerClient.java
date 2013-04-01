@@ -21,8 +21,8 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.common.ros.RosSpaceControllerSupport;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
-import interactivespaces.domain.basic.LiveActivity;
-import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.server.services.ActiveLiveActivity;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
@@ -205,17 +205,17 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	}
 
 	@Override
-	public void connect(SpaceController controller) {
+	public void connect(ActiveSpaceController controller) {
 		getCommunicator(controller, true);
 	}
 
 	@Override
-	public void disconnect(SpaceController controller) {
+	public void disconnect(ActiveSpaceController controller) {
 		shutdownCommunicator(controller);
 	}
 
 	@Override
-	public void requestShutdown(SpaceController controller) {
+	public void requestShutdown(ActiveSpaceController controller) {
 		sendControllerRequest(controller,
 				ControllerRequest.OPERATION_SHUTDOWN_CONTROLLER);
 
@@ -224,22 +224,22 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	}
 
 	@Override
-	public void requestStatus(SpaceController controller) {
+	public void requestStatus(ActiveSpaceController controller) {
 		sendControllerRequest(controller, ControllerRequest.OPERATION_STATUS);
 	}
 
 	@Override
-	public void shutdownAllActivities(SpaceController controller) {
+	public void shutdownAllActivities(ActiveSpaceController controller) {
 		sendControllerRequest(controller,
 				ControllerRequest.OPERATION_SHUTDOWN_ACTIVITIES);
 	}
 
 	@Override
-	public void deployActivity(LiveActivity liveActivity,
+	public void deployActivity(ActiveLiveActivity liveActivity,
 			LiveActivityDeployRequest request) {
 		ChannelBuffer serialize = newSerializeBuffer();
 		liveActivityDeployRequestSerializer.serialize(request, serialize);
-		sendControllerRequest(liveActivity.getController(),
+		sendControllerRequest(liveActivity.getActiveController(),
 				ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY, serialize);
 	}
 
@@ -249,11 +249,11 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	}
 
 	@Override
-	public void deleteActivity(LiveActivity liveActivity,
+	public void deleteActivity(ActiveLiveActivity liveActivity,
 			LiveActivityDeleteRequest request) {
 		ChannelBuffer serialize = newSerializeBuffer();
 		liveActivityDeleteRequestSerializer.serialize(request, serialize);
-		sendControllerRequest(liveActivity.getController(),
+		sendControllerRequest(liveActivity.getActiveController(),
 				ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY, serialize);
 	}
 
@@ -274,10 +274,11 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	}
 
 	@Override
-	public void fullConfigureActivity(LiveActivity activity) {
+	public void fullConfigureLiveActivity(ActiveLiveActivity activity) {
 		ArrayList<ActivityConfigurationParameterRequest> parameterRequests = Lists
 				.newArrayList();
-		ActivityConfiguration configuration = activity.getConfiguration();
+		ActivityConfiguration configuration = activity.getLiveActivity()
+				.getConfiguration();
 		if (configuration != null) {
 			for (ConfigurationParameter parameter : configuration
 					.getParameters()) {
@@ -304,31 +305,31 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	}
 
 	@Override
-	public void startupActivity(LiveActivity activity) {
+	public void startupActivity(ActiveLiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
 				ControllerActivityRuntimeRequest.OPERATION_STARTUP, null);
 	}
 
 	@Override
-	public void activateActivity(LiveActivity activity) {
+	public void activateActivity(ActiveLiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
 				ControllerActivityRuntimeRequest.OPERATION_ACTIVATE, null);
 	}
 
 	@Override
-	public void deactivateActivity(LiveActivity activity) {
+	public void deactivateActivity(ActiveLiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
 				ControllerActivityRuntimeRequest.OPERATION_DEACTIVATE, null);
 	}
 
 	@Override
-	public void shutdownActivity(LiveActivity activity) {
+	public void shutdownActivity(ActiveLiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
 				ControllerActivityRuntimeRequest.OPERATION_SHUTDOWN, null);
 	}
 
 	@Override
-	public void statusActivity(LiveActivity activity) {
+	public void statusActivity(ActiveLiveActivity activity) {
 		sendActivityRuntimeRequest(activity,
 				ControllerActivityRuntimeRequest.OPERATION_STATUS, null);
 	}
@@ -339,12 +340,13 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * <p>
 	 * The request is sent asynchronously.
 	 * 
-	 * @param activity
-	 *            The activity the request is being sent to.
+	 * @param controller
+	 *            the controller the request is being sent to
 	 * @param operation
-	 *            The operation requested.
+	 *            the operation requested
 	 */
-	private void sendControllerRequest(SpaceController controller, int operation) {
+	private void sendControllerRequest(ActiveSpaceController controller,
+			int operation) {
 		sendControllerRequest(controller, operation, null);
 	}
 
@@ -361,7 +363,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * @param payload
 	 *            any data to be sent with the request (can be {@code null})
 	 */
-	private void sendControllerRequest(SpaceController controller,
+	private void sendControllerRequest(ActiveSpaceController controller,
 			int operation, ChannelBuffer payload) {
 		ControllerRequest request = rosMessageFactory
 				.newFromType(ControllerRequest._TYPE);
@@ -388,18 +390,18 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * @param operation
 	 *            The operation requested.
 	 */
-	private void sendActivityRuntimeRequest(LiveActivity activity,
+	private void sendActivityRuntimeRequest(ActiveLiveActivity activity,
 			int operation, ChannelBuffer data) {
 		ControllerActivityRuntimeRequest request = rosMessageFactory
 				.newFromType(ControllerActivityRuntimeRequest._TYPE);
-		request.setUuid(activity.getUuid());
+		request.setUuid(activity.getLiveActivity().getUuid());
 
 		if (data != null) {
 			request.setData(data);
 		}
 
 		SpaceControllerCommunicator communicator = getCommunicator(
-				activity.getController(), true);
+				activity.getActiveController(), true);
 
 		request.setOperation(operation);
 
@@ -608,15 +610,14 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 *         there is none and creation wasn't specified.
 	 */
 	private SpaceControllerCommunicator getCommunicator(
-			SpaceController controller, boolean create) {
-		String remoteNode = controller.getHostId();
+			ActiveSpaceController controller, boolean create) {
+		String remoteNode = controller.getController().getHostId();
 		synchronized (controllerCommunicators) {
 			SpaceControllerCommunicator communicator = controllerCommunicators
 					.get(remoteNode);
 
 			if (communicator == null) {
-				communicator = new SpaceControllerCommunicator(
-						controller.getUuid());
+				communicator = new SpaceControllerCommunicator(controller);
 				communicator.startup(masterRosContext.getNode(), remoteNode,
 						controllerStatusListener, activityStatusListener);
 				controllerCommunicators.put(remoteNode, communicator);
@@ -636,8 +637,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	 * @param controller
 	 *            The controller
 	 */
-	private void shutdownCommunicator(SpaceController controller) {
-		String remoteNode = controller.getHostId();
+	private void shutdownCommunicator(ActiveSpaceController controller) {
+		String remoteNode = controller.getController().getHostId();
 		SpaceControllerCommunicator communicator = null;
 		synchronized (controllerCommunicators) {
 			communicator = controllerCommunicators.remove(remoteNode);
@@ -647,7 +648,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			communicator.shutdown();
 			log.info(String.format(
 					"Communicator for controller %s shutdown and removed",
-					controller.getUuid()));
+					controller.getController().getUuid()));
 		}
 	}
 
@@ -676,9 +677,9 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	public class SpaceControllerCommunicator {
 
 		/**
-		 * UUID of the space controller.
+		 * The space controller we are the communicator for.
 		 */
-		private String uuid;
+		private ActiveSpaceController spaceController;
 
 		/**
 		 * The publisher for activity runtime requests.
@@ -705,8 +706,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 		 */
 		private CountDownPublisherListener<ControllerRequest> publisherListener;
 
-		public SpaceControllerCommunicator(String uuid) {
-			this.uuid = uuid;
+		public SpaceControllerCommunicator(ActiveSpaceController spaceController) {
+			this.spaceController = spaceController;
 		}
 
 		/**
@@ -739,7 +740,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 							remoteNode, publisherListener);
 
 			remoteControllerClientListeners
-					.signalSpaceControllerConnectAttempt(uuid);
+					.signalSpaceControllerConnectAttempt(spaceController
+							.getController().getUuid());
 		}
 
 		/**
@@ -756,7 +758,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			activityStatusSubscriber = null;
 
 			remoteControllerClientListeners
-					.signalSpaceControllerDisconnectAttempt(uuid);
+					.signalSpaceControllerDisconnectAttempt(spaceController
+							.getController().getUuid());
 		}
 
 		/**
@@ -803,7 +806,5 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 				log.warn("Controller activity request interrupted");
 			}
 		}
-
 	}
-
 }

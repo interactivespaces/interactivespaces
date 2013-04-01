@@ -103,7 +103,7 @@ public class BasicActiveControllerManager implements
 
 		ActiveSpaceController acontroller = getActiveSpaceController(controller);
 		acontroller.setState(SpaceControllerState.CONNECT_ATTEMPT);
-		remoteControllerClient.connect(controller);
+		remoteControllerClient.connect(acontroller);
 	}
 
 	@Override
@@ -112,9 +112,9 @@ public class BasicActiveControllerManager implements
 				String.format("Disconnecting from controller %s",
 						controller.getHostId()));
 
-		ActiveSpaceController lcontroller = getActiveSpaceController(controller);
-		remoteControllerClient.disconnect(controller);
-		lcontroller.setState(SpaceControllerState.UNKNOWN);
+		ActiveSpaceController acontroller = getActiveSpaceController(controller);
+		remoteControllerClient.disconnect(acontroller);
+		acontroller.setState(SpaceControllerState.UNKNOWN);
 	}
 
 	@Override
@@ -129,9 +129,9 @@ public class BasicActiveControllerManager implements
 						controller.getHostId()));
 
 		// To make sure something is listening for the request.
-		ActiveSpaceController active = getActiveSpaceController(controller);
-		if (!SpaceControllerState.UNKNOWN.equals(active.getState())) {
-			remoteControllerClient.requestStatus(controller);
+		ActiveSpaceController acontroller = getActiveSpaceController(controller);
+		if (!SpaceControllerState.UNKNOWN.equals(acontroller.getState())) {
+			remoteControllerClient.requestStatus(acontroller);
 		}
 	}
 
@@ -142,8 +142,8 @@ public class BasicActiveControllerManager implements
 						controller.getHostId()));
 
 		// To make sure something is listening for the request.
-		getActiveSpaceController(controller);
-		remoteControllerClient.requestStatus(controller);
+		ActiveSpaceController acontroller = getActiveSpaceController(controller);
+		remoteControllerClient.requestStatus(acontroller);
 	}
 
 	@Override
@@ -152,8 +152,10 @@ public class BasicActiveControllerManager implements
 				String.format("Shutting down controller %s",
 						controller.getHostId()));
 
-		remoteControllerClient.requestShutdown(controller);
+		ActiveSpaceController acontroller = getActiveSpaceController(controller);
+		remoteControllerClient.requestShutdown(acontroller);
 
+		// TODO(keith): Yuck!
 		remoteControllerClient.getRemoteControllerClientListeners()
 				.signalSpaceControllerStatusChange(controller.getUuid(),
 						SpaceControllerState.UNKNOWN);
@@ -168,7 +170,8 @@ public class BasicActiveControllerManager implements
 						controller.getHostId()));
 
 		// The async results will signal all active apps.
-		remoteControllerClient.shutdownAllActivities(controller);
+		ActiveSpaceController acontroller = getActiveSpaceController(controller);
+		remoteControllerClient.shutdownAllActivities(acontroller);
 
 		cleanLiveActivityStateModels(controller);
 	}
@@ -194,24 +197,21 @@ public class BasicActiveControllerManager implements
 	}
 
 	@Override
-	public void deployActiveActivity(ActiveLiveActivity liveActivity) {
+	public void deployActiveActivity(ActiveLiveActivity activeLiveActivity) {
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
-			LiveActivity activity = liveActivity.getLiveActivity();
+			LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
 			spaceEnvironment.getLog().info(
 					String.format(
 							"Deploying live activity %s to controller %s",
-							activity.getUuid(), activity.getController()
-									.getHostId()));
+							liveActivity.getUuid(), liveActivity
+									.getController().getHostId()));
 		}
 
-		LiveActivity activity;
-		synchronized (liveActivity) {
-			liveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
-
-			activity = liveActivity.getLiveActivity();
+		synchronized (activeLiveActivity) {
+			activeLiveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
 		}
 
-		activityDeploymentManager.deployLiveActivity(activity);
+		activityDeploymentManager.deployLiveActivity(activeLiveActivity);
 	}
 
 	@Override
@@ -220,40 +220,36 @@ public class BasicActiveControllerManager implements
 	}
 
 	@Override
-	public void deleteActiveActivity(ActiveLiveActivity liveActivity) {
+	public void deleteActiveActivity(ActiveLiveActivity activeLiveActivity) {
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
-			LiveActivity activity = liveActivity.getLiveActivity();
+			LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
 			spaceEnvironment.getLog().info(
 					String.format(
 							"Deleting live activity %s from controller %s",
-							activity.getUuid(), activity.getController()
-									.getHostId()));
+							liveActivity.getUuid(), liveActivity
+									.getController().getHostId()));
 		}
 
-		LiveActivity activity;
-		synchronized (liveActivity) {
-			liveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
-
-			activity = liveActivity.getLiveActivity();
+		synchronized (activeLiveActivity) {
+			activeLiveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
 		}
 
-		activityDeploymentManager.deleteLiveActivity(activity);
+		activityDeploymentManager.deleteLiveActivity(activeLiveActivity);
 	}
 
 	@Override
 	public void configureLiveActivity(LiveActivity activity) {
-		configureActiveActivity(getActiveLiveActivity(activity));
+		configureActiveLiveActivity(getActiveLiveActivity(activity));
 	}
 
 	@Override
-	public void configureActiveActivity(ActiveLiveActivity active) {
+	public void configureActiveLiveActivity(ActiveLiveActivity active) {
 		spaceEnvironment.getLog().info(
 				String.format("Requesting activity %s configuration", active
 						.getLiveActivity().getUuid()));
 
 		synchronized (active) {
-			remoteControllerClient.fullConfigureActivity(active
-					.getLiveActivity());
+			remoteControllerClient.fullConfigureLiveActivity(active);
 		}
 	}
 
@@ -445,9 +441,9 @@ public class BasicActiveControllerManager implements
 		// Only want a deploy if the activity isn't already deployed from this
 		// round or if there is no tracking set.
 		if (configuredLiveActivities == null) {
-			configureActiveActivity(liveActivity);
+			configureActiveLiveActivity(liveActivity);
 		} else if (!configuredLiveActivities.contains(liveActivity)) {
-			configureActiveActivity(liveActivity);
+			configureActiveLiveActivity(liveActivity);
 			configuredLiveActivities.add(liveActivity);
 		}
 	}
@@ -796,7 +792,7 @@ public class BasicActiveControllerManager implements
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s deployed successfully",
 								uuid));
-				
+
 				break;
 			case FAIL:
 				active.setDeployState(ActivityState.DEPLOY_FAILURE);
@@ -843,7 +839,7 @@ public class BasicActiveControllerManager implements
 										uuid));
 
 				break;
-				
+
 			default:
 				spaceEnvironment.getLog().info(
 						String.format("Live activity %s delete failed", uuid));

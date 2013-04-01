@@ -16,13 +16,9 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.domain.basic.LiveActivity;
-import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
-
 import interactivespaces_msgs.LiveActivityDeleteRequest;
 import interactivespaces_msgs.LiveActivityDeployRequest;
-import org.springframework.stereotype.Controller;
 
 /**
  * A client for speaking to a remote controller.
@@ -61,28 +57,28 @@ public interface RemoteControllerClient {
 	 * 
 	 * @param controller
 	 */
-	void connect(SpaceController controller);
+	void connect(ActiveSpaceController controller);
 
 	/**
 	 * Disconnect from the given controller.
 	 * 
 	 * @param controller
 	 */
-	void disconnect(SpaceController controller);
+	void disconnect(ActiveSpaceController controller);
 
 	/**
 	 * Request the shutdown of a controller.
 	 * 
 	 * @param controller
 	 */
-	void requestShutdown(SpaceController controller);
+	void requestShutdown(ActiveSpaceController controller);
 
 	/**
 	 * Request the status of a controller.
 	 * 
 	 * @param controller
 	 */
-	void requestStatus(SpaceController controller);
+	void requestStatus(ActiveSpaceController controller);
 
 	/**
 	 * Request the shut down of all activities running on a controller.
@@ -90,7 +86,7 @@ public interface RemoteControllerClient {
 	 * @param controller
 	 *            The controller containing the activities to stop running.
 	 */
-	void shutdownAllActivities(SpaceController controller);
+	void shutdownAllActivities(ActiveSpaceController controller);
 
 	/**
 	 * Deploy an activity to its controller.
@@ -102,7 +98,7 @@ public interface RemoteControllerClient {
 	 */
 	// TODO(keith): make this not depend on the ROS message or the live
 	// activity, just a spec.
-	void deployActivity(LiveActivity liveActivity,
+	void deployActivity(ActiveLiveActivity liveActivity,
 			LiveActivityDeployRequest request);
 
 	/**
@@ -122,7 +118,7 @@ public interface RemoteControllerClient {
 	 */
 	// TODO(keith): make this not depend on the ROS message or the live
 	// activity, just a spec.
-	void deleteActivity(LiveActivity liveActivity,
+	void deleteActivity(ActiveLiveActivity liveActivity,
 			LiveActivityDeleteRequest request);
 
 	/**
@@ -138,7 +134,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity to configure
 	 */
-	void fullConfigureActivity(LiveActivity activity);
+	void fullConfigureLiveActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Start an activity on its controller.
@@ -146,7 +142,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity to start
 	 */
-	void startupActivity(LiveActivity activity);
+	void startupActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Activate an activity on its controller.
@@ -154,7 +150,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity to activate
 	 */
-	void activateActivity(LiveActivity activity);
+	void activateActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Deactivate an activity on its controller.
@@ -162,7 +158,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity to deactivate
 	 */
-	void deactivateActivity(LiveActivity activity);
+	void deactivateActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Shut an activity down on its controller.
@@ -170,7 +166,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity to shut down
 	 */
-	void shutdownActivity(LiveActivity activity);
+	void shutdownActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Get the status of an activity on its controller.
@@ -178,7 +174,7 @@ public interface RemoteControllerClient {
 	 * @param activity
 	 *            The activity
 	 */
-	void statusActivity(LiveActivity activity);
+	void statusActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Add in a new event listener for events from the client.

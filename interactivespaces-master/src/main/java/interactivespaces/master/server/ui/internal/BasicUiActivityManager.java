@@ -241,7 +241,7 @@ public class BasicUiActivityManager implements UiActivityManager {
 			if (map.isEmpty())
 				return false;
 
-			createNewConfiguration(liveactivity, map);
+			createLiveActivityNewConfiguration(liveactivity, map);
 
 			return true;
 		}
@@ -310,7 +310,7 @@ public class BasicUiActivityManager implements UiActivityManager {
 	 * @param map
 	 *            the new configuration
 	 */
-	private void createNewConfiguration(LiveActivity liveactivity,
+	private void createLiveActivityNewConfiguration(LiveActivity liveactivity,
 			Map<String, String> map) {
 		ActivityConfiguration configuration;
 		configuration = activityRepository.newActivityConfiguration();

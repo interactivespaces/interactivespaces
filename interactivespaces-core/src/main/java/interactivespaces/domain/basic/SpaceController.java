@@ -27,6 +27,7 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public interface SpaceController extends PersistedObject, Serializable {
+	
 	/**
 	 * @return the hostId
 	 */

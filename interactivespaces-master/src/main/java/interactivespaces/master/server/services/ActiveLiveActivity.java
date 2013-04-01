@@ -16,7 +16,6 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.time.TimeProvider;
@@ -264,7 +263,7 @@ public class ActiveLiveActivity {
 	 * Nothing will happen if it is not activated.
 	 */
 	public synchronized void status() {
-		remoteControllerClient.statusActivity(activity);
+		remoteControllerClient.statusActivity(this);
 	}
 
 	/**
@@ -404,7 +403,7 @@ public class ActiveLiveActivity {
 	 */
 	private void attemptRemoteStartup() {
 		setRuntimeState(ActivityState.STARTUP_ATTEMPT);
-		remoteControllerClient.startupActivity(activity);
+		remoteControllerClient.startupActivity(this);
 	}
 
 	/**
@@ -412,7 +411,7 @@ public class ActiveLiveActivity {
 	 */
 	private void attemptRemoteActivation() {
 		setRuntimeState(ActivityState.ACTIVATE_ATTEMPT);
-		remoteControllerClient.activateActivity(activity);
+		remoteControllerClient.activateActivity(this);
 	}
 
 	/**
@@ -420,7 +419,7 @@ public class ActiveLiveActivity {
 	 */
 	private void attemptRemoteDeactivation() {
 		setRuntimeState(ActivityState.DEACTIVATE_ATTEMPT);
-		remoteControllerClient.deactivateActivity(activity);
+		remoteControllerClient.deactivateActivity(this);
 	}
 
 	/**
@@ -428,19 +427,6 @@ public class ActiveLiveActivity {
 	 */
 	private void attemptRemoteShutdown() {
 		setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT);
-		remoteControllerClient.shutdownActivity(activity);
-	}
-
-	/**
-	 * Check if the activity is running.
-	 * 
-	 * @throws InteractiveSpacesException
-	 *             the activity was not running
-	 */
-	private void checkIfRunning() throws InteractiveSpacesException {
-		if (!isRunning()) {
-			throw new InteractiveSpacesException(
-					"Attempt to activate a non running live activity");
-		}
+		remoteControllerClient.shutdownActivity(this);
 	}
 }

@@ -17,10 +17,10 @@
 package interactivespaces.controller.client.master.internal;
 
 import interactivespaces.activity.repository.ActivityRepositoryServer;
-import interactivespaces.controller.client.master.RemoteActivityInstallStatus;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManager;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManagerListener;
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces_msgs.LiveActivityDeleteRequest;
 import interactivespaces_msgs.LiveActivityDeployRequest;
@@ -68,28 +68,30 @@ public class RosRemoteActivityInstallationManager implements
 	}
 
 	@Override
-	public void deployActivity(LiveActivity activity) {
+	public void deployActivity(ActiveLiveActivity activeLiveActivity) {
+		LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
 		LiveActivityDeployRequest request = remoteControllerClient
 				.newLiveActivityDeployRequest();
-		request.setUuid(activity.getUuid());
-		request.setIdentifyingName(activity.getActivity().getIdentifyingName());
-		request.setVersion(activity.getActivity().getVersion());
-		request.setActivitySourceUri(repositoryServer.getActivityUri(activity
+		request.setUuid(liveActivity.getUuid());
+		request.setIdentifyingName(liveActivity.getActivity().getIdentifyingName());
+		request.setVersion(liveActivity.getActivity().getVersion());
+		request.setActivitySourceUri(repositoryServer.getActivityUri(liveActivity
 				.getActivity()));
 
-		remoteControllerClient.deployActivity(activity, request);
+		remoteControllerClient.deployActivity(activeLiveActivity, request);
 	}
 
 	@Override
-	public void deleteActivity(LiveActivity activity) {
+	public void deleteActivity(ActiveLiveActivity activeLiveActivity) {
+		LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
 		LiveActivityDeleteRequest request = remoteControllerClient
 				.newLiveActivityDeleteRequest();
-		request.setUuid(activity.getUuid());
-		request.setIdentifyingName(activity.getActivity().getIdentifyingName());
-		request.setVersion(activity.getActivity().getVersion());
+		request.setUuid(liveActivity.getUuid());
+		request.setIdentifyingName(liveActivity.getActivity().getIdentifyingName());
+		request.setVersion(liveActivity.getActivity().getVersion());
 		request.setForce(1);
 
-		remoteControllerClient.deleteActivity(activity, request);
+		remoteControllerClient.deleteActivity(activeLiveActivity, request);
 	}
 
 	@Override

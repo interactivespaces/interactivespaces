@@ -107,7 +107,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 	private AlertService alertService;
 
 	/**
-	 * The respository for controller entities.
+	 * The repository for controller entities.
 	 */
 	private ControllerRepository controllerRepository;
 
@@ -196,7 +196,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 	}
 
 	/**
-	 * Get the watcher for a specific space controller.
+	 * Add the watcher for a specific space controller.
 	 * 
 	 * <p>
 	 * It will be given the timestamp of the current time.
@@ -204,7 +204,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 	 * @param uuid
 	 *            the UUID of the space controller
 	 */
-	public void addSpaceControllerWatcher(String uuid) {
+	private void addSpaceControllerWatcher(String uuid) {
 		long timestamp = spaceEnvironment.getTimeProvider().getCurrentTime();
 		synchronized (spaceControllerWatchers) {
 			SpaceControllerAlertWatcher watcher = new SpaceControllerAlertWatcher(

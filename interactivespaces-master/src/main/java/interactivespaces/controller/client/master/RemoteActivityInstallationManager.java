@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.client.master;
 
-import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.master.server.services.ActiveLiveActivity;
 
 /**
  * Install Interactive Spaces activities to the remote location.
@@ -40,14 +40,14 @@ public interface RemoteActivityInstallationManager {
 	 * 
 	 * @param activity
 	 */
-	void deployActivity(LiveActivity activity);
+	void deployActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Delete an activity from its space controller
 	 * 
 	 * @param activity
 	 */
-	void deleteActivity(LiveActivity activity);
+	void deleteActivity(ActiveLiveActivity activity);
 
 	/**
 	 * Add a listener to the installer.
