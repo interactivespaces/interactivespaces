@@ -47,7 +47,7 @@ public interface ActiveControllerActivityFactory {
 	 * 
 	 * @return A runner for the activity.
 	 */
-	ActiveControllerActivity createActiveActivity(String activityType,
+	ActiveControllerActivity createActiveLiveActivity(String activityType,
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
@@ -71,7 +71,7 @@ public interface ActiveControllerActivityFactory {
 	 * 
 	 * @return A runner for the activity.
 	 */
-	ActiveControllerActivity createActiveActivity(
+	ActiveControllerActivity newActiveActivity(
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,

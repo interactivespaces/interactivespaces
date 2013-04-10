@@ -70,12 +70,6 @@ public class PythonActivityScriptWrapper implements ActivityScriptWrapper {
 	}
 
 	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public Activity newInstance() {
 		try {
 			PythonInterpreter interp = PythonInterpreter

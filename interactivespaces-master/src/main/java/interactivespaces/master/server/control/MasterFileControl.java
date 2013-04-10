@@ -69,7 +69,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	public void startup() {
 		File controlDirectory = new File(spaceEnvironment.getFilesystem()
 				.getInstallDirectory(), FOLDER_RUN_CONTROL);
-		watcher = new SimpleDirectoryWatcher();
+		watcher = new SimpleDirectoryWatcher(true);
 		watcher.addDirectory(controlDirectory);
 		watcher.addDirectoryWatcherListener(this);
 

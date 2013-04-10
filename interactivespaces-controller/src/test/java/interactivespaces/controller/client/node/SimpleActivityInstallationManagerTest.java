@@ -15,6 +15,7 @@
  */
 
 package interactivespaces.controller.client.node;
+
 import static org.junit.Assert.assertEquals;
 import interactivespaces.controller.activity.installation.ActivityInstallationListener;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;

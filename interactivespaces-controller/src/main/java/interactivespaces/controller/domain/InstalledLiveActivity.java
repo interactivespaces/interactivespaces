@@ -99,7 +99,7 @@ public interface InstalledLiveActivity {
 	 * Set the location of the activity's installation.
 	 * 
 	 * @param installationLocation
-	 *            The fully qualified path of the install.
+	 *            the fully qualified path of the install
 	 */
 	void setBaseInstallationLocation(String installationLocation);
 
@@ -114,7 +114,7 @@ public interface InstalledLiveActivity {
 	 * Set the status of the installation.
 	 * 
 	 * @param status
-	 *            The new status.
+	 *            the new status
 	 */
 	void setInstallationStatus(ActivityInstallationStatus status);
 
@@ -129,7 +129,7 @@ public interface InstalledLiveActivity {
 	 * Set the last known status of the activity.
 	 * 
 	 * @param lastActivityState
-	 *            the last known state of the activity.
+	 *            the last known state of the activity
 	 */
 	void setLastActivityState(ActivityState lastActivityState);
 

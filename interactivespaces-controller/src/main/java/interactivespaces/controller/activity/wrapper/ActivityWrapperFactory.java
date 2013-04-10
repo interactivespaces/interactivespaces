@@ -32,15 +32,15 @@ public interface ActivityWrapperFactory {
 	/**
 	 * Get the activity type supported by this factory.
 	 * 
-	 * @return
+	 * @return the activity type of the factory
 	 */
 	String getActivityType();
 
 	/**
 	 * Create an OSGi activity runner.
 	 * 
-	 * @param liapp
-	 *            the activity to be run.
+	 * @param liveActivity
+	 *            the live to be run.
 	 * @param activityFilesystem
 	 *            the filesystem for the activity
 	 * @param configuration
@@ -50,8 +50,8 @@ public interface ActivityWrapperFactory {
 	 * 
 	 * @return
 	 */
-	ActivityWrapper createActivityWrapper(
-			InstalledLiveActivity liapp,
+	ActivityWrapper newActivityWrapper(
+			InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem,
 			Configuration configuration, SpaceController controller);
 

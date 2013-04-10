@@ -14,25 +14,27 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.wrapper;
+package interactivespaces.util.web;
 
-import interactivespaces.activity.execution.ActivityExecutionContext;
-import interactivespaces.activity.execution.BaseActivityExecutionContext;
+import java.io.BufferedReader;
 
 /**
- * Support class for instances of {@link ActivityWrapper}.
- *
+ * A processor for a {@link UrlReader}. This callback class processes the
+ * content of the reader.
+ * 
  * @author Keith M. Hughes
  */
-public abstract class BaseActivityWrapper implements ActivityWrapper {
+public interface UrlReaderProcessor<T> {
 
-//	@Override
-//	public void destroy() {
-//		// Nothing to do
-//	}
-	
-	@Override
-	public ActivityExecutionContext newExecutionContext() {
-		return new BaseActivityExecutionContext();
-	}
+	/**
+	 * Process the contents of the reader.
+	 * 
+	 * @param reader
+	 *            the reader with the URL contents
+	 * 
+	 * @return the result from the reader
+	 * 
+	 * @throws Exception something bad happened
+	 */
+	T process(BufferedReader reader) throws Exception;
 }

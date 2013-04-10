@@ -16,17 +16,25 @@
 
 package interactivespaces.util.concurrency;
 
-import java.util.Set;
+import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 
-import com.google.common.collect.Sets;
-
 /**
  * A collection of scheduled commands which can be shut down as a whole.
+ * 
+ * <p>
+ * Managed Commands are threads which should be running for some time, for
+ * example, the lifetime of an activity, or while it is activated. If your
+ * thread should run and be done "quickly", use
+ * {@link InteractiveSpacesEnvironment#getExecutorService()}.
  * 
  * <p>
  * Despite being in a concurrency class, this class is not threadsafe between
@@ -37,19 +45,15 @@ import com.google.common.collect.Sets;
 public class ManagedCommands {
 
 	/**
-	 * All tasks in collection.
+	 * All futures in collection.
 	 */
-	private Set<WrappedTask> tasks = Sets.newHashSet();
+	private List<Future<?>> futures = Collections
+			.synchronizedList(new ArrayList<Future<?>>());
 
 	/**
 	 * The executor service for this collection.
 	 */
 	private ScheduledExecutorService executorService;
-
-	/**
-	 * Object for locking certain operations.
-	 */
-	private Object lock = new Object();
 
 	/**
 	 * The logger for the collection.
@@ -66,21 +70,9 @@ public class ManagedCommands {
 	 * 
 	 * @param command
 	 *            the command to run
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand submit(Runnable command) {
-		WrappedTask task = newWrappedTask(command, false, false);
-
-		Future<?> future = executorService.submit(task);
-
-		synchronized (lock) {
-			task.setFuture(future);
-
-			tasks.add(task);
-		}
-
-		return new ManagedCommand(task);
+	public void submit(Runnable command) {
+		futures.add(executorService.submit(newWrappedTask(command, false)));
 	}
 
 	/**
@@ -92,21 +84,10 @@ public class ManagedCommands {
 	 *            how soon in the future to run it
 	 * @param unit
 	 *            units on how soon to start
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand schedule(Runnable command, long delay, TimeUnit unit) {
-		WrappedTask task = newWrappedTask(command, false, false);
-
-		Future<?> future = executorService.schedule(task, delay, unit);
-
-		synchronized (lock) {
-			task.setFuture(future);
-
-			tasks.add(task);
-		}
-
-		return new ManagedCommand(task);
+	public void schedule(Runnable command, long delay, TimeUnit unit) {
+		futures.add(executorService.schedule(newWrappedTask(command, false),
+				delay, unit));
 	}
 
 	/**
@@ -128,12 +109,10 @@ public class ManagedCommands {
 	 *            how long to delay between subsequent executions
 	 * @param unit
 	 *            time units for both delays
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand scheduleAtFixedRate(Runnable command,
-			long initialDelay, long period, TimeUnit unit) {
-		return scheduleAtFixedRate(command, initialDelay, period, unit, true);
+	public void scheduleAtFixedRate(Runnable command, long initialDelay,
+			long period, TimeUnit unit) {
+		scheduleAtFixedRate(command, initialDelay, period, unit, true);
 	}
 
 	/**
@@ -157,24 +136,12 @@ public class ManagedCommands {
 	 * @param allowTerminate
 	 *            {@code true} if the task should be allowed to terminate if it
 	 *            throws an exception
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand scheduleAtFixedRate(Runnable command,
-			long initialDelay, long period, TimeUnit unit,
-			boolean allowTerminate) {
-		WrappedTask task = newWrappedTask(command, true, allowTerminate);
-
-		Future<?> future = executorService.scheduleAtFixedRate(task,
-				initialDelay, period, unit);
-
-		synchronized (lock) {
-			task.setFuture(future);
-
-			tasks.add(task);
-		}
-
-		return new ManagedCommand(task);
+	public void scheduleAtFixedRate(Runnable command, long initialDelay,
+			long period, TimeUnit unit, boolean allowTerminate) {
+		futures.add(executorService.scheduleAtFixedRate(
+				newWrappedTask(command, allowTerminate), initialDelay, period,
+				unit));
 	}
 
 	/**
@@ -197,12 +164,10 @@ public class ManagedCommands {
 	 *            how long to delay between subsequent executions
 	 * @param unit
 	 *            time units for both delays
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand scheduleWithFixedDelay(Runnable command,
-			long initialDelay, long delay, TimeUnit unit) {
-		return scheduleWithFixedDelay(command, initialDelay, delay, unit, true);
+	public void scheduleWithFixedDelay(Runnable command, long initialDelay,
+			long delay, TimeUnit unit) {
+		scheduleWithFixedDelay(command, initialDelay, delay, unit, true);
 	}
 
 	/**
@@ -224,35 +189,22 @@ public class ManagedCommands {
 	 * @param allowTerminate
 	 *            {@code true} if the task should be allowed to terminate if it
 	 *            throws an exception
-	 * 
-	 * @return the managed command for the task
 	 */
-	public ManagedCommand scheduleWithFixedDelay(Runnable command,
-			long initialDelay, long delay, TimeUnit unit, boolean allowTerminate) {
-		WrappedTask task = newWrappedTask(command, true, allowTerminate);
-
-		Future<?> future = executorService.scheduleWithFixedDelay(task,
-				initialDelay, delay, unit);
-
-		synchronized (lock) {
-			task.setFuture(future);
-
-			tasks.add(task);
-		}
-
-		return new ManagedCommand(task);
+	public void scheduleWithFixedDelay(Runnable command, long initialDelay,
+			long delay, TimeUnit unit, boolean allowTerminate) {
+		futures.add(executorService.scheduleWithFixedDelay(
+				newWrappedTask(command, allowTerminate), initialDelay, delay,
+				unit));
 	}
 
 	/**
 	 * Shut down all executing commands or commands which haven't started yet.
 	 */
 	public void shutdownAll() {
-		synchronized (lock) {
-			for (WrappedTask task : tasks) {
-				task.cancel();
-			}
-			tasks.clear();
+		for (Future<?> f : futures) {
+			f.cancel(true);
 		}
+		futures.clear();
 	}
 
 	/**
@@ -260,46 +212,14 @@ public class ManagedCommands {
 	 * 
 	 * @param runnable
 	 *            the runnable to be done in the task
-	 * @param repeating
-	 *            {@code true} if the runnable is repeating
 	 * @param allowTerminate
-	 *            {@code true} if the task, if it is repeating, should be
-	 *            allowed to terminate if it throws an exception
+	 *            {@code true} if the task should be allowed to terminate if it
+	 *            throws an exception (only makes sense for repeating tasks)
 	 * 
 	 * @return the wrapped task
 	 */
-	private WrappedTask newWrappedTask(Runnable runnable, boolean repeating,
-			boolean allowTerminate) {
-		return new WrappedTask(runnable, repeating, allowTerminate);
-	}
-
-	/**
-	 * Remove a command from the task collection.
-	 * 
-	 * @param task
-	 *            the task to remove
-	 */
-	private void removeCommand(WrappedTask task) {
-		synchronized (lock) {
-			tasks.remove(task);
-		}
-	}
-
-	/**
-	 * Does the collection contain the command.
-	 * 
-	 * <p>
-	 * Only visible for testing
-	 * 
-	 * @param command
-	 *            the command to check for
-	 * 
-	 * @return {@code true} if command there
-	 */
-	boolean contains(ManagedCommand command) {
-		synchronized (lock) {
-			return tasks.contains(command.getTask());
-		}
+	private WrappedTask newWrappedTask(Runnable runnable, boolean allowTerminate) {
+		return new WrappedTask(runnable, allowTerminate);
 	}
 
 	/**
@@ -307,32 +227,17 @@ public class ManagedCommands {
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	class WrappedTask implements Runnable {
+	private class WrappedTask implements Runnable {
 
 		/**
 		 * The actual runnable to be run.
 		 */
 		private Runnable delegate;
 
-		/**
-		 * {@code true} if the runnable is repeating.
-		 */
-		private boolean repeating;
-
-		/**
-		 * {@code true} if the repeating runnable is allowed to terminate.
-		 */
 		private boolean allowTerminate;
 
-		/**
-		 * The future for this runnable.
-		 */
-		private Future<?> future;
-
-		public WrappedTask(Runnable delegate, boolean repeating,
-				boolean allowTerminate) {
+		public WrappedTask(Runnable delegate, boolean allowTerminate) {
 			this.delegate = delegate;
-			this.repeating = repeating;
 			this.allowTerminate = allowTerminate;
 		}
 
@@ -343,51 +248,13 @@ public class ManagedCommands {
 			} catch (Throwable e) {
 				log.error("Exception caught during Managed Command", e);
 
-				if (repeating && allowTerminate) {
-					removeCommand(this);
-
-					// Let the normal mechanisms actually remove the thread.
+				if (allowTerminate) {
+					// TODO(keith): Not entirely happy with this. maybe
+					// eventually put the future into this instance and shut it
+					// down.
 					throw new RuntimeException();
 				}
 			}
-
-			if (!repeating) {
-				removeCommand(this);
-			}
-		}
-
-		/**
-		 * @param future
-		 *            the future to set
-		 */
-		public void setFuture(Future<?> future) {
-			this.future = future;
-		}
-
-		/**
-		 * Cancel the task.
-		 */
-		public void cancel() {
-			future.cancel(true);
-			removeCommand(this);
-		}
-
-		/**
-		 * Has the task been cancelled?
-		 * 
-		 * @return {@code true} if cancelled
-		 */
-		public boolean isCancelled() {
-			return future.isCancelled();
-		}
-
-		/**
-		 * Is the task done?
-		 * 
-		 * @return {@code true} if done
-		 */
-		public boolean isDone() {
-			return future.isDone();
 		}
 	}
 }

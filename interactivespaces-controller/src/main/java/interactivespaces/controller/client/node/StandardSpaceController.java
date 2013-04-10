@@ -800,7 +800,7 @@ public class StandardSpaceController implements SpaceController,
 		synchronized (activities) {
 			activity = activities.get(uuid);
 			if (activity == null && create) {
-				activity = createActivityFromRepository(uuid);
+				activity = newLiveActivityFromRepository(uuid);
 
 				if (activity != null) {
 					activities.put(uuid, activity);
@@ -825,7 +825,7 @@ public class StandardSpaceController implements SpaceController,
 	 * 
 	 * @return The active app with a runner.
 	 */
-	private ActiveControllerActivity createActivityFromRepository(String uuid) {
+	private ActiveControllerActivity newLiveActivityFromRepository(String uuid) {
 		InstalledLiveActivity liveActivity = controllerRepository
 				.getInstalledLiveActivityByUuid(uuid);
 		if (liveActivity != null) {
@@ -837,7 +837,7 @@ public class StandardSpaceController implements SpaceController,
 			activityConfiguration.load();
 
 			ActiveControllerActivity activity = activeControllerActivityFactory
-					.createActiveActivity(liveActivity, activityFilesystem,
+					.newActiveActivity(liveActivity, activityFilesystem,
 							activityConfiguration, this);
 
 			return activity;

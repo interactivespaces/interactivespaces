@@ -16,19 +16,17 @@
 
 package org.ros.internal.message;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import java.util.List;
 
-import org.ros.internal.message.definition.MessageDefinitionParser;
-import org.ros.internal.message.definition.MessageDefinitionTupleParser;
-import org.ros.internal.message.definition.MessageDefinitionParser.MessageDefinitionVisitor;
-
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.ros.internal.message.definition.MessageDefinitionParser;
+import org.ros.internal.message.definition.MessageDefinitionParser.MessageDefinitionVisitor;
+import org.ros.internal.message.definition.MessageDefinitionTupleParser;
 import org.ros.internal.message.field.PrimitiveFieldType;
 import org.ros.message.MessageDefinitionProvider;
 
-import java.util.List;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)

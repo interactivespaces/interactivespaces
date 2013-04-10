@@ -17,6 +17,7 @@
 package interactivespaces.util.io.directorywatcher;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.Files;
 
 import java.io.File;
 import java.util.List;
@@ -54,6 +55,34 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 	 */
 	private ScheduledFuture<?> scanningFuture;
 
+	/**
+	 * {@code true} if the directories should be cleaned before they are
+	 * watched.
+	 */
+	private boolean cleanFirst = false;
+
+	/**
+	 * Construct a new SimpleWatcher.
+	 * 
+	 * @param cleanFirst
+	 *            {@code true} if added directories are cleaned before they are
+	 *            watched
+	 */
+	public SimpleDirectoryWatcher() {
+		this(false);
+	}
+
+	/**
+	 * Construct a new SimpleWatcher.
+	 * 
+	 * @param cleanFirst
+	 *            {@code true} if added directories are cleaned before they are
+	 *            watched
+	 */
+	public SimpleDirectoryWatcher(boolean cleanFirst) {
+		setCleanFirst(cleanFirst);
+	}
+
 	@Override
 	public synchronized void startup(InteractiveSpacesEnvironment environment,
 			long period, TimeUnit unit) {
@@ -65,9 +94,9 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 	public Set<File> startupWithScan(InteractiveSpacesEnvironment environment,
 			long period, TimeUnit unit) {
 		filesLastScanned = scanAllDirectories();
-		
+
 		startup(environment, period, unit);
-		
+
 		return Sets.newHashSet(filesLastScanned);
 	}
 
@@ -83,6 +112,11 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 	public synchronized void addDirectory(File directory) {
 		if (directory.isDirectory()) {
 			if (directory.canRead()) {
+				if (directory.canWrite()) {
+					if (cleanFirst) {
+						Files.deleteDirectoryContents(directory);
+					}
+				}
 				directoriesWatched.add(directory);
 			} else {
 				throw new IllegalArgumentException(String.format(
@@ -196,5 +230,10 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 	@Override
 	public void run() {
 		scan();
+	}
+
+	@Override
+	public void setCleanFirst(boolean cleanFirst) {
+		this.cleanFirst = cleanFirst;
 	}
 }

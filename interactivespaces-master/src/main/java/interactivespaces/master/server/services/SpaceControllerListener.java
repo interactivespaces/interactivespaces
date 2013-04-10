@@ -28,22 +28,22 @@ import interactivespaces.master.server.services.internal.LiveActivityInstallResu
  * @author Keith M. Hughes
  */
 public interface SpaceControllerListener {
-	
+
 	/**
 	 * A space controller connection is being attempted.
 	 * 
-	 * @param uuid
-	 *            the UUID of the controller
+	 * @param controller
+	 *            the controller
 	 */
-	void onSpaceControllerConnectAttempted(String uuid);
-	
+	void onSpaceControllerConnectAttempted(ActiveSpaceController controller);
+
 	/**
 	 * A space controller disconnection is being attempted.
 	 * 
-	 * @param uuid
-	 *            the UUID of the controller
+	 * @param controller
+	 *            the controller
 	 */
-	void onSpaceControllerDisconnectAttempted(String uuid);
+	void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller);
 
 	/**
 	 * A controller has sent a heartbeat.
@@ -76,7 +76,8 @@ public interface SpaceControllerListener {
 	 * @param timestamp
 	 *            timestamp of the event
 	 */
-	void onLiveActivityInstall(String uuid, LiveActivityInstallResult result, long timestamp);
+	void onLiveActivityInstall(String uuid, LiveActivityInstallResult result,
+			long timestamp);
 
 	/**
 	 * An activity has been deleted.
@@ -88,7 +89,8 @@ public interface SpaceControllerListener {
 	 * @param timestamp
 	 *            timestamp of the event
 	 */
-	void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result, long timestamp);
+	void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result,
+			long timestamp);
 
 	/**
 	 * A live activity has had a state change.

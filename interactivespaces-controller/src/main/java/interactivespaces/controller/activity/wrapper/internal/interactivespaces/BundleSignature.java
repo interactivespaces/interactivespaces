@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,25 +14,24 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.wrapper;
+package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
-import interactivespaces.activity.execution.ActivityExecutionContext;
-import interactivespaces.activity.execution.BaseActivityExecutionContext;
+import java.io.File;
 
 /**
- * Support class for instances of {@link ActivityWrapper}.
- *
+ * Calculate signatures for bundles
+ * 
  * @author Keith M. Hughes
  */
-public abstract class BaseActivityWrapper implements ActivityWrapper {
+public interface BundleSignature {
 
-//	@Override
-//	public void destroy() {
-//		// Nothing to do
-//	}
-	
-	@Override
-	public ActivityExecutionContext newExecutionContext() {
-		return new BaseActivityExecutionContext();
-	}
+	/**
+	 * Get the signature for a bundle.
+	 * 
+	 * @param bundleFile
+	 *            the bundle file
+	 * 
+	 * @return the signature for the bundle
+	 */
+	String getBundleSignature(File bundleFile);
 }

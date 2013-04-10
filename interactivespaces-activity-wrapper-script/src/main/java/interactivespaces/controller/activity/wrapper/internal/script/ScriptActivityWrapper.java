@@ -64,11 +64,6 @@ public class ScriptActivityWrapper extends BaseActivityWrapper {
 	}
 
 	@Override
-	public void destroy() {
-		scriptWrapper.destroy();
-	}
-
-	@Override
 	public Activity newInstance() {
 		return scriptWrapper.newInstance();
 	}

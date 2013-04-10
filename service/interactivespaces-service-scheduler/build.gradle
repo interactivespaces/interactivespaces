@@ -24,7 +24,7 @@ dependencies {
   runtime 'org.slf4j:slf4j-simple:1.6.4'
   
   testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {

@@ -18,15 +18,14 @@ package interactivespaces.controller.activity.wrapper.internal.interactivespaces
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
+import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
+import interactivespaces.controller.domain.InstalledLiveActivity;
 
 import java.io.File;
-
-import org.apache.commons.logging.Log;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * A {@link ActivityWrapper} which works with an OSGi container.
@@ -41,106 +40,74 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 	public static final String CONFIGURATION_APPLICATION_JAVA_CLASS = "space.activity.java.class";
 
 	/**
-	 * Executable for the activity.
+	 * The installed live activity that this is the wrapper for.
 	 */
-	private File executable;
+	private InstalledLiveActivity liveActivity;
 
 	/**
-	 * Name of the class to run from the bundle.
+	 * The file system for the activity.
 	 */
-	private String className;
+	private ActivityFilesystem activityFilesystem;
 
 	/**
-	 * The bundle containing the activity.
+	 * The configuration for the live activity.
 	 */
-	private Bundle bundle;
+	private Configuration configuration;
+
+	/**
+	 * The bundle loader for the live activity bundles.
+	 */
+	private LiveActivityBundleLoader bundleLoader;
 
 	/**
 	 * The context we use for loading in a bundle.
 	 */
-	private BundleContext starterBundle;
+	private LiveActivityBundle bundle;
 
-	/**
-	 * When the file of the loaded bundle was last modified.
-	 */
-	private long lastModified;
-
-	/**
-	 * Log to use for reporting errors.
-	 */
-	private Log log;
-
-	public InteractiveSpacesNativeActivityWrapper(BundleContext starterBundle,
-			File executable, Configuration configuration, Log log) {
-		this.starterBundle = starterBundle;
-		this.executable = executable;
-		this.className = configuration
-				.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
-		this.log = log;
-	}
-
-	@Override
-	public synchronized void destroy() {
-		try {
-			bundle.uninstall();
-			bundle = null;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(String.format(
-					"Could not unload bundle at %s", bundle.getLocation()), e);
-		}
+	public InteractiveSpacesNativeActivityWrapper(
+			InstalledLiveActivity liveActivity,
+			ActivityFilesystem activityFilesystem, Configuration configuration,
+			LiveActivityBundleLoader bundleLoader) {
+		this.liveActivity = liveActivity;
+		this.activityFilesystem = activityFilesystem;
+		this.configuration = configuration;
+		this.bundleLoader = bundleLoader;
 	}
 
 	@Override
 	public synchronized Activity newInstance() {
-		prepare();
+		File executable = getActivityExecutable(activityFilesystem,
+				configuration);
+
+		String className = configuration
+				.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
+		Class<?> activityClass = bundleLoader.getBundleClass(executable,
+				liveActivity.getIdentifyingName(), liveActivity.getVersion(),
+				className);
+
 		try {
-			return (Activity) bundle.loadClass(className).newInstance();
+			return (Activity) activityClass.newInstance();
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
-					"Could not create class %s from bundle at %s", className,
-					bundle.getLocation()), e);
+					"Could not create activity class %s", className), e);
 		}
 	}
 
 	/**
-	 * Prepare an instance.
+	 * Get a file to the activity executable.
 	 * 
-	 * <p>
-	 * This method will do nothing if there is no need to. But if the bundle has
-	 * changed, it will destroy the current version and load a new one.
+	 * @param activityFilesystem
+	 *            the activity's filesystem
+	 * @param configuration
+	 *            configuration for the activity
+	 * 
+	 * @return File containing the executable.
 	 */
-	private void prepare() {
-		if (!executable.exists()) {
-			throw new InteractiveSpacesException(String.format(
-					"Bundle %s does not exist", executable));
-		}
-
-		try {
-			// JarFile bundleJar = new JarFile(executable);
-			// Manifest manifest = bundleJar.getManifest();
-			// Attributes mainAttributes = manifest.getMainAttributes();
-			// bundleJar.close();
-			// System.out.println(mainAttributes.getValue("Bundle-SymbolicName"));
-			// System.out.println(mainAttributes.getValue("Bundle-Version"));
-
-			// If there is a bundle loaded and it hasn't been modified,
-			// no reason to load.
-			if (bundle != null) {
-				if (executable.lastModified() > lastModified) {
-					destroy();
-				} else {
-					return;
-				}
-			}
-			String bundleUri = executable.toURI().toString();
-
-			bundle = starterBundle.installBundle(bundleUri);
-			lastModified = executable.lastModified();
-
-			bundle.start();
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(String.format(
-					"Cannot load bundle %s", executable.getAbsolutePath()), e);
-		}
+	private File getActivityExecutable(ActivityFilesystem activityFilesystem,
+			Configuration configuration) {
+		return new File(
+				activityFilesystem.getInstallDirectory(),
+				configuration
+						.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
 	}
 }

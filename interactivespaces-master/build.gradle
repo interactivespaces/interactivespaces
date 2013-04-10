@@ -38,7 +38,7 @@ dependencies {
   runtime 'org.apache.geronimo.specs:geronimo-jta_1.1_spec:1.1.1'
 
   testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 compileJava.doLast {

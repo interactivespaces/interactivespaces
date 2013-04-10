@@ -62,24 +62,26 @@ public class SpaceControllerListenerHelper {
 	/**
 	 * Signal a space controller connection attempt.
 	 * 
-	 * @param uuid
-	 *            the UUID of the space controller
+	 * @param controller
+	 *            the space controller
 	 */
-	public void signalSpaceControllerConnectAttempted(String uuid) {
+	public void signalSpaceControllerConnectAttempted(
+			ActiveSpaceController controller) {
 		for (SpaceControllerListener listener : listeners) {
-			listener.onSpaceControllerConnectAttempted(uuid);
+			listener.onSpaceControllerConnectAttempted(controller);
 		}
 	}
 
 	/**
 	 * Signal a space controller disconnection attempt.
 	 * 
-	 * @param uuid
-	 *            the UUID of the space controller
+	 * @param controller
+	 *            the space controller
 	 */
-	public void signalSpaceControllerDisconnectAttempted(String uuid) {
+	public void signalSpaceControllerDisconnectAttempted(
+			ActiveSpaceController controller) {
 		for (SpaceControllerListener listener : listeners) {
-			listener.onSpaceControllerDisconnectAttempted(uuid);
+			listener.onSpaceControllerDisconnectAttempted(controller);
 		}
 	}
 

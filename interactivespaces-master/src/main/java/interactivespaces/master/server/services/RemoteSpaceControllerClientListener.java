@@ -27,28 +27,28 @@ import interactivespaces.master.server.services.internal.LiveActivityInstallResu
  * @author Keith M. Hughes
  */
 public interface RemoteSpaceControllerClientListener {
-	
+
 	/**
 	 * A space controller connection is being attempted.
 	 * 
-	 * @param uuid
-	 *            the UUID of the controller
+	 * @param controller
+	 *            the controller being connected to
 	 */
-	void onSpaceControllerConnectAttempted(String uuid);
-	
+	void onSpaceControllerConnectAttempted(ActiveSpaceController controller);
+
 	/**
 	 * A space controller disconnection is being attempted.
 	 * 
-	 * @param uuid
-	 *            the UUID of the controller
+	 * @param controller
+	 *            the controller being disconnected from
 	 */
-	void onSpaceControllerDisconnectAttempted(String uuid);
+	void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller);
 
 	/**
 	 * A controller has sent a heartbeat.
 	 * 
 	 * @param uuid
-	 *            the UUID of the controller
+	 *            uuid of the controller
 	 * 
 	 * @param timestamp
 	 *            timestamp of the heartbeat

@@ -23,7 +23,7 @@ dependencies {
 	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
 	testCompile 'junit:junit:4.8.2'
-	testCompile 'org.mockito:mockito-all:1.8.5'
+	testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 def findArtifact(prefix) {

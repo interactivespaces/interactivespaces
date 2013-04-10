@@ -37,14 +37,6 @@ public interface ActivityWrapper {
 	Activity newInstance();
 	
 	/**
-	 * The activity is done, clean up any resources used and release them.
-	 * 
-	 * <p>
-	 * This may mean nothing to the activity.
-	 */
-	void destroy();
-	
-	/**
 	 * Get a new execution context for the activity.
 	 * 
 	 * @return

@@ -18,6 +18,7 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 
 import java.util.List;
@@ -67,24 +68,26 @@ public class RemoteControllerClientListenerHelper {
 	/**
 	 * Signal a space controller connecting.
 	 * 
-	 * @param uuid
-	 *            the UUID of the space controller
+	 * @param controller
+	 *            the controller being disconnected from
 	 */
-	public void signalSpaceControllerConnectAttempt(String uuid) {
+	public void signalSpaceControllerConnectAttempt(
+			ActiveSpaceController controller) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
-			listener.onSpaceControllerConnectAttempted(uuid);
+			listener.onSpaceControllerConnectAttempted(controller);
 		}
 	}
 
 	/**
 	 * Signal a space controller disconnecting.
 	 * 
-	 * @param uuid
-	 *            the UUID of the space controller
+	 * @param controller
+	 *            the controller being disconnected from
 	 */
-	public void signalSpaceControllerDisconnectAttempt(String uuid) {
+	public void signalSpaceControllerDisconnectAttempt(
+			ActiveSpaceController controller) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
-			listener.onSpaceControllerDisconnectAttempted(uuid);
+			listener.onSpaceControllerDisconnectAttempted(controller);
 		}
 	}
 
@@ -92,12 +95,13 @@ public class RemoteControllerClientListenerHelper {
 	 * Signal a space controller heartbeat.
 	 * 
 	 * @param uuid
-	 *            the UUID of the space controller
+	 *            uuid of the controller
 	 * 
 	 * @param timestamp
 	 *            timestamp of the heartbeat
 	 */
-	public void signalSpaceControllerHeartbeat(String uuid, long timestamp) {
+	public void signalSpaceControllerHeartbeat(
+			String uuid, long timestamp) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
 			listener.onSpaceControllerHeartbeat(uuid, timestamp);
 		}

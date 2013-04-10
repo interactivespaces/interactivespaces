@@ -19,7 +19,7 @@ dependencies {
   provided files(project.getProperty("android.sdk.home") + "/platforms/" + project.getProperty("android.platform") + "/android.jar")
  
   testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {

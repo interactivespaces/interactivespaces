@@ -54,11 +54,11 @@ public interface DirectoryWatcher {
 	 *            how often the directories should be scanned
 	 * @param unit
 	 *            time unit for the scanning period
-	 *            
+	 * 
 	 * @return the initial set of files in all scanned folders
 	 */
-	Set<File> startupWithScan(InteractiveSpacesEnvironment environment, long period,
-			TimeUnit unit);
+	Set<File> startupWithScan(InteractiveSpacesEnvironment environment,
+			long period, TimeUnit unit);
 
 	/**
 	 * Shut down the watcher.
@@ -100,4 +100,13 @@ public interface DirectoryWatcher {
 	 * Force a scan of the registered directories.
 	 */
 	void scan();
+
+	/**
+	 * Should directories should be emptied before they are added to the
+	 * watcher?
+	 * 
+	 * @param cleanFirst
+	 *            {@code true} if the directories should be cleaned first
+	 */
+	void setCleanFirst(boolean cleanFirst);
 }

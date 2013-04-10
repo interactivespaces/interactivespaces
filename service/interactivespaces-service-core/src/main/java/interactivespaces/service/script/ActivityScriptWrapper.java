@@ -33,11 +33,6 @@ public interface ActivityScriptWrapper {
 	Activity newInstance();
 	
 	/**
-	 * The wrapper is being destroyed, clean up.
-	 */
-	void destroy();
-	
-	/**
 	 * Create a new execution context for the activity.
 	 * 
 	 * @return a newly created execution context

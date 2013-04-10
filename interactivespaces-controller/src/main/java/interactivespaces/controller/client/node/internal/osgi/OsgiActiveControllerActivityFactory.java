@@ -70,8 +70,8 @@ public class OsgiActiveControllerActivityFactory implements
 	}
 
 	@Override
-	public ActiveControllerActivity createActiveActivity(
-			String activityType, InstalledLiveActivity liapp,
+	public ActiveControllerActivity createActiveLiveActivity(
+			String activityType, InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
 			StandardSpaceController controller) {
@@ -80,32 +80,32 @@ public class OsgiActiveControllerActivityFactory implements
 				.get(activityType.toLowerCase());
 		if (wrapperFactory != null) {
 			ActivityWrapper wrapper = wrapperFactory
-					.createActivityWrapper(liapp, activityFilesystem,
+					.newActivityWrapper(liveActivity, activityFilesystem,
 							configuration, controller);
 
-			ActiveControllerActivity app = new ActiveControllerActivity(
-					liapp, wrapper, activityFilesystem, configuration,
+			ActiveControllerActivity activeLiveActivity = new ActiveControllerActivity(
+					liveActivity, wrapper, activityFilesystem, configuration,
 					controller);
 
-			return app;
+			return activeLiveActivity;
 		} else {
 			String message = String.format(
 					"Unsupported activity type %s for activity %s",
-					activityType.toString(), liapp.getUuid());
+					activityType.toString(), liveActivity.getUuid());
 			controller.getSpaceEnvironment().getLog().warn(message);
 			throw new InteractiveSpacesException(message);
 		}
 	}
 
 	@Override
-	public ActiveControllerActivity createActiveActivity(
-			InstalledLiveActivity liapp,
+	public ActiveControllerActivity newActiveActivity(
+			InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem,
 			SimpleActivityConfiguration configuration,
 			StandardSpaceController controller) {
 		String type = getConfiguredType(configuration);
 
-		return createActiveActivity(type, liapp, activityFilesystem,
+		return createActiveLiveActivity(type, liveActivity, activityFilesystem,
 				configuration, controller);
 	}
 

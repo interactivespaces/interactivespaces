@@ -722,13 +722,16 @@ public class BasicActiveControllerManager implements
 	}
 
 	@Override
-	public void onSpaceControllerConnectAttempted(String uuid) {
-		controllerListeners.signalSpaceControllerConnectAttempted(uuid);
+	public void onSpaceControllerConnectAttempted(
+			ActiveSpaceController controller) {
+		controllerListeners.signalSpaceControllerConnectAttempted(controller);
 	}
 
 	@Override
-	public void onSpaceControllerDisconnectAttempted(String uuid) {
-		controllerListeners.signalSpaceControllerDisconnectAttempted(uuid);
+	public void onSpaceControllerDisconnectAttempted(
+			ActiveSpaceController controller) {
+		controllerListeners
+				.signalSpaceControllerDisconnectAttempted(controller);
 	}
 
 	@Override

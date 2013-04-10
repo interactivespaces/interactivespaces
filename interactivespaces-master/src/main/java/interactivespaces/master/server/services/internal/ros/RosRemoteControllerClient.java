@@ -740,8 +740,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 							remoteNode, publisherListener);
 
 			remoteControllerClientListeners
-					.signalSpaceControllerConnectAttempt(spaceController
-							.getController().getUuid());
+					.signalSpaceControllerConnectAttempt(spaceController);
 		}
 
 		/**
@@ -758,8 +757,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			activityStatusSubscriber = null;
 
 			remoteControllerClientListeners
-					.signalSpaceControllerDisconnectAttempt(spaceController
-							.getController().getUuid());
+					.signalSpaceControllerDisconnectAttempt(spaceController);
 		}
 
 		/**

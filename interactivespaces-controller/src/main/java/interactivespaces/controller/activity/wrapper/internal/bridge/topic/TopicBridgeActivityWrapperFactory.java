@@ -37,7 +37,7 @@ public class TopicBridgeActivityWrapperFactory implements
 	}
 
 	@Override
-	public ActivityWrapper createActivityWrapper(
+	public ActivityWrapper newActivityWrapper(
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
 			Configuration configuration, SpaceController controller) {

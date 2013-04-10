@@ -64,7 +64,7 @@ public class XmlRpcServerClientConnectionServer extends XmlRpcHttpServer {
 		try {
 			if (data.isByteArrayRequired()) {
 				super.writeResponse(config, stream, result);
-				// data.getConnection().writeResponse(data, stream);
+				//data.getConnection().writeResponse(data, stream);
 			} else {
 				// data.getConnection().writeResponseHeader(data, -1);
 				super.writeResponse(config, stream, result);

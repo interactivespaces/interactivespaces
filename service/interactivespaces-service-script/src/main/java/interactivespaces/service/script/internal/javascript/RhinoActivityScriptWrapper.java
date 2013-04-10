@@ -67,11 +67,6 @@ public class RhinoActivityScriptWrapper implements ActivityScriptWrapper {
 	}
 
 	@Override
-	public void destroy() {
-		// Nothing right now.
-	}
-
-	@Override
 	public Activity newInstance() {
 
 		String script = scriptSource.getScriptContents();

@@ -18,6 +18,7 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.ActiveControllerManager;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.server.services.MasterAlertManager;
 import interactivespaces.master.server.services.SpaceControllerListener;
@@ -69,13 +70,17 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 	private SpaceControllerListener spaceControllerListener = new SpaceControllerListenerSupport() {
 
 		@Override
-		public void onSpaceControllerConnectAttempted(String uuid) {
-			handleSpaceControllerConnectAttempted(uuid);
+		public void onSpaceControllerConnectAttempted(
+				ActiveSpaceController controller) {
+			handleSpaceControllerConnectAttempted(controller.getController()
+					.getUuid());
 		}
 
 		@Override
-		public void onSpaceControllerDisconnectAttempted(String uuid) {
-			handleSpaceControllerDisconnectAttempted(uuid);
+		public void onSpaceControllerDisconnectAttempted(
+				ActiveSpaceController controller) {
+			handleSpaceControllerDisconnectAttempted(controller.getController()
+					.getUuid());
 		}
 
 		@Override

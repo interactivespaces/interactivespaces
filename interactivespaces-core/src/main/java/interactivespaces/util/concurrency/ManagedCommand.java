@@ -16,7 +16,6 @@
 
 package interactivespaces.util.concurrency;
 
-import interactivespaces.util.concurrency.ManagedCommands.WrappedTask;
 
 /**
  * Reference to a Managed Command.
@@ -37,49 +36,49 @@ import interactivespaces.util.concurrency.ManagedCommands.WrappedTask;
  */
 public class ManagedCommand {
 
-	/**
-	 * The task of the command.
-	 */
-	private WrappedTask task;
-
-	ManagedCommand(WrappedTask task) {
-		this.task = task;
-	}
-
-	/**
-	 * Cancel the task whether or not it was running.
-	 */
-	public void cancel() {
-		task.cancel();
-	}
-
-	/**
-	 * Has the command been cancelled?
-	 * 
-	 * @return {@code true} if cancelled
-	 */
-	public boolean isCancelled() {
-		return task.isCancelled();
-	}
-
-	/**
-	 * Is the command done?
-	 * 
-	 * @return {@code true} if done
-	 */
-	public boolean isDone() {
-		return task.isDone();
-	}
-
-	/**
-	 * Get the task for the command.
-	 * 
-	 * <p>
-	 * Only for testing.
-	 * 
-	 * @return
-	 */
-	WrappedTask getTask() {
-		return task;
-	}
+//	/**
+//	 * The task of the command.
+//	 */
+//	private WrappedTask task;
+//
+//	ManagedCommand(WrappedTask task) {
+//		this.task = task;
+//	}
+//
+//	/**
+//	 * Cancel the task whether or not it was running.
+//	 */
+//	public void cancel() {
+//		task.cancel();
+//	}
+//
+//	/**
+//	 * Has the command been cancelled?
+//	 * 
+//	 * @return {@code true} if cancelled
+//	 */
+//	public boolean isCancelled() {
+//		return task.isCancelled();
+//	}
+//
+//	/**
+//	 * Is the command done?
+//	 * 
+//	 * @return {@code true} if done
+//	 */
+//	public boolean isDone() {
+//		return task.isDone();
+//	}
+//
+//	/**
+//	 * Get the task for the command.
+//	 * 
+//	 * <p>
+//	 * Only for testing.
+//	 * 
+//	 * @return
+//	 */
+//	WrappedTask getTask() {
+//		return task;
+//	}
 }

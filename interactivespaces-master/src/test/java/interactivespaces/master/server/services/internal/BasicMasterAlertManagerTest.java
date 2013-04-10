@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.server.services.MasterAlertManager;
 import interactivespaces.service.alert.AlertService;
@@ -69,10 +70,16 @@ public class BasicMasterAlertManagerTest {
 	@Test
 	public void testAlertManagerScanNoTrigger() {
 		String uuid = "foo";
+
+		SpaceController controller = new SimpleSpaceController();
+		controller.setUuid(uuid);
+		
+		ActiveSpaceController active = new ActiveSpaceController(controller, timeProvider);
+		
 		int initialTimestamp = 1000;
 		timeProvider.setCurrentTime(initialTimestamp);
 		alertManager.getSpaceControllerListener()
-				.onSpaceControllerConnectAttempted(uuid);
+				.onSpaceControllerConnectAttempted(active);
 		alertManager.scan();
 
 		alertManager.getSpaceControllerListener().onSpaceControllerHeartbeat(
@@ -101,9 +108,11 @@ public class BasicMasterAlertManagerTest {
 		controller.setName("NumeroUno");
 		Mockito.when(controllerRepository.getSpaceControllerByUuid(uuid))
 				.thenReturn(controller);
+		
+		ActiveSpaceController active = new ActiveSpaceController(controller, timeProvider);
 
 		timeProvider.setCurrentTime(initialTimestamp);
-		alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(uuid);
+		alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(active);
 		alertManager.scan();
 
 		timeProvider.setCurrentTime(initialTimestamp
@@ -129,12 +138,16 @@ public class BasicMasterAlertManagerTest {
 	public void testAlertManagerScanNoTriggerFromDisconnect() {
 		String uuid = "this.is.my.uuid";
 		int initialTimestamp = 1000;
+		SpaceController controller = new SimpleSpaceController();
+		controller.setUuid(uuid);
+		
+		ActiveSpaceController active = new ActiveSpaceController(controller, timeProvider);
 
 		timeProvider.setCurrentTime(initialTimestamp);
-		alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(uuid);
+		alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(active);
 		alertManager.scan();
 
-		alertManager.getSpaceControllerListener().onSpaceControllerDisconnectAttempted(uuid);		
+		alertManager.getSpaceControllerListener().onSpaceControllerDisconnectAttempted(active);		
 		timeProvider.setCurrentTime(initialTimestamp
 				+ alertManager.getSpaceControllerHeartbeatTime() + 1);
 		alertManager.scan();

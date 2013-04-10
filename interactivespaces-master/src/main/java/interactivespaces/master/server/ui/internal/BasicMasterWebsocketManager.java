@@ -22,6 +22,7 @@ import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketH
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.ExtensionManager;
@@ -147,12 +148,14 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	}
 
 	@Override
-	public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result) {
+	public void onLiveActivityInstall(String uuid,
+			LiveActivityInstallResult result) {
 		// Don't care
 	}
 
 	@Override
-	public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
+	public void onLiveActivityDelete(String uuid,
+			LiveActivityDeleteResult result) {
 		// Don't care
 	}
 
@@ -184,12 +187,14 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
 	}
 
 	@Override
-	public void onSpaceControllerConnectAttempted(String uuid) {
+	public void onSpaceControllerConnectAttempted(
+			ActiveSpaceController controller) {
 		// For now don't care.
 	}
 
 	@Override
-	public void onSpaceControllerDisconnectAttempted(String uuid) {
+	public void onSpaceControllerDisconnectAttempted(
+			ActiveSpaceController controller) {
 		// For now don't care.
 	}
 

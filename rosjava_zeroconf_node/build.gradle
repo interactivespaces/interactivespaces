@@ -19,7 +19,7 @@ dependencies {
   compile project(':rosjava_zeroconf_common')
 
   testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {

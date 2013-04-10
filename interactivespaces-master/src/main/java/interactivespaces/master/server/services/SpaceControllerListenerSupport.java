@@ -31,12 +31,12 @@ public abstract class SpaceControllerListenerSupport implements
 		SpaceControllerListener {
 
 	@Override
-	public void onSpaceControllerConnectAttempted(String uuid) {
+	public void onSpaceControllerConnectAttempted(ActiveSpaceController controller) {
 		// Default is do nothing.
 	}
 
 	@Override
-	public void onSpaceControllerDisconnectAttempted(String uuid) {
+	public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
 		// Default is do nothing.
 	}
 

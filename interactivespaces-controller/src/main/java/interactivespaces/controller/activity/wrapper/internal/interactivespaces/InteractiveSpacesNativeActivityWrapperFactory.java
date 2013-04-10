@@ -17,14 +17,11 @@
 package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
 import interactivespaces.activity.ActivityFilesystem;
-import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
-
-import java.io.File;
 
 import org.osgi.framework.BundleContext;
 
@@ -37,13 +34,16 @@ public class InteractiveSpacesNativeActivityWrapperFactory implements
 		ActivityWrapperFactory {
 
 	/**
-	 * The bundle context for entrance into the OSGi container.
+	 * The bundle loader to use for loading live activities.
 	 */
-	private BundleContext bundleContext;
+	private LiveActivityBundleLoader bundleLoader;
 
-	public InteractiveSpacesNativeActivityWrapperFactory(
-			BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
+	private BundleSignature bundleComparer;
+
+	public InteractiveSpacesNativeActivityWrapperFactory(BundleContext bundleContext) {
+		this.bundleComparer = new MessageDigestBundleSignature();
+		this.bundleLoader = new SimpleLiveActivityBundleLoader(bundleContext,
+				bundleComparer);
 	}
 
 	@Override
@@ -52,39 +52,11 @@ public class InteractiveSpacesNativeActivityWrapperFactory implements
 	}
 
 	@Override
-	public ActivityWrapper createActivityWrapper(InstalledLiveActivity liapp,
+	public ActivityWrapper newActivityWrapper(
+			InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem, Configuration configuration,
 			SpaceController controller) {
-		// TODO(keith): Need something which reference counts the OSGi bundle so
-		// that can have multiple instances of the same app running in the OSGi
-		// container. Will need to take versions into account.
-		File executable = getActivityExecutable(liapp, activityFilesystem,
-				configuration);
-
-		InteractiveSpacesNativeActivityWrapper wrapper = new InteractiveSpacesNativeActivityWrapper(
-				bundleContext, executable, configuration, controller
-						.getSpaceEnvironment().getLog());
-
-		return wrapper;
-	}
-
-	/**
-	 * Get a file to the activity executable.
-	 * 
-	 * @param liapp
-	 *            Activity containing the executable.
-	 * @param activityFilesystem
-	 *            The activity's filesystem.
-	 * @param configuration
-	 *            Configuration for the activity.
-	 * 
-	 * @return File containing the executable.
-	 */
-	private File getActivityExecutable(InstalledLiveActivity liapp,
-			ActivityFilesystem activityFilesystem, Configuration configuration) {
-		return new File(
-				activityFilesystem.getInstallDirectory(),
-				configuration
-						.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
+		return new InteractiveSpacesNativeActivityWrapper(liveActivity,
+				activityFilesystem, configuration, bundleLoader);
 	}
 }
