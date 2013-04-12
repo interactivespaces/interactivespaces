@@ -20,12 +20,10 @@
 package org.ros.internal.xmlrpc.webserver;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.common.ServerStreamConnection;
