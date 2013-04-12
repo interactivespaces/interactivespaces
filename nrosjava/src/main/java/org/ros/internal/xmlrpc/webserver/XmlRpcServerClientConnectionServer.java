@@ -45,10 +45,9 @@ public class XmlRpcServerClientConnectionServer extends XmlRpcHttpServer {
 		try {
 			if (data.isByteArrayRequired()) {
 				super.writeError(config, stream, throwable);
-				data.getConnection().writeError(data, throwable,
-						(ByteArrayOutputStream) stream);
+				data.getConnection().notifyError(data, throwable);
 			} else {
-				data.getConnection().writeErrorHeader(data, throwable, -1);
+				data.getConnection().notifyError(data, throwable);
 				super.writeError(config, stream, throwable);
 				stream.flush();
 			}
@@ -66,7 +65,7 @@ public class XmlRpcServerClientConnectionServer extends XmlRpcHttpServer {
 				super.writeResponse(config, stream, result);
 				//data.getConnection().writeResponse(data, stream);
 			} else {
-				// data.getConnection().writeResponseHeader(data, -1);
+				//data.getConnection().writeResponseHeader(data, -1);
 				super.writeResponse(config, stream, result);
 				stream.flush();
 			}

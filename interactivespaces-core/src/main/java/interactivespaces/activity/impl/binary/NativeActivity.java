@@ -30,11 +30,6 @@ import interactivespaces.activity.impl.BaseActivity;
  */
 public class NativeActivity extends BaseActivity {
 
-	/**
-	 * Control of the native app.
-	 */
-	private NativeActivityRunner nativeActivity;
-
 	@Override
 	public void commonActivitySetup() {
 		addActivityComponent(new NativeActivityComponent(

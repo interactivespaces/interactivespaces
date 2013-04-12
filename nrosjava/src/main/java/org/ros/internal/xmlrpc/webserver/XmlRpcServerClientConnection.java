@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.common.ServerStreamConnection;
@@ -45,6 +46,9 @@ import com.google.common.collect.Maps;
 
 /**
  * A connection between an XMLRPC server and a client for that server.
+ * 
+ * <p>
+ * One of these is created for each request that comes in.
  * 
  * <p>
  * This code is derived from the web server which came with the Apache XMLRPC
@@ -100,6 +104,12 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
 	 */
 	private Map<String, String> headers = Maps.newHashMap();
 
+	/**
+	 * If not {@code null} at the end of processing, something bad happened
+	 * during processing.
+	 */
+	private Throwable processingThrowable;
+
 	public XmlRpcServerClientConnection(ChannelHandlerContext ctx,
 			HttpRequest request, XmlRpcStreamServer xmlRpcServer,
 			NettyXmlRpcWebServerHandler handler) {
@@ -121,8 +131,21 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
 		try {
 			xmlRpcServer.execute(data, this);
 
+			// TODO(keith): At the moment not paying attention to
+			// processingThrowable since it looks like for the most part the
+			// responses to be sent back are not important. They will be logged
+			// and should be examined over time. The original apache code had
+			// special return headers for BadRequestException,
+			// BadEncodingException, and XmlRpcNotAuthorizedException, none of
+			// which are needed for ROS. Otherwise errors return a 200.
+
 			DefaultHttpResponse res = new DefaultHttpResponse(
 					HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+
+			// for (Entry<String, String> header : headers.entrySet()) {
+			// res.addHeader(header.getKey(), header.getValue());
+			// }
+
 			res.setContent(getChannelBuffer());
 
 			handler.sendHttpResponse(ctx, request, res);
@@ -180,6 +203,13 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
 
 	@Override
 	public OutputStream newOutputStream() throws IOException {
+		// TODO(keith): Should we check if a ByteArrayOutputStream should
+		// be returned here? If so, we would need to store it somewhere
+		// and then properly copy it to the outputStream here.
+		//
+		// It is normally used so we can have a content length in the headers.
+		// Probably not necessary as we are allocating a special output stream,
+		// not allowing for arbitrary streaming directly on the output channel
 		return outputStream;
 	}
 
@@ -188,27 +218,6 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
 		if (inputStream != null) {
 			inputStream.close();
 		}
-	}
-
-	/**
-	 * Writes an error response to the output stream.
-	 * 
-	 * @param data
-	 *            the request data
-	 * @param throwable
-	 *            the error being reported
-	 * @param errorStream
-	 *            the {@link ByteArrayOutputStream} with the error response
-	 * 
-	 * @throws IOException
-	 *             Writing the response failed.
-	 */
-	public void writeError(XmlRpcServerClientRequestData data,
-			Throwable throwable, ByteArrayOutputStream errorStream)
-			throws IOException {
-		writeErrorHeader(data, throwable, errorStream.size());
-		errorStream.writeTo(outputStream);
-		outputStream.flush();
 	}
 
 	/**
@@ -224,9 +233,11 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
 	 * @throws IOException
 	 *             Writing the response failed.
 	 */
-	public void writeErrorHeader(XmlRpcServerClientRequestData requestData,
-			Throwable throwable, long contentLength) throws IOException {
+	public void notifyError(XmlRpcServerClientRequestData requestData,
+			Throwable throwable) throws IOException {
 		handler.getWebServer().getLog().error("Got XMLRPC error!", throwable);
+
+		processingThrowable = throwable;
 	}
 
 	/**
