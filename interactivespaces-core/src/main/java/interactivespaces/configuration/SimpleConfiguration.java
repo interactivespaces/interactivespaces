@@ -17,21 +17,38 @@
 package interactivespaces.configuration;
 
 import interactivespaces.evaluation.ExpressionEvaluator;
+import interactivespaces.evaluation.SimpleExpressionEvaluator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A simple {@link Configuration}.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class SimpleConfiguration extends BaseConfiguration {
-	
+
 	/**
 	 * The properties file containing the app properties.
 	 */
 	private Map<String, String> values = new HashMap<String, String>();
+
+	/**
+	 * Create a {@link SimpleConfiguration} using a
+	 * {@link SimpleExpressionEvaluator} pointing at the configuration.
+	 * 
+	 * @return the newly created configuration
+	 */
+	public static SimpleConfiguration newConfiguration() {
+		ExpressionEvaluator expressionEvaluator = new SimpleExpressionEvaluator();
+
+		SimpleConfiguration configuration = new SimpleConfiguration(
+				expressionEvaluator);
+		expressionEvaluator.setEvaluationEnvironment(configuration);
+
+		return configuration;
+	}
 
 	/**
 	 * @param expressionEvaluator
@@ -40,7 +57,7 @@ public class SimpleConfiguration extends BaseConfiguration {
 	public SimpleConfiguration(ExpressionEvaluator expressionEvaluator) {
 		super(expressionEvaluator);
 	}
-	
+
 	@Override
 	public boolean containsPropertyLocally(String property) {
 		return values.containsKey(property);
@@ -50,7 +67,7 @@ public class SimpleConfiguration extends BaseConfiguration {
 	public String findValueLocally(String property) {
 		return values.get(property);
 	}
-	
+
 	@Override
 	public void setValue(String property, String value) {
 		values.put(property, value);
@@ -60,13 +77,13 @@ public class SimpleConfiguration extends BaseConfiguration {
 	public void clear() {
 		values.clear();
 	}
-	
+
 	@Override
 	public void addCollapsedEntries(Map<String, String> map) {
 		if (parent != null) {
 			parent.addCollapsedEntries(map);
 		}
-		
+
 		map.putAll(values);
 	}
 }

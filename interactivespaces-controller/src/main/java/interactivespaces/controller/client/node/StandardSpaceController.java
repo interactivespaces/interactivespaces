@@ -891,9 +891,20 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	private void attemptActivityShutdown(ActiveControllerActivity activity) {
 		ActivityStateTransition transition = ActivityStateTransition.SHUTDOWN;
-		if (transition.attemptTransition(activity.getActivityState(), activity)
-				.equals(TransitionResult.ILLEGAL)) {
+		TransitionResult transitionResult = transition.attemptTransition(
+				activity.getActivityState(), activity);
+		
+		if (transitionResult.equals(TransitionResult.ILLEGAL)) {
 			reportIllegalActivityStateTransition(activity, transition);
+		} else if (transitionResult.equals(TransitionResult.NOOP)) {
+			// If was already shut down, just signal READY
+			spaceEnvironment
+					.getLog()
+					.warn(String
+							.format("Attempt to shutdown live activity %s which wasn't running, sending READY",
+									activity.getUuid()));
+			publishActivityStatus(activity.getUuid(),
+					LIVE_ACTIVITY_READY_STATUS);
 		}
 	}
 

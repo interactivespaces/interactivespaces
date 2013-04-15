@@ -16,42 +16,48 @@
 
 package interactivespaces.evaluation;
 
-
 /**
  * An evaluator for some expressions.
  * 
  * @author Keith M. Hughes
  */
 public interface ExpressionEvaluator {
-	
+
 	/**
 	 * Set the evaluation environment
+	 * 
 	 * @param environment
+	 *            the evaluation environment for the evaluator
 	 */
 	void setEvaluationEnvironment(EvaluationEnvironment environment);
-	
+
 	/**
 	 * Evaluate a string expression.
 	 * 
 	 * @param initial
 	 *            the initial string expression to evaluate. It will contain
-	 *            {@code code ${expr}} at various places.
+	 *            {@code code $ expr}} at various places.
 	 * 
 	 * @return The string with all expressions evaluated.
 	 * 
-	 * @throws EvaluationInteractiveSpacesException An evaluation error of some sort occurred.
+	 * @throws EvaluationInteractiveSpacesException
+	 *             An evaluation error of some sort occurred.
 	 */
-	String evaluateStringExpression(String initial) throws EvaluationInteractiveSpacesException;
-	
+	String evaluateStringExpression(String initial)
+			throws EvaluationInteractiveSpacesException;
+
 	/**
 	 * Evaluate an expression.
 	 * 
 	 * @param expression
-	 * 			the expression to evaluate in whatever expression language is being supported.
+	 *            the expression to evaluate in whatever expression language is
+	 *            being supported.
 	 * 
 	 * @return The value of the expression.
 	 * 
-	 * @throws EvaluationInteractiveSpacesException An evaluation error of some sort occurred.
+	 * @throws EvaluationInteractiveSpacesException
+	 *             An evaluation error of some sort occurred.
 	 */
-	Object evaluateExpression(String expression) throws EvaluationInteractiveSpacesException;
+	Object evaluateExpression(String expression)
+			throws EvaluationInteractiveSpacesException;
 }
