@@ -19,9 +19,10 @@ package interactivespaces.controller.client.node;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.activity.configuration.SimpleActivityConfiguration;
-import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
+import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
+import interactivespaces.controller.activity.configuration.SimpleLiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 /**
@@ -50,7 +51,7 @@ public interface ActiveControllerActivityFactory {
 	ActiveControllerActivity createActiveLiveActivity(String activityType,
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
-			SimpleActivityConfiguration configuration,
+			LiveActivityConfiguration configuration,
 			StandardSpaceController controller);
 
 	/**
@@ -74,7 +75,7 @@ public interface ActiveControllerActivityFactory {
 	ActiveControllerActivity newActiveActivity(
 			InstalledLiveActivity liapp,
 			ActivityFilesystem activityFilesystem,
-			SimpleActivityConfiguration configuration,
+			LiveActivityConfiguration configuration,
 			StandardSpaceController controller);
 
 	/**

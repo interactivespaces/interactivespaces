@@ -30,8 +30,8 @@ import java.io.File;
  * 
  * @author Keith M. Hughes
  */
-public class PropertyFileActivityConfigurationManager implements
-		ActivityConfigurationManager {
+public class PropertyFileLiveActivityConfigurationManager implements
+		LiveActivityConfigurationManager {
 
 	/**
 	 * File extension configuration files should have.
@@ -48,7 +48,7 @@ public class PropertyFileActivityConfigurationManager implements
 	 */
 	private ExpressionEvaluatorFactory expressionEvaluatorFactory;
 
-	public PropertyFileActivityConfigurationManager(
+	public PropertyFileLiveActivityConfigurationManager(
 			ExpressionEvaluatorFactory expressionEvaluatorFactory,
 			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.expressionEvaluatorFactory = expressionEvaluatorFactory;
@@ -56,7 +56,7 @@ public class PropertyFileActivityConfigurationManager implements
 	}
 
 	@Override
-	public SimpleActivityConfiguration getConfiguration(
+	public SimpleLiveActivityConfiguration getConfiguration(
 			ActivityFilesystem activityFilesystem) {
 		ExpressionEvaluator expressionEvaluator = expressionEvaluatorFactory
 				.newEvaluator();
@@ -71,7 +71,7 @@ public class PropertyFileActivityConfigurationManager implements
 						.getPermanentDataFile(getConfigFileName("activity")),
 				false, expressionEvaluator);
 
-		SimpleActivityConfiguration configuration = new SimpleActivityConfiguration(
+		SimpleLiveActivityConfiguration configuration = new SimpleLiveActivityConfiguration(
 				baseConfigurationStorageManager,
 				installedActivityConfigurationStorageManager,
 				expressionEvaluator, spaceEnvironment.getSystemConfiguration());

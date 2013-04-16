@@ -20,7 +20,6 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.ConfigurationStorageManager;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.evaluation.EvaluationInteractiveSpacesException;
-import interactivespaces.evaluation.EvaluationEnvironment;
 import interactivespaces.evaluation.ExpressionEvaluator;
 
 import java.util.Map;
@@ -30,8 +29,7 @@ import java.util.Map;
  * 
  * @author Keith M. Hughes
  */
-public class SimpleActivityConfiguration implements Configuration,
-		EvaluationEnvironment {
+public class SimpleLiveActivityConfiguration implements LiveActivityConfiguration {
 
 	/**
 	 * Storage manager for the base activity configuration.
@@ -69,7 +67,7 @@ public class SimpleActivityConfiguration implements Configuration,
 	 * @param systemConfiguration
 	 *            the system configuration
 	 */
-	public SimpleActivityConfiguration(
+	public SimpleLiveActivityConfiguration(
 			ConfigurationStorageManager baseStorageManager,
 			ConfigurationStorageManager installedActivityStorageManager,
 			ExpressionEvaluator expressionEvaluator,
@@ -88,24 +86,14 @@ public class SimpleActivityConfiguration implements Configuration,
 		temporary.setParent(installedConfiguration);
 	}
 
-	/**
-	 * Load all configurations.
-	 */
+	@Override
 	public void load() {
 		temporary.clear();
 		baseStorageManager.load();
 		installedActivityStorageManager.load();
 	}
 
-	/**
-	 * Update the configuration.
-	 * 
-	 * <p>
-	 * This will save it after it is updated.
-	 * 
-	 * @param update
-	 *            key/value pairs for the update
-	 */
+	@Override
 	public void update(Map<String, Object> update) {
 		installedActivityStorageManager.clear();
 		installedActivityStorageManager.update(update);

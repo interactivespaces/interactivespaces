@@ -20,7 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.activity.configuration.SimpleActivityConfiguration;
+import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
@@ -73,7 +73,7 @@ public class OsgiActiveControllerActivityFactory implements
 	public ActiveControllerActivity createActiveLiveActivity(
 			String activityType, InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem,
-			SimpleActivityConfiguration configuration,
+			LiveActivityConfiguration configuration,
 			StandardSpaceController controller) {
 
 		ActivityWrapperFactory wrapperFactory = activityWrapperFactories
@@ -101,7 +101,7 @@ public class OsgiActiveControllerActivityFactory implements
 	public ActiveControllerActivity newActiveActivity(
 			InstalledLiveActivity liveActivity,
 			ActivityFilesystem activityFilesystem,
-			SimpleActivityConfiguration configuration,
+			LiveActivityConfiguration configuration,
 			StandardSpaceController controller) {
 		String type = getConfiguredType(configuration);
 

@@ -23,7 +23,7 @@ import interactivespaces.activity.ActivityFilesystem;
  * 
  * @author Keith M. Hughes
  */
-public interface ActivityConfigurationManager {
+public interface LiveActivityConfigurationManager {
 
 	/**
 	 * Get a configuration.
@@ -32,6 +32,5 @@ public interface ActivityConfigurationManager {
 	 *            filesystem for the activity
 	 * @return the installation specific configuration
 	 */
-	SimpleActivityConfiguration getConfiguration(
-			ActivityFilesystem activityFilesystem);
+	LiveActivityConfiguration getConfiguration(ActivityFilesystem activityFilesystem);
 }

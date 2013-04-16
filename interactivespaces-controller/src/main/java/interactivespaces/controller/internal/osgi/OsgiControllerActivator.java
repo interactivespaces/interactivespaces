@@ -17,8 +17,9 @@
 package interactivespaces.controller.internal.osgi;
 
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
-import interactivespaces.controller.activity.configuration.PropertyFileActivityConfigurationManager;
+import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
@@ -97,7 +98,7 @@ public class OsgiControllerActivator implements BundleActivator {
 		interactiveSpacesSystemControlTracker.close();
 		rosEnvironmentTracker.close();
 		expressionEvaluatorFactoryTracker.close();
-		
+
 		if (controllerActivityFactoryServiceRegistration != null) {
 			controllerActivityFactoryServiceRegistration.unregister();
 			controllerActivityFactoryServiceRegistration = null;
@@ -157,7 +158,7 @@ public class OsgiControllerActivator implements BundleActivator {
 						activityStorageManager, spaceEnvironment);
 				controllerRepository.startup();
 
-				PropertyFileActivityConfigurationManager activityConfigurationManager = new PropertyFileActivityConfigurationManager(
+				PropertyFileLiveActivityConfigurationManager activityConfigurationManager = new PropertyFileLiveActivityConfigurationManager(
 						expressionEvaluatorFactory, spaceEnvironment);
 
 				activityInstallationManager = new SimpleActivityInstallationManager(
@@ -192,6 +193,7 @@ public class OsgiControllerActivator implements BundleActivator {
 						controllerActivityFactory, nativeActivityRunnerFactory,
 						activityConfigurationManager, activityStorageManager,
 						activityLogFactory, spaceControllerCommunicator,
+						new FileSystemSpaceControllerInfoPersister(),
 						spaceSystemControl, spaceEnvironment);
 				spaceController.startup();
 

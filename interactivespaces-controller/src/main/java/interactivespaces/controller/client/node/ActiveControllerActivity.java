@@ -22,11 +22,13 @@ import interactivespaces.activity.ActivityControl;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.activity.configuration.SimpleActivityConfiguration;
+import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 import java.util.Map;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * An activity which is live in the controller.
@@ -64,7 +66,7 @@ public class ActiveControllerActivity implements ActivityControl {
 	/**
 	 * The activity configuration.
 	 */
-	SimpleActivityConfiguration configuration;
+	private LiveActivityConfiguration configuration;
 
 	/**
 	 * The controller which contains the activity
@@ -95,7 +97,7 @@ public class ActiveControllerActivity implements ActivityControl {
 	public ActiveControllerActivity(InstalledLiveActivity installedActivity,
 			ActivityWrapper activityWrapper,
 			ActivityFilesystem activityFilesystem,
-			SimpleActivityConfiguration configuration,
+			LiveActivityConfiguration configuration,
 			StandardSpaceController controller) {
 		this.uuid = installedActivity.getUuid();
 		this.installedActivity = installedActivity;
@@ -243,5 +245,15 @@ public class ActiveControllerActivity implements ActivityControl {
 		synchronized (instanceLock) {
 			return instance;
 		}
+	}
+	
+	/**
+	 * Set the instance to be used for this active activity
+	 * 
+	 * @param instance
+	 */
+	@VisibleForTesting
+	void setInstance(Activity instance) {
+		this.instance = instance;
 	}
 }
