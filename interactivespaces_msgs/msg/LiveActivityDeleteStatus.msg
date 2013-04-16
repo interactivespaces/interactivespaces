@@ -26,3 +26,10 @@ int32 status
 int32 STATUS_SUCCESS = 0
 int32 STATUS_FAILURE = 1
 int32 STATUS_DOESNT_EXIST = 2
+
+
+# A string identifier giving more detail of the status
+string statusCode
+
+# More detail about the status, e.g. a stack trace
+string statusDetail

@@ -35,10 +35,10 @@ Creating a file called `shutdown` in this folder will shut the master
 down softly.
 
 Creating a file called `space-controllers-shutdown-all` will shut down all Space Controllers
-the master knows about.
+the Master knows about.
 
 Creating a file called `space-controllers-shutdown-all-activities` will shut down all Live 
-Activities running on allSpace Controllers the master knows about.
+Activities running on all Space Controllers the Master knows about.
 
 Creating a file called `live-activity-group-startup-id` start up a Live Activity Group whose ID
 is `id`. For example, `live-activity-group-startup-652` will start up Live

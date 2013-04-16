@@ -25,6 +25,12 @@ int32 STATUS_FULL = 4
 int32 STATUS_ACTIVITY_INSTALL = 5
 int32 STATUS_ACTIVITY_DELETE = 6
 
+# A string identifier giving more detail of the status
+string statusCode
+
+# More detail about the status, e.g. a stack trace
+string statusDetail
+
 string data_type
 byte[] data
 

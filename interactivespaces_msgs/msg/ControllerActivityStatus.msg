@@ -34,3 +34,9 @@ int32 STATUS_DEPLOY_ATTEMPT = 13
 int32 STATUS_ACTIVATE_ATTEMPT = 14
 int32 STATUS_DEACTIVATE_ATTEMPT = 15
 int32 STATUS_SHUTDOWN_ATTEMPT = 16
+
+# A string identifier giving more detail of the status
+string statusCode
+
+# More detail about the status, e.g. a stack trace
+string statusDetail

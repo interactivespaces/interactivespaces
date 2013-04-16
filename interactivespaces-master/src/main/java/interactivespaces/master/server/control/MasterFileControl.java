@@ -157,46 +157,52 @@ public class MasterFileControl implements DirectoryWatcherListener {
 				String.format("Master file control received command %s",
 						command));
 
-		if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
-			spaceSystemControl.shutdown();
-		} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL
-				.equalsIgnoreCase(command)) {
-			uiControllerManager.shutdownAllControllers();
-		} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES
-				.equalsIgnoreCase(command)) {
-			uiControllerManager.shutdownAllActivitiesAllControllers();
-		} else if (command
-				.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP)) {
-			String id = command
-					.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP
-							.length());
+		try {
+			if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
+				spaceSystemControl.shutdown();
+			} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL
+					.equalsIgnoreCase(command)) {
+				uiControllerManager.shutdownAllControllers();
+			} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES
+					.equalsIgnoreCase(command)) {
+				uiControllerManager.shutdownAllActivitiesAllControllers();
+			} else if (command
+					.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP)) {
+				String id = command
+						.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP
+								.length());
 
-			uiControllerManager.startupLiveActivityGroup(id);
-		} else if (command
-				.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
-			String id = command
-					.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE
-							.length());
+				uiControllerManager.startupLiveActivityGroup(id);
+			} else if (command
+					.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
+				String id = command
+						.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE
+								.length());
 
-			uiControllerManager.activateLiveActivityGroup(id);
-		} else if (command
-				.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
-			String id = command
-					.substring(COMMAND_PREFIX_SPACE_STARTUP
-							.length());
+				uiControllerManager.activateLiveActivityGroup(id);
+			} else if (command
+					.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
+				String id = command
+						.substring(COMMAND_PREFIX_SPACE_STARTUP
+								.length());
 
-			uiSpaceManager.startupSpace(id);
-		} else if (command
-				.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
-			String id = command
-					.substring(COMMAND_PREFIX_SPACE_ACTIVATE
-							.length());
+				uiSpaceManager.startupSpace(id);
+			} else if (command
+					.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
+				String id = command
+						.substring(COMMAND_PREFIX_SPACE_ACTIVATE
+								.length());
 
-			uiSpaceManager.activateSpace(id);
-		} else {
-			spaceEnvironment.getLog().warn(
-					String.format("Unknown command to master file control %s",
-							command));
+				uiSpaceManager.activateSpace(id);
+			} else {
+				spaceEnvironment.getLog().warn(
+						String.format("Unknown command to master file control %s",
+								command));
+			}
+		} catch (Exception e) {
+			spaceEnvironment.getLog().error(
+					String.format("Exception while executing master file control %s",
+							command), e);
 		}
 	}
 
