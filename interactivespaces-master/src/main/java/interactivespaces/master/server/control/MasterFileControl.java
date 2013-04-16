@@ -16,6 +16,8 @@
 
 package interactivespaces.master.server.control;
 
+import interactivespaces.master.server.ui.UiControllerManager;
+import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
@@ -29,8 +31,8 @@ import java.util.concurrent.TimeUnit;
  * Handle control of the master by using the filesystem.
  * 
  * <p>
- * These command work by looking at the {@link #FOLDER_RUN_CONTROL} folder in the
- * master directory. Any files with the names given are immediately deleted
+ * These command work by looking at the {@link #FOLDER_RUN_CONTROL} folder in
+ * the master directory. Any files with the names given are immediately deleted
  * and then the name of the file is executed as a command.
  * 
  * @author Keith M. Hughes
@@ -49,6 +51,36 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	public static final String COMMAND_SHUTDOWN = "shutdown";
 
 	/**
+	 * The command for shutting down all space controllers.
+	 */
+	public static final String COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL = "space-controllers-shutdown-all";
+
+	/**
+	 * The command for shutting down all activities on all space controllers.
+	 */
+	public static final String COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES = "space-controllers-shutdown-all-activities";
+
+	/**
+	 * The command for starting up a live activity group.
+	 */
+	public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP = "live-activity-group-startup-";
+
+	/**
+	 * The command for activating up a live activity group.
+	 */
+	public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE = "live-activity-group-activate-";
+
+	/**
+	 * The command for starting up a space.
+	 */
+	public static final String COMMAND_PREFIX_SPACE_STARTUP = "space-startup-";
+
+	/**
+	 * The command for activating up a space.
+	 */
+	public static final String COMMAND_PREFIX_SPACE_ACTIVATE = "space-activate-";
+
+	/**
 	 * The space environment to run in.
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
@@ -57,6 +89,16 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	 * Full system control of the container.
 	 */
 	private InteractiveSpacesSystemControl spaceSystemControl;
+
+	/**
+	 * Manager for control of space controllers.
+	 */
+	private UiControllerManager uiControllerManager;
+
+	/**
+	 * Manager for control of spaces.
+	 */
+	private UiSpaceManager uiSpaceManager;
 
 	/**
 	 * The directory watcher watching the directory for control files.
@@ -75,8 +117,10 @@ public class MasterFileControl implements DirectoryWatcherListener {
 
 		watcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
 
+		System.out.println(controlDirectory.list());
 		spaceEnvironment.getLog().info(
-				"File control of master started");
+				String.format("File control of master started, watching %s",
+						controlDirectory.getAbsolutePath()));
 	}
 
 	/**
@@ -109,28 +153,83 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	 *            the command to be executed
 	 */
 	void handleCommand(String command) {
+		spaceEnvironment.getLog().info(
+				String.format("Master file control received command %s",
+						command));
+
 		if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
 			spaceSystemControl.shutdown();
+		} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL
+				.equalsIgnoreCase(command)) {
+			uiControllerManager.shutdownAllControllers();
+		} else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES
+				.equalsIgnoreCase(command)) {
+			uiControllerManager.shutdownAllActivitiesAllControllers();
+		} else if (command
+				.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP)) {
+			String id = command
+					.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP
+							.length());
+
+			uiControllerManager.startupLiveActivityGroup(id);
+		} else if (command
+				.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
+			String id = command
+					.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE
+							.length());
+
+			uiControllerManager.activateLiveActivityGroup(id);
+		} else if (command
+				.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
+			String id = command
+					.substring(COMMAND_PREFIX_SPACE_STARTUP
+							.length());
+
+			uiSpaceManager.startupSpace(id);
+		} else if (command
+				.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
+			String id = command
+					.substring(COMMAND_PREFIX_SPACE_ACTIVATE
+							.length());
+
+			uiSpaceManager.activateSpace(id);
 		} else {
 			spaceEnvironment.getLog().warn(
-					String.format(
-							"Unknown command to master file control %s",
+					String.format("Unknown command to master file control %s",
 							command));
 		}
 	}
 
 	/**
-	 * @param spaceEnvironment the spaceEnvironment to set
+	 * @param spaceEnvironment
+	 *            the spaceEnvironment to set
 	 */
-	public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+	public void setSpaceEnvironment(
+			InteractiveSpacesEnvironment spaceEnvironment) {
 		this.spaceEnvironment = spaceEnvironment;
 	}
 
 	/**
-	 * @param spaceSystemControl the spaceSystemControl to set
+	 * @param spaceSystemControl
+	 *            the spaceSystemControl to set
 	 */
 	public void setSpaceSystemControl(
 			InteractiveSpacesSystemControl spaceSystemControl) {
 		this.spaceSystemControl = spaceSystemControl;
+	}
+
+	/**
+	 * @param uiControllerManager
+	 *            the uiControllerManager to set
+	 */
+	public void setUiControllerManager(UiControllerManager uiControllerManager) {
+		this.uiControllerManager = uiControllerManager;
+	}
+
+	/**
+	 * @param uiSpaceManager the uiSpaceManager to set
+	 */
+	public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
+		this.uiSpaceManager = uiSpaceManager;
 	}
 }

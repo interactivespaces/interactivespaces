@@ -31,8 +31,28 @@ The `control` Folder
 The `run` folder can contain a subfolder called `control`. This subfolder allows control
 of the Master by files which are added to it.
 
-For example, creating a file called `shutdown` in this folder will shut the master
+Creating a file called `shutdown` in this folder will shut the master
 down softly.
+
+Creating a file called `space-controllers-shutdown-all` will shut down all Space Controllers
+the master knows about.
+
+Creating a file called `space-controllers-shutdown-all-activities` will shut down all Live 
+Activities running on allSpace Controllers the master knows about.
+
+Creating a file called `live-activity-group-startup-id` start up a Live Activity Group whose ID
+is `id`. For example, `live-activity-group-startup-652` will start up Live
+Activity Group `652`.
+
+Creating a file called `live-activity-group-activate-id` start up a Live Activity Group whose ID
+is `id`. For example, `live-activity-group-activate-652` will activate Live
+Activity Group `652`.
+
+Creating a file called `space-startup-id` start up a Space whose ID
+is `id`. For example, `space-startup-652` will start up Space `652`.
+
+Creating a file called `space-activate-id` start up a Space whose ID
+is `id`. For example, `space-activate-652` will activate Space `652`.
 
 The `control` folder can be created after the Master has been started.
 

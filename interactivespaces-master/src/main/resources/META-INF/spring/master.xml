@@ -456,6 +456,8 @@
         <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
         <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
+
+        <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
     </bean>
 	
 	<osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
