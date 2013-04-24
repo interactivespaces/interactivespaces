@@ -460,6 +460,8 @@
         <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
 
         <property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
+
+        <property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
     </bean>
 	
 	<osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"

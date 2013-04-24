@@ -44,10 +44,10 @@ want. Hopefully peeling that onion won’t bring too many tears to your eyes.
    services
    supportclasses
    comm
-   advancedspacecontroller
+   spacecontrolleradvanced
    android
    expressionlanguage
-   advancedmaster
+   masteradvanced
    masterapi
    cookbook
    installing

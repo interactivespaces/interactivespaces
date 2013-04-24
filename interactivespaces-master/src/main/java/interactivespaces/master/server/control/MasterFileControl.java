@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.control;
 
+import interactivespaces.master.server.ui.UiAutomationManager;
 import interactivespaces.master.server.ui.UiControllerManager;
 import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -43,7 +44,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	 * The subfolder of the container installation being watched for system
 	 * control.
 	 */
-	private static final String FOLDER_RUN_CONTROL = "run/control";
+	public static final String FOLDER_RUN_CONTROL = "run/control";
 
 	/**
 	 * The command for shutting the entire container down.
@@ -81,6 +82,11 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	public static final String COMMAND_PREFIX_SPACE_ACTIVATE = "space-activate-";
 
 	/**
+	 * The command for running a script.
+	 */
+	public static final String COMMAND_PREFIX_SCRIPT_RUN = "script-run-";
+
+	/**
 	 * The space environment to run in.
 	 */
 	private InteractiveSpacesEnvironment spaceEnvironment;
@@ -99,6 +105,11 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	 * Manager for control of spaces.
 	 */
 	private UiSpaceManager uiSpaceManager;
+	
+	/**
+	 * Manager for automation control, e.g. running scripts.
+	 */
+	private UiAutomationManager uiAutomationManager;
 
 	/**
 	 * The directory watcher watching the directory for control files.
@@ -194,6 +205,13 @@ public class MasterFileControl implements DirectoryWatcherListener {
 								.length());
 
 				uiSpaceManager.activateSpace(id);
+			} else if (command
+					.startsWith(COMMAND_PREFIX_SCRIPT_RUN)) {
+				String id = command
+						.substring(COMMAND_PREFIX_SCRIPT_RUN
+								.length());
+
+				uiAutomationManager.runScript(id);
 			} else {
 				spaceEnvironment.getLog().warn(
 						String.format("Unknown command to master file control %s",
@@ -237,5 +255,12 @@ public class MasterFileControl implements DirectoryWatcherListener {
 	 */
 	public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
 		this.uiSpaceManager = uiSpaceManager;
+	}
+
+	/**
+	 * @param uiAutomationManager the uiAutomationManager to set
+	 */
+	public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
+		this.uiAutomationManager = uiAutomationManager;
 	}
 }

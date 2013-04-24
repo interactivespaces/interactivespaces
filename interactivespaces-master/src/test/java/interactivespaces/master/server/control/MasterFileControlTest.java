@@ -20,6 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import interactivespaces.master.server.ui.UiAutomationManager;
 import interactivespaces.master.server.ui.UiControllerManager;
 import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -43,6 +44,8 @@ public class MasterFileControlTest {
 	private UiControllerManager uiControllerManager;
 
 	private UiSpaceManager uiSpaceManager;
+	
+	private UiAutomationManager uiAutomationManager;
 
 	private MasterFileControl fileControl;
 
@@ -57,12 +60,14 @@ public class MasterFileControlTest {
 		spaceSystemControl = mock(InteractiveSpacesSystemControl.class);
 		uiControllerManager = mock(UiControllerManager.class);
 		uiSpaceManager = mock(UiSpaceManager.class);
+		uiAutomationManager = mock(UiAutomationManager.class);
 
 		fileControl = new MasterFileControl();
 		fileControl.setSpaceEnvironment(spaceEnvironment);
 		fileControl.setSpaceSystemControl(spaceSystemControl);
 		fileControl.setUiControllerManager(uiControllerManager);
 		fileControl.setUiSpaceManager(uiSpaceManager);
+		fileControl.setUiAutomationManager(uiAutomationManager);
 	}
 
 	/**
@@ -151,5 +156,18 @@ public class MasterFileControlTest {
 						+ id);
 
 		verify(uiSpaceManager, times(1)).activateSpace(id);
+	}
+
+	/**
+	 * Test running a script.
+	 */
+	@Test
+	public void testRunScriptCall() {
+		String id = "123454321";
+		fileControl
+				.handleCommand(MasterFileControl.COMMAND_PREFIX_SCRIPT_RUN
+						+ id);
+
+		verify(uiAutomationManager, times(1)).runScript(id);
 	}
 }

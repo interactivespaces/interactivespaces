@@ -54,6 +54,9 @@ is `id`. For example, `space-startup-652` will start up Space `652`.
 Creating a file called `space-activate-id` start up a Space whose ID
 is `id`. For example, `space-activate-652` will activate Space `652`.
 
+Creating a file called `script-run-id` run a script whose ID
+is `id`. For example, `script-run-652` will run the script with ID `652`.
+
 The `control` folder can be created after the Master has been started.
 
 This kind of control of the Master is useful for automated starts and stops
