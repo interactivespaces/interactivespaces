@@ -87,7 +87,7 @@ ${liveactivity.activity.description}
 </tr>
 <tr>
 <th>Activity</th>
-<td><a href="/interactivespaces/activity/${liveactivity.activity.activity.id}/view.html">${liveactivity.activity.activity.name}</a></td>
+<td><a href="/interactivespaces/activity/${liveactivity.activity.activity.id}/view.html">${liveactivity.activity.activity.name} - ${liveactivity.activity.activity.version}</a></td>
 </tr>
 <th>Controller</th>
 <td><#if liveactivity.activity.controller?has_content>

@@ -54,7 +54,7 @@ public class UiUtilities {
 	/**
 	 * A comparator for activities which orders by name.
 	 */
-	public static final ActivityByNameComparator ACTIVITY_BY_NAME_COMPARATOR = new ActivityByNameComparator();
+	public static final ActivityByNameAndVersionComparator ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR = new ActivityByNameAndVersionComparator();
 
 	/**
 	 * A comparator for installed activities which orders by name.
@@ -130,15 +130,22 @@ public class UiUtilities {
 	}
 
 	/**
-	 * A comparator for activities which orders by name.
+	 * A comparator for activities which orders by name first then subsorts by
+	 * version.
 	 * 
 	 * @author Keith M. Hughes
 	 */
-	private static class ActivityByNameComparator implements
+	private static class ActivityByNameAndVersionComparator implements
 			Comparator<Activity> {
 		@Override
 		public int compare(Activity o1, Activity o2) {
-			return o1.getName().compareToIgnoreCase(o2.getName());
+			int compare = o1.getName().compareToIgnoreCase(o2.getName());
+
+			if (compare == 0) {
+				compare = o1.getVersion().compareTo(o2.getVersion());
+			}
+
+			return compare;
 		}
 	}
 

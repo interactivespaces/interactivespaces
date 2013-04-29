@@ -66,7 +66,7 @@ public class ActivityController extends BaseActiveSpaceMasterController {
 	public ModelAndView listActivities() {
 		List<Activity> activities = Lists.newArrayList(activityRepository
 				.getAllActivities());
-		Collections.sort(activities, UiUtilities.ACTIVITY_BY_NAME_COMPARATOR);
+		Collections.sort(activities, UiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
 
 		ModelAndView mav = getModelAndView();
 

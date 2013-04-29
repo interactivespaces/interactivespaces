@@ -105,8 +105,8 @@ ${activity.description}
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
     <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
-<td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-<@spring.message liveactivity.active.runtimeState.description />
+<td><#if liveactivity.active?has_content><div id="liveactivity-${liveactivity.activity.uuid}">
+<span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
  as of 
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}

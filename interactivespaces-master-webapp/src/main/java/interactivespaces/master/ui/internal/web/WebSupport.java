@@ -41,7 +41,7 @@ import com.google.common.collect.Maps;
  * @author Keith M. Hughes
  */
 public class WebSupport {
-	
+
 	/**
 	 * Format to be used for Activity selection names.
 	 * 
@@ -61,11 +61,15 @@ public class WebSupport {
 	public static Map<String, String> getActivitySelections(
 			List<Activity> activities) {
 		List<Activity> toBeSorted = Lists.newArrayList(activities);
-		Collections.sort(toBeSorted, UiUtilities.ACTIVITY_BY_NAME_COMPARATOR);
+		Collections.sort(toBeSorted,
+				UiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
 
 		Map<String, String> items = Maps.newLinkedHashMap();
 		for (Activity activity : toBeSorted) {
-			items.put(activity.getId(), activity.getName());
+			items.put(
+					activity.getId(),
+					String.format("%s - %s", activity.getName(),
+							activity.getVersion()));
 		}
 
 		return items;
