@@ -70,6 +70,11 @@ public interface ActivityFilesystem {
 	File getPermanentDataFile(String relative);
 
 	/**
+	 * Clean the directory where the activity can permanently store data.
+	 */
+	void cleanPermanentDataDirectory();
+
+	/**
 	 * Get the directory where the activity can temporarily store data.
 	 * 
 	 * <p>
@@ -95,6 +100,11 @@ public interface ActivityFilesystem {
 	 * @return The directory where the activity can temporarily store data.
 	 */
 	File getTempDataFile(String relative);
+
+	/**
+	 * Clean the directory where the activity can temporarily store data.
+	 */
+	void cleanTempDataDirectory();
 
 	/**
 	 * Get the directory where the activity stores logs.

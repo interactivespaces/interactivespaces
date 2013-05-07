@@ -130,6 +130,9 @@ public class BasicUiAutomationManager implements UiAutomationManager {
 
 	@Override
 	public UiAutomationManager runScript(String id) {
+		spaceEnvironment.getLog().info(
+				String.format("Running script with id %s", id));
+
 		automationManager.runScript(getNamedScript(id));
 
 		return this;

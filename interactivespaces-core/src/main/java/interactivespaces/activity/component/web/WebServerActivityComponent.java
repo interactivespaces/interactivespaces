@@ -23,6 +23,7 @@ import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
 import interactivespaces.service.web.WebSocketHandler;
+import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
@@ -117,6 +118,11 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	 */
 	private List<StaticContent> staticContent = Lists.newArrayList();
 
+	/**
+	 * List of dynamic content for the web server.
+	 */
+	private List<DynamicContent> dynamicContent = Lists.newArrayList();
+
 	@Override
 	public String getName() {
 		return COMPONENT_NAME;
@@ -159,6 +165,11 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 					content.getBaseDir());
 		}
 
+		for (DynamicContent content : dynamicContent) {
+			webServer.addDynamicContentHandler(content.getUriPrefix(),
+					content.isUsePath(), content.getRequestHandler());
+		}
+
 		if (webSocketHandlerFactory != null) {
 			setWebServerWebSocketHandlerFactory();
 		}
@@ -180,7 +191,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 		long start = System.currentTimeMillis();
 		Log log = getComponentContext().getActivity().getLog();
 		log.info("Shutting down web server activity component");
-		
+
 		if (webServer != null) {
 			webServer.shutdown();
 			webServer = null;
@@ -333,6 +344,36 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 	}
 
 	/**
+	 * Add dynamic content for the web server to serve.
+	 * 
+	 * <p>
+	 * This can be called either before or after calling
+	 * {@link WebServerActivityComponent#configureComponent(Activity, Configuration)}
+	 * . But if called both before and after, the second call will be the one
+	 * used.
+	 * 
+	 * @param uriPrefix
+	 *            the URI prefix for this particular content
+	 * @param usePath
+	 *            {@code true} if the path will be used as part of request
+	 *            processing
+	 * @param handler
+	 * 				content handler being added
+	 * 
+	 * @return the web server component this method was called on
+	 */
+	public WebServerActivityComponent addDynamicContent(String uriPrefix,
+			boolean usePath, HttpDynamicRequestHandler handler) {
+		if (webServer != null) {
+			webServer.addDynamicContentHandler(uriPrefix, usePath, handler);
+		} else {
+			dynamicContent.add(new DynamicContent(handler, uriPrefix, usePath));
+		}
+
+		return this;
+	}
+
+	/**
 	 * Set the web server web socket handler with the proper wrapped factory.
 	 */
 	private void setWebServerWebSocketHandlerFactory() {
@@ -375,6 +416,57 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 		 */
 		public File getBaseDir() {
 			return baseDir;
+		}
+	}
+
+	/**
+	 * Information about dynamic content.
+	 * 
+	 * @author Keith M. Hughes
+	 */
+	public static class DynamicContent {
+
+		/**
+		 * URI prefix where the content will be referenced from.
+		 */
+		private String uriPrefix;
+
+		/**
+		 * {@code true} if the path will be used for processing.
+		 */
+		private boolean usePath;
+
+		/**
+		 * The request handler being added.
+		 */
+		private HttpDynamicRequestHandler requestHandler;
+
+		public DynamicContent(HttpDynamicRequestHandler requestHandler,
+				String uriPrefix, boolean usePath) {
+			this.requestHandler = requestHandler;
+			this.uriPrefix = uriPrefix;
+			this.usePath = usePath;
+		}
+
+		/**
+		 * @return the uriPrefix
+		 */
+		public String getUriPrefix() {
+			return uriPrefix;
+		}
+
+		/**
+		 * @return the usePath
+		 */
+		public boolean isUsePath() {
+			return usePath;
+		}
+
+		/**
+		 * @return the requestHandler
+		 */
+		public HttpDynamicRequestHandler getRequestHandler() {
+			return requestHandler;
 		}
 	}
 
@@ -456,7 +548,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 			if (!activityComponentContext.canHandlerRun()) {
 				return;
 			}
-			
+
 			try {
 				activityComponentContext.enterHandler();
 
@@ -476,7 +568,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 			if (!activityComponentContext.canHandlerRun()) {
 				return;
 			}
-			
+
 			try {
 				activityComponentContext.enterHandler();
 
@@ -494,7 +586,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 			if (!activityComponentContext.canHandlerRun()) {
 				return;
 			}
-			
+
 			try {
 				activityComponentContext.enterHandler();
 

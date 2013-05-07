@@ -56,7 +56,7 @@ public interface ActivityStorageManager {
 	File getBaseActivityLocation(String uuid);
 
 	/**
-	 * Get the filesystem for the activity/
+	 * Get the filesystem for the activity.
 	 * 
 	 * <p>
 	 * Will create the file system if it doesn't exist.
@@ -75,4 +75,20 @@ public interface ActivityStorageManager {
 	 *            UUID of the activity
 	 */
 	void removeActivityLocation(String uuid);
+	
+	/**
+	 * Clean out the tmp data directory for the activity.
+	 * 
+	 * @param uuid
+	 *            UUID of the activity
+	 */
+	void cleanTmpActivityDataDirectory(String uuid);
+	
+	/**
+	 * Clean out the permanent data directory for the activity.
+	 * 
+	 * @param uuid
+	 *            UUID of the activity
+	 */
+	void cleanPermanentActivityDataDirectory(String uuid);
 }

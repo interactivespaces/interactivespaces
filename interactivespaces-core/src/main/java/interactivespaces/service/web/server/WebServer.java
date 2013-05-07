@@ -16,8 +16,6 @@
 
 package interactivespaces.service.web.server;
 
-import com.google.common.collect.Multimap;
-
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;

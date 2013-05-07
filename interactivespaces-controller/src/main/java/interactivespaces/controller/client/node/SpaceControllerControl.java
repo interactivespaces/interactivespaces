@@ -57,7 +57,34 @@ public interface SpaceControllerControl extends SpaceController {
 	 * @param uuid
 	 *            the UUID of the activity
 	 * 
-	 * @return the activity with the given UUID, {@code null} if no such activity
+	 * @return the activity with the given UUID, {@code null} if no such
+	 *         activity
 	 */
 	ActiveControllerActivity getActiveActivityByUuid(String uuid);
+
+	/**
+	 * Clean the temp data folder for a given activity.
+	 * 
+	 * @param uuid
+	 *            uuid of the activity
+	 */
+	void cleanActivityTmpData(String uuid);
+
+	/**
+	 * Clean the permanent data folder for a given activity.
+	 * 
+	 * @param uuid
+	 *            uuid of the activity
+	 */
+	void cleanActivityPermanentData(String uuid);
+
+	/**
+	 * Clean the temp data folder for the controller.
+	 */
+	void cleanControllerTempData();
+
+	/**
+	 * Clean the permanent data folder for the controller.
+	 */
+	void cleanControllerPermanentData();
 }

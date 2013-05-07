@@ -65,6 +65,7 @@ import org.ros.node.topic.PublisherListener;
 import org.ros.node.topic.Subscriber;
 import org.ros.osgi.common.RosEnvironment;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
 /**
@@ -276,7 +277,8 @@ public class RosSpaceControllerCommunicator implements
 	 * @param request
 	 *            The ROS request.
 	 */
-	private void handleControllerRequest(
+	@VisibleForTesting
+	void handleControllerRequest(
 			interactivespaces_msgs.ControllerRequest request) {
 		switch (request.getOperation()) {
 		case ControllerRequest.OPERATION_STATUS:
@@ -303,6 +305,16 @@ public class RosSpaceControllerCommunicator implements
 		case ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY:
 			handleLiveActivityDeletion(liveActivityDeleteRequestDeserializer
 					.deserialize(request.getPayload()));
+
+			break;
+
+		case ControllerRequest.OPERATION_CLEAN_DATA_TMP:
+			controllerControl.cleanControllerTempData();
+
+			break;
+
+		case ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT:
+			controllerControl.cleanControllerPermanentData();
 
 			break;
 
@@ -552,7 +564,8 @@ public class RosSpaceControllerCommunicator implements
 	 * @param request
 	 *            The ROS request.
 	 */
-	private void handleActivityRuntimeRequest(
+	@VisibleForTesting
+	void handleActivityRuntimeRequest(
 			final ControllerActivityRuntimeRequest request) {
 		spaceEnvironment.getExecutorService().submit(new Runnable() {
 			public void run() {
@@ -589,6 +602,16 @@ public class RosSpaceControllerCommunicator implements
 
 					handleActivityConfigurationRequest(uuid,
 							configurationRequest);
+
+					break;
+
+				case ControllerActivityRuntimeRequest.OPERATION_CLEAN_DATA_PERMANENT:
+					controllerControl.cleanActivityPermanentData(uuid);
+
+					break;
+
+				case ControllerActivityRuntimeRequest.OPERATION_CLEAN_DATA_TMP:
+					controllerControl.cleanActivityTmpData(uuid);
 
 					break;
 

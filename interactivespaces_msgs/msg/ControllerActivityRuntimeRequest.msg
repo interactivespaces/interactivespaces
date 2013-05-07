@@ -46,4 +46,10 @@ int32 OPERATION_CONFIGURE = 5
 # Delete the activity from the controller.
 int32 OPERATION_DELETE = 6
 
+# Clean the activity's tmp data folder.
+int32 OPERATION_CLEAN_DATA_TMP = 7
+
+# Clean the activity's permanent data folder.
+int32 OPERATION_CLEAN_DATA_PERMANENT = 8
+
 byte[] data

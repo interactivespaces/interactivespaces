@@ -18,9 +18,12 @@ package interactivespaces.activity.binary;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.Files;
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategyInstance;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -98,6 +101,11 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 	 */
 	private String[] commands;
 
+	/**
+	 * Folder which contains the executable.
+	 */
+	private File executableFolder;
+
 	public BaseNativeActivityRunner(
 			InteractiveSpacesEnvironment spaceEnvironment, Log log) {
 		this.spaceEnvironment = spaceEnvironment;
@@ -113,6 +121,10 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 	public void startup() {
 		commands = getCommand();
 
+		String executable = commands[0];
+		executableFolder = new File(executable.substring(0,
+				executable.lastIndexOf("/")));
+
 		if (spaceEnvironment.getLog().isInfoEnabled()) {
 			StringBuilder appLine = new StringBuilder();
 			for (String c : commands)
@@ -127,15 +139,19 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 	/**
 	 * Attempt the run.
 	 * 
-	 * @param command
-	 *            the command to run
-	 * 
 	 * @return the process that was created
 	 */
 	private Process attemptRun() {
 		try {
-			return Runtime.getRuntime().exec(commands);
-		} catch (IOException e) {
+			ProcessBuilder builder = new ProcessBuilder(commands);
+			builder.directory(executableFolder);
+
+			spaceEnvironment.getLog().info(
+					String.format("Starting up native code in folder %s",
+							executableFolder.getAbsolutePath()));
+
+			return builder.start();
+		} catch (Exception e) {
 			throw new InteractiveSpacesException("Can't start up activity "
 					+ commands, e);
 		}
@@ -166,6 +182,20 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 		if (process != null) {
 			try {
 				int exitValue = process.exitValue();
+
+				try {
+					String errorOutput = Files.inputStreamAsString(process
+							.getInputStream())
+							+ "\n"
+							+ Files.inputStreamAsString(process
+									.getErrorStream());
+					spaceEnvironment.getLog().error(
+							String.format("Error stream from process: %s",
+									errorOutput));
+				} catch (IOException e) {
+					spaceEnvironment.getLog().error(
+							"Could not get error stream for process", e);
+				}
 
 				if (handleProcessExit(exitValue, commands)) {
 					// If restarter is working, the outside should be told

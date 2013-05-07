@@ -31,6 +31,12 @@ int32 OPERATION_DEPLOY_LIVE_ACTIVITY = 3
 # Delete a live activity from the controller.
 int32 OPERATION_DELETE_LIVE_ACTIVITY = 4
 
+# Clean the controller's tmp data folder.
+int32 OPERATION_CLEAN_DATA_TMP = 5
+
+# Clean the controller's permanent data folder.
+int32 OPERATION_CLEAN_DATA_PERMANENT = 6
+
 # Any payload needed by the request.
 byte[] payload
 

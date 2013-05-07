@@ -131,10 +131,13 @@ public class BasicAutomationManager implements AutomationManager {
 	@Override
 	public void runScript(NamedScript script) {
 
-		scriptService
-				.executeScriptByName(script.getLanguage(),
-						new StringScriptSource(script.getContent()),
-						automationBindings);
+		try {
+			scriptService.executeScriptByName(script.getLanguage(),
+					new StringScriptSource(script.getContent()),
+					automationBindings);
+		} catch (Exception e) {
+			spaceEnvironment.getLog().error("Error while running script", e);
+		}
 	}
 
 	/**

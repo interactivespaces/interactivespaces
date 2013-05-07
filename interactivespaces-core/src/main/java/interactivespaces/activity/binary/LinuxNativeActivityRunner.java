@@ -79,10 +79,16 @@ public class LinuxNativeActivityRunner extends BaseNativeActivityRunner {
 	}
 
 	@Override
-	public boolean handleProcessExit(int exitValue, String[] command) {
-		log.info(String.format(
-				"Return value from process is %s for %s",
-				UnixReturnValue.get(exitValue), command[0]));
+	public boolean handleProcessExit(int exitValue, String[] commands) {
+		String returnValue = null;
+		UnixReturnValue unixReturnValue = UnixReturnValue.get(exitValue);
+		if (unixReturnValue != null) {
+			returnValue = unixReturnValue.toString();
+		} else {
+			returnValue = Integer.toString(exitValue);
+		}
+		log.info(String.format("Return value from process is %s for %s",
+				returnValue, commands[0]));
 
 		return true;
 	}

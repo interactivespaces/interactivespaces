@@ -155,4 +155,34 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
 			Files.delete(baseLocation);
 		}
 	}
+
+	@Override
+	public void cleanTmpActivityDataDirectory(String uuid) {
+		cleanDataDirectory(uuid,
+				SimpleActivityFilesystem.SUBDIRECTORY_DATA_TEMPORARY);
+	}
+
+	@Override
+	public void cleanPermanentActivityDataDirectory(String uuid) {
+		cleanDataDirectory(uuid,
+				SimpleActivityFilesystem.SUBDIRECTORY_DATA_PERMANENT);
+	}
+
+	/**
+	 * Clean a particular data directory for an activity.
+	 * 
+	 * @param uuid
+	 *            the UUID of the activity
+	 * @param dataDirectory
+	 *            the name of the data directory
+	 */
+	public void cleanDataDirectory(String uuid, String dataDirectory) {
+		File baseLocation = getBaseActivityLocation(uuid);
+		if (baseLocation.exists()) {
+			File tmpDirectory = new File(baseLocation, dataDirectory);
+			if (tmpDirectory.exists()) {
+				Files.deleteDirectoryContents(tmpDirectory);
+			}
+		}
+	}
 }

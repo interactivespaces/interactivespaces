@@ -106,7 +106,9 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 
 			parentHandler.addHttpResponseHeaders(res,
 					response.getContentHeaders());
-			parentHandler.sendHttpResponse(ctx, req, res);
+			parentHandler.sendHttpResponse(ctx, req, res, true, false);
+			
+			parentHandler.getWebServer().getLog().debug(String.format("Dynamic content handler for %s completed", uriPrefix));
 		} catch (Exception e) {
 			parentHandler
 					.getWebServer()

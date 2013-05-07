@@ -17,6 +17,7 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.util.io.Files;
 
 import java.io.File;
 
@@ -110,6 +111,11 @@ public class SimpleActivityFilesystem implements ActivityFilesystem {
 	}
 
 	@Override
+	public void cleanPermanentDataDirectory() {
+		Files.deleteDirectoryContents(getPermanentDataDirectory());
+	}
+
+	@Override
 	public File getTempDataDirectory() {
 		return tempDataDirectory;
 	}
@@ -117,5 +123,10 @@ public class SimpleActivityFilesystem implements ActivityFilesystem {
 	@Override
 	public File getTempDataFile(String relative) {
 		return new File(tempDataDirectory, relative);
+	}
+
+	@Override
+	public void cleanTempDataDirectory() {
+		Files.deleteDirectoryContents(getTempDataDirectory());
 	}
 }

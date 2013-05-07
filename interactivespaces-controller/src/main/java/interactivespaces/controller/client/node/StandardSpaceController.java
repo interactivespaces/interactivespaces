@@ -52,6 +52,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.concurrency.SequentialEventQueue;
+import interactivespaces.util.io.Files;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
@@ -93,8 +94,8 @@ public class StandardSpaceController implements SpaceController,
 			ActivityState.READY, null);
 
 	/**
-	 * A live activity status for installed live activities that currently
-	 * are running.
+	 * A live activity status for installed live activities that currently are
+	 * running.
 	 */
 	private static final ActivityStatus LIVE_ACTIVITY_RUNNING_STATUS = new ActivityStatus(
 			ActivityState.RUNNING, null);
@@ -745,6 +746,59 @@ public class StandardSpaceController implements SpaceController,
 	}
 
 	@Override
+	public void cleanActivityTmpData(String uuid) {
+		ActiveControllerActivity active = getActiveActivityByUuid(uuid);
+		if (active != null) {
+			if (active.getCachedActivityStatus().getState().isRunning()) {
+				spaceEnvironment
+						.getLog()
+						.warn(String
+								.format("Attempting to clean activity tmp directory for a running activity %s. Aborting.",
+										uuid));
+
+				return;
+			}
+		}
+
+		activityStorageManager.cleanTmpActivityDataDirectory(uuid);
+	}
+
+	@Override
+	public void cleanActivityPermanentData(String uuid) {
+		ActiveControllerActivity active = getActiveActivityByUuid(uuid);
+		if (active != null) {
+			if (active.getCachedActivityStatus().getState().isRunning()) {
+				spaceEnvironment
+						.getLog()
+						.warn(String
+								.format("Attempting to clean activity permanent data directory for a running activity %s. Aborting.",
+										uuid));
+
+				return;
+			}
+		}
+
+		activityStorageManager.cleanPermanentActivityDataDirectory(uuid);
+	}
+
+	@Override
+	public void cleanControllerTempData() {
+		spaceEnvironment.getLog().info("Cleaning controller temp directory");
+
+		Files.deleteDirectoryContents(spaceEnvironment.getFilesystem()
+				.getTempDirectory());
+	}
+
+	@Override
+	public void cleanControllerPermanentData() {
+		spaceEnvironment.getLog().info(
+				"Cleaning controller permanent directory");
+
+		Files.deleteDirectoryContents(spaceEnvironment.getFilesystem()
+				.getDataDirectory());
+	}
+
+	@Override
 	public NativeActivityRunnerFactory getNativeActivityRunnerFactory() {
 		return nativeActivityRunnerFactory;
 	}
@@ -857,7 +911,7 @@ public class StandardSpaceController implements SpaceController,
 				activity.startup();
 
 				break;
-				
+
 			case RUNNING:
 				// If was already running, just signal RUNNING
 				spaceEnvironment
@@ -867,7 +921,7 @@ public class StandardSpaceController implements SpaceController,
 										activity.getUuid()));
 				publishActivityStatus(activity.getUuid(),
 						LIVE_ACTIVITY_RUNNING_STATUS);
-				
+
 				break;
 
 			default:
