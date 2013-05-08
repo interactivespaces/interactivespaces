@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
@@ -104,11 +105,21 @@ public class NettyHttpDynamicRequestHandlerHandler implements
 					HttpResponseStatus.valueOf(response.getResponseCode()));
 			res.setContent(response.getChannelBuffer());
 
+			String contentType = response.getContentType();
+			if (contentType != null) {
+				res.setHeader(HttpHeaders.Names.CONTENT_TYPE, contentType);
+			}
+
 			parentHandler.addHttpResponseHeaders(res,
 					response.getContentHeaders());
 			parentHandler.sendHttpResponse(ctx, req, res, true, false);
-			
-			parentHandler.getWebServer().getLog().debug(String.format("Dynamic content handler for %s completed", uriPrefix));
+
+			parentHandler
+					.getWebServer()
+					.getLog()
+					.debug(String.format(
+							"Dynamic content handler for %s completed",
+							uriPrefix));
 		} catch (Exception e) {
 			parentHandler
 					.getWebServer()

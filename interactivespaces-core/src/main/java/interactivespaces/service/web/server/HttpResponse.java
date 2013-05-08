@@ -41,6 +41,11 @@ public interface HttpResponse {
 	 * If this is not called, an OK response will be used unless there is an
 	 * error.
 	 * 
+	 * <p>
+	 * This can be changed multiple times, the only value that matters for the
+	 * response is the value when the response is actually returned to the
+	 * client.
+	 * 
 	 * @param responseCode
 	 *            the HTTP response code
 	 */
@@ -54,12 +59,37 @@ public interface HttpResponse {
 	 * 
 	 * <p>
 	 * This can be changed multiple times, the only value that matters for the
-	 * reponse is the value when the response is actually returned to the
+	 * response is the value when the response is actually returned to the
 	 * client.
 	 * 
 	 * @return the HTTP response code
 	 */
 	int getResponseCode();
+
+	/**
+	 * Set the content type of the response.
+	 * 
+	 * <p>
+	 * This can be changed multiple times, the only value that matters for the
+	 * response is the value when the response is actually returned to the
+	 * client.
+	 * 
+	 * @param contentType
+	 *            the content type
+	 */
+	void setContentType(String contentType);
+
+	/**
+	 * Get the content type of the response.
+	 * 
+	 * <p>
+	 * This can be changed multiple times, the only value that matters for the
+	 * response is the value when the response is actually returned to the
+	 * client.
+	 * 
+	 * @return the content type
+	 */
+	String getContentType();
 
 	/**
 	 * Get the output stream for the response.

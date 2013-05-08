@@ -112,6 +112,11 @@ public class NettyHttpResponse implements HttpResponse {
 	 * The HTTP response code to be used for the response.
 	 */
 	private int responseCode = HttpResponseCode.OK;
+	
+	/**
+	 * The content type of the response.
+	 */
+	private String contentType;
 
 	/**
 	 * Construct a new response.
@@ -159,6 +164,16 @@ public class NettyHttpResponse implements HttpResponse {
 	@Override
 	public int getResponseCode() {
 		return responseCode;
+	}
+
+	@Override
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	@Override
+	public String getContentType() {
+		return contentType;
 	}
 
 	@Override
