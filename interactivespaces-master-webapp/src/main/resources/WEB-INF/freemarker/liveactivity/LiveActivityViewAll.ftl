@@ -32,6 +32,12 @@ function doAjaxCommandByUrl(url) {
   });
 }
 
+function shutdownAllActivitiesAllControllers() {
+    if (confirm("Are you sure you want to shut down all applications on all controllers?")) {
+        window.location='/interactivespaces/spacecontroller/all/activities/shutdown.html';
+    }
+}
+
 $(document).ready(function() {
 <#list liveactivities as liveactivity>
 $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
@@ -51,6 +57,7 @@ $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
 <div class="commandBar"><ul>
 <li><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="Create a new live activity">New</button></li>
 <li><button type="button" id="nstatusAllButton" onclick="doAjaxCommandByUrl('/interactivespaces/spacecontroller/all/status.json')" title="Get the status of all Live Activities on all Space Controllers">Status All</button></li>
+<li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
 </ul></div>
 
 <div id="commandResult">

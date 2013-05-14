@@ -68,7 +68,9 @@ function shutdownAllActivitiesAllControllers() {
 <#list spacecontrollers as spacecontroller>
 <tr>
 <td><a href="${spacecontroller.controller.id}/view.html">${spacecontroller.controller.name}</a></td>
-<td><@spring.message spacecontroller.state.description /></td>
+<td><#if spacecontroller.lastStateUpdate??><#assign t  = spacecontroller.lastStateUpdateDate?datetime><#else><#assign t = 'Unknown'></#if>
+<span class="spacecontroller-status spacecontroller-status-${spacecontroller.state.name()}"><@spring.message spacecontroller.state.description /></span>
+as of ${t}</td>
 </#list>
 </ul>
 

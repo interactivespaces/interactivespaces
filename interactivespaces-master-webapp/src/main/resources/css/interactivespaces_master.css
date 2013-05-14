@@ -13,156 +13,185 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 #navMain {
-  margin:0;
-  padding:0;
-  margin-top:5px;
-  margin-bottom:10px;
-  background-color:#eeeeee;
-  background-image:url('/interactivespaces/img/navmain_bg.gif');
-  background-position:bottom;
-  background-repeat:repeat-x;
+	margin: 0;
+	padding: 0;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	background-color: #eeeeee;
+	background-image: url('/interactivespaces/img/navmain_bg.gif');
+	background-position: bottom;
+	background-repeat: repeat-x;
 }
 
 #navMain ul {
-  list-style-type: none;
-  list-style-position: inside;
-  list-style-image: none;
-  display: inline;
+	list-style-type: none;
+	list-style-position: inside;
+	list-style-image: none;
+	display: inline;
 }
 
 #navMain li {
-  display: inline;
+	display: inline;
 }
 
 #navMain a {
-  text-decoration: none;
-  font-weight: bold;
-  color: black;
+	text-decoration: none;
+	font-weight: bold;
+	color: black;
 }
 
 #navMain a:hover {
-  text-decoration: underline; 
-  color: red;
+	text-decoration: underline;
+	color: red;
 }
 
 #navRegion ul {
-  list-style-type: none;
-  list-style-position: inside;
-  list-style-image: none;
-  display: inline;
+	list-style-type: none;
+	list-style-position: inside;
+	list-style-image: none;
+	display: inline;
 }
 
 #navRegion li {
-  display: inline;
+	display: inline;
 }
 
 #commandBar {
-  padding: 10px;
+	padding: 10px;
 }
 
 .commandBar ul {
-  list-style-type: none;
-  list-style-position: inside;
-  list-style-image: none;
-  display: inline;
+	list-style-type: none;
+	list-style-position: inside;
+	list-style-image: none;
+	display: inline;
 }
 
 .commandBar li {
-  display: inline;
+	display: inline;
 }
 
 .commandBar a {
-  text-decoration: none;
-  font-weight: bold;
-  color: black;
+	text-decoration: none;
+	font-weight: bold;
+	color: black;
 }
 
 .commandBar a:hover {
-  text-decoration: underline; 
-  color: red;
+	text-decoration: underline;
+	color: red;
 }
 
 #body {
-  margin: 0.25in;
+	margin: 0.25in;
 }
 
 table.searchResults {
-  margin-top: 10pt;
+	margin-top: 10pt;
 }
 
 #entityMenu li {
-  display: inline;
+	display: inline;
 }
 
 table.columns {
-  width: 100%;
-  padding: 20pt;
+	width: 100%;
+	padding: 20pt;
 }
-  
+
 table.columns td {
-  vertical-align: top;
+	vertical-align: top;
 }
 
 tr.odd {
-  background-color: #eee;
+	background-color: #eee;
 }
 
 tr.even {
+	
 }
 
 th {
-  text-align: left;
+	text-align: left;
 }
 
 tr.form-row {
-  padding-top: 10px;
+	padding-top: 10px;
 }
 
 div.form-row {
-  clear: both;
-  padding-top: 10px;
+	clear: both;
+	padding-top: 10px;
 }
 
 div.form-row span.form-label {
-  float: left;
-  width: 100px;
-  text-align: right;
+	float: left;
+	width: 100px;
+	text-align: right;
 }
 
 div.form-row span.form-field {
-  float: right;
-  width: 335px;
-  text-align: left;
-} 
+	float: right;
+	width: 335px;
+	text-align: left;
+}
 
 div.form-row span.form-errors {
-  float: right;
-  width: 335px;
-  text-align: left;
+	float: right;
+	width: 335px;
+	text-align: left;
 }
 
 tr.even {
-  background-color: #ffffff;
+	background-color: #ffffff;
 }
 
 tr.odd {
-  background-color: #e0e0e0;
+	background-color: #e0e0e0;
 }
 
-.liveactivity-info-popup { 
-  display: none; 
-  z-index: 9002;
-  border:2px solid #000;
-  padding: 10px;
-  background-color: #FFFFFF;
+.liveactivity-info-popup {
+	display: none;
+	z-index: 9002;
+	border: 2px solid #000;
+	padding: 10px;
+	background-color: #FFFFFF;
 }
 
-.liveactivity-status { }
+.liveactivity-status {
+	
+}
 
-.liveactivity-status-RUNNING { background-color: #00ff00; font-weight: bold; padding-left: 1em; padding-right: 1em; }
+.liveactivity-status-RUNNING {
+	background-color: #00ff00;
+	font-weight: bold;
+	padding-left: 1em;
+	padding-right: 1em;
+}
 
-.liveactivity-status-ACTIVE { background-color: #53beff;  font-weight: bold; padding-left: 1em; padding-right: 1em; }
+.liveactivity-status-ACTIVE {
+	background-color: #53beff;
+	font-weight: bold;
+	padding-left: 1em;
+	padding-right: 1em;
+}
 
-.liveactivity-status-CRASHED { background-color: #ff5757;  font-weight: bold; padding-left: 1em; padding-right: 1em; }
+.liveactivity-status-CRASHED {
+	background-color: #ff5757;
+	font-weight: bold;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+
+.spacecontroller-status {
+    
+}
+
+.spacecontroller-status-RUNNING {
+    background-color: #00ff00;
+    font-weight: bold;
+    padding-left: 1em;
+    padding-right: 1em;
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,11 +15,8 @@
 
 dependencies {
   compile project(':service:interactivespaces-service-core')
-  compile files(project.getProperty("rxtx.home"))
   compile files(project.getProperty("jsr80.home"))
   compile files(project.getProperty("usb4java.home"))
-  
-  compile 'net.java.dev.jna:jna:3.5.1'
   
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
@@ -30,10 +27,10 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.service.comm.serial'
+    symbolicName = 'interactivespaces.service.comm.usb'
 	
 	instruction 'Bundle-Activator',
-		'interactivespaces.service.comm.serial.internal.osgi.SerialCommunicationBundleActivator'
+		'interactivespaces.service.comm.usb.internal.osgi.UsbCommunicationBundleActivator'
   }
 }
 

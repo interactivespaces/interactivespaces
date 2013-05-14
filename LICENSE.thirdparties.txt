@@ -161,6 +161,7 @@ The following libraries use the LGPL license
 the swinglabs swingx project
 jid3lib from http://sourceforge.net/projects/javamusictag/
 jlayer (Jar modified only to have OSGi headers in MANIFEST.MF)
+usb4java from http://kayahr.github.io/usb4java/
 
 http://www.gnu.org/copyleft/lesser.html
 
@@ -195,9 +196,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------
 
-The following library uses Common License 1.0
+The following libraries uses Common Public License 1.0
 
 JUnit
+jsr80
 
 Common Public License - v 1.0
 
