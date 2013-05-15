@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-workbench-installer</artifactId>
-	<version>1.4.2</version>
+	<version>1.4.3</version>
 
 	<name>Interactive Spaces Workbench</name>
 
@@ -329,7 +329,7 @@ the License.
 								<artifactItem>
                                     <groupId>io.netty</groupId>
                                     <artifactId>netty</artifactId>
-                                    <version>3.6.5.Final</version>
+                                    <version>3.6.6.Final</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

@@ -16,7 +16,6 @@
 
 package interactivespaces.activity.impl.web;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.BaseActivity;
@@ -24,12 +23,10 @@ import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketH
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
+import interactivespaces.util.data.json.JsonMapper;
 
 import java.io.File;
 import java.util.Map;
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * An activity which has a web server only.
@@ -45,18 +42,17 @@ public class BaseWebServerActivity extends BaseActivity implements
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
 	 * Web socket handler for the connection to the browser.
 	 */
 	private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
-	
+
 	/**
 	 * The web server component.
 	 */
@@ -66,8 +62,8 @@ public class BaseWebServerActivity extends BaseActivity implements
 	public void commonActivitySetup() {
 		webServerComponent = addActivityComponent(new WebServerActivityComponent());
 
-		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this,
-				getLog());
+		webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(
+				this, getLog());
 		webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
 		webServerComponent.setHttpFileUploadListener(this);
 	}
@@ -75,18 +71,11 @@ public class BaseWebServerActivity extends BaseActivity implements
 	/**
 	 * Convert a map to a JSON string.
 	 * 
-	 * @param chaName
-	 *            the name of the output channel to send the message on
-	 * @param message
-	 *            the message to send
+	 * @param map
+	 *            the map to stringify
 	 */
 	public String jsonStringify(Map<String, Object> map) {
-		try {
-			return MAPPER.writeValueAsString(map);
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(
-					"Could not serialize JSON object as string", e);
-		}
+		return MAPPER.toString(map);
 	}
 
 	/**
@@ -97,17 +86,9 @@ public class BaseWebServerActivity extends BaseActivity implements
 	 * @return the map for the string
 	 */
 	public Map<String, Object> jsonParse(String data) {
-		try {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					data, Map.class);
-			return map;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException("Could not parse JSON string",
-					e);
-		}
+		return MAPPER.parseObject(data);
 	}
-	
+
 	/**
 	 * Add static content for the web server to serve.
 	 * 
@@ -274,7 +255,7 @@ public class BaseWebServerActivity extends BaseActivity implements
 	public void onHttpFileUpload(HttpFileUpload fileUpload) {
 		// The default is do nothing.
 	}
-	
+
 	/**
 	 * Get the web server for the activity.
 	 * 

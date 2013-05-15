@@ -16,26 +16,28 @@
 
 
 	<dynamicvariables>
-      <variable name="interactivespaces.version" value="@{project.version}" />
-      <variable name="interactivespaces.platform.os" value="linux" condition="izpack.linuxinstall" />
+		<variable name="interactivespaces.version" value="@{project.version}" />
+		<variable name="interactivespaces.platform.os" value="linux"
+			condition="izpack.linuxinstall" />
 		<variable name="interactivespaces.platform.os" value="windows"
 			condition="izpack.windowsinstall" />
-		<variable name="interactivespaces.platform.os" value="osx" condition="izpack.macinstall" />
+		<variable name="interactivespaces.platform.os" value="osx"
+			condition="izpack.macinstall" />
 
 
-		<variable name="interactivespaces.controller.uuid.final" value="${interactivespaces.controller.uuid}"
-			condition="manualconfig" />
-		<variable name="interactivespaces.controller.name.final" value=""
-			condition="manualconfig" />
-		<variable name="interactivespaces.controller.description.final" value=""
-			condition="manualconfig" />
+		<variable name="interactivespaces.controller.uuid.final"
+			value="${interactivespaces.controller.uuid}" condition="manualconfig" />
+		<variable name="interactivespaces.controller.name.final"
+			value="" condition="manualconfig" />
+		<variable name="interactivespaces.controller.description.final"
+			value="" condition="manualconfig" />
 
-		<variable name="interactivespaces.controller.uuid.final" value=""
-			condition="!manualconfig" />
-		<variable name="interactivespaces.controller.name.final" value="${interactivespaces.controller.name}"
-			condition="!manualconfig" />
-		<variable name="interactivespaces.controller.description.final" value="${interactivespaces.controller.description}"
-			condition="!manualconfig" />
+		<variable name="interactivespaces.controller.uuid.final"
+			value="" condition="!manualconfig" />
+		<variable name="interactivespaces.controller.name.final"
+			value="${interactivespaces.controller.name}" condition="!manualconfig" />
+		<variable name="interactivespaces.controller.description.final"
+			value="${interactivespaces.controller.description}" condition="!manualconfig" />
 
 		<variable name="interactivespaces.container.type" value="controller" />
 		<variable name="ros.master.uri"
@@ -99,27 +101,37 @@
 
 			<file src="Readme.html" targetdir="$INSTALL_PATH" override="true" />
 			<file src="LICENSE.txt" targetdir="$INSTALL_PATH" override="true" />
-            <file src="LICENSE.thirdparties.txt" targetdir="$INSTALL_PATH" override="true" />
+			<file src="LICENSE.thirdparties.txt" targetdir="$INSTALL_PATH"
+				override="true" />
 			<file src="NOTICE.txt" targetdir="$INSTALL_PATH" override="true" />
-            
+
 			<file src="bin" targetdir="$INSTALL_PATH" override="true" />
-			<file src="config" targetdir="$INSTALL_PATH" override="askfalse"/>
+			<file src="config" targetdir="$INSTALL_PATH" override="askfalse" />
 			<file src="database" targetdir="$INSTALL_PATH" />
 			<file src="logs" targetdir="$INSTALL_PATH" />
 			<file src="bootstrap" targetdir="$INSTALL_PATH" override="true" />
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
 			<file src="controller" targetdir="$INSTALL_PATH" />
-			<file src="interactivespaces-launcher-@{project.version}.jar" targetdir="$INSTALL_PATH"
-				override="true" />
+			<file src="interactivespaces-launcher-@{project.version}.jar"
+				targetdir="$INSTALL_PATH" override="true" />
 
 			<parsable targetfile="$INSTALL_PATH/bin/startup_linux.bash" />
 			<executable targetfile="$INSTALL_PATH/bin/startup_linux.bash"
 				stage="never" />
+			<parsable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash"
+				stage="never" />
+			<parsable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash"
+				stage="never" />
+
 			<parsable targetfile="$INSTALL_PATH/config/container.conf" />
-			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
-			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/controllerinfo.conf" />
+			<parsable
+				targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
+			<parsable
+				targetfile="$INSTALL_PATH/config/interactivespaces/controllerinfo.conf" />
 			<parsable targetfile="$INSTALL_PATH/config/interactivespaces/controller.conf" />
-            <file src="extras" targetdir="$INSTALL_PATH" />
+			<file src="extras" targetdir="$INSTALL_PATH" />
 		</pack>
 		<pack name="Docs" required="no">
 			<description>The documentation</description>

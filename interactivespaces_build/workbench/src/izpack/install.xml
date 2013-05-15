@@ -2,101 +2,101 @@
 
 <installation version="1.0">
 
-    <!-- 
-        The info section.
-        The meaning of the tags should be natural ...
-    -->
-    <info>
-        <appname>@{project.name}</appname>
-        <appversion>@{project.version}</appversion>
-        <appsubpath>interactivespaces/workbench</appsubpath>
-        <authors>
-            <author name="Google" email="" />
-        </authors>
-        <url>http://code.google.com/a/interactive-spaces/</url>
-        <javaversion>1.6</javaversion>
-    </info>
+	<!-- The info section. The meaning of the tags should be natural ... -->
+	<info>
+		<appname>@{project.name}</appname>
+		<appversion>@{project.version}</appversion>
+		<appsubpath>interactivespaces/workbench</appsubpath>
+		<authors>
+			<author name="Google" email="" />
+		</authors>
+		<url>http://code.google.com/a/interactive-spaces/</url>
+		<javaversion>1.6</javaversion>
+	</info>
 
-    <dynamicvariables>
-      <variable name="interactivespaces.version" value="@{project.version}" />
-      <variable name="interactivespaces.platform.os" value="linux" condition="izpack.linuxinstall" />
-      <variable name="interactivespaces.platform.os" value="windows" condition="izpack.windowsinstall" />
-      <variable name="interactivespaces.platform.os" value="osx" condition="izpack.macinstall" />
-    </dynamicvariables>
+	<dynamicvariables>
+		<variable name="interactivespaces.version" value="@{project.version}" />
+		<variable name="interactivespaces.platform.os" value="linux"
+			condition="izpack.linuxinstall" />
+		<variable name="interactivespaces.platform.os" value="windows"
+			condition="izpack.windowsinstall" />
+		<variable name="interactivespaces.platform.os" value="osx"
+			condition="izpack.macinstall" />
+	</dynamicvariables>
 
-    <!-- 
-        The gui preferences indication.
-        Sets the installer window to 640x480. It will be able to change the size.
-    -->
-    <guiprefs width="900" height="480" resizable="yes"/>
+	<!-- The gui preferences indication. Sets the installer window to 640x480. 
+		It will be able to change the size. -->
+	<guiprefs width="900" height="480" resizable="yes" />
 
-    <!-- 
-        The locale section.
-        Asks here to include the English and French langpacks.
-    -->
-    <locale>
-        <langpack iso3="eng"/>
-    </locale>
+	<!-- The locale section. Asks here to include the English and French langpacks. -->
+	<locale>
+		<langpack iso3="eng" />
+	</locale>
 
-    <!-- 
-        The resources section.
-        The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
-    -->
-    <resources>
-        <res id="HTMLInfoPanel.info" src="Readme.html" parse="yes" />
-        <res id="LicencePanel.licence" src="LICENSE.txt" />
-        <res id="userInputSpec.xml" src="user_input_spec.xml" parse="yes" type="xml"/>
-        <res id="userInputLang.xml_eng" src="userInputLang.xml_eng" />
-    </resources>
+	<!-- The resources section. The ids must be these ones if you want to use 
+		the LicencePanel and/or the InfoPanel. -->
+	<resources>
+		<res id="HTMLInfoPanel.info" src="Readme.html" parse="yes" />
+		<res id="LicencePanel.licence" src="LICENSE.txt" />
+		<res id="userInputSpec.xml" src="user_input_spec.xml" parse="yes"
+			type="xml" />
+		<res id="userInputLang.xml_eng" src="userInputLang.xml_eng" />
+	</resources>
 
-    <!-- 
-        The panels section.
-        We indicate here which panels we want to use. The order will be respected.
-    -->
-    <panels>
-<!--        <panel classname="org.interactivespaces.installer.izpack.panels.MyHelloPanel"/> -->
-        <panel classname="CheckedHelloPanel" id="hellopanel" />
-        <panel classname="HTMLInfoPanel" id="infopanel" encoding="ISO-8859-1"/>
-        <panel classname="LicencePanel"/>
-        <panel classname="UserInputPanel" id="userinputpanel.order.0"/>
-        <panel classname="TargetPanel"/>
-        <panel classname="PacksPanel"/>
-        <panel classname="InstallPanel"/>
-        <panel classname="FinishPanel"/>
-    </panels>
+	<!-- The panels section. We indicate here which panels we want to use. The 
+		order will be respected. -->
+	<panels>
+		<!-- <panel classname="org.interactivespaces.installer.izpack.panels.MyHelloPanel"/> -->
+		<panel classname="CheckedHelloPanel" id="hellopanel" />
+		<panel classname="HTMLInfoPanel" id="infopanel" encoding="ISO-8859-1" />
+		<panel classname="LicencePanel" />
+		<panel classname="UserInputPanel" id="userinputpanel.order.0" />
+		<panel classname="TargetPanel" />
+		<panel classname="PacksPanel" />
+		<panel classname="InstallPanel" />
+		<panel classname="FinishPanel" />
+	</panels>
 
-    <jar src="dependency/plexus-utils.jar"/>
-    <jar src="../interactivespaces-workbench-installer.jar"/>
+	<jar src="dependency/plexus-utils.jar" />
+	<jar src="../interactivespaces-workbench-installer.jar" />
 
-    <!-- 
-        The packs section.
-        We specify here our packs.
-    -->
-    <packs>
-        <pack name="Base" required="yes">
-            <description>The base files</description>
+	<!-- The packs section. We specify here our packs. -->
+	<packs>
+		<pack name="Base" required="yes">
+			<description>The base files</description>
 
-            <file src="Readme.html" targetdir="$INSTALL_PATH"/>
-            <file src="LICENSE.txt" targetdir="$INSTALL_PATH" override="true" />
-            <file src="LICENSE.thirdparties.txt" targetdir="$INSTALL_PATH" override="true" />
-            <file src="NOTICE.txt" targetdir="$INSTALL_PATH" override="true" />
+			<file src="Readme.html" targetdir="$INSTALL_PATH" />
+			<file src="LICENSE.txt" targetdir="$INSTALL_PATH" override="true" />
+			<file src="LICENSE.thirdparties.txt" targetdir="$INSTALL_PATH"
+				override="true" />
+			<file src="NOTICE.txt" targetdir="$INSTALL_PATH" override="true" />
 
-            <file src="bootstrap" targetdir="$INSTALL_PATH"/>
-            <file src="templates" targetdir="$INSTALL_PATH"/>
-            <file src="config" targetdir="$INSTALL_PATH"/>
-            <file src="examples" targetdir="$INSTALL_PATH"/>
-            <file src="lib" targetdir="$INSTALL_PATH" override="true" />
-            <file src="alternate" targetdir="$INSTALL_PATH"/>
-            <file src="interactivespaces-launcher-@{project.version}.jar" targetdir="$INSTALL_PATH"
-                override="true" />
-            
-            <parsable targetfile="$INSTALL_PATH/config/workbench.conf"/>
-        </pack>
-        <pack name="Docs" required="no">
-            <description>The documentation</description>
-            <file src="docs" targetdir="$INSTALL_PATH"/>
-            <!-- Reccursive adding -->
-        </pack>
-    </packs>
+			<file src="bootstrap" targetdir="$INSTALL_PATH" />
+			<file src="templates" targetdir="$INSTALL_PATH" />
+			<file src="config" targetdir="$INSTALL_PATH" />
+			<file src="examples" targetdir="$INSTALL_PATH" />
+			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
+			<file src="alternate" targetdir="$INSTALL_PATH" />
+			<file src="interactivespaces-launcher-@{project.version}.jar"
+				targetdir="$INSTALL_PATH" override="true" />
+
+			<parsable targetfile="$INSTALL_PATH/config/workbench.conf" />
+
+			<parsable targetfile="$INSTALL_PATH/bin/startup_linux.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/startup_linux.bash"
+				stage="never" />
+			<parsable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash"
+				stage="never" />
+			<parsable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash"
+				stage="never" />
+		</pack>
+		<pack name="Docs" required="no">
+			<description>The documentation</description>
+			<file src="docs" targetdir="$INSTALL_PATH" />
+			<!-- Reccursive adding -->
+		</pack>
+	</packs>
 
 </installation>

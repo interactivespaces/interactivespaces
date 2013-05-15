@@ -43,7 +43,7 @@ allprojects {
     ext.androidSdkJar = "$androidPlatformHome/android.jar"
   }
 
-  ext.osgiVersion = '1.4.2'
+  ext.osgiVersion = '1.4.3'
 
   group = 'interactivespaces'
   version = osgiVersion
