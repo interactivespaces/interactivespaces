@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -48,6 +51,11 @@ import org.osgi.framework.launch.FrameworkFactory;
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesFrameworkBootstrap {
+
+	/**
+	 * The Jar Manifest property that gives the Interactive Spaces version.
+	 */
+	private static final String MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION = "Bundle-Version";
 
 	/**
 	 * The file extension used for files which give container extensions.
@@ -178,7 +186,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
 		configurationProvider.load();
 
-		containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
+		containerCustomizerProvider = new SimpleContainerCustomizerProvider(
+				args, true);
 	}
 
 	/**
@@ -287,6 +296,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());
 
+		m.put("interactivespaces.version", getInteractiveSpacesVersion());
+		
 		m.putAll(configurationProvider.getInitialConfiguration());
 
 		File file = new File(baseInstallFolder, "plugins-cache");
@@ -502,5 +513,37 @@ public class InteractiveSpacesFrameworkBootstrap {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the Interactive Spaces version from the JAR manifest.
+	 * 
+	 * @return The interactive spaces version
+	 */
+	private String getInteractiveSpacesVersion() {
+		String classContainer = getClass().getProtectionDomain()
+				.getCodeSource().getLocation().toString();
+
+		InputStream in = null;
+		try {
+			URL manifestUrl = new URL("jar:" + classContainer
+					+ "!/META-INF/MANIFEST.MF");
+			in = manifestUrl.openStream();
+			Manifest manifest = new Manifest(in);
+			Attributes attributes = manifest.getMainAttributes();
+			
+			return attributes.getValue(MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION);
+		} catch (IOException ex) {
+			return null;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// Don't care
+				}
+			}
+		}
+
 	}
 }
