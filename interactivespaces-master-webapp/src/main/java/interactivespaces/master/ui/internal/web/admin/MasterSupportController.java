@@ -19,6 +19,7 @@ package interactivespaces.master.ui.internal.web.admin;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.UiMasterSupportManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.Map;
 
@@ -30,17 +31,22 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * A Spring MVC controller for support activities.
- *
+ * 
  * @author Keith M. Hughes
  */
 @Controller
 public class MasterSupportController extends BaseSpaceMasterController {
-	
+
+	/**
+	 * Value when the IS Version is unknown.
+	 */
+	private static final String INTERACTIVESPACES_VERSION_UNKNOWN = "Unknown";
+
 	/**
 	 * The UI manager for master support activities.
 	 */
 	private UiMasterSupportManager uiMasterSupportManager;
-	
+
 	/**
 	 * Display a list of all named scripts.
 	 * 
@@ -49,6 +55,14 @@ public class MasterSupportController extends BaseSpaceMasterController {
 	@RequestMapping("/admin/support/index.html")
 	public ModelAndView supportIndexPage() {
 		ModelAndView mav = getModelAndView();
+
+		mav.addObject(
+				"interactivespacesVersion",
+				spacesEnvironment
+						.getSystemConfiguration()
+						.getPropertyString(
+								InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION,
+								INTERACTIVESPACES_VERSION_UNKNOWN));
 		mav.setViewName("admin/SupportAll");
 
 		return mav;
@@ -83,9 +97,10 @@ public class MasterSupportController extends BaseSpaceMasterController {
 			return JsonSupport.getFailureJsonResponse("call failed");
 		}
 	}
-	
+
 	/**
-	 * @param uiMasterSupportManager the uiMasterSupportManager to set
+	 * @param uiMasterSupportManager
+	 *            the uiMasterSupportManager to set
 	 */
 	public void setUiMasterSupportManager(
 			UiMasterSupportManager uiMasterSupportManager) {

@@ -53,5 +53,18 @@ function importMasterDomainModel() {
 <div id="commandResult">
 </div>
 
+<div id="content">
+
+<table>
+
+<tr>
+  <td>Interactive Spaces Version</td>
+  <td>${interactivespacesVersion}</td>
+</tr>
+
+</table>
+
+</div>
+
 </body>
 <html>

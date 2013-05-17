@@ -87,6 +87,10 @@
 	margin: 0.25in;
 }
 
+#content {
+	margin-top: 2em;
+}
+
 table.searchResults {
 	margin-top: 10pt;
 }
