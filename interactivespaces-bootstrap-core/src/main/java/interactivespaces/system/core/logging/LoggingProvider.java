@@ -16,13 +16,11 @@
 
 package interactivespaces.system.core.logging;
 
-import java.io.File;
-
 import org.apache.commons.logging.Log;
 
 /**
  * The platform logging provider.
- *
+ * 
  * @author Keith M. Hughes
  */
 public interface LoggingProvider {

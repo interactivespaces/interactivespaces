@@ -17,6 +17,7 @@
 package interactivespaces.launcher.bootstrap;
 
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
@@ -294,10 +295,12 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
 
-		m.put("interactivespaces.rootdir", baseInstallFolder.getAbsolutePath());
+		m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR,
+				baseInstallFolder.getAbsolutePath());
 
-		m.put("interactivespaces.version", getInteractiveSpacesVersion());
-		
+		m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION,
+				getInteractiveSpacesVersion());
+
 		m.putAll(configurationProvider.getInitialConfiguration());
 
 		File file = new File(baseInstallFolder, "plugins-cache");
@@ -531,8 +534,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 			in = manifestUrl.openStream();
 			Manifest manifest = new Manifest(in);
 			Attributes attributes = manifest.getMainAttributes();
-			
-			return attributes.getValue(MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION);
+
+			return attributes
+					.getValue(MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION);
 		} catch (IOException ex) {
 			return null;
 		} finally {

@@ -27,6 +27,7 @@ import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.system.internal.osgi.OsgiInteractiveSpacesSystemControl;
@@ -63,12 +64,6 @@ import org.ros.osgi.common.SimpleRosEnvironment;
  */
 public class GeneralInteractiveSpacesSupportActivator implements
 		BundleActivator {
-
-	/**
-	 * Property containing the Interactive Spaces root dir. This will be an
-	 * absolute path.
-	 */
-	public static final String PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR = "interactivespaces.rootdir";
 
 	/**
 	 * Threadpool for everyone to use.
@@ -133,7 +128,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	@Override
 	public void start(BundleContext context) throws Exception {
 		String baseInstallDirProperty = context
-				.getProperty(PROPERTY_INTERACTIVESPACES_BASE_INSTALL_DIR);
+				.getProperty(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR);
 		File baseInstallDir = new File(baseInstallDirProperty);
 
 		try {
@@ -144,6 +139,15 @@ public class GeneralInteractiveSpacesSupportActivator implements
 			registerServices(context);
 
 			timeProvider.startup();
+
+			spaceEnvironment
+					.getLog()
+					.info(String
+							.format("Base system startup. Interactive Spaces Version %s",
+									spaceEnvironment
+											.getSystemConfiguration()
+											.getPropertyString(
+													InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION)));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -410,6 +414,11 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		for (Entry<String, String> entry : containerProperties.entrySet()) {
 			systemConfiguration.setValue(entry.getKey(), entry.getValue());
 		}
+
+		systemConfiguration
+				.setValue(
+						InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION,
+						context.getProperty(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION));
 
 		spaceEnvironment.setSystemConfiguration(systemConfiguration);
 	}

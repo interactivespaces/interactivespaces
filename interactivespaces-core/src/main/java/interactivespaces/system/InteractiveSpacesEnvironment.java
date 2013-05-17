@@ -16,9 +16,9 @@
 
 package interactivespaces.system;
 
-import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.ServiceRegistry;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
 
@@ -32,6 +32,11 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public interface InteractiveSpacesEnvironment {
+
+	/**
+	 * Configuration property containing the Interactive Spaces version.
+	 */
+	public static final String CONFIGURATION_INTERACTIVESPACES_VERSION = CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION;
 
 	/**
 	 * Configuration property giving the Interactive Spaces container type.
