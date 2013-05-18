@@ -151,8 +151,18 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 	}
 
 	@Override
+	public Integer getRequiredPropertyInteger(String property) {
+		return temporary.getRequiredPropertyInteger(property);
+	}
+
+	@Override
 	public Long getPropertyLong(String property, Long defaultValue) {
 		return temporary.getPropertyLong(property, defaultValue);
+	}
+
+	@Override
+	public Long getRequiredPropertyLong(String property) {
+		return temporary.getRequiredPropertyLong(property);
 	}
 
 	@Override
@@ -161,8 +171,18 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 	}
 
 	@Override
+	public Double getRequiredPropertyDouble(String property) {
+		return temporary.getRequiredPropertyDouble(property);
+	}
+
+	@Override
 	public Boolean getPropertyBoolean(String property, Boolean defaultValue) {
 		return temporary.getPropertyBoolean(property, defaultValue);
+	}
+
+	@Override
+	public Boolean getRequiredPropertyBoolean(String property) {
+		return temporary.getRequiredPropertyBoolean(property);
 	}
 
 	@Override

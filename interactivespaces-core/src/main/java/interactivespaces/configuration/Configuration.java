@@ -16,6 +16,8 @@
 
 package interactivespaces.configuration;
 
+import interactivespaces.InteractiveSpacesException;
+
 import java.util.Map;
 
 /**
@@ -39,8 +41,9 @@ public interface Configuration {
 	 * Get the value of the property as a string.
 	 * 
 	 * @param property
-	 *            name of the property.
-	 * @return The property value, or null if it wasn't found.
+	 *            name of the property
+	 *            
+	 * @return The property value, or {@code null} if it wasn't found.
 	 */
 	String getPropertyString(String property);
 
@@ -91,15 +94,42 @@ public interface Configuration {
 	Integer getPropertyInteger(String property, Integer defaultValue);
 
 	/**
+	 * Get the value of the property as an integer.
+	 * 
+	 * @param property
+	 *            name of the property
+	 * 
+	 * @return the value of the required property
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if the property does not exist
+	 */
+	Integer getRequiredPropertyInteger(String property);
+
+	/**
 	 * Get the value of the property as a long.
 	 * 
 	 * @param property
-	 *            name of the property.
+	 *            name of the property
 	 * @param defaultValue
-	 *            Default value.
+	 *            default value
+	 * 
 	 * @return Use the default value if the property isn't found.
 	 */
 	Long getPropertyLong(String property, Long defaultValue);
+
+	/**
+	 * Get the value of the property as a long.
+	 * 
+	 * @param property
+	 *            name of the property
+	 * 
+	 * @return the value of the required property
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if the property does not exist
+	 */
+	Long getRequiredPropertyLong(String property);
 
 	/**
 	 * Get the value of the property as a double.
@@ -113,6 +143,19 @@ public interface Configuration {
 	Double getPropertyDouble(String property, Double defaultValue);
 
 	/**
+	 * Get the value of the property as a double.
+	 * 
+	 * @param property
+	 *            name of the property
+	 * 
+	 * @return the value of the required property
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if the property does not exist
+	 */
+	Double getRequiredPropertyDouble(String property);
+
+	/**
 	 * Get the value of the property as a boolean.
 	 * 
 	 * @param property
@@ -124,10 +167,25 @@ public interface Configuration {
 	Boolean getPropertyBoolean(String property, Boolean defaultValue);
 
 	/**
+	 * Get the value of the property as a boolean.
+	 * 
+	 * @param property
+	 *            name of the property
+	 * 
+	 * @return the value of the required property
+	 * 
+	 * @throws InteractiveSpacesException
+	 *             if the property does not exist
+	 */
+	Boolean getRequiredPropertyBoolean(String property);
+
+	/**
 	 * Set the value of a property.
 	 * 
 	 * @param property
+	 *            name of the property
 	 * @param value
+	 *            value of the property
 	 */
 	void setValue(String property, String value);
 
@@ -135,26 +193,27 @@ public interface Configuration {
 	 * Set the parent of this configuration.
 	 * 
 	 * @param parent
+	 *            the parent of the configuration
 	 */
 	void setParent(Configuration parent);
 
 	/**
 	 * Get the parent of this configuration.
 	 * 
-	 * @return parent
+	 * @return the parent, or {@code null} if none
 	 */
 	Configuration getParent();
 
 	/**
-	 * Get the property from the current configuation.
+	 * Get the property from the current configuration.
 	 * 
 	 * <p>
 	 * This method does not go up the parent chain.
 	 * 
 	 * @param property
-	 *            Name of the property.
+	 *            name of the property
 	 * 
-	 * @return The value of the property, or null if not found.
+	 * @return The value of the property, or {@code null} if not found.
 	 */
 	String findValueLocally(String property);
 
@@ -165,10 +224,9 @@ public interface Configuration {
 	 * This method does not go up the parent chain.
 	 * 
 	 * @param property
-	 *            Name of the property.
+	 *            name of the property
 	 * 
-	 * @return True if the current configuration contains the property, false
-	 *         otherwise.
+	 * @return {@code true} if the current configuration contains the property
 	 */
 	boolean containsPropertyLocally(String property);
 

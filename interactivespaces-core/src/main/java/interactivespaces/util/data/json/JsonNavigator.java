@@ -118,6 +118,24 @@ public class JsonNavigator {
 					"Current level is not a map for name %s", name));
 		}
 	}
+	/**
+	 * If the current level is a map, get a boolean field from the map.
+	 * 
+	 * @param name
+	 *            name of the field
+	 * 
+	 * @return value of the field, or {@code null} if nothing for that key
+	 */
+	public Boolean getBoolean(String name) {
+		if (currentType == TYPE_MAP) {
+			Boolean value = (Boolean) currentMap.get(name);
+
+			return value;
+		} else {
+			throw new InteractiveSpacesException(String.format(
+					"Current level is not a map for name %s", name));
+		}
+	}
 
 	/**
 	 * If the current level is a map, get an object field from the map.

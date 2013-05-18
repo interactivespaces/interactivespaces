@@ -17,15 +17,13 @@
 package interactivespaces.util.data.persist;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.io.Files;
 
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.google.common.collect.Maps;
 
@@ -46,11 +44,10 @@ public class ConcurrentJsonFile {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -89,7 +86,8 @@ public class ConcurrentJsonFile {
 		rwlock.readLock().lock();
 		try {
 			if (file.exists()) {
-				map = MAPPER.readValue(file, Map.class);
+				String value = Files.readFile(file);
+				map = MAPPER.parseObject(value);
 				return true;
 			} else {
 				return false;
@@ -129,7 +127,7 @@ public class ConcurrentJsonFile {
 	public void save() {
 		rwlock.writeLock().lock();
 		try {
-			Files.writeFile(file, MAPPER.writeValueAsString(map));
+			Files.writeFile(file, MAPPER.toString(map));
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Could not read %s", file), e);

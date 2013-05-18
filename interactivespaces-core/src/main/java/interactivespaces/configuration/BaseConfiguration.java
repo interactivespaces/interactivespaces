@@ -30,7 +30,8 @@ import com.google.common.collect.Maps;
  * 
  * @author Keith M. Hughes
  */
-public abstract class BaseConfiguration implements Configuration, EvaluationEnvironment {
+public abstract class BaseConfiguration implements Configuration,
+		EvaluationEnvironment {
 
 	/**
 	 * Parent configuration to this configuration.
@@ -86,7 +87,8 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 		if (value != null) {
 			return value;
 		} else {
-			throw new InteractiveSpacesException("Required property not defined: " + property);
+			throw new InteractiveSpacesException(String.format(
+					"Required property %s does not exist", property));
 		}
 	}
 
@@ -101,6 +103,11 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 	}
 
 	@Override
+	public Integer getRequiredPropertyInteger(String property) {
+		return Integer.valueOf(getRequiredPropertyString(property));
+	}
+
+	@Override
 	public Long getPropertyLong(String property, Long defaultValue) {
 		String value = getValue(property);
 		if (value != null) {
@@ -108,6 +115,11 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 		} else {
 			return defaultValue;
 		}
+	}
+
+	@Override
+	public Long getRequiredPropertyLong(String property) {
+		return Long.valueOf(getRequiredPropertyString(property));
 	}
 
 	@Override
@@ -121,13 +133,36 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 	}
 
 	@Override
+	public Double getRequiredPropertyDouble(String property) {
+		return Double.valueOf(getRequiredPropertyString(property));
+	}
+
+	@Override
 	public Boolean getPropertyBoolean(String property, Boolean defaultValue) {
 		String value = getValue(property);
 		if (value != null) {
-			return "true".equalsIgnoreCase(value);
+			return getBooleanValue(value);
 		} else {
 			return defaultValue;
 		}
+	}
+
+	@Override
+	public Boolean getRequiredPropertyBoolean(String property) {
+		return getBooleanValue(getRequiredPropertyString(property));
+	}
+
+	/**
+	 * Get the boolean value for the given string.
+	 * 
+	 * @param value
+	 *            the string
+	 * 
+	 * @return {@code true} if the string represents an Interactive Spaces true
+	 *         value
+	 */
+	private boolean getBooleanValue(String value) {
+		return "true".equalsIgnoreCase(value);
 	}
 
 	@Override
@@ -169,16 +204,17 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
 	}
 
 	@Override
-	public String lookupVariableValue(String variable) throws EvaluationInteractiveSpacesException {
+	public String lookupVariableValue(String variable)
+			throws EvaluationInteractiveSpacesException {
 		return getValue(variable);
 	}
 
 	@Override
 	public Map<String, String> getCollapsedMap() {
 		Map<String, String> map = Maps.newHashMap();
-		
+
 		addCollapsedEntries(map);
-		
+
 		return map;
 	}
 }

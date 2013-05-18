@@ -30,6 +30,7 @@ import org.ros.message.MessageListener;
  * @author Keith M. Hughes
  */
 public class RosControlMessageListener {
+
 	/**
 	 * Configuration property giving topic name the app will use for getting tag
 	 * swipes.
@@ -41,12 +42,13 @@ public class RosControlMessageListener {
 	 */
 	private RosSubscribers<?> rosSubscribers;
 
-	public <T> RosControlMessageListener(BaseRosActivity activity, Configuration configuration,
-			String messageTopicType,
+	public <T> RosControlMessageListener(BaseRosActivity activity,
+			Configuration configuration, String messageTopicType,
 			final ActivityControlMessageListener<T> messageListener) {
 		rosSubscribers = new RosSubscribers<T>(activity.getLog());
 
-		RosSubscribers<T> rosSubscribers = new RosSubscribers<T>(activity.getLog());
+		RosSubscribers<T> rosSubscribers = new RosSubscribers<T>(
+				activity.getLog());
 		rosSubscribers
 				.addSubscribers(
 						activity.getMainNode(),
@@ -59,10 +61,10 @@ public class RosControlMessageListener {
 								messageListener.onNewControlMessage(command);
 							}
 						});
-		
+
 		this.rosSubscribers = rosSubscribers;
 	}
-	
+
 	/**
 	 * Shut this component down.
 	 */

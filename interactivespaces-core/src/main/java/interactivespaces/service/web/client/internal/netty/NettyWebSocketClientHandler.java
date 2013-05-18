@@ -16,13 +16,13 @@
 
 package interactivespaces.service.web.client.internal.netty;
 
-import java.util.Map;
-
 import interactivespaces.service.web.WebSocketHandler;
+import interactivespaces.util.data.json.JsonMapper;
+
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -48,11 +48,10 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -101,7 +100,7 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
 					+ response.getStatus() + ", content="
 					+ response.getContent().toString(CharsetUtil.UTF_8) + ')';
 			log.error(String.format("Web socket client: %s", message));
-			
+
 			throw new Exception(message);
 		}
 
@@ -109,8 +108,7 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
 		if (frame instanceof TextWebSocketFrame) {
 			TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
 			try {
-				handler.onReceive(MAPPER.readValue(textFrame.getText(),
-						Map.class));
+				handler.onReceive(MAPPER.parseObject(textFrame.getText()));
 			} catch (Exception e1) {
 				log.error("Error while decoding JSON websocket message", e1);
 			}

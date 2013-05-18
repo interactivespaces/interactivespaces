@@ -61,8 +61,18 @@ public class ReadOnlyConfiguration implements Configuration {
 	}
 
 	@Override
+	public Integer getRequiredPropertyInteger(String property) {
+		return wrapped.getRequiredPropertyInteger(property);
+	}
+
+	@Override
 	public Long getPropertyLong(String property, Long defaultValue) {
 		return wrapped.getPropertyLong(property, defaultValue);
+	}
+
+	@Override
+	public Long getRequiredPropertyLong(String property) {
+		return wrapped.getRequiredPropertyLong(property);
 	}
 
 	@Override
@@ -71,8 +81,18 @@ public class ReadOnlyConfiguration implements Configuration {
 	}
 
 	@Override
+	public Double getRequiredPropertyDouble(String property) {
+		return wrapped.getRequiredPropertyDouble(property);
+	}
+
+	@Override
 	public Boolean getPropertyBoolean(String property, Boolean defaultValue) {
 		return wrapped.getPropertyBoolean(property, defaultValue);
+	}
+
+	@Override
+	public Boolean getRequiredPropertyBoolean(String property) {
+		return wrapped.getRequiredPropertyBoolean(property);
 	}
 
 	@Override

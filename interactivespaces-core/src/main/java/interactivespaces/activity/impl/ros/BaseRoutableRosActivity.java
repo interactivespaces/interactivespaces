@@ -16,20 +16,19 @@
 
 package interactivespaces.activity.impl.ros;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.component.ros.RoutableInputMessageListener;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
+import interactivespaces.util.data.json.JsonBuilder;
+import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces_msgs.GenericMessage;
 
 import java.io.IOException;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * An {@link Activity} which provides a set of named input ROS topics and a set
@@ -42,13 +41,12 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
-	
+
 	/**
 	 * Router for input and output messages.
 	 */
@@ -89,12 +87,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	 *            the message to send
 	 */
 	public String jsonStringify(Map<String, Object> map) {
-		try {
-			return MAPPER.writeValueAsString(map);
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(
-					"Could not serialize JSON object as string", e);
-		}
+		return MAPPER.toString(map);
 	}
 
 	/**
@@ -105,15 +98,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 	 * @return the map for the string
 	 */
 	public Map<String, Object> jsonParse(String data) {
-		try {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					data, Map.class);
-			return map;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException("Could not parse JSON string",
-					e);
-		}
+		return MAPPER.parseObject(data);
 	}
 
 	/**
@@ -153,7 +138,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 
 		try {
 			outgoing.setType("json");
-			outgoing.setMessage(MAPPER.writeValueAsString(message));
+			outgoing.setMessage(MAPPER.toString(message));
 
 			router.writeOutputMessage(channelName, outgoing);
 		} catch (Exception e) {
@@ -162,6 +147,18 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 							"Could not write JSON message on output channel %s",
 							channelName), e);
 		}
+	}
+
+	/**
+	 * Send an output JSON message from a {@link JsonBuilder}.
+	 * 
+	 * @param channelName
+	 *            the name of the output channel to send the message on
+	 * @param message
+	 *            the message to send
+	 */
+	public void sendOutputJsonBuilder(String channelName, JsonBuilder message) {
+		sendOutputJson(channelName, message.build());
 	}
 
 	/**
@@ -207,10 +204,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 		try {
 			String msg = message.getMessage();
 
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					msg, Map.class);
-			onNewInputJson(channelName, map);
+			onNewInputJson(channelName, MAPPER.parseObject(msg));
 		} finally {
 			getExecutionContext().exitMethod(invocation);
 		}

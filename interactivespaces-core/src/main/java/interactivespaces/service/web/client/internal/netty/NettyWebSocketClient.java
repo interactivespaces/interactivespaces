@@ -19,15 +19,13 @@ package interactivespaces.service.web.client.internal.netty;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
+import interactivespaces.util.data.json.JsonMapper;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.Log;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.jboss.netty.bootstrap.Bootstrap;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -57,11 +55,10 @@ public class NettyWebSocketClient implements WebSocketClient {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -159,8 +156,7 @@ public class NettyWebSocketClient implements WebSocketClient {
 	@Override
 	public void writeDataAsJson(Object data) {
 		try {
-			channel.write(new TextWebSocketFrame(MAPPER
-					.writeValueAsString(data)));
+			channel.write(new TextWebSocketFrame(MAPPER.toString(data)));
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(
 					"Could not write web socket client data", e);
@@ -208,9 +204,9 @@ public class NettyWebSocketClient implements WebSocketClient {
 			bootstrap = null;
 		}
 	}
-	
+
 	@Override
 	public String getUser() {
-	  return "";
+		return "";
 	}
 }

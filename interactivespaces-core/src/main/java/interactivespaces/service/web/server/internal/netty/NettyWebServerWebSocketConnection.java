@@ -18,21 +18,18 @@ package interactivespaces.service.web.server.internal.netty;
 
 import interactivespaces.service.web.WebSocketConnection;
 import interactivespaces.service.web.WebSocketHandler;
-import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.WebResourceAccessManager;
-
-import java.util.Map;
+import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.util.data.json.JsonMapper;
 
 import org.apache.commons.logging.Log;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 
 /**
@@ -45,11 +42,10 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -71,7 +67,7 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	 * Logger for this handler.
 	 */
 	private Log log;
-	
+
 	/**
 	 * The id for the user who initiated this socket connection.
 	 */
@@ -118,12 +114,12 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 
 		String textData = ((TextWebSocketFrame) frame).getText();
 		if (accessManager != null) {
-		  if (!accessManager.allowWebsocketCall(getUser(), textData)) {
-		    return;
-		  }
+			if (!accessManager.allowWebsocketCall(getUser(), textData)) {
+				return;
+			}
 		}
 		try {
-			handler.onReceive(MAPPER.readValue(textData, Map.class));
+			handler.onReceive(MAPPER.parseObject(textData));
 		} catch (Exception e) {
 			log.error("Could not process web socket frame", e);
 		}
@@ -132,8 +128,7 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 	@Override
 	public void writeDataAsJson(Object data) {
 		try {
-			channel.write(new TextWebSocketFrame(MAPPER
-					.writeValueAsString(data)));
+			channel.write(new TextWebSocketFrame(MAPPER.toString(data)));
 		} catch (Exception e) {
 			log.error("Could not write JSON object on web socket", e);
 		}
@@ -157,9 +152,9 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
 
 	@Override
 	public String getUser() {
-	  return user;
+		return user;
 	}
-	
+
 	/**
 	 * Get the handler this endpoint is using.
 	 * 

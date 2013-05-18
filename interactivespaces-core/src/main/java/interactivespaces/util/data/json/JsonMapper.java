@@ -72,14 +72,14 @@ public class JsonMapper {
 	 * <p>
 	 * Non 7-but ASCII characters will be escaped.
 	 * 
-	 * @param map
-	 * 			the map to serialize as JSON
+	 * @param data
+	 * 			the object to serialize as JSON
 	 * 
 	 * @return the string
 	 */
-	public String toString(Map<String, Object> map) {
+	public String toString(Object data) {
 		try {
-			return MAPPER.writeValueAsString(map);
+			return MAPPER.writeValueAsString(data);
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(
 					"Could not serialize JSON object as string", e);

@@ -96,6 +96,27 @@ public class JsonBuilder {
 	}
 
 	/**
+	 * Put in a name/value pair in an object.
+	 * 
+	 * @param data
+	 *            map of keys and values to add to the current object
+	 * 
+	 * @return this builder
+	 */
+	public JsonBuilder putAll(Map<String, Object> data) {
+		if (currentType == TYPE_OBJECT) {
+			currentObject.putAll(data);
+		} else {
+			// Must be an array
+
+			throw new InteractiveSpacesException(
+					"Cannot put a map of values into an array");
+		}
+
+		return this;
+	}
+
+	/**
 	 * Put a value pair in an array.
 	 * 
 	 * @param value
@@ -260,5 +281,10 @@ public class JsonBuilder {
 	 */
 	public Map<String, Object> build() {
 		return root;
+	}
+
+	@Override
+	public String toString() {
+		return root.toString();
 	}
 }

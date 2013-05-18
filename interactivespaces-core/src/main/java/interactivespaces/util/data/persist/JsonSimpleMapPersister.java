@@ -17,15 +17,13 @@
 package interactivespaces.util.data.persist;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.io.Files;
 
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * A {@link SimpleMapPersister} which persists the data as JSON.
@@ -37,11 +35,10 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -79,10 +76,8 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 			File mapFile = getMapFile(name);
 			if (mapFile.exists()) {
 				String content = Files.readFile(mapFile);
-				@SuppressWarnings("unchecked")
-				Map<String, Object> map = (Map<String, Object>) MAPPER
-						.readValue(content, Map.class);
-				return map;
+				
+				return MAPPER.parseObject(content);
 			} else {
 				return null;
 			}
@@ -99,7 +94,7 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 		rwlock.writeLock().lock();
 
 		try {
-			Files.writeFile(getMapFile(name), MAPPER.writeValueAsString(map));
+			Files.writeFile(getMapFile(name), MAPPER.toString(map));
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Could not write map %s", name), e);

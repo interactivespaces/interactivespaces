@@ -16,13 +16,6 @@
 
 package interactivespaces.activity.impl.web;
 
-import java.io.File;
-import java.util.Map;
-
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
@@ -30,6 +23,11 @@ import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketH
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
+import interactivespaces.util.data.json.JsonBuilder;
+import interactivespaces.util.data.json.JsonMapper;
+
+import java.io.File;
+import java.util.Map;
 
 /**
  * A web server activity which allows for ROS routes.
@@ -42,11 +40,10 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	/**
 	 * The JSON mapper.
 	 */
-	private static final ObjectMapper MAPPER;
+	private static final JsonMapper MAPPER;
 
 	static {
-		MAPPER = new ObjectMapper();
-		MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+		MAPPER = new JsonMapper();
 	}
 
 	/**
@@ -78,12 +75,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 *            the map to convert
 	 */
 	public String jsonStringify(Map<String, Object> map) {
-		try {
-			return MAPPER.writeValueAsString(map);
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(
-					"Could not serialize JSON object as string", e);
-		}
+		return MAPPER.toString(map);
 	}
 
 	/**
@@ -95,15 +87,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 * @return the map for the string
 	 */
 	public Map<String, Object> jsonParse(String data) {
-		try {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(
-					data, Map.class);
-			return map;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException("Could not parse JSON string",
-					e);
-		}
+		return MAPPER.parseObject(data);
 	}
 
 	/**
@@ -172,6 +156,18 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	}
 
 	/**
+	 * Send a {@link JsonBuilder} result to the web socket
+	 * 
+	 * @param connectionId
+	 *            ID for the web socket connection
+	 * @param data
+	 *            the data to send
+	 */
+	public void sendWebSocketJsonBuilder(String connectionId, JsonBuilder data) {
+		sendWebSocketJson(connectionId, data.build());
+	}
+
+	/**
 	 * Send a JSON result to all web socket connections.
 	 * 
 	 * @param data
@@ -179,6 +175,16 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity
 	 */
 	public void sendAllWebSocketJson(Object data) {
 		webSocketFactory.sendJson(data);
+	}
+
+	/**
+	 * Send a {@link JsonBuilder} result to all web socket connections.
+	 * 
+	 * @param data
+	 *            the data to send
+	 */
+	public void sendAllWebSocketJsonBuilder(JsonBuilder data) {
+		sendAllWebSocketJson(data.build());
 	}
 
 	/**

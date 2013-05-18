@@ -22,7 +22,6 @@ import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
 import org.ros.node.ConnectedNode;
-import org.ros.node.Node;
 import org.ros.node.NodeConfiguration;
 import org.ros.osgi.common.RosEnvironment;
 
