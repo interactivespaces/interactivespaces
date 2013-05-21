@@ -35,7 +35,8 @@ import javax.usb.UsbServices;
  * 
  * @author Keith M. Hughes
  */
-public class Usb4JavaUsbCommunicationEndpointService implements UsbCommunicationEndpointService {
+public class Usb4JavaUsbCommunicationEndpointService implements
+		UsbCommunicationEndpointService {
 
 	/**
 	 * The root USB hub for the host computer
@@ -45,6 +46,8 @@ public class Usb4JavaUsbCommunicationEndpointService implements UsbCommunication
 	@Override
 	public void startup() {
 		try {
+			System.setProperty("javax.usb.services",
+					"de.ailis.usb4java.Services");
 			UsbServices services = UsbHostManager.getUsbServices();
 			rootHub = services.getRootUsbHub();
 		} catch (Exception e) {

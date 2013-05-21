@@ -89,7 +89,7 @@ public class Usb4JavaUsbCommunicationEndpoint implements UsbCommunicationEndpoin
 			@SuppressWarnings("unchecked")
 			List<UsbInterface> interfaces = (List<UsbInterface>) conf
 					.getUsbInterfaces();
-			System.out.println("Got interfaces " + interfaces.size());
+
 			for (UsbInterface i : interfaces) {
 				i.claim(FORCE_CLAIM_POLICY);
 				usbInterface = i;

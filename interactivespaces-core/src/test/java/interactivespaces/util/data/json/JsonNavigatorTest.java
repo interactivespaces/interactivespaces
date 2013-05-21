@@ -17,16 +17,19 @@
 package interactivespaces.util.data.json;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
  * Test the {@link JsonNavigator}.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class JsonNavigatorTest {
@@ -37,35 +40,177 @@ public class JsonNavigatorTest {
 	@Test
 	public void testPrimitives() {
 		Map<String, Object> root = Maps.newHashMap();
-		
+
 		String keyString1 = "string1";
 		String valueString1 = "bar";
 		root.put(keyString1, valueString1);
-		
-		
+
 		String keyString2 = "string1";
 		String valueString2 = "bar";
 		root.put(keyString2, valueString2);
-		
+
 		String keyInteger = "integer";
 		int valueInteger = 1;
 		root.put(keyInteger, valueInteger);
-		
+
 		String keyDouble = "double";
 		double valueDouble = 1.23456;
 		root.put(keyDouble, valueDouble);
-		
+
 		String keyBoolean = "boolean";
 		boolean valueBoolean = true;
 		root.put(keyBoolean, valueBoolean);
-		
+
 		JsonNavigator nav = new JsonNavigator(root);
-		
+
 		assertEquals(valueString1, nav.getString(keyString1));
 		assertEquals(valueString2, nav.getString(keyString2));
-		assertEquals((Integer)valueInteger, nav.getInteger(keyInteger));
-		assertEquals((Double)valueDouble, nav.getDouble(keyDouble));
-		assertEquals((Boolean)valueBoolean, nav.getBoolean(keyBoolean));
+		assertEquals((Integer) valueInteger, nav.getInteger(keyInteger));
+		assertEquals((Double) valueDouble, nav.getDouble(keyDouble));
+		assertEquals((Boolean) valueBoolean, nav.getBoolean(keyBoolean));
 	}
 
+	/**
+	 * Test making a series of maps and see if can properly navigate through
+	 * them.
+	 */
+	@Test
+	public void testDescent() {
+		Map<String, Object> root = Maps.newHashMap();
+
+		Map<String, Object> obj1 = Maps.newHashMap();
+		String obj1Key = "foo";
+		root.put(obj1Key, obj1);
+
+		String obj1ValueKey1 = "bar";
+		String obj1Value1 = "bletch";
+
+		obj1.put(obj1ValueKey1, obj1Value1);
+
+		String obj1ValueKey2 = "bar2";
+		String obj1Value2 = "bletch2";
+
+		obj1.put(obj1ValueKey2, obj1Value2);
+
+		Map<String, Object> obj2 = Maps.newHashMap();
+		String obj2Key = "banana";
+		obj1.put(obj2Key, obj2);
+
+		String obj2ValueKey = "orange";
+		String obj2Value = "apple";
+
+		obj2.put(obj2ValueKey, obj2Value);
+
+		List<Object> array = Lists.newArrayList();
+		array.add(17);
+		array.add("glork");
+
+		String arrayKey = "array";
+		root.put(arrayKey, array);
+
+		JsonNavigator nav = new JsonNavigator(root);
+
+		assertEquals(array, nav.getItem(arrayKey));
+
+		nav.down(obj1Key);
+
+		assertEquals(obj1Value1, nav.getItem(obj1ValueKey1));
+		assertEquals(obj2, nav.getItem(obj2Key));
+
+		nav.down(obj2Key);
+
+		assertEquals(obj2Value, nav.getItem(obj2ValueKey));
+
+		nav.up();
+
+		assertEquals(obj1Value2, nav.getItem(obj1ValueKey2));
+
+		nav.up();
+
+		// Should be at root.
+		try {
+			nav.up();
+
+			fail();
+		} catch (JsonInteractiveSpacesException e) {
+			// Expected
+		}
+	}
+
+	/**
+	 * Test using the path API
+	 */
+	@Test
+	public void testPaths() {
+		Map<String, Object> root = Maps.newHashMap();
+
+		Map<String, Object> obj1 = Maps.newHashMap();
+		String obj1Key = "foo";
+		root.put(obj1Key, obj1);
+
+		String obj1ValueKey1 = "bar";
+		String obj1Value1 = "bletch";
+
+		obj1.put(obj1ValueKey1, obj1Value1);
+
+		String obj1ValueKey2 = "bar2";
+		String obj1Value2 = "bletch2";
+
+		obj1.put(obj1ValueKey2, obj1Value2);
+
+		Map<String, Object> obj2 = Maps.newHashMap();
+		String obj2Key = "banana";
+		obj1.put(obj2Key, obj2);
+
+		String obj2ValueKey = "orange";
+		String obj2Value = "apple";
+
+		obj2.put(obj2ValueKey, obj2Value);
+
+		Map<String, Object> arrayElement1 = Maps.newHashMap();
+		String arrayElement1ValueKey = "orangina";
+		String arrayElement1Value = "apple sauce";
+		arrayElement1.put(arrayElement1ValueKey, arrayElement1Value);
+
+		List<Object> array = Lists.newArrayList();
+		String arrayElement0 = "glork";
+		array.add(arrayElement0);
+		array.add(arrayElement1);
+
+		String arrayKey = "array";
+		root.put(arrayKey, array);
+
+		JsonNavigator nav = new JsonNavigator(root);
+
+		// Simple path into a series of nested objects
+		assertEquals(obj2Value, nav.traversePath(String.format("%s.%s.%s",
+				obj1Key, obj2Key, obj2ValueKey)));
+
+		// Path that passes through an array to a primitive in the array
+		assertEquals(arrayElement0,
+				nav.traversePath(String.format("%s.[0]", arrayKey)));
+
+		// Path that passes through an array into an object in the array
+		assertEquals(arrayElement1Value, nav.traversePath(String.format(
+				"%s.[1].%s", arrayKey, arrayElement1ValueKey)));
+
+		// Test a relative path
+		nav.down(obj1Key);
+
+		assertEquals(obj2Value,
+				nav.traversePath(String.format("%s.%s", obj2Key, obj2ValueKey)));
+
+		// One level down, try an absolute path
+		assertEquals(obj2Value, nav.traversePath(String.format("$.%s.%s.%s",
+				obj1Key, obj2Key, obj2ValueKey)));
+
+		// This will attempt to go through the primitive object
+		try {
+			nav.traversePath(String.format("%s.%s.foo", obj2Key, obj2ValueKey));
+			fail();
+		} catch (JsonInteractiveSpacesException e) {
+			// Expected
+		}
+
+	}
 }

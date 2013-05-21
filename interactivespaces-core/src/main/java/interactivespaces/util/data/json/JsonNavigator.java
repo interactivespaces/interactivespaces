@@ -16,8 +16,7 @@
 
 package interactivespaces.util.data.json;
 
-import interactivespaces.InteractiveSpacesException;
-
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -28,15 +27,9 @@ import java.util.Stack;
  */
 public class JsonNavigator {
 
-	/**
-	 * The type of an object is a map.
-	 */
-	private static final int TYPE_MAP = 0;
-	
-	/**
-	 * The type of an object is an array.
-	 */
-	private static final int TYPE_ARRAY = 1;
+	public enum JsonType {
+		OBJECT, ARRAY;
+	}
 
 	/**
 	 * The root object.
@@ -51,21 +44,35 @@ public class JsonNavigator {
 	/**
 	 * Type of the current object.
 	 */
-	private int currentType;
+	private JsonType currentType;
 
 	/**
-	 * The current object, if it is a map.
+	 * The current object, if it is a object.
 	 */
-	private Map<String, Object> currentMap;
+	private Map<String, Object> currentObject;
+
+	/**
+	 * The current list, if it is a list.
+	 */
+	private List<Object> currentArray;
 
 	public JsonNavigator(Map<String, Object> root) {
 		this.root = root;
-		currentType = TYPE_MAP;
-		currentMap = root;
+		currentType = JsonType.OBJECT;
+		currentObject = root;
 	}
 
 	/**
-	 * If the current level is a map, get a string field from the map.
+	 * Get the current type of the current navigation point.
+	 * 
+	 * @return
+	 */
+	public JsonType getCurrentType() {
+		return currentType;
+	}
+
+	/**
+	 * If the current level is a object, get a string field from the object.
 	 * 
 	 * @param name
 	 *            name of the field
@@ -73,17 +80,17 @@ public class JsonNavigator {
 	 * @return value of the field, or {@code null} if nothing for that key
 	 */
 	public String getString(String name) {
-		if (currentType == TYPE_MAP) {
-			String value = (String) currentMap.get(name);
+		if (currentType == JsonType.OBJECT) {
+			String value = (String) currentObject.get(name);
 			return value;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
 
 	/**
-	 * If the current level is a map, get an integer field from the map.
+	 * If the current level is a object, get an integer field from the object.
 	 * 
 	 * @param name
 	 *            name of the field
@@ -91,17 +98,17 @@ public class JsonNavigator {
 	 * @return value of the field, or {@code null} if nothing for that key
 	 */
 	public Integer getInteger(String name) {
-		if (currentType == TYPE_MAP) {
-			Integer value = (Integer) currentMap.get(name);
+		if (currentType == JsonType.OBJECT) {
+			Integer value = (Integer) currentObject.get(name);
 			return value;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
 
 	/**
-	 * If the current level is a map, get a double field from the map.
+	 * If the current level is a object, get a double field from the object.
 	 * 
 	 * @param name
 	 *            name of the field
@@ -109,17 +116,18 @@ public class JsonNavigator {
 	 * @return value of the field, or {@code null} if nothing for that key
 	 */
 	public Double getDouble(String name) {
-		if (currentType == TYPE_MAP) {
-			Double value = (Double) currentMap.get(name);
+		if (currentType == JsonType.OBJECT) {
+			Double value = (Double) currentObject.get(name);
 
 			return value;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
+
 	/**
-	 * If the current level is a map, get a boolean field from the map.
+	 * If the current level is a object, get a boolean field from the object.
 	 * 
 	 * @param name
 	 *            name of the field
@@ -127,33 +135,33 @@ public class JsonNavigator {
 	 * @return value of the field, or {@code null} if nothing for that key
 	 */
 	public Boolean getBoolean(String name) {
-		if (currentType == TYPE_MAP) {
-			Boolean value = (Boolean) currentMap.get(name);
+		if (currentType == JsonType.OBJECT) {
+			Boolean value = (Boolean) currentObject.get(name);
 
 			return value;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
 
 	/**
-	 * If the current level is a map, get an object field from the map.
+	 * If the current level is a object, get an object field from the object.
 	 * 
 	 * @param name
 	 *            name of the field
 	 * 
 	 * @return value of the field, or {@code null} if nothing for that key
 	 */
-	public <T> T getObject(String name) {
-		if (currentType == TYPE_MAP) {
+	public <T> T getItem(String name) {
+		if (currentType == JsonType.OBJECT) {
 			@SuppressWarnings("unchecked")
-			T value = (T) currentMap.get(name);
+			T value = (T) currentObject.get(name);
 
 			return value;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
 
@@ -170,20 +178,28 @@ public class JsonNavigator {
 	 */
 	@SuppressWarnings("unchecked")
 	public JsonNavigator down(String name) {
-		if (currentType == TYPE_MAP) {
-			Object value = currentMap.get(name);
+		if (currentType == JsonType.OBJECT) {
+			Object value = currentObject.get(name);
 
 			if (value instanceof Map) {
-				nav.push(currentMap);
-				currentMap = (Map<String, Object>) value;
+				nav.push(currentObject);
+				currentObject = (Map<String, Object>) value;
 
 				// Type already a MAP
+			} else if (value instanceof List) {
+				nav.push(currentObject);
+				currentArray = (List<Object>) value;
+				currentType = JsonType.ARRAY;
+			} else {
+				throw new JsonInteractiveSpacesException(String.format(
+						"The named item %s is neither an object or an array",
+						name));
 			}
 
 			return this;
 		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Current level is not a map for name %s", name));
+			throw new JsonInteractiveSpacesException(String.format(
+					"Current level is not a object for name %s", name));
 		}
 	}
 
@@ -198,14 +214,78 @@ public class JsonNavigator {
 			Object value = nav.pop();
 
 			if (value instanceof Map) {
-				currentMap = (Map<String, Object>) value;
+				currentObject = (Map<String, Object>) value;
+				currentArray = null;
 
-				currentType = TYPE_MAP;
+				currentType = JsonType.OBJECT;
+			} else if (value instanceof List) {
+				currentArray = (List<Object>) value;
+				currentObject = null;
+
+				currentType = JsonType.ARRAY;
 			}
 
 			return this;
 		} else {
-			throw new InteractiveSpacesException("Could not go up, was at root");
+			throw new JsonInteractiveSpacesException(
+					"Could not go up, was at root");
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	Object traversePath(String path) {
+		Object curObject = null;
+		
+		if (currentType == JsonType.OBJECT) {
+			curObject = currentObject;
+		} else {
+			curObject = currentArray;
+		}
+
+		String[] elements = path.split("\\.");
+
+		for (int i = 0; i < elements.length; i++) {
+			String element = elements[i].trim();
+
+			if (element.isEmpty()) {
+				throw new JsonInteractiveSpacesException(String.format(
+						"Empty element in path %s", path));
+			}
+
+			if (element.equals("$")) {
+				curObject = root;
+			} else if (element.startsWith("[")) {
+				if (curObject instanceof List) {
+					if (element.endsWith("]")) {
+						int index = Integer.parseInt(element.substring(1,
+								element.length() - 1));
+
+						curObject = ((List<Object>) curObject).get(index);
+					} else {
+						throw new JsonInteractiveSpacesException(String.format(
+								"Path element %s does not end in a ]", element));
+					}
+				} else if (curObject instanceof Map) {
+					throw new JsonInteractiveSpacesException(
+							"Attempt to use an array index in an object");
+				} else if (i < elements.length){
+					throw new JsonInteractiveSpacesException(
+							"Non array or object in the middle of a path");
+				}
+			} else {
+				// Have a result name
+				if (curObject instanceof Map) {
+					curObject = ((Map<String, Object>) curObject).get(element);
+				} else if (curObject instanceof List) {
+					throw new JsonInteractiveSpacesException(
+							"Attempt to use an name index in an array");
+				} else if (i < elements.length) {
+					throw new JsonInteractiveSpacesException(
+							"Non array or object in the middle of a path");
+				}
+			}
+		}
+
+		return curObject;
 	}
 }

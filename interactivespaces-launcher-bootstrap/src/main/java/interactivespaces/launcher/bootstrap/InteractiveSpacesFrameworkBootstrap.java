@@ -29,6 +29,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -150,9 +151,19 @@ public class InteractiveSpacesFrameworkBootstrap {
 			setupShutdownHandler();
 
 			try {
-				createAndStartFramework();
+				List<String> loadclasses = new ArrayList<String>();
+
+				createAndStartFramework(loadclasses);
 
 				registerCoreServices();
+				
+//				System.out.println("Got loadclasses " + loadclasses);
+//				for (String loadclass : loadclasses) {
+//					Class<?> loadclazz = getClass().getClassLoader().loadClass(loadclass);
+//					System.out.println("Loaded class " + loadclazz);
+//					Method method = loadclazz.getMethod("getProperties");
+//					method.invoke(null);
+//				}
 
 				List<Bundle> bundleList = new ArrayList<Bundle>();
 
@@ -263,7 +274,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * @throws Exception
 	 * @throws BundleException
 	 */
-	private void createAndStartFramework() throws IOException, Exception,
+	private void createAndStartFramework(List<String> loadclasses) throws IOException, Exception,
 			BundleException {
 		Map<String, String> m = new HashMap<String, String>();
 
@@ -284,7 +295,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 		extraPackages.add("interactivespaces.system.core.configuration");
 		extraPackages.add("interactivespaces.system.core.container");
 
-		addControllerExtensionsClasspath(extraPackages);
+		addControllerExtensionsClasspath(extraPackages, loadclasses);
 
 		StringBuilder packages = new StringBuilder();
 		String separator = "";
@@ -456,10 +467,13 @@ public class InteractiveSpacesFrameworkBootstrap {
 	/**
 	 * Add all extension classpath entries that the controller specifies.
 	 * 
-	 * @param files
-	 *            the list of files to add to.
+	 * @param packages
+	 *            the list of packages to store the packages in
+	 * @param loadclasses
+	 *            The list of classes to have the classloader preload.
 	 */
-	private void addControllerExtensionsClasspath(List<String> packages) {
+	private void addControllerExtensionsClasspath(List<String> packages,
+			List<String> loadclasses) {
 		File[] extensionFiles = new File(baseInstallFolder, "lib/system/java")
 				.listFiles(new FilenameFilter() {
 
@@ -472,7 +486,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 			return;
 
 		for (File extensionFile : extensionFiles) {
-			processExtensionFile(packages, extensionFile);
+			processExtensionFile(packages, loadclasses, extensionFile);
 		}
 
 	}
@@ -486,7 +500,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * @param extensionFile
 	 *            the extension file to process
 	 */
-	private void processExtensionFile(List<String> packages, File extensionFile) {
+	private void processExtensionFile(List<String> packages,
+			List<String> loadclasses, File extensionFile) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(extensionFile));
@@ -500,6 +515,13 @@ public class InteractiveSpacesFrameworkBootstrap {
 							&& line.length() > EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH) {
 						packages.add(line
 								.substring(EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH));
+					}
+					
+					pos = line.indexOf("loadclass:");
+					if (pos == 0
+							&& line.length() > "loadclass:".length()) {
+						loadclasses.add(line
+								.substring("loadclass:".length()));
 					}
 				}
 			}

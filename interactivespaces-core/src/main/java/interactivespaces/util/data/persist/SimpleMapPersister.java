@@ -53,10 +53,27 @@ public interface SimpleMapPersister {
 	 * <p>
 	 * The new map will overwrite the old map.
 	 * 
+	 * <p>
+	 * This will block if there is an active read taking place.
+	 * 
 	 * @param name
 	 *            the name of the map
 	 * @param map
 	 *            the map to be saved
 	 */
 	void putMap(String name, Map<String, Object> map);
+
+	/**
+	 * Remove the requested map.
+	 * 
+	 * <p>
+	 * This will block if there is an active read taking place.
+	 * 
+	 * @param name
+	 *            the name of the map to remove
+	 * 
+	 * @return {@code true} if the map is removed, {@code false} if it didn't
+	 *         exist
+	 */
+	boolean removeMap(String name);
 }

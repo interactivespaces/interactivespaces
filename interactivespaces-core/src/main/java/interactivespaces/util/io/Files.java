@@ -275,15 +275,20 @@ public class Files {
 	 * <p>
 	 * If a directory, will recursively delete the directory and its contents.
 	 * 
+	 * <p>
+	 * If the file doesn't exist, nothing happens.
+	 * 
 	 * @param file
-	 *            The file to be deleted.
+	 *            the file to be deleted
 	 */
 	static public final void delete(File file) {
-		if (file.isDirectory()) {
-			deleteDirectoryContents(file);
-		}
+		if (file.exists()) {
+			if (file.isDirectory()) {
+				deleteDirectoryContents(file);
+			}
 
-		file.delete();
+			file.delete();
+		}
 	}
 
 	/**

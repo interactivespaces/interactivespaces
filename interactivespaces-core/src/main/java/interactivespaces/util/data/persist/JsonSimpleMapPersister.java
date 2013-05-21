@@ -76,7 +76,7 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 			File mapFile = getMapFile(name);
 			if (mapFile.exists()) {
 				String content = Files.readFile(mapFile);
-				
+
 				return MAPPER.parseObject(content);
 			} else {
 				return null;
@@ -95,6 +95,26 @@ public class JsonSimpleMapPersister implements SimpleMapPersister {
 
 		try {
 			Files.writeFile(getMapFile(name), MAPPER.toString(map));
+		} catch (Exception e) {
+			throw new InteractiveSpacesException(String.format(
+					"Could not write map %s", name), e);
+		} finally {
+			rwlock.writeLock().unlock();
+		}
+	}
+
+	@Override
+	public boolean removeMap(String name) {
+		rwlock.writeLock().lock();
+
+		try {
+			File mapFile = getMapFile(name);
+			if (mapFile.exists()) {
+				Files.delete(mapFile);
+				return true;
+			} else {
+				return false;
+			}
 		} catch (Exception e) {
 			throw new InteractiveSpacesException(String.format(
 					"Could not write map %s", name), e);
