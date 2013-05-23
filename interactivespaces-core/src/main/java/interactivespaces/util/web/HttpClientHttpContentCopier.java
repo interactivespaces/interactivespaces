@@ -29,6 +29,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 /**
  * An {@link HttpContentCopier} which uses Apache HttpClient.
@@ -59,6 +60,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 
 	@Override
 	public void copy(String sourceUri, File destination) {
+		HttpEntity entity = null;
 		try {
 			HttpGet httpget = new HttpGet(sourceUri);
 			HttpResponse response = client.execute(httpget);
@@ -66,7 +68,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == HttpStatus.SC_OK) {
 
-				HttpEntity entity = response.getEntity();
+				entity = response.getEntity();
 				if (entity != null) {
 					InputStream in = entity.getContent();
 					try {
@@ -74,6 +76,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 					} finally {
 						in.close();
 					}
+
 				}
 			} else {
 				throw new InteractiveSpacesException(
@@ -88,6 +91,17 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 					String.format(
 							"Could not read source URI %s during HTTP copy",
 							sourceUri), e);
+		} finally {
+			if (entity != null) {
+				try {
+					EntityUtils.consume(entity);
+				} catch (IOException e) {
+					throw new InteractiveSpacesException(
+							String.format(
+									"Could not consume entity content for %s during HTTP copy",
+									sourceUri), e);
+				}
+			}
 		}
 	}
 
@@ -98,7 +112,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 	 *            the HTTP result
 	 * @param destination
 	 *            the file to copy the content to
-	 *            
+	 * 
 	 * @throws IOException
 	 */
 	protected void transferFile(InputStream in, File destination)
