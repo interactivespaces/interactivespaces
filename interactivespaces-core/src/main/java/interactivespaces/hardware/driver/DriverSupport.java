@@ -16,22 +16,28 @@
 
 package interactivespaces.hardware.driver;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
 
 /**
  * A class which gives driver support by implementing some methods.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class DriverSupport implements Driver {
-	
+
 	/**
 	 * The space environment the driver is running under.
 	 */
 	protected InteractiveSpacesEnvironment spaceEnvironment;
-	
+
+	/**
+	 * The configuration for the driver.
+	 */
+	protected Configuration configuration;
+
 	/**
 	 * The log the driver is using.
 	 */
@@ -48,7 +54,8 @@ public class DriverSupport implements Driver {
 	}
 
 	@Override
-	public void prepare(InteractiveSpacesEnvironment spacesEnvironment, Log log) {
+	public void prepare(InteractiveSpacesEnvironment spacesEnvironment,
+			Configuration configuration, Log log) {
 		this.spaceEnvironment = spacesEnvironment;
 		this.log = log;
 	}

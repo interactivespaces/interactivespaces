@@ -103,7 +103,7 @@ public abstract class BaseActivity extends ActivitySupport implements
 	 *            the driver to add to the activity
 	 */
 	public void addDriver(Driver driver) {
-		driver.prepare(getSpaceEnvironment(), getLog());
+		driver.prepare(getSpaceEnvironment(), getConfiguration(), getLog());
 
 		addManagedResource(driver);
 	}

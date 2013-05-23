@@ -62,6 +62,18 @@ public class JsonNavigator {
 		currentObject = root;
 	}
 
+	@SuppressWarnings("unchecked")
+	public JsonNavigator(Object root) {
+		if (root instanceof Map) {
+			this.root = (Map<String, Object>) root;
+			currentType = JsonType.OBJECT;
+			currentObject = this.root;
+		} else {
+			throw new JsonInteractiveSpacesException(
+					"Non object JSON data not supported");
+		}
+	}
+
 	/**
 	 * Get the current type of the current navigation point.
 	 * 
@@ -235,7 +247,7 @@ public class JsonNavigator {
 	@SuppressWarnings("unchecked")
 	Object traversePath(String path) {
 		Object curObject = null;
-		
+
 		if (currentType == JsonType.OBJECT) {
 			curObject = currentObject;
 		} else {
@@ -268,7 +280,7 @@ public class JsonNavigator {
 				} else if (curObject instanceof Map) {
 					throw new JsonInteractiveSpacesException(
 							"Attempt to use an array index in an object");
-				} else if (i < elements.length){
+				} else if (i < elements.length) {
 					throw new JsonInteractiveSpacesException(
 							"Non array or object in the middle of a path");
 				}

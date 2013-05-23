@@ -16,6 +16,7 @@
 
 package interactivespaces.hardware.driver;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.resource.ManagedResource;
 
@@ -33,8 +34,11 @@ public interface Driver extends ManagedResource {
 	 * 
 	 * @param spacesEnvironment
 	 *            the space environment the driver will run under
+	 * @param configuration
+	 *            the configuration the driver should run under
 	 * @param log
 	 *            the log which should be used for the driver
 	 */
-	void prepare(InteractiveSpacesEnvironment spacesEnvironment, Log log);
+	void prepare(InteractiveSpacesEnvironment spacesEnvironment,
+			Configuration configuration, Log log);
 }
