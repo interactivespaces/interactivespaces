@@ -17,7 +17,7 @@
 package interactivespaces.controller.client.node;
 
 /**
- * Give heartbeats from controller.
+ * Send heartbeats from controller.
  *
  * @author Keith M. Hughes
  */
@@ -26,5 +26,5 @@ public interface SpaceControllerHeartbeat {
 	/**
 	 * Send the controllerHeartbeat.
 	 */
-	void heartbeat();
+	void sendHeartbeat();
 }

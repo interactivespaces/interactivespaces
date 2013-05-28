@@ -86,7 +86,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	/**
 	 * Helps with listeners for activity events.
 	 */
-	private RemoteControllerClientListenerHelper remoteControllerClientListeners = new RemoteControllerClientListenerHelper();
+	private RemoteControllerClientListenerHelper remoteControllerClientListeners;
 
 	/**
 	 * The ROS environment the client is running in.
@@ -151,6 +151,10 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	@Override
 	public void startup() {
 		log.info("Starting up ROS remote controller");
+
+		remoteControllerClientListeners = new RemoteControllerClientListenerHelper(
+				log);
+
 		masterNode = masterRosContext.getNode();
 		rosMessageFactory = masterNode.getTopicMessageFactory();
 
@@ -417,13 +421,15 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 	private void handleRemoteControllerStatusUpdate(ControllerStatus status) {
 		switch (status.getStatus()) {
 		case ControllerStatus.STATUS_HEARTBEAT:
-			long timestamp = System.currentTimeMillis();
-			remoteControllerClientListeners.signalSpaceControllerHeartbeat(
-					status.getUuid(), timestamp);
+			handleControllerHeartbeat(status);
 
 			break;
 
 		case ControllerStatus.STATUS_FULL:
+			// A full status request will also be treated as a heartbeat event
+			// since the controller will only respond if it is alive.
+			handleControllerHeartbeat(status);
+
 			ControllerFullStatus fullStatus = controllerFullStatusDeserializer
 					.deserialize(status.getData());
 
@@ -490,6 +496,15 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 			log.warn(String.format("Unknown status type %d, for controller %s",
 					status.getStatus(), status.getUuid()));
 		}
+	}
+
+	/**
+	 * @param status
+	 */
+	public void handleControllerHeartbeat(ControllerStatus status) {
+		long timestamp = System.currentTimeMillis();
+		remoteControllerClientListeners.signalSpaceControllerHeartbeat(
+				status.getUuid(), timestamp);
 	}
 
 	/**

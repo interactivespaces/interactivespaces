@@ -23,6 +23,8 @@ import interactivespaces.master.server.services.RemoteSpaceControllerClientListe
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -41,6 +43,15 @@ public class RemoteControllerClientListenerHelper {
 	 */
 	private List<RemoteSpaceControllerClientListener> listeners = Lists
 			.newCopyOnWriteArrayList();
+	
+	/**
+	 * Logger for this helper.
+	 */
+	private Log log;
+	
+	public RemoteControllerClientListenerHelper(Log log) {
+		this.log = log;
+	}
 
 	/**
 	 * Add in a new event listener.
@@ -103,7 +114,12 @@ public class RemoteControllerClientListenerHelper {
 	public void signalSpaceControllerHeartbeat(
 			String uuid, long timestamp) {
 		for (RemoteSpaceControllerClientListener listener : listeners) {
-			listener.onSpaceControllerHeartbeat(uuid, timestamp);
+			try {
+				listener.onSpaceControllerHeartbeat(uuid, timestamp);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

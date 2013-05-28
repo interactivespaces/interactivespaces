@@ -781,7 +781,7 @@ public class RosSpaceControllerCommunicator implements
 		}
 
 		@Override
-		public void heartbeat() {
+		public void sendHeartbeat() {
 			// In case the UUID changed.
 			status.setUuid(controllerControl.getControllerInfo().getUuid());
 			controllerStatusPublisher.publish(status);

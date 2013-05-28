@@ -256,8 +256,14 @@ public class StandardSpaceController implements SpaceController,
 	 */
 	private SpaceControllerInfoPersister controllerInfoPersister;
 
+	/**
+	 * The IS service for web servers.
+	 */
 	private WebServerService webServerService;
 
+	/**
+	 * The IS service for web socket clients.
+	 */
 	private WebSocketClientService webSocketClientService;
 
 	/**
@@ -340,7 +346,14 @@ public class StandardSpaceController implements SpaceController,
 				.scheduleAtFixedRate(new Runnable() {
 					@Override
 					public void run() {
-						controllerHeartbeat.heartbeat();
+						try {
+							controllerHeartbeat.sendHeartbeat();
+						} catch (Exception e) {
+							spaceEnvironment
+									.getLog()
+									.error("Exception while trying to send a Space Controller heartbeat",
+											e);
+						}
 					}
 				}, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
 

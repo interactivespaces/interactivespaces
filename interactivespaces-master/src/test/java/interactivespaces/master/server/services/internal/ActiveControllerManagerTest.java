@@ -47,7 +47,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 
 	private RemoteControllerClient remoteControllerClient;
 
-	private RemoteControllerClientListenerHelper remoteControllerListenerHelper = new RemoteControllerClientListenerHelper();
+	private RemoteControllerClientListenerHelper remoteControllerListenerHelper;
 
 	private SpaceControllerListener controllerListener;
 
@@ -85,7 +85,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 		controllerListener = Mockito.mock(SpaceControllerListener.class);
 		activeControllerManager.addControllerListener(controllerListener);
 
-		remoteControllerListenerHelper = new RemoteControllerClientListenerHelper();
+		remoteControllerListenerHelper = new RemoteControllerClientListenerHelper(log);
 		remoteControllerListenerHelper.addListener(activeControllerManager);
 	}
 
