@@ -17,29 +17,29 @@
 package interactivespaces.workbench;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
 import interactivespaces.util.io.Files;
-import interactivespaces.workbench.activity.project.ActivityProject;
-import interactivespaces.workbench.activity.project.ActivityProjectBuildContext;
-import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
-import interactivespaces.workbench.activity.project.ActivityProjectManager;
-import interactivespaces.workbench.activity.project.BasicActivityProjectManager;
-import interactivespaces.workbench.activity.project.builder.ActivityBuilder;
-import interactivespaces.workbench.activity.project.creator.ActivityProjectCreator;
-import interactivespaces.workbench.activity.project.creator.ActivityProjectCreatorImpl;
-import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreator;
-import interactivespaces.workbench.activity.project.ide.EclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.activity.project.ide.NonJavaEclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.activity.project.packager.ActivityProjectPackager;
-import interactivespaces.workbench.activity.project.packager.ActivityProjectPackagerImpl;
-import interactivespaces.workbench.activity.project.type.ActivityProjectType;
-import interactivespaces.workbench.activity.project.type.ActivityProjectTypeRegistry;
-import interactivespaces.workbench.activity.project.type.SimpleActivityProjectTypeRegistery;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ActivityProjectManager;
+import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
+import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
+import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.activity.creator.ActivityProjectCreator;
+import interactivespaces.workbench.project.activity.creator.ActivityProjectCreatorImpl;
+import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
+import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.activity.packager.ActivityProjectPackager;
+import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
+import interactivespaces.workbench.project.activity.type.ActivityProjectType;
+import interactivespaces.workbench.project.activity.type.ActivityProjectTypeRegistry;
+import interactivespaces.workbench.project.activity.type.SimpleActivityProjectTypeRegistery;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
@@ -156,16 +156,20 @@ public class InteractiveSpacesWorkbench {
 	 * @param project
 	 *            the project to be built
 	 */
-	public void buildActivityProject(ActivityProject project) {
+	public void buildProject(Project project) {
 		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
 				project, this);
 
 		// If no type, there is nothing special to do for building.
 		ActivityProjectType type = getActivityProjectType(project);
+		ProjectBuilder builder = null;
 		if (type != null) {
-			ActivityBuilder builder = type.newBuilder();
-			builder.build(project, context);
+			builder = type.newBuilder();
+		} else {
+			builder = new BaseActivityProjectBuilder();
 		}
+		
+		builder.build(project, context);
 
 		activityProjectPackager.packageActivityProject(project, context);
 	}
@@ -176,7 +180,7 @@ public class InteractiveSpacesWorkbench {
 	 * @param project
 	 *            the project to be built
 	 */
-	public void cleanActivityProject(ActivityProject project) {
+	public void cleanActivityProject(Project project) {
 		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
 				project, this);
 
@@ -199,16 +203,16 @@ public class InteractiveSpacesWorkbench {
 	 * @throws InteractiveSpacesException
 	 *             if no unknown type
 	 */
-	private ActivityProjectType getActivityProjectType(ActivityProject project) {
-		String name = project.getActivityDescription().getBuilderType();
-		if (name != null) {
+	private ActivityProjectType getActivityProjectType(Project project) {
+		String builderType = project.getBuilderType();
+		if (builderType != null) {
 			ActivityProjectType type = activityProjectTypeRegistry
-					.getActivityProjectType(name);
+					.getActivityProjectType(builderType);
 			if (type != null) {
 				return type;
 			} else {
 				throw new InteractiveSpacesException(String.format(
-						"No builder found for type %s", name));
+						"No builder found for type %s", type));
 			}
 		} else {
 			return null;
@@ -223,7 +227,7 @@ public class InteractiveSpacesWorkbench {
 	 * @param ide
 	 *            the name of the IDE to generate the project for
 	 */
-	public void generateIdeActivityProject(ActivityProject project, String ide) {
+	public void generateIdeActivityProject(Project project, String ide) {
 		EclipseIdeProjectCreatorSpecification spec;
 		ActivityProjectType type = getActivityProjectType(project);
 		if (type != null) {
@@ -382,8 +386,8 @@ public class InteractiveSpacesWorkbench {
 			System.out.println("Creating project");
 			createProject(commands);
 		} else {
-			ActivityProject project = activityProjectManager
-					.readActivityProject(new File(command));
+			Project project = activityProjectManager.readProject(new File(
+					command));
 			doCommandsOnProject(project, commands);
 		}
 	}
@@ -395,12 +399,10 @@ public class InteractiveSpacesWorkbench {
 	 *            the commands to execute
 	 */
 	private void createProject(List<String> commands) {
-		ActivityProjectCreationSpecification spec = new ActivityProjectCreationSpecification();
+		ProjectCreationSpecification spec = new ProjectCreationSpecification();
 
-		ActivityDescription activity = getActivityFromConsole();
-
-		ActivityProject project = new ActivityProject(activity);
-		project.setBaseDirectory(new File(activity.getIdentifyingName()));
+		Project project = getProjectFromConsole();
+		project.setBaseDirectory(new File(project.getIdentifyingName()));
 
 		spec.setProject(project);
 
@@ -426,7 +428,7 @@ public class InteractiveSpacesWorkbench {
 	 * 
 	 * @return the activity data input from the console
 	 */
-	private ActivityDescription getActivityFromConsole() {
+	private Project getProjectFromConsole() {
 		Console console = System.console();
 
 		if (console != null) {
@@ -437,13 +439,13 @@ public class InteractiveSpacesWorkbench {
 			String name = console.readLine("Name: ");
 			String description = console.readLine("Description: ");
 
-			ActivityDescription activity = new ActivityDescription();
-			activity.setIdentifyingName(identifyingName);
-			activity.setVersion(version);
-			activity.setName(name);
-			activity.setDescription(description);
+			Project project = new Project();
+			project.setIdentifyingName(identifyingName);
+			project.setVersion(version);
+			project.setName(name);
+			project.setDescription(description);
 
-			return activity;
+			return project;
 		} else {
 			throw new InteractiveSpacesException("Could not allocate console");
 		}
@@ -482,8 +484,7 @@ public class InteractiveSpacesWorkbench {
 	 * @param commands
 	 *            the commands to perform on the project
 	 */
-	private void doCommandsOnProject(ActivityProject project,
-			List<String> commands) {
+	private void doCommandsOnProject(Project project, List<String> commands) {
 		if (commands.isEmpty()) {
 			commands.add("build");
 		}
@@ -493,7 +494,7 @@ public class InteractiveSpacesWorkbench {
 
 			if ("build".equals(command)) {
 				System.out.println("Building project");
-				buildActivityProject(project);
+				buildProject(project);
 			} else if ("clean".equals(command)) {
 				System.out.println("Cleaning project");
 				cleanActivityProject(project);
@@ -530,5 +531,12 @@ public class InteractiveSpacesWorkbench {
 	 */
 	public Map<String, String> getWorkbenchConfig() {
 		return workbenchConfig;
+	}
+
+	/**
+	 * @return the templater
+	 */
+	public FreemarkerTemplater getTemplater() {
+		return templater;
 	}
 }

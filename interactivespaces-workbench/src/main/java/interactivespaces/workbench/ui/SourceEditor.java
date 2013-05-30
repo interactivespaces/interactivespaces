@@ -18,7 +18,7 @@ package interactivespaces.workbench.ui;
 
 import javax.swing.JComponent;
 
-import interactivespaces.workbench.activity.project.SourceAdapter;
+import interactivespaces.workbench.project.activity.SourceAdapter;
 
 /**
  * An editor for code.

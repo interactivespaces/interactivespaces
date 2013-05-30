@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.Source;
+import interactivespaces.workbench.project.activity.Source;
 
 /**
  * A factory for creating user interface elements.

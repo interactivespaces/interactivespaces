@@ -21,6 +21,7 @@ import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
 import interactivespaces.workbench.ui.validation.ValidationMessageType;
 import interactivespaces.workbench.ui.validation.ValidationResult;
@@ -68,7 +69,7 @@ public class ActivityDescriptionPanel extends JPanel {
 	/**
 	 * The activity description being editted or created.
 	 */
-	private ActivityDescription activityDescription;
+	private Project project;
 
 	/**
 	 * The display for validation messages.
@@ -83,16 +84,16 @@ public class ActivityDescriptionPanel extends JPanel {
 	 * Creates a fresh {@link ActivityDescription} to back the panel.
 	 */
 	public ActivityDescriptionPanel() {
-		this(new ActivityDescription());
+		this(new Project());
 	}
 
 	/**
 	 * Uses the supplied {@link ActivityDescription}
 	 * 
-	 * @param activityDescription
+	 * @param project
 	 *            the activity description to back the panel
 	 */
-	public ActivityDescriptionPanel(ActivityDescription activityDescription) {
+	public ActivityDescriptionPanel(Project activityDescription) {
 		setLayout(new GridBagLayout());
 
 		KeyListener verifyingKeyListener = new KeyListener() {
@@ -169,7 +170,7 @@ public class ActivityDescriptionPanel extends JPanel {
 		projectVersionInput.addKeyListener(verifyingKeyListener);
 		add(projectVersionInput, gbc);
 		
-		setActivityDescription(activityDescription);
+		setProject(activityDescription);
 		
 		identifyingNameValidator = new ActivityIdentifyingNameValidator();
 		versionValidator = new ActivityVersionValidator();
@@ -178,28 +179,28 @@ public class ActivityDescriptionPanel extends JPanel {
 	/**
 	 * Set the description to back the panel.
 	 * 
-	 * @param activityDescription
-	 *            the activity description to use
+	 * @param project
+	 *            the project to use
 	 */
-	public void setActivityDescription(ActivityDescription activityDescription) {
-		this.activityDescription = activityDescription;
+	public void setProject(Project project) {
+		this.project = project;
 		
-		String name = activityDescription.getName();
+		String name = project.getName();
 		if (name != null) {
 			projectNameInput.setText(name);
 		}
 
-		String description = activityDescription.getDescription();
+		String description = project.getDescription();
 		if (description != null) {
 			projectDescriptionInput.setText(description);
 		}
 		
-		String identifyingName = activityDescription.getIdentifyingName();
+		String identifyingName = project.getIdentifyingName();
 		if (identifyingName != null) {
 			projectIdentifyingNameInput.setText(identifyingName);
 		}
 		
-		String version = activityDescription.getVersion();
+		String version = project.getVersion();
 		if (version != null) {
 			projectVersionInput.setText(version);
 		}
@@ -208,12 +209,12 @@ public class ActivityDescriptionPanel extends JPanel {
 	/**
 	 * Synchronize the activity description to what is in the edit boxes.
 	 */
-	public void syncActivityDescription() {
-		activityDescription.setName(projectNameInput.getText());
-		activityDescription.setDescription(projectDescriptionInput.getText());
-		activityDescription.setIdentifyingName(projectIdentifyingNameInput
+	public void syncProjectDescription() {
+		project.setName(projectNameInput.getText());
+		project.setDescription(projectDescriptionInput.getText());
+		project.setIdentifyingName(projectIdentifyingNameInput
 				.getText());
-		activityDescription.setVersion(projectVersionInput.getText());
+		project.setVersion(projectVersionInput.getText());
 	}
 
 	/**
@@ -221,10 +222,10 @@ public class ActivityDescriptionPanel extends JPanel {
 	 * 
 	 * @return the activity description
 	 */
-	public ActivityDescription getActivityDescription() {
-		syncActivityDescription();
+	public Project getProjectDescription() {
+		syncProjectDescription();
 		
-		return activityDescription;
+		return project;
 	}
 
 	/**

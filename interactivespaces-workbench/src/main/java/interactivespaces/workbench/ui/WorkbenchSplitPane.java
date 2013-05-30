@@ -16,7 +16,8 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.ActivityProject;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -152,10 +153,12 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 	/**
 	 * Set the new activity project.
 	 * 
-	 * @param activityProject
+	 * @param project
 	 *            the new project
 	 */
-	public void setCurrentActivityProject(ActivityProject activityProject) {
-		projectExplorerPane.buildTree(activityProject);
+	public void setCurrentActivityProject(Project project) {
+		// TODO(keith): yech!
+		ActivityProject aproject = new ActivityProject(project);
+		projectExplorerPane.buildTree(aproject);
 	}
 }

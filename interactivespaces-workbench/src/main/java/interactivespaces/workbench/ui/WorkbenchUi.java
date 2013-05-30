@@ -17,7 +17,7 @@
 package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.activity.project.ActivityProject;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.wizard.JWizardDialog;
 
 import java.awt.BorderLayout;
@@ -175,7 +175,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	/**
 	 * The project this UI is working with.
 	 */
-	private ActivityProject currentProject;
+	private Project currentProject;
 
 	private JToolBar toolbar;
 
@@ -468,7 +468,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		} else if (source.equals(redoMenuItem)) {
 			desktop.getSourceWindowManager().redoEditCurrentWindow();
 		} else if (source.equals(buildActivityMenuItem)) {
-			workbench.buildActivityProject(currentProject);
+			workbench.buildProject(currentProject);
 		} else if (source.equals(openActivityConfMenuItem)) {
 			desktop.getSourceWindowManager().addNewSourceWindow(
 					workbench.getActivityProjectManager()
@@ -486,8 +486,8 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 		// TODO(keith): If project already open should open up new workbench UI.
 		if (workbench.getActivityProjectManager().isActivityProjectFolder(
 				baseProjectDir)) {
-			setCurrentActivityProject(workbench.getActivityProjectManager()
-					.readActivityProject(baseProjectDir));
+			setCurrentProject(workbench.getActivityProjectManager()
+					.readProject(baseProjectDir));
 		} else {
 			JOptionPane.showMessageDialog(this,
 					"The folder is not an Activity project folder",
@@ -501,10 +501,9 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 * @param project
 	 *            the project to make the current project
 	 */
-	public void setCurrentActivityProject(ActivityProject project) {
+	public void setCurrentProject(Project project) {
 		currentProject = project;
-		setTitle("Interactive Spaces - "
-				+ currentProject.getActivityDescription().getName());
+		setTitle("Interactive Spaces - " + currentProject.getName());
 		desktop.setCurrentActivityProject(project);
 	}
 

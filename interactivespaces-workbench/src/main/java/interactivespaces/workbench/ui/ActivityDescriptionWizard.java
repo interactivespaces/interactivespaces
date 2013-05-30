@@ -16,9 +16,8 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.domain.support.ActivityDescription;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
-import interactivespaces.workbench.ui.validation.ValidationMessageType;
 import interactivespaces.workbench.ui.validation.ValidationResult;
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
 import interactivespaces.workbench.ui.wizard.Wizard;
@@ -46,9 +45,9 @@ public class ActivityDescriptionWizard extends SingleComponentWizard {
 		return panel;
 	}
 
-	public ActivityDescription getActivityDescription() {
-		panel.syncActivityDescription();
-		return panel.getActivityDescription();
+	public Project getProject() {
+		panel.syncProjectDescription();
+		return panel.getProjectDescription();
 	}
 
 	@Override

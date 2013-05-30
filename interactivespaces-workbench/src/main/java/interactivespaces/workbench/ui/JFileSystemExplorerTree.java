@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.ActivityProject;
+import interactivespaces.workbench.project.activity.ActivityProject;
 
 import java.io.File;
 import java.util.Enumeration;

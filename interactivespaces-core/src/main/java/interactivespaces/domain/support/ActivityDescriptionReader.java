@@ -36,5 +36,4 @@ public interface ActivityDescriptionReader {
 	 * @return the description of the activity
 	 */
 	ActivityDescription readDescription(InputStream activityDescriptionStream);
-
 }

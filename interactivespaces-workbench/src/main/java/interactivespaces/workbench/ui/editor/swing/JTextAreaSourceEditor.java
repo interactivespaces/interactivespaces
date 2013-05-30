@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui.editor.swing;
 
-import interactivespaces.workbench.activity.project.Source;
+import interactivespaces.workbench.project.activity.Source;
 import interactivespaces.workbench.ui.SourceEditor;
 import interactivespaces.workbench.ui.SourceEditorListener;
 

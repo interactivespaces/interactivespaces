@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.creator.ActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.creator.ProjectTemplate;
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
 
 import java.util.List;
@@ -39,9 +39,9 @@ public class ActivityProjectTemplateChooserWizard extends SingleComponentWizard 
 	/**
 	 * The templates being shown.
 	 */
-	private List<ActivityProjectTemplate> templates;
+	private List<ProjectTemplate> templates;
 
-	public ActivityProjectTemplateChooserWizard(List<ActivityProjectTemplate> templates) {
+	public ActivityProjectTemplateChooserWizard(List<ProjectTemplate> templates) {
 		this.templates = templates;
 		comboBox = new JComboBox(templates.toArray());
 	}
@@ -56,7 +56,7 @@ public class ActivityProjectTemplateChooserWizard extends SingleComponentWizard 
 	 * 
 	 * @return the selected project template.
 	 */
-	public ActivityProjectTemplate getSelectedTemplate() {
+	public ProjectTemplate getSelectedTemplate() {
 		return templates.get(comboBox.getSelectedIndex());
 	}
 }

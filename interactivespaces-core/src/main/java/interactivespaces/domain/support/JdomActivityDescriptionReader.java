@@ -81,11 +81,11 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
 		String description = rootElement.getChildText("description");
 		adescription.setDescription(new String(description.trim()));
 
-		String version = rootElement.getChildText("version");
-		adescription.setVersion(new String(version.trim()));
-
 		String identifyingName = rootElement.getChildText("identifyingName");
 		adescription.setIdentifyingName(new String(identifyingName.trim()));
+
+		String version = rootElement.getChildText("version");
+		adescription.setVersion(new String(version.trim()));
 
 		String builder = rootElement.getAttributeValue("builder");
 		adescription.setBuilderType(builder);
@@ -118,7 +118,6 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
 
 			adescription.setMetadata(metadata);
 		}
-
 	}
 
 	/**

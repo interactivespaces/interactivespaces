@@ -16,8 +16,8 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.ActivityProjectManager;
-import interactivespaces.workbench.activity.project.Source;
+import interactivespaces.workbench.project.activity.ActivityProjectManager;
+import interactivespaces.workbench.project.activity.Source;
 
 import java.awt.Component;
 import java.util.List;

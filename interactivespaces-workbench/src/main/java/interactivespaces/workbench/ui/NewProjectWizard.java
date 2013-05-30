@@ -16,14 +16,15 @@
 
 package interactivespaces.workbench.ui;
 
-import java.io.File;
-
-import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.activity.project.ActivityProject;
-import interactivespaces.workbench.activity.project.ActivityProjectCreationSpecification;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.ui.wizard.Wizard;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
+
+import java.io.File;
 
 /**
  * A {@link Wizard} for creating a new project.
@@ -43,7 +44,7 @@ public class NewProjectWizard extends WizardCollection {
 	private ActivityDescriptionWizard activityDescriptionWizard;
 
 	/**
-	 * Wizard for chosing the project template.
+	 * Wizard for choosing the project template.
 	 */
 	private ActivityProjectTemplateChooserWizard activityProjectTemplateChooserWizard;
 
@@ -68,34 +69,33 @@ public class NewProjectWizard extends WizardCollection {
 				workbench.getActivityProjectCreator()
 						.getActivityProjectTemplates());
 
-		addWizards(chooseDirectoryWizard, activityDescriptionWizard, activityProjectTemplateChooserWizard);
+		addWizards(chooseDirectoryWizard, activityDescriptionWizard,
+				activityProjectTemplateChooserWizard);
 	}
 
 	@Override
 	public void completeWizard() {
 		super.completeWizard();
 
-		ActivityProjectCreationSpecification spec = new ActivityProjectCreationSpecification();
+		ProjectCreationSpecification spec = new ProjectCreationSpecification();
 
-		ActivityDescription activityDescription = activityDescriptionWizard
-				.getActivityDescription();
-		ActivityProject activityProject = new ActivityProject(
-				activityDescription);
+		Project project = activityDescriptionWizard.getProject();
 
 		// Folder will be by identifying name in the folder selected in the
 		// directory choose dialog
-		String identifyingName = activityDescription.getIdentifyingName();
-		activityProject.setBaseDirectory(new File(chooseDirectoryWizard
+		String identifyingName = project.getIdentifyingName();
+		project.setBaseDirectory(new File(chooseDirectoryWizard
 				.getSelectedDirectory(), identifyingName));
 
-		spec.setProject(activityProject);
+		spec.setProject(project);
 
-		spec.setTemplate(activityProjectTemplateChooserWizard.getSelectedTemplate());
+		spec.setTemplate(activityProjectTemplateChooserWizard
+				.getSelectedTemplate());
 		spec.setLanguage("java");
 
 		workbench.getActivityProjectCreator().createProject(spec);
 
-		workbenchUi.setCurrentActivityProject(activityProject);
+		workbenchUi.setCurrentProject(project);
 	}
 
 }

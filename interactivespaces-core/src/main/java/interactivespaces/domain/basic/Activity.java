@@ -82,7 +82,7 @@ public interface Activity extends PersistedObject, Serializable {
 	/**
 	 * Get the description of the activity.
 	 * 
-	 * @return the description. Can be null.
+	 * @return the description. Can be {@code null}.
 	 */
 	String getDescription();
 
@@ -90,7 +90,7 @@ public interface Activity extends PersistedObject, Serializable {
 	 * Set the description of the activity.
 	 * 
 	 * @param description
-	 *            the description. Can be null.
+	 *            the description. Can be {@code null}.
 	 */
 	void setDescription(String description);
 

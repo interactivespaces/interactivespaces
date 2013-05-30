@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.activity.project.Source;
+import interactivespaces.workbench.project.activity.Source;
 
 /**
  * The window manager for source windows.
