@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project;
 
 import java.util.Map;
 

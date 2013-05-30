@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.packager;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 /**
  * Package up activies.
@@ -35,5 +35,5 @@ public interface ActivityProjectPackager {
 	 *            the context to use when building the activity
 	 */
 	void packageActivityProject(Project project,
-			ActivityProjectBuildContext context);
+			ProjectBuildContext context);
 }

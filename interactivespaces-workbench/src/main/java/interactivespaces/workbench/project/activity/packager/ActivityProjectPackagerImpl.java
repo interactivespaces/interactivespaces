@@ -20,7 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
 	@Override
 	public void packageActivityProject(Project project,
-			ActivityProjectBuildContext context) {
+			ProjectBuildContext context) {
 		// Create a buffer for reading the files
 		byte[] buf = new byte[1024];
 
@@ -98,7 +98,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private void addArtifacts(ActivityProjectBuildContext context, byte[] buf,
+	private void addArtifacts(ProjectBuildContext context, byte[] buf,
 			ZipOutputStream out) throws FileNotFoundException, IOException {
 		for (File artifact : context.getArtifactsToAdd()) {
 			writeZipEntry(buf, out, "", artifact);

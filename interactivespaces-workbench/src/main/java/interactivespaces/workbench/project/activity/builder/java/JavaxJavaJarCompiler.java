@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,9 +19,7 @@ package interactivespaces.workbench.project.activity.builder.java;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
-import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,61 +43,27 @@ import aQute.lib.osgi.Jar;
 import com.google.common.collect.Lists;
 
 /**
- * An {@link ProjectBuilder} for java projects.
+ * A {@link JavaJarCompiler} using the system Java compiler.
  * 
  * @author Keith M. Hughes
  */
-public class JavaActivityBuilder extends BaseActivityProjectBuilder {
+public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
 	private static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
 
-	/**
-	 * File extension to give the build artifact
-	 */
-	private static final String JAR_FILE_EXTENSION = "jar";
-
-	/**
-	 * The extensions for this builder.
-	 */
-	private JavaActivityExtensions extensions;
-
-	/**
-	 * Construct a builder with no extensions.
-	 */
-	public JavaActivityBuilder() {
-		this(null);
-	}
-
-	/**
-	 * Construct a builder with the given extensions.
-	 * 
-	 * @param extensions
-	 *            the extensions to use, can be {@code null}
-	 */
-	public JavaActivityBuilder(JavaActivityExtensions extensions) {
-		this.extensions = extensions;
-	}
-
 	@Override
-	public void onBuild(Project project, ActivityProjectBuildContext context,
-			File stagingDirectory) {
-		try {
-			File buildDirectory = context.getBuildDirectory();
-			File compilationFolder = getOutputDirectory(buildDirectory);
+	public void build(File jarDestinationFile, File compilationFolder,
+			JavaProjectExtensions extensions, ProjectBuildContext context)
+			throws Exception {
+		compile(context.getProject(), compilationFolder, context, extensions);
+		createJarFile(context.getProject(), jarDestinationFile,
+				compilationFolder);
 
-			compile(project, compilationFolder, context);
-			File buildArtifact = createJarFile(project, stagingDirectory,
-					compilationFolder);
-
-			if (extensions != null) {
-				extensions.postProcessJar(context, buildArtifact);
-			}
-
-			context.addArtifact(buildArtifact);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (extensions != null) {
+			extensions.postProcessJar(context, jarDestinationFile);
 		}
+
+		context.addArtifact(jarDestinationFile);
 	}
 
 	/**
@@ -115,7 +79,7 @@ public class JavaActivityBuilder extends BaseActivityProjectBuilder {
 	 * @throws IOException
 	 */
 	private void compile(Project project, File compilationBuildDirectory,
-			ActivityProjectBuildContext context) throws IOException {
+			ProjectBuildContext context, JavaProjectExtensions extensions) throws IOException {
 		InteractiveSpacesWorkbench workbench = context.getWorkbench();
 		List<File> classpath = Lists.newArrayList(workbench
 				.getControllerClasspath());
@@ -143,27 +107,6 @@ public class JavaActivityBuilder extends BaseActivityProjectBuilder {
 				compilationUnits1).call();
 
 		fileManager.close();
-	}
-
-	/**
-	 * Create the output directory for the activity compilation
-	 * 
-	 * @param buildDirectory
-	 *            the root of the build folder
-	 * 
-	 * @return the output directory for building
-	 */
-	private File getOutputDirectory(File buildDirectory) {
-		File outputDirectory = new File(buildDirectory, "classes");
-		if (!outputDirectory.exists()) {
-			if (!outputDirectory.mkdirs()) {
-				throw new InteractiveSpacesException(String.format(
-						"Cannot create Java compiler output directory %s",
-						outputDirectory));
-			}
-		}
-
-		return outputDirectory;
 	}
 
 	/**
@@ -208,36 +151,16 @@ public class JavaActivityBuilder extends BaseActivityProjectBuilder {
 	}
 
 	/**
-	 * Get the build destination file.
-	 * 
-	 * <p>
-	 * Any subdirectories needed will be created.
-	 * 
-	 * @param project
-	 *            the project being built
-	 * @param buildDirectory
-	 *            where the artifact will be built
-	 * 
-	 * @return the file where the build should be written
-	 */
-	private File getBuildDestinationFile(Project project, File buildDirectory) {
-		return new File(buildDirectory, project.getIdentifyingName() + "-"
-				+ project.getVersion() + "." + JAR_FILE_EXTENSION);
-	}
-
-	/**
 	 * Create the JAR file for the artifact.
 	 * 
 	 * @param project
 	 *            the project being built
-	 * @param buildDirectory
-	 *            the folder where the artifact is going
+	 * @param jarDestinationFile
+	 *            the file where the jar file is going
 	 * @param compilationFolder
 	 *            folder that the Java class files were compiled into
-	 * 
-	 * @return the created jar file
 	 */
-	private File createJarFile(Project project, File buildDirectory,
+	private void createJarFile(Project project, File jarDestinationFile,
 			File compilationFolder) {
 		// Create a buffer for reading the files
 		byte[] buf = new byte[1024];
@@ -246,20 +169,17 @@ public class JavaActivityBuilder extends BaseActivityProjectBuilder {
 		JarOutputStream out = null;
 		try {
 			// Create the ZIP file
-			File buildDestinationFile = getBuildDestinationFile(project,
-					buildDirectory);
-			out = new JarOutputStream(
-					new FileOutputStream(buildDestinationFile), manifest);
+			out = new JarOutputStream(new FileOutputStream(jarDestinationFile),
+					manifest);
 
 			writeJarFile(compilationFolder, buf, out, "");
 
 			// Complete the ZIP file
 			out.flush();
-
-			return buildDestinationFile;
 		} catch (IOException e) {
-			throw new InteractiveSpacesException(
-					"Failed writing Activity Build file", e);
+			throw new InteractiveSpacesException(String.format(
+					"Failed creating jar file %s",
+					jarDestinationFile.getAbsolutePath()), e);
 		} finally {
 			if (out != null) {
 				try {

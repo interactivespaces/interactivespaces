@@ -19,9 +19,11 @@ package interactivespaces.workbench.project.activity.creator;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
+import interactivespaces.workbench.project.library.LibraryProjectTemplate;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,11 +33,11 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 
 /**
- * A {@link ActivityProjectCreator} implementation.
+ * A {@link ProjectCreator} implementation.
  * 
  * @author Keith M. Hughes
  */
-public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
+public class ProjectCreatorImpl implements ProjectCreator {
 
 	/**
 	 * The list of activities to be handed to clients.
@@ -57,7 +59,7 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 	 */
 	private InteractiveSpacesWorkbench workbench;
 
-	public ActivityProjectCreatorImpl(InteractiveSpacesWorkbench workbench,
+	public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater) {
 		this.workbench = workbench;
 		this.templater = templater;
@@ -109,7 +111,13 @@ public class ActivityProjectCreatorImpl implements ActivityProjectCreator {
 			Map<String, Object> templateData) {
 		ProjectTemplate template = spec.getTemplate();
 		if (template == null) {
-			template = getActivityProjectTemplateByLanguage(spec.getLanguage());
+			String projectType = spec.getProject().getType();
+			if ("activity".equals(projectType)) {
+				template = getActivityProjectTemplateByLanguage(spec
+						.getLanguage());
+			} else if ("library".equals(projectType)) {
+				template = new LibraryProjectTemplate();
+			}
 		}
 
 		writeProjectTemplate(template, spec, templateData);

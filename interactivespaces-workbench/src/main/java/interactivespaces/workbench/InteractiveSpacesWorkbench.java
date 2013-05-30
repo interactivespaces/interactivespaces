@@ -25,22 +25,22 @@ import interactivespaces.domain.support.DomainValidationResult.DomainValidationR
 import interactivespaces.domain.support.Validator;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
-import interactivespaces.workbench.project.activity.creator.ActivityProjectCreator;
-import interactivespaces.workbench.project.activity.creator.ActivityProjectCreatorImpl;
+import interactivespaces.workbench.project.activity.creator.ProjectCreator;
+import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackager;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
-import interactivespaces.workbench.project.activity.type.ActivityProjectType;
-import interactivespaces.workbench.project.activity.type.ActivityProjectTypeRegistry;
-import interactivespaces.workbench.project.activity.type.SimpleActivityProjectTypeRegistery;
+import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
+import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
@@ -98,7 +98,7 @@ public class InteractiveSpacesWorkbench {
 	 * Properties for the workbench.
 	 */
 	private Map<String, String> workbenchConfig;
-	
+
 	/**
 	 * Configuration for the workbench.
 	 */
@@ -107,12 +107,12 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * The activity project manager for file operations.
 	 */
-	private ActivityProjectManager activityProjectManager = new BasicActivityProjectManager();
+	private ActivityProjectManager projectManager = new BasicActivityProjectManager();
 
 	/**
 	 * The creator for new projects.
 	 */
-	private ActivityProjectCreator activityProjectCreator;
+	private ProjectCreator activityProjectCreator;
 
 	/**
 	 * A packager for activities.
@@ -122,7 +122,7 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * The registry of activity project types.
 	 */
-	private ActivityProjectTypeRegistry activityProjectTypeRegistry;
+	private ProjectTypeRegistry projectTypeRegistry;
 
 	/**
 	 * The IDE project creator.
@@ -151,12 +151,12 @@ public class InteractiveSpacesWorkbench {
 		for (Map.Entry<String, String> entry : workbenchConfig.entrySet()) {
 			workbenchSimpleConfig.setValue(entry.getKey(), entry.getValue());
 		}
-		
+
 		this.templater = new FreemarkerTemplater();
 		templater.startup();
 
-		activityProjectTypeRegistry = new SimpleActivityProjectTypeRegistery();
-		activityProjectCreator = new ActivityProjectCreatorImpl(this, templater);
+		projectTypeRegistry = new SimpleProjectTypeRegistery();
+		activityProjectCreator = new ProjectCreatorImpl(this, templater);
 		activityProjectPackager = new ActivityProjectPackagerImpl();
 		ideProjectCreator = new EclipseIdeProjectCreator(templater);
 	}
@@ -168,21 +168,22 @@ public class InteractiveSpacesWorkbench {
 	 *            the project to be built
 	 */
 	public void buildProject(Project project) {
-		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
-				project, this);
+		ProjectBuildContext context = new ProjectBuildContext(project, this);
 
 		// If no type, there is nothing special to do for building.
-		ActivityProjectType type = getActivityProjectType(project);
+		ProjectType type = projectTypeRegistry.getProjectType(project);
 		ProjectBuilder builder = null;
 		if (type != null) {
 			builder = type.newBuilder();
 		} else {
 			builder = new BaseActivityProjectBuilder();
 		}
-		
+
 		builder.build(project, context);
 
-		activityProjectPackager.packageActivityProject(project, context);
+		if ("activity".equals(project.getType())) {
+			activityProjectPackager.packageActivityProject(project, context);
+		}
 	}
 
 	/**
@@ -192,41 +193,12 @@ public class InteractiveSpacesWorkbench {
 	 *            the project to be built
 	 */
 	public void cleanActivityProject(Project project) {
-		ActivityProjectBuildContext context = new ActivityProjectBuildContext(
-				project, this);
+		ProjectBuildContext context = new ProjectBuildContext(project, this);
 
 		File buildDirectory = context.getBuildDirectory();
 
 		if (buildDirectory.exists()) {
 			Files.deleteDirectoryContents(buildDirectory);
-		}
-	}
-
-	/**
-	 * Get the project type for the project.
-	 * 
-	 * @param project
-	 *            the activity project
-	 * 
-	 * @return the type of the project, if set, or {@code null} if none
-	 *         specified
-	 * 
-	 * @throws InteractiveSpacesException
-	 *             if no unknown type
-	 */
-	private ActivityProjectType getActivityProjectType(Project project) {
-		String builderType = project.getBuilderType();
-		if (builderType != null) {
-			ActivityProjectType type = activityProjectTypeRegistry
-					.getActivityProjectType(builderType);
-			if (type != null) {
-				return type;
-			} else {
-				throw new InteractiveSpacesException(String.format(
-						"No builder found for type %s", type));
-			}
-		} else {
-			return null;
 		}
 	}
 
@@ -240,7 +212,7 @@ public class InteractiveSpacesWorkbench {
 	 */
 	public void generateIdeActivityProject(Project project, String ide) {
 		EclipseIdeProjectCreatorSpecification spec;
-		ActivityProjectType type = getActivityProjectType(project);
+		ProjectType type = projectTypeRegistry.getProjectType(project);
 		if (type != null) {
 			spec = type.getEclipseIdeProjectCreatorSpecification();
 		} else {
@@ -390,16 +362,86 @@ public class InteractiveSpacesWorkbench {
 	 * @param commands
 	 */
 	public void doCommands(List<String> commands) {
-		String command = commands.get(0);
-		commands.remove(0);
+		String command = commands.remove(0);
 
 		if ("create".equals(command)) {
 			System.out.println("Creating project");
 			createProject(commands);
 		} else {
-			Project project = activityProjectManager.readProject(new File(
-					command));
-			doCommandsOnProject(project, commands);
+			File baseDir = new File(command);
+			if (projectManager.isProjectFolder(baseDir)) {
+				doCommandsOnProject(baseDir, commands);
+			} else {
+				if (!commands.isEmpty() && "walk".equals(commands.get(0))) {
+					commands.remove(0);
+
+					doCommandsOnTree(baseDir, commands);
+				} else {
+					System.out.format("%s is not a project directory\n",
+							baseDir.getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Do a series of workbench commands on a project directory
+	 * 
+	 * @param baseDir
+	 *            base directory of the project
+	 * @param commands
+	 *            the commands to be done
+	 */
+	public void doCommandsOnProject(File baseDir, List<String> commands) {
+		Project project = projectManager.readProject(baseDir);
+		doCommandsOnProject(project, commands);
+	}
+
+	/**
+	 * Walk over a set of folders looking for project files to build
+	 * 
+	 * @param baseDir
+	 *            base file to start looking for projects in
+	 * 
+	 * @param commands
+	 *            commands to run on all project files
+	 */
+	private void doCommandsOnTree(File baseDir, List<String> commands) {
+		FileFilter filter = new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isDirectory();
+			}
+		};
+		File[] files = baseDir.listFiles(filter);
+		if (files != null) {
+			for (File possible : files) {
+				doCommandsOnTree(possible, commands, filter);
+			}
+		}
+	}
+
+	/**
+	 * Walk over a set of folders looking for project files to build
+	 * 
+	 * @param baseDir
+	 *            base folder which may be a project folder or may contain
+	 *            project folders
+	 * @param commands
+	 *            commands to run on all project files
+	 */
+	private void doCommandsOnTree(File baseDir, List<String> commands,
+			FileFilter filter) {
+		if (projectManager.isProjectFolder(baseDir)) {
+			doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+		} else {
+			File[] files = baseDir.listFiles(filter);
+			if (files != null) {
+				for (File possible : files) {
+					doCommandsOnTree(possible, commands, filter);
+				}
+			}
 		}
 	}
 
@@ -417,6 +459,8 @@ public class InteractiveSpacesWorkbench {
 
 		spec.setProject(project);
 
+		String projectType = "activity";
+
 		String command = commands.remove(0);
 		if ("language".equals(command)) {
 			spec.setLanguage(commands.remove(0));
@@ -429,7 +473,11 @@ public class InteractiveSpacesWorkbench {
 				System.out.println("Not implemented yet");
 				return;
 			}
+		} else if ("type".equals(command)) {
+			projectType = commands.remove(0);
 		}
+
+		project.setType(projectType);
 
 		activityProjectCreator.createProject(spec);
 	}
@@ -504,23 +552,26 @@ public class InteractiveSpacesWorkbench {
 			String command = commands.remove(0);
 
 			if ("build".equals(command)) {
-				System.out.println("Building project");
+				System.out.format("Building project %s\n", project
+						.getBaseDirectory().getAbsolutePath());
 				buildProject(project);
 			} else if ("clean".equals(command)) {
-				System.out.println("Cleaning project");
+				System.out.format("Cleaning project %s\n", project
+						.getBaseDirectory().getAbsolutePath());
 				cleanActivityProject(project);
 			} else if ("ide".equals(command)) {
-				System.out.println("Building project IDE project");
+				System.out.format("Building project IDE project %s\n", project
+						.getBaseDirectory().getAbsolutePath());
 				generateIdeActivityProject(project, commands.remove(0));
 			}
 		}
 	}
 
 	/**
-	 * @return the activityProjectManager
+	 * @return the projectManager
 	 */
-	public ActivityProjectManager getActivityProjectManager() {
-		return activityProjectManager;
+	public ActivityProjectManager getProjectManager() {
+		return projectManager;
 	}
 
 	/**
@@ -533,7 +584,7 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * @return the activityProjectCreator
 	 */
-	public ActivityProjectCreator getActivityProjectCreator() {
+	public ProjectCreator getActivityProjectCreator() {
 		return activityProjectCreator;
 	}
 

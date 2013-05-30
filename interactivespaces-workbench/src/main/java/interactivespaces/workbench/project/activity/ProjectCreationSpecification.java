@@ -18,7 +18,7 @@ package interactivespaces.workbench.project.activity;
 
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.creator.ProjectTemplate;
+import interactivespaces.workbench.project.ProjectTemplate;
 
 import java.util.List;
 

@@ -16,19 +16,22 @@
 
 package interactivespaces.workbench.project.activity.type.java;
 
+import com.google.common.collect.Lists;
+
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.java.JavaActivityBuilder;
-import interactivespaces.workbench.project.activity.creator.ProjectTemplate;
+import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.project.activity.type.ActivityProjectType;
+import interactivespaces.workbench.project.activity.type.ProjectType;
 
 /**
  * A Simple Java activity project type.
- *
+ * 
  * @author Keith M. Hughes
  */
-public class JavaActivityProjectType implements ActivityProjectType {
+public class JavaActivityProjectType implements ProjectType {
 
 	/**
 	 * Name for the builder.
@@ -36,22 +39,24 @@ public class JavaActivityProjectType implements ActivityProjectType {
 	public static final String NAME = "java";
 
 	@Override
-	public String getName() {
-		return NAME;
+	public boolean isProperType(Project project) {
+		return "activity".equals(project.getType())
+				&& NAME.equals(project.getBuilderType());
 	}
 
 	@Override
 	public ProjectBuilder newBuilder() {
-		return new JavaActivityBuilder();
+		return new JavaActivityProjectBuilder();
 	}
 
 	@Override
-	public ProjectTemplate newActivityProjectTemplate() {
+	public ProjectTemplate newProjectTemplate() {
 		return new GenericJavaActivityProjectTemplate();
 	}
 
 	@Override
 	public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-		return new JavaEclipseIdeProjectCreatorSpecification();
+		return new JavaEclipseIdeProjectCreatorSpecification(
+				Lists.newArrayList("src/main/java", "src/main/resources"));
 	}
 }

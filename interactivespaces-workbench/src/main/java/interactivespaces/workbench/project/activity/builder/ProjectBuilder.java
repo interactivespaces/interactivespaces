@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.builder;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 /**
  * A builder for activities.
@@ -34,5 +34,5 @@ public interface ProjectBuilder {
 	 * @param context
 	 *            the context to use when building the activity
 	 */
-	void build(Project project, ActivityProjectBuildContext context);
+	void build(Project project, ProjectBuildContext context);
 }

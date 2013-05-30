@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.project.activity.creator.ProjectTemplate;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
 
 import java.util.List;

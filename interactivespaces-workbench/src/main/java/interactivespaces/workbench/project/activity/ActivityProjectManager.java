@@ -35,7 +35,7 @@ public interface ActivityProjectManager {
 	 * 
 	 * @return {@code true} if a valid project folder
 	 */
-	boolean isActivityProjectFolder(File baseDir);
+	boolean isProjectFolder(File baseDir);
 
 	/**
 	 * Load a new project.

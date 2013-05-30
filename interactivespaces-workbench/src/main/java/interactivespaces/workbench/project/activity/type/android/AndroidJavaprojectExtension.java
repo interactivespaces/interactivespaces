@@ -19,8 +19,8 @@ package interactivespaces.workbench.project.activity.type.android;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
-import interactivespaces.workbench.project.activity.builder.java.JavaActivityExtensions;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.activity.builder.java.JavaProjectExtensions;
 import interactivespaces.workbench.util.NativeCommandsExecutor;
 
 import java.io.File;
@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Keith M. Hughes
  */
-public class AndroidJavaActivityExtension implements JavaActivityExtensions {
+public class AndroidJavaprojectExtension implements JavaProjectExtensions {
 
 	/**
 	 * The configuration property name for the Android SDK home.
@@ -72,7 +72,7 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 	}
 
 	@Override
-	public void postProcessJar(ActivityProjectBuildContext context, File jarFile) {
+	public void postProcessJar(ProjectBuildContext context, File jarFile) {
 		String platformToolsDirectory = context.getWorkbench()
 				.getWorkbenchConfig()
 				.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)

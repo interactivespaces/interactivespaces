@@ -36,7 +36,7 @@ import java.io.FileInputStream;
 public class BasicActivityProjectManager implements ActivityProjectManager {
 
 	@Override
-	public boolean isActivityProjectFolder(File baseDir) {
+	public boolean isProjectFolder(File baseDir) {
 		File projectFile = new File(baseDir, "project.xml");
 		if (projectFile.exists()) {
 			return true;

@@ -16,37 +16,46 @@
 
 package interactivespaces.workbench.project.activity.type;
 
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.type.android.AndroidActivityProjectType;
 import interactivespaces.workbench.project.activity.type.java.JavaActivityProjectType;
+import interactivespaces.workbench.project.library.LibraryProjectType;
 
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 
 /**
- * A simple implemention of a {@link ActivityProjectTypeRegistry}.
+ * A simple implemention of a {@link ProjectTypeRegistry}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleActivityProjectTypeRegistery implements ActivityProjectTypeRegistry {
+public class SimpleProjectTypeRegistery implements ProjectTypeRegistry {
 
 	/**
 	 * The mapping of names to project types.
 	 */
-	Map<String, ActivityProjectType> nameToTypes = Maps.newHashMap();
+	List<ProjectType> types = Lists.newArrayList();
 	
-	public SimpleActivityProjectTypeRegistery() {
-		registerActivityProjectType(new JavaActivityProjectType());
-		registerActivityProjectType(new AndroidActivityProjectType());
+	public SimpleProjectTypeRegistery() {
+		registerProjectType(new JavaActivityProjectType());
+		registerProjectType(new AndroidActivityProjectType());
+		registerProjectType(new LibraryProjectType());
 	}
 
 	@Override
-	public ActivityProjectType getActivityProjectType(String name) {
-		return nameToTypes.get(name);
+	public ProjectType getProjectType(Project project) {
+		for (ProjectType type : types) {
+			if (type.isProperType(project)) {
+				return type;
+			}
+		}
+		
+		return null;
 	}
 
 	@Override
-	public void registerActivityProjectType(ActivityProjectType type) {
-		nameToTypes.put(type.getName(), type);
+	public void registerProjectType(ProjectType type) {
+		types.add(type);
 	}
 }

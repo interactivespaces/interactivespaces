@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 import java.io.File;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  * 
  * @author Keith M. Hughes
  */
-public interface JavaActivityExtensions {
+public interface JavaProjectExtensions {
 
 	/**
 	 * Add new items to the classpath.
@@ -48,5 +48,5 @@ public interface JavaActivityExtensions {
 	 * @param jarFile
 	 *            the jar file to postprocess
 	 */
-	void postProcessJar(ActivityProjectBuildContext context, File jarFile);
+	void postProcessJar(ProjectBuildContext context, File jarFile);
 }

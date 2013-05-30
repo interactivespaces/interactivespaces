@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Keith M. Hughes
  */
-public class ActivityProjectBuildContext {
+public class ProjectBuildContext {
 
 	/**
 	 * Where things are being built.
@@ -57,7 +57,7 @@ public class ActivityProjectBuildContext {
 	 */
 	private File buildDirectory;
 
-	public ActivityProjectBuildContext(Project project,
+	public ProjectBuildContext(Project project,
 			InteractiveSpacesWorkbench workbench) {
 		this.project = project;
 		this.workbench = workbench;

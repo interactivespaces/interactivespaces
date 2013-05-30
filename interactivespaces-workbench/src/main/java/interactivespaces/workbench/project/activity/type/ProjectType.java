@@ -16,8 +16,9 @@
 
 package interactivespaces.workbench.project.activity.type;
 
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
-import interactivespaces.workbench.project.activity.creator.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 
 /**
@@ -25,17 +26,20 @@ import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator
  * 
  * <p>
  * This gives the builders, creators, etc for project types.
- *
+ * 
  * @author Keith M. Hughes
  */
-public interface ActivityProjectType {
-	
+public interface ProjectType {
+
 	/**
-	 * Get the name of the project type.
+	 * Can this project type handle the given project?
 	 * 
-	 * @return the name of the project type
+	 * @param project
+	 *            the project to test against
+	 * 
+	 * @return {@code true} if can handle this project type
 	 */
-	String getName();
+	boolean isProperType(Project project);
 
 	/**
 	 * Get an activity builder for the project type.
@@ -43,14 +47,14 @@ public interface ActivityProjectType {
 	 * @return an activity builder
 	 */
 	ProjectBuilder newBuilder();
-	
+
 	/**
 	 * Get a new project template for the project type.
 	 * 
 	 * @return a project template
 	 */
-	ProjectTemplate newActivityProjectTemplate();
-	
+	ProjectTemplate newProjectTemplate();
+
 	/**
 	 * Get the specification for Eclipse project building.
 	 * 

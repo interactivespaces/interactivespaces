@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * 
  * @author Keith M. Hughes
  */
-public interface ActivityProjectCreator {
+public interface ProjectCreator {
 	
 	/**
 	 * Get all activity project templates.

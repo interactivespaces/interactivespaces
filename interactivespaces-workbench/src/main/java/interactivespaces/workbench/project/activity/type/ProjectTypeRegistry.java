@@ -16,25 +16,27 @@
 
 package interactivespaces.workbench.project.activity.type;
 
+import interactivespaces.workbench.project.Project;
+
 /**
- * A registry of {link ActivityProjectType} instances.
+ * A registry of {link ProjectType} instances.
  * 
  * @author Keith M. Hughes
  */
-public interface ActivityProjectTypeRegistry {
+public interface ProjectTypeRegistry {
 
 	/**
-	 * Get an activity project type.
+	 * Get an project type.
 	 * 
-	 * @param name
-	 *            name of the project type
+	 * @param project
+	 *            the project we want the type for
 	 * 
 	 * @return the project type, or {@code null} if none for the given name
 	 */
-	ActivityProjectType getActivityProjectType(String name);
+	ProjectType getProjectType(Project project);
 
 	/**
-	 * Register an activity project type.
+	 * Register a project type.
 	 * 
 	 * <p>
 	 * If there is already a project type of the given name, the new one will
@@ -43,5 +45,5 @@ public interface ActivityProjectTypeRegistry {
 	 * @param type
 	 *            the project type to register
 	 */
-	void registerActivityProjectType(ActivityProjectType type);
+	void registerProjectType(ProjectType type);
 }

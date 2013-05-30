@@ -20,7 +20,7 @@ import freemarker.template.TemplateException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.builder.java.JavaActivityExtensions;
+import interactivespaces.workbench.project.activity.builder.java.JavaProjectExtensions;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,28 +51,35 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
 	private static final String ECLIPSE_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
 
 	/**
+	 * List of sources for the project.
+	 */
+	private List<String> sources;
+	
+	/**
 	 * The Java activity extensions.
 	 * 
 	 * <p>
 	 * Can be {@code null}.
 	 */
-	private JavaActivityExtensions extensions;
+	private JavaProjectExtensions extensions;
 
 	/**
 	 * Construct a specification with {@code null} extensions.
 	 */
-	public JavaEclipseIdeProjectCreatorSpecification() {
-		this(null);
+	public JavaEclipseIdeProjectCreatorSpecification(List<String> sources) {
+		this(sources, null);
 	}
 
 	/**
 	 * Construct a specification with extensions.
-	 * 
+	 * @param sources
+	 *            list of source directories for the project
 	 * @param extensions
 	 *            the extensions to use (can be {@code null})
 	 */
 	public JavaEclipseIdeProjectCreatorSpecification(
-			JavaActivityExtensions extensions) {
+			List<String> sources, JavaProjectExtensions extensions) {
+		this.sources = sources;
 		this.extensions = extensions;
 	}
 
@@ -90,11 +97,13 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
 			Map<String, Object> freemarkerContext,
 			FreemarkerTemplater templater, InteractiveSpacesWorkbench workbench)
 			throws IOException, TemplateException {
-		List<File> projectLibs = Lists.newArrayList(workbench.getControllerClasspath());
+		List<File> projectLibs = Lists.newArrayList(workbench
+				.getControllerClasspath());
 		if (extensions != null) {
 			extensions.addToClasspath(projectLibs, workbench);
 		}
-		
+
+		freemarkerContext.put("srcs", sources);
 		freemarkerContext.put("libs", projectLibs);
 
 		templater.writeTemplate(freemarkerContext,

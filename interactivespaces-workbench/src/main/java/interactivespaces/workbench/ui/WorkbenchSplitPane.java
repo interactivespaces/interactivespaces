@@ -104,7 +104,7 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements
 
 		sourceWindowManager = new BasicSourceWindowManager(workbenchUi,
 				sourcePane, workbenchUi.getWorkbench()
-						.getActivityProjectManager());
+						.getProjectManager());
 	}
 
 	/**

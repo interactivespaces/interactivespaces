@@ -471,7 +471,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 			workbench.buildProject(currentProject);
 		} else if (source.equals(openActivityConfMenuItem)) {
 			desktop.getSourceWindowManager().addNewSourceWindow(
-					workbench.getActivityProjectManager()
+					workbench.getProjectManager()
 							.getActivityConfSource(currentProject));
 		}
 	}
@@ -484,9 +484,9 @@ public class WorkbenchUi extends JFrame implements ActionListener {
 	 */
 	private void openActivityProject(File baseProjectDir) {
 		// TODO(keith): If project already open should open up new workbench UI.
-		if (workbench.getActivityProjectManager().isActivityProjectFolder(
+		if (workbench.getProjectManager().isProjectFolder(
 				baseProjectDir)) {
-			setCurrentProject(workbench.getActivityProjectManager()
+			setCurrentProject(workbench.getProjectManager()
 					.readProject(baseProjectDir));
 		} else {
 			JOptionPane.showMessageDialog(this,

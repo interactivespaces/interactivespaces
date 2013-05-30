@@ -21,7 +21,7 @@ import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectResource;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 import java.io.File;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 	public static final String ACTIVITY_BUILD_DIRECTORY_STAGING = "staging";
 
 	@Override
-	public void build(Project project, ActivityProjectBuildContext context) {
+	public void build(Project project, ProjectBuildContext context) {
 		File stagingDirectory = new File(context.getBuildDirectory(),
 				ACTIVITY_BUILD_DIRECTORY_STAGING);
 		makeDirectory(stagingDirectory);
@@ -64,7 +64,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 	 * @param stagingDirectory
 	 *            the staging directory where build artifacts go
 	 */
-	public void onBuild(Project project, ActivityProjectBuildContext context,
+	public void onBuild(Project project, ProjectBuildContext context,
 			File stagingDirectory) {
 		// Default is nothing
 	}
@@ -100,7 +100,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 	 *            context for the build
 	 */
 	private void copyActivityXml(Project project, File stagingDirectory,
-			ActivityProjectBuildContext context) {
+			ProjectBuildContext context) {
 		File activityXmlDest = new File(stagingDirectory,
 				ActivityProject.FILENAME_ACTIVITY_XML);
 
@@ -131,7 +131,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 	 *            context for the build
 	 */
 	private void copyResources(Project project, File stagingDirectory,
-			ActivityProjectBuildContext context) {
+			ProjectBuildContext context) {
 		for (ProjectResource resource : project.getResources()) {
 			copyResource(resource, project, stagingDirectory, context);
 		}
@@ -148,7 +148,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 	 *            context for the build
 	 */
 	private void copyResource(ProjectResource resource, Project project,
-			File stagingDirectory, ActivityProjectBuildContext context) {
+			File stagingDirectory, ProjectBuildContext context) {
 		if (resource.getDestinationDirectory() != null) {
 			File destDir = new File(stagingDirectory,
 					resource.getDestinationDirectory());
