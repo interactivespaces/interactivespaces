@@ -17,6 +17,7 @@
 package interactivespaces.workbench;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
@@ -97,6 +98,11 @@ public class InteractiveSpacesWorkbench {
 	 * Properties for the workbench.
 	 */
 	private Map<String, String> workbenchConfig;
+	
+	/**
+	 * Configuration for the workbench.
+	 */
+	private SimpleConfiguration workbenchSimpleConfig;
 
 	/**
 	 * The activity project manager for file operations.
@@ -140,7 +146,12 @@ public class InteractiveSpacesWorkbench {
 
 	public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig) {
 		this.workbenchConfig = workbenchConfig;
+		workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
 
+		for (Map.Entry<String, String> entry : workbenchConfig.entrySet()) {
+			workbenchSimpleConfig.setValue(entry.getKey(), entry.getValue());
+		}
+		
 		this.templater = new FreemarkerTemplater();
 		templater.startup();
 
@@ -529,8 +540,8 @@ public class InteractiveSpacesWorkbench {
 	/**
 	 * @return the workbenchProperties
 	 */
-	public Map<String, String> getWorkbenchConfig() {
-		return workbenchConfig;
+	public SimpleConfiguration getWorkbenchConfig() {
+		return workbenchSimpleConfig;
 	}
 
 	/**

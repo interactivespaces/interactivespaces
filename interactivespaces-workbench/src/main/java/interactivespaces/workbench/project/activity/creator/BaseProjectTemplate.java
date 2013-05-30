@@ -20,6 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 
 import java.io.File;
@@ -30,7 +31,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * 
+ * Base template for any kind of project.
  * 
  * @author Keith M. Hughes
  */
@@ -83,11 +84,12 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 		Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
 
 		onTemplateSetup(spec, fullTemplateData);
-		
+
 		createProjectStructure(project);
-		
+
 		writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
 		writeCommonTemplates(spec, workbench, templater, fullTemplateData);
+		writeProjectXml(templater, spec, fullTemplateData);
 	}
 
 	/**
@@ -144,7 +146,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 	 * @param fullTemplateData
 	 *            the full data to be used for the template
 	 */
-	public abstract void writeSpecificTemplates(ProjectCreationSpecification spec,
+	public abstract void writeSpecificTemplates(
+			ProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> fullTemplateData);
 
@@ -164,5 +167,19 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
 		// Default is none.
+	}
+
+	/**
+	 * Write out the project.xml file.
+	 * 
+	 * @param spec
+	 *            the build specification
+	 * @param templateData
+	 *            data for any templates
+	 */
+	private void writeProjectXml(FreemarkerTemplater templater,
+			ProjectCreationSpecification spec, Map<String, Object> templateData) {
+		templater.writeTemplate(templateData, new File(spec.getProject()
+				.getBaseDirectory(), "project.xml"), "project.xml.ftl");
 	}
 }

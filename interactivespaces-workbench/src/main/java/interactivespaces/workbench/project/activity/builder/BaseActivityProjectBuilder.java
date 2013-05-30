@@ -19,6 +19,7 @@ package interactivespaces.workbench.project.activity.builder;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectResource;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
 
@@ -50,6 +51,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 
 		copyActivityResources(project, stagingDirectory);
 		copyActivityXml(project, stagingDirectory, context);
+		copyResources(project, stagingDirectory, context);
 	}
 
 	/**
@@ -110,14 +112,72 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 			Map<String, Object> templateData = Maps.newHashMap();
 			templateData.put("project", project);
 			templateData.put("activity", new ActivityProject(project));
-			
+
 			context.getWorkbench()
 					.getTemplater()
-					.writeTemplate(
-							templateData,
-							new File(project.getBaseDirectory(),
-									ActivityProject.FILENAME_ACTIVITY_XML),
+					.writeTemplate(templateData, activityXmlDest,
 							"activity/activity.xml.ftl");
+		}
+	}
+
+	/**
+	 * Copy the needed resources for the project.
+	 * 
+	 * @param project
+	 *            the project being built
+	 * @param stagingDirectory
+	 *            where the items will be copied
+	 * @param context
+	 *            context for the build
+	 */
+	private void copyResources(Project project, File stagingDirectory,
+			ActivityProjectBuildContext context) {
+		for (ProjectResource resource : project.getResources()) {
+			copyResource(resource, project, stagingDirectory, context);
+		}
+	}
+
+	/**
+	 * Copy the needed resource for the project.
+	 * 
+	 * @param project
+	 *            the project being built
+	 * @param stagingDirectory
+	 *            where the items will be copied
+	 * @param context
+	 *            context for the build
+	 */
+	private void copyResource(ProjectResource resource, Project project,
+			File stagingDirectory, ActivityProjectBuildContext context) {
+		if (resource.getDestinationDirectory() != null) {
+			File destDir = new File(stagingDirectory,
+					resource.getDestinationDirectory());
+			makeDirectory(destDir);
+
+			if (resource.getSourceDirectory() != null) {
+				String evaluate = context.getWorkbench()
+						.getWorkbenchConfig()
+						.evaluate(resource.getSourceDirectory());
+				System.out.println(evaluate);
+				File srcDir = new File(evaluate);
+				Files.copyDirectory(srcDir, destDir, true);
+			} else {
+				// There is a file to be copied.
+				File srcFile = new File(context.getWorkbench()
+						.getWorkbenchConfig()
+						.evaluate(resource.getSourceFile()));
+				Files.copyFile(srcFile, new File(destDir, srcFile.getName()));
+			}
+		} else {
+			// Have a dest file
+			// There is a file to be copied.
+			File destFile = new File(context.getWorkbench()
+					.getWorkbenchConfig()
+					.evaluate(resource.getDestinationFile()));
+			File srcFile = new File(context.getWorkbench()
+					.getWorkbenchConfig()
+					.evaluate(resource.getSourceFile()));
+			Files.copyFile(srcFile, destFile);
 		}
 	}
 

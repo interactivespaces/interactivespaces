@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity.type.android;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.activity.ActivityProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityExtensions;
@@ -48,11 +49,12 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 	@Override
 	public void addToClasspath(List<File> classpath,
 			InteractiveSpacesWorkbench workbench) {
-		Map<String, String> properties = workbench.getWorkbenchConfig();
-		String androidJar = getRequiredProperty(properties,
-				PROPERTY_ANDROID_SDK_HOME)
+		SimpleConfiguration properties = workbench.getWorkbenchConfig();
+		String androidJar = properties
+				.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)
 				+ "/platforms/"
-				+ getRequiredProperty(properties, PROPERTY_ANDROID_PLATFORM)
+				+ properties
+						.getRequiredPropertyString(PROPERTY_ANDROID_PLATFORM)
 				+ "/android.jar";
 		File androidJarFile = new File(androidJar);
 
@@ -71,8 +73,9 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 
 	@Override
 	public void postProcessJar(ActivityProjectBuildContext context, File jarFile) {
-		String platformToolsDirectory = getRequiredProperty(context
-				.getWorkbench().getWorkbenchConfig(), PROPERTY_ANDROID_SDK_HOME)
+		String platformToolsDirectory = context.getWorkbench()
+				.getWorkbenchConfig()
+				.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)
 				+ "/platform-tools/";
 
 		List<String> dxCommand = Lists.newArrayList();
@@ -88,7 +91,8 @@ public class AndroidJavaActivityExtension implements JavaActivityExtensions {
 		aaptCommand.add("classes.dex");
 
 		@SuppressWarnings("unchecked")
-		List<List<String>> commands = Lists.newArrayList(dxCommand, aaptCommand);
+		List<List<String>> commands = Lists
+				.newArrayList(dxCommand, aaptCommand);
 
 		NativeCommandsExecutor executor = new NativeCommandsExecutor();
 		executor.executeCommands(commands);

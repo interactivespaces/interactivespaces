@@ -69,22 +69,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 	public void writeCommonTemplates(ProjectCreationSpecification spec,
 			InteractiveSpacesWorkbench workbench,
 			FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-		writeActivityXml(templater, spec, fullTemplateData);
 		writeActivityConf(templater, spec, fullTemplateData);
-	}
-
-	/**
-	 * 
-	 * @param spec
-	 *            the build specification
-	 * @param templateData
-	 *            data for any templates
-	 */
-	private void writeActivityXml(FreemarkerTemplater templater,
-			ProjectCreationSpecification spec, Map<String, Object> templateData) {
-		templater.writeTemplate(templateData, new File(
-				spec.getProject().getBaseDirectory(),
-				ActivityProject.FILENAME_ACTIVITY_XML), "activity/activity.xml.ftl");
 	}
 
 	/**
