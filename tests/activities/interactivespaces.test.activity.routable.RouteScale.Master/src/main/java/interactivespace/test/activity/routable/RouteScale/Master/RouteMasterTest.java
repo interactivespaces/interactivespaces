@@ -48,6 +48,7 @@ public class RouteMasterTest extends BaseRoutableRosActivity {
 	    getLog().info("sending data on routes");
 		int numRoutes = getConfiguration().getPropertyInteger("space.activity.numRoutes", 19);
 		for (int i = 0; i < numRoutes; i++) {
+		  getLog().info("sending on " + String.valueOf(i+1));
 		  sendOutputJson("out" + String.valueOf(i+1), data);
 		}
 		getLog().info("done sending on routes");

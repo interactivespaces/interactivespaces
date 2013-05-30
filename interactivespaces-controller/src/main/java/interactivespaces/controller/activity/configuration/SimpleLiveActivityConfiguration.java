@@ -22,7 +22,9 @@ import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.evaluation.EvaluationInteractiveSpacesException;
 import interactivespaces.evaluation.ExpressionEvaluator;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A configuration specifically for activities.
@@ -183,6 +185,16 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 	@Override
 	public Boolean getRequiredPropertyBoolean(String property) {
 		return temporary.getRequiredPropertyBoolean(property);
+	}
+	
+	@Override
+	public List<String> getPropertyStringList(String property, String delineator) {
+	  return temporary.getPropertyStringList(property, delineator);
+	}
+	    
+	@Override
+	public Set<String> getPropertyStringSet(String property, String delineator) {
+	  return temporary.getPropertyStringSet(property, delineator);
 	}
 
 	@Override
