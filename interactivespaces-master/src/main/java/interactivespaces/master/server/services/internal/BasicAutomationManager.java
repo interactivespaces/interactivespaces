@@ -145,8 +145,9 @@ public class BasicAutomationManager implements AutomationManager {
 	 */
 	private void prepareImportDirectoryWatcher() {
 		importDirectoryWatcher = new SimpleDirectoryWatcher();
-		importDirectoryWatcher
-				.addDirectory(new File(ACTIVITY_IMPORT_DIRECTORY));
+		importDirectoryWatcher.addDirectory(new File(spaceEnvironment
+				.getFilesystem().getInstallDirectory(),
+				ACTIVITY_IMPORT_DIRECTORY));
 		importDirectoryWatcher
 				.addDirectoryWatcherListener(new BaseDirectoryWatcherListener() {
 					@Override
