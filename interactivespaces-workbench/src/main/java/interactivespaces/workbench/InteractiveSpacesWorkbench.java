@@ -25,9 +25,10 @@ import interactivespaces.domain.support.DomainValidationResult.DomainValidationR
 import interactivespaces.domain.support.Validator;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
+import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
@@ -220,6 +221,43 @@ public class InteractiveSpacesWorkbench {
 		}
 
 		ideProjectCreator.createProject(project, spec, this);
+	}
+
+	/**
+	 * Deploy a project.
+	 * 
+	 * @param project
+	 *            the activity project to generate the IDE project for
+	 * @param type
+	 *            the name of the IDE to generate the project for
+	 */
+	public void deployProject(Project project, String type) {
+		// TODO(keith): write a class for this
+		for (ProjectDeployment deployment : project.getDeployments()) {
+			if (type.equals(deployment.getType())) {
+				File deploymentLocation = new File(
+						workbenchSimpleConfig.evaluate(deployment.getLocation()));
+				System.out.format("Deploying to %s\n",
+						deploymentLocation.getAbsolutePath());
+				copyBuildArtifacts(project, deploymentLocation);
+			}
+		}
+	}
+
+	private void copyBuildArtifacts(Project project, File destination) {
+		File[] artifacts = new File(project.getBaseDirectory(), "build")
+				.listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						return pathname.isFile();
+					}
+				});
+		if (artifacts != null) {
+			for (File artifact : artifacts) {
+				Files.copyFile(artifact,
+						new File(destination, artifact.getName()));
+			}
+		}
 	}
 
 	/**
@@ -563,6 +601,10 @@ public class InteractiveSpacesWorkbench {
 				System.out.format("Building project IDE project %s\n", project
 						.getBaseDirectory().getAbsolutePath());
 				generateIdeActivityProject(project, commands.remove(0));
+			} else if ("deploy".equals(command)) {
+				System.out.format("Deploying project %s\n", project
+						.getBaseDirectory().getAbsolutePath());
+				deployProject(project, commands.remove(0));
 			}
 		}
 	}

@@ -74,7 +74,7 @@ Automatic Activity Import
 
 Activities can be autoimported in to the master.
 
-To use this, you must create a folder called *master/import/activity* in the 
+To use this, you must create a folder called *master/activity/import* in the 
 same folder where your Master is installed.
 
 Now any Activity zip files which are placed in this folder will be auto-imported
@@ -83,6 +83,17 @@ and version, it will be replaced with this new Activity.
 
 The Live Activities based on this Activity will not be immediately updated. You
 must do that manually using the Master webapp or Master API.
+
+Activities can be autoimported in to the master and then deployed.
+
+To use this, you must create a folder called *master/activity/deploy* in the 
+same folder where your Master is installed.
+
+Now any Activity zip files which are placed in this folder will be auto-imported
+into the master and will then be immediately deployed to all controllers
+which contain a Live Activity based on the imported activity. 
+If there is already an Activity with the same identifying name
+and version, it will be replaced with this new Activity.
 
 Scripting the Master
 ====================

@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.services.internal;
 
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
@@ -49,7 +50,15 @@ import com.google.common.collect.Maps;
  */
 public class BasicAutomationManager implements AutomationManager {
 
-	public static final String ACTIVITY_IMPORT_DIRECTORY = "master/import/activity";
+	/**
+	 * Watched subfolder for importing new activities
+	 */
+	public static final String ACTIVITY_IMPORT_DIRECTORY = "master/activity/import";
+
+	/**
+	 * Watched subfolder for importing and deploying new activities
+	 */
+	public static final String ACTIVITY_DEPLOY_DIRECTORY = "master/activity/deploy";
 
 	/**
 	 * The script service to use for the automation master
@@ -148,6 +157,9 @@ public class BasicAutomationManager implements AutomationManager {
 		importDirectoryWatcher.addDirectory(new File(spaceEnvironment
 				.getFilesystem().getInstallDirectory(),
 				ACTIVITY_IMPORT_DIRECTORY));
+		importDirectoryWatcher.addDirectory(new File(spaceEnvironment
+				.getFilesystem().getInstallDirectory(),
+				ACTIVITY_DEPLOY_DIRECTORY));
 		importDirectoryWatcher
 				.addDirectoryWatcherListener(new BaseDirectoryWatcherListener() {
 					@Override
@@ -199,13 +211,20 @@ public class BasicAutomationManager implements AutomationManager {
 	 */
 	private void onImportActivityFileAdded(File file) {
 		spaceEnvironment.getLog().info(
-				String.format("Activity file  %s found in autoinput folder",
+				String.format("Activity file  %s found in autoinput folders",
 						file));
 
 		FileInputStream activityStream = null;
 		try {
 			activityStream = new FileInputStream(file);
-			uiActivityManager.saveActivity(null, activityStream);
+			Activity activity = uiActivityManager.saveActivity(null,
+					activityStream);
+
+			String watchedFolder = file.getParent();
+			if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
+				uiControllerManager
+						.deployAllActivityInstances(activity.getId());
+			}
 		} catch (Exception e) {
 			spaceEnvironment.getLog().error(
 					String.format("Could not read imported activity file %s",

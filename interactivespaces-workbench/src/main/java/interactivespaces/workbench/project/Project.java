@@ -74,6 +74,11 @@ public class Project {
 	 * The resources the project requires.
 	 */
 	private List<ProjectResource> resources = Lists.newArrayList();
+
+	/**
+	 * The resources the project requires.
+	 */
+	private List<ProjectDeployment> deployments = Lists.newArrayList();
 	
 	/**
 	 * The meta data for this project.
@@ -217,6 +222,25 @@ public class Project {
 	 */
 	public List<ProjectDependency> getDependencies() {
 		return Lists.newArrayList(dependencies);
+	}
+
+	/**
+	 * Add a deployment to the project.
+	 * 
+	 * @param deployment
+	 *            the deployment to add
+	 */
+	public void addDeployment(ProjectDeployment deployment) {
+		deployments.add(deployment);
+	}
+
+	/**
+	 * Get a list of all deployments the project has.
+	 * 
+	 * @return
+	 */
+	public List<ProjectDeployment> getDeployments() {
+		return Lists.newArrayList(deployments);
 	}
 
 	/**

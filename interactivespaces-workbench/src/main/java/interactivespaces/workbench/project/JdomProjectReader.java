@@ -58,6 +58,7 @@ public class JdomProjectReader implements ProjectReader {
 			getMetadata(project, rootElement, errors);
 			getDependencies(project, rootElement, errors);
 			getResources(project, rootElement, errors);
+			getDeployments(project, rootElement, errors);
 
 			return project;
 		} catch (Exception e) {
@@ -297,5 +298,55 @@ public class JdomProjectReader implements ProjectReader {
 
 			return resource;
 		}
+	}
+
+	/**
+	 * Get the deployments from the document.
+	 * 
+	 * @param project
+	 *            the project description whose data is being read
+	 * @param rootElement
+	 *            root element of the XML DOM containing the project data
+	 * @param errors
+	 *            any errors found in the metadata
+	 */
+	private void getDeployments(Project project, Element rootElement,
+			List<String> errors) {
+		Element deploymentsElement = rootElement.getChild("deployments");
+
+		if (deploymentsElement != null) {
+			@SuppressWarnings("unchecked")
+			List<Element> deploymentElements = deploymentsElement
+					.getChildren("deployment");
+
+			for (Element deploymentElement : deploymentElements) {
+				ProjectDeployment deployment = getDeployment(deploymentElement,
+						errors);
+				if (deployment != null) {
+					project.addDeployment(deployment);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get an project deployment from the deployment element.
+	 * 
+	 * @param deploymentElement
+	 *            the element containing the data
+	 * @param errors
+	 *            any errors found in the metadata
+	 * 
+	 * @return the deployment found in the element
+	 */
+	private ProjectDeployment getDeployment(Element deploymentElement,
+			List<String> errors) {
+		String type = deploymentElement.getAttributeValue("type");
+		String method = deploymentElement.getAttributeValue("method");
+		String location = deploymentElement.getAttributeValue("location");
+
+		// TODO(keith): Enumerate all possible errors
+
+		return new ProjectDeployment(type, method, location);
 	}
 }
