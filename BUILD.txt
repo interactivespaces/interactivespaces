@@ -1,9 +1,21 @@
 Building Interactive Spaces requires the following dependencies:
 
 The Android SDK
+
 The RXTX Java serial communications library.
+from http://rxtx.qbang.org
+
 The Bluecove Bluetooth Library
+from http://bluecove.org/
+
 Jython
+from http://jython.org/
+
+JSR-80
+from http://sourceforge.net/projects/javax-usb/
+
+usb4java
+from http://kayahr.github.io/usb4java/
 
 Create a file in the root folder of the Interactive Spaces project called
 gradle.properties.
@@ -17,9 +29,16 @@ android.sdk.home = /home/you/software/android/android-sdk-linux_86
 rxtx.home = /usr/share/java/RXTXcomm.jar
 bluecove.home = /home/you/software/bluecove/bluecove-2.1.0.jar
 jython.home = /home/you/software/jython/jython2.5.2
+jsr80.home = /home/you/software/jsr80/jsr80-1.0.0.jar
+usb4java.home = /home/you/software/usb4java/usb4java-1.0.0.jar
 
 The Android controller is built for a given minimum version of Android.
-The following example shows building the Androind controller for Ice Cream
+The following example shows building the Android controller for Ice Cream
 Sandwich.
 
 android.platform = android-16
+
+Install ROS on your computer. Install from www.ros.org. I usually install the
+desktop full version, though there may be a smaller version that will work.
+
+Place your interactivespaces repository on the ROS package path.
