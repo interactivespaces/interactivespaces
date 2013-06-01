@@ -118,6 +118,11 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 	}
 
 	@Override
+	public void setValues(Map<String, String> values) {
+		temporary.setValues(values);
+	}
+
+	@Override
 	public void setParent(Configuration parent) {
 		this.parent = parent;
 	}

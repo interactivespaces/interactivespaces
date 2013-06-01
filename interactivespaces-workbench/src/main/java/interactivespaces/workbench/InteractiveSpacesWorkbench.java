@@ -149,9 +149,7 @@ public class InteractiveSpacesWorkbench {
 		this.workbenchConfig = workbenchConfig;
 		workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
 
-		for (Map.Entry<String, String> entry : workbenchConfig.entrySet()) {
-			workbenchSimpleConfig.setValue(entry.getKey(), entry.getValue());
-		}
+		workbenchSimpleConfig.setValues(workbenchConfig);
 
 		this.templater = new FreemarkerTemplater();
 		templater.startup();

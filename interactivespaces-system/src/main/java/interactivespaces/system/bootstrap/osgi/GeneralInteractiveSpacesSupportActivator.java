@@ -196,6 +196,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 	 * Register all services which need to be made available to others.
 	 * 
 	 * @param context
+	 *            the bundle context for the system bundle
 	 */
 	private void registerServices(BundleContext context) {
 		context.registerService(ExpressionEvaluatorFactory.class.getName(),
@@ -411,9 +412,7 @@ public class GeneralInteractiveSpacesSupportActivator implements
 		Configuration systemConfiguration = systemConfigurationStorageManager
 				.getSystemConfiguration();
 
-		for (Entry<String, String> entry : containerProperties.entrySet()) {
-			systemConfiguration.setValue(entry.getKey(), entry.getValue());
-		}
+		systemConfiguration.setValues(containerProperties);
 
 		systemConfiguration
 				.setValue(
