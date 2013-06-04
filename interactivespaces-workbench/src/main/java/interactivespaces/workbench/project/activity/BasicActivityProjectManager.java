@@ -105,6 +105,7 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
 			project.setBuilderType(activity.getBuilderType());
 			project.setIdentifyingName(activity.getIdentifyingName());
 			project.setVersion(activity.getVersion());
+			project.setType("activity");
 
 			return project;
 		} catch (Exception e) {
