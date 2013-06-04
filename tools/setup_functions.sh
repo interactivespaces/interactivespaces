@@ -4,13 +4,15 @@ function colorize_output {
     tput setaf 7
   elif [ "$1" == "OK" ]; then
     tput setaf 2
+  elif [ "$1" == "install" ]; then
+    tput setaf 4
   else
     tput setaf 5
   fi
 }
 
 function dpkg_version {
-  dpkg -l | grep " $1 " | awk '{print $3}'
+  dpkg -l | egrep "^ii +$1 " | awk '{print $3}'
 }
 
 function version_status {
@@ -42,6 +44,11 @@ function package {
 
   colorize_output $status
   echo $pkg $ver ':' $installed $status
+
+  if [ "$MODE" == install -a "$status" != OK ]; then
+    colorize_output install
+    sudo apt-get -y --force-yes install $pkg
+  fi
 }
 
 function download {

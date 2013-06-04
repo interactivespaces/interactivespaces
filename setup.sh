@@ -2,6 +2,7 @@
 
 source tools/setup_functions.sh
 
+MODE=$1
 LIBDIR=lib
 ISDIR=$HOME/interactivespaces
 
