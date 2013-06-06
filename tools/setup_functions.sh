@@ -61,14 +61,16 @@ function package {
 function download {
   pkg=$1
   ver=$2
-  postfix=$3
-  url=$4
+  url=$3
 
   ipath=`fgrep $1.home gradle.properties 2> /dev/null | awk '{print $3}'`
-  installed=`ls -d $ipath`
-  installed=${installed##*/$pkg-}
-  installed=${installed%%$postfix}
-  installed=${installed%.}  # For case when it shouldbe empty
+  installed=`ls -ld $ipath`  # Use -l to follow symbolic links
+  installed=${installed##* }
+  installed=${installed##*/}
+  installed=${installed##$pkg}
+  # Extract a version number, removing leading and traling non-numbers.
+  installed=`echo $installed | sed -e 's/[^0-9]*\([0-9].*[0-9]\)[^0-9]*/\1/'`
+  installed=${installed%.}  # For case when it is missing.
   status=`version_status $ver $installed`  
 
   report_status $pkg $ver $status $installed

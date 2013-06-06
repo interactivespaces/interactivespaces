@@ -18,10 +18,10 @@ package texlive-latex-recommended 2009-15
 package texlive-latex-extra 2009-10
 package texlive-fonts-recommended 2009-15
 
-download rxtx 2.1 -* http://rxtx.qbang.org
-download bluecove 2.1.0 .jar http://bluecove.org/
-download jsr80 1.0.1 .jar http://sourceforge.net/projects/javax-usb/
-download usb4java 1.0.0 .jar http://kayahr.github.io/usb4java/
+download rxtx     2.1   http://rxtx.qbang.org
+download bluecove 2.1.0 http://bluecove.org/
+download jsr80    1.0.1 http://sourceforge.net/projects/javax-usb/
+download usb4java 1.0.0 http://kayahr.github.io/usb4java/
 
 check_android sdk 21.1 
 check_android platform android-16
