@@ -34,6 +34,11 @@ function version_status {
   echo $status
 }
 
+function report_status {
+  colorize_output $4
+  echo $4 $1 $2 $3
+}
+
 function package {
   pkg=$1
   ver=$2
@@ -42,8 +47,7 @@ function package {
   installed=`dpkg_version $pkg`
   status=`version_status $ver $installed`
 
-  colorize_output $status
-  echo $pkg $ver ':' $installed $status
+  report_status $pkg $ver $installed $status
 
   if [ "$MODE" == install -a "$status" != OK ]; then
     colorize_output install
@@ -63,8 +67,7 @@ function download {
   installed=${installed%%$postfix}
   status=`version_status $ver $installed`  
 
-  colorize_output $status
-  echo $pkg $ver ':' $installed $status
+  report_status $pkg $ver $installed $status
 }
 
 function extract_property {
@@ -82,8 +85,8 @@ function check_android {
     installed=`extract_property android.platform gradle.properties`
   fi
   status=`version_status $ver $installed`  
-  colorize_output $status
-  echo android-$pkg $ver ':' $installed $status
+
+  report_status android-$pkg $ver $installed $status
 }
 
 function check_ros {
@@ -105,8 +108,8 @@ function check_ros {
       fi
     fi
   fi
-  colorize_output $status
-  echo ros-$pkg $ver ':' $installed $status
+
+  report_status ros-$pkg $ver $installed $status
 }
 
 
@@ -115,8 +118,8 @@ function check_gradle {
   ver=$2
   installed=`gradle -v | fgrep -v "build time" | grep "^$pkg" | awk '{print $2}'`
   status=`version_status $ver $installed`  
-  colorize_output $status
-  echo gradle-$pkg $ver ':' $installed $status
+
+  report_status gradle-$pkg $ver $installed $status
 }
 
 function check_maven {
@@ -133,8 +136,8 @@ function check_maven {
     installed=
     status=MISSING
   fi
-  colorize_output $status
-  echo maven-$pkg $ver ':' $installed $status
+
+  report_status maven-$pkg $ver $installed $status
 }
 
 function check_is {
@@ -145,7 +148,7 @@ function check_is {
   installed=${installed%.jar}
   installed=${installed#*$prefix}
   status=`version_status $ver $installed`  
-  colorize_output $status
-  echo is-$pkg $ver ':' $installed $status
+
+  report_status is-$pkg $ver $installed $status
 }
 

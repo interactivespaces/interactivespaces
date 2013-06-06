@@ -3,7 +3,6 @@
 source tools/setup_functions.sh
 
 MODE=$1
-LIBDIR=lib
 ISDIR=$HOME/interactivespaces
 
 check_gradle Gradle 1.6
@@ -33,6 +32,7 @@ check_ros path $PWD
 check_is master 1.4.3
 check_is controller 1.4.3
 check_is workbench 1.4.3
+
 check_maven repository $HOME/.m2
 
 colorize_output reset
