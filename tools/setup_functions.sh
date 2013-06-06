@@ -34,9 +34,12 @@ function version_status {
   echo $status
 }
 
+# Arguments are: package, intended_version, status, installed_version
+# installed_version may be empty if the package is not installed.
 function report_status {
-  colorize_output $4
-  echo $4 $1 $2 $3
+  colorize_output $3
+  echo $3 $1 $2 $4
+  colorize_output reset
 }
 
 function package {
@@ -47,7 +50,7 @@ function package {
   installed=`dpkg_version $pkg`
   status=`version_status $ver $installed`
 
-  report_status $pkg $ver $installed $status
+  report_status $pkg $ver $status $installed
 
   if [ "$MODE" == install -a "$status" != OK ]; then
     colorize_output install
@@ -61,17 +64,18 @@ function download {
   postfix=$3
   url=$4
 
-  ipath=`fgrep $1.home gradle.properties | awk '{print $3}'`
+  ipath=`fgrep $1.home gradle.properties 2> /dev/null | awk '{print $3}'`
   installed=`ls -d $ipath`
   installed=${installed##*/$pkg-}
   installed=${installed%%$postfix}
+  installed=${installed%.}  # For case when it shouldbe empty
   status=`version_status $ver $installed`  
 
-  report_status $pkg $ver $installed $status
+  report_status $pkg $ver $status $installed
 }
 
 function extract_property {
-  foo=`fgrep $1 $2`
+  foo=`fgrep $1 $2 2> /dev/null`
   echo ${foo#*=}
 }
 
@@ -86,7 +90,7 @@ function check_android {
   fi
   status=`version_status $ver $installed`  
 
-  report_status android-$pkg $ver $installed $status
+  report_status android-$pkg $ver $status $installed
 }
 
 function check_ros {
@@ -109,17 +113,17 @@ function check_ros {
     fi
   fi
 
-  report_status ros-$pkg $ver $installed $status
+  report_status ros-$pkg $ver $status $installed
 }
 
 
 function check_gradle {
   pkg=$1
   ver=$2
-  installed=`gradle -v | fgrep -v "build time" | grep "^$pkg" | awk '{print $2}'`
+  installed=`(gradle -v | fgrep -v "build time" | grep "^$pkg" | awk '{print $2}') 2> /dev/null`
   status=`version_status $ver $installed`  
 
-  report_status gradle-$pkg $ver $installed $status
+  report_status gradle-$pkg $ver $status $installed
 }
 
 function check_maven {
@@ -137,18 +141,18 @@ function check_maven {
     status=MISSING
   fi
 
-  report_status maven-$pkg $ver $installed $status
+  report_status maven-$pkg $ver $status $installed
 }
 
 function check_is {
   pkg=$1
   ver=$2
   prefix=interactivespaces-launcher-
-  installed=`ls -d $ISDIR/$pkg/$prefix*.jar`
+  installed=`ls -d $ISDIR/$pkg/$prefix*.jar 2> /dev/null`
   installed=${installed%.jar}
   installed=${installed#*$prefix}
   status=`version_status $ver $installed`  
 
-  report_status is-$pkg $ver $installed $status
+  report_status is-$pkg $ver $status $installed
 }
 

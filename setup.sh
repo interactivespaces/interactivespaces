@@ -34,6 +34,3 @@ check_is controller 1.4.3
 check_is workbench 1.4.3
 
 check_maven repository $HOME/.m2
-
-colorize_output reset
-
