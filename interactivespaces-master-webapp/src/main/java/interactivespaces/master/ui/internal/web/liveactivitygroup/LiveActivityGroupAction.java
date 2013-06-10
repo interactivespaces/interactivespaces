@@ -19,7 +19,10 @@ package interactivespaces.master.ui.internal.web.liveactivitygroup;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
+
+import org.springframework.webflow.core.collection.MutableAttributeMap;
 
 import org.springframework.webflow.execution.RequestContext;
 
@@ -28,58 +31,59 @@ import org.springframework.webflow.execution.RequestContext;
  * 
  * @author Keith M. Hughes
  */
-public class LiveActivityGroupAction {
-	
-	/**
-	 * Repository for activities.
-	 */
-	private ActivityRepository activityRepository;
+public class LiveActivityGroupAction extends BaseSpaceMasterController {
 
-	/**
-	 * Get a new activity group form.
-	 * 
-	 * @return
-	 */
-	public LiveActivityGroupForm newLiveActivityGroup() {
-		return new LiveActivityGroupForm();
-	}
+  /**
+   * Repository for activities.
+   */
+  private ActivityRepository activityRepository;
 
-	/**
-	 * Add entities to the flow context needed by the new entity page.
-	 * 
-	 * @param context
-	 *            The Webflow context.
-	 */
-	public void addLiveActivityGroupEntities(RequestContext context) {
-		context.getViewScope().put(
-				"liveactivities",
-				WebSupport.getLiveActivitySelections(activityRepository
-						.getAllLiveActivities()));
-	}
+  /**
+   * Get a new activity group form.
+   * 
+   * @return
+   */
+  public LiveActivityGroupForm newLiveActivityGroup() {
+    return new LiveActivityGroupForm();
+  }
 
-	/**
-	 * Save the new group.
-	 * 
-	 * @param form
-	 *            the live activity group form
-	 */
-	public void saveLiveActivityGroup(LiveActivityGroupForm form) {
-		LiveActivityGroup finalGroup = activityRepository.newLiveActivityGroup();
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
 
-		form.saveLiveActivityGroup(finalGroup, activityRepository);
+    viewScope.put("liveactivities",
+        WebSupport.getLiveActivitySelections(activityRepository.getAllLiveActivities()));
+  }
 
-		activityRepository.saveLiveActivityGroup(finalGroup);
+  /**
+   * Save the new group.
+   * 
+   * @param form
+   *          the live activity group form
+   */
+  public void saveLiveActivityGroup(LiveActivityGroupForm form) {
+    LiveActivityGroup finalGroup = activityRepository.newLiveActivityGroup();
 
-		// So the ID gets copied out of the flow.
-		form.getLiveActivityGroup().setId(finalGroup.getId());
-	}
+    form.saveLiveActivityGroup(finalGroup, activityRepository);
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+    activityRepository.saveLiveActivityGroup(finalGroup);
+
+    // So the ID gets copied out of the flow.
+    form.getLiveActivityGroup().setId(finalGroup.getId());
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 
 }

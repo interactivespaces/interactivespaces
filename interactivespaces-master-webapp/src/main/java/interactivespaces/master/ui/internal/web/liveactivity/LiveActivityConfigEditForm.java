@@ -20,6 +20,7 @@ import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 
 import java.util.Collections;
@@ -51,7 +52,7 @@ import com.google.common.collect.Maps;
 @Controller
 @RequestMapping("/liveactivity/{id}/config/edit")
 @SessionAttributes({ "liveactivity", "id", "config" })
-public class LiveActivityConfigEditForm {
+public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The activity repository.
@@ -68,6 +69,8 @@ public class LiveActivityConfigEditForm {
 		LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
 		model.addAttribute("liveactivity", liveactivity);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm configurationForm = newConfigurationForm(liveactivity);
 

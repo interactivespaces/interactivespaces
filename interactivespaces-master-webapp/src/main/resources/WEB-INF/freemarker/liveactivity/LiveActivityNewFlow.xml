@@ -26,7 +26,7 @@ the License.
     
     <view-state id="newLiveActivity" model="form" view="liveactivity/LiveActivityNew">
 	    <on-render>
-	        <evaluate expression="liveActivityAction.addLiveActivityEntities(flowRequestContext)" />
+	        <evaluate expression="liveActivityAction.addNeededEntities(flowRequestContext)" />
 	    </on-render>
         <transition on="save" to="doneNewLiveActivity" >
             <evaluate expression="liveActivityAction.saveLiveActivity(form)" />

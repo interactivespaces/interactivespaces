@@ -60,6 +60,8 @@ public class LiveActivityMetadataEditForm extends MetadataEditFormSupport {
 		LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
 		model.addAttribute("liveactivity", liveactivity);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm metadataForm = newMetadataForm(liveactivity.getMetadata());
 

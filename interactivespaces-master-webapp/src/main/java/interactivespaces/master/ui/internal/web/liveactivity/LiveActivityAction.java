@@ -22,6 +22,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
 import java.io.Serializable;
@@ -34,150 +35,149 @@ import org.springframework.webflow.execution.RequestContext;
  * 
  * @author Keith M. Hughes
  */
-public class LiveActivityAction {
-	
-	/**
-	 * Repository for activities.
-	 */
-	private ActivityRepository activityRepository;
+public class LiveActivityAction extends BaseSpaceMasterController {
 
-	/**
-	 * Repository for controllers.
-	 */
-	private ControllerRepository controllerRepository;
+  /**
+   * Repository for activities.
+   */
+  private ActivityRepository activityRepository;
 
-	/**
-	 * Get a new controller model.
-	 * 
-	 * @return
-	 */
-	public LiveActivityForm newLiveActivity() {
-		return new LiveActivityForm();
-	}
+  /**
+   * Repository for controllers.
+   */
+  private ControllerRepository controllerRepository;
 
-	/**
-	 * Add entities to the flow context needed by the new entity page.
-	 * 
-	 * @param context
-	 *            The Webflow context.
-	 */
-	public void addLiveActivityEntities(RequestContext context) {
-		MutableAttributeMap viewScope = context.getViewScope();
-		viewScope.put("activities", WebSupport
-				.getActivitySelections(activityRepository.getAllActivities()));
-		viewScope.put("controllers",
-				WebSupport.getControllerSelections(controllerRepository
-						.getAllSpaceControllers()));
-	}
+  /**
+   * Get a new controller model.
+   * 
+   * @return
+   */
+  public LiveActivityForm newLiveActivity() {
+    return new LiveActivityForm();
+  }
 
-	/**
-	 * Save the new live activity.
-	 * 
-	 * @param form
-	 *            the live activity form
-	 */
-	public void saveLiveActivity(LiveActivityForm form) {
-		SimpleLiveActivity liveactivity = form.getLiveActivity();
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
 
-		LiveActivity finalLiveActivity = activityRepository.newLiveActivity();
-		finalLiveActivity.setName(liveactivity.getName());
-		finalLiveActivity.setDescription(liveactivity.getDescription());
+    viewScope.put("activities",
+        WebSupport.getActivitySelections(activityRepository.getAllActivities()));
+    viewScope.put("controllers",
+        WebSupport.getControllerSelections(controllerRepository.getAllSpaceControllers()));
+  }
 
-		SpaceController controller = controllerRepository
-				.getSpaceControllerById(form.getControllerId());
-		finalLiveActivity.setController(controller);
+  /**
+   * Save the new live activity.
+   * 
+   * @param form
+   *          the live activity form
+   */
+  public void saveLiveActivity(LiveActivityForm form) {
+    SimpleLiveActivity liveactivity = form.getLiveActivity();
 
-		Activity activity = activityRepository.getActivityById(form
-				.getActivityId());
-		finalLiveActivity.setActivity(activity);
+    LiveActivity finalLiveActivity = activityRepository.newLiveActivity();
+    finalLiveActivity.setName(liveactivity.getName());
+    finalLiveActivity.setDescription(liveactivity.getDescription());
 
-		activityRepository.saveLiveActivity(finalLiveActivity);
+    SpaceController controller =
+        controllerRepository.getSpaceControllerById(form.getControllerId());
+    finalLiveActivity.setController(controller);
 
-		// So the ID gets copied out of the flow.
-		liveactivity.setId(finalLiveActivity.getId());
-	}
+    Activity activity = activityRepository.getActivityById(form.getActivityId());
+    finalLiveActivity.setActivity(activity);
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+    activityRepository.saveLiveActivity(finalLiveActivity);
 
-	/**
-	 * @param controllerRepository
-	 *            the controllerRepository to set
-	 */
-	public void setControllerRepository(
-			ControllerRepository controllerRepository) {
-		this.controllerRepository = controllerRepository;
-	}
+    // So the ID gets copied out of the flow.
+    liveactivity.setId(finalLiveActivity.getId());
+  }
 
-	/**
-	 * Form bean to keep all info about the installed activity.
-	 * 
-	 * @author Keith M. Hughes
-	 */
-	public static class LiveActivityForm implements Serializable {
-		/**
-		 * Info about the installed activity.
-		 */
-		private SimpleLiveActivity liveActivity = new SimpleLiveActivity();
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 
-		/**
-		 * The ID of the controller.
-		 */
-		private String controllerId;
+  /**
+   * @param controllerRepository
+   *          the controllerRepository to set
+   */
+  public void setControllerRepository(ControllerRepository controllerRepository) {
+    this.controllerRepository = controllerRepository;
+  }
 
-		/**
-		 * The ID of the activity.
-		 */
-		private String activityId;
+  /**
+   * Form bean to keep all info about the installed activity.
+   * 
+   * @author Keith M. Hughes
+   */
+  public static class LiveActivityForm implements Serializable {
+    /**
+     * Info about the installed activity.
+     */
+    private SimpleLiveActivity liveActivity = new SimpleLiveActivity();
 
-		/**
-		 * @return the liveActivity
-		 */
-		public SimpleLiveActivity getLiveActivity() {
-			return liveActivity;
-		}
+    /**
+     * The ID of the controller.
+     */
+    private String controllerId;
 
-		/**
-		 * @param liveActivity
-		 *            the liveActivity to set
-		 */
-		public void setLiveActivity(SimpleLiveActivity liveActivity) {
-			this.liveActivity = liveActivity;
-		}
+    /**
+     * The ID of the activity.
+     */
+    private String activityId;
 
-		/**
-		 * @return the controllerId
-		 */
-		public String getControllerId() {
-			return controllerId;
-		}
+    /**
+     * @return the liveActivity
+     */
+    public SimpleLiveActivity getLiveActivity() {
+      return liveActivity;
+    }
 
-		/**
-		 * @param controllerId
-		 *            the controllerId to set
-		 */
-		public void setControllerId(String controllerId) {
-			this.controllerId = controllerId;
-		}
+    /**
+     * @param liveActivity
+     *          the liveActivity to set
+     */
+    public void setLiveActivity(SimpleLiveActivity liveActivity) {
+      this.liveActivity = liveActivity;
+    }
 
-		/**
-		 * @return the activityId
-		 */
-		public String getActivityId() {
-			return activityId;
-		}
+    /**
+     * @return the controllerId
+     */
+    public String getControllerId() {
+      return controllerId;
+    }
 
-		/**
-		 * @param activityId
-		 *            the activityId to set
-		 */
-		public void setActivityId(String activityId) {
-			this.activityId = activityId;
-		}
-	}
+    /**
+     * @param controllerId
+     *          the controllerId to set
+     */
+    public void setControllerId(String controllerId) {
+      this.controllerId = controllerId;
+    }
+
+    /**
+     * @return the activityId
+     */
+    public String getActivityId() {
+      return activityId;
+    }
+
+    /**
+     * @param activityId
+     *          the activityId to set
+     */
+    public void setActivityId(String activityId) {
+      this.activityId = activityId;
+    }
+  }
 }

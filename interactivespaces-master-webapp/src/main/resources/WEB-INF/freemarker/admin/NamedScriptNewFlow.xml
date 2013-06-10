@@ -25,6 +25,9 @@ the License.
     </on-start>
     
     <view-state id="newNamedScript" model="script" view="admin/NamedScriptNew">
+        <on-render>
+            <evaluate expression="automationAction.addNeededEntities(flowRequestContext)" />
+        </on-render>
         <transition on="save" to="doneNewNamedScript" >
             <evaluate expression="automationAction.saveNamedScript(script)" />
         </transition>

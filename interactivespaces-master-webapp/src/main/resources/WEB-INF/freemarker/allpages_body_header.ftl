@@ -13,7 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  -->
+<div>
 <img src="/interactivespaces/img/interactivespaces_logo_small.png" alt="Interactive Spaces logo" />
+<span id="spaceName">${interactivespacesName}</span>
+</div>
 
 <div id="navMain">
 <ul>

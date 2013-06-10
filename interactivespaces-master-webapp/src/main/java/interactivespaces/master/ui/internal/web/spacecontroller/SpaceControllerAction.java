@@ -19,50 +19,64 @@ package interactivespaces.master.ui.internal.web.spacecontroller;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+import interactivespaces.master.ui.internal.web.WebSupport;
+
+import org.springframework.webflow.core.collection.MutableAttributeMap;
+import org.springframework.webflow.execution.RequestContext;
 
 /**
  * The webflow action for space controller operations.
  * 
  * @author Keith M. Hughes
  */
-public class SpaceControllerAction {
-	
-	/**
-	 * Repository for controllers.
-	 */
-	private ControllerRepository controllerRepository;
+public class SpaceControllerAction extends BaseSpaceMasterController {
 
-	/**
-	 * Get a new controller model.
-	 * 
-	 * @return
-	 */
-	public SimpleSpaceController newSpaceController() {
-		return new SimpleSpaceController();
-	}
+  /**
+   * Repository for controllers.
+   */
+  private ControllerRepository controllerRepository;
 
-	/**
-	 * Save the new controller.
-	 * 
-	 * @param controller
-	 */
-	public void saveSpaceController(SimpleSpaceController controller) {
-		SpaceController finalController = controllerRepository
-				.newSpaceController(controller);
+  /**
+   * Get a new controller model.
+   * 
+   * @return
+   */
+  public SimpleSpaceController newSpaceController() {
+    return new SimpleSpaceController();
+  }
 
-		controllerRepository.saveSpaceController(finalController);
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
+  }
 
-		// So the ID gets copied out of the flow.
-		controller.setId(finalController.getId());
-	}
+  /**
+   * Save the new controller.
+   * 
+   * @param controller
+   */
+  public void saveSpaceController(SimpleSpaceController controller) {
+    SpaceController finalController = controllerRepository.newSpaceController(controller);
 
-	/**
-	 * @param controllerRepository
-	 *            the controllerRepository to set
-	 */
-	public void setControllerRepository(
-			ControllerRepository controllerRepository) {
-		this.controllerRepository = controllerRepository;
-	}
+    controllerRepository.saveSpaceController(finalController);
+
+    // So the ID gets copied out of the flow.
+    controller.setId(finalController.getId());
+  }
+
+  /**
+   * @param controllerRepository
+   *          the controllerRepository to set
+   */
+  public void setControllerRepository(ControllerRepository controllerRepository) {
+    this.controllerRepository = controllerRepository;
+  }
 
 }

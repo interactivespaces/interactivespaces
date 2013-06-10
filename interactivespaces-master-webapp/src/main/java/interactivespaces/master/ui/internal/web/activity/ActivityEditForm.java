@@ -19,6 +19,7 @@ package interactivespaces.master.ui.internal.web.activity;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.support.ActivityUtils;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,7 +41,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/activity/{id}/edit")
 @SessionAttributes({"activity", "id"})
-public class ActivityEditForm {
+public class ActivityEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The activity repository.
@@ -58,6 +59,8 @@ public class ActivityEditForm {
 		model.addAttribute("activity",
 				ActivityUtils.toTemplate(activity));
 		model.addAttribute("id", id);
+		
+		addGlobalModelItems(model);
 
 		return "activity/ActivityEdit";
 	}

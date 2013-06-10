@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
  *
  * @author Keith M. Hughes
  */
-public abstract class MetadataEditFormSupport {
+public abstract class MetadataEditFormSupport extends BaseSpaceMasterController {
 
 	/**
 	 * Create a configuration form with the values of the metadata

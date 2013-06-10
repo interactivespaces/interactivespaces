@@ -18,6 +18,7 @@ package interactivespaces.master.ui.internal.web.space;
 
 import interactivespaces.domain.space.Space;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
 import org.springframework.webflow.core.collection.MutableAttributeMap;
@@ -28,57 +29,58 @@ import org.springframework.webflow.execution.RequestContext;
  * 
  * @author Keith M. Hughes
  */
-public class SpaceAction {
+public class SpaceAction extends BaseSpaceMasterController {
 
-	/**
-	 * Repository for activity entities.
-	 */
-	private ActivityRepository activityRepository;
+  /**
+   * Repository for activity entities.
+   */
+  private ActivityRepository activityRepository;
 
-	/**
-	 * Get a new space model.
-	 * 
-	 * @return
-	 */
-	public SpaceForm newSpace() {
-		return new SpaceForm();
-	}
+  /**
+   * Get a new space model.
+   * 
+   * @return
+   */
+  public SpaceForm newSpace() {
+    return new SpaceForm();
+  }
 
-	/**
-	 * Add entities to the flow context needed by the new entity page.
-	 * 
-	 * @param context
-	 *            the Webflow context
-	 */
-	public void addSpaceEntities(RequestContext context) {
-		MutableAttributeMap viewScope = context.getViewScope();
-		viewScope.put("spaces",
-				WebSupport.getSpaceSelections(activityRepository.getAllSpaces()));
-		viewScope.put("liveactivitygroups", WebSupport
-				.getLiveActivityGroupSelections(activityRepository
-						.getAllLiveActivityGroups()));
-	}
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          the Webflow context
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
 
-	/**
-	 * Save the new space.
-	 * 
-	 * @param space
-	 */
-	public void saveSpace(SpaceForm form) {
-		Space finalSpace = activityRepository.newSpace();
-		
-		form.saveSpace(finalSpace, activityRepository);
+    viewScope.put("spaces", WebSupport.getSpaceSelections(activityRepository.getAllSpaces()));
+    viewScope.put("liveactivitygroups",
+        WebSupport.getLiveActivityGroupSelections(activityRepository.getAllLiveActivityGroups()));
+  }
 
-		activityRepository.saveSpace(finalSpace);
+  /**
+   * Save the new space.
+   * 
+   * @param space
+   */
+  public void saveSpace(SpaceForm form) {
+    Space finalSpace = activityRepository.newSpace();
 
-		// So the ID gets copied out of the flow.
-		form.getSpace().setId(finalSpace.getId());
-	}
+    form.saveSpace(finalSpace, activityRepository);
 
-	/**
-	 * @param activityRepository the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+    activityRepository.saveSpace(finalSpace);
+
+    // So the ID gets copied out of the flow.
+    form.getSpace().setId(finalSpace.getId());
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 }

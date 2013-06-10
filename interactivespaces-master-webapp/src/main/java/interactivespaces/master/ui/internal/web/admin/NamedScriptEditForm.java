@@ -21,6 +21,7 @@ import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.server.ui.UiAutomationManager;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,7 +43,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/admin/namedscript/{id}/edit")
 @SessionAttributes({"script", "id"})
-public class NamedScriptEditForm {
+public class NamedScriptEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The repository for automation entities.
@@ -64,6 +65,8 @@ public class NamedScriptEditForm {
 		NamedScript controller = automationRepository.getNamedScriptById(id);
 		model.addAttribute("script", AutomationUtils.toTemplate(controller));
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		return "admin/NamedScriptEdit";
 	}

@@ -18,6 +18,7 @@ package interactivespaces.master.ui.internal.web.space;
 
 import interactivespaces.domain.space.Space;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
 import java.util.Map;
@@ -42,7 +43,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/space/{id}/edit")
 @SessionAttributes({ "form", "id" })
-public class SpaceEditForm {
+public class SpaceEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The activity repository.
@@ -62,7 +63,10 @@ public class SpaceEditForm {
 
 		model.addAttribute("form", form);
 		model.addAttribute("id", id);
-		addNeededEntities(model, space);
+        
+        addGlobalModelItems(model);
+
+        addNeededEntities(model, space);
 
 		return "space/SpaceEdit";
 	}

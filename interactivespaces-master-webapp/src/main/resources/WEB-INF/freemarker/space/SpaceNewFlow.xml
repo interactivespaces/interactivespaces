@@ -26,7 +26,7 @@ the License.
     
     <view-state id="newSpace" model="form" view="space/SpaceNew">
         <on-render>
-            <evaluate expression="spaceAction.addSpaceEntities(flowRequestContext)" />
+            <evaluate expression="spaceAction.addNeededEntities(flowRequestContext)" />
         </on-render>
         <transition on="save" to="doneNewSpace" >
             <evaluate expression="spaceAction.saveSpace(form)" />

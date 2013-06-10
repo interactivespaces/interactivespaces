@@ -19,6 +19,7 @@ package interactivespaces.master.ui.internal.web.spacecontroller;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.support.SpaceControllerUtils;
 import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,7 +40,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @org.springframework.stereotype.Controller
 @RequestMapping("/spacecontroller/{id}/edit")
 @SessionAttributes({"spacecontroller", "id"})
-public class SpaceControllerEditForm {
+public class SpaceControllerEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The controller repository.
@@ -56,6 +57,8 @@ public class SpaceControllerEditForm {
 		SpaceController controller = controllerRepository.getSpaceControllerById(id);
 		model.addAttribute("spacecontroller", SpaceControllerUtils.toTemplate(controller));
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		return "spacecontroller/SpaceControllerEdit";
 	}

@@ -147,6 +147,11 @@ div.form-row span.form-errors {
 	text-align: left;
 }
 
+#spaceName {
+	font-weight: bold;
+	font-size: 24pt;
+}
+
 tr.even {
 	background-color: #ffffff;
 }

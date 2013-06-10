@@ -61,6 +61,8 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
 				.getSpaceControllerById(id);
 		model.addAttribute("spacecontroller", controller);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm metadataForm = newMetadataForm(controller
 				.getMetadata());

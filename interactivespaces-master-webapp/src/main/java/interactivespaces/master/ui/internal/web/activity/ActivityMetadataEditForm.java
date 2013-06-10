@@ -60,6 +60,8 @@ public class ActivityMetadataEditForm extends MetadataEditFormSupport {
 		Activity activity = activityRepository.getActivityById(id);
 		model.addAttribute("activity", activity);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm metadataForm = newMetadataForm(activity.getMetadata());
 

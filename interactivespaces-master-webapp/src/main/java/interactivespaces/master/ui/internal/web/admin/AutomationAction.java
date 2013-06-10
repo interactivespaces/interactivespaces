@@ -19,6 +19,7 @@ package interactivespaces.master.ui.internal.web.admin;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
 import interactivespaces.master.server.ui.UiAutomationManager;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
 import org.springframework.webflow.core.collection.MutableAttributeMap;
@@ -29,52 +30,63 @@ import org.springframework.webflow.execution.RequestContext;
  * 
  * @author Keith M. Hughes
  */
-public class AutomationAction {
+public class AutomationAction extends BaseSpaceMasterController {
 
-	/**
-	 * Repository for automation entities.
-	 */
-	private UiAutomationManager uiAutomationManager;
+  /**
+   * Repository for automation entities.
+   */
+  private UiAutomationManager uiAutomationManager;
 
-	/**
-	 * Get a new script model.
-	 * 
-	 * @return a blank script moel
-	 */
-	public SimpleNamedScript newNamedScript() {
-		return new SimpleNamedScript();
-	}
+  /**
+   * Get a new script model.
+   * 
+   * @return a blank script moel
+   */
+  public SimpleNamedScript newNamedScript() {
+    return new SimpleNamedScript();
+  }
 
-	/**
-	 * Save the new script.
-	 * 
-	 * @param script
-	 *            template for the new script
-	 */
-	public void saveNamedScript(SimpleNamedScript script) {
-		NamedScript finalScript = uiAutomationManager.saveNamedScript(script);
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
+  }
 
-		// So the ID gets copied out of the flow.
-		script.setId(finalScript.getId());
-	}
+  /**
+   * Save the new script.
+   * 
+   * @param script
+   *          template for the new script
+   */
+  public void saveNamedScript(SimpleNamedScript script) {
+    NamedScript finalScript = uiAutomationManager.saveNamedScript(script);
 
-	/**
-	 * Add entities to the flow context needed by the new entity page.
-	 * 
-	 * @param context
-	 *            The Webflow context.
-	 */
-	public void addNamedScriptEntities(RequestContext context) {
-		MutableAttributeMap viewScope = context.getViewScope();
-		viewScope.put("languages",
-				WebSupport.getScriptingLanguageSelections(uiAutomationManager
-						.getScriptingLanguages()));
-	}
+    // So the ID gets copied out of the flow.
+    script.setId(finalScript.getId());
+  }
 
-	/**
-	 * @param uiAutomationManager the uiAutomationManager to set
-	 */
-	public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
-		this.uiAutomationManager = uiAutomationManager;
-	}
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNamedScriptEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    viewScope.put("languages",
+        WebSupport.getScriptingLanguageSelections(uiAutomationManager.getScriptingLanguages()));
+  }
+
+  /**
+   * @param uiAutomationManager
+   *          the uiAutomationManager to set
+   */
+  public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
+    this.uiAutomationManager = uiAutomationManager;
+  }
 }

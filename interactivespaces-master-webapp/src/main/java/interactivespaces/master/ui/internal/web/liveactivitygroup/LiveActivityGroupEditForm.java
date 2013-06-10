@@ -18,6 +18,7 @@ package interactivespaces.master.ui.internal.web.liveactivitygroup;
 
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
 import org.springframework.stereotype.Controller;
@@ -40,7 +41,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/liveactivitygroup/{id}/edit")
 @SessionAttributes({ "form", "id" })
-public class LiveActivityGroupEditForm {
+public class LiveActivityGroupEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The activity repository.
@@ -61,7 +62,10 @@ public class LiveActivityGroupEditForm {
 		
 		model.addAttribute("form", form);
 		model.addAttribute("id", id);
-		addNeededEntities(model);
+        
+        addGlobalModelItems(model);
+
+        addNeededEntities(model);
 
 		return "liveactivitygroup/LiveActivityGroupEdit";
 	}

@@ -61,6 +61,8 @@ public class LiveActivityGroupMetadataEditForm extends MetadataEditFormSupport {
 				.getLiveActivityGroupById(id);
 		model.addAttribute("liveactivitygroup", liveactivitygroup);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm metadataForm = newMetadataForm(liveactivitygroup
 				.getMetadata());

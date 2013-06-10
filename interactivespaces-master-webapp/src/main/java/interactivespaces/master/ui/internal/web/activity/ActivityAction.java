@@ -20,6 +20,10 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.master.server.ui.UiActivityManager;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+
+import org.springframework.webflow.core.collection.MutableAttributeMap;
+import org.springframework.webflow.execution.RequestContext;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -31,98 +35,108 @@ import org.springframework.web.multipart.MultipartFile;
  * 
  * @author Keith M. Hughes
  */
-public class ActivityAction {
+public class ActivityAction extends BaseSpaceMasterController {
 
-	/**
-	 * Manager for UI operations on activities.
-	 */
-	private UiActivityManager uiActivityManager;
+  /**
+   * Manager for UI operations on activities.
+   */
+  private UiActivityManager uiActivityManager;
 
-	/**
-	 * Get a new activity model.
-	 * 
-	 * @return
-	 */
-	public ActivityForm newActivity() {
-		return new ActivityForm();
-	}
+  /**
+   * Get a new activity model.
+   * 
+   * @return
+   */
+  public ActivityForm newActivity() {
+    return new ActivityForm();
+  }
 
-	/**
-	 * Save the new activity.
-	 * 
-	 * @param activity
-	 */
-	public void saveActivity(ActivityForm form) {
-		try {
-			Activity activity = uiActivityManager
-					.saveActivity(form.getActivity(), form.getActivityFile()
-							.getInputStream());
+  /**
+   * Add entities to the flow context needed by the new entity page.
+   * 
+   * @param context
+   *          The Webflow context.
+   */
+  public void addNeededEntities(RequestContext context) {
+    MutableAttributeMap viewScope = context.getViewScope();
+    addGlobalModelItems(viewScope);
+  }
 
-			// So the ID gets copied out of the flow.
-			form.getActivity().setId(activity.getId());
-		} catch (IOException e) {
-			throw new InteractiveSpacesException(
-					"Could not get uploaded activity file", e);
-		}
-	}
+  /**
+   * Save the new activity.
+   * 
+   * @param activity
+   */
+  public void saveActivity(ActivityForm form) {
+    try {
+      Activity activity =
+          uiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
+              .getInputStream());
 
-	/**
-	 * @param uiActivityManager
-	 *            the uiActivityManager to set
-	 */
-	public void setUiActivityManager(UiActivityManager uiActivityManager) {
-		this.uiActivityManager = uiActivityManager;
-	}
+      // So the ID gets copied out of the flow.
+      form.getActivity().setId(activity.getId());
+    } catch (IOException e) {
+      throw new InteractiveSpacesException("Could not get uploaded activity file", e);
+    }
+  }
 
-	/**
-	 * Form bean for activity objects.
-	 * 
-	 * @author Keith M. Hughes
-	 */
-	public static class ActivityForm implements Serializable {
+  /**
+   * @param uiActivityManager
+   *          the uiActivityManager to set
+   */
+  public void setUiActivityManager(UiActivityManager uiActivityManager) {
+    this.uiActivityManager = uiActivityManager;
+  }
 
-		/**
-		 * Form data for activity.
-		 */
-		private SimpleActivity activity = new SimpleActivity();
+  /**
+   * Form bean for activity objects.
+   * 
+   * @author Keith M. Hughes
+   */
+  public static class ActivityForm implements Serializable {
 
-		/**
-		 * The activity file.
-		 */
-		private MultipartFile activityFile;
+    /**
+     * Form data for activity.
+     */
+    private SimpleActivity activity = new SimpleActivity();
 
-		/**
-		 * @return the activity
-		 */
-		public SimpleActivity getActivity() {
-			return activity;
-		}
+    /**
+     * The activity file.
+     */
+    private MultipartFile activityFile;
 
-		/**
-		 * @param activity
-		 *            the activity to set
-		 */
-		public void setActivity(SimpleActivity activity) {
-			this.activity = activity;
-		}
+    /**
+     * @return the activity
+     */
+    public SimpleActivity getActivity() {
+      return activity;
+    }
 
-		/**
-		 * Get the uploaded activity file.
-		 * 
-		 * @return the uploaded file
-		 */
-		public MultipartFile getActivityFile() {
-			return activityFile;
-		}
+    /**
+     * @param activity
+     *          the activity to set
+     */
+    public void setActivity(SimpleActivity activity) {
+      this.activity = activity;
+    }
 
-		/**
-		 * Set the uploaded activity file.
-		 * 
-		 * @param activityFile
-		 *            the uploaded file
-		 */
-		public void setActivityFile(MultipartFile activityFile) {
-			this.activityFile = activityFile;
-		}
-	}
+    /**
+     * Get the uploaded activity file.
+     * 
+     * @return the uploaded file
+     */
+    public MultipartFile getActivityFile() {
+      return activityFile;
+    }
+
+    /**
+     * Set the uploaded activity file.
+     * 
+     * @param activityFile
+     *          the uploaded file
+     */
+    public void setActivityFile(MultipartFile activityFile) {
+      this.activityFile = activityFile;
+    }
+  }
 }

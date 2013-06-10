@@ -22,6 +22,7 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.support.LiveActivityUtils;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 import interactivespaces.master.ui.internal.web.editor.ActivityEditor;
 import interactivespaces.master.ui.internal.web.editor.SpaceControllerEditor;
@@ -46,7 +47,7 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/liveactivity/{id}/edit")
 @SessionAttributes({ "liveactivity", "id" })
-public class LiveActivityEditForm {
+public class LiveActivityEditForm extends BaseSpaceMasterController {
 
 	/**
 	 * The activity repository.
@@ -75,7 +76,10 @@ public class LiveActivityEditForm {
 		model.addAttribute("liveactivity",
 				LiveActivityUtils.toTemplate(liveactivity));
 		model.addAttribute("id", id);
-		addNeededEntities(model);
+        
+        addGlobalModelItems(model);
+
+        addNeededEntities(model);
 
 		return "liveactivity/LiveActivityEdit";
 	}

@@ -60,6 +60,8 @@ public class SpaceMetadataEditForm extends MetadataEditFormSupport {
 		Space space = activityRepository.getSpaceById(id);
 		model.addAttribute("space", space);
 		model.addAttribute("id", id);
+        
+        addGlobalModelItems(model);
 
 		ConfigurationForm metadataForm = newMetadataForm(space.getMetadata());
 

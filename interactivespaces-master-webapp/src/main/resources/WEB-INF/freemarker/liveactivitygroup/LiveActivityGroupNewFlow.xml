@@ -26,7 +26,7 @@ the License.
     
     <view-state id="newLiveActivityGroup" model="form" view="liveactivitygroup/LiveActivityGroupNew">
         <on-render>
-            <evaluate expression="liveActivityGroupAction.addLiveActivityGroupEntities(flowRequestContext)" />
+            <evaluate expression="liveActivityGroupAction.addNeededEntities(flowRequestContext)" />
         </on-render>
         <transition on="save" to="doneNewLiveActivityGroup" >
             <evaluate expression="liveActivityGroupAction.saveLiveActivityGroup(form)" />
