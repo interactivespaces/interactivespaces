@@ -16,15 +16,13 @@
 
 package interactivespaces.service.core.internal.osgi;
 
-import interactivespaces.service.core.internal.osgi.ServicesCoreOsgiBundleActivator.MyServiceTracker;
-
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.osgi.framework.BundleActivator;
 
 /**
  * A base class for creating OSGi BundleActivator subclasses for Interactive
@@ -33,6 +31,11 @@ import org.osgi.framework.BundleActivator;
  * @author Keith M. Hughes
  */
 public abstract class InteractiveSpacesServiceOsgiBundleActivator implements BundleActivator {
+
+  protected void gotAnotherReference() {
+    // TODO Auto-generated method stub
+
+  }
 
   /**
    * Create a new service tracker.

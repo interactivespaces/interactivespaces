@@ -21,10 +21,6 @@ import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBee
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The Bundle Activator for the core InteractiveSpaces services.
