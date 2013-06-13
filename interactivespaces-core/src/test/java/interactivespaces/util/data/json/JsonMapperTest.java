@@ -45,7 +45,7 @@ public class JsonMapperTest {
   @Test
   public void testI18nToString() {
     String key = "foo";
-    String i18n = "Ťėşŧ";
+    String i18n = "\u0164\u0117\u015F\u0167";
     Map<String, Object> object = Maps.newHashMap();
     object.put(key, i18n);
 
