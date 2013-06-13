@@ -32,6 +32,15 @@ import com.google.common.collect.Maps;
  */
 public class JsonMapperTest {
 
+  private static final String TEST_JSON_I18N = "{\"foo\":\"\\u0164\\u0117\\u015F\\u0167\"}";
+
+
+  /**
+   * A Unicode string to make sure we encode correctly.
+   */
+  public static final String TEST_VALUE_I18N = "\u0164\u0117\u015F\u0167";
+
+
   private JsonMapper mapper;
 
   @Before
@@ -45,13 +54,13 @@ public class JsonMapperTest {
   @Test
   public void testI18nToString() {
     String key = "foo";
-    String i18n = "\u0164\u0117\u015F\u0167";
+    String i18n = TEST_VALUE_I18N;
     Map<String, Object> object = Maps.newHashMap();
     object.put(key, i18n);
 
     String json = mapper.toString(object);
 
-    assertEquals("{\"foo\":\"\\u0164\\u0117\\u015F\\u0167\"}", json);
+    assertEquals(TEST_JSON_I18N, json);
   }
 
   /**
@@ -60,8 +69,8 @@ public class JsonMapperTest {
   @Test
   public void testI18nToObject() {
     String key = "foo";
-    String i18n = "Ťėşŧ";
-    Map<String, Object> object = mapper.parseObject("{\"foo\":\"\\u0164\\u0117\\u015F\\u0167\"}");
+    String i18n = TEST_VALUE_I18N;
+    Map<String, Object> object = mapper.parseObject(TEST_JSON_I18N);
 
     assertEquals(i18n, object.get(key));
   }
