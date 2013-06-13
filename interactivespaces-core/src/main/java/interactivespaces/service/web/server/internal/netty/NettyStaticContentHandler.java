@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -50,7 +50,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Handle content for Netty.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class NettyStaticContentHandler implements NettyHttpContentHandler {
@@ -69,7 +69,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	 * Base directory for content served by this handler.
 	 */
 	private File baseDir;
-	
+
 
 	/**
 	 * Extra headers to add to the response.
@@ -119,7 +119,6 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 		// TODO(keith): Make sure this doesn't allow wandering outside of the
 		// file hierarchy rooted at baseDir (e.g. ../../.. type paths.
 		File file = new File(baseDir, filepath);
-
 		RandomAccessFile raf;
 		try {
 			raf = new RandomAccessFile(file, "r");
@@ -138,7 +137,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 	        response.addHeader("Set-Cookie", encoder.encode());
 	      }
 		}
-	     
+
 		setContentLength(response, fileLength);
 
 		Channel ch = ctx.getChannel();
