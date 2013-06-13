@@ -16,9 +16,10 @@
 
 package interactivespaces.service.core.internal.osgi;
 
+import interactivespaces.service.Service;
+import interactivespaces.service.SupportedService;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.osgi.framework.BundleContext;
 
@@ -30,33 +31,9 @@ import org.osgi.framework.BundleContext;
 public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
-   * OSGi service tracker for the interactive spaces environment.
-   */
-  private MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
-
-  /**
    * The mail receiver service created by this bundle.
    */
   private InteractiveSpacesXBeeCommunicationEndpointService xbeeCommEndpointService;
-
-  /**
-   * OSGi bundle context for this bundle.
-   */
-  private BundleContext bundleContext;
-
-  /**
-   * Object to give lock for putting this bundle's services together.
-   */
-  private Object serviceLock = new Object();
-
-  @Override
-  public void start(BundleContext context) throws Exception {
-    this.bundleContext = context;
-
-    interactiveSpacesEnvironmentTracker =
-        newMyServiceTracker(context, InteractiveSpacesEnvironment.class.getName());
-    interactiveSpacesEnvironmentTracker.open();
-  }
 
   @Override
   public void stop(BundleContext context) throws Exception {
@@ -66,22 +43,13 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
         .unregisterService(XBeeCommunicationEndpointService.SERVICE_NAME, xbeeCommEndpointService);
 
     xbeeCommEndpointService = null;
-
-    interactiveSpacesEnvironmentTracker.close();
-    interactiveSpacesEnvironmentTracker = null;
   }
 
-  /**
-   * Another service reference has come in. Handle.
-   */
-  protected void gotAnotherReference() {
-    synchronized (serviceLock) {
-      xbeeCommEndpointService = new InteractiveSpacesXBeeCommunicationEndpointService();
+  @Override
+  protected void allServicesAvailable() {
+    xbeeCommEndpointService = new InteractiveSpacesXBeeCommunicationEndpointService();
 
-      interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
-          .registerService(XBeeCommunicationEndpointService.SERVICE_NAME, xbeeCommEndpointService);
-
-      xbeeCommEndpointService.startup();
-    }
+    registerNewInteractiveSpacesService(XBeeCommunicationEndpointService.SERVICE_NAME,
+        xbeeCommEndpointService);
   }
 }

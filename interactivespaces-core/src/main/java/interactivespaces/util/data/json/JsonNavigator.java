@@ -195,6 +195,22 @@ public class JsonNavigator {
   }
 
   /**
+   * If the current level is a object, get that object
+   *
+   * @return the current object
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level was not an object
+   */
+  public Map<String, Object> getCurrentItem() {
+    if (currentType == JsonType.OBJECT) {
+      return currentObject;
+    } else {
+      throw new JsonInteractiveSpacesException("Current level is not a object");
+    }
+  }
+
+  /**
    * If the current level is a object, get an object field from the object.
    *
    * @return the JsonBuilder for the current level
