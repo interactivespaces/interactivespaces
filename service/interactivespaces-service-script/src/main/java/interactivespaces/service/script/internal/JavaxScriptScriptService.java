@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -46,353 +46,336 @@ import javax.script.SimpleBindings;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 import org.python.jsr223.PyScriptEngineFactory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
  * An {@link ScriptService} using {@code javax.script}.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class JavaxScriptScriptService implements ScriptService {
 
-	/**
-	 * All engines stored in the script engine.
-	 */
-	private List<ScriptLanguage> languages = new ArrayList<JavaxScriptScriptService.ScriptLanguage>();
+  /**
+   * All engines stored in the script engine.
+   */
+  private List<ScriptLanguage> languages = new ArrayList<JavaxScriptScriptService.ScriptLanguage>();
 
-	/**
-	 * A mapping from names of languages to the factory.
-	 */
-	private Map<String, ScriptLanguage> nameToLanguage = new HashMap<String, JavaxScriptScriptService.ScriptLanguage>();
+  /**
+   * A mapping from names of languages to the factory.
+   */
+  private Map<String, ScriptLanguage> nameToLanguage =
+      new HashMap<String, JavaxScriptScriptService.ScriptLanguage>();
 
-	/**
-	 * A mapping from names of extensions to the factory.
-	 */
-	private Map<String, ScriptLanguage> extensionToLanguage = new HashMap<String, JavaxScriptScriptService.ScriptLanguage>();
+  /**
+   * A mapping from names of extensions to the factory.
+   */
+  private Map<String, ScriptLanguage> extensionToLanguage =
+      new HashMap<String, JavaxScriptScriptService.ScriptLanguage>();
 
-	/**
-	 * Interactive Spaces environment for scripting engine.
-	 */
-	private InteractiveSpacesEnvironment spaceEnvironment;
+  /**
+   * Interactive Spaces environment for scripting engine.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
-	@Override
-	public void startup() {
-		final ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(null);
-		try {
-			// TODO(keith): Create a bundle listener which will scan bundles for
-			// registered
-			// factories.
-			GroovyScriptEngineFactory groovyScriptEngineFactory = new GroovyScriptEngineFactory();
-			registerLanguage("groovy", groovyScriptEngineFactory, null);
-			registerLanguage("python", new PyScriptEngineFactory(),
-					new PythonActivityScriptFactory(spaceEnvironment));
-			// registerLanguage("javascript",
-			// new RhinoJavascriptScriptEngineFactory(),
-			// new RhinoJavascriptActivityScriptFactory());
+  /**
+   * The metadata for the service.
+   */
+  private Map<String, Object> metadata = Maps.newHashMap();
 
-			// Get any languages, other than Javascript, that
-			// might be available.
-			ScriptEngineManager mgr = new ScriptEngineManager();
-			for (ScriptEngineFactory factory : mgr.getEngineFactories()) {
-				if ("ECMAScript".equals(factory.getLanguageName())) {
-					registerLanguage("javascript", factory,
-							new RhinoJavascriptActivityScriptFactory());
-				} else {
-					registerLanguage(factory.getLanguageName(), factory, null);
-				}
-			}
+  @Override
+  public Map<String, Object> getMetadata() {
+    return metadata;
+  }
 
-			spaceEnvironment.getServiceRegistry().registerService(SERVICE_NAME,
-					this);
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-	}
+  @Override
+  public String getName() {
+    return ScriptService.SERVICE_NAME;
+  }
 
-	@Override
-	public void shutdown() {
-		// Nothing to do
-	}
+  @Override
+  public void startup() {
+    final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(null);
+    try {
+      // TODO(keith): Create a bundle listener which will scan bundles for
+      // registered
+      // factories.
+      GroovyScriptEngineFactory groovyScriptEngineFactory = new GroovyScriptEngineFactory();
+      registerLanguage("groovy", groovyScriptEngineFactory, null);
+      registerLanguage("python", new PyScriptEngineFactory(), new PythonActivityScriptFactory(
+          spaceEnvironment));
+      // registerLanguage("javascript",
+      // new RhinoJavascriptScriptEngineFactory(),
+      // new RhinoJavascriptActivityScriptFactory());
 
-	/**
-	 * Register a new scripting engine factory with the factory.
-	 * 
-	 * @param languageName
-	 *            the name of the language
-	 * @param scriptEngineFactory
-	 *            the JSR 223 scripting factory
-	 * @param activityScriptFactory
-	 *            the factory for making scripted activities
-	 */
-	private void registerLanguage(String languageName,
-			ScriptEngineFactory scriptEngineFactory,
-			ActivityScriptFactory activityScriptFactory) {
-		ScriptLanguage language = new ScriptLanguage(scriptEngineFactory,
-				activityScriptFactory);
-		languages.add(language);
+      // Get any languages, other than Javascript, that
+      // might be available.
+      ScriptEngineManager mgr = new ScriptEngineManager();
+      for (ScriptEngineFactory factory : mgr.getEngineFactories()) {
+        if ("ECMAScript".equals(factory.getLanguageName())) {
+          registerLanguage("javascript", factory, new RhinoJavascriptActivityScriptFactory());
+        } else {
+          registerLanguage(factory.getLanguageName(), factory, null);
+        }
+      }
+    } finally {
+      Thread.currentThread().setContextClassLoader(oldClassLoader);
+    }
+  }
 
-		nameToLanguage.put(scriptEngineFactory.getLanguageName(), language);
-		for (String name : scriptEngineFactory.getNames()) {
-			nameToLanguage.put(name, language);
-		}
-		for (String extension : scriptEngineFactory.getExtensions()) {
-			extensionToLanguage.put(extension, language);
-		}
+  @Override
+  public void shutdown() {
+    // Nothing to do
+  }
 
-		if (activityScriptFactory != null) {
-			activityScriptFactory.initialize();
-		}
-	}
+  /**
+   * Register a new scripting engine factory with the factory.
+   *
+   * @param languageName
+   *          the name of the language
+   * @param scriptEngineFactory
+   *          the JSR 223 scripting factory
+   * @param activityScriptFactory
+   *          the factory for making scripted activities
+   */
+  private void registerLanguage(String languageName, ScriptEngineFactory scriptEngineFactory,
+      ActivityScriptFactory activityScriptFactory) {
+    ScriptLanguage language = new ScriptLanguage(scriptEngineFactory, activityScriptFactory);
+    languages.add(language);
 
-	@Override
-	public Set<String> getLanguageNames() {
-		Set<String> languages = Sets.newHashSet(nameToLanguage.keySet());
+    nameToLanguage.put(scriptEngineFactory.getLanguageName(), language);
+    for (String name : scriptEngineFactory.getNames()) {
+      nameToLanguage.put(name, language);
+    }
+    for (String extension : scriptEngineFactory.getExtensions()) {
+      extensionToLanguage.put(extension, language);
+    }
 
-		return languages;
-	}
+    if (activityScriptFactory != null) {
+      activityScriptFactory.initialize();
+    }
+  }
 
-	@Override
-	public void executeSimpleScript(String languageName, String script) {
-		executeScript(languageName, script, EMPTY_BINDINGS);
-	}
+  @Override
+  public Set<String> getLanguageNames() {
+    Set<String> languages = Sets.newHashSet(nameToLanguage.keySet());
 
-	@Override
-	public void executeScript(String languageName, String script,
-			Map<String, Object> bindings) {
-		executeScriptByName(languageName, new StringScriptSource(script),
-				bindings);
-	}
+    return languages;
+  }
 
-	@Override
-	public void executeScriptByName(String languageName,
-			ScriptSource scriptSource, Map<String, Object> bindings) {
-		ScriptLanguage scriptLanguage = nameToLanguage.get(languageName);
-		if (scriptLanguage == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for language %s",
-					languageName));
-		}
+  @Override
+  public void executeSimpleScript(String languageName, String script) {
+    executeScript(languageName, script, EMPTY_BINDINGS);
+  }
 
-		executeScript(scriptLanguage, scriptSource, bindings, "language",
-				languageName);
-	}
+  @Override
+  public void executeScript(String languageName, String script, Map<String, Object> bindings) {
+    executeScriptByName(languageName, new StringScriptSource(script), bindings);
+  }
 
-	@Override
-	public void executeScriptByExtension(String extension,
-			ScriptSource scriptSource, Map<String, Object> bindings) {
-		ScriptLanguage scriptLanguage = extensionToLanguage.get(extension);
-		if (scriptLanguage == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for language extension %s",
-					extension));
-		}
+  @Override
+  public void executeScriptByName(String languageName, ScriptSource scriptSource,
+      Map<String, Object> bindings) {
+    ScriptLanguage scriptLanguage = nameToLanguage.get(languageName);
+    if (scriptLanguage == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language %s", languageName));
+    }
 
-		executeScript(scriptLanguage, scriptSource, bindings, "extension",
-				extension);
-	}
+    executeScript(scriptLanguage, scriptSource, bindings, "language", languageName);
+  }
 
-	/**
-	 * Execute a script.
-	 * 
-	 * @param scriptLanguage
-	 *            the scripting language that will run the script
-	 * @param scriptSource
-	 *            the source of the script
-	 * @param bindings
-	 *            the extra bindings for the script
-	 * @param idType
-	 *            the type of language ID which was used
-	 * @param languageId
-	 *            the ID used to get the language
-	 * 
-	 */
-	private void executeScript(ScriptLanguage scriptLanguage,
-			ScriptSource scriptSource, Map<String, Object> bindings,
-			String idType, String languageId) {
+  @Override
+  public void executeScriptByExtension(String extension, ScriptSource scriptSource,
+      Map<String, Object> bindings) {
+    ScriptLanguage scriptLanguage = extensionToLanguage.get(extension);
+    if (scriptLanguage == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language extension %s", extension));
+    }
 
-		ScriptEngineFactory factory = scriptLanguage.getScriptEngineFactory();
-		if (factory == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for %s %s", idType,
-					languageId));
-		}
+    executeScript(scriptLanguage, scriptSource, bindings, "extension", extension);
+  }
 
-		final ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(
-				JavaxScriptScriptService.class.getClassLoader());
-		try {
-			ScriptEngine engine = factory.getScriptEngine();
-			if (engine != null) {
-				engine.setBindings(new SimpleBindings(bindings),
-						ScriptContext.GLOBAL_SCOPE);
+  /**
+   * Execute a script.
+   *
+   * @param scriptLanguage
+   *          the scripting language that will run the script
+   * @param scriptSource
+   *          the source of the script
+   * @param bindings
+   *          the extra bindings for the script
+   * @param idType
+   *          the type of language ID which was used
+   * @param languageId
+   *          the ID used to get the language
+   *
+   */
+  private void executeScript(ScriptLanguage scriptLanguage, ScriptSource scriptSource,
+      Map<String, Object> bindings, String idType, String languageId) {
 
-				engine.eval(scriptSource.getScriptContents());
-			}
-		} catch (ScriptException ex) {
-			ex.printStackTrace();
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-	}
+    ScriptEngineFactory factory = scriptLanguage.getScriptEngineFactory();
+    if (factory == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for %s %s", idType, languageId));
+    }
 
-	@Override
-	public Script newSimpleScript(String languageName, String script) {
-		return newScriptByName(languageName, new StringScriptSource(script));
-	}
+    final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(JavaxScriptScriptService.class.getClassLoader());
+    try {
+      ScriptEngine engine = factory.getScriptEngine();
+      if (engine != null) {
+        engine.setBindings(new SimpleBindings(bindings), ScriptContext.GLOBAL_SCOPE);
 
-	@Override
-	public Script newScriptByName(String languageName, ScriptSource scriptSource) {
-		ScriptLanguage scriptLanguage = nameToLanguage.get(languageName);
-		if (scriptLanguage == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for language %s",
-					languageName));
-		}
+        engine.eval(scriptSource.getScriptContents());
+      }
+    } catch (ScriptException ex) {
+      ex.printStackTrace();
+    } finally {
+      Thread.currentThread().setContextClassLoader(oldClassLoader);
+    }
+  }
 
-		return newScript(scriptLanguage, scriptSource);
-	}
+  @Override
+  public Script newSimpleScript(String languageName, String script) {
+    return newScriptByName(languageName, new StringScriptSource(script));
+  }
 
-	@Override
-	public Script newScriptByExtension(String extension,
-			ScriptSource scriptSource) {
-		ScriptLanguage scriptLanguage = extensionToLanguage.get(extension);
-		if (scriptLanguage == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for language extension %s",
-					extension));
-		}
+  @Override
+  public Script newScriptByName(String languageName, ScriptSource scriptSource) {
+    ScriptLanguage scriptLanguage = nameToLanguage.get(languageName);
+    if (scriptLanguage == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language %s", languageName));
+    }
 
-		return newScript(scriptLanguage, scriptSource);
-	}
+    return newScript(scriptLanguage, scriptSource);
+  }
 
-	/**
-	 * Create the new script object.
-	 * 
-	 * @param scriptLanguage
-	 *            the script language
-	 * @param scriptSource
-	 *            source of the script
-	 * 
-	 * @return the script
-	 */
-	private Script newScript(ScriptLanguage scriptLanguage,
-			ScriptSource scriptSource) {
-		ScriptEngine engine = scriptLanguage.getScriptEngineFactory()
-				.getScriptEngine();
-		if (engine instanceof Compilable) {
-			return new CompiledScriptScript((Compilable) engine, scriptSource);
-		} else {
-			return new ScriptEngineScript(engine, scriptSource);
-		}
-	}
+  @Override
+  public Script newScriptByExtension(String extension, ScriptSource scriptSource) {
+    ScriptLanguage scriptLanguage = extensionToLanguage.get(extension);
+    if (scriptLanguage == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language extension %s", extension));
+    }
 
-	@Override
-	public ActivityScriptWrapper getActivityByName(String languageName,
-			String objectName, ScriptSource script,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration) {
-		ScriptLanguage language = nameToLanguage.get(languageName);
-		if (language == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find a script engine for language %s",
-					languageName));
-		}
+    return newScript(scriptLanguage, scriptSource);
+  }
 
-		return getActivity(languageName, objectName, script,
-				activityFilesystem, configuration, language, "name");
-	}
+  /**
+   * Create the new script object.
+   *
+   * @param scriptLanguage
+   *          the script language
+   * @param scriptSource
+   *          source of the script
+   *
+   * @return the script
+   */
+  private Script newScript(ScriptLanguage scriptLanguage, ScriptSource scriptSource) {
+    ScriptEngine engine = scriptLanguage.getScriptEngineFactory().getScriptEngine();
+    if (engine instanceof Compilable) {
+      return new CompiledScriptScript((Compilable) engine, scriptSource);
+    } else {
+      return new ScriptEngineScript(engine, scriptSource);
+    }
+  }
 
-	@Override
-	public ActivityScriptWrapper getActivityByExtension(String extension,
-			String objectName, ScriptSource script,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration) {
-		ScriptLanguage language = extensionToLanguage.get(extension);
-		if (language == null) {
-			throw new InteractiveSpacesException(
-					String.format(
-							"Unable to find a script engine for language %s",
-							extension));
-		}
+  @Override
+  public ActivityScriptWrapper getActivityByName(String languageName, String objectName,
+      ScriptSource script, ActivityFilesystem activityFilesystem, Configuration configuration) {
+    ScriptLanguage language = nameToLanguage.get(languageName);
+    if (language == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language %s", languageName));
+    }
 
-		return getActivity(extension, objectName, script,
-				activityFilesystem, configuration, language, "extension");
-	}
+    return getActivity(languageName, objectName, script, activityFilesystem, configuration,
+        language, "name");
+  }
 
-	/**
-	 * Get the activity, if possible, from the {@link ActivityScriptFactory}.
-	 * 
-	 * @param languageId
-	 * @param objectName
-	 * @param script
-	 * @param language
-	 * @return
-	 */
-	private ActivityScriptWrapper getActivity(String languageId,
-			String objectName, ScriptSource script,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration, ScriptLanguage language,
-			String nameType) {
-		ActivityScriptFactory factory = language.getActivityScriptFactory();
-		if (factory == null) {
-			throw new InteractiveSpacesException(String.format(
-					"Unable to find an activity script factory for %s %s",
-					nameType, languageId));
-		}
+  @Override
+  public ActivityScriptWrapper getActivityByExtension(String extension, String objectName,
+      ScriptSource script, ActivityFilesystem activityFilesystem, Configuration configuration) {
+    ScriptLanguage language = extensionToLanguage.get(extension);
+    if (language == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find a script engine for language %s", extension));
+    }
 
-		return factory.getActivity(objectName, script, activityFilesystem,
-				configuration);
-	}
+    return getActivity(extension, objectName, script, activityFilesystem, configuration, language,
+        "extension");
+  }
 
-	@Override
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
+  /**
+   * Get the activity, if possible, from the {@link ActivityScriptFactory}.
+   *
+   * @param languageId
+   * @param objectName
+   * @param script
+   * @param language
+   * @return
+   */
+  private ActivityScriptWrapper getActivity(String languageId, String objectName,
+      ScriptSource script, ActivityFilesystem activityFilesystem, Configuration configuration,
+      ScriptLanguage language, String nameType) {
+    ActivityScriptFactory factory = language.getActivityScriptFactory();
+    if (factory == null) {
+      throw new InteractiveSpacesException(String.format(
+          "Unable to find an activity script factory for %s %s", nameType, languageId));
+    }
 
-	/**
-	 * Everything that can be done with a scripting language.
-	 * 
-	 * @author Keith M. Hughes
-	 */
-	private static class ScriptLanguage {
-		/**
-		 * A script language factory, if any, for the language.
-		 * 
-		 * <p>
-		 * Can be {@code null}.
-		 */
-		private ScriptEngineFactory scriptEngineFactory;
+    return factory.getActivity(objectName, script, activityFilesystem, configuration);
+  }
 
-		/**
-		 * The factory for creating {@link Activity} instances.
-		 * 
-		 * <p>
-		 * Can be {@code null}.
-		 */
-		private ActivityScriptFactory activityScriptFactory;
+  @Override
+  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
+  }
 
-		public ScriptLanguage(ScriptEngineFactory scriptEngineFactory,
-				ActivityScriptFactory activityScriptFactory) {
-			this.scriptEngineFactory = scriptEngineFactory;
-			this.activityScriptFactory = activityScriptFactory;
-		}
+  /**
+   * Everything that can be done with a scripting language.
+   *
+   * @author Keith M. Hughes
+   */
+  private static class ScriptLanguage {
+    /**
+     * A script language factory, if any, for the language.
+     *
+     * <p>
+     * Can be {@code null}.
+     */
+    private ScriptEngineFactory scriptEngineFactory;
 
-		/**
-		 * @return the scriptEngineFactory
-		 */
-		public ScriptEngineFactory getScriptEngineFactory() {
-			return scriptEngineFactory;
-		}
+    /**
+     * The factory for creating {@link Activity} instances.
+     *
+     * <p>
+     * Can be {@code null}.
+     */
+    private ActivityScriptFactory activityScriptFactory;
 
-		/**
-		 * @return the activityScriptFactory
-		 */
-		public ActivityScriptFactory getActivityScriptFactory() {
-			return activityScriptFactory;
-		}
-	}
+    public ScriptLanguage(ScriptEngineFactory scriptEngineFactory,
+        ActivityScriptFactory activityScriptFactory) {
+      this.scriptEngineFactory = scriptEngineFactory;
+      this.activityScriptFactory = activityScriptFactory;
+    }
+
+    /**
+     * @return the scriptEngineFactory
+     */
+    public ScriptEngineFactory getScriptEngineFactory() {
+      return scriptEngineFactory;
+    }
+
+    /**
+     * @return the activityScriptFactory
+     */
+    public ActivityScriptFactory getActivityScriptFactory() {
+      return activityScriptFactory;
+    }
+  }
 }

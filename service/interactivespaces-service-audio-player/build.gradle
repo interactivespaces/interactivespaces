@@ -14,22 +14,23 @@
  */
 
 dependencies {
-	compile project(':service:interactivespaces-service-core')
+  compile project(':service:interactivespaces-service-core')
+  compile project(':interactivespaces-system')
 
-	compile 'org.farng.mp3:jid3lib:0.5.4'
-	compile 'javazoom:interactivespaces.javazoom.jlayer:1.0.1'
+  compile 'org.farng.mp3:jid3lib:0.5.4'
+  compile 'javazoom:interactivespaces.javazoom.jlayer:1.0.1'
 
-	testCompile 'junit:junit:4.8.2'
-	testCompile 'org.mockito:mockito-all:1.9.5'
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {
-	manifest {
-		version = osgiVersion
-		symbolicName = 'interactivespaces.service.audio.player'
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces.service.audio.player'
 
-		instruction 'Export-Package',
-			'interactivespaces.service.audio.player.*'
-	}
+    instruction 'Export-Package',
+        'interactivespaces.service.audio.player.*'
+  }
 }
 

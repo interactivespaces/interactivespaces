@@ -15,14 +15,15 @@
 
 dependencies {
   compile project(':service:interactivespaces-service-core')
+  compile project(':interactivespaces-system')
 
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.quartz:2.1.2_1'
-  
+
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   runtime 'org.slf4j:slf4j-api:1.6.4'
   runtime 'org.slf4j:slf4j-simple:1.6.4'
-  
+
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -31,16 +32,16 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.scheduler'
-	
-	instruction 'Bundle-Activator',
-			'interactivespaces.service.scheduler.internal.osgi.OsgiSchedulerServiceActivator'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.scheduler.internal.osgi.OsgiSchedulerServiceActivator'
 
     instruction 'Export-Package',
-		'!interactivespaces.service.scheduler.internal.*', 
-		'interactivespaces.service.scheduler.*'
-		
+        '!interactivespaces.service.scheduler.internal.*',
+        'interactivespaces.service.scheduler.*'
+
     instruction 'Private-Package',
-		'interactivespaces.service.scheduler.internal.*'
+        'interactivespaces.service.scheduler.internal.*'
   }
 }
 

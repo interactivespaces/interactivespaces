@@ -15,7 +15,8 @@
 
 dependencies {
   compile project(':interactivespaces-core')
-  
+  compile project(':interactivespaces-system')
+
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
@@ -26,16 +27,16 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.alert'
-	
-	instruction 'Bundle-Activator',
-			'interactivespaces.service.alert.internal.osgi.OsgiAlertServiceActivator'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.alert.internal.osgi.OsgiAlertServiceActivator'
 
     instruction 'Export-Package',
-		'!interactivespaces.service.alert.internal.*',
-		'interactivespaces.service.alert.*'
-		
+        '!interactivespaces.service.alert.internal.*',
+        'interactivespaces.service.alert.*'
+
     instruction 'Private-Package',
-		'interactivespaces.service.alert.internal.*'
+        'interactivespaces.service.alert.internal.*'
   }
 }
 

@@ -14,18 +14,23 @@
  * the License.
  */
 
-package interactivespaces.service.core.internal.osgi;
+package interactivespaces.osgi.service;
+
+import com.google.common.collect.Lists;
 
 import interactivespaces.service.Service;
+import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SupportedService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,6 +41,16 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Keith M. Hughes
  */
 public abstract class InteractiveSpacesServiceOsgiBundleActivator implements BundleActivator {
+
+  /**
+   * All OSGi service registrations from this bundle.
+   */
+  private List<ServiceRegistration> osgiServiceRegistrations = Lists.newArrayList();
+
+  /**
+   * All services registered by this bundle.
+   */
+  private List<Service> registeredServices = Lists.newArrayList();
 
   /**
    * OSGi service tracker for the interactive spaces environment.
@@ -86,6 +101,9 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
 
     onStop();
 
+    unregisterOsgiServices();
+    unregisterInteractiveSpacesServices();
+
     // Close all the trackers.
     for (MyServiceTracker<?> tracker : serviceTrackers.values()) {
       tracker.close();
@@ -101,6 +119,44 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   }
 
   /**
+   * Unregister all OSGi-registered services.
+   */
+  private void unregisterOsgiServices() {
+    for (ServiceRegistration service : osgiServiceRegistrations) {
+      service.unregister();
+    }
+    osgiServiceRegistrations.clear();
+  }
+
+  /**
+   * Unregister and shutdown all services registered with interactive spaces.
+   */
+  private void unregisterInteractiveSpacesServices() {
+    ServiceRegistry serviceRegistry =
+        interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry();
+    for (Service service : registeredServices) {
+      serviceRegistry.unregisterService(service);
+
+      if (SupportedService.class.isAssignableFrom(service.getClass())) {
+        ((SupportedService) service).shutdown();
+      }
+    }
+    registeredServices.clear();
+  }
+
+  /**
+   * Register an InteractiveSpaces service as a new OSGi service.
+   *
+   * @param name
+   *          name for the OSGi service
+   * @param service
+   *          the Interactive Spaces service
+   */
+  protected void registerOsgiService(String name, Service service) {
+    osgiServiceRegistrations.add(bundleContext.registerService(name, service, null));
+  }
+
+  /**
    * Got another reference from a dependency.
    */
   protected void gotAnotherReference() {
@@ -112,30 +168,30 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
         }
       }
 
-      allServicesAvailable();
+      allRequiredServicesAvailable();
     }
   }
 
   /**
-   * All services are available.
+   * All required services are available.
    */
-  protected abstract void allServicesAvailable();
+  protected abstract void allRequiredServicesAvailable();
 
   /**
    * Register a new service with IS.
    *
-   * @param name
-   *          the name of the service to be registered
    * @param service
    *          the service to be registered
    */
-  protected void registerNewInteractiveSpacesService(String name, Service service) {
+  protected void registerNewInteractiveSpacesService(Service service) {
     interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
-        .registerService(name, service);
+        .registerService(service);
 
     if (SupportedService.class.isAssignableFrom(service.getClass())) {
       ((SupportedService) service).startup();
     }
+
+    registeredServices.add(service);
   }
 
   /**

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,6 +24,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.bluetooth.BluetoothStateException;
@@ -35,157 +36,152 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.intel.bluetooth.BlueCoveConfigProperties;
 
 /**
  * A bluetooth connection service using Jsr82.
- * 
+ *
  * @author Keith M. Hughes
  * @since Dec 21, 2012
  */
 public class Jsr82BluetoothCommunicationEndpointService implements
-		BluetoothCommunicationEndpointService {
+    BluetoothCommunicationEndpointService {
 
-	/**
-	 * Space environment for this service.
-	 */
-	private InteractiveSpacesEnvironment spaceEnvironment;
+  /**
+   * Space environment for this service.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
-	@Override
-	public void startup() {
-		System.setProperty(
-				BlueCoveConfigProperties.PROPERTY_JSR_82_PSM_MINIMUM_OFF,
-				"true");
-	}
+  /**
+   * The metadata for the service.
+   */
+  private Map<String, Object> metadata = Maps.newHashMap();
 
-	@Override
-	public void shutdown() {
-		// Nothing to do for now
-	}
+  @Override
+  public Map<String, Object> getMetadata() {
+    return metadata;
+  }
 
-	@Override
-	public BluetoothDevice getLocalBluetoothInformation() {
-		try {
-			LocalDevice localDevice = LocalDevice.getLocalDevice();
+  @Override
+  public String getName() {
+    return BluetoothCommunicationEndpointService.SERVICE_NAME;
+  }
 
-			String bluetoothAddress = localDevice.getBluetoothAddress();
-			String friendlyName = localDevice.getFriendlyName();
+  @Override
+  public void startup() {
+    System.setProperty(BlueCoveConfigProperties.PROPERTY_JSR_82_PSM_MINIMUM_OFF, "true");
+  }
 
-			DeviceClass dc = localDevice.getDeviceClass();
+  @Override
+  public void shutdown() {
+    // Nothing to do for now
+  }
 
-			return new BluetoothDevice(bluetoothAddress, friendlyName,
-					dc.getMajorDeviceClass(), dc.getMinorDeviceClass());
-		} catch (BluetoothStateException e) {
-			throw new InteractiveSpacesException(
-					"Could not obtain local bluetooth information", e);
-		}
-	}
+  @Override
+  public BluetoothDevice getLocalBluetoothInformation() {
+    try {
+      LocalDevice localDevice = LocalDevice.getLocalDevice();
 
-	@Override
-	public List<BluetoothDevice> discoverRemoteDevices() {
-		final List<BluetoothDevice> devices = Lists.newArrayList();
+      String bluetoothAddress = localDevice.getBluetoothAddress();
+      String friendlyName = localDevice.getFriendlyName();
 
-		try {
-			final CountDownLatch done = new CountDownLatch(1);
+      DeviceClass dc = localDevice.getDeviceClass();
 
-			LocalDevice localDevice = LocalDevice.getLocalDevice();
+      return new BluetoothDevice(bluetoothAddress, friendlyName, dc.getMajorDeviceClass(),
+          dc.getMinorDeviceClass());
+    } catch (BluetoothStateException e) {
+      throw new InteractiveSpacesException("Could not obtain local bluetooth information", e);
+    }
+  }
 
-			DiscoveryAgent agent = localDevice.getDiscoveryAgent();
+  @Override
+  public List<BluetoothDevice> discoverRemoteDevices() {
+    final List<BluetoothDevice> devices = Lists.newArrayList();
 
-			spaceEnvironment.getLog().info("Starting device inquiry");
+    try {
+      final CountDownLatch done = new CountDownLatch(1);
 
-			boolean started = agent.startInquiry(DiscoveryAgent.GIAC,
-					new DiscoveryListener() {
+      LocalDevice localDevice = LocalDevice.getLocalDevice();
 
-						@Override
-						public void deviceDiscovered(RemoteDevice device,
-								DeviceClass deviceClass) {
-							try {
-								devices.add(new BluetoothDevice(device
-										.getBluetoothAddress(), device
-										.getFriendlyName(true), deviceClass
-										.getMajorDeviceClass(), deviceClass
-										.getMinorDeviceClass()));
-							} catch (IOException e) {
-								spaceEnvironment
-										.getLog()
-										.error("Error during bluetooth device discover",
-												e);
-							}
+      DiscoveryAgent agent = localDevice.getDiscoveryAgent();
 
-						}
+      spaceEnvironment.getLog().info("Starting device inquiry");
 
-						@Override
-						public void inquiryCompleted(int discType) {
-							switch (discType) {
+      boolean started = agent.startInquiry(DiscoveryAgent.GIAC, new DiscoveryListener() {
 
-							case DiscoveryListener.INQUIRY_COMPLETED:
+        @Override
+        public void deviceDiscovered(RemoteDevice device, DeviceClass deviceClass) {
+          try {
+            devices.add(new BluetoothDevice(device.getBluetoothAddress(), device
+                .getFriendlyName(true), deviceClass.getMajorDeviceClass(), deviceClass
+                .getMinorDeviceClass()));
+          } catch (IOException e) {
+            spaceEnvironment.getLog().error("Error during bluetooth device discover", e);
+          }
 
-								spaceEnvironment.getLog().info(
-										"Bluetooth discover inquiry completed");
+        }
 
-								break;
+        @Override
+        public void inquiryCompleted(int discType) {
+          switch (discType) {
 
-							case DiscoveryListener.INQUIRY_TERMINATED:
+            case DiscoveryListener.INQUIRY_COMPLETED:
 
-								spaceEnvironment
-										.getLog()
-										.info("Bluetooth discover inquiry terminated");
+              spaceEnvironment.getLog().info("Bluetooth discover inquiry completed");
 
-								break;
+              break;
 
-							case DiscoveryListener.INQUIRY_ERROR:
+            case DiscoveryListener.INQUIRY_TERMINATED:
 
-								spaceEnvironment.getLog().error(
-										"Bluetooth discover inquiry error");
+              spaceEnvironment.getLog().info("Bluetooth discover inquiry terminated");
 
-								break;
+              break;
 
-							default:
+            case DiscoveryListener.INQUIRY_ERROR:
 
-								spaceEnvironment
-										.getLog()
-										.warn("Bluetooth discover inquiry unknown response code");
+              spaceEnvironment.getLog().error("Bluetooth discover inquiry error");
 
-								break;
+              break;
 
-							}
-							done.countDown();
-						}
+            default:
 
-						@Override
-						public void serviceSearchCompleted(int arg0, int arg1) {
-							spaceEnvironment.getLog().info(
-									"Bluetooth service search completed.");
-						}
+              spaceEnvironment.getLog().warn("Bluetooth discover inquiry unknown response code");
 
-						@Override
-						public void servicesDiscovered(int arg0,
-								ServiceRecord[] arg1) {
-							spaceEnvironment.getLog().info(
-									"Bluetooth service discovered.");
-						}
-					});
+              break;
 
-			done.await();
+          }
+          done.countDown();
+        }
 
-			return devices;
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(
-					"Error during bluetooth discovery", e);
-		}
-	}
+        @Override
+        public void serviceSearchCompleted(int arg0, int arg1) {
+          spaceEnvironment.getLog().info("Bluetooth service search completed.");
+        }
 
-	@Override
-	public BluetoothCommunicationEndpoint newDualEndpoint(String address,
-			int receivePort, int sendPort) {
-		return new Jsr82MultiPortBluetoothCommunicationEndpoint(address,
-				receivePort, sendPort);
-	}
+        @Override
+        public void servicesDiscovered(int arg0, ServiceRecord[] arg1) {
+          spaceEnvironment.getLog().info("Bluetooth service discovered.");
+        }
+      });
 
-	@Override
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
+      done.await();
+
+      return devices;
+    } catch (Exception e) {
+      throw new InteractiveSpacesException("Error during bluetooth discovery", e);
+    }
+  }
+
+  @Override
+  public BluetoothCommunicationEndpoint newDualEndpoint(String address, int receivePort,
+      int sendPort) {
+    return new Jsr82MultiPortBluetoothCommunicationEndpoint(address, receivePort, sendPort);
+  }
+
+  @Override
+  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
+  }
 }

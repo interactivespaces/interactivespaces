@@ -13,41 +13,40 @@
  * the License.
  */
 
-configurations {
-    includeInJar
-}
+configurations { includeInJar }
 
 dependencies {
-	compile project(':service:interactivespaces-service-core')
-	
-	includeInJar fileTree(dir: 'libs', include: '*.jar')
-	
-	configurations.provided.extendsFrom(configurations.includeInJar)
-	
-	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+  compile project(':service:interactivespaces-service-core')
+  compile project(':interactivespaces-system')
 
-	testCompile 'junit:junit:4.8.2'
-	testCompile 'org.mockito:mockito-all:1.9.5'
+  includeInJar fileTree(dir: 'libs', include: '*.jar')
+
+  configurations.provided.extendsFrom(configurations.includeInJar)
+
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {
-    from configurations.includeInJar.collect { File file -> file.isDirectory() ? file : zipTree(file) }
+  from configurations.includeInJar.collect { File file -> file.isDirectory() ? file : zipTree(file) }
 
-		manifest {
-		version = osgiVersion
-		symbolicName = 'interactivespaces.service.speech.synthesis'
-		
-		instruction 'Bundle-Activator',
-				'interactivespaces.service.speech.synthesis.internal.osgi.SpeechSynthesisServiceOsgiBundleActivator'
-		
-		instruction 'Private-Package',
-			'interactivespaces.service.speech.synthesis.internal'
-		
-		instruction 'Import-Package',
-			'!com.sun.speech.freetts.*',
-		    'org.w3c.dom',
-			'javax.sound.*;resolution:="optional"',
-			'*'
-	}
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces.service.speech.synthesis'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.speech.synthesis.internal.osgi.SpeechSynthesisServiceOsgiBundleActivator'
+
+    instruction 'Private-Package',
+        'interactivespaces.service.speech.synthesis.internal'
+
+    instruction 'Import-Package',
+        '!com.sun.speech.freetts.*',
+        'org.w3c.dom',
+        'javax.sound.*;resolution:="optional"',
+        '*'
+  }
 }
 

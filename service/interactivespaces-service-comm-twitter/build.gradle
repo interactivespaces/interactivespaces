@@ -14,30 +14,31 @@
  */
 
 dependencies {
-	compile project(':service:interactivespaces-service-core')
+  compile project(':service:interactivespaces-service-core')
+  compile project(':interactivespaces-system')
 
-	compile 'org.twitter4j:interactivespaces.org.twitter4j:3.0.3'
-	
-	provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+  compile 'org.twitter4j:interactivespaces.org.twitter4j:3.0.3'
 
-	testCompile 'junit:junit:4.8.2'
-	testCompile 'org.mockito:mockito-all:1.9.5'
+  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {
-	manifest {
-		version = osgiVersion
-		symbolicName = 'interactivespaces.service.comm.twitter'
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces.service.comm.twitter'
 
-		instruction 'Bundle-Activator',
-				'interactivespaces.service.comm.twitter.internal.osgi.TwitterServiceOsgiBundleActivator'
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.comm.twitter.internal.osgi.TwitterServiceOsgiBundleActivator'
 
-		instruction 'Export-Package',
-				'!interactivespaces.service.comm.twitter.internal.*',
-				'interactivespaces.service.comm.twitter.*'
+    instruction 'Export-Package',
+        '!interactivespaces.service.comm.twitter.internal.*',
+        'interactivespaces.service.comm.twitter.*'
 
-		instruction 'Private-Package',
-				'interactivespaces.service.comm.twitter.internal.*'
-	}
+    instruction 'Private-Package',
+        'interactivespaces.service.comm.twitter.internal.*'
+  }
 }
 

@@ -15,12 +15,15 @@
 
 dependencies {
   compile project(':service:interactivespaces-service-core')
+  compile project(':interactivespaces-system')
+
+
   compile files(project.getProperty("rxtx.home"))
   compile files(project.getProperty("jsr80.home"))
   compile files(project.getProperty("usb4java.home"))
-  
+
   compile 'net.java.dev.jna:jna:3.5.1'
-  
+
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
@@ -31,9 +34,9 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.comm.serial'
-	
-	instruction 'Bundle-Activator',
-		'interactivespaces.service.comm.serial.internal.osgi.SerialCommunicationBundleActivator'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.comm.serial.internal.osgi.SerialCommunicationBundleActivator'
   }
 }
 

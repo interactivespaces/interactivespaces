@@ -16,12 +16,8 @@
 
 package interactivespaces.service.core.internal.osgi;
 
-import interactivespaces.service.Service;
-import interactivespaces.service.SupportedService;
-import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
+import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
-
-import org.osgi.framework.BundleContext;
 
 /**
  * The Bundle Activator for the core InteractiveSpaces services.
@@ -31,25 +27,14 @@ import org.osgi.framework.BundleContext;
 public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
-   * The mail receiver service created by this bundle.
+   * The XBee service created by this bundle.
    */
   private InteractiveSpacesXBeeCommunicationEndpointService xbeeCommEndpointService;
 
   @Override
-  public void stop(BundleContext context) throws Exception {
-    xbeeCommEndpointService.shutdown();
-
-    interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
-        .unregisterService(XBeeCommunicationEndpointService.SERVICE_NAME, xbeeCommEndpointService);
-
-    xbeeCommEndpointService = null;
-  }
-
-  @Override
-  protected void allServicesAvailable() {
+  protected void allRequiredServicesAvailable() {
     xbeeCommEndpointService = new InteractiveSpacesXBeeCommunicationEndpointService();
 
-    registerNewInteractiveSpacesService(XBeeCommunicationEndpointService.SERVICE_NAME,
-        xbeeCommEndpointService);
+    registerNewInteractiveSpacesService(xbeeCommEndpointService);
   }
 }

@@ -17,7 +17,7 @@ dependencies {
   compile project(':interactivespaces-core')
 
   provided files(project.getProperty("android.sdk.home") + "/platforms/" + project.getProperty("android.platform") + "/android.jar")
- 
+
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -26,8 +26,8 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.androidos'
-	
+
     instruction 'Export-Package',
-		'interactivespaces.service.androidos.*'
+        'interactivespaces.service.androidos.*'
   }
 }

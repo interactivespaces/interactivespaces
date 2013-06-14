@@ -14,9 +14,10 @@
  */
 
 dependencies {
+  compile project(':interactivespaces-system')
   compile project(':interactivespaces-controller')
   compile project(':service:interactivespaces-service-script')
-  
+
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
 
   testCompile 'junit:junit:4.8.2'
@@ -27,18 +28,18 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.controller.activity.wrapper.script'
-	
-	instruction 'Bundle-Activator',
-		'interactivespaces.controller.activity.wrapper.internal.script.osgi.OsgiScriptActivityWrapperActivator'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.controller.activity.wrapper.internal.script.osgi.OsgiScriptActivityWrapperActivator'
 
     instruction 'Export-Package',
-		'interactivespaces.*'
-		
+        'interactivespaces.*'
+
     instruction 'Import-Package',
-		'org.apache.commons.logging.impl',
-		'org.apache.felix.service.command;status=provisional',
-		'interactivespaces.evaluation',
-		'*'
+        'org.apache.commons.logging.impl',
+        'org.apache.felix.service.command;status=provisional',
+        'interactivespaces.evaluation',
+        '*'
   }
 }
 
