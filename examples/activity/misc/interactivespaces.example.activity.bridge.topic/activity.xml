@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<activity>
-    <name>Topic Bridge Example</name>
-    <description>
-An example of a topic bridge between multiple Interactive Spaces topics.
-    </description>
-    <version>1.0.0</version>
-    <identifyingName>interactivespaces.example.activity.bridge.topic</identifyingName>
-</activity>

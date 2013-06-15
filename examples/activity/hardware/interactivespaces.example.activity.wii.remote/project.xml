@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<activity builder="java">
-    <name>Wii Remote Example</name>
+<project type="activity" builder="java">
+    <name>Wii Remote Example Activity</name>
     <description>
-An example of using a Wii remote.
+An example activity using a Wii remote.
     </description>
     <version>1.0.0</version>
     <identifyingName>interactivespaces.example.activity.wii.remote</identifyingName>
-</activity>
+</project>

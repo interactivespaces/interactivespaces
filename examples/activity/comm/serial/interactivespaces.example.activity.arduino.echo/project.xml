@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="java">
+<project type="activity" builder="java">
     <name>Arduino Echo Example</name>
     <description>
 A Java Activity which writes bytes to the arduino. The arduino echoes the bytes back. This demonstrates reading and writing from a serial connection.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.arduino.echo</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="android">
+<project type="activity" builder="android">
     <name>Android webapp</name>
     <description>
 A simple Android activity that starts up the Android web browser and displays a web page.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.activity.android.web</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

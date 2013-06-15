@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -30,219 +30,216 @@ import interactivespaces.service.audio.player.jukebox.JukeboxOperation;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
+import org.ros.message.MessageFactory;
+
+import interactivespaces_msgs.MusicJukeboxAnnounce;
+import interactivespaces_msgs.MusicJukeboxControl;
 import org.ros.message.MessageListener;
-import org.ros.message.interactivespaces_msgs.MusicJukeboxAnnounce;
-import org.ros.message.interactivespaces_msgs.MusicJukeboxControl;
-import org.ros.node.Node;
+import org.ros.node.ConnectedNode;
 
 /**
  * The Music Jukebox activity.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class MusicJukeboxActivity extends BaseRosActivity implements
-		AudioJukeboxListener {
+public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukeboxListener {
 
-	public static final String CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME = "music.jukebox.control.ros.topic.name";
+  public static final String CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME =
+      "music.jukebox.control.ros.topic.name";
 
-	public static final String CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME = "music.jukebox.announce.ros.topic.name";
+  public static final String CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME =
+      "music.jukebox.announce.ros.topic.name";
 
-	/**
-	 * The music repository this is a jukebox for.
-	 */
-	private AudioRepository musicRepository;
+  /**
+   * The music repository this is a jukebox for.
+   */
+  private AudioRepository musicRepository;
 
-	/**
-	 * ROS subscribers for the jukebox control messages.
-	 */
-	private RosSubscribers<MusicJukeboxControl> jukeboxControlSubscribers;
+  /**
+   * ROS subscribers for the jukebox control messages.
+   */
+  private RosSubscribers<MusicJukeboxControl> jukeboxControlSubscribers;
 
-	/**
-	 * ROS subscribers for the jukebox announcement messages.
-	 */
-	private RosPublishers<MusicJukeboxAnnounce> jukeboxAnnouncePublishers;
+  /**
+   * ROS subscribers for the jukebox announcement messages.
+   */
+  private RosPublishers<MusicJukeboxAnnounce> jukeboxAnnouncePublishers;
 
-	/**
-	 * The jukebox to use for playing.
-	 */
-	private AudioJukebox jukebox;
+  /**
+   * The jukebox to use for playing.
+   */
+  private AudioJukebox jukebox;
 
-	@Override
-	public void onActivityStartup() {
-		getLog().info("Music jukebox starting!");
+  /**
+   * Message factory for creating messages.
+   */
+  private MessageFactory rosMessageFactory;
 
-		try {
-			Configuration configuration = getConfiguration();
+  @Override
+  public void onActivityStartup() {
+    getLog().info("Music jukebox starting!");
 
-			setupRosTopics(configuration);
-			startMusicRepository(configuration);
+    try {
+      Configuration configuration = getConfiguration();
 
-			// TODO(keith): Get from a service repository.
-			JLayerAudioTrackPlayerFactory trackPlayerFactory = new JLayerAudioTrackPlayerFactory();
-			trackPlayerFactory.setSpaceEnvironment(getSpaceEnvironment());
+      setupRosTopics(configuration);
+      startMusicRepository(configuration);
 
-			jukebox = new BasicAudioJukebox(musicRepository,
-					trackPlayerFactory, getSpaceEnvironment()
-							.getExecutorService(), configuration, getLog());
-			jukebox.setListener(this);
-			
-			jukebox.startup();
-			
-			getLog().info("Music jukebox ready to spin the tunes!");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+      // TODO(keith): Get from a service repository.
+      JLayerAudioTrackPlayerFactory trackPlayerFactory = new JLayerAudioTrackPlayerFactory();
+      trackPlayerFactory.setSpaceEnvironment(getSpaceEnvironment());
 
-	@Override
-	public void onActivityCleanup() {
-		if (jukebox != null) {
-			jukebox.shutdown();
-			jukebox = null;
-		}
+      jukebox =
+          new BasicAudioJukebox(musicRepository, trackPlayerFactory, getSpaceEnvironment()
+              .getExecutorService(), configuration, getLog());
+      jukebox.setListener(this);
 
-		if (jukeboxAnnouncePublishers != null) {
-			jukeboxAnnouncePublishers.shutdown();
-			jukeboxAnnouncePublishers = null;
-		}
+      jukebox.startup();
 
-		if (jukeboxControlSubscribers != null) {
-			jukeboxControlSubscribers.shutdown();
-			jukeboxControlSubscribers = null;
-		}
+      getLog().info("Music jukebox ready to spin the tunes!");
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
-		if (musicRepository != null) {
-			musicRepository.shutdown();
-			musicRepository = null;
-		}
-	}
+  @Override
+  public void onActivityCleanup() {
+    if (jukebox != null) {
+      jukebox.shutdown();
+      jukebox = null;
+    }
 
-	@Override
-	public void onActivityActivate() {
-		jukebox.startShuffleTrackOperation();
-	}
+    if (jukeboxAnnouncePublishers != null) {
+      jukeboxAnnouncePublishers.shutdown();
+      jukeboxAnnouncePublishers = null;
+    }
 
-	@Override
-	public void onActivityDeactivate() {
-		jukebox.shutdownCurrentOperation();
-	}
+    if (jukeboxControlSubscribers != null) {
+      jukeboxControlSubscribers.shutdown();
+      jukeboxControlSubscribers = null;
+    }
 
-	/**
-	 * Set up all ROS topics for the jukebox.
-	 * 
-	 * @param configuration
-	 *            the activity configuration
-	 */
-	private void setupRosTopics(Configuration configuration) {
-		Node node = getMainNode();
-		jukeboxControlSubscribers = new RosSubscribers<MusicJukeboxControl>(
-				getLog());
-		jukeboxControlSubscribers
-				.addSubscribers(
-						node,
-						"interactivespaces_msgs/MusicJukeboxControl",
-						configuration
-								.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME),
-						new MessageListener<MusicJukeboxControl>() {
-							@Override
-							public void onNewMessage(MusicJukeboxControl request) {
-								handleNewJukeboxCommand(request);
-							}
-						});
+    if (musicRepository != null) {
+      musicRepository.shutdown();
+      musicRepository = null;
+    }
+  }
 
-		jukeboxAnnouncePublishers = new RosPublishers<MusicJukeboxAnnounce>(
-				getLog());
-		jukeboxAnnouncePublishers
-				.addPublishers(
-						node,
-						"interactivespaces_msgs/MusicJukeboxAnnounce",
-						configuration
-								.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME));
-	}
+  @Override
+  public void onActivityActivate() {
+    jukebox.startShuffleTrackOperation();
+  }
 
-	/**
-	 * Start up the music repository.
-	 */
-	private void startMusicRepository(Configuration configuration) {
-		musicRepository = new ScanningFileAudioRepository();
+  @Override
+  public void onActivityDeactivate() {
+    jukebox.shutdownCurrentOperation();
+  }
 
-		musicRepository.setConfiguration(configuration);
-		musicRepository.startup();
-	}
+  /**
+   * Set up all ROS topics for the jukebox.
+   *
+   * @param configuration
+   *          the activity configuration
+   */
+  private void setupRosTopics(Configuration configuration) {
+    ConnectedNode node = getMainNode();
+    rosMessageFactory = node.getTopicMessageFactory();
 
-	/**
-	 * Received new jukebox control request.
-	 * 
-	 * @param request
-	 *            The new request
-	 */
-	private void handleNewJukeboxCommand(MusicJukeboxControl request) {
-		try {
-			// TODO(keith): Add track queueing operation
-			switch (request.operation) {
-			case MusicJukeboxControl.OPERATION_PLAY_TRACK:
-				jukebox.startPlayTrackOperation(request.id, request.begin,
-						request.duration);
+    jukeboxControlSubscribers = new RosSubscribers<MusicJukeboxControl>(getLog());
+    jukeboxControlSubscribers
+        .addSubscribers(node, "interactivespaces_msgs/MusicJukeboxControl", configuration
+            .getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME),
+            new MessageListener<MusicJukeboxControl>() {
+              @Override
+              public void onNewMessage(MusicJukeboxControl request) {
+                handleNewJukeboxCommand(request);
+              }
+            });
 
-				break;
+    jukeboxAnnouncePublishers = new RosPublishers<MusicJukeboxAnnounce>(getLog());
+    jukeboxAnnouncePublishers.addPublishers(node, "interactivespaces_msgs/MusicJukeboxAnnounce",
+        configuration
+            .getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME));
+  }
 
-			case MusicJukeboxControl.OPERATION_PAUSE:
-				getLog().warn("Currently unsupported operation: pause");
-				break;
+  /**
+   * Start up the music repository.
+   */
+  private void startMusicRepository(Configuration configuration) {
+    musicRepository = new ScanningFileAudioRepository();
 
-			case MusicJukeboxControl.OPERATION_SHUFFLE:
-				jukebox.startShuffleTrackOperation();
+    musicRepository.setConfiguration(configuration);
+    musicRepository.startup();
+  }
 
-				break;
+  /**
+   * Received new jukebox control request.
+   *
+   * @param request
+   *          The new request
+   */
+  private void handleNewJukeboxCommand(MusicJukeboxControl request) {
+    try {
+      // TODO(keith): Add track queueing operation
+      switch (request.getOperation()) {
+        case MusicJukeboxControl.OPERATION_PLAY_TRACK:
+          jukebox.startPlayTrackOperation(request.getId(), request.getBegin(),
+              request.getDuration());
 
-			case MusicJukeboxControl.OPERATION_STOP:
-				jukebox.shutdownCurrentOperation();
+          break;
 
-				break;
-			default:
-				getLog().error(
-						String.format("Unknown music jukebox command %d",
-								request.operation));
-			}
-		} catch (Exception e) {
-			getLog().error(
-					String.format("Error during music jukebox command %d",
-							request.operation), e);
-		}
-	}
+        case MusicJukeboxControl.OPERATION_PAUSE:
+          getLog().warn("Currently unsupported operation: pause");
+          break;
 
-	@Override
-	public void onJukeboxTrackStart(JukeboxOperation operation,
-			PlayableAudioTrack ptrack) {
-		if (getLog().isInfoEnabled()) {
-			getLog().info(String.format("Playing %s", ptrack));
-		}
+        case MusicJukeboxControl.OPERATION_SHUFFLE:
+          jukebox.startShuffleTrackOperation();
 
-		MusicJukeboxAnnounce announce = new MusicJukeboxAnnounce();
-		AudioTrack track = ptrack.getTrack();
-		announce.title = track.getTitle();
-		announce.artist = track.getArtist();
-		announce.album = track.getAlbum();
+          break;
 
-		jukeboxAnnouncePublishers.publishMessage(announce);
-	}
+        case MusicJukeboxControl.OPERATION_STOP:
+          jukebox.shutdownCurrentOperation();
 
-	@Override
-	public void onJukeboxTrackStop(JukeboxOperation operation,
-			PlayableAudioTrack ptrack) {
-		// Everyone gets told we have completed the track.
-		if (getLog().isInfoEnabled()) {
-			getLog().info(String.format("Done playing %s", ptrack));
-		}
+          break;
+        default:
+          getLog().error(String.format("Unknown music jukebox command %d", request.getOperation()));
+      }
+    } catch (Exception e) {
+      getLog().error(
+          String.format("Error during music jukebox command %d", request.getOperation()), e);
+    }
+  }
 
-		MusicJukeboxAnnounce announce = new MusicJukeboxAnnounce();
-		jukeboxAnnouncePublishers.publishMessage(announce);
-	}
+  @Override
+  public void onJukeboxTrackStart(JukeboxOperation operation, PlayableAudioTrack ptrack) {
+    if (getLog().isInfoEnabled()) {
+      getLog().info(String.format("Playing %s", ptrack));
+    }
 
-	@Override
-	public void onJukeboxOperationComplete(JukeboxOperation operation) {
-		getLog().info("Operation completed");
-	}
+    MusicJukeboxAnnounce announce = rosMessageFactory.newFromType(MusicJukeboxAnnounce._TYPE);
+    AudioTrack track = ptrack.getTrack();
+    announce.setTitle(track.getTitle());
+    announce.setArtist(track.getArtist());
+    announce.setAlbum(track.getAlbum());
+
+    jukeboxAnnouncePublishers.publishMessage(announce);
+  }
+
+  @Override
+  public void onJukeboxTrackStop(JukeboxOperation operation, PlayableAudioTrack ptrack) {
+    // Everyone gets told we have completed the track.
+    if (getLog().isInfoEnabled()) {
+      getLog().info(String.format("Done playing %s", ptrack));
+    }
+
+    MusicJukeboxAnnounce announce = rosMessageFactory.newFromType(MusicJukeboxAnnounce._TYPE);
+    jukeboxAnnouncePublishers.publishMessage(announce);
+  }
+
+  @Override
+  public void onJukeboxOperationComplete(JukeboxOperation operation) {
+    getLog().info("Operation completed");
+  }
 
 }

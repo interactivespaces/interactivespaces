@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="java">
+<project type="activity" builder="java">
     <name>Web Java Activity Example</name>
     <description>
 An example Java-based web activity which uses web sockets to communicate between the Live Activity and the browser application.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.web</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

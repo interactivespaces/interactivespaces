@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<activity>
+<project type="activity">
     <name>Python Script Event Bus Activity Example</name>
     <description>
 An example of an Interactive Spaces Activity which uses the Event Bus
 written in Python
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.event.bus.script.python</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>
