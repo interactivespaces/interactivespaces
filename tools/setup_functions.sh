@@ -50,12 +50,14 @@ function package {
   installed=`dpkg_version $pkg`
   status=`version_status $ver $installed`
 
-  report_status $pkg $ver $status $installed
-
-  if [ "$MODE" == install -a "$status" != OK ]; then
+  if [ "$status" != OK ]; then
     colorize_output install
     sudo apt-get -y --force-yes install $pkg
+    installed=`dpkg_version $pkg`
+    status=`version_status $ver $installed`
   fi
+
+  report_status $pkg $ver $status $installed
 }
 
 function download {
@@ -146,15 +148,10 @@ function check_maven {
   report_status maven-$pkg $ver $status $installed
 }
 
-function check_is {
-  pkg=$1
-  ver=$2
-  prefix=interactivespaces-launcher-
-  installed=`ls -d $ISDIR/$pkg/$prefix*.jar 2> /dev/null`
-  installed=${installed%.jar}
-  installed=${installed#*$prefix}
-  status=`version_status $ver $installed`  
+function mvnsub {
+  SUBDIR=interactivespaces_build/$1
+  shift
 
-  report_status is-$pkg $ver $status $installed
+  (cd $SUBDIR; mvn $@)
 }
 
