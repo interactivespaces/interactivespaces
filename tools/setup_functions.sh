@@ -45,7 +45,6 @@ function report_status {
 function package {
   pkg=$1
   ver=$2
-  url=$3
 
   installed=`dpkg_version $pkg`
   status=`version_status $ver $installed`
@@ -60,19 +59,24 @@ function package {
   report_status $pkg $ver $status $installed
 }
 
-function download {
+function checkprop {
   pkg=$1
   ver=$2
-  url=$3
 
   ipath=`fgrep $1.home gradle.properties 2> /dev/null | awk '{print $3}'`
   installed=`ls -ld $ipath`  # Use -l to follow symbolic links
   installed=${installed##* }
   installed=${installed##*/}
-  installed=${installed##$pkg}
-  # Extract a version number, removing leading and traling non-numbers.
-  installed=`echo $installed | sed -e 's/[^0-9]*\([0-9].*[0-9]\)[^0-9]*/\1/'`
-  installed=${installed%.}  # For case when it is missing.
+
+  if [ "$installed" == "$pkg" ]; then
+    true # Do nothing -- leave just the package name
+  else
+    installed=${installed##$pkg}
+    # Extract a version number, removing leading and traling non-numbers.
+    installed=`echo $installed | sed -e 's/[^0-9]*\([0-9].*[0-9]\)[^0-9]*/\1/'`
+    installed=${installed%.}  # For case when it is missing.
+  fi
+
   status=`version_status $ver $installed`  
 
   report_status $pkg $ver $status $installed

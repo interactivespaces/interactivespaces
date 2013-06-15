@@ -4,9 +4,9 @@ source tools/setup_functions.sh
 
 gradle install
 
-mvnsub master install
-mvnsub controller install
-mvnsub workbench install
+mvnsub master clean install
+mvnsub controller clean install
+mvnsub workbench clean install
 
 
 
