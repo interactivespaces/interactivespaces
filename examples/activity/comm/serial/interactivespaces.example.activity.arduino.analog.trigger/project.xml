@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="java">
+<project type="activity" builder="java">
     <name>Triggering Arduino Analog Sensor with Java Example</name>
     <description>
 A Java Activity which reads from an analog sensor on an Arduino board with serial communication and triggers an event when the signal gets beyond a certain value.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.arduino.analog.trigger</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

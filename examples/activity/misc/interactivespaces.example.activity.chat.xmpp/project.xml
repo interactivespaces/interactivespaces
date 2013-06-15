@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>XMPP Chat Example Activity</name>
+    <description>
+This example activity shows the use of the Chat Service. The service can connect to a chat account and send and receive messages.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.chat.xmpp</identifyingName>
+    <version>1.0.0</version>
+</project>

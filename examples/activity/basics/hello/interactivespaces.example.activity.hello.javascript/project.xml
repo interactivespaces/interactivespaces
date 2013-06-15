@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity>
+<project type="activity">
     <name>Simple Hello World Activity Example in Javascript</name>
     <description>
 A very simple Javascript-based activity which just logs at INFO level its callback messages.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.hello.javascript</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

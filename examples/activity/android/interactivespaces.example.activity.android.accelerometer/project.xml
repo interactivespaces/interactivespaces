@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="android">
+<project type="activity" builder="android">
     <name>Example Android Activity for Accelerometer</name>
     <description>
 An example Android activity which reads the Android deviced accelerometer and sends it on a route.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.android.accelerometer</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>

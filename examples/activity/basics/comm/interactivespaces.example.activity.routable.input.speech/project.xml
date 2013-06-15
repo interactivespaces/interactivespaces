@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<activity builder="java">
+<project type="activity" builder="java">
     <name>Routable Input Speech Activity Example</name>
     <description>
 A routable input that speaks the messages sent over the route.
     </description>
-    <version>1.0.0</version>
+
     <identifyingName>interactivespaces.example.activity.routable.input.speech</identifyingName>
-</activity>
+    <version>1.0.0</version>
+</project>
