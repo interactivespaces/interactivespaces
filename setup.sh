@@ -2,9 +2,6 @@
 
 source tools/setup_functions.sh
 
-MODE=$1
-ISDIR=$HOME/interactivespaces
-
 check_gradle Gradle 1.6
 check_gradle Groovy 1.8.6
 check_gradle Ivy 2.2.0
@@ -28,9 +25,5 @@ check_android platform android-16
 
 check_ros main fuente 
 check_ros path $PWD
-
-check_is master 1.4.3
-check_is controller 1.4.3
-check_is workbench 1.4.3
 
 check_maven repository $HOME/.m2
