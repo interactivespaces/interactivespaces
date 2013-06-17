@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,7 +27,7 @@ import interactivespaces.workbench.project.activity.builder.java.JavaxJavaJarCom
 
 /**
  * A Java library project builder
- * 
+ *
  * @author Keith M. Hughes
  */
 public class JavaLibraryProjectBuilder implements ProjectBuilder {
@@ -43,7 +43,7 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
 	private JavaJarCompiler compiler = new JavaxJavaJarCompiler();
 
 	@Override
-	public void build(Project project, ProjectBuildContext context) {
+	public boolean build(Project project, ProjectBuildContext context) {
 		try {
 			File buildDirectory = context.getBuildDirectory();
 			File compilationFolder = getOutputDirectory(buildDirectory);
@@ -51,18 +51,22 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
 					buildDirectory);
 
 			compiler.build(jarDestinationFile, compilationFolder, null, context);
+
+			return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+
+			return false;
 		}
 	}
 
 	/**
 	 * Create the output directory for the activity compilation
-	 * 
+	 *
 	 * @param buildDirectory
 	 *            the root of the build folder
-	 * 
+	 *
 	 * @return the output directory for building
 	 */
 	private File getOutputDirectory(File buildDirectory) {
@@ -80,15 +84,15 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
 
 	/**
 	 * Get the build destination file.
-	 * 
+	 *
 	 * <p>
 	 * Any subdirectories needed will be created.
-	 * 
+	 *
 	 * @param project
 	 *            the project being built
 	 * @param buildDirectory
 	 *            where the artifact will be built
-	 * 
+	 *
 	 * @return the file where the build should be written
 	 */
 	private File getBuildDestinationFile(Project project, File buildDirectory) {

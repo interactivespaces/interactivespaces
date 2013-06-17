@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -33,7 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * A basic implementation of a {@link ActivityProjectPackager}.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
@@ -44,7 +44,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 	private static final String BUILD_DIRECTORY = "build";
 
 	/**
-	 * 
+	 *
 	 * The file extension that will be used for the assembled package.
 	 */
 	private static final String PROJECT_BUILD_FILE_EXTENSION = "zip";
@@ -87,14 +87,14 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
 	/**
 	 * Get all artifacts into the final file.
-	 * 
+	 *
 	 * @param context
 	 *            the build context
 	 * @param buf
 	 *            the shared buffer
 	 * @param out
 	 *            the distribution file stream being written to
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -107,7 +107,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
 	/**
 	 * Write out the contents of the folder to the distribution file.
-	 * 
+	 *
 	 * @param activityFolder
 	 *            folder being written to the build
 	 * @param buf
@@ -133,7 +133,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
 	/**
 	 * Write a file into the package.
-	 * 
+	 *
 	 * @param buf
 	 *            the buffer being used
 	 * @param packageOutputStream
@@ -142,7 +142,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 	 *            the path of the parent folder
 	 * @param file
 	 *            the file to be written into the package
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
@@ -168,13 +168,13 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
 	/**
 	 * Get the build destination file.
-	 * 
+	 *
 	 * <p>
 	 * Any subdirectories needed will be created.
-	 * 
+	 *
 	 * @param project
 	 *            the project being built
-	 * 
+	 *
 	 * @return the file where the build should be written
 	 */
 	private File getBuildDestinationFile(Project project) {

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Create an eclipse project.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class EclipseIdeProjectCreator {
@@ -56,14 +56,14 @@ public class EclipseIdeProjectCreator {
 
 	/**
 	 * Create the IDE project.
-	 * 
+	 *
 	 * @param project
 	 *            project creating the IDE version for param spec the
 	 *            specification giving details about the IDE build
 	 * @param workbench
 	 *            workbench being run under
 	 */
-	public void createProject(Project project,
+	public boolean createProject(Project project,
 			EclipseIdeProjectCreatorSpecification spec,
 			InteractiveSpacesWorkbench workbench) {
 		try {
@@ -77,15 +77,19 @@ public class EclipseIdeProjectCreator {
 
 			spec.writeAdditionalFiles(project, freemarkerContext, templater,
 					workbench);
+
+			return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+
+			return false;
 		}
 	}
 
 	/**
 	 * Write the project file.
-	 * 
+	 *
 	 * @param freemarkerConfig
 	 * @param freemarkerContext
 	 * @throws IOException
@@ -101,7 +105,7 @@ public class EclipseIdeProjectCreator {
 
 	/**
 	 * Write a a template out.
-	 * 
+	 *
 	 * @param config
 	 *            the freemarker template configuration
 	 * @param freemarkerContext
@@ -110,7 +114,7 @@ public class EclipseIdeProjectCreator {
 	 *            location of the template
 	 * @param outputFile
 	 *            the output file
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
@@ -126,7 +130,7 @@ public class EclipseIdeProjectCreator {
 
 	/**
 	 * File filter that only takes JAR files.
-	 * 
+	 *
 	 * @author Keith M. Hughes
 	 */
 	private static class JarFileFilter implements FileFilter {

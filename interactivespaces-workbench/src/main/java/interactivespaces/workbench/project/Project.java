@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,258 +29,260 @@ import com.google.common.collect.Maps;
  * @author Keith M. Hughes
  */
 public class Project {
-	
-	/**
-	 * The base directory for the file.
-	 */
-	private File baseDirectory;
 
-	/**
-	 * The type of builder for the project.
-	 */
-	private String builderType;
-	
-	/**
-	 * The type of the project.
-	 */
-	private String type;
+  /**
+   * The base directory for the file.
+   */
+  private File baseDirectory;
 
-	/**
-	 * The identifying name of the project.
-	 */
-	private String identifyingName;
+  /**
+   * The type of builder for the project.
+   */
+  private String builderType;
 
-	/**
-	 * The descriptive name of the project.
-	 */
-	private String name;
+  /**
+   * The type of the project.
+   */
+  private String type;
 
-	/**
-	 * The description of the project.
-	 */
-	private String description;
+  /**
+   * The identifying name of the project.
+   */
+  private String identifyingName;
 
-	/**
-	 * Version of the project.
-	 */
-	private String version;
+  /**
+   * The descriptive name of the project.
+   */
+  private String name;
 
-	/**
-	 * The dependencies the project has.
-	 */
-	private List<ProjectDependency> dependencies = Lists.newArrayList();
+  /**
+   * The description of the project.
+   */
+  private String description;
 
-	/**
-	 * The resources the project requires.
-	 */
-	private List<ProjectResource> resources = Lists.newArrayList();
+  /**
+   * Version of the project.
+   */
+  private String version;
 
-	/**
-	 * The resources the project requires.
-	 */
-	private List<ProjectDeployment> deployments = Lists.newArrayList();
-	
-	/**
-	 * The meta data for this project.
-	 */
-	private Map<String, Object> metadata = Maps.newHashMap();
+  /**
+   * The dependencies the project has.
+   */
+  private List<ProjectDependency> dependencies = Lists.newArrayList();
 
-	/**
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+  /**
+   * The resources the project requires.
+   */
+  private List<ProjectResource> resources = Lists.newArrayList();
 
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+  /**
+   * The resources the project requires.
+   */
+  private List<ProjectDeployment> deployments = Lists.newArrayList();
 
-	/**
-	 * Set the base directory for the project.
-	 * 
-	 * @param baseDirectory
-	 */
-	public void setBaseDirectory(File baseDirectory) {
-		this.baseDirectory = baseDirectory;
-	}
+  /**
+   * The meta data for this project.
+   */
+  private Map<String, Object> metadata = Maps.newHashMap();
 
-	/**
-	 * @return the baseDirectory
-	 */
-	public File getBaseDirectory() {
-		return baseDirectory;
-	}
+  /**
+   * @return the type
+   */
+  public String getType() {
+    return type;
+  }
 
-	/**
-	 * @return the builderType
-	 */
-	public String getBuilderType() {
-		return builderType;
-	}
+  /**
+   * @param type
+   *          the type to set
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-	/**
-	 * @param builderType the builderType to set
-	 */
-	public void setBuilderType(String builderType) {
-		this.builderType = builderType;
-	}
+  /**
+   * Set the base directory for the project.
+   *
+   * @param baseDirectory
+   */
+  public void setBaseDirectory(File baseDirectory) {
+    this.baseDirectory = baseDirectory;
+  }
 
-	/**
-	 * Get the identifying name for the project.
-	 * 
-	 * @return The identifying name
-	 */
-	public String getIdentifyingName() {
-		return identifyingName;
-	}
+  /**
+   * @return the baseDirectory
+   */
+  public File getBaseDirectory() {
+    return baseDirectory;
+  }
 
-	/**
-	 * Set the identifying name for the project.
-	 * 
-	 * @param name
-	 *            The identifying name
-	 */
-	public void setIdentifyingName(String identifyingName) {
-		this.identifyingName = identifyingName;
-	}
+  /**
+   * @return the builderType
+   */
+  public String getBuilderType() {
+    return builderType;
+  }
 
-	/**
-	 * Get the descriptive name for the project.
-	 * 
-	 * @return The descriptive name
-	 */
-	public String getName() {
-		return name;
-	}
+  /**
+   * @param builderType
+   *          the builderType to set
+   */
+  public void setBuilderType(String builderType) {
+    this.builderType = builderType;
+  }
 
-	/**
-	 * Set the descriptive name for the project.
-	 * 
-	 * @param name
-	 *            The descriptive name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+  /**
+   * Get the identifying name for the project.
+   *
+   * @return The identifying name
+   */
+  public String getIdentifyingName() {
+    return identifyingName;
+  }
 
-	/**
-	 * Get the description of the project.
-	 * 
-	 * @return the description. Can be {@code null}.
-	 */
-	public String getDescription() {
-		return description;
-	}
+  /**
+   * Set the identifying name for the project.
+   *
+   * @param name
+   *          The identifying name
+   */
+  public void setIdentifyingName(String identifyingName) {
+    this.identifyingName = identifyingName;
+  }
 
-	/**
-	 * Set the description of the project.
-	 * 
-	 * @param description
-	 *            the description. Can be {@code null}.
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  /**
+   * Get the descriptive name for the project.
+   *
+   * @return The descriptive name
+   */
+  public String getName() {
+    return name;
+  }
 
-	/**
-	 * Get the version for the project.
-	 * 
-	 * @return The version
-	 */
-	public String getVersion() {
-		return version;
-	}
+  /**
+   * Set the descriptive name for the project.
+   *
+   * @param name
+   *          The descriptive name
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	/**
-	 * Set the version for the project.
-	 * 
-	 * @param version
-	 *            the version
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
+  /**
+   * Get the description of the project.
+   *
+   * @return the description. Can be {@code null}.
+   */
+  public String getDescription() {
+    return description;
+  }
 
-	/**
-	 * Add a dependency to the project.
-	 * 
-	 * @param dependency
-	 *            the dependency to add
-	 */
-	public void addDependency(ProjectDependency dependency) {
-		dependencies.add(dependency);
-	}
+  /**
+   * Set the description of the project.
+   *
+   * @param description
+   *          the description. Can be {@code null}.
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	/**
-	 * Get a list of all dependencies the project has.
-	 * 
-	 * @return
-	 */
-	public List<ProjectDependency> getDependencies() {
-		return Lists.newArrayList(dependencies);
-	}
+  /**
+   * Get the version for the project.
+   *
+   * @return The version
+   */
+  public String getVersion() {
+    return version;
+  }
 
-	/**
-	 * Add a deployment to the project.
-	 * 
-	 * @param deployment
-	 *            the deployment to add
-	 */
-	public void addDeployment(ProjectDeployment deployment) {
-		deployments.add(deployment);
-	}
+  /**
+   * Set the version for the project.
+   *
+   * @param version
+   *          the version
+   */
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
-	/**
-	 * Get a list of all deployments the project has.
-	 * 
-	 * @return
-	 */
-	public List<ProjectDeployment> getDeployments() {
-		return Lists.newArrayList(deployments);
-	}
+  /**
+   * Add a dependency to the project.
+   *
+   * @param dependency
+   *          the dependency to add
+   */
+  public void addDependency(ProjectDependency dependency) {
+    dependencies.add(dependency);
+  }
 
-	/**
-	 * Add a resource to the project.
-	 * 
-	 * @param resource
-	 *            the resource to add
-	 */
-	public void addResource(ProjectResource resource) {
-		resources.add(resource);
-	}
+  /**
+   * Get a list of all dependencies the project has.
+   *
+   * @return
+   */
+  public List<ProjectDependency> getDependencies() {
+    return Lists.newArrayList(dependencies);
+  }
 
-	/**
-	 * Get a list of all resources the project has.
-	 * 
-	 * @return
-	 */
-	public List<ProjectResource> getResources() {
-		return Lists.newArrayList(resources);
-	}
+  /**
+   * Add a deployment to the project.
+   *
+   * @param deployment
+   *          the deployment to add
+   */
+  public void addDeployment(ProjectDeployment deployment) {
+    deployments.add(deployment);
+  }
 
-	/**
-	 * Set the metadata for the project.
-	 * 
-	 * <p>
-	 * This removes the old metadata completely.
-	 * 
-	 * @param metadata
-	 * 		the metadata for the project (can be {@link null}
-	 */
-	public void setMetadata(Map<String, Object> metadata) {
-		this.metadata = metadata;
-	}
+  /**
+   * Get a list of all deployments the project has.
+   *
+   * @return
+   */
+  public List<ProjectDeployment> getDeployments() {
+    return Lists.newArrayList(deployments);
+  }
 
-	/**
-	 * Get the metadata for the project.
-	 * 
-	 * @return the project's meta data
-	 */
-	public Map<String, Object> getMetadata() {
-		return metadata;
-	}
+  /**
+   * Add a resource to the project.
+   *
+   * @param resource
+   *          the resource to add
+   */
+  public void addResource(ProjectResource resource) {
+    resources.add(resource);
+  }
+
+  /**
+   * Get a list of all resources the project has.
+   *
+   * @return
+   */
+  public List<ProjectResource> getResources() {
+    return Lists.newArrayList(resources);
+  }
+
+  /**
+   * Set the metadata for the project.
+   *
+   * <p>
+   * This removes the old metadata completely.
+   *
+   * @param metadata
+   *          the metadata for the project (can be {@link null}
+   */
+  public void setMetadata(Map<String, Object> metadata) {
+    this.metadata = metadata;
+  }
+
+  /**
+   * Get the metadata for the project.
+   *
+   * @return the project's meta data
+   */
+  public Map<String, Object> getMetadata() {
+    return metadata;
+  }
 }
