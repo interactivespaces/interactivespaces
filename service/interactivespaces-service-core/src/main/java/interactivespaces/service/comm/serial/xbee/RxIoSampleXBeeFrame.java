@@ -16,12 +16,14 @@
 
 package interactivespaces.service.comm.serial.xbee;
 
+import java.util.List;
+
 /**
- * A response frame for an XBee RX.
+ * An RX IO Sample XBee frame.
  *
  * @author Keith M. Hughes
  */
-public interface RxResponseXBeeFrame {
+public interface RxIoSampleXBeeFrame {
 
   /**
    * Get the 64 bit address of the sender of the RX frame.
@@ -43,8 +45,38 @@ public interface RxResponseXBeeFrame {
   int getReceiveOptions();
 
   /**
-   * @return the receivedData
+   * Get the mask of used digital channels.
+   *
+   * @return the mask of used digital channels
    */
-  byte[] getReceivedData();
+  int getDigitalChannelMask();
 
+  /**
+   * Get the mask of used analog channels.
+   *
+   * @return the mask of used analog channels
+   */
+  int getAnalogChannelMask();
+
+  /**
+   * Get all digital samples.
+   */
+  int getDigitalSamples();
+
+  /**
+   * Get a digital sample.
+   *
+   * @param sample
+   *          code for the sample wanted
+   *
+   * @return {@code true} if sample was on
+   */
+  boolean getDigitalSample(int sample);
+
+  /**
+   * Get all analog samples.
+   *
+   * @return all analog samples
+   */
+  List<Integer> getAnalogSamples();
 }

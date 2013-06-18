@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>XBee IO Samples Endpoint Radio Example Activity</name>
+    <description>
+This Java-based activity configures an XBee endpoint radio for IO sampling and sends the sample packets to the coordinator.
+    </description>
+
+    <identifyingName>interactivespaces.example.comm.xbee.endpoint.iosamples</identifyingName>
+    <version>1.0.0</version>
+</project>

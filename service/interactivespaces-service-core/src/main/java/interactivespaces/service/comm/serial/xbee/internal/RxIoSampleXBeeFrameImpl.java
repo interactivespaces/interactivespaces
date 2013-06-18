@@ -16,16 +16,18 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
-import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.RxIoSampleXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress16;
 import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
 
+import java.util.List;
+
 /**
- * A response frame for an XBee RX.
+ * A response frame for an XBee RX IO Sample.
  *
  * @author Keith M. Hughes
  */
-public class RxResponseXBeeFrameImpl implements RxResponseXBeeFrame {
+public class RxIoSampleXBeeFrameImpl implements RxIoSampleXBeeFrame {
 
   /**
    * The 64 bit address for the remote radio
@@ -43,16 +45,34 @@ public class RxResponseXBeeFrameImpl implements RxResponseXBeeFrame {
   private int receiveOptions;
 
   /**
-   * The data received from the remote radio.
+   * Mask for the digital IO channels.
    */
-  private byte[] receivedData;
+  private int digitalchannelMask;
 
-  public RxResponseXBeeFrameImpl(XBeeAddress64 address64, XBeeAddress16 address16,
-      int receiveOptions, byte[] receivedData) {
+  /**
+   * Mask for the analog IO channels.
+   */
+  private int analogChannelMask;
+
+  /**
+   * The digital samples.
+   */
+  private int digitalSamples;
+
+  /**
+   * All analog samples that were taken.
+   */
+  private List<Integer> analogSamples;
+
+  public RxIoSampleXBeeFrameImpl(XBeeAddress64 address64, XBeeAddress16 address16,
+      int receiveOptions, int digitalchannelMask, int analogChannelMask, int digitalSamples,
+      List<Integer> analogSamples) {
     this.address64 = address64;
     this.address16 = address16;
-    this.receiveOptions = receiveOptions;
-    this.receivedData = receivedData;
+    this.digitalchannelMask = digitalchannelMask;
+    this.analogChannelMask = analogChannelMask;
+    this.digitalSamples = digitalSamples;
+    this.analogSamples = analogSamples;
   }
 
   @Override
@@ -71,13 +91,34 @@ public class RxResponseXBeeFrameImpl implements RxResponseXBeeFrame {
   }
 
   @Override
-  public byte[] getReceivedData() {
-    return receivedData;
+  public int getDigitalChannelMask() {
+    return digitalchannelMask;
+  }
+
+  @Override
+  public int getAnalogChannelMask() {
+    return analogChannelMask;
+  }
+
+  @Override
+  public int getDigitalSamples() {
+    return digitalSamples;
+  }
+
+  @Override
+  public boolean getDigitalSample(int sample) {
+    return (digitalSamples & sample) != 0;
+  }
+
+  @Override
+  public List<Integer> getAnalogSamples() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override
   public String toString() {
-    return "RxResponseXBeeFrameImpl [address64=" + address64 + ", address16=" + address16
+    return "RxIoSampleXBeeFrameImpl [address64=" + address64 + ", address16=" + address16
         + ", receiveOptions=" + receiveOptions + "]";
   }
 }

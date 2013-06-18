@@ -31,8 +31,8 @@ import org.apache.commons.logging.Log;
  * An XBee communications endpoint service using the Interactive Spaces XBee
  * library.
  *
- * @author Keith M. Hughes
-s */
+ * @author Keith M. Hughes s
+ */
 public class InteractiveSpacesXBeeCommunicationEndpointService implements
     XBeeCommunicationEndpointService {
 

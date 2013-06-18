@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -18,17 +18,17 @@ package interactivespaces.service.comm.serial.xbee;
 
 /**
  * 16 bit address for an XBee
- * 
+ *
  * @author Keith M. Hughes
  */
 
 public interface XBeeAddress64 {
 
-	/**
-	 * Add the address to an XBee frame.
-	 * 
-	 * @param frameWriter
-	 *            the frame to add the address to
-	 */
-	void write(RequestXBeeFrame frameWriter);
+  /**
+   * Add the address to an XBee frame.
+   *
+   * @param frameWriter
+   *          the frame to add the address to
+   */
+  void write(RequestXBeeFrame frameWriter);
 }
