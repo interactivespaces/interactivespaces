@@ -50,9 +50,7 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
 			File jarDestinationFile = getBuildDestinationFile(project,
 					buildDirectory);
 
-			compiler.build(jarDestinationFile, compilationFolder, null, context);
-
-			return true;
+			return compiler.build(jarDestinationFile, compilationFolder, null, context);;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

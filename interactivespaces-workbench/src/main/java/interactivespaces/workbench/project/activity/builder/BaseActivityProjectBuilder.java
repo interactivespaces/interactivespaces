@@ -48,13 +48,16 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
           new File(context.getBuildDirectory(), ACTIVITY_BUILD_DIRECTORY_STAGING);
       makeDirectory(stagingDirectory);
 
-      onBuild(project, context, stagingDirectory);
+      if (onBuild(project, context, stagingDirectory)) {
 
-      copyActivityResources(project, stagingDirectory);
-      copyActivityXml(project, stagingDirectory, context);
-      copyResources(project, stagingDirectory, context);
+        copyActivityResources(project, stagingDirectory);
+        copyActivityXml(project, stagingDirectory, context);
+        copyResources(project, stagingDirectory, context);
 
-      return true;
+        return true;
+      } else {
+        return false;
+      }
     } catch (InteractiveSpacesException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -73,8 +76,9 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
    * @param stagingDirectory
    *          the staging directory where build artifacts go
    */
-  public void onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
+  public boolean onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
     // Default is nothing
+    return true;
   }
 
   /**
