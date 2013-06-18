@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,10 +16,15 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
+import com.google.common.collect.Lists;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ProjectBuildContext;
+
+import aQute.lib.osgi.Analyzer;
+import aQute.lib.osgi.Jar;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,243 +37,242 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipOutputStream;
 
 import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.Jar;
-
-import com.google.common.collect.Lists;
-
 /**
  * A {@link JavaJarCompiler} using the system Java compiler.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
-	private static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
+  private static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
 
-	@Override
-	public void build(File jarDestinationFile, File compilationFolder,
-			JavaProjectExtensions extensions, ProjectBuildContext context)
-			throws Exception {
-		compile(context.getProject(), compilationFolder, context, extensions);
-		createJarFile(context.getProject(), jarDestinationFile,
-				compilationFolder);
+  @Override
+  public boolean build(File jarDestinationFile, File compilationFolder,
+      JavaProjectExtensions extensions, ProjectBuildContext context) throws Exception {
+    try {
+      if (compile(context.getProject(), compilationFolder, context, extensions)) {
+        createJarFile(context.getProject(), jarDestinationFile, compilationFolder);
 
-		if (extensions != null) {
-			extensions.postProcessJar(context, jarDestinationFile);
-		}
+        if (extensions != null) {
+          extensions.postProcessJar(context, jarDestinationFile);
+        }
 
-		context.addArtifact(jarDestinationFile);
-	}
+        context.addArtifact(jarDestinationFile);
 
-	/**
-	 * Compile the project.
-	 * 
-	 * @param project
-	 *            the project being compiled
-	 * @param compilationBuildDirectory
-	 *            the build folder for compilation artifacts
-	 * @param context
-	 *            the project build context
-	 * 
-	 * @throws IOException
-	 */
-	private void compile(Project project, File compilationBuildDirectory,
-			ProjectBuildContext context, JavaProjectExtensions extensions) throws IOException {
-		InteractiveSpacesWorkbench workbench = context.getWorkbench();
-		List<File> classpath = Lists.newArrayList(workbench
-				.getControllerClasspath());
-		if (extensions != null) {
-			extensions.addToClasspath(classpath, workbench);
-		}
+        return true;
+      } else {
+        return false;
+      }
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
 
-		List<File> compilationFiles = getCompilationFiles(project);
+      return false;
+    }
+  }
 
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		StandardJavaFileManager fileManager = compiler.getStandardFileManager(
-				null, null, null);
-		fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
-		fileManager.setLocation(StandardLocation.CLASS_OUTPUT,
-				Lists.newArrayList(compilationBuildDirectory));
+  /**
+   * Compile the project.
+   *
+   * @param project
+   *          the project being compiled
+   * @param compilationBuildDirectory
+   *          the build folder for compilation artifacts
+   * @param context
+   *          the project build context
+   *
+   * @return {@code true} if the compilation was successful
+   *
+   * @throws IOException
+   */
+  private boolean compile(Project project, File compilationBuildDirectory,
+      ProjectBuildContext context, JavaProjectExtensions extensions) throws IOException {
+    InteractiveSpacesWorkbench workbench = context.getWorkbench();
+    List<File> classpath = Lists.newArrayList(workbench.getControllerClasspath());
+    if (extensions != null) {
+      extensions.addToClasspath(classpath, workbench);
+    }
 
-		Iterable<? extends JavaFileObject> compilationUnits1 = fileManager
-				.getJavaFileObjectsFromFiles(compilationFiles);
-		List<String> options = Lists.newArrayList();
-		options.add("-source");
-		options.add("1.6");
-		options.add("-target");
-		options.add("1.6");
-		compiler.getTask(null, fileManager, null, options, null,
-				compilationUnits1).call();
+    List<File> compilationFiles = getCompilationFiles(project);
 
-		fileManager.close();
-	}
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+    fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
+    fileManager.setLocation(StandardLocation.CLASS_OUTPUT,
+        Lists.newArrayList(compilationBuildDirectory));
 
-	/**
-	 * get a list of files to compile.
-	 * 
-	 * @param project
-	 *            the project being built
-	 * 
-	 * @return a list of all Java files to be handed to the Java compiler
-	 */
-	private List<File> getCompilationFiles(Project project) {
-		List<File> files = Lists.newArrayList();
+    Iterable<? extends JavaFileObject> compilationUnits1 =
+        fileManager.getJavaFileObjectsFromFiles(compilationFiles);
+    List<String> options = Lists.newArrayList();
+    options.add("-source");
+    options.add("1.6");
+    options.add("-target");
+    options.add("1.6");
+    Boolean success =
+        compiler.getTask(null, fileManager, null, options, null, compilationUnits1).call();
 
-		File baseSourceDirectory = new File(project.getBaseDirectory(),
-				JAVA_SOURCE_SUBDIRECTORY);
-		scanDirectory(baseSourceDirectory, files);
+    fileManager.close();
 
-		return files;
-	}
+    return success;
+  }
 
-	/**
-	 * Scan the given directory for files to add.
-	 * 
-	 * <p>
-	 * This method will recurse into subdirectories.
-	 * 
-	 * @param directory
-	 *            the directory to scan
-	 * @param files
-	 *            collection to add found files in
-	 */
-	private void scanDirectory(File directory, List<File> files) {
-		for (File file : directory.listFiles()) {
-			if (!file.getName().startsWith(".")) {
-				if (file.isDirectory()) {
-					scanDirectory(file, files);
-				} else {
-					files.add(file);
-				}
-			}
-		}
-	}
+  /**
+   * get a list of files to compile.
+   *
+   * @param project
+   *          the project being built
+   *
+   * @return a list of all Java files to be handed to the Java compiler
+   */
+  private List<File> getCompilationFiles(Project project) {
+    List<File> files = Lists.newArrayList();
 
-	/**
-	 * Create the JAR file for the artifact.
-	 * 
-	 * @param project
-	 *            the project being built
-	 * @param jarDestinationFile
-	 *            the file where the jar file is going
-	 * @param compilationFolder
-	 *            folder that the Java class files were compiled into
-	 */
-	private void createJarFile(Project project, File jarDestinationFile,
-			File compilationFolder) {
-		// Create a buffer for reading the files
-		byte[] buf = new byte[1024];
+    File baseSourceDirectory = new File(project.getBaseDirectory(), JAVA_SOURCE_SUBDIRECTORY);
+    scanDirectory(baseSourceDirectory, files);
 
-		Manifest manifest = createManifest(project, compilationFolder);
-		JarOutputStream out = null;
-		try {
-			// Create the ZIP file
-			out = new JarOutputStream(new FileOutputStream(jarDestinationFile),
-					manifest);
+    return files;
+  }
 
-			writeJarFile(compilationFolder, buf, out, "");
+  /**
+   * Scan the given directory for files to add.
+   *
+   * <p>
+   * This method will recurse into subdirectories.
+   *
+   * @param directory
+   *          the directory to scan
+   * @param files
+   *          collection to add found files in
+   */
+  private void scanDirectory(File directory, List<File> files) {
+    for (File file : directory.listFiles()) {
+      if (!file.getName().startsWith(".")) {
+        if (file.isDirectory()) {
+          scanDirectory(file, files);
+        } else {
+          files.add(file);
+        }
+      }
+    }
+  }
 
-			// Complete the ZIP file
-			out.flush();
-		} catch (IOException e) {
-			throw new InteractiveSpacesException(String.format(
-					"Failed creating jar file %s",
-					jarDestinationFile.getAbsolutePath()), e);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// Don't care
-				}
-			}
-		}
-	}
+  /**
+   * Create the JAR file for the artifact.
+   *
+   * @param project
+   *          the project being built
+   * @param jarDestinationFile
+   *          the file where the jar file is going
+   * @param compilationFolder
+   *          folder that the Java class files were compiled into
+   */
+  private void createJarFile(Project project, File jarDestinationFile, File compilationFolder) {
+    // Create a buffer for reading the files
+    byte[] buf = new byte[1024];
 
-	/**
-	 * Create a manifest for the object
-	 * 
-	 * @param project
-	 *            the project being created
-	 * @param compilationFolder
-	 *            folder where the Java files were compiled to
-	 * 
-	 * @return the manifest
-	 */
-	private Manifest createManifest(Project project, File compilationFolder) {
-		try {
-			Analyzer analyzer = new Analyzer();
-			Jar bin = new Jar(compilationFolder);
-			analyzer.setJar(bin);
+    Manifest manifest = createManifest(project, compilationFolder);
+    JarOutputStream out = null;
+    try {
+      // Create the ZIP file
+      out = new JarOutputStream(new FileOutputStream(jarDestinationFile), manifest);
 
-			// analyzer.addClasspath( new
-			// File("jar/spring.jar") );
+      writeJarFile(compilationFolder, buf, out, "");
 
-			analyzer.setProperty("Bundle-SymbolicName",
-					project.getIdentifyingName());
+      // Complete the ZIP file
+      out.flush();
+    } catch (IOException e) {
+      throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
+          jarDestinationFile.getAbsolutePath()), e);
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (IOException e) {
+          // Don't care
+        }
+      }
+    }
+  }
 
-			String version = project.getVersion();
-			int pos = version.indexOf("-");
-			if (pos != -1) {
-				version = version.substring(0, pos);
-			}
-			analyzer.setProperty("Bundle-Version", version);
+  /**
+   * Create a manifest for the object
+   *
+   * @param project
+   *          the project being created
+   * @param compilationFolder
+   *          folder where the Java files were compiled to
+   *
+   * @return the manifest
+   */
+  private Manifest createManifest(Project project, File compilationFolder) {
+    try {
+      Analyzer analyzer = new Analyzer();
+      Jar bin = new Jar(compilationFolder);
+      analyzer.setJar(bin);
 
-			analyzer.setProperty("Export-Package", "*");
+      // analyzer.addClasspath( new
+      // File("jar/spring.jar") );
 
-			// There are no good defaults, but this must be set
-			analyzer.setProperty("Import-Package", "*");
+      analyzer.setProperty("Bundle-SymbolicName", project.getIdentifyingName());
 
-			return analyzer.calcManifest();
-		} catch (Exception e) {
-			throw new InteractiveSpacesException(
-					"Could not create JAR manifest for project", e);
-		}
-	}
+      String version = project.getVersion();
+      int pos = version.indexOf("-");
+      if (pos != -1) {
+        version = version.substring(0, pos);
+      }
+      analyzer.setProperty("Bundle-Version", version);
 
-	/**
-	 * Write out the contents of the folder to the distribution file.
-	 * 
-	 * @param activityFolder
-	 *            folder being written to the build
-	 * @param buf
-	 *            a buffer for caching info
-	 * @param jarOutputStream
-	 *            the stream where the jar is being written
-	 * @param parentPath
-	 *            path up to this point
-	 * @throws IOException
-	 */
-	private void writeJarFile(File directory, byte[] buf,
-			ZipOutputStream jarOutputStream, String parentPath)
-			throws IOException {
-		for (File file : directory.listFiles()) {
-			if (file.isDirectory()) {
-				writeJarFile(file, buf, jarOutputStream,
-						parentPath + file.getName() + "/");
-			} else {
-				FileInputStream in = new FileInputStream(file);
+      analyzer.setProperty("Export-Package", "*");
 
-				// Add ZIP entry to output stream.
-				jarOutputStream.putNextEntry(new JarEntry(parentPath
-						+ file.getName()));
+      // There are no good defaults, but this must be set
+      analyzer.setProperty("Import-Package", "*");
 
-				// Transfer bytes from the file to the ZIP file
-				int len;
-				while ((len = in.read(buf)) > 0) {
-					jarOutputStream.write(buf, 0, len);
-				}
+      return analyzer.calcManifest();
+    } catch (Exception e) {
+      throw new InteractiveSpacesException("Could not create JAR manifest for project", e);
+    }
+  }
 
-				// Complete the entry
-				jarOutputStream.closeEntry();
-				in.close();
-			}
-		}
-	}
+  /**
+   * Write out the contents of the folder to the distribution file.
+   *
+   * @param activityFolder
+   *          folder being written to the build
+   * @param buf
+   *          a buffer for caching info
+   * @param jarOutputStream
+   *          the stream where the jar is being written
+   * @param parentPath
+   *          path up to this point
+   * @throws IOException
+   */
+  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream,
+      String parentPath) throws IOException {
+    for (File file : directory.listFiles()) {
+      if (file.isDirectory()) {
+        writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/");
+      } else {
+        FileInputStream in = new FileInputStream(file);
+
+        // Add ZIP entry to output stream.
+        jarOutputStream.putNextEntry(new JarEntry(parentPath + file.getName()));
+
+        // Transfer bytes from the file to the ZIP file
+        int len;
+        while ((len = in.read(buf)) > 0) {
+          jarOutputStream.write(buf, 0, len);
+        }
+
+        // Complete the entry
+        jarOutputStream.closeEntry();
+        in.close();
+      }
+    }
+  }
 }
