@@ -2,6 +2,7 @@ package interactivespaces.example.comm.xbee.endpoint.iosamples;
 
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.service.comm.serial.xbee.AtLocalRequestXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
@@ -44,6 +45,13 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
     xbee.addListener(new XBeeResponseListenerSupport() {
 
       @Override
+      public void onAtLocalXBeeResponse(XBeeCommunicationEndpoint endpoint,
+          AtLocalResponseXBeeFrame response) {
+        getLog().info(response);
+        getLog().info(ByteUtils.toHexString(response.getCommandData()));
+      }
+
+      @Override
       public void
           onRxXBeeResponse(XBeeCommunicationEndpoint endpoint, RxResponseXBeeFrame response) {
         getLog().info(response);
@@ -55,17 +63,20 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
   @Override
   public void onActivityStartup() {
     getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples startup");
-    AtLocalRequestXBeeFrame frame1 = xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0, 1);
+    AtLocalRequestXBeeFrame frame1 =
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0, 1);
     frame1.add(XBeeApiConstants.IO_FUNCTION_ANALOG);
 
     frame1.write(xbee);
 
-    AtLocalRequestXBeeFrame frame2 = xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D2, 2);
+    AtLocalRequestXBeeFrame frame2 =
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D2, 2);
     frame2.add(XBeeApiConstants.IO_FUNCTION_DIGITAL_INPUT);
 
     frame2.write(xbee);
 
-    AtLocalRequestXBeeFrame frame3 = xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR, 2);
+    AtLocalRequestXBeeFrame frame3 =
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR, 3);
     frame3.add(0x36);
     frame3.add(0x34);
 

@@ -405,39 +405,39 @@ public class XBeeApiConstants {
   public static final int RX_IO_SAMPLE_DIGITAL_D12 = 0x0400;
 
   /**
-   * The mask position for AO in an RX IO Sample
-   */
-  public static final int RX_IO_SAMPLE_ANALOG_A0 = 0x01;
-
-  /**
    * Disable an IO pin.
    */
-  public static final byte IO_FUNCTION_DISABLE = '0';
+  public static final byte IO_FUNCTION_DISABLE = 0x00;
 
   /**
    * An IO pin should use its builtin function, if any.
    */
-  public static final byte IO_FUNCTION_BUILTIN = '1';
+  public static final byte IO_FUNCTION_BUILTIN = 0x01;
 
   /**
    * An IO pin should be analog, only for D0-3.
    */
-  public static final byte IO_FUNCTION_ANALOG = '2';
+  public static final byte IO_FUNCTION_ANALOG = 0x02;
 
   /**
    * An IO pin should be a digital input.
    */
-  public static final byte IO_FUNCTION_DIGITAL_INPUT = '3';
+  public static final byte IO_FUNCTION_DIGITAL_INPUT = 0x03;
 
   /**
    * An IO pin should be a low digital output.
    */
-  public static final byte IO_FUNCTION_DIGITAL_OUTPUT_LOW = '4';
+  public static final byte IO_FUNCTION_DIGITAL_OUTPUT_LOW = 0x04;
 
   /**
    * An IO pin should be a high digital output.
    */
-  public static final byte IO_FUNCTION_DIGITAL_OUTPUT_HIGH = '5';
+  public static final byte IO_FUNCTION_DIGITAL_OUTPUT_HIGH = 0x05;
+
+  /**
+   * The mask position for AO in an RX IO Sample
+   */
+  public static final int RX_IO_SAMPLE_ANALOG_A0 = 0x01;
 
   /**
    * The mask position for A1 in an RX IO Sample

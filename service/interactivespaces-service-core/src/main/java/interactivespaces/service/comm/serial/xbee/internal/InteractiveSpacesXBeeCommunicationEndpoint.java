@@ -26,12 +26,11 @@ import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListener;
 import interactivespaces.util.concurrency.CancellableLoop;
 
+import org.apache.commons.logging.Log;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.logging.Log;
 
 /**
  * An Interactive Spaces implementation of an XBee communication endpoint.
@@ -49,11 +48,6 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
    * reader for the XBee frames.
    */
   private EscapedXBeeFrameReader reader;
-
-  /**
-   * Future for the reader loop.
-   */
-  private Future<?> readerLoopFuture;
 
   /**
    * Parser for response frames.
@@ -101,9 +95,18 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
       protected void handleException(Exception e) {
         log.error("Error while reading XBee frame", e);
       }
+
+      @Override
+      protected void cleanup() {
+        log.info("Cleaning up XBee loop");
+        commEndpoint.shutdown();
+        commEndpoint = null;
+
+        log.info("Serial connection shut down");
+      }
     };
 
-    readerLoopFuture = executorService.submit(readerLoop);
+    executorService.submit(readerLoop);
   }
 
   @Override
@@ -112,16 +115,11 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
     if (readerLoop != null) {
       readerLoop.cancel();
-      readerLoopFuture.cancel(true);
 
       readerLoop = null;
-      readerLoopFuture = null;
     }
 
-    if (commEndpoint != null) {
-      commEndpoint.shutdown();
-      commEndpoint = null;
-    }
+    log.info("Reader loop shut down");
   }
 
   @Override

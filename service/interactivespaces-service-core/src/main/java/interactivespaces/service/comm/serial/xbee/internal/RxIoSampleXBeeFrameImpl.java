@@ -112,13 +112,14 @@ public class RxIoSampleXBeeFrameImpl implements RxIoSampleXBeeFrame {
 
   @Override
   public List<Integer> getAnalogSamples() {
-    // TODO Auto-generated method stub
-    return null;
+    return analogSamples;
   }
 
   @Override
   public String toString() {
     return "RxIoSampleXBeeFrameImpl [address64=" + address64 + ", address16=" + address16
-        + ", receiveOptions=" + receiveOptions + "]";
+        + ", receiveOptions=" + receiveOptions + ", digitalchannelMask=" + digitalchannelMask
+        + ", digitalSamples=" + digitalSamples + ", analogChannelMask=" + analogChannelMask
+        + ", analogSamples=" + analogSamples + "]";
   }
 }
