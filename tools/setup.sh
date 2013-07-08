@@ -2,7 +2,7 @@
 
 source tools/setup_functions.sh
 
-check_gradle Gradle 1.6
+check_gradle Gradle 1.6 || install_gradle 1.6
 check_gradle Groovy 1.8.6
 check_gradle Ivy 2.2.0
 check_gradle JVM 1.6.0
@@ -24,7 +24,7 @@ checkprop jython   jython
 check_android sdk 21.1 
 check_android platform android-16
 
-check_ros main fuente 
+check_ros main fuerte || install_ros fuerte
 check_ros path $PWD
 
 check_maven repository $HOME/.m2

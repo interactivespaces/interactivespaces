@@ -40,6 +40,7 @@ function report_status {
   colorize_output $3
   echo $3 $1 $2 $4
   colorize_output reset
+  test "$3" == "OK"
 }
 
 function package {
@@ -159,3 +160,17 @@ function mvnsub {
   (cd $SUBDIR; mvn $@)
 }
 
+function install_gradle {
+  VER=$1
+  echo You need to instal gradle $VER. Please see
+  echo "http://www.gradle.org/downloads"
+  false
+}
+
+function install_ros {
+  VER=$1
+  echo You need to install ROS $VER. Please see
+  echo "http://www.ros.org/wiki/fuerte/Installation"
+  echo "http://www.ros.org/wiki/$VER/Installation"
+  false
+}
