@@ -170,7 +170,6 @@ function install_gradle {
 function install_ros {
   VER=$1
   echo You need to install ROS $VER. Please see
-  echo "http://www.ros.org/wiki/fuerte/Installation"
   echo "http://www.ros.org/wiki/$VER/Installation"
   false
 }
