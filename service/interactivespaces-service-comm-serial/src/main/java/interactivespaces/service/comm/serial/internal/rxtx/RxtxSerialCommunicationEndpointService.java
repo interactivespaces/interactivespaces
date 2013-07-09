@@ -86,7 +86,7 @@ public class RxtxSerialCommunicationEndpointService implements SerialCommunicati
 
   @Override
   public SerialCommunicationEndpoint newSerialEndpoint(String portName) {
-    return new RxtxSerialCommunicationEndpoint(portName, spaceEnvironment.getLog());
+    return new RxtxSerialCommunicationEndpoint(portName, spaceEnvironment.getLog(), spaceEnvironment);
   }
 
   @Override

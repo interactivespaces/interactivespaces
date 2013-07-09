@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
@@ -91,14 +92,21 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
   private Log log;
 
   /**
+   * The space environment.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
    * @param portName
    *          the name of the port to connect to
    * @param log
    *          the logger to use
    */
-  public RxtxSerialCommunicationEndpoint(String portName, Log log) {
+  public RxtxSerialCommunicationEndpoint(String portName, Log log,
+      InteractiveSpacesEnvironment spaceEnvironment) {
     this.portName = portName;
     this.log = log;
+    this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
@@ -115,27 +123,42 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
 
   @Override
   public void shutdown() {
-    try {
-      port.getInputStream().close();
-    } catch (Exception e) {
-      // Don't care
-    }
-    log.info("Input stream closed");
-    try {
-      port.getOutputStream().close();
-    } catch (Exception e) {
-      // Don't care
-    }
-    log.info("Output stream closed");
+    spaceEnvironment.getExecutorService().submit(new Runnable() {
 
-    log.info(String.format("Shutting down serial port %s", portName));
-    try {
-      port.close();
-      log.info(String.format("Closed serial port %s", portName));
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+      @Override
+      public void run() {
+
+        try {
+          port.removeEventListener();
+        } catch (Exception e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
+
+        try {
+          port.getInputStream().close();
+        } catch (Exception e) {
+          // Don't care
+        }
+        log.info("Input stream closed");
+        try {
+          port.getOutputStream().close();
+        } catch (Exception e) {
+          // Don't care
+        }
+        log.info("Output stream closed");
+
+        log.info(String.format("Shutting down serial port %s", portName));
+        try {
+          port.close();
+          log.info(String.format("Closed serial port %s", portName));
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+      }
+    });
   }
 
   @Override

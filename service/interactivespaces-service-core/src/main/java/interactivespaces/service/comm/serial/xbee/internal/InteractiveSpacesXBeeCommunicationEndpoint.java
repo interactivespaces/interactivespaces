@@ -98,9 +98,6 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
       @Override
       protected void cleanup() {
-        log.info("Cleaning up XBee loop");
-        commEndpoint.shutdown();
-        commEndpoint = null;
 
         log.info("Serial connection shut down");
       }
@@ -120,6 +117,11 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
     }
 
     log.info("Reader loop shut down");
+
+    if (commEndpoint != null) {
+      commEndpoint.shutdown();
+      commEndpoint = null;
+    }
   }
 
   @Override
