@@ -1,5 +1,5 @@
 ##
-# Copyright (C) 2012 Google Inc.
+# Copyright (C) 2013 Google Inc.
 # 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -14,19 +14,23 @@
 # the License.
 ##
 
-# goal definition for deploying a live activity
+# a resource for the Interactive Spaces Container.
 
-# UUID of the live activity
-string uuid
+# name of the resource
+string name
 
-# Identifying name of the activity
-string identifying_name
+# minimum and maximum version of the resource
+string minimumVersion
+string maximumVersion
 
-# Version of the activity
-string version
+# Is the resource required?
+bool required
 
-# Where to get the live activity
-string activity_source_uri
+int32 location
+int32 LOCATION_BOOTSTRAP = 0
+int32 LOCATION_LIB_SYSTEM = 1
+int32 LOCATION_CONFIG = 2
+int32 LOCATION_ROOT = 3
 
-# Any container dependencies needed by the activity
-InteractiveSpacesContainerResource[] container_dependencies
+# Resources available which fit the version range and name
+LocatableResourceDescription[] resources

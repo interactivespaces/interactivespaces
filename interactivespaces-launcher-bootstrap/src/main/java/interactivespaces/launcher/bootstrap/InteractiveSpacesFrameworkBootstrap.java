@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,6 +22,13 @@ import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -29,7 +36,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,16 +46,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
-
 /**
  * The boostrapper for Interactive Spaces.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesFrameworkBootstrap {
@@ -156,7 +155,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 				createAndStartFramework(loadclasses);
 
 				registerCoreServices();
-				
+
 //				System.out.println("Got loadclasses " + loadclasses);
 //				for (String loadclass : loadclasses) {
 //					Class<?> loadclazz = getClass().getClassLoader().loadClass(loadclass);
@@ -187,7 +186,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Create the core services to the base bundle which are platform dependent.
-	 * 
+	 *
 	 * @param args
 	 *            the list of command line arguments
 	 */
@@ -218,7 +217,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Start all bundles.
-	 * 
+	 *
 	 * @param ctxt
 	 *            the framework bundle context
 	 * @param bundleList
@@ -253,7 +252,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Start a particular bundle.
-	 * 
+	 *
 	 * @param bundle
 	 *            the bundle to start
 	 */
@@ -269,7 +268,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Create, configure, and start the OSGi framework instance.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws Exception
 	 * @throws BundleException
@@ -343,7 +342,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Get all jars from the bootstrap folder.
-	 * 
+	 *
 	 * @param bootstrapFolder
 	 *            the folder containing the bootstrap bundles
 	 */
@@ -372,10 +371,10 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Is the bundle a fragment host?
-	 * 
+	 *
 	 * @param bundle
 	 *            the bundle to check
-	 * 
+	 *
 	 * @return {@code true} if the bundle is a fragment host
 	 */
 	private boolean isFragment(Bundle bundle) {
@@ -386,9 +385,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 	 * Simple method to parse META-INF/services file for framework factory.
 	 * Currently, it assumes the first non-commented line is the class nodeName
 	 * of the framework factory implementation.
-	 * 
+	 *
 	 * @return the created <tt>FrameworkFactory</tt> instance
-	 * 
+	 *
 	 * @throws Exception
 	 *             if any errors occur.
 	 **/
@@ -421,12 +420,12 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Get the list of packages which must be delegated to the boot classloader.
-	 * 
+	 *
 	 * <p>
 	 * The bootloader loads all classes in the java install. This covers things
 	 * like the javax classes which are not automatically exposed through the
 	 * OSGi bundle classloaders.
-	 * 
+	 *
 	 * @return a properly formated string for the delegation classpath, or
 	 *         {@code null} if there are no packages to be delegated
 	 */
@@ -466,7 +465,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Add all extension classpath entries that the controller specifies.
-	 * 
+	 *
 	 * @param packages
 	 *            the list of packages to store the packages in
 	 * @param loadclasses
@@ -493,10 +492,10 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * process an extension file.
-	 * 
+	 *
 	 * @param packages
 	 *            the collection of packages described in the extension files
-	 * 
+	 *
 	 * @param extensionFile
 	 *            the extension file to process
 	 */
@@ -516,7 +515,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 						packages.add(line
 								.substring(EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH));
 					}
-					
+
 					pos = line.indexOf("loadclass:");
 					if (pos == 0
 							&& line.length() > "loadclass:".length()) {
@@ -542,7 +541,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 	/**
 	 * Get the Interactive Spaces version from the JAR manifest.
-	 * 
+	 *
 	 * @return The interactive spaces version
 	 */
 	private String getInteractiveSpacesVersion() {
