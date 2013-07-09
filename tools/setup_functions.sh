@@ -97,8 +97,9 @@ function check_android {
     status=`version_status $ver $installed`  
   else
     installed=`extract_property android.platform gradle.properties`
-    $dir/tools/android list | egrep '^id:' | fgrep \"$installed\" > /dev/null
-    if [ "$?" != 0 ]; then
+    result=
+    $dir/tools/android list | egrep '^id:' | fgrep \"$installed\" > /dev/null || result=failed
+    if [ "$result" == "failed" ]; then
       status=MISSING
     else 
       status=`version_status $ver $installed`  
