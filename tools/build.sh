@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 source tools/setup_functions.sh
 

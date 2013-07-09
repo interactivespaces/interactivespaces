@@ -91,13 +91,19 @@ function extract_property {
 function check_android {
   pkg=$1
   ver=$2
+  dir=`extract_property android.sdk.home gradle.properties`
   if [ "$pkg" == "sdk" ]; then
-    dir=`extract_property android.sdk.home gradle.properties`
     installed=`extract_property Pkg.Revision $dir/tools/source.properties`
+    status=`version_status $ver $installed`  
   else
     installed=`extract_property android.platform gradle.properties`
+    $dir/tools/android list | egrep '^id:' | fgrep \"$installed\" > /dev/null
+    if [ "$?" != 0 ]; then
+      status=MISSING
+    else 
+      status=`version_status $ver $installed`  
+    fi
   fi
-  status=`version_status $ver $installed`  
 
   report_status android-$pkg $ver $status $installed
 }
