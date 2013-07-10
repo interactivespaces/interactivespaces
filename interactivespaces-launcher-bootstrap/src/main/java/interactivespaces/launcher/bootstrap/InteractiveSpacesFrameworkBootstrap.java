@@ -230,7 +230,13 @@ public class InteractiveSpacesFrameworkBootstrap {
 			List<File> jars) throws BundleException {
 		for (File bundleFile : jars) {
 			String bundleUri = bundleFile.toURI().toString();
-			// System.out.println("Installing " + bundleUri);
+
+            // TODO(keith): See if way to start up shell from property
+            // since we may want it for remote access.
+            if (bundleUri.contains("gogo") && !needShell) {
+                continue;
+            }
+
 			Bundle b = ctxt.installBundle(bundleUri);
 			bundleList.add(b);
 			bundles.add(b);
