@@ -28,9 +28,10 @@ bool required
 
 int32 location
 int32 LOCATION_BOOTSTRAP = 0
-int32 LOCATION_LIB_SYSTEM = 1
-int32 LOCATION_CONFIG = 2
-int32 LOCATION_ROOT = 3
+int32 LOCATION_NONCORE = 1
+int32 LOCATION_LIB_SYSTEM = 2
+int32 LOCATION_CONFIG = 3
+int32 LOCATION_ROOT = 4
 
 # Resources available which fit the version range and name
 LocatableResourceDescription[] resources
