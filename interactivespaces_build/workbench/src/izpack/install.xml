@@ -24,7 +24,7 @@
 			condition="izpack.macinstall" />
 	</dynamicvariables>
 
-	<!-- The gui preferences indication. Sets the installer window to 640x480. 
+	<!-- The gui preferences indication. Sets the installer window to 640x480.
 		It will be able to change the size. -->
 	<guiprefs width="900" height="480" resizable="yes" />
 
@@ -33,7 +33,7 @@
 		<langpack iso3="eng" />
 	</locale>
 
-	<!-- The resources section. The ids must be these ones if you want to use 
+	<!-- The resources section. The ids must be these ones if you want to use
 		the LicencePanel and/or the InfoPanel. -->
 	<resources>
 		<res id="HTMLInfoPanel.info" src="Readme.html" parse="yes" />
@@ -43,7 +43,7 @@
 		<res id="userInputLang.xml_eng" src="userInputLang.xml_eng" />
 	</resources>
 
-	<!-- The panels section. We indicate here which panels we want to use. The 
+	<!-- The panels section. We indicate here which panels we want to use. The
 		order will be respected. -->
 	<panels>
 		<!-- <panel classname="org.interactivespaces.installer.izpack.panels.MyHelloPanel"/> -->
@@ -71,6 +71,7 @@
 				override="true" />
 			<file src="NOTICE.txt" targetdir="$INSTALL_PATH" override="true" />
 
+            <file src="bin" targetdir="$INSTALL_PATH"  override="true" />
 			<file src="bootstrap" targetdir="$INSTALL_PATH" />
 			<file src="templates" targetdir="$INSTALL_PATH" />
 			<file src="config" targetdir="$INSTALL_PATH" />
@@ -82,14 +83,8 @@
 
 			<parsable targetfile="$INSTALL_PATH/config/workbench.conf" />
 
-			<parsable targetfile="$INSTALL_PATH/bin/startup_linux.bash" />
-			<executable targetfile="$INSTALL_PATH/bin/startup_linux.bash"
-				stage="never" />
-			<parsable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash" />
-			<executable targetfile="$INSTALL_PATH/bin/shutdown_linux.bash"
-				stage="never" />
-			<parsable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash" />
-			<executable targetfile="$INSTALL_PATH/bin/harsh_shutdown_linux.bash"
+			<parsable targetfile="$INSTALL_PATH/bin/isworkbench.bash" />
+			<executable targetfile="$INSTALL_PATH/bin/isworkbench.bash"
 				stage="never" />
 		</pack>
 		<pack name="Docs" required="no">
