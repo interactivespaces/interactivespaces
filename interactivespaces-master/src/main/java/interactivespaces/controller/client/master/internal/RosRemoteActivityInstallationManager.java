@@ -24,6 +24,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.resource.repository.ResourceRepositoryServer;
+import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 
 import interactivespaces_msgs.InteractiveSpacesContainerResource;
 import interactivespaces_msgs.LiveActivityDeleteRequest;
@@ -79,7 +80,8 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
     request.setUuid(liveActivity.getUuid());
     request.setIdentifyingName(activity.getIdentifyingName());
     request.setVersion(activity.getVersion());
-    request.setActivitySourceUri(repositoryServer.getResourceUri(activity.getIdentifyingName(),
+    request.setActivitySourceUri(repositoryServer.getResourceUri(
+        ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY, activity.getIdentifyingName(),
         activity.getVersion()));
 
     List<? extends ActivityDependency> dependencies = activity.getDependencies();

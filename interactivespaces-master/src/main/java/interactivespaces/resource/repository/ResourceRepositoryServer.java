@@ -38,6 +38,8 @@ public interface ResourceRepositoryServer {
   /**
    * Get a full URI for the given resource.
    *
+   * @param category
+   *          category of the resource
    * @param name
    *          the name of the resource
    * @param version
@@ -45,5 +47,5 @@ public interface ResourceRepositoryServer {
    *
    * @return full URI for the resource with this server.
    */
-  String getResourceUri(String name, String version);
+  String getResourceUri(String category, String name, String version);
 }

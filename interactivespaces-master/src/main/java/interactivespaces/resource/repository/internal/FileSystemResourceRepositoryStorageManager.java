@@ -25,6 +25,8 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.Files;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -32,8 +34,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * A {@link ResourceRepositoryStorageManager} which stores resources in the
- * file system.
+ * A {@link ResourceRepositoryStorageManager} which stores resources in the file
+ * system.
  *
  * <p>
  * This storage manager assumes that staged activities are stored as ZIP files.
@@ -44,21 +46,50 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
 
   /**
    * Configuration property for the location of the activities repository.
+   *
+   * <p>
+   * TODO(keith): Eventually deprecate these and have only 1 set of parameters
+   * but will require changing all masters
    */
   public static final String CONFIGURATION_REPOSITORY_ACTIVITY_LOCATION =
       "interactivespaces.repository.activities.location";
 
   /**
    * Where files will be staged during installation by the manager.
+   *
+   * <p>
+   * TODO(keith): Eventually deprecate these and have only 1 set of parameters
+   * but will require changing all masters. This one will just be
+   * interactivespaces.repository.staging.location
    */
   public static final String CONFIGURATION_REPOSITORY_STAGING_LOCATION =
       "interactivespaces.repository.activities.staging.location";
 
   /**
    * Default value for the location of the activities repository.
+   *
+   * <p>
+   * TODO(keith): Eventually deprecate these and have only 1 set of parameters
+   * but will require changing all masters
    */
   public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION =
       "repository/interactivespaces/activities";
+
+  /**
+   * Configuration property for the location of the activities repository.
+   *
+   * <p>
+   * TODO(keith): Eventually deprecate these and have only 1 set of parameters
+   * but will require changing all masters
+   */
+  public static final String CONFIGURATION_REPOSITORY_RESOURCE_LOCATION =
+      "interactivespaces.repository.resource.location";
+
+  /**
+   * Default value for the location of the resources repository.
+   */
+  public static final String DEFAULT_REPOSITORY_RESOURCE_LOCATION =
+      "repository/interactivespaces/resource";
 
   /**
    * Extension placed on activity archives for transmission.
@@ -76,19 +107,29 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   private static final String STAGED_RESOURCE_FILENAME_SUFFIX = ".zip";
 
   /**
-   * Base location of the repository.
-   */
-  private File repositoryBaseLocation;
-
-  /**
    * Directory where files are staged.
    */
   private File stagingDirectory;
 
   /**
+   * Base location of the repository.
+   */
+  private File activityRepositoryBaseLocation;
+
+  /**
    * Path to the repository in the file system.
    */
-  private String repositoryPath;
+  private String activityRepositoryPath;
+
+  /**
+   * Base location of the generic resource repository.
+   */
+  private File resourceRepositoryBaseLocation;
+
+  /**
+   * Path to the generic resource repository in the file system.
+   */
+  private String resourceRepositoryPath;
 
   /**
    * Map of staging handles to staging files.
@@ -110,30 +151,48 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
         new File(baseInstallDir,
             systemConfiguration
                 .getRequiredPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION));
-    // TODO(keith): Good utility function?
-    if (stagingDirectory.exists()) {
-      if (!stagingDirectory.isDirectory()) {
-        throw new InteractiveSpacesException(String.format(
-            "Activity repository staging directory %s is not a directory",
-            stagingDirectory.getAbsolutePath()));
-      } else if (!stagingDirectory.canWrite()) {
-        throw new InteractiveSpacesException(String.format(
-            "Activity repository staging directory %s is not writable",
-            stagingDirectory.getAbsolutePath()));
-      }
-    } else {
-      if (!stagingDirectory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format(
-            "Could not create activity repository staging directory %s",
-            stagingDirectory.getAbsolutePath()));
-      }
-    }
+    ensureWriteableDirectory("staging", stagingDirectory);
 
     // TODO(keith): Check repository base same way as above.
-    repositoryPath =
+    activityRepositoryPath =
         systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_ACTIVITY_LOCATION,
             DEFAULT_REPOSITORY_ACTIVITY_LOCATION);
-    repositoryBaseLocation = new File(baseInstallDir, repositoryPath);
+    activityRepositoryBaseLocation = new File(baseInstallDir, activityRepositoryPath);
+    ensureWriteableDirectory("activity", activityRepositoryBaseLocation);
+
+    resourceRepositoryPath =
+        systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_RESOURCE_LOCATION,
+            DEFAULT_REPOSITORY_RESOURCE_LOCATION);
+    resourceRepositoryBaseLocation = new File(baseInstallDir, resourceRepositoryPath);
+    ensureWriteableDirectory("generic resource", resourceRepositoryBaseLocation);
+  }
+
+  /**
+   * Ensure that the directory exists and is writeable, or create it.
+   *
+   * @param type
+   *          the type of the directory
+   * @param directory
+   *          the directory
+   */
+  private void ensureWriteableDirectory(String type, File directory) {
+    if (directory.exists()) {
+      if (!directory.isDirectory()) {
+        throw new InteractiveSpacesException(String.format(
+            "Resource repository %s directory %s is not a directory", type,
+            directory.getAbsolutePath()));
+      } else if (!directory.canWrite()) {
+        throw new InteractiveSpacesException(String.format(
+            "Resource repository %s directory %s is not writable", type,
+            directory.getAbsolutePath()));
+      }
+    } else {
+      if (!directory.mkdirs()) {
+        throw new InteractiveSpacesException(String.format(
+            "Could not create activity repository %s directory %s", type,
+            directory.getAbsolutePath()));
+      }
+    }
   }
 
   @Override
@@ -142,18 +201,19 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public String getRepositoryBaseLocation() {
-    return repositoryBaseLocation.getAbsolutePath();
+  public boolean containsResource(String category, String name, String version) {
+    return getRepositoryFile(category, name, version).exists();
   }
 
   @Override
-  public boolean containsResource(String name, String version) {
-    return getRepositoryFile(name, version).exists();
-  }
+  public String getRepositoryResourceName(String category, String name, String version) {
+    // TODO(keith): Fix, cheesy
+    String suffix = RESOURCE_ARCHIVE_EXTENSION;
+    if (category.equals(RESOURCE_CATEGORY_GENERIC)) {
+      suffix = "jar";
+    }
 
-  @Override
-  public String getRepositoryResourceName(String name, String version) {
-    return name + "-" + version + "." + RESOURCE_ARCHIVE_EXTENSION;
+    return name + "-" + version + "." + suffix;
   }
 
   @Override
@@ -203,11 +263,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public void addResource(String name, String version, String stageHandle) {
+  public void commitResource(String category, String name, String version, String stageHandle) {
     File stagingFile = stagingFiles.get(stageHandle);
     try {
       if (stagingFile != null) {
-        Files.copyFile(stagingFile, getRepositoryFile(name, version));
+        Files.copyFile(stagingFile, getRepositoryFile(category, name, version));
       } else {
         throw new InteractiveSpacesException("Unknown staging handle " + stageHandle);
       }
@@ -217,9 +277,21 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     }
   }
 
+  @Override
+  public InputStream getResourceStream(String category, String name, String version) {
+    File resourceFile = getRepositoryFile(category, name, version);
+    try {
+      return new FileInputStream(resourceFile);
+    } catch (FileNotFoundException e) {
+      return null;
+    }
+  }
+
   /**
    * Get the repository filename used for a given activity.
    *
+   * @param category
+   *          category of the resource
    * @param name
    *          name of the resource
    * @param version
@@ -227,8 +299,14 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    *
    * @return the file which contains the resource
    */
-  private File getRepositoryFile(String name, String version) {
-    return new File(repositoryBaseLocation, getRepositoryResourceName(name, version));
+  private File getRepositoryFile(String category, String name, String version) {
+    // TODO(keith): Fix, cheesy
+    File baseLocation = activityRepositoryBaseLocation;
+    if (category.equals(RESOURCE_CATEGORY_GENERIC)) {
+      baseLocation = resourceRepositoryBaseLocation;
+    }
+
+    return new File(baseLocation, getRepositoryResourceName(category, name, version));
   }
 
   /**
@@ -246,6 +324,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    * @author Keith M. Hughes
    */
   public static class MyZipInputStream extends InputStream {
+
     /**
      * The zip file which gave the entry.
      */
@@ -261,110 +340,63 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
       this.inputStream = inputStream;
     }
 
-    /**
-     * @return
-     * @throws IOException
-     * @see java.io.InputStream#available()
-     */
+    @Override
     public int available() throws IOException {
       return inputStream.available();
     }
 
-    /**
-     * @throws IOException
-     * @see java.io.InputStream#close()
-     */
+    @Override
     public void close() throws IOException {
       // Closing the zip closes all input streams created.
       zip.close();
     }
 
-    /**
-     * @param obj
-     * @return
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+    @Override
     public boolean equals(Object obj) {
       return inputStream.equals(obj);
     }
 
-    /**
-     * @return
-     * @see java.lang.Object#hashCode()
-     */
+    @Override
     public int hashCode() {
       return inputStream.hashCode();
     }
 
-    /**
-     * @param readlimit
-     * @see java.io.InputStream#mark(int)
-     */
+    @Override
     public void mark(int readlimit) {
       inputStream.mark(readlimit);
     }
 
-    /**
-     * @return
-     * @see java.io.InputStream#markSupported()
-     */
+    @Override
     public boolean markSupported() {
       return inputStream.markSupported();
     }
 
-    /**
-     * @return
-     * @throws IOException
-     * @see java.io.InputStream#read()
-     */
+    @Override
     public int read() throws IOException {
       return inputStream.read();
     }
 
-    /**
-     * @param arg0
-     * @param arg1
-     * @param arg2
-     * @return
-     * @throws IOException
-     * @see java.io.InputStream#read(byte[], int, int)
-     */
+    @Override
     public int read(byte[] arg0, int arg1, int arg2) throws IOException {
       return inputStream.read(arg0, arg1, arg2);
     }
 
-    /**
-     * @param b
-     * @return
-     * @throws IOException
-     * @see java.io.InputStream#read(byte[])
-     */
+    @Override
     public int read(byte[] b) throws IOException {
       return inputStream.read(b);
     }
 
-    /**
-     * @throws IOException
-     * @see java.io.InputStream#reset()
-     */
+    @Override
     public void reset() throws IOException {
       inputStream.reset();
     }
 
-    /**
-     * @param arg0
-     * @return
-     * @throws IOException
-     * @see java.io.InputStream#skip(long)
-     */
+    @Override
     public long skip(long arg0) throws IOException {
       return inputStream.skip(arg0);
     }
 
-    /**
-     * @return
-     * @see java.lang.Object#toString()
-     */
+    @Override
     public String toString() {
       return inputStream.toString();
     }

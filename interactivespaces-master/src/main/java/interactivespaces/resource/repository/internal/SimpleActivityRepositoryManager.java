@@ -39,6 +39,8 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class SimpleActivityRepositoryManager implements ActivityRepositoryManager {
+  private static final String RESOURCE_CATEGORY_ACTIVITY = "activity";
+
   /**
    * Repository for activities.
    */
@@ -58,8 +60,9 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
       ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
       ActivityDescription activityDescription = reader.readDescription(activityDescriptionStream);
 
-      repositoryStorageManager.addResource(activityDescription.getIdentifyingName(),
-          activityDescription.getVersion(), stageHandle);
+      repositoryStorageManager.commitResource(
+          ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
+          activityDescription.getIdentifyingName(), activityDescription.getVersion(), stageHandle);
 
       // TODO(keith): Might want to edit what it gives to the import so
       // this may need to move.

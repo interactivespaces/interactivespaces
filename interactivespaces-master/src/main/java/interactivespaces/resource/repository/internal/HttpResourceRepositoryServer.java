@@ -18,11 +18,17 @@ package interactivespaces.resource.repository.internal;
 
 import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
+import interactivespaces.service.web.HttpResponseCode;
+import interactivespaces.service.web.server.HttpDynamicRequestHandler;
+import interactivespaces.service.web.server.HttpRequest;
+import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.Files;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * An Interactive Spaces resource repository server using HTTP.
@@ -67,7 +73,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   /**
    * Path prefix for the repository URL.
    */
-  private String repositoryUrlPathPrefix = "interactivespaces/repository/activity";
+  private String repositoryUrlPathPrefix = "interactivespaces/resource/artifact";
 
   /**
    * The Interactive Spaces environment.
@@ -90,23 +96,25 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
             spaceEnvironment.getExecutorService(), spaceEnvironment.getExecutorService(),
             spaceEnvironment.getLog());
 
+    String webappPath = "/" + repositoryUrlPathPrefix;
+
+    repositoryServer.addDynamicContentHandler(webappPath, true, new HttpDynamicRequestHandler() {
+      @Override
+      public void handle(HttpRequest request, HttpResponse response) {
+        handleResourceRequest(request, response);
+      }
+    });
+
     repositoryServer.startup();
 
-    String webappPath = "/" + repositoryUrlPathPrefix;
     repositoryBaseUrl =
         "http://"
             + spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
                 InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME) + ":"
             + repositoryServer.getPort() + webappPath;
 
-    File repositoryBaseFolder = new File(repositoryStorageManager.getRepositoryBaseLocation());
-    repositoryServer.addStaticContentHandler(webappPath, repositoryBaseFolder);
-
     spaceEnvironment.getLog().info(
-        String.format("HTTP Activity repository started with base URL %s", repositoryBaseUrl));
-    spaceEnvironment.getLog().info(
-        String.format("HTTP Activity repository serving from %s",
-            repositoryBaseFolder.getAbsolutePath()));
+        String.format("HTTP Resource Repository started with base URL %s", repositoryBaseUrl));
   }
 
   @Override
@@ -115,11 +123,49 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   }
 
   @Override
-  public String getResourceUri(String name, String version) {
+  public String getResourceUri(String category, String name, String version) {
     // TODO(keith): Get this from something fancier which we can store resources
     // in, get their meta-data, etc.
-    return repositoryBaseUrl + "/"
-        + repositoryStorageManager.getRepositoryResourceName(name, version);
+    return repositoryBaseUrl + "/" + category + "/" + name + "/" + version;
+  }
+
+  /**
+   * A request has come in for a resource.
+   *
+   * @param request
+   *          the http request
+   * @param response
+   *          the response
+   */
+  private void handleResourceRequest(HttpRequest request, HttpResponse response) {
+    spaceEnvironment.getLog().info(
+        String.format("Got resource repository request %s", request.getUri()));
+
+    String[] pathComponents = request.getUri().getPath().split("\\/");
+    String category = pathComponents[pathComponents.length - 3];
+    String name = pathComponents[pathComponents.length - 2];
+    String version = pathComponents[pathComponents.length - 1];
+
+    spaceEnvironment.getLog().info(
+        String.format("Got resource repository request for resource %s:%s of category %s", name,
+            version, category));
+
+    InputStream resourceStream =
+        repositoryStorageManager.getResourceStream(category, name, version);
+    if (resourceStream != null) {
+      response.setResponseCode(HttpResponseCode.OK);
+      try {
+        Files.copyInputStream(resourceStream, response.getOutputStream());
+      } catch (IOException e) {
+        spaceEnvironment.getLog().error(
+            String.format("Error while writing resource %s:%s of category %s", name, version,
+                category));
+      }
+    } else {
+      spaceEnvironment.getLog().warn(
+          String.format("No such resource %s:%s of category %s", name, version, category));
+      response.setResponseCode(HttpResponseCode.NOT_FOUND);
+    }
   }
 
   /**

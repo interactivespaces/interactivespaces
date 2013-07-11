@@ -27,6 +27,10 @@ import java.io.InputStream;
  */
 public interface ResourceRepositoryStorageManager {
 
+  public static final String RESOURCE_CATEGORY_GENERIC = "resource";
+
+  public static final String RESOURCE_CATEGORY_ACTIVITY = "activity";
+
   /**
    * Start the storage manager up.
    */
@@ -38,21 +42,10 @@ public interface ResourceRepositoryStorageManager {
   void shutdown();
 
   /**
-   *
-   * Get the base location of the repository.
-   *
-   * TODO(keith): This must go away, we do not want the HTTP server to have
-   * direct access to the file system, but rather look up an activity by its
-   * identifying name and version. but then we need a web server handler that
-   * can look up file names.
-   *
-   * @return the base location of the repository
-   */
-  String getRepositoryBaseLocation();
-
-  /**
    * Get the name the resource has in the repository.
    *
+   * @param category
+   *          category of the resource
    * @param name
    *          the name of the resource
    * @param version
@@ -60,11 +53,13 @@ public interface ResourceRepositoryStorageManager {
    *
    * @return the fully qualified name of the resource
    */
-  String getRepositoryResourceName(String name, String version);
+  String getRepositoryResourceName(String category, String name, String version);
 
   /**
    * Does the repository contain a resource?
    *
+   * @param category
+   *          category of the resource
    * @param name
    *          the name of the resource to be checked
    * @param version
@@ -72,7 +67,7 @@ public interface ResourceRepositoryStorageManager {
    *
    * @return {@code true} if the repository contains the resource
    */
-  boolean containsResource(String name, String version);
+  boolean containsResource(String category, String name, String version);
 
   /**
    * Stage a resource.
@@ -115,6 +110,8 @@ public interface ResourceRepositoryStorageManager {
   /**
    * Add a resource to the repository.
    *
+   * @param category
+   *          category of the resource
    * @param name
    *          the name of the resource
    * @param version
@@ -122,5 +119,23 @@ public interface ResourceRepositoryStorageManager {
    * @param stageHandle
    *          the staging handle for the resource
    */
-  void addResource(String name, String version, String stageHandle);
+  void commitResource(String category, String name, String version, String stageHandle);
+
+  /**
+   * Get a stream for a given resource.
+   *
+   * <p>
+   * Closing the stream is the responsibility of the caller.
+   *
+   * @param category
+   *          the category of the resource
+   * @param name
+   *          the name of the resource
+   * @param version
+   *          the version of the resource
+   *
+   * @return the input stream for the resource, or {@code null} if no such
+   *         resource
+   */
+  InputStream getResourceStream(String category, String name, String version);
 }
