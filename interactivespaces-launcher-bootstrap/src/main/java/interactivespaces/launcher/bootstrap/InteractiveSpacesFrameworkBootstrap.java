@@ -139,8 +139,6 @@ public class InteractiveSpacesFrameworkBootstrap {
 
 		baseInstallFolder = new File(".");
 
-		createCoreServices(args);
-
 		getBootstrapBundleJars(BUNDLE_DIRECTORY_BOOTSTRAP);
 
 		// If no bundle JAR files are in the directory, then exit.
@@ -150,7 +148,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 			setupShutdownHandler();
 
 			try {
-				List<String> loadclasses = new ArrayList<String>();
+		        createCoreServices(args);
+
+		        List<String> loadclasses = new ArrayList<String>();
 
 				createAndStartFramework(loadclasses);
 
@@ -197,8 +197,12 @@ public class InteractiveSpacesFrameworkBootstrap {
 		configurationProvider = new FileConfigurationProvider(baseInstallFolder);
 		configurationProvider.load();
 
+		Set<File> startupBundles = new HashSet<File>();
+		startupBundles.addAll(initialBundles);
+		startupBundles.addAll(finalBundles);
+
 		containerCustomizerProvider = new SimpleContainerCustomizerProvider(
-				args, true);
+				args, startupBundles, true);
 	}
 
 	/**

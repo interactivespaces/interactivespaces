@@ -32,6 +32,11 @@ public class LocatableResource {
   private String name;
 
   /**
+   * Version of the resource.
+   */
+  private String version;
+
+  /**
    * URI for the location of the resource
    */
   private String locationUri;
@@ -46,12 +51,13 @@ public class LocatableResource {
    */
   private Map<String, String> metadata;
 
-  public LocatableResource(String name, String locationUri, String signature) {
-    this(name, locationUri, signature, new HashMap<String, String>());
+  public LocatableResource(String name, String version, String locationUri, String signature) {
+    this(name, version, locationUri, signature, new HashMap<String, String>());
   }
 
-  public LocatableResource(String name, String locationUri, String signature, Map<String, String> metadata) {
+  public LocatableResource(String name, String version, String locationUri, String signature, Map<String, String> metadata) {
     this.name = name;
+    this.version = version;
     this.locationUri = locationUri;
     this.signature = signature;
     this.metadata = metadata;
@@ -64,6 +70,15 @@ public class LocatableResource {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Get the version of the resource.
+   *
+   * @return the version
+   */
+  public String getVersion() {
+    return version;
   }
 
   /**

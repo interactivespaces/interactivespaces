@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
-	2.0 (the "License"); you may not use this file except in compliance with 
-	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-	Unless required by applicable law or agreed to in writing, software distributed 
-	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version
+	2.0 (the "License"); you may not use this file except in compliance with
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for
 	the specific language governing permissions and limitations under the License. -->
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:p="http://www.springframework.org/schema/p"
@@ -166,32 +166,30 @@
 		<property name="log" ref="interactivespaces.master.logger" />
 	</bean>
 
-	<bean id="interactivespaces.activity.repository.storage"
-		class="interactivespaces.activity.repository.internal.FileSystemActivityRepositoryStorageManager"
+	<bean id="interactivespaces.resource.repository.storage"
+		class="interactivespaces.resource.repository.internal.FileSystemResourceRepositoryStorageManager"
 		destroy-method="shutdown" init-method="startup">
 
 		<property name="spaceEnvironment" ref="interactivespaces.environment" />
 	</bean>
 
-	<bean id="interactivespaces.activity.repository.manager"
-		class="interactivespaces.activity.repository.internal.SimpleActivityRepositoryManager">
+	<bean id="interactivespaces.resource.repository.manager"
+		class="interactivespaces.resource.repository.internal.SimpleActivityRepositoryManager">
 
 		<property name="activityRepository" ref="interactivespaces.repository.activity" />
 
 		<property name="repositoryStorageManager"
-			ref="interactivespaces.activity.repository.storage" />
+			ref="interactivespaces.resource.repository.storage" />
 	</bean>
 
-	<bean id="interactivespaces.activity.repository.server"
-		class="interactivespaces.activity.repository.internal.HttpActivityRepositoryServer"
+	<bean id="interactivespaces.resource.repository.server"
+		class="interactivespaces.resource.repository.internal.HttpResourceRepositoryServer"
 		destroy-method="shutdown" init-method="startup">
-
-		<property name="rosEnvironment" ref="ros.environment" />
 
 		<property name="spaceEnvironment" ref="interactivespaces.environment" />
 
 		<property name="repositoryStorageManager"
-			ref="interactivespaces.activity.repository.storage" />
+			ref="interactivespaces.resource.repository.storage" />
 	</bean>
 
 	<bean id="interactivespaces.activity.deployment.manager"
@@ -208,7 +206,7 @@
 
 		<property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
 
-		<property name="repositoryServer" ref="interactivespaces.activity.repository.server" />
+		<property name="repositoryServer" ref="interactivespaces.resource.repository.server" />
 
 		<property name="log" ref="interactivespaces.master.logger" />
 	</bean>
@@ -315,7 +313,7 @@
 				<property name="activityRepository" ref="interactivespaces.repository.activity" />
 
 				<property name="activityRepositoryManager"
-					ref="interactivespaces.activity.repository.manager" />
+					ref="interactivespaces.resource.repository.manager" />
 
 				<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
 
@@ -448,22 +446,22 @@
 
 		<property name="bundleContext" ref="bundleContext" />
 	</bean>
-	
-    <bean id="interactivespaces.master.control.file"
-        class="interactivespaces.master.server.control.MasterFileControl"
-        destroy-method="shutdown" init-method="startup">
 
-        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+	<bean id="interactivespaces.master.control.file"
+		class="interactivespaces.master.server.control.MasterFileControl"
+		destroy-method="shutdown" init-method="startup">
 
-        <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
+		<property name="spaceEnvironment" ref="interactivespaces.environment" />
 
-        <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+		<property name="spaceSystemControl" ref="interactivespaces.systemctl" />
 
-        <property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
+		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
 
-        <property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
-    </bean>
-	
+		<property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
+
+		<property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
+	</bean>
+
 	<osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
 		ref="interactivespaces.master.activity.ui" />
 

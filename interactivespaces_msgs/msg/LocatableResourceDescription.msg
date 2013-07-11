@@ -19,6 +19,9 @@
 # name of the resource
 string name
 
+# version of the resource
+string version
+
 # location of the source
 string locationUri
 

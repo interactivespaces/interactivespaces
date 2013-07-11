@@ -428,7 +428,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
         Map<String, String> metadata = Maps.newHashMap();
 
         LocatableResource resource =
-            new LocatableResource(resourceDescription.getName(),
+            new LocatableResource(resourceDescription.getName(), resourceDescription.getVersion(),
                 resourceDescription.getLocationUri(), resourceDescription.getSignature(), metadata);
 
         for (KeyValuePair pair : resourceDescription.getMetadata()) {

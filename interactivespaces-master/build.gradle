@@ -75,12 +75,12 @@ jar {
 	
     instruction 'Export-Package',
 		'!interactivespaces.controller.client.master.internal.*', 
-		'!interactivespaces.activity.repository.internal.*', 
+		'!interactivespaces.resource.repository.internal.*', 
 		'interactivespaces.*'
 		
     instruction 'Private-Package',
 		'interactivespaces.controller.client.master.internal.*', 
-		'interactivespaces.activity.repository.internal.*'
+		'interactivespaces.resource.repository.internal.*'
 		
     instruction 'Import-Package',
 		'org.apache.felix.service.command;status=provisional',

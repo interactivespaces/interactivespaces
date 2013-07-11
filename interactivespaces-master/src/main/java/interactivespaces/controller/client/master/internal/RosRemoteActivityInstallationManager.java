@@ -16,7 +16,6 @@
 
 package interactivespaces.controller.client.master.internal;
 
-import interactivespaces.activity.repository.ActivityRepositoryServer;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManager;
 import interactivespaces.controller.client.master.RemoteActivityInstallationManagerListener;
 import interactivespaces.domain.basic.Activity;
@@ -24,16 +23,15 @@ import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.resource.repository.ResourceRepositoryServer;
 
 import interactivespaces_msgs.InteractiveSpacesContainerResource;
-
 import interactivespaces_msgs.LiveActivityDeleteRequest;
 import interactivespaces_msgs.LiveActivityDeployRequest;
+import org.apache.commons.logging.Log;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.apache.commons.logging.Log;
 
 /**
  * A ROS-based Interactive Spaces activity installer.
@@ -50,7 +48,7 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
   /**
    * Server for activity repository.
    */
-  private ActivityRepositoryServer repositoryServer;
+  private ResourceRepositoryServer repositoryServer;
 
   /**
    * All listeners for installer events.
@@ -81,12 +79,14 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
     request.setUuid(liveActivity.getUuid());
     request.setIdentifyingName(activity.getIdentifyingName());
     request.setVersion(activity.getVersion());
-    request.setActivitySourceUri(repositoryServer.getActivityUri(activity));
+    request.setActivitySourceUri(repositoryServer.getResourceUri(activity.getIdentifyingName(),
+        activity.getVersion()));
 
     List<? extends ActivityDependency> dependencies = activity.getDependencies();
     if (dependencies != null) {
       for (ActivityDependency dependency : dependencies) {
-        InteractiveSpacesContainerResource resource = remoteControllerClient.newInteractiveSpacesContainerResource();
+        InteractiveSpacesContainerResource resource =
+            remoteControllerClient.newInteractiveSpacesContainerResource();
         resource.setName(dependency.getName());
         resource.setMinimumVersion(dependency.getMinimumVersion());
         resource.setMaximumVersion(dependency.getMaximumVersion());
@@ -124,7 +124,7 @@ public class RosRemoteActivityInstallationManager implements RemoteActivityInsta
    * @param repositoryServer
    *          The repository server to use. Can be null.
    */
-  public void setRepositoryServer(ActivityRepositoryServer repositoryServer) {
+  public void setRepositoryServer(ResourceRepositoryServer repositoryServer) {
     this.repositoryServer = repositoryServer;
   }
 

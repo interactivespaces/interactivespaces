@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,10 +29,10 @@ import com.google.common.collect.Maps;
 
 /**
  * A POJO implementation of a {@link Activity}.
- * 
+ *
  * <p>
  * This implementation includes a couple of extra methods.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class SimpleActivity extends SimpleObject implements Activity {
@@ -71,7 +71,7 @@ public class SimpleActivity extends SimpleObject implements Activity {
 	 * The dependencies the activity has.
 	 */
 	private List<ActivityDependency> dependencies = Lists.newArrayList();
-	
+
 	/**
 	 * The meta data for this activity.
 	 */
@@ -128,8 +128,8 @@ public class SimpleActivity extends SimpleObject implements Activity {
 	}
 
 	@Override
-	public void addDependency(ActivityDependency dependency) {
-		dependencies.add(dependency);
+	public void setDependencies(List<ActivityDependency> dependencies) {
+		this.dependencies = dependencies;
 	}
 
 	@Override

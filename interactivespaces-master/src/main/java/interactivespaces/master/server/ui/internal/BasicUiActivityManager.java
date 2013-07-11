@@ -16,7 +16,6 @@
 
 package interactivespaces.master.server.ui.internal;
 
-import interactivespaces.activity.repository.ActivityRepositoryManager;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -35,6 +34,7 @@ import interactivespaces.master.server.services.internal.LiveActivityInstallResu
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MetadataJsonSupport;
 import interactivespaces.master.server.ui.UiActivityManager;
+import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.InputStream;
