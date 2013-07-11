@@ -167,16 +167,20 @@ function mvnsub {
   (cd $SUBDIR; mvn $@)
 }
 
+function install_android {
+  VER=$1
+  echo You need to install android at least $VER, try tools/install_android.sh
+  false
+}
+
 function install_gradle {
   VER=$1
-  echo You need to instal gradle $VER. Please see
-  echo "http://www.gradle.org/downloads"
+  echo You need to instal gradle at least $VER, try tools/install_gradle.sh
   false
 }
 
 function install_ros {
   VER=$1
-  echo You need to install ROS $VER. Please see
-  echo "http://www.ros.org/wiki/$VER/Installation"
+  echo You need to install ROS $VER. try tools/install_ros.sh
   false
 }

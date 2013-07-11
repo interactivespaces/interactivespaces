@@ -21,8 +21,8 @@ checkprop jsr80    1.0.1
 checkprop usb4java 1.0.0
 checkprop jython   jython
 
-check_android sdk 21.1 
-check_android platform android-16
+check_android sdk 21.1 || install_android 21.1
+check_android platform android-17
 
 check_ros main fuerte || install_ros fuerte
 check_ros path $PWD
