@@ -19,6 +19,7 @@ package interactivespaces.service.comm.serial.xbee.internal;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
+import interactivespaces.util.InteractiveSpacesUtilities;
 
 /**
  * An XBee frame reader which supports the Escaped API.
@@ -30,6 +31,11 @@ import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
  * @author Keith M. Hughes
  */
 public class EscapedXBeeFrameReader {
+
+  /**
+   * The number of milliseconds to wait for a start frame if we don't have one.
+   */
+  public static final int START_FRAME_WAIT_DELAY = 100;
 
   /**
    * The endpoint which is connected to the XBee.
@@ -46,10 +52,14 @@ public class EscapedXBeeFrameReader {
    * @return {@code true} if the start of frame was found, {@code false} if
    *         stream ended
    */
-  public boolean waitForStartFrame() {
+  public boolean waitForStartFrame() throws InterruptedException {
     // Read until either the frame start byte is read or the end of stream
     // is reached.
     int b;
+    while (endpoint.available() == 0) {
+      Thread.sleep(START_FRAME_WAIT_DELAY);
+    }
+
     while ((b = endpoint.read()) != XBeeApiConstants.FRAME_START_BYTE && b != -1)
       ;
 

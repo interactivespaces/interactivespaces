@@ -98,8 +98,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
       @Override
       protected void cleanup() {
-
-        log.info("Serial connection shut down");
+        log.info("XBee serial connection read loop shut down");
       }
     };
 
@@ -115,8 +114,6 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
       readerLoop = null;
     }
-
-    log.info("Reader loop shut down");
 
     if (commEndpoint != null) {
       commEndpoint.shutdown();
@@ -197,7 +194,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   /**
    * Read a frame from the connected XBee
    */
-  private void readFrame() {
+  private void readFrame() throws InterruptedException {
     if (!reader.waitForStartFrame()) {
       log.warn("End of XBee serial stream detected");
       return;

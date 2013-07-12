@@ -123,42 +123,32 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
 
   @Override
   public void shutdown() {
-    spaceEnvironment.getExecutorService().submit(new Runnable() {
+    try {
+      port.removeEventListener();
+    } catch (Exception e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
 
-      @Override
-      public void run() {
+    try {
+      port.getInputStream().close();
+    } catch (Exception e) {
+      // Don't care
+    }
 
-        try {
-          port.removeEventListener();
-        } catch (Exception e1) {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
-        }
+    try {
+      port.getOutputStream().close();
+    } catch (Exception e) {
+      // Don't care
+    }
 
-        try {
-          port.getInputStream().close();
-        } catch (Exception e) {
-          // Don't care
-        }
-        log.info("Input stream closed");
-        try {
-          port.getOutputStream().close();
-        } catch (Exception e) {
-          // Don't care
-        }
-        log.info("Output stream closed");
-
-        log.info(String.format("Shutting down serial port %s", portName));
-        try {
-          port.close();
-          log.info(String.format("Closed serial port %s", portName));
-        } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-
-      }
-    });
+    log.info(String.format("Shutting down serial port %s", portName));
+    try {
+      port.close();
+      log.info(String.format("Closed serial port %s", portName));
+    } catch (Exception e) {
+      log.error(String.format("Error closing serial port %s", portName), e);
+    }
   }
 
   @Override

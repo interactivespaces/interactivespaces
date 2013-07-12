@@ -112,7 +112,6 @@ public class BaseRequestXBeeFrame implements RequestXBeeFrame {
 
     commEndpoint.write(bytes);
     commEndpoint.flush();
-    System.out.println("Done writing frame");
   }
 
   /**
