@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,123 +31,120 @@ import org.apache.commons.logging.Log;
 
 /**
  * A {@link JukeboxOperation} which shuffles from the repository.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
-	
-	/**
-	 * The shuffle is running.
-	 */
-	private boolean isRunning;
 
-	/**
-	 * Tracks which have already been played.
-	 */
-	private Collection<PlayableAudioTrack> tracksAlreadyPlayed;
+  /**
+   * The shuffle is running.
+   */
+  private boolean isRunning;
 
-	/**
-	 * Music repository to get a new track.
-	 */
-	private AudioRepository musicRepository;
+  /**
+   * Tracks which have already been played.
+   */
+  private Collection<PlayableAudioTrack> tracksAlreadyPlayed;
 
-	/**
-	 * The track player for the track
-	 */
-	private AudioTrackPlayer player;
+  /**
+   * Music repository to get a new track.
+   */
+  private AudioRepository musicRepository;
 
-	/**
-	 * Current track being played.
-	 */
-	private PlayableAudioTrack currentTrack;
+  /**
+   * The track player for the track
+   */
+  private AudioTrackPlayer player;
 
-	/**
-	 * The runnable which will check on the track player.
-	 */
-	private Runnable runnable;
+  /**
+   * Current track being played.
+   */
+  private PlayableAudioTrack currentTrack;
 
-	/**
-	 * Handle for periodic task scanning the player.
-	 */
-	private ScheduledFuture<?> playingFuture;
+  /**
+   * The runnable which will check on the track player.
+   */
+  private Runnable runnable;
 
-	public ShuffleJukeboxOperation(
-			Collection<PlayableAudioTrack> tracksAlreadyPlayed,
-			Configuration configuration, AudioRepository musicRepository,
-			AudioTrackPlayerFactory trackPlayerFactory,
-			ScheduledExecutorService executor,
-			AudioJukeboxListener listener, Log log) {
-		super(configuration, trackPlayerFactory, executor, listener, log);
+  /**
+   * Handle for periodic task scanning the player.
+   */
+  private ScheduledFuture<?> playingFuture;
 
-		this.tracksAlreadyPlayed = tracksAlreadyPlayed;
-		this.musicRepository = musicRepository;
-		isRunning = false;
+  public ShuffleJukeboxOperation(Collection<PlayableAudioTrack> tracksAlreadyPlayed,
+      Configuration configuration, AudioRepository musicRepository,
+      AudioTrackPlayerFactory trackPlayerFactory, ScheduledExecutorService executor,
+      AudioJukeboxListener listener, Log log) {
+    super(configuration, trackPlayerFactory, executor, listener, log);
 
-		runnable = new Runnable() {
-			@Override
-			public void run() {
-				checkPlayer();
-			}
-		};
-	}
+    this.tracksAlreadyPlayed = tracksAlreadyPlayed;
+    this.musicRepository = musicRepository;
+    isRunning = false;
 
-	@Override
-	public synchronized void start() {
-		log.info("Starting music jukebox shuffle play");
-		if (!isRunning) {
-			playingFuture = executor.scheduleAtFixedRate(runnable, 0, 500,
-					TimeUnit.MILLISECONDS);
+    runnable = new Runnable() {
+      @Override
+      public void run() {
+        checkPlayer();
+      }
+    };
+  }
 
-			isRunning = true;
-		}
-	}
+  @Override
+  public synchronized void start() {
+    log.info("Starting music jukebox shuffle play");
+    if (!isRunning) {
+      playingFuture = executor.scheduleAtFixedRate(runnable, 0, 500, TimeUnit.MILLISECONDS);
 
-	@Override
-	public void pause() {
-		log.warn("Currently no way to pause playing");
-	}
+      isRunning = true;
+    }
+  }
 
-	@Override
-	public synchronized void stop() {
-		log.info("Stopping music jukebox shuffle play " + isRunning);
-		if (isRunning) {
-			playingFuture.cancel(true);
-			if (player != null && player.isPlaying()) {
-				player.stop();
-				player = null;
-			}
+  @Override
+  public void pause() {
+    log.warn("Currently no way to pause playing");
+  }
 
-			isRunning = false;
-		}
-	}
+  @Override
+  public synchronized void stop() {
+    log.info("Stopping music jukebox shuffle play " + isRunning);
+    if (isRunning) {
+      playingFuture.cancel(true);
+      if (player != null && player.isPlaying()) {
+        player.stop();
+        player = null;
+      }
 
-	@Override
-	public synchronized boolean isRunning() {
-		return isRunning;
-	}
+      isRunning = false;
+    }
+  }
 
-	/**
-	 * Check how the player is doing.
-	 */
-	private synchronized void checkPlayer() {
-		if (player != null) {
-			if (player.isPlaying()) {
-				return;
-			} else {
-				player = null;
-				listener.onJukeboxTrackStop(this, currentTrack);
-			}
-		}
+  @Override
+  public synchronized boolean isRunning() {
+    return isRunning;
+  }
 
-		try {
-			currentTrack = musicRepository.getRandomTrack(tracksAlreadyPlayed);
-			tracksAlreadyPlayed.add(currentTrack);
-			player = trackPlayerFactory.newTrackPlayer(currentTrack, configuration, log);
-			player.start(0, 0);
+  /**
+   * Check how the player is doing.
+   */
+  private synchronized void checkPlayer() {
+    if (player != null) {
+      if (player.isPlaying()) {
+        return;
+      } else {
+        player = null;
+        listener.onJukeboxTrackStop(this, currentTrack);
+      }
+    }
 
-			listener.onJukeboxTrackStart(this, currentTrack);
-		} catch (Exception e) {
-			log.error(String.format("Could not start up track %s", currentTrack), e);
-		}
-	}
+    try {
+      currentTrack = musicRepository.getRandomTrack(tracksAlreadyPlayed);
+      tracksAlreadyPlayed.add(currentTrack);
+      player = trackPlayerFactory.newTrackPlayer(currentTrack, configuration, log);
+      player.start(0, 0);
+
+      listener.onJukeboxTrackStart(this, currentTrack);
+    } catch (Exception e) {
+      log.error(String.format("Could not start up track %s", currentTrack), e);
+    }
+  }
 }

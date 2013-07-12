@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,118 +29,112 @@ import org.apache.commons.logging.Log;
 
 /**
  * A {@link JukeboxOperation} for playing a track.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
-	
-	/**
-	 * The track to be played.
-	 */
-	private PlayableAudioTrack track;
 
-	/**
-	 * Number of milliseconds into the begin of the track
-	 */
-	private long begin;
+  /**
+   * The track to be played.
+   */
+  private PlayableAudioTrack track;
 
-	/**
-	 * Duration of the play.
-	 */
-	private long duration;
+  /**
+   * Number of milliseconds into the begin of the track
+   */
+  private long begin;
 
-	/**
-	 * The track player being used to play the track.
-	 * 
-	 * <p>
-	 * Will be {@code null} if no track is being played.
-	 */
-	private AudioTrackPlayer player;
+  /**
+   * Duration of the play.
+   */
+  private long duration;
 
-	/**
-	 * The runnable which will check on the track player.
-	 */
-	private Runnable runnable;
+  /**
+   * The track player being used to play the track.
+   *
+   * <p>
+   * Will be {@code null} if no track is being played.
+   */
+  private AudioTrackPlayer player;
 
-	/**
-	 * Handle for periodic task scanning the player.
-	 */
-	private ScheduledFuture<?> playingFuture;
+  /**
+   * The runnable which will check on the track player.
+   */
+  private Runnable runnable;
 
-	public PlayTrackJukeboxOperation(PlayableAudioTrack track, long begin,
-			long duration, Configuration configuration,
-			AudioTrackPlayerFactory trackPlayerFactory,
-			ScheduledExecutorService executor,
-			AudioJukeboxListener listener, Log log) {
-		super(configuration, trackPlayerFactory, executor, listener, log);
+  /**
+   * Handle for periodic task scanning the player.
+   */
+  private ScheduledFuture<?> playingFuture;
 
-		this.track = track;
-		this.begin = begin;
-		this.duration = duration;
+  public PlayTrackJukeboxOperation(PlayableAudioTrack track, long begin, long duration,
+      Configuration configuration, AudioTrackPlayerFactory trackPlayerFactory,
+      ScheduledExecutorService executor, AudioJukeboxListener listener, Log log) {
+    super(configuration, trackPlayerFactory, executor, listener, log);
 
-		runnable = new Runnable() {
-			@Override
-			public void run() {
-				checkPlayer();
-			}
-		};
-	}
+    this.track = track;
+    this.begin = begin;
+    this.duration = duration;
 
-	@Override
-	public void start() {
-		synchronized (this) {
-			playingFuture = executor.scheduleAtFixedRate(runnable, 0, 500,
-					TimeUnit.MILLISECONDS);
+    runnable = new Runnable() {
+      @Override
+      public void run() {
+        checkPlayer();
+      }
+    };
+  }
 
-		}
+  @Override
+  public void start() {
+    synchronized (this) {
+      playingFuture = executor.scheduleAtFixedRate(runnable, 0, 500, TimeUnit.MILLISECONDS);
 
-		listener.onJukeboxTrackStart(this, track);
-	}
+    }
 
-	@Override
-	public void pause() {
-		log.warn("Currently no way to pause playing");
-	}
+    listener.onJukeboxTrackStart(this, track);
+  }
 
-	@Override
-	public synchronized void stop() {
-		synchronized (this) {
-			if (player != null) {
-				playingFuture.cancel(true);
+  @Override
+  public void pause() {
+    log.warn("Currently no way to pause playing");
+  }
 
-				player.stop();
-				player = null;
-			}
-		}
+  @Override
+  public synchronized void stop() {
+    synchronized (this) {
+      if (player != null) {
+        playingFuture.cancel(true);
 
-		listener.onJukeboxTrackStop(this, track);
-	}
+        player.stop();
+        player = null;
+      }
+    }
 
-	@Override
-	public synchronized boolean isRunning() {
-		return player != null && player.isPlaying();
-	}
+    listener.onJukeboxTrackStop(this, track);
+  }
 
-	/**
-	 * Check how the player is doing.
-	 */
-	private synchronized void checkPlayer() {
-		if (player != null) {
-			if (player.isPlaying()) {
-				return;
-			} else {
-				player = null;
-				listener.onJukeboxTrackStop(this, track);
-				listener.onJukeboxOperationComplete(this);
+  @Override
+  public synchronized boolean isRunning() {
+    return player != null && player.isPlaying();
+  }
 
-				playingFuture.cancel(true);
-			}
-		} else {
-			player = trackPlayerFactory.newTrackPlayer(track, configuration,
-					log);
-			player.start(begin, duration);
-		}
+  /**
+   * Check how the player is doing.
+   */
+  private synchronized void checkPlayer() {
+    if (player != null) {
+      if (player.isPlaying()) {
+        return;
+      } else {
+        player = null;
+        listener.onJukeboxTrackStop(this, track);
+        listener.onJukeboxOperationComplete(this);
 
-	}
-
+        playingFuture.cancel(true);
+      }
+    } else {
+      player = trackPlayerFactory.newTrackPlayer(track, configuration, log);
+      player.start(begin, duration);
+    }
+  }
 }

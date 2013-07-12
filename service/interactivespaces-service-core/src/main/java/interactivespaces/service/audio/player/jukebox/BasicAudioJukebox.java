@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,124 +29,120 @@ import org.apache.commons.logging.Log;
 import com.google.common.collect.Sets;
 
 /**
- * a veryt basic audio jukebox.
- * 
+ * a very basic audio jukebox.
+ *
  * @author Keith M. Hughes
  */
 public class BasicAudioJukebox implements AudioJukebox {
 
-	/**
-	 * The music repository this is a jukebox for.
-	 */
-	private AudioRepository musicRepository;
+  /**
+   * The music repository this is a jukebox for.
+   */
+  private AudioRepository musicRepository;
 
-	/**
-	 * The factory for track players.
-	 */
-	private AudioTrackPlayerFactory trackPlayerFactory;
+  /**
+   * The factory for track players.
+   */
+  private AudioTrackPlayerFactory trackPlayerFactory;
 
-	/**
-	 * A set of all tracks played since this jukebox was started.
-	 */
-	private Set<PlayableAudioTrack> tracksAlreadyPlayed;
+  /**
+   * A set of all tracks played since this jukebox was started.
+   */
+  private Set<PlayableAudioTrack> tracksAlreadyPlayed;
 
-	/**
-	 * Current operation the jukebox is doing. Can be {@code null} if nothing is
-	 * happening.
-	 */
-	private JukeboxOperation currentOperation;
+  /**
+   * Current operation the jukebox is doing. Can be {@code null} if nothing is
+   * happening.
+   */
+  private JukeboxOperation currentOperation;
 
-	/**
-	 * Threads for the jukebox.
-	 */
-	private ScheduledExecutorService executorService;
+  /**
+   * Threads for the jukebox.
+   */
+  private ScheduledExecutorService executorService;
 
-	/**
-	 * configuration for the jukebox.
-	 */
-	private Configuration configuration;
+  /**
+   * configuration for the jukebox.
+   */
+  private Configuration configuration;
 
-	/**
-	 * Logger for the jukebox.
-	 */
-	private Log log;
+  /**
+   * Logger for the jukebox.
+   */
+  private Log log;
 
-	/**
-	 * Listener for jukebox events.
-	 */
-	private AudioJukeboxListener listener;
+  /**
+   * Listener for jukebox events.
+   */
+  private AudioJukeboxListener listener;
 
-	public BasicAudioJukebox(AudioRepository musicRepository,
-			AudioTrackPlayerFactory trackPlayerFactory,
-			ScheduledExecutorService executorService,
-			Configuration configuration, Log log) {
-		this.musicRepository = musicRepository;
-		this.trackPlayerFactory = trackPlayerFactory;
-		this.executorService = executorService;
-		this.configuration = configuration;
-		this.log = log;
-	}
+  public BasicAudioJukebox(AudioRepository musicRepository,
+      AudioTrackPlayerFactory trackPlayerFactory, ScheduledExecutorService executorService,
+      Configuration configuration, Log log) {
+    this.musicRepository = musicRepository;
+    this.trackPlayerFactory = trackPlayerFactory;
+    this.executorService = executorService;
+    this.configuration = configuration;
+    this.log = log;
+  }
 
-	@Override
-	public void setListener(AudioJukeboxListener listener) {
-		this.listener = listener;
-	}
+  @Override
+  public void setListener(AudioJukeboxListener listener) {
+    this.listener = listener;
+  }
 
-	@Override
-	public void startup() {
-		tracksAlreadyPlayed = Sets.newHashSet();
-	}
+  @Override
+  public void startup() {
+    tracksAlreadyPlayed = Sets.newHashSet();
+  }
 
-	@Override
-	public void shutdown() {
-		shutdownCurrentOperation();
-	}
-	
-	@Override
-	public void startPlayTrackOperation(String id, long begin, long duration) {
-		log.info(String.format("Beginning track play of %s at %d:%d", id,
-				begin, duration));
+  @Override
+  public void shutdown() {
+    shutdownCurrentOperation();
+  }
 
-		PlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
-		if (ptrack != null) {
-			startNewOperation(new PlayTrackJukeboxOperation(ptrack, begin,
-					duration, configuration, trackPlayerFactory,
-					executorService, listener, log));
-		} else {
-			log.warn(String.format("Unable to find track %s", id));
-		}
-	}
+  @Override
+  public void startPlayTrackOperation(String id, long begin, long duration) {
+    log.info(String.format("Beginning track play of %s at %d:%d", id, begin, duration));
 
-	@Override
-	public void startShuffleTrackOperation() {
-		log.info("Beginning shuffle play");
+    PlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
+    if (ptrack != null) {
+      startNewOperation(new PlayTrackJukeboxOperation(ptrack, begin, duration, configuration,
+          trackPlayerFactory, executorService, listener, log));
+    } else {
+      log.warn(String.format("Unable to find track %s", id));
+    }
+  }
 
-		startNewOperation(new ShuffleJukeboxOperation(tracksAlreadyPlayed,
-				configuration, musicRepository, trackPlayerFactory,
-				executorService, listener, log));
-	}
+  @Override
+  public void startShuffleTrackOperation() {
+    log.info("Beginning shuffle play");
 
-	@Override
-	public void shutdownCurrentOperation() {
-		if (currentOperation != null) {
-			currentOperation.stop();
+    startNewOperation(new ShuffleJukeboxOperation(tracksAlreadyPlayed, configuration,
+        musicRepository, trackPlayerFactory, executorService, listener, log));
+  }
 
-			currentOperation = null;
-		}
-	}
+  @Override
+  public void shutdownCurrentOperation() {
+    if (currentOperation != null) {
+      currentOperation.stop();
 
-	/**
-	 * Start up a new operation.
-	 * 
-	 * <p>
-	 * If there is an old one, it will be stopped.
-	 * 
-	 * @param newOperation
-	 *            the new operation to run
-	 */
-	private void startNewOperation(JukeboxOperation newOperation) {
-		shutdownCurrentOperation();
-		currentOperation = newOperation;
-		newOperation.start();
-	}
+      currentOperation = null;
+    }
+  }
+
+  /**
+   * Start up a new operation.
+   *
+   * <p>
+   * If there is an old one, it will be stopped.
+   *
+   * @param newOperation
+   *          the new operation to run
+   */
+  private void startNewOperation(JukeboxOperation newOperation) {
+    shutdownCurrentOperation();
+    currentOperation = newOperation;
+    newOperation.start();
+  }
 }
