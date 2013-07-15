@@ -273,6 +273,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void startBundle(Bundle bundle) {
     try {
+
       bundle.start();
     } catch (Exception e) {
       loggingProvider.getLog().error(
