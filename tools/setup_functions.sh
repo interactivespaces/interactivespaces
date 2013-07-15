@@ -109,6 +109,15 @@ function check_android {
   report_status android-$pkg $ver $status $installed
 }
 
+function setup_ros_path {
+  VER=$1
+  CLEANPATH=${ROS_PACKAGE_PATH#*interactive-spaces:}
+  if [ $CLEANPATH == $ROS_PACKAGE_PATH ]; then
+    export ROS_PACKAGE_PATH=$VER:$CLEANPATH
+    echo Set ROS_PACKAGE_PATH to $ROS_PACKAGE_PATH
+  fi
+}
+
 function check_ros {
   pkg=$1
   ver=$2
@@ -182,5 +191,11 @@ function install_gradle {
 function install_ros {
   VER=$1
   echo You need to install ROS $VER. try tools/install_ros.sh
+  false
+}
+
+function install_maven {
+  VER=$1
+  echo You need to install a local maven repo, try tools/install_maven.sh
   false
 }

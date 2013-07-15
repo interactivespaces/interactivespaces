@@ -25,6 +25,7 @@ check_android sdk 21.1 || install_android 21.1
 check_android platform android-17
 
 check_ros main fuerte || install_ros fuerte
+setup_ros_path $PWD
 check_ros path $PWD
 
-check_maven repository $HOME/.m2
+check_maven repository $HOME/.m2 || install_maven m2
