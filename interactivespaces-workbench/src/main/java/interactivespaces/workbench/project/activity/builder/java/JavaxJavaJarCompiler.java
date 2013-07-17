@@ -19,6 +19,7 @@ package interactivespaces.workbench.project.activity.builder.java;
 import com.google.common.collect.Lists;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ProjectBuildContext;
@@ -69,10 +70,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       } else {
         return false;
       }
+    } catch (SimpleInteractiveSpacesException e) {
+      System.err.println(e.getMessage());
+      return false;
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
-
       return false;
     }
   }
@@ -151,7 +153,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          collection to add found files in
    */
   private void scanDirectory(File directory, List<File> files) {
-    for (File file : directory.listFiles()) {
+    File[] directoryListing = directory.listFiles();
+    if (directoryListing == null || directoryListing.length == 0) {
+      throw new SimpleInteractiveSpacesException("Empty/missing directory " + directory);
+    }
+    for (File file : directoryListing) {
       if (!file.getName().startsWith(".")) {
         if (file.isDirectory()) {
           scanDirectory(file, files);
