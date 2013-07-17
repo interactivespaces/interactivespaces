@@ -7,6 +7,13 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # Get to the directory above the bin directory.
 cd $DIR/..
 
+# Read user configuration file, if present.
+RCFILE=$HOME/.interactivespaces.rc
+if [ -f $RCFILE ]; then
+  echo Reading config from $RCFILE...
+  source $RCFILE
+fi
+
 # Start up Interactive Spaces
 if [ $# == 0 ] || [ $1 == "foreground" ]; then
   java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar
