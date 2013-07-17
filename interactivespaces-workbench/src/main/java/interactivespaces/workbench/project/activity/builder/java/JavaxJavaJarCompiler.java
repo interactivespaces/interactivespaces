@@ -159,6 +159,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     File[] directoryListing = directory.listFiles();
     if (directoryListing != null) {
       for (File file : directoryListing) {
+        // Check for hidden directories, we don't want those.
         if (!file.getName().startsWith(".")) {
           if (file.isDirectory()) {
             scanDirectory(file, files);
