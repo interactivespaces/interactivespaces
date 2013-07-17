@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity.builder;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectResource;
@@ -58,6 +59,10 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
       } else {
         return false;
       }
+    } catch (SimpleInteractiveSpacesException e) {
+      System.out.format("Error while building project: %s\n", e.getMessage());
+
+      return false;
     } catch (InteractiveSpacesException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

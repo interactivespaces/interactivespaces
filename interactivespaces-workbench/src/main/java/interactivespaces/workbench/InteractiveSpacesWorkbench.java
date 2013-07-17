@@ -16,7 +16,10 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.collect.Lists;
+
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.ActivityVersionValidator;
@@ -54,8 +57,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
 
 /**
  * A workbench for working with Interactive Spaces Activity development.
@@ -182,6 +183,10 @@ public class InteractiveSpacesWorkbench {
       if ("activity".equals(project.getType())) {
         try {
           activityProjectPackager.packageActivityProject(project, context);
+        } catch (SimpleInteractiveSpacesException e) {
+          System.out.format("Error while building project: %s\n", e.getMessage());
+
+          return false;
         } catch (Exception e) {
           // TODO Auto-generated catch block
           e.printStackTrace();

@@ -19,6 +19,7 @@ package interactivespaces.workbench.project.library;
 import java.io.File;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
@@ -32,70 +33,72 @@ import interactivespaces.workbench.project.activity.builder.java.JavaxJavaJarCom
  */
 public class JavaLibraryProjectBuilder implements ProjectBuilder {
 
-	/**
-	 * File extension to give the build artifact
-	 */
-	private static final String JAR_FILE_EXTENSION = "jar";
+  /**
+   * File extension to give the build artifact
+   */
+  private static final String JAR_FILE_EXTENSION = "jar";
 
-	/**
-	 * The compiler for Java JARs
-	 */
-	private JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+  /**
+   * The compiler for Java JARs
+   */
+  private JavaJarCompiler compiler = new JavaxJavaJarCompiler();
 
-	@Override
-	public boolean build(Project project, ProjectBuildContext context) {
-		try {
-			File buildDirectory = context.getBuildDirectory();
-			File compilationFolder = getOutputDirectory(buildDirectory);
-			File jarDestinationFile = getBuildDestinationFile(project,
-					buildDirectory);
+  @Override
+  public boolean build(Project project, ProjectBuildContext context) {
+    try {
+      File buildDirectory = context.getBuildDirectory();
+      File compilationFolder = getOutputDirectory(buildDirectory);
+      File jarDestinationFile = getBuildDestinationFile(project, buildDirectory);
 
-			return compiler.build(jarDestinationFile, compilationFolder, null, context);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+      return compiler.build(jarDestinationFile, compilationFolder, null, context);
+    } catch (SimpleInteractiveSpacesException e) {
+      System.out.format("Error while building project: %s\n", e.getMessage());
 
-			return false;
-		}
-	}
+      return false;
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
 
-	/**
-	 * Create the output directory for the activity compilation
-	 *
-	 * @param buildDirectory
-	 *            the root of the build folder
-	 *
-	 * @return the output directory for building
-	 */
-	private File getOutputDirectory(File buildDirectory) {
-		File outputDirectory = new File(buildDirectory, "classes");
-		if (!outputDirectory.exists()) {
-			if (!outputDirectory.mkdirs()) {
-				throw new InteractiveSpacesException(String.format(
-						"Cannot create Java compiler output directory %s",
-						outputDirectory));
-			}
-		}
+      return false;
+    }
+  }
 
-		return outputDirectory;
-	}
+  /**
+   * Create the output directory for the activity compilation
+   *
+   * @param buildDirectory
+   *          the root of the build folder
+   *
+   * @return the output directory for building
+   */
+  private File getOutputDirectory(File buildDirectory) {
+    File outputDirectory = new File(buildDirectory, "classes");
+    if (!outputDirectory.exists()) {
+      if (!outputDirectory.mkdirs()) {
+        throw new InteractiveSpacesException(String.format(
+            "Cannot create Java compiler output directory %s", outputDirectory));
+      }
+    }
 
-	/**
-	 * Get the build destination file.
-	 *
-	 * <p>
-	 * Any subdirectories needed will be created.
-	 *
-	 * @param project
-	 *            the project being built
-	 * @param buildDirectory
-	 *            where the artifact will be built
-	 *
-	 * @return the file where the build should be written
-	 */
-	private File getBuildDestinationFile(Project project, File buildDirectory) {
-		return new File(buildDirectory, project.getIdentifyingName() + "-"
-				+ project.getVersion() + "." + JAR_FILE_EXTENSION);
-	}
+    return outputDirectory;
+  }
+
+  /**
+   * Get the build destination file.
+   *
+   * <p>
+   * Any subdirectories needed will be created.
+   *
+   * @param project
+   *          the project being built
+   * @param buildDirectory
+   *          where the artifact will be built
+   *
+   * @return the file where the build should be written
+   */
+  private File getBuildDestinationFile(Project project, File buildDirectory) {
+    return new File(buildDirectory, project.getIdentifyingName() + "-" + project.getVersion() + "."
+        + JAR_FILE_EXTENSION);
+  }
 
 }

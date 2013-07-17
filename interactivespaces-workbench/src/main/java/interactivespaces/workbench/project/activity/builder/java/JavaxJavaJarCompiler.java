@@ -102,6 +102,9 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     }
 
     List<File> compilationFiles = getCompilationFiles(project);
+    if (compilationFiles.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("No Java source files for Java project");
+    }
 
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
@@ -154,15 +157,14 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    */
   private void scanDirectory(File directory, List<File> files) {
     File[] directoryListing = directory.listFiles();
-    if (directoryListing == null || directoryListing.length == 0) {
-      throw new SimpleInteractiveSpacesException("Empty/missing directory " + directory);
-    }
-    for (File file : directoryListing) {
-      if (!file.getName().startsWith(".")) {
-        if (file.isDirectory()) {
-          scanDirectory(file, files);
-        } else {
-          files.add(file);
+    if (directoryListing != null) {
+      for (File file : directoryListing) {
+        if (!file.getName().startsWith(".")) {
+          if (file.isDirectory()) {
+            scanDirectory(file, files);
+          } else {
+            files.add(file);
+          }
         }
       }
     }
