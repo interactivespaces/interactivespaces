@@ -226,12 +226,6 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (File bundleFile : jars) {
       String bundleUri = bundleFile.toURI().toString();
 
-      // TODO(keith): See if way to start up shell from property
-      // since we may want it for remote access.
-      if (bundleUri.contains("gogo") && !needShell) {
-        continue;
-      }
-
       Bundle b = rootBundleContext.installBundle(bundleUri);
 
       int startLevel = 1;
@@ -254,7 +248,8 @@ public class InteractiveSpacesFrameworkBootstrap {
       if (!isFragment(bundle)) {
         // TODO(keith): See if way to start up shell from property
         // since we may want it for remote access.
-        if (bundle.getLocation().contains("gogo") && !needShell) {
+        String symbolicName = bundle.getSymbolicName();
+        if (symbolicName.equals("org.apache.felix.gogo.shell") && !needShell) {
           continue;
         }
 
