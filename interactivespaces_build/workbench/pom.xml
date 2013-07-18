@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Copyright (C) 2012 Google Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-workbench-installer</artifactId>
-	<version>1.4.3</version>
+	<version>1.5.0</version>
 
 	<name>Interactive Spaces Workbench</name>
 
@@ -111,7 +111,7 @@ the License.
 				</executions>
 			</plugin>
 
-			<!-- prepare dependencies so that izpack jar tag to pickup at compile 
+			<!-- prepare dependencies so that izpack jar tag to pickup at compile
 				time -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -190,7 +190,7 @@ the License.
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
                                 </artifactItem>
-								
+
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>interactivespaces-workbench</artifactId>
@@ -367,7 +367,7 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-                                
+
                                 <!-- alternates -->
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>

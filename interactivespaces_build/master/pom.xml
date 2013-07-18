@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Copyright (C) 2012 Google Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-master-installer</artifactId>
-	<version>1.4.3</version>
+	<version>1.5.0</version>
 
 	<name>Interactive Spaces Master</name>
 
@@ -38,13 +38,13 @@ the License.
 			<artifactId>plexus-utils</artifactId>
 			<version>1.5.6</version>
 		</dependency>
-        
+
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>properties-maven-plugin</artifactId>
             <version>1.0-alpha-2</version>
         </dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -72,7 +72,7 @@ the License.
                 </execution>
               </executions>
             </plugin>
-		    
+
 			<!-- configure the compiler to use 1.6 -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -128,7 +128,7 @@ the License.
 				</executions>
 			</plugin>
 
-			<!-- prepare dependencies so that izpack jar tag to pickup at compile 
+			<!-- prepare dependencies so that izpack jar tag to pickup at compile
 				time -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -208,7 +208,7 @@ the License.
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
                                 </artifactItem>
-								
+
 								<!-- Bootstrap folder -->
 
 								<!-- OSGi bundles needed -->
@@ -395,7 +395,7 @@ the License.
 								</artifactItem>
 
 								<!-- ROS zeroconf -->
-								<!-- 
+								<!--
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
 									<artifactId>rosjava_zeroconf_common</artifactId>
@@ -475,7 +475,7 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-																
+
 								<!-- Expression language -->
 								<artifactItem>
 									<groupId>org.apache.commons</groupId>
@@ -491,9 +491,9 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-								<!-- <artifactItem> <groupId>jivesoftware</groupId> <artifactId>smack</artifactId> 
-									<version>3.1.0</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem> 
-									<artifactItem> <groupId>jivesoftware</groupId> <artifactId>smackx</artifactId> 
+								<!-- <artifactItem> <groupId>jivesoftware</groupId> <artifactId>smack</artifactId>
+									<version>3.1.0</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem>
+									<artifactItem> <groupId>jivesoftware</groupId> <artifactId>smackx</artifactId>
 									<version>3.1.0</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem> -->
 
 								<!-- Interactive Spaces System -->
@@ -590,7 +590,7 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-								<!-- 
+								<!--
 								<artifactItem>
 									<groupId>javax.servlet</groupId>
 									<artifactId>javax.servlet-api</artifactId>
@@ -722,7 +722,7 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-								
+
 								<!-- Interactive Spaces scheduler -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
@@ -754,7 +754,7 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-								
+
                                 <!-- Interactive Spaces mail alerts -->
                                 <artifactItem>
                                     <groupId>interactivespaces</groupId>
@@ -791,7 +791,7 @@ the License.
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
-                                								
+
 								<!-- Interactive Spaces master -->
 								<artifactItem>
 									<groupId>interactivespaces</groupId>
@@ -914,8 +914,8 @@ the License.
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
-								<!-- Comes in from PAX <artifactItem> <groupId></groupId> 
-									<artifactId></artifactId> <version>3.0.0.v201103241009</version> 
+								<!-- Comes in from PAX <artifactItem> <groupId></groupId>
+									<artifactId></artifactId> <version>3.0.0.v201103241009</version>
 									<type>jar</type> <overWrite>true</overWrite> </artifactItem> -->
 								<artifactItem>
 									<groupId>org.apache.commons</groupId>
