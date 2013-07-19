@@ -38,7 +38,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipOutputStream;
 
 import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
@@ -51,7 +50,13 @@ import javax.tools.ToolProvider;
  */
 public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
-  private static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
+  /**
+   * configuration property for adding options to the JavaC compiler.
+   */
+  public static final String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
+      "interactivespaces.workbench.builder.java.compileflags";
+
+  public static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
 
   @Override
   public boolean build(File jarDestinationFile, File compilationFolder,
@@ -114,17 +119,44 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
     Iterable<? extends JavaFileObject> compilationUnits1 =
         fileManager.getJavaFileObjectsFromFiles(compilationFiles);
+
+    List<String> compilerOptions = getCompilerOptions(context);
+
+    System.out.println(compilerOptions);
+
+    Boolean success =
+        compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1).call();
+
+    fileManager.close();
+
+    return success;
+  }
+
+  /**
+   * Get all compiler options to be used.
+   *
+   * @param context
+   *          the build context
+   *
+   * @return the complete compiler options
+   */
+  private List<String> getCompilerOptions(ProjectBuildContext context) {
     List<String> options = Lists.newArrayList();
     options.add("-source");
     options.add("1.6");
     options.add("-target");
     options.add("1.6");
-    Boolean success =
-        compiler.getTask(null, fileManager, null, options, null, compilationUnits1).call();
 
-    fileManager.close();
-
-    return success;
+    String extraOptions =
+        context.getWorkbench().getWorkbenchConfig()
+            .getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
+    if (extraOptions != null) {
+      String[] optionComponents = extraOptions.split("\\s+");
+      for (String optionComponent : optionComponents) {
+        options.add(optionComponent);
+      }
+    }
+    return options;
   }
 
   /**
