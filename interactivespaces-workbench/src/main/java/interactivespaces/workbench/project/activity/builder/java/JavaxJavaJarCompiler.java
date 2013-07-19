@@ -122,8 +122,6 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
     List<String> compilerOptions = getCompilerOptions(context);
 
-    System.out.println(compilerOptions);
-
     Boolean success =
         compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1).call();
 
