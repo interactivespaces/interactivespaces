@@ -17,6 +17,7 @@
 package interactivespaces.system;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.configuration.FileSystemConfigurationStorageManager;
 
 import java.io.File;
 
@@ -27,6 +28,16 @@ import java.io.File;
  */
 public class BasicInteractiveSpacesFilesystem implements
 		InteractiveSpacesFilesystem {
+
+  /**
+ 	 * Where the config files are stored.
+ 	 */
+ 	private static final String DEFAULT_CONFIG_DIRECTORY = "config";
+
+  /**
+   * The environment variable used to set the configuration folder.
+   */
+  private static final String IS_CONFIG_DIR_ENVIRONMENT_KEY = "IS_CONFIG_DIR";
 
 	/**
 	 * The base Interactive Spaces install directory. This is the install for a
@@ -54,10 +65,15 @@ public class BasicInteractiveSpacesFilesystem implements
 	 */
 	private File bootstrapDirectory;
 
-	/**
-	 * Where the system logs are kept.
-	 */
-	private File logsDirectory;
+  /**
+ 	 * Where the system logs are kept.
+ 	 */
+ 	private File logsDirectory;
+
+  /**
+ 	 * Where the configs are kept.
+ 	 */
+ 	private File configDirectory;
 
 	/**
 	 * 
@@ -78,8 +94,16 @@ public class BasicInteractiveSpacesFilesystem implements
 		logsDirectory = new File(baseInstallDirectory, "logs");
 		bootstrapDirectory = new File(baseInstallDirectory, "bootstrap");
 		libraryDirectory = new File(baseInstallDirectory, "lib");
-		dataDirectory = new File(baseInstallDirectory, "data");
+    dataDirectory = new File(baseInstallDirectory, "data");
+    configDirectory = getEnvironmentOrDefault(IS_CONFIG_DIR_ENVIRONMENT_KEY,
+        DEFAULT_CONFIG_DIRECTORY);
 	}
+
+  private File getEnvironmentOrDefault(String envKey, String defaultValue) {
+    String envSetting = System.getenv(envKey);
+    return envSetting == null ? new File(baseInstallDirectory, defaultValue) :
+        new File(envSetting);
+  }
 
 	@Override
 	public File getInstallDirectory() {
@@ -91,10 +115,15 @@ public class BasicInteractiveSpacesFilesystem implements
 		return bootstrapDirectory;
 	}
 
-	@Override
-	public File getLogsDirectory() {
-		return logsDirectory;
-	}
+  @Override
+ 	public File getLogsDirectory() {
+ 		return logsDirectory;
+ 	}
+
+  @Override
+ 	public File getConfigDirectory() {
+ 		return configDirectory;
+ 	}
 
 	@Override
 	public File getTempDirectory() {

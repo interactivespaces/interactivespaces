@@ -54,6 +54,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'eclipse'
+    apply plugin: 'idea'
 
     if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'

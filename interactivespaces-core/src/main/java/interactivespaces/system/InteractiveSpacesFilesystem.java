@@ -46,6 +46,13 @@ public interface InteractiveSpacesFilesystem {
 	 */
 	File getLogsDirectory();
 
+  /**
+ 	 * Get the configuration directory for Interactive Spaces.
+ 	 *
+ 	 * @return the configuration directory
+ 	 */
+ 	File getConfigDirectory();
+
 	/**
 	 * Get the EInteractive Spaces-wide directory used for writing temporary
 	 * files.

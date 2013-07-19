@@ -35,11 +35,6 @@ import java.util.Properties;
 public class FileConfigurationProvider implements ConfigurationProvider {
 
 	/**
-	 * Where the config files are stored.
-	 */
-	public static final String CONFIG_DIRECTORY = "config";
-
-	/**
 	 * Extensions on config files.
 	 */
 	private static final String CONFIGURATION_FILES_EXTENSION = ".conf";
@@ -47,15 +42,15 @@ public class FileConfigurationProvider implements ConfigurationProvider {
 	/**
 	 * The initial configuration
 	 */
-	private File baseInstallFolder;
+	private File configFolder;
 	
 	/**
 	 * The current configuration.
 	 */
 	private Map<String, String> currentConfiguration;
 
-	public FileConfigurationProvider(File baseInstallFolder) {
-		this.baseInstallFolder = baseInstallFolder;
+	public FileConfigurationProvider(File configFolder) {
+		this.configFolder = configFolder;
 	}
 
 	@Override
@@ -71,8 +66,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
 		
 		// Look in the specified bundle directory to create a list
 		// of all JAR files to install.
-		File[] files = new File(baseInstallFolder, CONFIG_DIRECTORY)
-				.listFiles(new FilenameFilter() {
+		File[] files = configFolder.listFiles(new FilenameFilter() {
 					@Override
 					public boolean accept(File dir, String name) {
 						return name.toLowerCase().endsWith(
@@ -80,8 +74,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
 					}
 				});
 		if (files == null || files.length == 0) {
-			System.err.format("Couldn't load config files from %s\n",
-					CONFIG_DIRECTORY);
+			System.err.format("Couldn't load config files from %s\n", configFolder);
 		}
 
 		for (File file : files) {

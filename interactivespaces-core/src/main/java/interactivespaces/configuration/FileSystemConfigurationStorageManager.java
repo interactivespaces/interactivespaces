@@ -42,7 +42,7 @@ public class FileSystemConfigurationStorageManager implements
 	 * Location of the configuration file folder relative to the root of the
 	 * Interactive Spaces installation.
 	 */
-	private static final String CONFIGURATION_FILE_FOLDER = "config/interactivespaces";
+	private static final String IS_CONFIG_FOLDER = "interactivespaces";
 
 	/**
 	 * The extension for configuration files.
@@ -135,7 +135,8 @@ public class FileSystemConfigurationStorageManager implements
 	 * @return
 	 */
 	private File[] getConfigFiles() {
-		File configurationFolder = new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
+		File configurationFolder = new File(interactiveSpacesFilesystem.getConfigDirectory(),
+        IS_CONFIG_FOLDER);
 		if (configurationFolder.exists()) {
 			if (!configurationFolder.isDirectory()) {
 				throw new InteractiveSpacesException(
