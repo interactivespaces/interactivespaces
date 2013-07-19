@@ -16,6 +16,9 @@
 
 package interactivespaces.domain.basic.pojo;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.pojo.SimpleObject;
@@ -23,9 +26,6 @@ import interactivespaces.domain.pojo.SimpleObject;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * A POJO implementation of a {@link Activity}.
@@ -37,113 +37,113 @@ import com.google.common.collect.Maps;
  */
 public class SimpleActivity extends SimpleObject implements Activity {
 
-	/**
-	 * For serialization.
-	 */
-	private static final long serialVersionUID = 8627347933385579008L;
+  /**
+   * For serialization.
+   */
+  private static final long serialVersionUID = 8627347933385579008L;
 
-	/**
-	 * The identifying name of the activity.
-	 */
-	private String identifyingName;
+  /**
+   * The identifying name of the activity.
+   */
+  private String identifyingName;
 
-	/**
-	 * The descriptive name of the activity.
-	 */
-	private String name;
+  /**
+   * The descriptive name of the activity.
+   */
+  private String name;
 
-	/**
-	 * The description of the activity.
-	 */
-	private String description;
+  /**
+   * The description of the activity.
+   */
+  private String description;
 
-	/**
-	 * Version of the activity.
-	 */
-	private String version;
+  /**
+   * Version of the activity.
+   */
+  private String version;
 
-	/**
-	 * When the activity was last uploaded.
-	 */
-	private Date lastUploadDate;
+  /**
+   * When the activity was last uploaded.
+   */
+  private Date lastUploadDate;
 
-	/**
-	 * The dependencies the activity has.
-	 */
-	private List<ActivityDependency> dependencies = Lists.newArrayList();
+  /**
+   * The dependencies the activity has.
+   */
+  private List<ActivityDependency> dependencies = Lists.newArrayList();
 
-	/**
-	 * The meta data for this activity.
-	 */
-	private Map<String, Object> metadata = Maps.newHashMap();
+  /**
+   * The meta data for this activity.
+   */
+  private Map<String, Object> metadata = Maps.newHashMap();
 
-	@Override
-	public String getIdentifyingName() {
-		return identifyingName;
-	}
+  @Override
+  public String getIdentifyingName() {
+    return identifyingName;
+  }
 
-	@Override
-	public void setIdentifyingName(String identifyingName) {
-		this.identifyingName = identifyingName;
-	}
+  @Override
+  public void setIdentifyingName(String identifyingName) {
+    this.identifyingName = identifyingName;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  @Override
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	@Override
-	public String getVersion() {
-		return version;
-	}
+  @Override
+  public String getVersion() {
+    return version;
+  }
 
-	@Override
-	public void setVersion(String version) {
-		this.version = version;
-	}
+  @Override
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
-	@Override
-	public Date getLastUploadDate() {
-		return lastUploadDate;
-	}
+  @Override
+  public Date getLastUploadDate() {
+    return lastUploadDate;
+  }
 
-	@Override
-	public void setLastUploadDate(Date lastUploadDate) {
-		this.lastUploadDate = lastUploadDate;
-	}
+  @Override
+  public void setLastUploadDate(Date lastUploadDate) {
+    this.lastUploadDate = lastUploadDate;
+  }
 
-	@Override
-	public void setDependencies(List<ActivityDependency> dependencies) {
-		this.dependencies = dependencies;
-	}
+  @Override
+  public void setDependencies(List<ActivityDependency> dependencies) {
+    this.dependencies = dependencies;
+  }
 
-	@Override
-	public List<ActivityDependency> getDependencies() {
-		return Lists.newArrayList(dependencies);
-	}
+  @Override
+  public List<ActivityDependency> getDependencies() {
+    return Lists.newArrayList(dependencies);
+  }
 
-	@Override
-	public void setMetadata(Map<String, Object> metadata) {
-		this.metadata = metadata;
-	}
+  @Override
+  public void setMetadata(Map<String, Object> metadata) {
+    this.metadata = metadata;
+  }
 
-	@Override
-	public Map<String, Object> getMetadata() {
-		return metadata;
-	}
+  @Override
+  public Map<String, Object> getMetadata() {
+    return metadata;
+  }
 }

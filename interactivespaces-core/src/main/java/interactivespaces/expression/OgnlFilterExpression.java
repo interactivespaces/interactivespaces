@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,34 +24,34 @@ import org.apache.commons.ognl.OgnlException;
 
 /**
  * A {@link FilterExpression} which uses OGNL.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class OgnlFilterExpression implements FilterExpression {
 
-	/**
-	 * The OGNL context for this expression.
-	 */
-	private OgnlContext context;
+  /**
+   * The OGNL context for this expression.
+   */
+  private OgnlContext context;
 
-	/**
-	 * The expression being evaluated.
-	 */
-	private String expression;
+  /**
+   * The expression being evaluated.
+   */
+  private String expression;
 
-	public OgnlFilterExpression(OgnlContext context, String expression) {
-		this.context = context;
-		this.expression = expression;
-	}
+  public OgnlFilterExpression(OgnlContext context, String expression) {
+    this.context = context;
+    this.expression = expression;
+  }
 
-	@Override
-	public boolean accept(Object object) {
-		try {
-			Boolean value = Ognl.getValue(expression, context, object);
-			return Boolean.TRUE.equals(value);
-		} catch (OgnlException e) {
-			throw new InteractiveSpacesException(String.format(
-					"Could not evaluate expression %s", expression), e);
-		}
-	}
+  @Override
+  public boolean accept(Object object) {
+    try {
+      Boolean value = Ognl.getValue(expression, context, object);
+      return Boolean.TRUE.equals(value);
+    } catch (OgnlException e) {
+      throw new InteractiveSpacesException(String.format("Could not evaluate expression %s",
+          expression), e);
+    }
+  }
 }

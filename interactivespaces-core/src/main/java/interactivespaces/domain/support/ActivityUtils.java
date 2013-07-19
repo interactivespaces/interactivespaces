@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -25,36 +25,36 @@ import interactivespaces.domain.basic.pojo.SimpleActivity;
  * @author Keith M. Hughes
  */
 public class ActivityUtils {
-	
-	/**
-	 * Copy the source to a POJO template.
-	 * 
-	 * <p>
-	 * This includes all fields
-	 * 
-	 * @param source
-	 * @return
-	 */
-	public static Activity toTemplate(Activity source) {
-		SimpleActivity template = new SimpleActivity();
-		
-		copy(source, template);
-		
-		return template;
-	}
-	
-	/**
-	 * Copy the fields from the source to the destination.
-	 * 
-	 * <p>
-	 * Everything is copied except the ID.
-	 * 
-	 * @param source
-	 * @return
-	 */
-	public static void copy(Activity source, Activity destination) {
-		destination.setName(source.getName());
-		destination.setDescription(source.getDescription());
-		destination.setMetadata(source.getMetadata());
-	}
+
+  /**
+   * Copy the source to a POJO template.
+   *
+   * <p>
+   * This includes all fields
+   *
+   * @param source
+   * @return
+   */
+  public static Activity toTemplate(Activity source) {
+    SimpleActivity template = new SimpleActivity();
+
+    copy(source, template);
+
+    return template;
+  }
+
+  /**
+   * Copy the fields from the source to the destination.
+   *
+   * <p>
+   * Everything is copied except the ID.
+   *
+   * @param source
+   * @return
+   */
+  public static void copy(Activity source, Activity destination) {
+    destination.setName(source.getName());
+    destination.setDescription(source.getDescription());
+    destination.setMetadata(source.getMetadata());
+  }
 }

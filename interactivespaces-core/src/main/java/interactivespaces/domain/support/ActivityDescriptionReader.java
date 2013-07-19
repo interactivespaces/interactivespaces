@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,18 +22,18 @@ import java.io.InputStream;
 
 /**
  * A reader for reading an activity description file.
- * 
+ *
  * @author Keith M. Hughes
  */
 public interface ActivityDescriptionReader {
 
-	/**
-	 * Read the description input stream contents into the supplied
-	 * {@link Activity} object.
-	 * 
-	 * @param activityDescriptionStream
-	 * 
-	 * @return the description of the activity
-	 */
-	ActivityDescription readDescription(InputStream activityDescriptionStream);
+  /**
+   * Read the description input stream contents into the supplied
+   * {@link Activity} object.
+   *
+   * @param activityDescriptionStream
+   *
+   * @return the description of the activity
+   */
+  ActivityDescription readDescription(InputStream activityDescriptionStream);
 }

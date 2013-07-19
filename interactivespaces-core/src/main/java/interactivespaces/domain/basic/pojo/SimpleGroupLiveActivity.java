@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -26,55 +26,55 @@ import interactivespaces.domain.basic.LiveActivityGroup;
  * @author Keith M. Hughes
  */
 public class SimpleGroupLiveActivity implements GroupLiveActivity {
-	
-	/**
-	 * For serialization.
-	 */
-	private static final long serialVersionUID = 9103616927981825782L;
 
-	/**
-	 * The activity group this activity is part of.
-	 */
-	private LiveActivityGroup activityGroup;
-	
-	/**
-	 * The activity this represents.
-	 */
-	private LiveActivity activity;
-	
-	/**
-	 * How the activity group depends on the activity.
-	 */
-	private GroupLiveActivityDependency dependency;
-	
-	@Override
-	public LiveActivityGroup getActivityGroup() {
-		return activityGroup;
-	}
+  /**
+   * For serialization.
+   */
+  private static final long serialVersionUID = 9103616927981825782L;
 
-	@Override
-	public void setActivityGroup(LiveActivityGroup activityGroup) {
-		this.activityGroup = activityGroup;
-	}
+  /**
+   * The activity group this activity is part of.
+   */
+  private LiveActivityGroup activityGroup;
 
-	@Override
-	public LiveActivity getActivity() {
-		return activity;
-	}
+  /**
+   * The activity this represents.
+   */
+  private LiveActivity activity;
 
-	@Override
-	public void setActivity(LiveActivity activity) {
-		this.activity = activity;
-	}
+  /**
+   * How the activity group depends on the activity.
+   */
+  private GroupLiveActivityDependency dependency;
 
-	@Override
-	public GroupLiveActivityDependency getDependency() {
-		return dependency;
-	}
+  @Override
+  public LiveActivityGroup getActivityGroup() {
+    return activityGroup;
+  }
 
-	@Override
-	public void setDependency(GroupLiveActivityDependency dependency) {
-		this.dependency = dependency;
-	}
+  @Override
+  public void setActivityGroup(LiveActivityGroup activityGroup) {
+    this.activityGroup = activityGroup;
+  }
+
+  @Override
+  public LiveActivity getActivity() {
+    return activity;
+  }
+
+  @Override
+  public void setActivity(LiveActivity activity) {
+    this.activity = activity;
+  }
+
+  @Override
+  public GroupLiveActivityDependency getDependency() {
+    return dependency;
+  }
+
+  @Override
+  public void setDependency(GroupLiveActivityDependency dependency) {
+    this.dependency = dependency;
+  }
 
 }

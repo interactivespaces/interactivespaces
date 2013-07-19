@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -18,28 +18,28 @@ package interactivespaces.event;
 
 /**
  * An {@link Event} publisher.
- * 
+ *
  * @author Keith M. Hughes
  */
 public interface EventPublisher {
 
-	/**
-	 * Publish an event.
-	 * 
-	 * @param event
-	 *            the event to be published
-	 */
-	void publishEvent(Event event);
+  /**
+   * Publish an event.
+   *
+   * @param event
+   *          the event to be published
+   */
+  void publishEvent(Event event);
 
-	/**
-	 * Create and publish an event.
-	 * 
-	 * @param type
-	 *            the type of the event
-	 * @param source
-	 *            the source of the event
-	 * @param data
-	 *            the data for the event (can be {@code null}
-	 */
-	void createAndPublishEvent(String type, String source, Object data);
+  /**
+   * Create and publish an event.
+   *
+   * @param type
+   *          the type of the event
+   * @param source
+   *          the source of the event
+   * @param data
+   *          the data for the event (can be {@code null}
+   */
+  void createAndPublishEvent(String type, String source, Object data);
 }
