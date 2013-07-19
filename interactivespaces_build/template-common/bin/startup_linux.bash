@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Figure out, regardless of any symlinks, aliases, etc, where this script
 # is located.
 SOURCE="${BASH_SOURCE[0]}"

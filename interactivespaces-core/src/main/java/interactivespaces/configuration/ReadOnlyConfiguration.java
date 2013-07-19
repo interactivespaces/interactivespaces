@@ -22,136 +22,137 @@ import java.util.Set;
 
 /**
  * A wrapper for configurations which makes them unmodifiable.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class ReadOnlyConfiguration implements Configuration {
-	/**
-	 * The configuration which is wrapped.
-	 */
-	private Configuration wrapped;
 
-	public ReadOnlyConfiguration(Configuration wrapped) {
-		this.wrapped = wrapped;
-	}
+  /**
+   * The configuration which is wrapped.
+   */
+  private Configuration wrapped;
 
-	@Override
-	public boolean containsProperty(String property) {
-		return wrapped.containsProperty(property);
-	}
+  public ReadOnlyConfiguration(Configuration wrapped) {
+    this.wrapped = wrapped;
+  }
 
-	@Override
-	public String getPropertyString(String property) {
-		return wrapped.getPropertyString(property);
-	}
+  @Override
+  public boolean containsProperty(String property) {
+    return wrapped.containsProperty(property);
+  }
 
-	@Override
-	public String getPropertyString(String property, String defaultValue) {
-		return wrapped.getPropertyString(property, defaultValue);
-	}
+  @Override
+  public String getPropertyString(String property) {
+    return wrapped.getPropertyString(property);
+  }
 
-	@Override
-	public String getRequiredPropertyString(String property) {
-		return wrapped.getRequiredPropertyString(property);
-	}
+  @Override
+  public String getPropertyString(String property, String defaultValue) {
+    return wrapped.getPropertyString(property, defaultValue);
+  }
 
-	@Override
-	public Integer getPropertyInteger(String property, Integer defaultValue) {
-		return wrapped.getPropertyInteger(property, defaultValue);
-	}
+  @Override
+  public String getRequiredPropertyString(String property) {
+    return wrapped.getRequiredPropertyString(property);
+  }
 
-	@Override
-	public Integer getRequiredPropertyInteger(String property) {
-		return wrapped.getRequiredPropertyInteger(property);
-	}
+  @Override
+  public Integer getPropertyInteger(String property, Integer defaultValue) {
+    return wrapped.getPropertyInteger(property, defaultValue);
+  }
 
-	@Override
-	public Long getPropertyLong(String property, Long defaultValue) {
-		return wrapped.getPropertyLong(property, defaultValue);
-	}
+  @Override
+  public Integer getRequiredPropertyInteger(String property) {
+    return wrapped.getRequiredPropertyInteger(property);
+  }
 
-	@Override
-	public Long getRequiredPropertyLong(String property) {
-		return wrapped.getRequiredPropertyLong(property);
-	}
+  @Override
+  public Long getPropertyLong(String property, Long defaultValue) {
+    return wrapped.getPropertyLong(property, defaultValue);
+  }
 
-	@Override
-	public Double getPropertyDouble(String property, Double defaultValue) {
-		return wrapped.getPropertyDouble(property, defaultValue);
-	}
+  @Override
+  public Long getRequiredPropertyLong(String property) {
+    return wrapped.getRequiredPropertyLong(property);
+  }
 
-	@Override
-	public Double getRequiredPropertyDouble(String property) {
-		return wrapped.getRequiredPropertyDouble(property);
-	}
+  @Override
+  public Double getPropertyDouble(String property, Double defaultValue) {
+    return wrapped.getPropertyDouble(property, defaultValue);
+  }
 
-	@Override
-	public Boolean getPropertyBoolean(String property, Boolean defaultValue) {
-		return wrapped.getPropertyBoolean(property, defaultValue);
-	}
+  @Override
+  public Double getRequiredPropertyDouble(String property) {
+    return wrapped.getRequiredPropertyDouble(property);
+  }
 
-	@Override
-	public Boolean getRequiredPropertyBoolean(String property) {
-		return wrapped.getRequiredPropertyBoolean(property);
-	}
+  @Override
+  public Boolean getPropertyBoolean(String property, Boolean defaultValue) {
+    return wrapped.getPropertyBoolean(property, defaultValue);
+  }
 
-	@Override
-	public List<String> getPropertyStringList(String property, String delineator) {
-		return wrapped.getPropertyStringList(property, delineator);
-	}
+  @Override
+  public Boolean getRequiredPropertyBoolean(String property) {
+    return wrapped.getRequiredPropertyBoolean(property);
+  }
 
-	@Override
-	public Set<String> getPropertyStringSet(String property, String delineator) {
-		return wrapped.getPropertyStringSet(property, delineator);
-	}
+  @Override
+  public List<String> getPropertyStringList(String property, String delineator) {
+    return wrapped.getPropertyStringList(property, delineator);
+  }
 
-	@Override
-	public String evaluate(String expression) {
-		return wrapped.evaluate(expression);
-	}
+  @Override
+  public Set<String> getPropertyStringSet(String property, String delineator) {
+    return wrapped.getPropertyStringSet(property, delineator);
+  }
 
-	@Override
-	public void setValue(String property, String value) {
-		throw new InteractiveSpacesException("Cannot modify configuration");
-	}
-	
-	@Override
-	public void setValues(Map<String, String> values) {
-		throw new InteractiveSpacesException("Cannot modify configuration");
-	}
+  @Override
+  public String evaluate(String expression) {
+    return wrapped.evaluate(expression);
+  }
 
-	@Override
-	public void setParent(Configuration parent) {
-		throw new InteractiveSpacesException("Cannot modify configuration");
-	}
+  @Override
+  public void setValue(String property, String value) {
+    throw new InteractiveSpacesException("Cannot modify configuration");
+  }
 
-	@Override
-	public Configuration getParent() {
-		return wrapped.getParent();
-	}
+  @Override
+  public void setValues(Map<String, String> values) {
+    throw new InteractiveSpacesException("Cannot modify configuration");
+  }
 
-	@Override
-	public String findValueLocally(String property) {
-		return wrapped.findValueLocally(property);
-	}
+  @Override
+  public void setParent(Configuration parent) {
+    throw new InteractiveSpacesException("Cannot modify configuration");
+  }
 
-	@Override
-	public boolean containsPropertyLocally(String property) {
-		return wrapped.containsPropertyLocally(property);
-	}
+  @Override
+  public Configuration getParent() {
+    return wrapped.getParent();
+  }
 
-	@Override
-	public void clear() {
-		throw new InteractiveSpacesException("Cannot modify configuration");
-	}
+  @Override
+  public String findValueLocally(String property) {
+    return wrapped.findValueLocally(property);
+  }
 
-	@Override
-	public Map<String, String> getCollapsedMap() {
-		return wrapped.getCollapsedMap();
-	}
+  @Override
+  public boolean containsPropertyLocally(String property) {
+    return wrapped.containsPropertyLocally(property);
+  }
 
-	@Override
-	public void addCollapsedEntries(Map<String, String> map) {
-		wrapped.addCollapsedEntries(map);
-	}
+  @Override
+  public void clear() {
+    throw new InteractiveSpacesException("Cannot modify configuration");
+  }
+
+  @Override
+  public Map<String, String> getCollapsedMap() {
+    return wrapped.getCollapsedMap();
+  }
+
+  @Override
+  public void addCollapsedEntries(Map<String, String> map) {
+    wrapped.addCollapsedEntries(map);
+  }
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -32,165 +32,157 @@ import org.apache.commons.logging.Log;
 
 /**
  * A file based {@link SystemConfigurationStorageManager}.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class FileSystemConfigurationStorageManager implements
-		SystemConfigurationStorageManager {
+public class FileSystemConfigurationStorageManager implements SystemConfigurationStorageManager {
 
-	/**
-	 * Location of the configuration file folder relative to the root of the
-	 * Interactive Spaces installation.
-	 */
-	private static final String CONFIGURATION_FILE_FOLDER = "config/interactivespaces";
+  /**
+   * Location of the configuration file folder relative to the root of the
+   * Interactive Spaces installation.
+   */
+  private static final String CONFIGURATION_FILE_FOLDER = "config/interactivespaces";
 
-	/**
-	 * The extension for configuration files.
-	 */
-	private static final String CONFIGURATION_FILE_EXTENSION = ".conf";
+  /**
+   * The extension for configuration files.
+   */
+  private static final String CONFIGURATION_FILE_EXTENSION = ".conf";
 
-	/**
-	 * The system configuration.
-	 */
-	private Configuration systemConfiguration;
+  /**
+   * The system configuration.
+   */
+  private Configuration systemConfiguration;
 
-	/**
-	 * Factory for expression evaluators.
-	 */
-	private ExpressionEvaluatorFactory expressionEvaluatorFactory;
+  /**
+   * Factory for expression evaluators.
+   */
+  private ExpressionEvaluatorFactory expressionEvaluatorFactory;
 
-	/**
-	 * The interactivespaces file system.
-	 */
-	private InteractiveSpacesFilesystem interactiveSpacesFilesystem;
-	
-	/**
-	 * Logger.
-	 */
-	private Log log;
+  /**
+   * The interactivespaces file system.
+   */
+  private InteractiveSpacesFilesystem interactiveSpacesFilesystem;
 
-	@Override
-	public void startup() {
-		ExpressionEvaluator evaluator = expressionEvaluatorFactory
-				.newEvaluator();
-		SimpleConfiguration sconfig = new SimpleConfiguration(evaluator);
-		evaluator.setEvaluationEnvironment(sconfig);
+  /**
+   * Logger.
+   */
+  private Log log;
 
-		systemConfiguration = sconfig;
+  @Override
+  public void startup() {
+    ExpressionEvaluator evaluator = expressionEvaluatorFactory.newEvaluator();
+    SimpleConfiguration sconfig = new SimpleConfiguration(evaluator);
+    evaluator.setEvaluationEnvironment(sconfig);
 
-		for (File configFile : getConfigFiles()) {
-			loadConfigFile(systemConfiguration, configFile);
-		}
-	}
+    systemConfiguration = sconfig;
 
-	@Override
-	public void shutdown() {
-		// Nothing to do.
-	}
+    for (File configFile : getConfigFiles()) {
+      loadConfigFile(systemConfiguration, configFile);
+    }
+  }
 
-	@Override
-	public Configuration getSystemConfiguration() {
-		return systemConfiguration;
-	}
+  @Override
+  public void shutdown() {
+    // Nothing to do.
+  }
 
-	/**
-	 * Load the contents of a configuration file into a configuration.
-	 * 
-	 * @param configuration
-	 * @param configFile
-	 */
-	private void loadConfigFile(Configuration configuration, File configFile) {
-		InputStream in = null;
-		try {
-			if (log.isInfoEnabled()) {
-				log.info(String.format("Loading config file %s", configFile));
-			}
+  @Override
+  public Configuration getSystemConfiguration() {
+    return systemConfiguration;
+  }
 
-			in = new FileInputStream(configFile);
+  /**
+   * Load the contents of a configuration file into a configuration.
+   *
+   * @param configuration
+   * @param configFile
+   */
+  private void loadConfigFile(Configuration configuration, File configFile) {
+    InputStream in = null;
+    try {
+      if (log.isInfoEnabled()) {
+        log.info(String.format("Loading config file %s", configFile));
+      }
 
-			Properties configProperties = new Properties();
-			configProperties.load(in);
+      in = new FileInputStream(configFile);
 
-			for (Entry<Object, Object> entry : configProperties.entrySet()) {
-				configuration.setValue(entry.getKey().toString(), entry
-						.getValue().toString());
-			}
-		} catch (Exception e) {
-			log.error("Could not load configuration", e);
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception e) {
-					// Don't care.
-				}
-			}
-		}
-	}
+      Properties configProperties = new Properties();
+      configProperties.load(in);
 
-	/**
-	 * Get all configuration files from the Interactive Spaces configuration
-	 * folder.
-	 * 
-	 * @return
-	 */
-	private File[] getConfigFiles() {
-		File configurationFolder = new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
-		if (configurationFolder.exists()) {
-			if (!configurationFolder.isDirectory()) {
-				throw new InteractiveSpacesException(
-						String.format(
-								"Interactive Spaces configuration folder %s is not a directory",
-								configurationFolder));
-			}
-		} else {
-			throw new InteractiveSpacesException(
-					String.format(
-							"Interactive Spaces configuration folder %s does not exist",
-							configurationFolder));
-		}
+      for (Entry<Object, Object> entry : configProperties.entrySet()) {
+        configuration.setValue(entry.getKey().toString(), entry.getValue().toString());
+      }
+    } catch (Exception e) {
+      log.error("Could not load configuration", e);
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception e) {
+          // Don't care.
+        }
+      }
+    }
+  }
 
-		File[] configFiles = configurationFolder
-				.listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						String filename = name.toLowerCase();
-						return filename.endsWith(CONFIGURATION_FILE_EXTENSION);
-					}
-				});
+  /**
+   * Get all configuration files from the Interactive Spaces configuration
+   * folder.
+   *
+   * @return
+   */
+  private File[] getConfigFiles() {
+    File configurationFolder =
+        new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
+    if (configurationFolder.exists()) {
+      if (!configurationFolder.isDirectory()) {
+        throw new InteractiveSpacesException(String.format(
+            "Interactive Spaces configuration folder %s is not a directory", configurationFolder));
+      }
+    } else {
+      throw new InteractiveSpacesException(String.format(
+          "Interactive Spaces configuration folder %s does not exist", configurationFolder));
+    }
 
-		if (configFiles.length == 0) {
-			throw new InteractiveSpacesException(
-					String.format(
-							"Interactive Spaces configuration folder %s contains no files ending with %s",
-							configurationFolder, CONFIGURATION_FILE_EXTENSION));
-		}
+    File[] configFiles = configurationFolder.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        String filename = name.toLowerCase();
+        return filename.endsWith(CONFIGURATION_FILE_EXTENSION);
+      }
+    });
 
-		return configFiles;
-	}
+    if (configFiles.length == 0) {
+      throw new InteractiveSpacesException(String.format(
+          "Interactive Spaces configuration folder %s contains no files ending with %s",
+          configurationFolder, CONFIGURATION_FILE_EXTENSION));
+    }
 
-	/**
-	 * @param expressionEvaluatorFactory
-	 *            the expressionEvaluatorFactory to set
-	 */
-	public void setExpressionEvaluatorFactory(
-			ExpressionEvaluatorFactory expressionEvaluatorFactory) {
-		this.expressionEvaluatorFactory = expressionEvaluatorFactory;
-	}
+    return configFiles;
+  }
 
-	/**
-	 * @param log
-	 *            the log to set
-	 */
-	public void setLog(Log log) {
-		this.log = log;
-	}
+  /**
+   * @param expressionEvaluatorFactory
+   *          the expressionEvaluatorFactory to set
+   */
+  public void setExpressionEvaluatorFactory(ExpressionEvaluatorFactory expressionEvaluatorFactory) {
+    this.expressionEvaluatorFactory = expressionEvaluatorFactory;
+  }
 
-	/**
-	 * @param interactiveSpacesFilesystem the interactiveSpacesFilesystem to set
-	 */
-	public void setInteractiveSpacesFilesystem(
-			InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
-		this.interactiveSpacesFilesystem = interactiveSpacesFilesystem;
-	}
+  /**
+   * @param log
+   *          the log to set
+   */
+  public void setLog(Log log) {
+    this.log = log;
+  }
+
+  /**
+   * @param interactiveSpacesFilesystem
+   *          the interactiveSpacesFilesystem to set
+   */
+  public void
+      setInteractiveSpacesFilesystem(InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
+    this.interactiveSpacesFilesystem = interactiveSpacesFilesystem;
+  }
 }

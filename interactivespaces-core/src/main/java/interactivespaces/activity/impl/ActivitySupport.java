@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -32,237 +32,231 @@ import org.apache.commons.logging.Log;
 
 /**
  * Common support for building an Interactive Spaces activity.
- * 
+ *
  * @author Keith M. Hughes
  */
 public abstract class ActivitySupport implements Activity {
 
-	/**
-	 * The activity installation directory.
-	 */
-	private ActivityFilesystem activityFilesystem;
+  /**
+   * The activity installation directory.
+   */
+  private ActivityFilesystem activityFilesystem;
 
-	/**
-	 * Name of the activity.
-	 */
-	private String name;
+  /**
+   * Name of the activity.
+   */
+  private String name;
 
-	/**
-	 * UUID of the activity.
-	 */
-	private String uuid;
+  /**
+   * UUID of the activity.
+   */
+  private String uuid;
 
-	/**
-	 * The activity configuration.
-	 */
-	private Configuration configuration;
+  /**
+   * The activity configuration.
+   */
+  private Configuration configuration;
 
-	/**
-	 * The current state of the activity.
-	 */
-	private ActivityStatus activityStatus = new ActivityStatus(
-			ActivityState.READY, null);
+  /**
+   * The current state of the activity.
+   */
+  private ActivityStatus activityStatus = new ActivityStatus(ActivityState.READY, null);
 
-	/**
-	 * The collection of all activity listeners.
-	 */
-	private ActivityListenerCollection activityListeners = new ActivityListenerCollection(
-			this);
+  /**
+   * The collection of all activity listeners.
+   */
+  private ActivityListenerCollection activityListeners = new ActivityListenerCollection(this);
 
-	/**
-	 * The context for executing the activity.
-	 */
-	private ActivityExecutionContext context;
+  /**
+   * The context for executing the activity.
+   */
+  private ActivityExecutionContext context;
 
-	/**
-	 * The controller this activity is running under.
-	 */
-	private SpaceController controller;
+  /**
+   * The controller this activity is running under.
+   */
+  private SpaceController controller;
 
-	/**
-	 * The Interactive Spaces environment the activity will run under.
-	 */
-	private InteractiveSpacesEnvironment spaceEnvironment;
+  /**
+   * The Interactive Spaces environment the activity will run under.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
-	/**
-	 * The activity specific logger.
-	 */
-	private Log log;
+  /**
+   * The activity specific logger.
+   */
+  private Log log;
 
-	@Override
-	public InteractiveSpacesEnvironment getSpaceEnvironment() {
-		return spaceEnvironment;
-	}
+  @Override
+  public InteractiveSpacesEnvironment getSpaceEnvironment() {
+    return spaceEnvironment;
+  }
 
-	@Override
-	public void setSpaceEnvironment(
-			InteractiveSpacesEnvironment spaceEnvironment) {
-		this.spaceEnvironment = spaceEnvironment;
-	}
+  @Override
+  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
+  }
 
-	@Override
-	public ActivityFilesystem getActivityFilesystem() {
-		return activityFilesystem;
-	}
+  @Override
+  public ActivityFilesystem getActivityFilesystem() {
+    return activityFilesystem;
+  }
 
-	@Override
-	public void setActivityFilesystem(ActivityFilesystem activityFilesystem) {
-		this.activityFilesystem = activityFilesystem;
-	}
+  @Override
+  public void setActivityFilesystem(ActivityFilesystem activityFilesystem) {
+    this.activityFilesystem = activityFilesystem;
+  }
 
-	@Override
-	public SpaceController getController() {
-		return controller;
-	}
+  @Override
+  public SpaceController getController() {
+    return controller;
+  }
 
-	@Override
-	public void setLog(Log log) {
-		this.log = log;
-	}
+  @Override
+  public void setLog(Log log) {
+    this.log = log;
+  }
 
-	@Override
-	public Log getLog() {
-		return log;
-	}
+  @Override
+  public Log getLog() {
+    return log;
+  }
 
-	/**
-	 * Set the controller this activity is running under.
-	 * 
-	 * @param controller
-	 *            The controller in charge of this activity.
-	 */
-	public void setController(SpaceController controller) {
-		this.controller = controller;
-	}
+  /**
+   * Set the controller this activity is running under.
+   *
+   * @param controller
+   *          The controller in charge of this activity.
+   */
+  public void setController(SpaceController controller) {
+    this.controller = controller;
+  }
 
-	@Override
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
+  @Override
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
 
-		setName(configuration
-				.getPropertyString(CONFIGURATION_PROPERTY_ACTIVITY_NAME));
-	}
+    setName(configuration.getPropertyString(CONFIGURATION_PROPERTY_ACTIVITY_NAME));
+  }
 
-	@Override
-	public Configuration getConfiguration() {
-		return configuration;
-	}
+  @Override
+  public Configuration getConfiguration() {
+    return configuration;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public String getUuid() {
-		return uuid;
-	}
+  @Override
+  public String getUuid() {
+    return uuid;
+  }
 
-	@Override
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+  @Override
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
-	@Override
-	public void setExecutionContext(ActivityExecutionContext context) {
-		this.context = context;
-	}
+  @Override
+  public void setExecutionContext(ActivityExecutionContext context) {
+    this.context = context;
+  }
 
-	/**
-	 * Get the execution context
-	 */
-	protected ActivityExecutionContext getExecutionContext() {
-		return context;
-	}
+  /**
+   * Get the execution context
+   */
+  protected ActivityExecutionContext getExecutionContext() {
+    return context;
+  }
 
-	@Override
-	public void addActivityListener(ActivityListener listener) {
-		activityListeners.addListener(listener);
-	}
+  @Override
+  public void addActivityListener(ActivityListener listener) {
+    activityListeners.addListener(listener);
+  }
 
-	@Override
-	public void removeActivityListener(ActivityListener listener) {
-		activityListeners.removeListener(listener);
-	}
+  @Override
+  public void removeActivityListener(ActivityListener listener) {
+    activityListeners.removeListener(listener);
+  }
 
-	@Override
-	public ActivityStatus getActivityStatus() {
-		return activityStatus;
-	}
+  @Override
+  public ActivityStatus getActivityStatus() {
+    return activityStatus;
+  }
 
-	/**
-	 * Set the activity state.
-	 * 
-	 * @param activityState
-	 *            The new activity state.
-	 */
-	protected void setActivityStatus(ActivityStatus activityStatus) {
-		ActivityStatus oldStatus = this.activityStatus;
-		this.activityStatus = activityStatus;
+  /**
+   * Set the activity state.
+   *
+   * @param activityState
+   *          The new activity state.
+   */
+  protected void setActivityStatus(ActivityStatus activityStatus) {
+    ActivityStatus oldStatus = this.activityStatus;
+    this.activityStatus = activityStatus;
 
-		activityListeners.signalActivityStatusChange(oldStatus, activityStatus);
-	}
+    activityListeners.signalActivityStatusChange(oldStatus, activityStatus);
+  }
 
-	/**
-	 * Set the activity state.
-	 * 
-	 * @param activityStatus
-	 *            The new activity stus.
-	 */
-	protected void setActivityStatus(ActivityState state) {
-		setActivityStatus(state, null, null);
-	}
+  /**
+   * Set the activity state.
+   *
+   * @param activityStatus
+   *          The new activity stus.
+   */
+  protected void setActivityStatus(ActivityState state) {
+    setActivityStatus(state, null, null);
+  }
 
-	/**
-	 * Set the activity state.
-	 * 
-	 * <p>
-	 * The exception field will be null.
-	 * 
-	 * @param status
-	 *            new status of the activity.
-	 * @param description
-	 *            New description of the activity. can be null.
-	 */
-	protected void setActivityStatus(ActivityState state, String description) {
-		setActivityStatus(state, description, null);
-	}
+  /**
+   * Set the activity state.
+   *
+   * <p>
+   * The exception field will be null.
+   *
+   * @param status
+   *          new status of the activity.
+   * @param description
+   *          New description of the activity. can be null.
+   */
+  protected void setActivityStatus(ActivityState state, String description) {
+    setActivityStatus(state, description, null);
+  }
 
-	/**
-	 * Set the activity state.
-	 * 
-	 * @param status
-	 *            new status of the activity.
-	 * @param description
-	 *            New description of the activity. can be null.
-	 * @param exception
-	 *            Exception that occurred. Can be null.
-	 */
-	protected void setActivityStatus(ActivityState state, String description,
-			Throwable exception) {
-		setActivityStatus(new ActivityStatus(state, description, exception));
-	}
+  /**
+   * Set the activity state.
+   *
+   * @param status
+   *          new status of the activity.
+   * @param description
+   *          New description of the activity. can be null.
+   * @param exception
+   *          Exception that occurred. Can be null.
+   */
+  protected void setActivityStatus(ActivityState state, String description, Throwable exception) {
+    setActivityStatus(new ActivityStatus(state, description, exception));
+  }
 
-	/**
-	 * Log an error from an exception.
-	 * 
-	 * @param message
-	 *            the base message
-	 * @param e
-	 *            the exception
-	 */
-	protected void logException(String message, Throwable e) {
-		if (SimpleInteractiveSpacesException.class.isAssignableFrom(e
-				.getClass())) {
-			getLog().error(message);
-		} else {
-			getLog().error(message, e);
-		}
+  /**
+   * Log an error from an exception.
+   *
+   * @param message
+   *          the base message
+   * @param e
+   *          the exception
+   */
+  protected void logException(String message, Throwable e) {
+    if (SimpleInteractiveSpacesException.class.isAssignableFrom(e.getClass())) {
+      getLog().error(message);
+    } else {
+      getLog().error(message, e);
+    }
 
-	}
+  }
 }

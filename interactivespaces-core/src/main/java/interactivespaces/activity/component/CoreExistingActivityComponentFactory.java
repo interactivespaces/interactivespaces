@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -25,22 +25,17 @@ import interactivespaces.activity.component.web.WebServerActivityComponent;
 /**
  * A {@link ActivityComponentFactory} which registers all the core activity
  * components to start with.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class CoreExistingActivityComponentFactory extends
-		SimpleActivityComponentFactory {
-	
-	public CoreExistingActivityComponentFactory() {
-		register(NativeActivityComponent.COMPONENT_NAME,
-				NativeActivityComponent.class);
-		register(RosActivityComponent.COMPONENT_NAME,
-				RosActivityComponent.class);
-		register(RosMessageRouterActivityComponent.COMPONENT_NAME,
-				RosMessageRouterActivityComponent.class);
-		register(WebBrowserActivityComponent.COMPONENT_NAME,
-				WebBrowserActivityComponent.class);
-		register(WebServerActivityComponent.COMPONENT_NAME,
-				WebServerActivityComponent.class);
-	}
+public class CoreExistingActivityComponentFactory extends SimpleActivityComponentFactory {
+
+  public CoreExistingActivityComponentFactory() {
+    register(NativeActivityComponent.COMPONENT_NAME, NativeActivityComponent.class);
+    register(RosActivityComponent.COMPONENT_NAME, RosActivityComponent.class);
+    register(RosMessageRouterActivityComponent.COMPONENT_NAME,
+        RosMessageRouterActivityComponent.class);
+    register(WebBrowserActivityComponent.COMPONENT_NAME, WebBrowserActivityComponent.class);
+    register(WebServerActivityComponent.COMPONENT_NAME, WebServerActivityComponent.class);
+  }
 }

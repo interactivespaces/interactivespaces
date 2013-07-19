@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,331 +22,317 @@ import interactivespaces.util.io.Files;
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategyInstance;
 
-import java.io.BufferedReader;
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.logging.Log;
-
 /**
  * A support superclass for {@link NativeActivityRunner} implementations.
- * 
+ *
  * @author Keith M. Hughes
  */
 public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 
-	/**
-	 * The default number of milliseconds to attempt a restart.
-	 */
-	public static final int RESTART_DURATION_MAXIMUM_DEFAULT = 10000;
+  /**
+   * The default number of milliseconds to attempt a restart.
+   */
+  public static final int RESTART_DURATION_MAXIMUM_DEFAULT = 10000;
 
-	/**
-	 * Configuration for the activity.
-	 */
-	protected Map<String, Object> config;
+  /**
+   * Configuration for the activity.
+   */
+  protected Map<String, Object> config;
 
-	/**
-	 * Process running the native app.
-	 */
-	protected Process process;
+  /**
+   * Process running the native app.
+   */
+  protected Process process;
 
-	/**
-	 * Lock for working with the restarter.
-	 */
-	private Lock restartLock = new ReentrantLock(true);
+  /**
+   * Lock for working with the restarter.
+   */
+  private Lock restartLock = new ReentrantLock(true);
 
-	/**
-	 * When a restart began.
-	 */
-	private long restartBegin = 0;
+  /**
+   * When a restart began.
+   */
+  private long restartBegin = 0;
 
-	/**
-	 * The number of milliseconds to attempt a restart.
-	 */
-	private long restartDurationMaximum = RESTART_DURATION_MAXIMUM_DEFAULT;
+  /**
+   * The number of milliseconds to attempt a restart.
+   */
+  private long restartDurationMaximum = RESTART_DURATION_MAXIMUM_DEFAULT;
 
-	/**
-	 * The strategy for restarting.
-	 */
-	private RestartStrategy restartStrategy;
+  /**
+   * The strategy for restarting.
+   */
+  private RestartStrategy restartStrategy;
 
-	/**
-	 * The strategy instance being used to restart.
-	 * 
-	 * <p>
-	 * Will be {@code null} if there is no restart being attempted.
-	 */
-	private RestartStrategyInstance restarter;
+  /**
+   * The strategy instance being used to restart.
+   *
+   * <p>
+   * Will be {@code null} if there is no restart being attempted.
+   */
+  private RestartStrategyInstance restarter;
 
-	/**
-	 * Process for the restart.
-	 */
-	private Process restartProcess;
+  /**
+   * Process for the restart.
+   */
+  private Process restartProcess;
 
-	/**
-	 * The space environment.
-	 */
-	protected InteractiveSpacesEnvironment spaceEnvironment;
+  /**
+   * The space environment.
+   */
+  protected InteractiveSpacesEnvironment spaceEnvironment;
 
-	/**
-	 * Logger for the runner.
-	 */
-	protected Log log;
+  /**
+   * Logger for the runner.
+   */
+  protected Log log;
 
-	/**
-	 * The commands to be handed to exec.
-	 */
-	private String[] commands;
+  /**
+   * The commands to be handed to exec.
+   */
+  private String[] commands;
 
-	/**
-	 * Folder which contains the executable.
-	 */
-	private File executableFolder;
+  /**
+   * Folder which contains the executable.
+   */
+  private File executableFolder;
 
-	public BaseNativeActivityRunner(
-			InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-		this.spaceEnvironment = spaceEnvironment;
-		this.log = log;
-	}
+  public BaseNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    this.spaceEnvironment = spaceEnvironment;
+    this.log = log;
+  }
 
-	@Override
-	public void configure(Map<String, Object> config) {
-		this.config = config;
-	}
+  @Override
+  public void configure(Map<String, Object> config) {
+    this.config = config;
+  }
 
-	@Override
-	public void startup() {
-		commands = getCommand();
+  @Override
+  public void startup() {
+    commands = getCommand();
 
-		String executable = commands[0];
-		executableFolder = new File(executable.substring(0,
-				executable.lastIndexOf("/")));
+    String executable = commands[0];
+    executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
 
-		if (spaceEnvironment.getLog().isInfoEnabled()) {
-			StringBuilder appLine = new StringBuilder();
-			for (String c : commands)
-				appLine.append(c).append(' ');
-			spaceEnvironment.getLog().info(
-					String.format("Native activity starting up %s", appLine));
-		}
+    if (spaceEnvironment.getLog().isInfoEnabled()) {
+      StringBuilder appLine = new StringBuilder();
+      for (String c : commands)
+        appLine.append(c).append(' ');
+      spaceEnvironment.getLog().info(String.format("Native activity starting up %s", appLine));
+    }
 
-		process = attemptRun();
-	}
+    process = attemptRun();
+  }
 
-	/**
-	 * Attempt the run.
-	 * 
-	 * @return the process that was created
-	 */
-	private Process attemptRun() {
-		try {
-			ProcessBuilder builder = new ProcessBuilder(commands);
-			builder.directory(executableFolder);
+  /**
+   * Attempt the run.
+   *
+   * @return the process that was created
+   */
+  private Process attemptRun() {
+    try {
+      ProcessBuilder builder = new ProcessBuilder(commands);
+      builder.directory(executableFolder);
 
-			spaceEnvironment.getLog().info(
-					String.format("Starting up native code in folder %s",
-							executableFolder.getAbsolutePath()));
+      spaceEnvironment.getLog()
+          .info(
+              String.format("Starting up native code in folder %s",
+                  executableFolder.getAbsolutePath()));
 
-			return builder.start();
-		} catch (Exception e) {
-			throw new InteractiveSpacesException("Can't start up activity "
-					+ commands, e);
-		}
-	}
+      return builder.start();
+    } catch (Exception e) {
+      throw new InteractiveSpacesException("Can't start up activity " + commands, e);
+    }
+  }
 
-	@Override
-	public void shutdown() {
-		if (restarter != null) {
-			restarter.quit();
-			restarter = null;
+  @Override
+  public void shutdown() {
+    if (restarter != null) {
+      restarter.quit();
+      restarter = null;
 
-			if (restartProcess != null) {
-				restartProcess.destroy();
-				restartProcess = null;
-			}
-		}
+      if (restartProcess != null) {
+        restartProcess.destroy();
+        restartProcess = null;
+      }
+    }
 
-		if (process != null) {
+    if (process != null) {
 
-			process.destroy();
+      process.destroy();
 
-			process = null;
-		}
-	}
+      process = null;
+    }
+  }
 
-	@Override
-	public boolean isRunning() {
-		if (process != null) {
-			try {
-				int exitValue = process.exitValue();
+  @Override
+  public boolean isRunning() {
+    if (process != null) {
+      try {
+        int exitValue = process.exitValue();
 
-				try {
-					String errorOutput = Files.inputStreamAsString(process
-							.getInputStream())
-							+ "\n"
-							+ Files.inputStreamAsString(process
-									.getErrorStream());
-					spaceEnvironment.getLog().error(
-							String.format("Error stream from process: %s",
-									errorOutput));
-				} catch (IOException e) {
-					spaceEnvironment.getLog().error(
-							"Could not get error stream for process", e);
-				}
+        try {
+          String errorOutput =
+              Files.inputStreamAsString(process.getInputStream()) + "\n"
+                  + Files.inputStreamAsString(process.getErrorStream());
+          spaceEnvironment.getLog().error(
+              String.format("Error stream from process: %s", errorOutput));
+        } catch (IOException e) {
+          spaceEnvironment.getLog().error("Could not get error stream for process", e);
+        }
 
-				if (handleProcessExit(exitValue, commands)) {
-					// If restarter is working, the outside should be told
-					// that we are still "running" until the restarter punts.
-					return startRestarter();
-				} else {
-					spaceEnvironment.getLog().error(
-							"Activity stopped running, not attempting restart");
-				}
-			} catch (IllegalThreadStateException e) {
-				// Can't get exit value if process is still running.
+        if (handleProcessExit(exitValue, commands)) {
+          // If restarter is working, the outside should be told
+          // that we are still "running" until the restarter punts.
+          return startRestarter();
+        } else {
+          spaceEnvironment.getLog().error("Activity stopped running, not attempting restart");
+        }
+      } catch (IllegalThreadStateException e) {
+        // Can't get exit value if process is still running.
 
-				return true;
-			}
-		}
+        return true;
+      }
+    }
 
-		// If here the process isn't there, so running is dependent on the
-		// restarter, if any.
-		return isRestarterActive();
-	}
+    // If here the process isn't there, so running is dependent on the
+    // restarter, if any.
+    return isRestarterActive();
+  }
 
-	/**
-	 * Start the restarter, unless it is running already.
-	 * 
-	 * @return {@code true} if the restarter is working
-	 */
-	private boolean startRestarter() {
-		restartLock.lock();
-		try {
+  /**
+   * Start the restarter, unless it is running already.
+   *
+   * @return {@code true} if the restarter is working
+   */
+  private boolean startRestarter() {
+    restartLock.lock();
+    try {
 
-			process = null;
+      process = null;
 
-			if (restartStrategy != null) {
-				spaceEnvironment.getLog().error(
-						"Activity stopped running, attempting restart");
+      if (restartStrategy != null) {
+        spaceEnvironment.getLog().error("Activity stopped running, attempting restart");
 
-				restartBegin = spaceEnvironment.getTimeProvider()
-						.getCurrentTime();
-				restarter = restartStrategy.newInstance(this);
+        restartBegin = spaceEnvironment.getTimeProvider().getCurrentTime();
+        restarter = restartStrategy.newInstance(this);
 
-				return true;
-			} else {
-				spaceEnvironment.getLog().error(
-						"Activity stopped running, not attempting restart");
-			}
+        return true;
+      } else {
+        spaceEnvironment.getLog().error("Activity stopped running, not attempting restart");
+      }
 
-			return false;
-		} finally {
-			restartLock.unlock();
-		}
-	}
+      return false;
+    } finally {
+      restartLock.unlock();
+    }
+  }
 
-	/**
-	 * Is there an active restarter?
-	 * 
-	 * <p>
-	 * Will quit and remove any restarter if it has been running for too long
-	 * 
-	 * @return {@code true} if a restarter is still attempting a restart
-	 */
-	private boolean isRestarterActive() {
-		restartLock.lock();
-		try {
-			if (restarter != null) {
-				if (restarter.isRestarting()) {
-					long restartDuration = spaceEnvironment.getTimeProvider()
-							.getCurrentTime() - restartBegin;
+  /**
+   * Is there an active restarter?
+   *
+   * <p>
+   * Will quit and remove any restarter if it has been running for too long
+   *
+   * @return {@code true} if a restarter is still attempting a restart
+   */
+  private boolean isRestarterActive() {
+    restartLock.lock();
+    try {
+      if (restarter != null) {
+        if (restarter.isRestarting()) {
+          long restartDuration = spaceEnvironment.getTimeProvider().getCurrentTime() - restartBegin;
 
-					if (restartDuration > restartDurationMaximum) {
-						spaceEnvironment
-								.getLog()
-								.error("Activity would not restart. Maximum duration time passed.");
-						restarter.quit();
-						restartComplete(false);
+          if (restartDuration > restartDurationMaximum) {
+            spaceEnvironment.getLog().error(
+                "Activity would not restart. Maximum duration time passed.");
+            restarter.quit();
+            restartComplete(false);
 
-						return false;
-					}
+            return false;
+          }
 
-					return true;
-				}
-			}
+          return true;
+        }
+      }
 
-			return false;
-		} finally {
-			restartLock.unlock();
-		}
-	}
+      return false;
+    } finally {
+      restartLock.unlock();
+    }
+  }
 
-	/**
-	 * Respond to a given return value.
-	 * 
-	 * @param exitValue
-	 *            the value returned by the process
-	 * @param commands
-	 *            the commands being run
-	 * 
-	 * @return {@code true} if should attempt a restart.
-	 */
-	public abstract boolean handleProcessExit(int exitValue, String[] commands);
+  /**
+   * Respond to a given return value.
+   *
+   * @param exitValue
+   *          the value returned by the process
+   * @param commands
+   *          the commands being run
+   *
+   * @return {@code true} if should attempt a restart.
+   */
+  public abstract boolean handleProcessExit(int exitValue, String[] commands);
 
-	@Override
-	public void attemptRestart() {
-		restartProcess = attemptRun();
-	}
+  @Override
+  public void attemptRestart() {
+    restartProcess = attemptRun();
+  }
 
-	@Override
-	public boolean isRestarted() {
-		if (restartProcess != null) {
-			try {
-				restartProcess.exitValue();
+  @Override
+  public boolean isRestarted() {
+    if (restartProcess != null) {
+      try {
+        restartProcess.exitValue();
 
-				return false;
-			} catch (IllegalThreadStateException e) {
-				// Can't get exit value if process is still running.
+        return false;
+      } catch (IllegalThreadStateException e) {
+        // Can't get exit value if process is still running.
 
-				return true;
-			}
-		} else {
-			return process != null;
-		}
-	}
+        return true;
+      }
+    } else {
+      return process != null;
+    }
+  }
 
-	@Override
-	public void restartComplete(boolean success) {
-		restartLock.lock();
-		try {
-			if (success) {
-				process = restartProcess;
-				spaceEnvironment.getLog().info("Restart successful");
-			}
-			restartProcess = null;
-			restarter = null;
-		} finally {
-			restartLock.unlock();
-		}
-	}
+  @Override
+  public void restartComplete(boolean success) {
+    restartLock.lock();
+    try {
+      if (success) {
+        process = restartProcess;
+        spaceEnvironment.getLog().info("Restart successful");
+      }
+      restartProcess = null;
+      restarter = null;
+    } finally {
+      restartLock.unlock();
+    }
+  }
 
-	@Override
-	public void setRestartStrategy(RestartStrategy restartStrategy) {
-		this.restartStrategy = restartStrategy;
-	}
+  @Override
+  public void setRestartStrategy(RestartStrategy restartStrategy) {
+    this.restartStrategy = restartStrategy;
+  }
 
-	@Override
-	public void setRestartDurationMaximum(long restartDurationMaximum) {
-		this.restartDurationMaximum = restartDurationMaximum;
-	}
+  @Override
+  public void setRestartDurationMaximum(long restartDurationMaximum) {
+    this.restartDurationMaximum = restartDurationMaximum;
+  }
 
-	/**
-	 * Get the app to run from the config.
-	 * 
-	 * @return the process command line
-	 */
-	public abstract String[] getCommand();
+  /**
+   * Get the app to run from the config.
+   *
+   * @return the process command line
+   */
+  public abstract String[] getCommand();
 }

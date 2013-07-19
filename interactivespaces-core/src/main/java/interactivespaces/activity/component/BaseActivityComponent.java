@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -23,37 +23,37 @@ import java.util.List;
 
 /**
  * A support class for implementations of {@link ActivityComponent}.
- * 
+ *
  * @author Keith M. Hughes
  */
 public abstract class BaseActivityComponent implements ActivityComponent {
 
-	/**
-	 * A list of no dependencies.
-	 */
-	@SuppressWarnings("unchecked")
-	private static final List<String> NO_DEPENDENCIES = Collections
-			.unmodifiableList(Collections.EMPTY_LIST);
+  /**
+   * A list of no dependencies.
+   */
+  @SuppressWarnings("unchecked")
+  private static final List<String> NO_DEPENDENCIES = Collections
+      .unmodifiableList(Collections.EMPTY_LIST);
 
-	/**
-	 * Component context this component is running under.
-	 */
-	private ActivityComponentContext componentContext;
+  /**
+   * Component context this component is running under.
+   */
+  private ActivityComponentContext componentContext;
 
-	@Override
-	public List<String> getDependencies() {
-		// Default is no dependencies
-		return NO_DEPENDENCIES;
-	}
+  @Override
+  public List<String> getDependencies() {
+    // Default is no dependencies
+    return NO_DEPENDENCIES;
+  }
 
-	@Override
-	public ActivityComponentContext getComponentContext() {
-		return componentContext;
-	}
+  @Override
+  public ActivityComponentContext getComponentContext() {
+    return componentContext;
+  }
 
-	@Override
-	public void configureComponent(Configuration configuration,
-			ActivityComponentContext componentContext) {
-		this.componentContext = componentContext;
-	}
+  @Override
+  public void configureComponent(Configuration configuration,
+      ActivityComponentContext componentContext) {
+    this.componentContext = componentContext;
+  }
 }
