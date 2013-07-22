@@ -137,7 +137,7 @@ abstract class NixMachineOperator extends MachineOperator {
     def machine = controller.machine
     println "Start for ${controller.name} on ${machine.host}"
 
-    doCommand(machine, "sh -c 'cd ${controller.folder} ; nohup java -server -jar interactivespaces-launcher-1.4.0.jar --noshell &>/dev/null &'", options, errors, true)
+    doCommand(machine, "sh -l -c '${controller.folder}/bin/startup_linux.bash background'", options, errors, true)
   }
 
   def stopControllers(controller, space, options, errors) {
