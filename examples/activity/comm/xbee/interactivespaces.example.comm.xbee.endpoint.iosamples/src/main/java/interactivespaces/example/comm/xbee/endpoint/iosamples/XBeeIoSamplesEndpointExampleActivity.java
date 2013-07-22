@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package interactivespaces.example.comm.xbee.endpoint.iosamples;
 
 import interactivespaces.activity.impl.BaseActivity;
@@ -64,42 +80,22 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
   public void onActivityStartup() {
     getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples startup");
     AtLocalRequestXBeeFrame frame1 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0, 1);
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0);
     frame1.add(XBeeApiConstants.IO_FUNCTION_ANALOG);
 
     frame1.write(xbee);
 
     AtLocalRequestXBeeFrame frame2 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D2, 2);
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_P2);
     frame2.add(XBeeApiConstants.IO_FUNCTION_DIGITAL_INPUT);
 
     frame2.write(xbee);
 
     AtLocalRequestXBeeFrame frame3 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR, 3);
+        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR);
     frame3.add(0x36);
     frame3.add(0x34);
 
     frame3.write(xbee);
-  }
-
-  @Override
-  public void onActivityActivate() {
-    getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples activate");
-  }
-
-  @Override
-  public void onActivityDeactivate() {
-    getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples deactivate");
-  }
-
-  @Override
-  public void onActivityShutdown() {
-    getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples shutdown");
-  }
-
-  @Override
-  public void onActivityCleanup() {
-    getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples cleanup");
   }
 }

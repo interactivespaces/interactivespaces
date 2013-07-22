@@ -112,6 +112,19 @@ public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
   /**
    * Construct a new XBee AT Local request.
    *
+   * <p>
+   * A frame number is supplied.
+   *
+   * @param command
+   *          the AT command to send
+   *
+   * @return a new XBee AT Local request
+   */
+  AtLocalRequestXBeeFrame newAtLocalRequestXBeeFrame(int[] command);
+
+  /**
+   * Construct a new XBee AT Local request.
+   *
    * @param command
    *          the AT command to send
    * @param frameNumber
@@ -120,6 +133,46 @@ public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
    * @return a new XBee AT Local request
    */
   AtLocalRequestXBeeFrame newAtLocalRequestXBeeFrame(int[] command, int frameNumber);
+
+  /**
+   * Construct an XBee AT Remote request with fully specified address.
+   *
+   * <p>
+   * A frame number is supplied.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param address16
+   *          the 16 bit destination address
+   * @param command
+   *          the AT command to send
+   * @param options
+   *          options for the frame
+   *
+   * @return a new remote request
+   */
+  AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64,
+      XBeeAddress16 address16, int[] command, int options);
+
+  /**
+   * Construct an XBee AT Remote request with fully specified address.
+   *
+   * <p>
+   * No response will be sent back.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param address16
+   *          the 16 bit destination address
+   * @param command
+   *          the AT command to send
+   * @param options
+   *          options for the frame
+   *
+   * @return a new remote request
+   */
+  AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrameNoResponse(XBeeAddress64 address64,
+      XBeeAddress16 address16, int[] command, int options);
 
   /**
    * Construct an XBee AT Remote request with fully specified address.
@@ -143,6 +196,42 @@ public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
   /**
    * Construct an AT Remote command XBee if the 16 bit address isn't known.
    *
+   * <p>
+   * A frame number is supplied.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param command
+   *          the AT command to send
+   * @param options
+   *          options for the frame
+   *
+   * @return a new remote request
+   */
+  AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, int[] command,
+      int options);
+
+  /**
+   * Construct an AT Remote command XBee if the 16 bit address isn't known.
+   *
+   * <p>
+   * No response will be sent back.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param command
+   *          the AT command to send
+   * @param options
+   *          options for the frame
+   *
+   * @return a new remote request
+   */
+  AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrameNoResponse(XBeeAddress64 address64,
+      int[] command, int options);
+
+  /**
+   * Construct an AT Remote command XBee if the 16 bit address isn't known.
+   *
    * @param address64
    *          the 64 bit destination address
    * @param command
@@ -156,6 +245,48 @@ public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
    */
   AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, int[] command,
       int frameNumber, int options);
+
+  /**
+   * Construct an XBee Remote transmit request with fully specified address.
+   *
+   * <p>
+   * A frame number is supplied.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param address16
+   *          the 16 bit destination address
+   * @param broadcastRadius
+   *          the maximum number of hops to deliver the data if a broadcast
+   *          transmission, if {@code 0} will be the maximum hops value
+   * @param options
+   *          options for the frame
+   *
+   * @return the new request
+   */
+  TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
+      int broadcastRadius, int options);
+
+  /**
+   * Construct an XBee Remote transmit request with fully specified address.
+   *
+   * <p>
+   * No response will be sent back.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param address16
+   *          the 16 bit destination address
+   * @param broadcastRadius
+   *          the maximum number of hops to deliver the data if a broadcast
+   *          transmission, if {@code 0} will be the maximum hops value
+   * @param options
+   *          options for the frame
+   *
+   * @return the new request
+   */
+  TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64,
+      XBeeAddress16 address16, int broadcastRadius, int options);
 
   /**
    * Construct an XBee Remote transmit request with fully specified address.
@@ -176,6 +307,46 @@ public interface XBeeCommunicationEndpoint extends CommunicationEndpoint {
    */
   TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
       int frameNumber, int broadcastRadius, int options);
+
+  /**
+   * Construct an Remote transmit XBee request if the 16 bit address isn't
+   * known.
+   *
+   * <p>
+   * A frame number is supplied.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param broadcastRadius
+   *          the maximum number of hops to deliver the data if a broadcast
+   *          transmission, if {@code 0} will be the maximum hops value
+   * @param options
+   *          options for the frame
+   *
+   * @return the new request
+   */
+  TxRequestXBeeFrame
+      newTxRequestXBeeFrame(XBeeAddress64 address64, int broadcastRadius, int options);
+
+  /**
+   * Construct an Remote transmit XBee request if the 16 bit address isn't
+   * known.
+   *
+   * <p>
+   * No response will be sent back.
+   *
+   * @param address64
+   *          the 64 bit destination address
+   * @param broadcastRadius
+   *          the maximum number of hops to deliver the data if a broadcast
+   *          transmission, if {@code 0} will be the maximum hops value
+   * @param options
+   *          options for the frame
+   *
+   * @return the new request
+   */
+  TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64, int broadcastRadius,
+      int options);
 
   /**
    * Construct an Remote transmit XBee request if the 16 bit address isn't

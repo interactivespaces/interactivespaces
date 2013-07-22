@@ -4,7 +4,7 @@ Supported Activity Classes
 Implementing an Interactive Spaces Activity from scratch, even with the
 vast number of support classes available, can be daunting. To help with
 this, Interactive Spaces comes with a variety of Supported Activities which
-can make implementing an Activity as simple as writing methods for only 
+can make implementing an Activity as simple as writing methods for only
 the functionality that you care about.
 
 Common Functionality
@@ -17,7 +17,7 @@ Common Event Methods
 --------------------
 
 There are various events which happen to an Activity, they can be started
-up, shutdown, activated and deactivated. There are a series of event 
+up, shutdown, activated and deactivated. There are a series of event
 methods which are called during these various Activity events that you
 can write your own versions of so that your Activity does what you
 need it to do. You don't have to write versions of all of these methods,
@@ -33,13 +33,18 @@ event methods are called.
 ``void onActivitySetup()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This method is called when Activity is starting up. 
-This is the first event method called 
-and is called only once. Very minimal things will be set up for the Activity.
-The method should be used to set anything up that 
-doesn't require access to Activity Components or any other configured 
+This method is called when Activity is starting up.
+This is the first event method called
+and is called only once.
+
+ This event is usually used to register Activity Components.
+
+Very minimal things will be set up for the Activity when this event happens.
+The method should be used to set anything up that
+doesn't require access to Activity Components or any other configured
 items. This means that routes, web socket servers, and other communication
 channels are not available.
+
 
 The following resources are available:
 
@@ -58,13 +63,21 @@ the Activity startup to fail.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method is called once when the Activity is starting up.
-It is called after 
+It is called after
 the Activity is fully configured and all
 Activity components, such as web servers and communication channels,
-are running, though are not processing events yet. Incoming messages on routes
+are running, though are not processing events yet.
+
+This event is typically used to set up any data structures or other non-Activity OCmponent-based
+resources you will use, like Managed Commands.
+
+Incoming messages on routes
 and web socket communications with the web servers are not handled until this
-method has completed. It is not recommended that messages be sent out during
-this method. Messages should be sent in
+method has completed, though any messages which come in are queued for later processing.
+
+It is not recommended that messages be sent out during
+this method, there is no guarantee that any of the communication channels are fully ready.
+Messages should be sent in
 ref:`onActivityPostStartup <onActivityPostStartup-reference-label>`.
 
 
@@ -155,7 +168,7 @@ components or something the user has set up.
 The Activity has shut down either due to a shutdown or by activity
 failure. It should clean up all resources used by the Activity.
 
-It is called after 
+It is called after
 :ref:`onActivityShutdown <onActivityshutdown-reference-label>` is called
 during shutdown, or when the Activity crashes.
 
@@ -169,14 +182,14 @@ This method should not change the activity state, it should just return
 whether or not the activity is doing what it is supposed to in its
 current state.
 
-The method should return ``true`` if the Activity is working correctly, 
+The method should return ``true`` if the Activity is working correctly,
 and ``false`` if it isn't.
 
 ``void onActivityConfigurationUpdate(Map<String, Object> update)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A live configuration update is coming into the Activity.
- 
+
 The map gives the contents of the entire update.
 
 The new configuration will also be properly reflected with the
@@ -187,11 +200,11 @@ The new configuration will also be properly reflected with the
 Thread Pools and Managed Commands
 ---------------------------------
 
-It is sometimes necessary to run several things at the same time in your Activities 
-and the typical way to do that is with threads. However, threading in 
+It is sometimes necessary to run several things at the same time in your Activities
+and the typical way to do that is with threads. However, threading in
 Interactive Spaces can be a little tricky because you want the Master or
-Space Controller to shut down when you want it shut down. If threads are 
-not used properly, your Master or Space Controller will not shut down 
+Space Controller to shut down when you want it shut down. If threads are
+not used properly, your Master or Space Controller will not shut down
 because there are threads still running.
 
 Managed Commands give you a per-Activity collection of threads which will
@@ -209,10 +222,10 @@ and submit it to the Managed Commands.
 
   public void onActivitySetup() {
     ... other setup...
-    
+
     Runnable myTask = ...
     getManagedCommands().submit(myTask);
-    
+
     ... other setup ...
   }
 
@@ -220,7 +233,7 @@ You are now done, you don't have to worry about shutting your task down,
 Interactive Spaces will do it automatically when the Activity is
 cleaned up.
 
-For more details, see the 
+For more details, see the
 :javadoc:`interactivespaces.util.concurrency.CommandCollection`
 Javadoc.
 
@@ -244,10 +257,10 @@ You tell your Activity about a Managed Resource with the
 
   public void onActivitySetup() {
     ... other setup...
-    
+
     httpCopier = new HttpClientHttpContentCopier()
     addManagedResource(httpCopier);
-    
+
     ... other setup ...
   }
 
@@ -256,4 +269,3 @@ Interactive Spaces will do it automatically when the Activity is
 cleaned up.
 
 
- 

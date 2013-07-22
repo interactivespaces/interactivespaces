@@ -99,22 +99,22 @@ public class XBeeApiConstants {
   public static final int[] AT_COMMAND_WR = new int[] { 0x57, 0x52 };
 
   /**
-   * The AT command D0 for configuring IO pin 0.
+   * The AT command D0 for configuring IO pin 0. Can be analog or digital.
    */
   public static final int[] AT_COMMAND_D0 = new int[] { 0x44, 0x30 };
 
   /**
-   * The AT command D0 for configuring IO pin 1.
+   * The AT command D0 for configuring IO pin 1. Can be analog or digital.
    */
   public static final int[] AT_COMMAND_D1 = new int[] { 0x44, 0x31 };
 
   /**
-   * The AT command D0 for configuring IO pin 2.
+   * The AT command D0 for configuring IO pin 2. Can be analog or digital.
    */
   public static final int[] AT_COMMAND_D2 = new int[] { 0x44, 0x32 };
 
   /**
-   * The AT command D0 for configuring IO pin 3.
+   * The AT command D0 for configuring IO pin 3. Can be analog or digital.
    */
   public static final int[] AT_COMMAND_D3 = new int[] { 0x44, 0x33 };
 
@@ -147,6 +147,11 @@ public class XBeeApiConstants {
    * The AT command D0 for configuring IO pin 11.
    */
   public static final int[] AT_COMMAND_P1 = new int[] { 0x50, 0x31 };
+
+  /**
+   * The AT command D0 for configuring IO pin 12.
+   */
+  public static final int[] AT_COMMAND_P2 = new int[] { 0x50, 0x32 };
 
   /**
    * The AT command IR for configuring the IO sample rate. Rate in milliseconds
