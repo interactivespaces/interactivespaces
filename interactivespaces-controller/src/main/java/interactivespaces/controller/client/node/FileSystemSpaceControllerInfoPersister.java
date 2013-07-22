@@ -46,9 +46,9 @@ public class FileSystemSpaceControllerInfoPersister implements
 				interactivespaces.controller.SpaceController.CONFIGURATION_CONTROLLER_DESCRIPTION,
 				controllerInfo.getDescription());
 
-    // TODO(peringknife): Should not be located under the config directory...
-		File controllerInfoFile = new File(spaceEnvironment.getFilesystem().getConfigDirectory(),
-        "interactivespaces/controllerinfo.conf");
+		File controllerInfoFile = new File(spaceEnvironment.getFilesystem()
+				.getInstallDirectory(),
+				"config/interactivespaces/controllerinfo.conf");
 		FileWriter writer = null;
 		try {
 			writer = new FileWriter(controllerInfoFile);

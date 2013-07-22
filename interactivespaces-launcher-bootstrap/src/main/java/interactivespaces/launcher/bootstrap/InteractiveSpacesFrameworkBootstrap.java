@@ -89,16 +89,6 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String BUNDLE_DIRECTORY_BOOTSTRAP = "bootstrap";
 
   /**
- 	 * Where the config files are stored.
- 	 */
- 	private static final String DEFAULT_CONFIG_DIRECTORY = "config";
-
-  /**
-   * The environment variable used to set the configuration folder.
-   */
-  private static final String IS_CONFIG_DIR_ENVIRONMENT_KEY = "IS_CONFIG_DIR";
-
-  /**
    * The OSGI framework which has been started.
    */
   private Framework framework;
@@ -201,26 +191,13 @@ public class InteractiveSpacesFrameworkBootstrap {
     loggingProvider = new Log4jLoggingProvider();
     loggingProvider.configure(baseInstallFolder);
 
-    File configurationFolder = getConfigurationRootFolder();
-    configurationProvider = new FileConfigurationProvider(configurationFolder);
-    loggingProvider.getLog().info(
-        String.format("Reading configuration from %s", configurationFolder));
-
+    configurationProvider = new FileConfigurationProvider(baseInstallFolder);
     configurationProvider.load();
 
     Set<File> startupBundles = new HashSet<File>();
     startupBundles.addAll(initialBundles);
 
     containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, startupBundles, true);
-  }
-
-  /**
-   * @return The configuration folder to use for this component instance.
-   */
-  private File getConfigurationRootFolder() {
-    String envSetting = System.getenv(IS_CONFIG_DIR_ENVIRONMENT_KEY);
-    return envSetting == null ? new File(baseInstallFolder, DEFAULT_CONFIG_DIRECTORY) :
-        new File(envSetting);
   }
 
   /**
