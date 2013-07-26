@@ -21,7 +21,6 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.ExecutorService;
 
-
 /**
  * An interruptable loop.
  *
@@ -32,87 +31,86 @@ import java.util.concurrent.ExecutorService;
  */
 public abstract class CancellableLoop implements Runnable {
 
-	/**
-	 * The {@link Thread} the code will be running in.
-	 */
-	private Thread thread;
+  /**
+   * The {@link Thread} the code will be running in.
+   */
+  private Thread thread;
 
-	@Override
-	public void run() {
-		synchronized (this) {
-			if (thread != null) {
-				throw new InteractiveSpacesException("Loop already running");
-			}
+  @Override
+  public void run() {
+    synchronized (this) {
+      if (thread != null) {
+        throw new InteractiveSpacesException("Loop already running");
+      }
 
-			thread = Thread.currentThread();
-		}
-		try {
-			setup();
-			while (!thread.isInterrupted()) {
-				loop();
-			}
-		} catch (InterruptedException e) {
-			handleInterruptedException(e);
-		} catch (Exception e) {
-			handleException(e);
-		} finally {
-			thread = null;
+      thread = Thread.currentThread();
+    }
+    try {
+      setup();
+      while (!thread.isInterrupted()) {
+        loop();
+      }
+    } catch (InterruptedException e) {
+      handleInterruptedException(e);
+    } catch (Exception e) {
+      handleException(e);
+    } finally {
+      thread = null;
 
-			cleanup();
-		}
-	}
+      cleanup();
+    }
+  }
 
-	/**
-	 * The setup block for the loop. This will be called exactly once before the
-	 * first call to {@link #loop()}.
-	 */
-	protected void setup() {
-		// Do nothing by default.
-	}
+  /**
+   * The setup block for the loop. This will be called exactly once before the
+   * first call to {@link #loop()}.
+   */
+  protected void setup() {
+    // Do nothing by default.
+  }
 
-	/**
-	 * The cleanup block for the loop. This will be called exactly once after
-	 * the loop has exited for any reason.
-	 */
-	protected void cleanup() {
-		// Do nothing by default.
-	}
+  /**
+   * The cleanup block for the loop. This will be called exactly once after the
+   * loop has exited for any reason.
+   */
+  protected void cleanup() {
+    // Do nothing by default.
+  }
 
-	/**
-	 * The body of the loop. This will run continuously until the
-	 * {@link CancellableLoop} has been interrupted externally or by calling
-	 * {@link #cancel()}.
-	 */
-	protected abstract void loop() throws InterruptedException;
+  /**
+   * The body of the loop. This will run continuously until the
+   * {@link CancellableLoop} has been interrupted externally or by calling
+   * {@link #cancel()}.
+   */
+  protected abstract void loop() throws InterruptedException;
 
-	/**
-	 * An {@link InterruptedException} was thrown.
-	 */
-	protected void handleInterruptedException(InterruptedException e) {
-		// Ignore InterruptedExceptions by default.
-	}
+  /**
+   * An {@link InterruptedException} was thrown.
+   */
+  protected void handleInterruptedException(InterruptedException e) {
+    // Ignore InterruptedExceptions by default.
+  }
 
-	/**
-	 * An {@link Exception} other than an {@link InterruptedException} was
-	 * thrown.
-	 */
-	protected void handleException(Exception e) {
-		// Ignore Exceptions by default.
-	}
+  /**
+   * An {@link Exception} other than an {@link InterruptedException} was thrown.
+   */
+  protected void handleException(Exception e) {
+    // Ignore Exceptions by default.
+  }
 
-	/**
-	 * Interrupts the loop.
-	 */
-	public void cancel() {
-		if (thread != null) {
-			thread.interrupt();
-		}
-	}
+  /**
+   * Interrupts the loop.
+   */
+  public void cancel() {
+    if (thread != null) {
+      thread.interrupt();
+    }
+  }
 
-	/**
-	 * @return {@code true} if the loop is running
-	 */
-	public synchronized boolean isRunning() {
-		return thread != null && !thread.isInterrupted();
-	}
+  /**
+   * @return {@code true} if the loop is running
+   */
+  public synchronized boolean isRunning() {
+    return thread != null && !thread.isInterrupted();
+  }
 }

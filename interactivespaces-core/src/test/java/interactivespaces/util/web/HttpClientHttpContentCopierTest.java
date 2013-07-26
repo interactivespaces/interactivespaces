@@ -144,14 +144,12 @@ public class HttpClientHttpContentCopierTest {
   @Test
   public void testFileUpload() throws Exception {
     File source = getTempFile();
-    source.deleteOnExit();
-    System.out.println(source);
     final File destination = getTempFile();
-    destination.deleteOnExit();
 
     Files.writeFile(source, TEST_CONTENT);
 
-    final AtomicReference<Map<String,String>> receivedParameters = new AtomicReference<Map<String,String>>();
+    final AtomicReference<Map<String, String>> receivedParameters =
+        new AtomicReference<Map<String, String>>();
     final CountDownLatch latch = new CountDownLatch(1);
 
     webServer.setHttpFileUploadListener(new HttpFileUploadListener() {
@@ -181,15 +179,9 @@ public class HttpClientHttpContentCopierTest {
    * @param sourceUri
    */
   private void testCopyFromSuccessfulTransfer(File destination, String sourceUri) {
-    try {
-      copier.copy(sourceUri + "success", destination);
-      String content = Files.readFile(destination);
-      Assert.assertEquals(TEST_CONTENT, content.trim());
-    } finally {
-      if (destination.exists()) {
-        destination.delete();
-      }
-    }
+    copier.copy(sourceUri + "success", destination);
+    String content = Files.readFile(destination);
+    Assert.assertEquals(TEST_CONTENT, content.trim());
   }
 
   /**
@@ -208,8 +200,9 @@ public class HttpClientHttpContentCopierTest {
    */
   private File getTempFile() throws IOException {
     File tempdir = new File(System.getProperty("java.io.tmpdir"));
-    File destination = File.createTempFile("interactivespaces-", "test", tempdir);
-    return destination;
+    File file = File.createTempFile("interactivespaces-", "test", tempdir);
+    file.deleteOnExit();
+    return file;
   }
 
 }

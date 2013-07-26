@@ -16,14 +16,14 @@
 
 package interactivespaces.util.data.json;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * A builder for creating JSON objects.
