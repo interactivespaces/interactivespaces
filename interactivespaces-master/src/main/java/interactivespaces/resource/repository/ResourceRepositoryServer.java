@@ -16,7 +16,6 @@
 
 package interactivespaces.resource.repository;
 
-import interactivespaces.domain.basic.Activity;
 
 /**
  * A repository server for Interactive Spaces resources.

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,51 +24,50 @@ import interactivespaces.controller.client.node.SpaceControllerActivityStatuses.
 
 /**
  * A listener for events from an Interactive Spaces controller.
- * 
+ *
  * @author Keith M. Hughes
  */
 public interface SpaceControllerListener {
 
-	/**
-	 * An activity was deployed.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity.
-	 */
-	void activityDeploy(String uuid, ControllerActivityDeployStatus status);
+  /**
+   * An activity was deployed.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   */
+  void activityDeploy(String uuid, ControllerActivityDeployStatus status);
 
-	/**
-	 * An activity started up.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity.
-	 */
-	void activityStart(String uuid, ControllerActivityStartStatus status);
+  /**
+   * An activity started up.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   */
+  void activityStart(String uuid, ControllerActivityStartStatus status);
 
-	/**
-	 * An activity shut down.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity.
-	 * @param status
-	 *            status of the shutdown
-	 */
-	void activityShutdown(String uuid, ControllerActivityShutdownStatus status);
+  /**
+   * An activity shut down.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   * @param status
+   *          status of the shutdown
+   */
+  void activityShutdown(String uuid, ControllerActivityShutdownStatus status);
 
-	/**
-	 * An activity activated.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity.
-	 */
-	void activityActivate(String uuid, ControllerActivityActivateStatus status);
+  /**
+   * An activity activated.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   */
+  void activityActivate(String uuid, ControllerActivityActivateStatus status);
 
-	/**
-	 * An activity deactivated.
-	 * 
-	 * @param uuid
-	 *            UUID of the activity.
-	 */
-	void activityDeactivate(String uuid,
-			ControllerActivityDeactivateStatus status);
+  /**
+   * An activity deactivated.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   */
+  void activityDeactivate(String uuid, ControllerActivityDeactivateStatus status);
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -21,8 +21,6 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.util.Map;
+
 /**
  * A form for editing live activity metadata.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
@@ -45,106 +45,104 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes({ "liveactivity", "id", "metadata" })
 public class LiveActivityMetadataEditForm extends MetadataEditFormSupport {
 
-	/**
-	 * The activity repository.
-	 */
-	private ActivityRepository activityRepository;
+  /**
+   * The activity repository.
+   */
+  private ActivityRepository activityRepository;
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void setAllowedFields(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
-		model.addAttribute("liveactivity", liveactivity);
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+    model.addAttribute("liveactivity", liveactivity);
+    model.addAttribute("id", id);
 
-		ConfigurationForm metadataForm = newMetadataForm(liveactivity.getMetadata());
+    addGlobalModelItems(model);
 
-		model.addAttribute("metadata", metadataForm);
+    ConfigurationForm metadataForm = newMetadataForm(liveactivity.getMetadata());
 
-		return "liveactivity/LiveActivityMetadataEdit";
-	}
+    model.addAttribute("metadata", metadataForm);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("metadata") ConfigurationForm metadataForm,
-			BindingResult result, SessionStatus status) {
-		metadataForm.validate(result, false, "space.metadata");
-		if (result.hasErrors()) {
-			return "liveactivity/LiveActivityMetadataEdit";
-		} else {
-			LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+    return "liveactivity/LiveActivityMetadataEdit";
+  }
 
-			if (saveMetadataForm(metadataForm, liveactivity)) {
-				activityRepository.saveLiveActivity(liveactivity);
-			}
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("metadata") ConfigurationForm metadataForm, BindingResult result,
+      SessionStatus status) {
+    metadataForm.validate(result, false, "space.metadata");
+    if (result.hasErrors()) {
+      return "liveactivity/LiveActivityMetadataEdit";
+    } else {
+      LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
 
-			status.setComplete();
+      if (saveMetadataForm(metadataForm, liveactivity)) {
+        activityRepository.saveLiveActivity(liveactivity);
+      }
 
-			return "redirect:/liveactivity/" + id + "/view.html";
-		}
-	}
+      status.setComplete();
 
-	/**
-	 * Save the metadata form
-	 * 
-	 * @param form
-	 *            the metadata form
-	 * @param liveactivity
-	 *            the activity which contains the metadata
-	 * 
-	 * @return {@code true} if there were changes
-	 */
-	private boolean saveMetadataForm(ConfigurationForm form,
-			LiveActivity liveactivity) {
-		Map<String, Object> map = getSubmittedMap(form);
+      return "redirect:/liveactivity/" + id + "/view.html";
+    }
+  }
 
-		return saveMetadata(liveactivity, map);
-	}
+  /**
+   * Save the metadata form
+   *
+   * @param form
+   *          the metadata form
+   * @param liveactivity
+   *          the activity which contains the metadata
+   *
+   * @return {@code true} if there were changes
+   */
+  private boolean saveMetadataForm(ConfigurationForm form, LiveActivity liveactivity) {
+    Map<String, Object> map = getSubmittedMap(form);
 
-	/**
-	 * save the metadata.
-	 * 
-	 * @param liveactivity
-	 *            the live activity being reconfigured
-	 * @param map
-	 *            the map of new configurations
-	 * 
-	 * @return {@code true} if there was a change in the configuration
-	 */
-	private boolean saveMetadata(LiveActivity liveactivity,
-			Map<String, Object> map) {
-		Map<String, Object> metadata = liveactivity.getMetadata();
-		if (metadata != null) {
-			if (metadata.isEmpty() && map.isEmpty()) {
-				return false;
-			}
+    return saveMetadata(liveactivity, map);
+  }
 
-			liveactivity.setMetadata(map);
+  /**
+   * save the metadata.
+   *
+   * @param liveactivity
+   *          the live activity being reconfigured
+   * @param map
+   *          the map of new configurations
+   *
+   * @return {@code true} if there was a change in the configuration
+   */
+  private boolean saveMetadata(LiveActivity liveactivity, Map<String, Object> map) {
+    Map<String, Object> metadata = liveactivity.getMetadata();
+    if (metadata != null) {
+      if (metadata.isEmpty() && map.isEmpty()) {
+        return false;
+      }
 
-			return true;
-		} else {
-			// No configuration. If nothing in submission, nothing has changed.
-			// Otherwise add everything.
-			if (map.isEmpty())
-				return false;
+      liveactivity.setMetadata(map);
 
-			liveactivity.setMetadata(map);
+      return true;
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty())
+        return false;
 
-			return true;
-		}
-	}
+      liveactivity.setMetadata(map);
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+      return true;
+    }
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 }

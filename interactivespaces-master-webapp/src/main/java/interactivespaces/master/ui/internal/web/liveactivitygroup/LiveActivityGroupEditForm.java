@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -35,7 +35,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * A form for editing live activity groups.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
@@ -43,71 +43,68 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes({ "form", "id" })
 public class LiveActivityGroupEditForm extends BaseSpaceMasterController {
 
-	/**
-	 * The activity repository.
-	 */
-	private ActivityRepository activityRepository;
+  /**
+   * The activity repository.
+   */
+  private ActivityRepository activityRepository;
 
-	@InitBinder
-	public void initBinder(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void initBinder(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		LiveActivityGroup group = activityRepository
-				.getLiveActivityGroupById(id);
-		LiveActivityGroupForm form = new LiveActivityGroupForm();
-		form.copyLiveActivityGroup(group);
-		
-		model.addAttribute("form", form);
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
+    LiveActivityGroupForm form = new LiveActivityGroupForm();
+    form.copyLiveActivityGroup(group);
 
-        addNeededEntities(model);
+    model.addAttribute("form", form);
+    model.addAttribute("id", id);
 
-		return "liveactivitygroup/LiveActivityGroupEdit";
-	}
+    addGlobalModelItems(model);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("form") LiveActivityGroupForm form,
-			BindingResult result, SessionStatus status, Model model) {
-		new LiveActivityGroupFormValidator().validate(form, result);
-		if (result.hasErrors()) {
-			addNeededEntities(model);
-			return "liveactivitygroup/LiveActivityGroupEdit";
-		} else {
-			LiveActivityGroup group = activityRepository
-					.getLiveActivityGroupById(id);
-			form.saveLiveActivityGroup(group, activityRepository);
-			activityRepository.saveLiveActivityGroup(group);
+    addNeededEntities(model);
 
-			status.setComplete();
+    return "liveactivitygroup/LiveActivityGroupEdit";
+  }
 
-			return "redirect:/liveactivitygroup/" + group.getId()
-					+ "/view.html";
-		}
-	}
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("form") LiveActivityGroupForm form, BindingResult result,
+      SessionStatus status, Model model) {
+    new LiveActivityGroupFormValidator().validate(form, result);
+    if (result.hasErrors()) {
+      addNeededEntities(model);
+      return "liveactivitygroup/LiveActivityGroupEdit";
+    } else {
+      LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
+      form.saveLiveActivityGroup(group, activityRepository);
+      activityRepository.saveLiveActivityGroup(group);
 
-	/**
-	 * Get any entities needed by the form that will be too heavyweight in the
-	 * session.
-	 * 
-	 * @param model
-	 *            the model to put the values in
-	 */
-	private void addNeededEntities(Model model) {
-		model.addAttribute("liveactivities", WebSupport
-				.getLiveActivitySelections(activityRepository.getAllLiveActivities()));
-	}
+      status.setComplete();
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+      return "redirect:/liveactivitygroup/" + group.getId() + "/view.html";
+    }
+  }
+
+  /**
+   * Get any entities needed by the form that will be too heavyweight in the
+   * session.
+   *
+   * @param model
+   *          the model to put the values in
+   */
+  private void addNeededEntities(Model model) {
+    model.addAttribute("liveactivities",
+        WebSupport.getLiveActivitySelections(activityRepository.getAllLiveActivities()));
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 }

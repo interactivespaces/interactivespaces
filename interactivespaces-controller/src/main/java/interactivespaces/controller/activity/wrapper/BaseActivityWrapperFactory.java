@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -26,55 +26,50 @@ import java.io.File;
 /**
  * An {@link ActivityWrapperFactory} base class with some potential useful
  * methods.
- * 
+ *
  * @author Keith M. Hughes
  */
-public abstract class BaseActivityWrapperFactory implements
-		ActivityWrapperFactory {
+public abstract class BaseActivityWrapperFactory implements ActivityWrapperFactory {
 
-	/**
-	 * Get the activity's executable file.
-	 * 
-	 * @param liapp
-	 *            activity containing the executable
-	 * @param activityFilesystem
-	 *            the activity's filesystem
-	 * @param configuration
-	 *            configuration for the activity
-	 * 
-	 * @return file containing the executable
-	 */
-	public File getActivityExecutable(InstalledLiveActivity liapp,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration) {
-		return new File(
-				activityFilesystem.getInstallDirectory(),
-				configuration
-						.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
-	}
+  /**
+   * Get the activity's executable file.
+   *
+   * @param liapp
+   *          activity containing the executable
+   * @param activityFilesystem
+   *          the activity's filesystem
+   * @param configuration
+   *          configuration for the activity
+   *
+   * @return file containing the executable
+   */
+  public File getActivityExecutable(InstalledLiveActivity liapp,
+      ActivityFilesystem activityFilesystem, Configuration configuration) {
+    return new File(activityFilesystem.getInstallDirectory(),
+        configuration
+            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
+  }
 
-	/**
-	 * Get a file to the activity executable with a given extension.
-	 * 
-	 * @param liapp
-	 *            Activity containing the executable.
-	 * @param activityFilesystem
-	 *            The activity's filesystem.
-	 * @param configuration
-	 *            Configuration for the activity.
-	 * @param extension
-	 *            a file extension to be placed at the end of the name (should
-	 *            not contain dot)
-	 * 
-	 * @return File containing the executable.
-	 */
-	public File getActivityExecutable(InstalledLiveActivity liapp,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration, String extension) {
-		return new File(
-				activityFilesystem.getInstallDirectory(),
-				configuration
-						.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)
-						+ "." + extension);
-	}
+  /**
+   * Get a file to the activity executable with a given extension.
+   *
+   * @param liapp
+   *          Activity containing the executable.
+   * @param activityFilesystem
+   *          The activity's filesystem.
+   * @param configuration
+   *          Configuration for the activity.
+   * @param extension
+   *          a file extension to be placed at the end of the name (should not
+   *          contain dot)
+   *
+   * @return File containing the executable.
+   */
+  public File getActivityExecutable(InstalledLiveActivity liapp,
+      ActivityFilesystem activityFilesystem, Configuration configuration, String extension) {
+    return new File(activityFilesystem.getInstallDirectory(),
+        configuration
+            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)
+            + "." + extension);
+  }
 }

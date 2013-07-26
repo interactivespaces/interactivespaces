@@ -16,6 +16,9 @@
 
 package interactivespaces.master.server.services.internal.support;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
@@ -32,17 +35,14 @@ import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.time.TimeProvider;
 
-import java.io.StringReader;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.io.StringReader;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An importer of the master domain description.

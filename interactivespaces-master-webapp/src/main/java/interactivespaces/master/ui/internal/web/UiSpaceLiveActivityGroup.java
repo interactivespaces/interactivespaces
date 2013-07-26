@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,34 +27,34 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class UiSpaceLiveActivityGroup {
-	
-	/**
-	 * The live activity group represented.
-	 */
-	private LiveActivityGroup liveActivityGroup;
-	
-	/**
-	 * The list of all live activities for a given group.
-	 */
-	private List<UiLiveActivity> liveActivities;
 
-	public UiSpaceLiveActivityGroup(LiveActivityGroup liveActivityGroup,
-			List<UiLiveActivity> liveActivities) {
-		this.liveActivityGroup = liveActivityGroup;
-		this.liveActivities = liveActivities;
-	}
+  /**
+   * The live activity group represented.
+   */
+  private LiveActivityGroup liveActivityGroup;
 
-	/**
-	 * @return the liveActivityGroup
-	 */
-	public LiveActivityGroup getLiveActivityGroup() {
-		return liveActivityGroup;
-	}
+  /**
+   * The list of all live activities for a given group.
+   */
+  private List<UiLiveActivity> liveActivities;
 
-	/**
-	 * @return the liveActivities
-	 */
-	public List<UiLiveActivity> getLiveActivities() {
-		return liveActivities;
-	}	
+  public UiSpaceLiveActivityGroup(LiveActivityGroup liveActivityGroup,
+      List<UiLiveActivity> liveActivities) {
+    this.liveActivityGroup = liveActivityGroup;
+    this.liveActivities = liveActivities;
+  }
+
+  /**
+   * @return the liveActivityGroup
+   */
+  public LiveActivityGroup getLiveActivityGroup() {
+    return liveActivityGroup;
+  }
+
+  /**
+   * @return the liveActivities
+   */
+  public List<UiLiveActivity> getLiveActivities() {
+    return liveActivities;
+  }
 }

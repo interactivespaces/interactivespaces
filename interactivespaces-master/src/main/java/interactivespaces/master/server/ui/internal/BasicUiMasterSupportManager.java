@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,52 +16,51 @@
 
 package interactivespaces.master.server.ui.internal;
 
-import java.io.File;
-
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.master.server.ui.UiMasterSupportManager;
 import interactivespaces.util.io.Files;
 
+import java.io.File;
+
 /**
  * A basic implementation of the {@link UiMasterSupportManager}
- * 
+ *
  * @author Keith M. Hughes
  */
 public class BasicUiMasterSupportManager implements UiMasterSupportManager {
 
-	/**
-	 * The name of the master domain description file.
-	 */
-	public static final String MASTER_DOMAIN_FILE = "master-domain.xml";
-	
-	/**
-	 * The master support manager.
-	 */
-	private MasterSupportManager masterSupportManager;
+  /**
+   * The name of the master domain description file.
+   */
+  public static final String MASTER_DOMAIN_FILE = "master-domain.xml";
 
-	@Override
-	public String getMasterDomainDescription() {
-		String description = masterSupportManager.getMasterDomainDescription();
+  /**
+   * The master support manager.
+   */
+  private MasterSupportManager masterSupportManager;
 
-		Files.writeFile(new File(MASTER_DOMAIN_FILE), description);
+  @Override
+  public String getMasterDomainDescription() {
+    String description = masterSupportManager.getMasterDomainDescription();
 
-		return description;
-	}
+    Files.writeFile(new File(MASTER_DOMAIN_FILE), description);
 
-	@Override
-	public void importMasterDomainDescription() {
+    return description;
+  }
 
-		String description = Files.readFile(new File(MASTER_DOMAIN_FILE));
+  @Override
+  public void importMasterDomainDescription() {
 
-		masterSupportManager.importMasterDomainDescription(description);
-	}
+    String description = Files.readFile(new File(MASTER_DOMAIN_FILE));
 
-	/**
-	 * @param masterSupportManager
-	 *            the masterSupportManager to set
-	 */
-	public void setMasterSupportManager(
-			MasterSupportManager masterSupportManager) {
-		this.masterSupportManager = masterSupportManager;
-	}
+    masterSupportManager.importMasterDomainDescription(description);
+  }
+
+  /**
+   * @param masterSupportManager
+   *          the masterSupportManager to set
+   */
+  public void setMasterSupportManager(MasterSupportManager masterSupportManager) {
+    this.masterSupportManager = masterSupportManager;
+  }
 }

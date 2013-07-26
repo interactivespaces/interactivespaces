@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -21,8 +21,6 @@ import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.util.Map;
+
 /**
  * A form for editing space controller metadata.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
@@ -45,106 +45,102 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes({ "spacecontroller", "id", "metadata" })
 public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
 
-	/**
-	 * The Controller repository.
-	 */
-	private ControllerRepository controllerRepository;
+  /**
+   * The Controller repository.
+   */
+  private ControllerRepository controllerRepository;
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void setAllowedFields(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		SpaceController controller = controllerRepository
-				.getSpaceControllerById(id);
-		model.addAttribute("spacecontroller", controller);
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    SpaceController controller = controllerRepository.getSpaceControllerById(id);
+    model.addAttribute("spacecontroller", controller);
+    model.addAttribute("id", id);
 
-		ConfigurationForm metadataForm = newMetadataForm(controller
-				.getMetadata());
+    addGlobalModelItems(model);
 
-		model.addAttribute("metadata", metadataForm);
+    ConfigurationForm metadataForm = newMetadataForm(controller.getMetadata());
 
-		return "spacecontroller/SpaceControllerMetadataEdit";
-	}
+    model.addAttribute("metadata", metadataForm);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("meatadata") ConfigurationForm metadataForm,
-			BindingResult result, SessionStatus status) {
-		metadataForm.validate(result, false, "space.metadata");
-		if (result.hasErrors()) {
-			return "spacecontroller/SpaceControllerMetadataEdit";
-		} else {
-			SpaceController controller = controllerRepository
-					.getSpaceControllerById(id);
+    return "spacecontroller/SpaceControllerMetadataEdit";
+  }
 
-			if (saveMetadataForm(metadataForm, controller)) {
-				controllerRepository.saveSpaceController(controller);
-			}
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("meatadata") ConfigurationForm metadataForm, BindingResult result,
+      SessionStatus status) {
+    metadataForm.validate(result, false, "space.metadata");
+    if (result.hasErrors()) {
+      return "spacecontroller/SpaceControllerMetadataEdit";
+    } else {
+      SpaceController controller = controllerRepository.getSpaceControllerById(id);
 
-			status.setComplete();
+      if (saveMetadataForm(metadataForm, controller)) {
+        controllerRepository.saveSpaceController(controller);
+      }
 
-			return "redirect:/spacecontroller/" + id + "/view.html";
-		}
-	}
+      status.setComplete();
 
-	/**
-	 * Save the metadata form
-	 * 
-	 * @param form
-	 *            the metadata form
-	 * @param controller
-	 *            the space controller which contains the metadata
-	 * 
-	 * @return {@code true} if there were changes
-	 */
-	private boolean saveMetadataForm(ConfigurationForm form,
-			SpaceController controller) {
-		return saveMetadata(controller, form.getSubmittedMap());
-	}
+      return "redirect:/spacecontroller/" + id + "/view.html";
+    }
+  }
 
-	/**
-	 * save the metadata.
-	 * 
-	 * @param controller
-	 *            the space controller being reconfigured
-	 * @param map
-	 *            the map of new configurations
-	 * 
-	 * @return {@code true} if there was a change in the configuration
-	 */
-	private boolean saveMetadata(SpaceController controller, Map<String, Object> map) {
-		Map<String, Object> metadata = controller.getMetadata();
-		if (metadata != null) {
-			if (metadata.isEmpty() && map.isEmpty()) {
-				return false;
-			}
+  /**
+   * Save the metadata form
+   *
+   * @param form
+   *          the metadata form
+   * @param controller
+   *          the space controller which contains the metadata
+   *
+   * @return {@code true} if there were changes
+   */
+  private boolean saveMetadataForm(ConfigurationForm form, SpaceController controller) {
+    return saveMetadata(controller, form.getSubmittedMap());
+  }
 
-			controller.setMetadata(map);
+  /**
+   * save the metadata.
+   *
+   * @param controller
+   *          the space controller being reconfigured
+   * @param map
+   *          the map of new configurations
+   *
+   * @return {@code true} if there was a change in the configuration
+   */
+  private boolean saveMetadata(SpaceController controller, Map<String, Object> map) {
+    Map<String, Object> metadata = controller.getMetadata();
+    if (metadata != null) {
+      if (metadata.isEmpty() && map.isEmpty()) {
+        return false;
+      }
 
-			return true;
-		} else {
-			// No configuration. If nothing in submission, nothing has changed.
-			// Otherwise add everything.
-			if (map.isEmpty())
-				return false;
+      controller.setMetadata(map);
 
-			controller.setMetadata(map);
+      return true;
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty())
+        return false;
 
-			return true;
-		}
-	}
+      controller.setMetadata(map);
 
-	/**
-	 * @param controllerRepository
-	 *            the controllerRepository to set
-	 */
-	public void setControllerRepository(ControllerRepository spaceRepository) {
-		this.controllerRepository = spaceRepository;
-	}
+      return true;
+    }
+  }
+
+  /**
+   * @param controllerRepository
+   *          the controllerRepository to set
+   */
+  public void setControllerRepository(ControllerRepository spaceRepository) {
+    this.controllerRepository = spaceRepository;
+  }
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,6 +15,9 @@
  */
 
 package interactivespaces.master.server.services.internal.jpa.domain;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -33,119 +36,116 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 /**
  * A JPA implementation of a {@link ActivityConfiguration}.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Entity
 @Table(name = "activity_configurations")
 public class JpaActivityConfiguration implements ActivityConfiguration {
 
-	/**
-	 * The persistence ID for the activity.
-	 */
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(nullable = false, length = 64)
-	private String id;
+  /**
+   * The persistence ID for the activity.
+   */
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(nullable = false, length = 64)
+  private String id;
 
-	/**
-	 * The name of the configuration.
-	 */
-	@Column( nullable = true, length = 512 )
-	private String name;
+  /**
+   * The name of the configuration.
+   */
+  @Column(nullable = true, length = 512)
+  private String name;
 
-	/**
-	 * The description of the configuration.
-	 */
-	@Column( nullable = true, length = 2048 )
-	private String description;
+  /**
+   * The description of the configuration.
+   */
+  @Column(nullable = true, length = 2048)
+  private String description;
 
-	/**
-	 * The parameters in the configuration.
-	 */
-	@OneToMany(targetEntity = JpaConfigurationParameter.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-	private Set<JpaConfigurationParameter> parameters = Sets.newHashSet();
+  /**
+   * The parameters in the configuration.
+   */
+  @OneToMany(targetEntity = JpaConfigurationParameter.class, cascade = CascadeType.ALL,
+      fetch = FetchType.EAGER, orphanRemoval = true)
+  private Set<JpaConfigurationParameter> parameters = Sets.newHashSet();
 
-	/**
-	 * The database version. Used for detecting concurrent modifications.
-	 */
-	@Version
-	private long databaseVersion;
+  /**
+   * The database version. Used for detecting concurrent modifications.
+   */
+  @Version
+  private long databaseVersion;
 
-	/**
-	 * Get the ID of this configuration.
-	 * 
-	 * @return the ID of this configuration
-	 */
-	// TODO(keith): Move into interface once the migration is over.
-	public String getId() {
-		return id;
-	}
-	
-	@Override
-	public String getName() {
-		return name;
-	}
+  /**
+   * Get the ID of this configuration.
+   *
+   * @return the ID of this configuration
+   */
+  // TODO(keith): Move into interface once the migration is over.
+  public String getId() {
+    return id;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-	@Override
-	public void addParameter(ConfigurationParameter parameter) {
-		JpaConfigurationParameter p = (JpaConfigurationParameter)parameter;
-		p.setConfiguration(this);
-		
-		parameters.add(p);
-	}
+  @Override
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-	@Override
-	public void removeParameter(ConfigurationParameter parameter) {
-		parameters.remove((JpaConfigurationParameter)parameter);
-	}
+  @Override
+  public void addParameter(ConfigurationParameter parameter) {
+    JpaConfigurationParameter p = (JpaConfigurationParameter) parameter;
+    p.setConfiguration(this);
 
-	@Override
-	public Set<ConfigurationParameter> getParameters() {
-		Set<ConfigurationParameter> result = Sets.newHashSet();
-		
-		for (ConfigurationParameter parameter : parameters) {
-			result.add(parameter);
-		}
-		
-		return result;
-	}
+    parameters.add(p);
+  }
 
-	@Override
-	public Map<String, ConfigurationParameter> getParameterMap() {
-		Map<String, ConfigurationParameter> map = Maps.newHashMap();
+  @Override
+  public void removeParameter(ConfigurationParameter parameter) {
+    parameters.remove((JpaConfigurationParameter) parameter);
+  }
 
-		for (ConfigurationParameter parameter : parameters) {
-			map.put(parameter.getName(), parameter);
-		}
-		
-		return map;
-	}
+  @Override
+  public Set<ConfigurationParameter> getParameters() {
+    Set<ConfigurationParameter> result = Sets.newHashSet();
 
-	@Override
-	public String toString() {
-		return "JpaActivityConfiguration [id=" + id + ", name=" + name
-				+ ", description=" + description + ", parameters=" + parameters
-				+ "]";
-	}
+    for (ConfigurationParameter parameter : parameters) {
+      result.add(parameter);
+    }
+
+    return result;
+  }
+
+  @Override
+  public Map<String, ConfigurationParameter> getParameterMap() {
+    Map<String, ConfigurationParameter> map = Maps.newHashMap();
+
+    for (ConfigurationParameter parameter : parameters) {
+      map.put(parameter.getName(), parameter);
+    }
+
+    return map;
+  }
+
+  @Override
+  public String toString() {
+    return "JpaActivityConfiguration [id=" + id + ", name=" + name + ", description=" + description
+        + ", parameters=" + parameters + "]";
+  }
 }

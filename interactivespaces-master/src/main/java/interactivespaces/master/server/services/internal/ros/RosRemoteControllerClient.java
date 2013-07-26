@@ -16,6 +16,8 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
+import com.google.common.collect.Lists;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.common.ros.RosSpaceControllerSupport;
@@ -29,8 +31,6 @@ import interactivespaces.master.server.services.internal.LiveActivityDeleteResul
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
 
-import interactivespaces_msgs.InteractiveSpacesContainerResource;
-
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
 import interactivespaces_msgs.ControllerActivityRuntimeRequest;
@@ -38,18 +38,11 @@ import interactivespaces_msgs.ControllerActivityStatus;
 import interactivespaces_msgs.ControllerFullStatus;
 import interactivespaces_msgs.ControllerRequest;
 import interactivespaces_msgs.ControllerStatus;
+import interactivespaces_msgs.InteractiveSpacesContainerResource;
 import interactivespaces_msgs.LiveActivityDeleteRequest;
 import interactivespaces_msgs.LiveActivityDeleteStatus;
 import interactivespaces_msgs.LiveActivityDeployRequest;
 import interactivespaces_msgs.LiveActivityDeployStatus;
-
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -62,7 +55,12 @@ import org.ros.node.topic.CountDownPublisherListener;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
-import com.google.common.collect.Lists;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link RemoteControllerClient} which uses ROS.

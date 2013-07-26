@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.client.node;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityListener;
@@ -62,8 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Maps;
 
 /**
  * A base implementation of {@link SpaceController} which gives basic

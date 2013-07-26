@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -37,69 +37,69 @@ import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * A form for editing named scripts.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
 @RequestMapping("/admin/namedscript/{id}/edit")
-@SessionAttributes({"script", "id"})
+@SessionAttributes({ "script", "id" })
 public class NamedScriptEditForm extends BaseSpaceMasterController {
 
-	/**
-	 * The repository for automation entities.
-	 */
-	private AutomationRepository automationRepository;
+  /**
+   * The repository for automation entities.
+   */
+  private AutomationRepository automationRepository;
 
-	/**
-	 * The ui manager for automation operations.
-	 */
-	private UiAutomationManager uiAutomationManager;
+  /**
+   * The ui manager for automation operations.
+   */
+  private UiAutomationManager uiAutomationManager;
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void setAllowedFields(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		NamedScript controller = automationRepository.getNamedScriptById(id);
-		model.addAttribute("script", AutomationUtils.toTemplate(controller));
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    NamedScript controller = automationRepository.getNamedScriptById(id);
+    model.addAttribute("script", AutomationUtils.toTemplate(controller));
+    model.addAttribute("id", id);
 
-		return "admin/NamedScriptEdit";
-	}
+    addGlobalModelItems(model);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id, 
-			@ModelAttribute("script") SimpleNamedScript template,
-			BindingResult result, SessionStatus status) {
-		new NamedScriptValidator().validate(template, result);
-		if (result.hasErrors()) {
-			return "admin/NamedScriptEdit";
-		} else {
-			uiAutomationManager.updateNamedScript(id, template);
-			
-			status.setComplete();
-			
-			return "redirect:/admin/namedscript/" + id + "/view.html";
-		}
-	}
+    return "admin/NamedScriptEdit";
+  }
 
-	/**
-	 * @param automationRepository
-	 *            the automationRepository to set
-	 */
-	public void setAutomationRepository(
-			AutomationRepository automationRepository) {
-		this.automationRepository = automationRepository;
-	}
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("script") SimpleNamedScript template, BindingResult result,
+      SessionStatus status) {
+    new NamedScriptValidator().validate(template, result);
+    if (result.hasErrors()) {
+      return "admin/NamedScriptEdit";
+    } else {
+      uiAutomationManager.updateNamedScript(id, template);
 
-	/**
-	 * @param uiAutomationManager the uiAutomationManager to set
-	 */
-	public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
-		this.uiAutomationManager = uiAutomationManager;
-	}
+      status.setComplete();
+
+      return "redirect:/admin/namedscript/" + id + "/view.html";
+    }
+  }
+
+  /**
+   * @param automationRepository
+   *          the automationRepository to set
+   */
+  public void setAutomationRepository(AutomationRepository automationRepository) {
+    this.automationRepository = automationRepository;
+  }
+
+  /**
+   * @param uiAutomationManager
+   *          the uiAutomationManager to set
+   */
+  public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
+    this.uiAutomationManager = uiAutomationManager;
+  }
 }

@@ -16,6 +16,9 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
 
@@ -36,9 +39,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * A JPA implementation of an {@link Activity}.

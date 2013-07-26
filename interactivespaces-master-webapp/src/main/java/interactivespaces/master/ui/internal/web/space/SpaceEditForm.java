@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -21,8 +21,6 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.util.Map;
+
 /**
  * A form for editing spaces.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
@@ -45,76 +45,75 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes({ "form", "id" })
 public class SpaceEditForm extends BaseSpaceMasterController {
 
-	/**
-	 * The activity repository.
-	 */
-	private ActivityRepository activityRepository;
+  /**
+   * The activity repository.
+   */
+  private ActivityRepository activityRepository;
 
-	@InitBinder
-	public void initBinder(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void initBinder(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		Space space = activityRepository.getSpaceById(id);
-		SpaceForm form = new SpaceForm();
-		form.copySpace(space);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    Space space = activityRepository.getSpaceById(id);
+    SpaceForm form = new SpaceForm();
+    form.copySpace(space);
 
-		model.addAttribute("form", form);
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+    model.addAttribute("form", form);
+    model.addAttribute("id", id);
 
-        addNeededEntities(model, space);
+    addGlobalModelItems(model);
 
-		return "space/SpaceEdit";
-	}
+    addNeededEntities(model, space);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("form") SpaceForm form, BindingResult result,
-			SessionStatus status, Model model) {
-		Space space = activityRepository.getSpaceById(id);
-		new SpaceFormValidator().validate(form, result);
-		if (result.hasErrors()) {
-			addNeededEntities(model, space);
-			return "space/SpaceEdit";
-		} else {
-			form.saveSpace(space, activityRepository);
-			activityRepository.saveSpace(space);
+    return "space/SpaceEdit";
+  }
 
-			status.setComplete();
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("form") SpaceForm form, BindingResult result, SessionStatus status,
+      Model model) {
+    Space space = activityRepository.getSpaceById(id);
+    new SpaceFormValidator().validate(form, result);
+    if (result.hasErrors()) {
+      addNeededEntities(model, space);
+      return "space/SpaceEdit";
+    } else {
+      form.saveSpace(space, activityRepository);
+      activityRepository.saveSpace(space);
 
-			return "redirect:/space/" + space.getId() + "/view.html";
-		}
-	}
+      status.setComplete();
 
-	/**
-	 * Get any entities needed by the form that will be too heavyweight in the
-	 * session.
-	 * 
-	 * @param model
-	 *            the model to put the values in
-	 * @param space
-	 *            the current space
-	 */
-	private void addNeededEntities(Model model, Space space) {
-		Map<String, String> spaceSelections = WebSupport
-				.getSpaceSelections(activityRepository.getAllSpaces());
-		spaceSelections.remove(space.getId());
-		model.addAttribute("spaces", spaceSelections);
+      return "redirect:/space/" + space.getId() + "/view.html";
+    }
+  }
 
-		model.addAttribute("liveactivitygroups", WebSupport
-				.getLiveActivityGroupSelections(activityRepository
-						.getAllLiveActivityGroups()));
-	}
+  /**
+   * Get any entities needed by the form that will be too heavyweight in the
+   * session.
+   *
+   * @param model
+   *          the model to put the values in
+   * @param space
+   *          the current space
+   */
+  private void addNeededEntities(Model model, Space space) {
+    Map<String, String> spaceSelections =
+        WebSupport.getSpaceSelections(activityRepository.getAllSpaces());
+    spaceSelections.remove(space.getId());
+    model.addAttribute("spaces", spaceSelections);
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+    model.addAttribute("liveactivitygroups",
+        WebSupport.getLiveActivityGroupSelections(activityRepository.getAllLiveActivityGroups()));
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 }

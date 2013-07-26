@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -26,85 +26,85 @@ import javax.persistence.Version;
 
 /**
  * A JPA implementation of a {@link ConfigurationParameter}.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Entity
 @Table(name = "config_parameter")
 public class JpaConfigurationParameter implements ConfigurationParameter {
 
-	/**
-	 * The configuration this parameter is part of.
-	 */
-	@ManyToOne(optional = false, fetch=FetchType.EAGER)
-	private JpaActivityConfiguration configuration;
-	
-	/**
-	 * The name of the parameter.
-	 */
-	private String name;
+  /**
+   * The configuration this parameter is part of.
+   */
+  @ManyToOne(optional = false, fetch = FetchType.EAGER)
+  private JpaActivityConfiguration configuration;
 
-	/**
-	 * The value of the parameter.
-	 */
-	private String value;
+  /**
+   * The name of the parameter.
+   */
+  private String name;
 
-	/**
-	 * The database version. Used for detecting concurrent modifications.
-	 */
-	@Version
-	private long databaseVersion;
+  /**
+   * The value of the parameter.
+   */
+  private String value;
 
-	public JpaConfigurationParameter() { }
-	
-	JpaConfigurationParameter(JpaActivityConfiguration configuration,
-			String name, String value) {
-		this.configuration = configuration;
-		this.name = name;
-		this.value = value;
-	}
+  /**
+   * The database version. Used for detecting concurrent modifications.
+   */
+  @Version
+  private long databaseVersion;
 
-	/**
-	 * Get the associated configuration.
-	 * 
-	 * @return the configuration
-	 */
-	public JpaActivityConfiguration getConfiguration() {
-		return configuration;
-	}
+  public JpaConfigurationParameter() {
+  }
 
-	/**
-	 * Set the asssociated configuration.
-	 * 
-	 * @param configuration the configuration to set
-	 */
-	public void setConfiguration(JpaActivityConfiguration configuration) {
-		this.configuration = configuration;
-	}
+  JpaConfigurationParameter(JpaActivityConfiguration configuration, String name, String value) {
+    this.configuration = configuration;
+    this.name = name;
+    this.value = value;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  /**
+   * Get the associated configuration.
+   *
+   * @return the configuration
+   */
+  public JpaActivityConfiguration getConfiguration() {
+    return configuration;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+  /**
+   * Set the asssociated configuration.
+   *
+   * @param configuration
+   *          the configuration to set
+   */
+  public void setConfiguration(JpaActivityConfiguration configuration) {
+    this.configuration = configuration;
+  }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public void setValue(String value) {
-		this.value = value;
-	}
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public String toString() {
-		return "JpaConfigurationParameter [name=" + name + ", value=" + value
-				+ "]";
-	}
+  @Override
+  public String getValue() {
+    return value;
+  }
+
+  @Override
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return "JpaConfigurationParameter [name=" + name + ", value=" + value + "]";
+  }
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -19,29 +19,27 @@ package interactivespaces.controller.activity.wrapper.internal.bridge.topic;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 /**
  * A {@link ActivityWrapperFactory} for running topic bridges.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class TopicBridgeActivityWrapperFactory implements
-		ActivityWrapperFactory {
+public class TopicBridgeActivityWrapperFactory implements ActivityWrapperFactory {
 
-	@Override
-	public String getActivityType() {
-		return "topic_bridge";
-	}
+  @Override
+  public String getActivityType() {
+    return "topic_bridge";
+  }
 
-	@Override
-	public ActivityWrapper newActivityWrapper(
-			InstalledLiveActivity liapp,
-			ActivityFilesystem activityFilesystem,
-			Configuration configuration, SpaceController controller) {
-		return new TopicBridgeActivityWrapper();
-	}
+  @Override
+  public ActivityWrapper
+      newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+          Configuration configuration, SpaceController controller) {
+    return new TopicBridgeActivityWrapper();
+  }
 
 }

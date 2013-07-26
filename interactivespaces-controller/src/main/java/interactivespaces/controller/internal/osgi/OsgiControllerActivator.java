@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -33,8 +33,6 @@ import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -42,9 +40,11 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.ros.osgi.common.RosEnvironment;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * An OSGi activator for an Interactive Spaces controller
- * 
+ *
  * @author Keith M. Hughes
  */
 public class OsgiControllerActivator implements BundleActivator {
@@ -206,12 +206,12 @@ public class OsgiControllerActivator implements BundleActivator {
 
 	/**
 	 * Create a new service tracker.
-	 * 
+	 *
 	 * @param context
 	 *            the bundle context
 	 * @param serviceName
 	 *            name of the service class
-	 * 
+	 *
 	 * @return the service tracker
 	 */
 	<T> MyServiceTracker<T> newMyServiceTracker(BundleContext context,

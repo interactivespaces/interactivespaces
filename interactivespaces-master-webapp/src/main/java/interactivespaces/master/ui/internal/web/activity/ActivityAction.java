@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,17 +22,16 @@ import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.master.server.ui.UiActivityManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.springframework.web.multipart.MultipartFile;
-
 /**
  * The webflow action for activity upload.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class ActivityAction extends BaseSpaceMasterController {
@@ -44,7 +43,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
   /**
    * Get a new activity model.
-   * 
+   *
    * @return
    */
   public ActivityForm newActivity() {
@@ -53,7 +52,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
   /**
    * Add entities to the flow context needed by the new entity page.
-   * 
+   *
    * @param context
    *          The Webflow context.
    */
@@ -64,7 +63,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
   /**
    * Save the new activity.
-   * 
+   *
    * @param activity
    */
   public void saveActivity(ActivityForm form) {
@@ -90,7 +89,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
   /**
    * Form bean for activity objects.
-   * 
+   *
    * @author Keith M. Hughes
    */
   public static class ActivityForm implements Serializable {
@@ -122,7 +121,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
     /**
      * Get the uploaded activity file.
-     * 
+     *
      * @return the uploaded file
      */
     public MultipartFile getActivityFile() {
@@ -131,7 +130,7 @@ public class ActivityAction extends BaseSpaceMasterController {
 
     /**
      * Set the uploaded activity file.
-     * 
+     *
      * @param activityFile
      *          the uploaded file
      */

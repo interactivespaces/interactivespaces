@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,38 +24,38 @@ import java.io.Serializable;
  * @author Keith M. Hughes
  */
 public class SelectionItem implements Serializable {
-	
-	/**
-	 * For serialization
-	 */
-	private static final long serialVersionUID = 2795547074307889514L;
 
-	/**
-	 * Label for the selection item.
-	 */
-	private String label;
-	
-	/**
-	 * Value for the selection item.
-	 */
-	private String value;
+  /**
+   * For serialization
+   */
+  private static final long serialVersionUID = 2795547074307889514L;
 
-	public SelectionItem(String label, String value) {
-		this.label = label;
-		this.value = value;
-	}
+  /**
+   * Label for the selection item.
+   */
+  private String label;
 
-	/**
-	 * @return the label
-	 */
-	public String getLabel() {
-		return label;
-	}
+  /**
+   * Value for the selection item.
+   */
+  private String value;
 
-	/**
-	 * @return the value
-	 */
-	public String getValue() {
-		return value;
-	}
+  public SelectionItem(String label, String value) {
+    this.label = label;
+    this.value = value;
+  }
+
+  /**
+   * @return the label
+   */
+  public String getLabel() {
+    return label;
+  }
+
+  /**
+   * @return the value
+   */
+  public String getValue() {
+    return value;
+  }
 }

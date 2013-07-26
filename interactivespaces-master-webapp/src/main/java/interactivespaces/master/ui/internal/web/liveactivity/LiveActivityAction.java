@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -17,22 +17,22 @@
 package interactivespaces.master.ui.internal.web.liveactivity;
 
 import interactivespaces.domain.basic.Activity;
-import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
-import java.io.Serializable;
-
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.io.Serializable;
+
 /**
  * Webflow action for live activities.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class LiveActivityAction extends BaseSpaceMasterController {
@@ -49,7 +49,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
 
   /**
    * Get a new controller model.
-   * 
+   *
    * @return
    */
   public LiveActivityForm newLiveActivity() {
@@ -58,7 +58,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
 
   /**
    * Add entities to the flow context needed by the new entity page.
-   * 
+   *
    * @param context
    *          The Webflow context.
    */
@@ -74,7 +74,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
 
   /**
    * Save the new live activity.
-   * 
+   *
    * @param form
    *          the live activity form
    */
@@ -116,7 +116,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
 
   /**
    * Form bean to keep all info about the installed activity.
-   * 
+   *
    * @author Keith M. Hughes
    */
   public static class LiveActivityForm implements Serializable {

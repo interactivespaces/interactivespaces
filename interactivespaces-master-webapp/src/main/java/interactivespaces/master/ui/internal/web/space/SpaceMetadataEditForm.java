@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -21,8 +21,6 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.util.Map;
+
 /**
  * A form for editing space metadata.
- * 
+ *
  * @author Keith M. Hughes
  */
 @Controller
@@ -45,102 +45,102 @@ import org.springframework.web.bind.support.SessionStatus;
 @SessionAttributes({ "space", "id", "metadata" })
 public class SpaceMetadataEditForm extends MetadataEditFormSupport {
 
-	/**
-	 * The space repository.
-	 */
-	private ActivityRepository activityRepository;
+  /**
+   * The space repository.
+   */
+  private ActivityRepository activityRepository;
 
-	@InitBinder
-	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
-	}
+  @InitBinder
+  public void setAllowedFields(WebDataBinder dataBinder) {
+    dataBinder.setDisallowedFields("id");
+  }
 
-	@RequestMapping(method = RequestMethod.GET)
-	public String setupForm(@PathVariable("id") String id, Model model) {
-		Space space = activityRepository.getSpaceById(id);
-		model.addAttribute("space", space);
-		model.addAttribute("id", id);
-        
-        addGlobalModelItems(model);
+  @RequestMapping(method = RequestMethod.GET)
+  public String setupForm(@PathVariable("id") String id, Model model) {
+    Space space = activityRepository.getSpaceById(id);
+    model.addAttribute("space", space);
+    model.addAttribute("id", id);
 
-		ConfigurationForm metadataForm = newMetadataForm(space.getMetadata());
+    addGlobalModelItems(model);
 
-		model.addAttribute("metadata", metadataForm);
+    ConfigurationForm metadataForm = newMetadataForm(space.getMetadata());
 
-		return "space/SpaceMetadataEdit";
-	}
+    model.addAttribute("metadata", metadataForm);
 
-	@RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
-	public String processSubmit(@PathVariable("id") String id,
-			@ModelAttribute("metadata") ConfigurationForm metadataForm,
-			BindingResult result, SessionStatus status) {
-		metadataForm.validate(result, false, "space.metadata");
-		if (result.hasErrors()) {
-			return "space/SpaceMetadataEdit";
-		} else {
-			Space space = activityRepository.getSpaceById(id);
+    return "space/SpaceMetadataEdit";
+  }
 
-			if (saveMetadataForm(metadataForm, space)) {
-				activityRepository.saveSpace(space);
-			}
+  @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
+  public String processSubmit(@PathVariable("id") String id,
+      @ModelAttribute("metadata") ConfigurationForm metadataForm, BindingResult result,
+      SessionStatus status) {
+    metadataForm.validate(result, false, "space.metadata");
+    if (result.hasErrors()) {
+      return "space/SpaceMetadataEdit";
+    } else {
+      Space space = activityRepository.getSpaceById(id);
 
-			status.setComplete();
+      if (saveMetadataForm(metadataForm, space)) {
+        activityRepository.saveSpace(space);
+      }
 
-			return "redirect:/space/" + id + "/view.html";
-		}
-	}
+      status.setComplete();
 
-	/**
-	 * Save the metadata form
-	 * 
-	 * @param form
-	 *            the metadata form
-	 * @param space
-	 *            the space which contains the metadata
-	 * 
-	 * @return {@code true} if there were changes
-	 */
-	private boolean saveMetadataForm(ConfigurationForm form, Space space) {
-		return saveMetadata(space, form.getSubmittedMap());
-	}
+      return "redirect:/space/" + id + "/view.html";
+    }
+  }
 
-	/**
-	 * save the metadata.
-	 * 
-	 * @param space
-	 *            the space being reconfigured
-	 * @param map
-	 *            the map of new configurations
-	 * 
-	 * @return {@code true} if there was a change in the configuration
-	 */
-	private boolean saveMetadata(Space space, Map<String, Object> map) {
-		Map<String, Object> metadata = space.getMetadata();
-		if (metadata != null) {
-			if (metadata.isEmpty() && map.isEmpty()) {
-				return false;
-			}
+  /**
+   * Save the metadata form
+   *
+   * @param form
+   *          the metadata form
+   * @param space
+   *          the space which contains the metadata
+   *
+   * @return {@code true} if there were changes
+   */
+  private boolean saveMetadataForm(ConfigurationForm form, Space space) {
+    return saveMetadata(space, form.getSubmittedMap());
+  }
 
-			space.setMetadata(map);
+  /**
+   * save the metadata.
+   *
+   * @param space
+   *          the space being reconfigured
+   * @param map
+   *          the map of new configurations
+   *
+   * @return {@code true} if there was a change in the configuration
+   */
+  private boolean saveMetadata(Space space, Map<String, Object> map) {
+    Map<String, Object> metadata = space.getMetadata();
+    if (metadata != null) {
+      if (metadata.isEmpty() && map.isEmpty()) {
+        return false;
+      }
 
-			return true;
-		} else {
-			// No configuration. If nothing in submission, nothing has changed.
-			// Otherwise add everything.
-			if (map.isEmpty())
-				return false;
+      space.setMetadata(map);
 
-			space.setMetadata(map);
+      return true;
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty())
+        return false;
 
-			return true;
-		}
-	}
+      space.setMetadata(map);
 
-	/**
-	 * @param activityRepository
-	 *            the activityRepository to set
-	 */
-	public void setActivityRepository(ActivityRepository activityRepository) {
-		this.activityRepository = activityRepository;
-	}
+      return true;
+    }
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
 }

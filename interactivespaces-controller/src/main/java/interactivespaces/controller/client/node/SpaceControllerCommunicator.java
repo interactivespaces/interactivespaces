@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,53 +22,53 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 /**
  * Provide communications between a Space Controller and something controlling
  * it.
- * 
+ *
  * @author Keith M. Hughes
  */
 public interface SpaceControllerCommunicator {
 
-	/**
-	 * Notify the master that the controller has started.
-	 */
-	void notifyRemoteMasterServerAboutStartup(
-			SimpleSpaceController controllerInfo);
+  /**
+   * Notify the master that the controller has started.
+   */
+  void notifyRemoteMasterServerAboutStartup(SimpleSpaceController controllerInfo);
 
-	/**
-	 * The controller is starting up.
-	 * 
-	 * <p>
-	 * This is a chance for the communicator to do any additional startup
-	 */
-	void onStartup();
+  /**
+   * The controller is starting up.
+   *
+   * <p>
+   * This is a chance for the communicator to do any additional startup
+   */
+  void onStartup();
 
-	/**
-	 * The controller is shutting down.
-	 * 
-	 * <p>
-	 * This is a chance for the communicator to do any additional shutdown.
-	 */
-	void onShutdown();
+  /**
+   * The controller is shutting down.
+   *
+   * <p>
+   * This is a chance for the communicator to do any additional shutdown.
+   */
+  void onShutdown();
 
-	/**
-	 * Publish the state of an activity on the activity status topic.
-	 * 
-	 * @param uuid
-	 *            the UUID of the live activity
-	 * @param newStatus
-	 *            the status to be sent
-	 */
-	void publishActivityStatus(String uuid, ActivityStatus newStatus);
+  /**
+   * Publish the state of an activity on the activity status topic.
+   *
+   * @param uuid
+   *          the UUID of the live activity
+   * @param newStatus
+   *          the status to be sent
+   */
+  void publishActivityStatus(String uuid, ActivityStatus newStatus);
 
-	/**
-	 * Create a {@link SpaceControllerHeartbeat} appropriate for the commuication
-	 * channel.
-	 * 
-	 * @return A {@link SpaceControllerHeartbeat}
-	 */
-	SpaceControllerHeartbeat newSpaceControllerHeartbeat();
-	
-	/**
-	 * @param controllerControl the controllerControl to set
-	 */
-	void setControllerControl(SpaceControllerControl controllerControl);
+  /**
+   * Create a {@link SpaceControllerHeartbeat} appropriate for the commuication
+   * channel.
+   *
+   * @return A {@link SpaceControllerHeartbeat}
+   */
+  SpaceControllerHeartbeat newSpaceControllerHeartbeat();
+
+  /**
+   * @param controllerControl
+   *          the controllerControl to set
+   */
+  void setControllerControl(SpaceControllerControl controllerControl);
 }

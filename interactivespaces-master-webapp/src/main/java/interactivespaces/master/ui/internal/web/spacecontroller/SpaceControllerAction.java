@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,14 +20,13 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
-import interactivespaces.master.ui.internal.web.WebSupport;
 
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.RequestContext;
 
 /**
  * The webflow action for space controller operations.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class SpaceControllerAction extends BaseSpaceMasterController {
@@ -39,7 +38,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
 
   /**
    * Get a new controller model.
-   * 
+   *
    * @return
    */
   public SimpleSpaceController newSpaceController() {
@@ -48,7 +47,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
 
   /**
    * Add entities to the flow context needed by the new entity page.
-   * 
+   *
    * @param context
    *          The Webflow context.
    */
@@ -59,7 +58,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
 
   /**
    * Save the new controller.
-   * 
+   *
    * @param controller
    */
   public void saveSpaceController(SimpleSpaceController controller) {
