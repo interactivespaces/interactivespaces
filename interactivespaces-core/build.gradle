@@ -14,53 +14,54 @@
  */
 
 dependencies {
-	compile project(':rosjava_osgi')
-	compile project(':interactivespaces-bootstrap-core')
+  compile project(':rosjava_osgi')
+  compile project(':interactivespaces-bootstrap-core')
 
-	compile 'com.google.guava:guava:12.0'
-	compile 'io.netty:netty:3.6.6.Final'
-  
-	compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
-	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
-	compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1') {
-		//exclude module: 'com.springsource.org.apache.commons.logging'
-	}
+  compile 'com.google.guava:guava:12.0'
+  compile 'io.netty:netty:3.6.6.Final'
 
-	runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
+  compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
+  compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
+  compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1') {
+    //exclude module: 'com.springsource.org.apache.commons.logging'
+  }
+  compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpmime:4.1.1') {
+    //exclude module: 'com.springsource.org.apache.commons.logging'
+  }
 
-	compile('org.apache.commons:commons-ognl:4.0-SNAPSHOT') {
-		transitive = false
-	}
-	compile 'org.jboss.javassist:com.springsource.javassist:3.12.1.GA'
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
 
-	compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
-	//compile 'org.jdom:com.springsource.org.jdom:1.1.0'
-	
-    provided 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  compile('org.apache.commons:commons-ognl:4.0-SNAPSHOT') { transitive = false }
+  compile 'org.jboss.javassist:com.springsource.javassist:3.12.1.GA'
 
-	testCompile 'junit:junit:4.8.2'
-	testCompile 'org.mockito:mockito-all:1.9.5'
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
+  //compile 'org.jdom:com.springsource.org.jdom:1.1.0'
+
+  provided 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+
+  testCompile 'junit:junit:4.8.2'
+  testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
 jar {
-	manifest {
-		version = osgiVersion
-		symbolicName = 'interactivespaces'
+  manifest {
+    version = osgiVersion
+    symbolicName = 'interactivespaces'
 
-		instruction 'Export-Package',
-				'interactivespaces.*'
+    instruction 'Export-Package',
+        'interactivespaces.*'
 
-		instruction 'Import-Package',
-				'org.apache.commons.ognl.*;resolution:="optional"',
-				'org.apache.http.*;resolution:="optional"',
-				'org.jdom.*;resolution:="optional"',
-				'org.jboss.netty.handler.codec.http;resolution:="optional"',
-				'org.jboss.netty.bootstrap;resolution:="optional"',
-				'org.codehaus.jackson.*;resolution:="optional"',
-				'org.apache.commons.net.ntp;resolution:="optional"',
-				'org.ros.*;resolution:="optional"',
-				'javassist.*;resolution:="optional"',
-				'interactivespaces.system.bootstrap.osgi;resolution:="optional"',
-				'*'
-	}
+    instruction 'Import-Package',
+        'org.apache.commons.ognl.*;resolution:="optional"',
+        'org.apache.http.*;resolution:="optional"',
+        'org.jdom.*;resolution:="optional"',
+        'org.jboss.netty.handler.codec.http;resolution:="optional"',
+        'org.jboss.netty.bootstrap;resolution:="optional"',
+        'org.codehaus.jackson.*;resolution:="optional"',
+        'org.apache.commons.net.ntp;resolution:="optional"',
+        'org.ros.*;resolution:="optional"',
+        'javassist.*;resolution:="optional"',
+        'interactivespaces.system.bootstrap.osgi;resolution:="optional"',
+        '*'
+  }
 }

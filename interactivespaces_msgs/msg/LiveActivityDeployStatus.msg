@@ -22,6 +22,7 @@ string uuid
 # Time deployed on controller
 int64 time_deployed
 
+# Status of the deployment
 int32 status
 int32 STATUS_SUCCESS = 0
 int32 STATUS_FAILURE_COPY = 1

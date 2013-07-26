@@ -446,6 +446,13 @@
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.httpcomponents</groupId>
+                                    <artifactId>com.springsource.org.apache.httpcomponents.httpmime</artifactId>
+                                    <version>4.1.1</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
 								<artifactItem>
 									<groupId>org.apache.commons</groupId>
 									<artifactId>com.springsource.org.apache.commons.codec</artifactId>

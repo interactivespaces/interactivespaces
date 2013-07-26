@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -68,679 +68,636 @@ import com.google.common.collect.Multimap;
 
 /**
  * A web socket server handler for Netty.
- * 
+ *
  * <p>
  * This handler must be thread safe.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 
-	/**
-	 * Factory for HTTP data objects. Used for post events.
-	 * 
-	 * <p>
-	 * The factory will keep all in memory until it gets too big, then writes to
-	 * disk.
-	 */
-	private static final HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(
-			true);
-
-	/**
-	 * The web socket path used by this handler.
-	 */
-	private String fullWebSocketUriPrefix;
-
-	/**
-	 * All content handlers handled by this instance.
-	 */
-	private List<NettyHttpContentHandler> httpContentHandlers = new ArrayList<NettyHttpContentHandler>();
-
-	/**
-	 * Map of Netty channel IDs to web socket handlers.
-	 */
-	private Map<Integer, NettyWebServerWebSocketConnection> webSocketConnections = Maps
-			.newConcurrentMap();
-
-	/**
-	 * Map of Netty channel IDs to file uploads.
-	 */
-	private Map<Integer, NettyHttpFileUpload> fileUploadHandlers = Maps
-			.newConcurrentMap();
-
-	/**
-	 * Map of host names to the handshaker factory for that host.
-	 * 
-	 * <p>
-	 * Not concurrent, so needs to be prote
-	 */
-	private Map<String, WebSocketServerHandshakerFactory> webSocketHandshakerFactories = Maps
-			.newHashMap();
-
-	/**
-	 * Factory for web socket handlers.
-	 * 
-	 * <p>
-	 * Can be null.
-	 */
-	private WebServerWebSocketHandlerFactory webSocketHandlerFactory;
-
-	/**
-	 * The listener for file uploads.
-	 * 
-	 * <p>
-	 * Can be null.
-	 */
-	private HttpFileUploadListener fileUploadListener;
-
-	/**
-	 * The web server we are attached to.
-	 */
-	private NettyWebServer webServer;
-
-	private HttpAuthProvider authProvider;
-
-	private WebResourceAccessManager accessManager;
-
-	public NettyWebServerHandler(NettyWebServer webServer) {
-		this.webServer = webServer;
-		this.authProvider = null;
-		this.accessManager = null;
-	}
-
-	/**
-	 * Register a new content handler to the server.
-	 * 
-	 * @param handler
-	 */
-	public void addHttpContentHandler(NettyHttpContentHandler handler) {
-		httpContentHandlers.add(handler);
-	}
-
-	/**
-	 * Set the factory for creating web socket handlers.
-	 * 
-	 * @param webSocketUriPrefix
-	 *            uri prefix for websocket handler (can be {@code null})
-	 * @param webSocketHandlerFactory
-	 *            the factory to use (can be {@code null} if don't want to
-	 *            handle web socket calls)
-	 */
-	public void setWebSocketHandlerFactory(String webSocketUriPrefix,
-			WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
-		this.fullWebSocketUriPrefix = (webSocketUriPrefix != null) ? "/"
-				+ webSocketUriPrefix.trim() : "/"
-				+ WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
-		this.webSocketHandlerFactory = webSocketHandlerFactory;
-	}
-
-	/**
-	 * Set the file upload listener.
-	 * 
-	 * @param fileUploadListener
-	 *            the listener to use (can be {@code null})
-	 */
-	public void setHttpFileUploadListener(
-			HttpFileUploadListener fileUploadListener) {
-		this.fileUploadListener = fileUploadListener;
-	}
-
-	@Override
-	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
-			throws Exception {
-		Object msg = e.getMessage();
-		if (msg instanceof HttpRequest) {
-			handleHttpRequest(ctx, (HttpRequest) msg);
-		} else if (msg instanceof WebSocketFrame) {
-			handleWebSocketFrame(ctx, (WebSocketFrame) msg);
-		} else if (msg instanceof HttpChunk) {
-			handleHttpChunk(ctx, (HttpChunk) msg);
-		} else {
-			webServer.getLog().warn(
-					String.format("Web server received unknown frame %s", msg
-							.getClass().getName()));
-		}
-
-	}
-
-	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
-		webServer.channelOpened(e.getChannel());
-	}
-
-	@Override
-	public void channelDisconnected(ChannelHandlerContext ctx,
-			ChannelStateEvent e) throws Exception {
-		// No need to tell web server that channel closed, it handles cleanup
-		// itself.
-		webSocketChannelClosing(e.getChannel());
-	}
-
-	/**
-	 * Handle an HTTP request coming into the server.
-	 * 
-	 * @param ctx
-	 *            The channel context for the request.
-	 * @param req
-	 *            The HTTP request.
-	 * 
-	 * @throws Exception
-	 */
-	private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req)
-			throws Exception {
-
-		// Before we actually allow handling of this http request, we will check
-		// to
-		// see if it is properly authorized, if authorization is requested.
-		HttpAuthResponse response = null;
-		if (authProvider != null) {
-			response = authProvider.authorizeRequest(new NettyHttpRequest(req,
-					getWebServer().getLog()));
-			if ((response == null) || !response.authSuccessful()) {
-				if ((response == null) || response.redirectUrl() != null) {
-					sendHttpResponse(ctx, req,
-							createRedirect(response.redirectUrl()), false,
-							false);
-				} else {
-					webServer
-							.getLog()
-							.warn(String
-									.format("Auth requested and no redict available for %s",
-											req.getUri()));
-					sendHttpResponse(ctx, req, new DefaultHttpResponse(
-							HTTP_1_1, FORBIDDEN), false, false);
-				}
-				return;
-			}
-		}
-
-		String user = null;
-		if (response != null) {
-			user = response.getUser();
-		}
-
-		if (handleWebGetRequest(ctx, req, response)) {
-			// The method handled the request if the return value was true.
-		} else if (webSocketHandlerFactory != null
-				&& tryWebSocketUpgradeRequest(ctx, req, user)) {
-			// The method handled the request if the return value was true.
-		} else if (handleWebPutRequest(ctx, req, response)) {
-			// The method handled the request if the return value was true.
-		} else {
-			// Nothing we handle.
-			webServer.getLog().warn(
-					String.format("Web server has no handlers for request %s",
-							req.getUri()));
-
-			sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1,
-					FORBIDDEN), false, false);
-		}
-	}
-
-	/**
-	 * Attempt to handle an HTTP request by scanning through all registered
-	 * handlers.
-	 * 
-	 * @param ctx
-	 *            The context for the request.
-	 * @param req
-	 *            The request.
-	 * @return True if the request was handled, false otherwise.
-	 */
-	private boolean handleWebGetRequest(ChannelHandlerContext ctx,
-			HttpRequest req, HttpAuthResponse authResponse) throws IOException {
-		if (req.getMethod() == GET) {
-
-			if (!userCanAccessResource(authResponse, req.getUri())) {
-				return false;
-			}
-
-			Set<HttpCookie> cookies = null;
-			if (authResponse != null) {
-				cookies = authResponse.getCookies();
-			}
-
-			for (NettyHttpContentHandler handler : httpContentHandlers) {
-				if (handler.isHandledBy(req)) {
-					try {
-						handler.handleWebRequest(ctx, req, cookies);
-					} catch (Exception e) {
-						webServer
-								.getLog()
-								.error(String.format(
-										"Exception when handling web request %s",
-										req.getUri()), e);
-					}
-
-					return true;
-				}
-
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Attempt to handle an HTTP PUT request
-	 * 
-	 * @param ctx
-	 *            The context for the request.
-	 * @param req
-	 *            The request.
-	 * @return True if the request was handled, false otherwise.
-	 */
-	private boolean handleWebPutRequest(ChannelHandlerContext ctx,
-			HttpRequest req, HttpAuthResponse authResponse) throws IOException {
-		if (req.getMethod() != POST || fileUploadListener == null) {
-			return false;
-		}
-
-		if (!userCanAccessResource(authResponse, req.getUri())) {
-			return false;
-		}
-
-		try {
-			NettyHttpFileUpload fileUpload = new NettyHttpFileUpload(req,
-					new HttpPostRequestDecoder(httpDataFactory, req), webServer);
-
-			if (req.isChunked()) {
-				// Chunked data so more coming.
-				fileUploadHandlers.put(ctx.getChannel().getId(), fileUpload);
-			} else {
-				fileUpload.completeNonChunked();
-				fileUploadComplete(fileUpload);
-				sendSuccessHttpResponse(ctx, req);
-			}
-		} catch (Exception e) {
-			webServer.getLog().error("Could not start file upload", e);
-
-			sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Is the HTTP request requesting a Web Socket protocol upgrade?
-	 * 
-	 * @param req
-	 *            The HTTP request.
-	 * 
-	 * @return True if a Web Socket protocol upgrade, false otherwise.
-	 */
-	private boolean tryWebSocketUpgradeRequest(final ChannelHandlerContext ctx,
-			HttpRequest req, final String user) {
-		if (!req.getUri().startsWith(fullWebSocketUriPrefix)) {
-			return false;
-		}
-
-		if (accessManager != null) {
-			if (!accessManager.userHasAccess(user, req.getUri())) {
-				return false;
-			}
-		}
-
-		// Handshake
-		WebSocketServerHandshakerFactory wsFactory = getWebSocketHandshakerFactory(req);
-		final Channel channel = ctx.getChannel();
-		final WebSocketServerHandshaker handshaker = wsFactory
-				.newHandshaker(req);
-		if (handshaker == null) {
-			wsFactory.sendUnsupportedWebSocketVersionResponse(channel);
-		} else {
-			ChannelFuture handshake = handshaker.handshake(channel, req);
-			handshake.addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
-			handshake.addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(ChannelFuture arg0)
-						throws Exception {
-
-					NettyWebServerWebSocketConnection connection = new NettyWebServerWebSocketConnection(
-							channel, user, handshaker, webSocketHandlerFactory,
-							webServer.getLog());
-					webSocketConnections.put(channel.getId(), connection);
-
-					connection.getHandler().onConnect();
-				}
-			});
-		}
-
-		// Handled request.
-		return true;
-	}
-
-	/**
-	 * Get a handshaker factory for the incoming request.
-	 * 
-	 * @param req
-	 *            the request which has come in
-	 * 
-	 * @return the handshaker factory for the request
-	 */
-	private WebSocketServerHandshakerFactory getWebSocketHandshakerFactory(
-			HttpRequest req) {
-		String host = req.getHeader(HttpHeaders.Names.HOST);
-
-		synchronized (webSocketHandshakerFactories) {
-			WebSocketServerHandshakerFactory wsFactory = webSocketHandshakerFactories
-					.get(host);
-			if (wsFactory == null) {
-				wsFactory = new WebSocketServerHandshakerFactory(
-						getWebSocketLocation(host), null, false);
-				webSocketHandshakerFactories.put(host, wsFactory);
-			}
-
-			return wsFactory;
-		}
-	}
-
-	/**
-	 * Get the web socket URL.
-	 * 
-	 * @param host
-	 *            the host computer the request was made to
-	 * 
-	 * @return a full web socket url for the given host
-	 */
-	private String getWebSocketLocation(String host) {
-		return "ws://" + host + fullWebSocketUriPrefix;
-	}
-
-	/**
-	 * handle a chunk.
-	 * 
-	 * @param ctx
-	 *            the channel event context
-	 * @param chunk
-	 *            the chunk frame
-	 */
-	private void handleHttpChunk(ChannelHandlerContext ctx, HttpChunk chunk) {
-		NettyHttpFileUpload fileUpload = fileUploadHandlers.get(ctx
-				.getChannel().getId());
-		if (fileUpload != null) {
-			try {
-				fileUpload.addChunk(ctx, chunk);
-
-				if (chunk.isLast()) {
-					fileUploadHandlers.remove(ctx.getChannel().getId());
-					fileUploadComplete(fileUpload);
-					sendSuccessHttpResponse(ctx, fileUpload.getRequest());
-				}
-			} catch (Exception e) {
-				// An error, so don't leave handler around.
-				fileUploadHandlers.remove(ctx.getChannel().getId());
-
-				webServer.getLog().error(
-						"Error while processing a chunk of file upload", e);
-				sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
-			}
-		} else {
-			webServer.getLog().warn("Received HTTP chunk for unknown channel");
-		}
-	}
-
-	/**
-	 * The file upload is complete. Finish processing and alert everyone who
-	 * needs to know.
-	 * 
-	 * @param fileUpload
-	 *            the completed file upload object
-	 */
-	private void fileUploadComplete(NettyHttpFileUpload fileUpload) {
-		try {
-			fileUploadListener.handleHttpFileUpload(fileUpload);
-		} catch (Exception e) {
-			webServer.getLog().error(
-					"Error while calling file upload listener", e);
-		}
-
-		fileUpload.clean();
-	}
-
-	/**
-	 * Send an HTTP response to the client.
-	 * 
-	 * @param ctx
-	 *            the channel event context
-	 * @param req
-	 *            the request which has come in
-	 * @param res
-	 *            the response which is being written
-	 * @param setContentLength
-	 *            {@code true} if should set content length on result
-	 * @param ignoreKeepAlive
-	 *            {@code true} if should ignore the HTTP keepalive aheader and
-	 *            close the connection anyway
-	 */
-	public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req,
-			HttpResponse res, boolean setContentLength, boolean ignoreKeepAlive) {
-		try {
-			// Generate an error page if response status code is not OK (200).
-			if (res.getStatus().getCode() != HttpResponseStatus.OK.getCode()) {
-				res.setContent(ChannelBuffers.copiedBuffer(res.getStatus()
-						.toString(), CharsetUtil.UTF_8));
-				setContentLength(res, res.getContent().readableBytes());
-			}
-
-			if (setContentLength) {
-				setContentLength(res, res.getContent().readableBytes());
-			}
-			ChannelFuture f = ctx.getChannel().write(res);
-
-			if ((ignoreKeepAlive || !isKeepAlive(req))
-					|| res.getStatus().getCode() != HttpResponseStatus.OK
-							.getCode() || req.getMethod() == POST) {
-				f.addListener(ChannelFutureListener.CLOSE);
-			}
-		} catch (Exception e) {
-			webServer.getLog().error("Error while sending HTTP response", e);
-		}
-	}
-
-	/**
-	 * Add in the global response headers.
-	 * 
-	 * @param res
-	 *            the response to be sent to the client
-	 */
-	private void addGlobalHttpResponseHeaders(HttpResponse res) {
-		addHttpResponseHeaderMap(res, webServer.getGlobalHttpContentHeaders());
-	}
-
-	/**
-	 * Add in HTTP response headers.
-	 * 
-	 * <p>
-	 * The global headers will be added as well.
-	 * 
-	 * @param res
-	 *            the response to be sent to the client
-	 * @param headers
-	 *            the headers to add
-	 */
-	public void addHttpResponseHeaders(HttpResponse res,
-			Map<String, String> headers) {
-		// The global headers should go in first in case they are being
-		// overridden.
-		addGlobalHttpResponseHeaders(res);
-		addHttpResponseHeaderMap(res, headers);
-	}
-
-	/**
-	 * Add in HTTP response headers.
-	 * 
-	 * <p>
-	 * The global headers will be added as well.
-	 * 
-	 * @param res
-	 *            the response to be sent to the client
-	 * @param headers
-	 *            the headers to add
-	 */
-	public void addHttpResponseHeaders(HttpResponse res,
-			Multimap<String, String> headers) {
-		// The global headers should go in first in case they are being
-		// overridden.
-		addGlobalHttpResponseHeaders(res);
-		addHttpResponseHeaderMap(res, headers);
-	}
-
-	/**
-	 * Add in HTTP response headers from the given map.
-	 * 
-	 * @param res
-	 *            the response to be sent to the client
-	 * @param headers
-	 *            the headers to add
-	 */
-	private void addHttpResponseHeaderMap(HttpResponse res,
-			Map<String, String> headers) {
-		for (Entry<String, String> entry : headers.entrySet()) {
-			res.addHeader(entry.getKey(), entry.getValue());
-		}
-	}
-
-	/**
-	 * Add in HTTP response headers from the given multimap.
-	 * 
-	 * @param res
-	 *            the response to be sent to the client
-	 * @param headers
-	 *            the headers to add
-	 */
-	private void addHttpResponseHeaderMap(HttpResponse res,
-			Multimap<String, String> headers) {
-		for (String key : headers.keySet()) {
-			for (String value : headers.get(key)) {
-				res.addHeader(key, value);
-			}
-		}
-	}
-
-	/**
-	 * Send a success response to the client.
-	 * 
-	 * @param ctx
-	 *            the channel event context
-	 * @param req
-	 *            the request which has come in
-	 */
-	private void sendSuccessHttpResponse(ChannelHandlerContext ctx,
-			HttpRequest req) {
-		DefaultHttpResponse res = new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-				HttpResponseStatus.OK);
-		addGlobalHttpResponseHeaders(res);
-		sendHttpResponse(ctx, req, res, false, false);
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		webServer.getLog().error("Exception caught in the web server",
-				e.getCause());
-		e.getChannel().close();
-	}
-
-	/**
-	 * handle a web socket request.
-	 * 
-	 * @param ctx
-	 *            The context for the web socket call.
-	 * @param frame
-	 *            The web socket frame.
-	 */
-	private void handleWebSocketFrame(ChannelHandlerContext ctx,
-			WebSocketFrame frame) {
-		Channel channel = ctx.getChannel();
-
-		NettyWebServerWebSocketConnection handler = webSocketConnections
-				.get(channel.getId());
-		if (handler != null) {
-			handler.handleWebSocketFrame(ctx, frame, accessManager);
-		} else {
-
-			throw new RuntimeException(
-					"Web socket frame request from unregistered channel");
-		}
-	}
-
-	/**
-	 * A web socket channel is closing. Do any necessary cleanup.
-	 * 
-	 * @param channel
-	 */
-	private void webSocketChannelClosing(Channel channel) {
-		NettyWebServerWebSocketConnection handler = webSocketConnections
-				.get(channel.getId());
-		if (handler != null) {
-			// Is a web socket handler. Remove it and tell the handler it is
-			// done.
-			webSocketConnections.remove(channel.getId());
-			handler.getHandler().onClose();
-		}
-	}
-
-	/**
-	 * Send an error to the remote machine.
-	 * 
-	 * @param ctx
-	 *            handler context
-	 * @param status
-	 *            the status to send
-	 */
-	public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
-		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
-		response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-		response.setContent(ChannelBuffers.copiedBuffer(
-				"Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
-
-		// Close the connection as soon as the error message is sent.
-		ctx.getChannel().write(response)
-				.addListener(ChannelFutureListener.CLOSE);
-	}
-
-	/**
-	 * Set the URI prefix to be used for web socket connections.
-	 * 
-	 * @return the webSocketPath
-	 */
-	public void setWebSocketUriPrefix() {
-		// return webSocketPath;
-	}
-
-	/**
-	 * Get the web server the handler is attached to.
-	 * 
-	 * @return the web server
-	 */
-	public NettyWebServer getWebServer() {
-		return webServer;
-	}
-
-	public void setAuthProvider(HttpAuthProvider authProvider) {
-		this.authProvider = authProvider;
-	}
-
-	public void setAccessManager(WebResourceAccessManager accessManager) {
-		this.accessManager = accessManager;
-	}
-
-	private DefaultHttpResponse createRedirect(String url) {
-		DefaultHttpResponse response = new DefaultHttpResponse(HTTP_1_1, FOUND);
-		response.addHeader("Location", url);
-		return response;
-	}
-
-	private boolean userCanAccessResource(HttpAuthResponse authResponse,
-			String resource) {
-		// If no access manager is set on this handler, then all users are
-		// assumed to
-		// have access to all resources.
-		if (accessManager == null) {
-			return true;
-		}
-		return accessManager.userHasAccess(authResponse.getUser(), resource);
-	}
+  /**
+   * Factory for HTTP data objects. Used for post events.
+   *
+   * <p>
+   * The factory will keep all in memory until it gets too big, then writes to
+   * disk.
+   */
+  private static final HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(true);
+
+  /**
+   * The web socket path used by this handler.
+   */
+  private String fullWebSocketUriPrefix;
+
+  /**
+   * All content handlers handled by this instance.
+   */
+  private List<NettyHttpContentHandler> httpContentHandlers =
+      new ArrayList<NettyHttpContentHandler>();
+
+  /**
+   * Map of Netty channel IDs to web socket handlers.
+   */
+  private Map<Integer, NettyWebServerWebSocketConnection> webSocketConnections = Maps
+      .newConcurrentMap();
+
+  /**
+   * Map of Netty channel IDs to file uploads.
+   */
+  private Map<Integer, NettyHttpFileUpload> fileUploadHandlers = Maps.newConcurrentMap();
+
+  /**
+   * Map of host names to the handshaker factory for that host.
+   *
+   * <p>
+   * Not concurrent, so needs to be prote
+   */
+  private Map<String, WebSocketServerHandshakerFactory> webSocketHandshakerFactories = Maps
+      .newHashMap();
+
+  /**
+   * Factory for web socket handlers.
+   *
+   * <p>
+   * Can be null.
+   */
+  private WebServerWebSocketHandlerFactory webSocketHandlerFactory;
+
+  /**
+   * The listener for file uploads.
+   *
+   * <p>
+   * Can be null.
+   */
+  private HttpFileUploadListener fileUploadListener;
+
+  /**
+   * The web server we are attached to.
+   */
+  private NettyWebServer webServer;
+
+  private HttpAuthProvider authProvider;
+
+  private WebResourceAccessManager accessManager;
+
+  public NettyWebServerHandler(NettyWebServer webServer) {
+    this.webServer = webServer;
+    this.authProvider = null;
+    this.accessManager = null;
+  }
+
+  /**
+   * Register a new content handler to the server.
+   *
+   * @param handler
+   */
+  public void addHttpContentHandler(NettyHttpContentHandler handler) {
+    httpContentHandlers.add(handler);
+  }
+
+  /**
+   * Set the factory for creating web socket handlers.
+   *
+   * @param webSocketUriPrefix
+   *          uri prefix for websocket handler (can be {@code null})
+   * @param webSocketHandlerFactory
+   *          the factory to use (can be {@code null} if don't want to handle
+   *          web socket calls)
+   */
+  public void setWebSocketHandlerFactory(String webSocketUriPrefix,
+      WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
+    this.fullWebSocketUriPrefix =
+        (webSocketUriPrefix != null) ? "/" + webSocketUriPrefix.trim() : "/"
+            + WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
+    this.webSocketHandlerFactory = webSocketHandlerFactory;
+  }
+
+  /**
+   * Set the file upload listener.
+   *
+   * @param fileUploadListener
+   *          the listener to use (can be {@code null})
+   */
+  public void setHttpFileUploadListener(HttpFileUploadListener fileUploadListener) {
+    this.fileUploadListener = fileUploadListener;
+  }
+
+  @Override
+  public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    Object msg = e.getMessage();
+    if (msg instanceof HttpRequest) {
+      handleHttpRequest(ctx, (HttpRequest) msg);
+    } else if (msg instanceof WebSocketFrame) {
+      handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+    } else if (msg instanceof HttpChunk) {
+      handleHttpChunk(ctx, (HttpChunk) msg);
+    } else {
+      webServer.getLog().warn(
+          String.format("Web server received unknown frame %s", msg.getClass().getName()));
+    }
+
+  }
+
+  @Override
+  public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    webServer.channelOpened(e.getChannel());
+  }
+
+  @Override
+  public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+    // No need to tell web server that channel closed, it handles cleanup
+    // itself.
+    webSocketChannelClosing(e.getChannel());
+  }
+
+  /**
+   * Handle an HTTP request coming into the server.
+   *
+   * @param ctx
+   *          The channel context for the request.
+   * @param req
+   *          The HTTP request.
+   *
+   * @throws Exception
+   */
+  private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
+
+    // Before we actually allow handling of this http request, we will check
+    // to
+    // see if it is properly authorized, if authorization is requested.
+    HttpAuthResponse response = null;
+    if (authProvider != null) {
+      response = authProvider.authorizeRequest(new NettyHttpRequest(req, getWebServer().getLog()));
+      if ((response == null) || !response.authSuccessful()) {
+        if ((response == null) || response.redirectUrl() != null) {
+          sendHttpResponse(ctx, req, createRedirect(response.redirectUrl()), false, false);
+        } else {
+          webServer.getLog().warn(
+              String.format("Auth requested and no redict available for %s", req.getUri()));
+          sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, FORBIDDEN), false, false);
+        }
+        return;
+      }
+    }
+
+    String user = null;
+    if (response != null) {
+      user = response.getUser();
+    }
+
+    if (handleWebGetRequest(ctx, req, response)) {
+      // The method handled the request if the return value was true.
+    } else if (webSocketHandlerFactory != null && tryWebSocketUpgradeRequest(ctx, req, user)) {
+      // The method handled the request if the return value was true.
+    } else if (handleWebPutRequest(ctx, req, response)) {
+      // The method handled the request if the return value was true.
+    } else {
+      // Nothing we handle.
+      webServer.getLog().warn(
+          String.format("Web server has no handlers for request %s", req.getUri()));
+
+      sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, FORBIDDEN), false, false);
+    }
+  }
+
+  /**
+   * Attempt to handle an HTTP request by scanning through all registered
+   * handlers.
+   *
+   * @param ctx
+   *          The context for the request.
+   * @param req
+   *          The request.
+   * @return True if the request was handled, false otherwise.
+   */
+  private boolean handleWebGetRequest(ChannelHandlerContext ctx, HttpRequest req,
+      HttpAuthResponse authResponse) throws IOException {
+    if (req.getMethod() == GET) {
+
+      if (!userCanAccessResource(authResponse, req.getUri())) {
+        return false;
+      }
+
+      Set<HttpCookie> cookies = null;
+      if (authResponse != null) {
+        cookies = authResponse.getCookies();
+      }
+
+      for (NettyHttpContentHandler handler : httpContentHandlers) {
+        if (handler.isHandledBy(req)) {
+          try {
+            handler.handleWebRequest(ctx, req, cookies);
+          } catch (Exception e) {
+            webServer.getLog().error(
+                String.format("Exception when handling web request %s", req.getUri()), e);
+          }
+
+          return true;
+        }
+
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Attempt to handle an HTTP PUT request
+   *
+   * @param ctx
+   *          The context for the request.
+   * @param req
+   *          The request.
+   * @return True if the request was handled, false otherwise.
+   */
+  private boolean handleWebPutRequest(ChannelHandlerContext ctx, HttpRequest req,
+      HttpAuthResponse authResponse) throws IOException {
+    if (req.getMethod() != POST || fileUploadListener == null) {
+      return false;
+    }
+
+    if (!userCanAccessResource(authResponse, req.getUri())) {
+      return false;
+    }
+
+    try {
+      NettyHttpFileUpload fileUpload =
+          new NettyHttpFileUpload(req, new HttpPostRequestDecoder(httpDataFactory, req), webServer);
+
+      if (req.isChunked()) {
+        // Chunked data so more coming.
+        fileUploadHandlers.put(ctx.getChannel().getId(), fileUpload);
+      } else {
+        fileUpload.completeNonChunked();
+        fileUploadComplete(fileUpload);
+        sendSuccessHttpResponse(ctx, req);
+      }
+    } catch (Exception e) {
+      webServer.getLog().error("Could not start file upload", e);
+
+      sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return true;
+  }
+
+  /**
+   * Is the HTTP request requesting a Web Socket protocol upgrade?
+   *
+   * @param req
+   *          The HTTP request.
+   *
+   * @return True if a Web Socket protocol upgrade, false otherwise.
+   */
+  private boolean tryWebSocketUpgradeRequest(final ChannelHandlerContext ctx, HttpRequest req,
+      final String user) {
+    if (!req.getUri().startsWith(fullWebSocketUriPrefix)) {
+      return false;
+    }
+
+    if (accessManager != null) {
+      if (!accessManager.userHasAccess(user, req.getUri())) {
+        return false;
+      }
+    }
+
+    // Handshake
+    WebSocketServerHandshakerFactory wsFactory = getWebSocketHandshakerFactory(req);
+    final Channel channel = ctx.getChannel();
+    final WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
+    if (handshaker == null) {
+      wsFactory.sendUnsupportedWebSocketVersionResponse(channel);
+    } else {
+      ChannelFuture handshake = handshaker.handshake(channel, req);
+      handshake.addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
+      handshake.addListener(new ChannelFutureListener() {
+        @Override
+        public void operationComplete(ChannelFuture arg0) throws Exception {
+
+          NettyWebServerWebSocketConnection connection =
+              new NettyWebServerWebSocketConnection(channel, user, handshaker,
+                  webSocketHandlerFactory, webServer.getLog());
+          webSocketConnections.put(channel.getId(), connection);
+
+          connection.getHandler().onConnect();
+        }
+      });
+    }
+
+    // Handled request.
+    return true;
+  }
+
+  /**
+   * Get a handshaker factory for the incoming request.
+   *
+   * @param req
+   *          the request which has come in
+   *
+   * @return the handshaker factory for the request
+   */
+  private WebSocketServerHandshakerFactory getWebSocketHandshakerFactory(HttpRequest req) {
+    String host = req.getHeader(HttpHeaders.Names.HOST);
+
+    synchronized (webSocketHandshakerFactories) {
+      WebSocketServerHandshakerFactory wsFactory = webSocketHandshakerFactories.get(host);
+      if (wsFactory == null) {
+        wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(host), null, false);
+        webSocketHandshakerFactories.put(host, wsFactory);
+      }
+
+      return wsFactory;
+    }
+  }
+
+  /**
+   * Get the web socket URL.
+   *
+   * @param host
+   *          the host computer the request was made to
+   *
+   * @return a full web socket url for the given host
+   */
+  private String getWebSocketLocation(String host) {
+    return "ws://" + host + fullWebSocketUriPrefix;
+  }
+
+  /**
+   * handle a chunk.
+   *
+   * @param ctx
+   *          the channel event context
+   * @param chunk
+   *          the chunk frame
+   */
+  private void handleHttpChunk(ChannelHandlerContext ctx, HttpChunk chunk) {
+    NettyHttpFileUpload fileUpload = fileUploadHandlers.get(ctx.getChannel().getId());
+    if (fileUpload != null) {
+      try {
+        fileUpload.addChunk(ctx, chunk);
+
+        if (chunk.isLast()) {
+          fileUploadHandlers.remove(ctx.getChannel().getId());
+          fileUploadComplete(fileUpload);
+          sendSuccessHttpResponse(ctx, fileUpload.getRequest());
+        }
+      } catch (Exception e) {
+        // An error, so don't leave handler around.
+        fileUploadHandlers.remove(ctx.getChannel().getId());
+
+        webServer.getLog().error("Error while processing a chunk of file upload", e);
+        sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+      }
+    } else {
+      webServer.getLog().warn("Received HTTP chunk for unknown channel");
+    }
+  }
+
+  /**
+   * The file upload is complete. Finish processing and alert everyone who needs
+   * to know.
+   *
+   * @param fileUpload
+   *          the completed file upload object
+   */
+  private void fileUploadComplete(NettyHttpFileUpload fileUpload) {
+    try {
+      fileUploadListener.handleHttpFileUpload(fileUpload);
+    } catch (Exception e) {
+      webServer.getLog().error("Error while calling file upload listener", e);
+    }
+
+    fileUpload.clean();
+  }
+
+  /**
+   * Send an HTTP response to the client.
+   *
+   * @param ctx
+   *          the channel event context
+   * @param req
+   *          the request which has come in
+   * @param res
+   *          the response which is being written
+   * @param setContentLength
+   *          {@code true} if should set content length on result
+   * @param ignoreKeepAlive
+   *          {@code true} if should ignore the HTTP keepalive aheader and close
+   *          the connection anyway
+   */
+  public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res,
+      boolean setContentLength, boolean ignoreKeepAlive) {
+    try {
+      // Generate an error page if response status code is not OK (200).
+      if (res.getStatus().getCode() != HttpResponseStatus.OK.getCode()) {
+        res.setContent(ChannelBuffers.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
+        setContentLength(res, res.getContent().readableBytes());
+      }
+
+      if (setContentLength) {
+        setContentLength(res, res.getContent().readableBytes());
+      }
+      ChannelFuture f = ctx.getChannel().write(res);
+
+      if ((ignoreKeepAlive || !isKeepAlive(req))
+          || res.getStatus().getCode() != HttpResponseStatus.OK.getCode()
+          || req.getMethod() == POST) {
+        f.addListener(ChannelFutureListener.CLOSE);
+      }
+    } catch (Exception e) {
+      webServer.getLog().error("Error while sending HTTP response", e);
+    }
+  }
+
+  /**
+   * Add in the global response headers.
+   *
+   * @param res
+   *          the response to be sent to the client
+   */
+  private void addGlobalHttpResponseHeaders(HttpResponse res) {
+    addHttpResponseHeaderMap(res, webServer.getGlobalHttpContentHeaders());
+  }
+
+  /**
+   * Add in HTTP response headers.
+   *
+   * <p>
+   * The global headers will be added as well.
+   *
+   * @param res
+   *          the response to be sent to the client
+   * @param headers
+   *          the headers to add
+   */
+  public void addHttpResponseHeaders(HttpResponse res, Map<String, String> headers) {
+    // The global headers should go in first in case they are being
+    // overridden.
+    addGlobalHttpResponseHeaders(res);
+    addHttpResponseHeaderMap(res, headers);
+  }
+
+  /**
+   * Add in HTTP response headers.
+   *
+   * <p>
+   * The global headers will be added as well.
+   *
+   * @param res
+   *          the response to be sent to the client
+   * @param headers
+   *          the headers to add
+   */
+  public void addHttpResponseHeaders(HttpResponse res, Multimap<String, String> headers) {
+    // The global headers should go in first in case they are being
+    // overridden.
+    addGlobalHttpResponseHeaders(res);
+    addHttpResponseHeaderMap(res, headers);
+  }
+
+  /**
+   * Add in HTTP response headers from the given map.
+   *
+   * @param res
+   *          the response to be sent to the client
+   * @param headers
+   *          the headers to add
+   */
+  private void addHttpResponseHeaderMap(HttpResponse res, Map<String, String> headers) {
+    for (Entry<String, String> entry : headers.entrySet()) {
+      res.addHeader(entry.getKey(), entry.getValue());
+    }
+  }
+
+  /**
+   * Add in HTTP response headers from the given multimap.
+   *
+   * @param res
+   *          the response to be sent to the client
+   * @param headers
+   *          the headers to add
+   */
+  private void addHttpResponseHeaderMap(HttpResponse res, Multimap<String, String> headers) {
+    for (String key : headers.keySet()) {
+      for (String value : headers.get(key)) {
+        res.addHeader(key, value);
+      }
+    }
+  }
+
+  /**
+   * Send a success response to the client.
+   *
+   * @param ctx
+   *          the channel event context
+   * @param req
+   *          the request which has come in
+   */
+  private void sendSuccessHttpResponse(ChannelHandlerContext ctx, HttpRequest req) {
+    DefaultHttpResponse res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+    addGlobalHttpResponseHeaders(res);
+    sendHttpResponse(ctx, req, res, false, false);
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+    webServer.getLog().error("Exception caught in the web server", e.getCause());
+    e.getChannel().close();
+  }
+
+  /**
+   * handle a web socket request.
+   *
+   * @param ctx
+   *          The context for the web socket call.
+   * @param frame
+   *          The web socket frame.
+   */
+  private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
+    Channel channel = ctx.getChannel();
+
+    NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
+    if (handler != null) {
+      handler.handleWebSocketFrame(ctx, frame, accessManager);
+    } else {
+
+      throw new RuntimeException("Web socket frame request from unregistered channel");
+    }
+  }
+
+  /**
+   * A web socket channel is closing. Do any necessary cleanup.
+   *
+   * @param channel
+   */
+  private void webSocketChannelClosing(Channel channel) {
+    NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
+    if (handler != null) {
+      // Is a web socket handler. Remove it and tell the handler it is
+      // done.
+      webSocketConnections.remove(channel.getId());
+      handler.getHandler().onClose();
+    }
+  }
+
+  /**
+   * Send an error to the remote machine.
+   *
+   * @param ctx
+   *          handler context
+   * @param status
+   *          the status to send
+   */
+  public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
+    response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
+    response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n",
+        CharsetUtil.UTF_8));
+
+    // Close the connection as soon as the error message is sent.
+    ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+  }
+
+  /**
+   * Set the URI prefix to be used for web socket connections.
+   *
+   * @return the webSocketPath
+   */
+  public void setWebSocketUriPrefix() {
+    // return webSocketPath;
+  }
+
+  /**
+   * Get the web server the handler is attached to.
+   *
+   * @return the web server
+   */
+  public NettyWebServer getWebServer() {
+    return webServer;
+  }
+
+  public void setAuthProvider(HttpAuthProvider authProvider) {
+    this.authProvider = authProvider;
+  }
+
+  public void setAccessManager(WebResourceAccessManager accessManager) {
+    this.accessManager = accessManager;
+  }
+
+  private DefaultHttpResponse createRedirect(String url) {
+    DefaultHttpResponse response = new DefaultHttpResponse(HTTP_1_1, FOUND);
+    response.addHeader("Location", url);
+    return response;
+  }
+
+  private boolean userCanAccessResource(HttpAuthResponse authResponse, String resource) {
+    // If no access manager is set on this handler, then all users are
+    // assumed to
+    // have access to all resources.
+    if (accessManager == null) {
+      return true;
+    }
+    return accessManager.userHasAccess(authResponse.getUser(), resource);
+  }
 }

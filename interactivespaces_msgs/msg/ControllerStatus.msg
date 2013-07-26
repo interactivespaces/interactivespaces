@@ -14,8 +14,10 @@
 # the License.
 ##
 
+# UUID of the controller
 string uuid
 
+# Status of the operation this is a response for
 int32 status
 int32 STATUS_HEARTBEAT = 0
 int32 STATUS_SHUTDOWN = 1
@@ -31,6 +33,7 @@ string statusCode
 # More detail about the status, e.g. a stack trace
 string statusDetail
 
+# Any additonal data for the message
 string data_type
 byte[] data
 

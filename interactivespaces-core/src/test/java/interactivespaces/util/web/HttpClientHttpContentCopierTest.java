@@ -16,26 +16,32 @@
 
 package interactivespaces.util.web;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
+import interactivespaces.service.web.server.HttpFileUpload;
+import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.util.io.Files;
 
 import junit.framework.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Jdk14Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Test the {@link HttpClientHttpContentCopier} class.
@@ -63,24 +69,25 @@ public class HttpClientHttpContentCopierTest {
     webServerPort = 10031;
     webServerUriPrefix = "websockettest";
     webServer = new NettyWebServer("test-server", webServerPort, threadPool, log);
-    webServer.addDynamicContentHandler("/" + webServerUriPrefix, true, new HttpDynamicRequestHandler() {
+    webServer.addDynamicContentHandler("/" + webServerUriPrefix, true,
+        new HttpDynamicRequestHandler() {
 
-      @Override
-      public void handle(HttpRequest request, HttpResponse response) {
-        String path = request.getUri().getPath();
+          @Override
+          public void handle(HttpRequest request, HttpResponse response) {
+            String path = request.getUri().getPath();
 
-        if (path.endsWith("/error")) {
-          response.setResponseCode(HttpResponseCode.FORBIDDEN);
-        } else {
-          try {
-            response.getOutputStream().write(TEST_CONTENT.getBytes());
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            if (path.endsWith("/error")) {
+              response.setResponseCode(HttpResponseCode.FORBIDDEN);
+            } else {
+              try {
+                response.getOutputStream().write(TEST_CONTENT.getBytes());
+              } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
           }
-        }
-      }
-    });
+        });
 
     webServer.startup();
   }
@@ -95,26 +102,27 @@ public class HttpClientHttpContentCopierTest {
   }
 
   /**
-   * Test a successful transfer.
+   * Test a successful transfer copying from the remote.
    *
    * @throws Exception
    */
   @Test
-  public void testSuccess() throws Exception {
+  public void testCopyFromSuccess() throws Exception {
     File destination = getTempFile();
 
     String sourceUri = getUrlPrefix();
 
-    testSuccessfulTransfer(destination, sourceUri);
+    testCopyFromSuccessfulTransfer(destination, sourceUri);
   }
 
   /**
-   * Test having a failure and then attempting to read again.
+   * Test having a failure copying from the remote and then attempting to read
+   * again.
    *
    * @throws Exception
    */
   @Test
-  public void testFailure() throws Exception {
+  public void testCopyFromFailure() throws Exception {
     File destination = getTempFile();
 
     String sourceUri = getUrlPrefix();
@@ -127,14 +135,52 @@ public class HttpClientHttpContentCopierTest {
       // Expected
     }
 
-    testSuccessfulTransfer(destination, sourceUri);
+    testCopyFromSuccessfulTransfer(destination, sourceUri);
+  }
+
+  /**
+   * Test a file upload.
+   */
+  @Test
+  public void testFileUpload() throws Exception {
+    File source = getTempFile();
+    source.deleteOnExit();
+    System.out.println(source);
+    final File destination = getTempFile();
+    destination.deleteOnExit();
+
+    Files.writeFile(source, TEST_CONTENT);
+
+    final AtomicReference<Map<String,String>> receivedParameters = new AtomicReference<Map<String,String>>();
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    webServer.setHttpFileUploadListener(new HttpFileUploadListener() {
+      @Override
+      public void handleHttpFileUpload(HttpFileUpload fileUpload) {
+        fileUpload.moveTo(destination);
+        receivedParameters.set(fileUpload.getParameters());
+        latch.countDown();
+      }
+    });
+
+    String sourceParameterName = "myfile";
+    Map<String, String> expectedParameters = Maps.newHashMap();
+    expectedParameters.put("foo", "bar");
+    expectedParameters.put("bletch", "spam");
+
+    copier.copyTo(getUrlPrefix(), source, sourceParameterName, expectedParameters);
+
+    Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+    Assert.assertEquals(TEST_CONTENT, Files.readFile(destination).trim());
+    Assert.assertEquals(expectedParameters, receivedParameters.get());
   }
 
   /**
    * @param destination
    * @param sourceUri
    */
-  private void testSuccessfulTransfer(File destination, String sourceUri) {
+  private void testCopyFromSuccessfulTransfer(File destination, String sourceUri) {
     try {
       copier.copy(sourceUri + "success", destination);
       String content = Files.readFile(destination);
@@ -154,7 +200,10 @@ public class HttpClientHttpContentCopierTest {
   }
 
   /**
-   * @return
+   * Get an appropriately named temp file.
+   *
+   * @return The temp file
+   *
    * @throws IOException
    */
   private File getTempFile() throws IOException {
