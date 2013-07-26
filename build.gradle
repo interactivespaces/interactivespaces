@@ -23,10 +23,10 @@ buildscript {
     mavenCentral()
   }
 
-  dependencies {
-    classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.2'
-    classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
-  }
+//  dependencies {
+//    classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.2'
+//    classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
+//  }
 
 }
 
