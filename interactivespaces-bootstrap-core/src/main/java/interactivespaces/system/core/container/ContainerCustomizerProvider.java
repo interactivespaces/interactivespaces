@@ -31,36 +31,36 @@ import java.util.Set;
  */
 public interface ContainerCustomizerProvider {
 
-	/**
-	 * Get the command line arguments from the container.
-	 *
-	 * @return the command line arguments
-	 */
-	List<String> getCommandLineArguments();
+  /**
+   * Get the command line arguments from the container.
+   *
+   * @return the command line arguments
+   */
+  List<String> getCommandLineArguments();
 
-	/**
-	 * Get services supplied by the container.
-	 *
-	 * <p>
-	 * These are not using the Service interface because of how classpaths and
-	 * IS components are being started.
-	 *
-	 * @return a map of services with the key being the service name and the
-	 *         value being the service
-	 */
-	Map<String, Object> getServices();
+  /**
+   * Get services supplied by the container.
+   *
+   * <p>
+   * These are not using the Service interface because of how classpaths and IS
+   * components are being started.
+   *
+   * @return a map of services with the key being the service name and the value
+   *         being the service
+   */
+  Map<String, Object> getServices();
 
-	/**
-	 * Is the container supposed to be controllable from a file system standpoint?
-	 *
-	 * @return {@code true} if the container is file controllable
-	 */
-	boolean isFileControllable();
+  /**
+   * Is the container supposed to be controllable from a file system standpoint?
+   *
+   * @return {@code true} if the container is file controllable
+   */
+  boolean isFileControllable();
 
-	/**
-	 * Get the bundles available to the OSGi container as it started up.
-	 *
-	 * @return
-	 */
-	Set<File> getStartupBundles();
+  /**
+   * Get the bundles available to the OSGi container as it started up.
+   *
+   * @return
+   */
+  Set<File> getStartupBundles();
 }
