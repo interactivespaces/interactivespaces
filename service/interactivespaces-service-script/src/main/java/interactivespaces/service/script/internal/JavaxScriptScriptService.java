@@ -16,6 +16,9 @@
 
 package interactivespaces.service.script.internal;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
@@ -28,6 +31,9 @@ import interactivespaces.service.script.StringScriptSource;
 import interactivespaces.service.script.internal.javascript.RhinoJavascriptActivityScriptFactory;
 import interactivespaces.service.script.internal.python.PythonActivityScriptFactory;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.python.jsr223.PyScriptEngineFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,12 +48,6 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
-
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
-import org.python.jsr223.PyScriptEngineFactory;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * An {@link ScriptService} using {@code javax.script}.

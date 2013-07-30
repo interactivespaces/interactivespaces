@@ -18,9 +18,10 @@ package interactivespaces.service.androidos.impl;
 
 import com.google.common.collect.Maps;
 
-import android.content.Context;
 import interactivespaces.service.androidos.AndroidOsService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import android.content.Context;
 
 import java.util.Map;
 

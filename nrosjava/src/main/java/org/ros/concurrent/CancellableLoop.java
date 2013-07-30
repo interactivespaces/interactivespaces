@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * An interruptable loop that can be run by an {@link ExecutorService}.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public abstract class CancellableLoop implements Runnable {
@@ -59,14 +59,14 @@ public abstract class CancellableLoop implements Runnable {
       handleInterruptedException(e);
     } finally {
       thread = null;
-      
+
       cleanup();
     }
   }
 
   /**
-   * The setup block for the loop. This will be called exactly once before
-   * the first call to {@link #loop()}.
+   * The setup block for the loop. This will be called exactly once before the
+   * first call to {@link #loop()}.
    */
   protected void setup() {
   }

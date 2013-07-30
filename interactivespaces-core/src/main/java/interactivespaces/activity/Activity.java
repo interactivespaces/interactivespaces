@@ -21,9 +21,9 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
+
+import java.util.Map;
 
 /**
  * An activity for Interactive Spaces.

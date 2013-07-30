@@ -36,14 +36,6 @@ import interactivespaces.time.LocalTimeProvider;
 import interactivespaces.time.NtpTimeProvider;
 import interactivespaces.time.TimeProvider;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.URI;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -56,6 +48,14 @@ import org.ros.master.uri.StaticMasterUriProvider;
 import org.ros.master.uri.SwitchableMasterUriProvider;
 import org.ros.osgi.common.RosEnvironment;
 import org.ros.osgi.common.SimpleRosEnvironment;
+
+import java.io.File;
+import java.net.InetAddress;
+import java.net.URI;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Activate general services needed by a Spaces container.

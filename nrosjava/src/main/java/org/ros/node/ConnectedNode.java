@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -40,7 +40,7 @@ import java.net.URI;
  * <li>{@link ServiceClient}</li>
  * <li>{@link ParameterTree}</li>
  * </ul>
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public interface ConnectedNode extends Node {
@@ -49,7 +49,7 @@ public interface ConnectedNode extends Node {
    * In ROS, time can be wallclock (actual) or simulated, so it is important to
    * use {@link ConnectedNode#getCurrentTime()} instead of using the standard
    * Java routines for determining the current time.
-   * 
+   *
    * @return the current time
    */
   Time getCurrentTime();
@@ -89,7 +89,7 @@ public interface ConnectedNode extends Node {
 
   /**
    * Create a new {@link ServiceServer}.
-   * 
+   *
    * @param serviceName
    *          the name of the service
    * @param serviceType
@@ -135,7 +135,7 @@ public interface ConnectedNode extends Node {
 
   /**
    * Create a {@link ServiceClient}.
-   * 
+   *
    * @param serviceName
    *          the name of the service
    * @param serviceType
@@ -156,7 +156,7 @@ public interface ConnectedNode extends Node {
   /**
    * Create a {@link ParameterTree} to query and set parameters on the ROS
    * parameter server.
-   * 
+   *
    * @return {@link ParameterTree} with {@link NameResolver} in this namespace.
    */
   ParameterTree getParameterTree();

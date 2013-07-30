@@ -34,6 +34,7 @@ import org.mockito.Mockito;
  * @author Keith M. Hughes
  */
 public class RosMessageRouterActivityComponentTest {
+
   private RosMessageRouterActivityComponent<String> component;
 
   private RoutableInputMessageListener<String> messageListener;

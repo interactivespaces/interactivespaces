@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,98 +16,98 @@
 
 package interactivespaces.service.audio.player.internal;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.service.audio.player.PlayableAudioTrack;
+
+import org.apache.commons.logging.Log;
 
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-
-import com.google.common.collect.Maps;
-
 /**
  * A {@link AudioTrackPlayer} which uses a {@link NativeActivityRunner}.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class NativeAudioTrackPlayer implements AudioTrackPlayer {
-	private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS = "space.service.music.player.flags.linux";
 
-	private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE = "space.service.music.player.executable.linux";
+  private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS =
+      "space.service.music.player.flags.linux";
 
-	/**
-	 * The configuration to get track player info from.
-	 */
-	private Configuration configuration;
+  private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE =
+      "space.service.music.player.executable.linux";
 
-	/**
-	 * The activity runner factory for running the activity.
-	 */
-	private NativeActivityRunnerFactory runnerFactory;
+  /**
+   * The configuration to get track player info from.
+   */
+  private Configuration configuration;
 
-	/**
-	 * The activity runner running the activity.
-	 */
-	private NativeActivityRunner runner;
+  /**
+   * The activity runner factory for running the activity.
+   */
+  private NativeActivityRunnerFactory runnerFactory;
 
-	/**
-	 * The track to be played.
-	 */
-	private PlayableAudioTrack ptrack;
+  /**
+   * The activity runner running the activity.
+   */
+  private NativeActivityRunner runner;
 
-	/**
-	 * The log to use.
-	 */
-	private Log log;
+  /**
+   * The track to be played.
+   */
+  private PlayableAudioTrack ptrack;
 
-	public NativeAudioTrackPlayer(Configuration configuration,
-			NativeActivityRunnerFactory runnerFactory, PlayableAudioTrack ptrack,
-			Log log) {
-		this.configuration = configuration;
-		this.runnerFactory = runnerFactory;
-		this.ptrack = ptrack;
-		this.log = log;
-	}
+  /**
+   * The log to use.
+   */
+  private Log log;
 
-	@Override
-	public synchronized void start(long begin, long duration) {
-		if (runner == null) {
-			runner = runnerFactory.newPlatformNativeActivityRunner(log);
-			Map<String, Object> appConfig = Maps.newHashMap();
-			// TODO(keith): This needs to get the OS, or it needs to be wrapped
-			// so that can have
-			// something else check for OS
-			appConfig
-					.put(NativeActivityRunner.ACTIVITYNAME,
-							configuration
-									.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
+  public NativeAudioTrackPlayer(Configuration configuration,
+      NativeActivityRunnerFactory runnerFactory, PlayableAudioTrack ptrack, Log log) {
+    this.configuration = configuration;
+    this.runnerFactory = runnerFactory;
+    this.ptrack = ptrack;
+    this.log = log;
+  }
 
-			String commandFlags = MessageFormat
-					.format(configuration
-							.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS),
-							ptrack.getFile().getAbsolutePath());
+  @Override
+  public synchronized void start(long begin, long duration) {
+    if (runner == null) {
+      runner = runnerFactory.newPlatformNativeActivityRunner(log);
+      Map<String, Object> appConfig = Maps.newHashMap();
+      // TODO(keith): This needs to get the OS, or it needs to be wrapped
+      // so that can have
+      // something else check for OS
+      appConfig.put(NativeActivityRunner.ACTIVITYNAME,
+          configuration.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
 
-			appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
+      String commandFlags =
+          MessageFormat.format(configuration
+              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS),
+              ptrack.getFile().getAbsolutePath());
 
-			runner.configure(appConfig);
-			runner.startup();
-		}
-	}
+      appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
 
-	@Override
-	public synchronized void stop() {
-		if (runner != null) {
-			runner.shutdown();
-			runner = null;
-		}
-	}
+      runner.configure(appConfig);
+      runner.startup();
+    }
+  }
 
-	@Override
-	public synchronized boolean isPlaying() {
-		return runner.isRunning();
-	}
+  @Override
+  public synchronized void stop() {
+    if (runner != null) {
+      runner.shutdown();
+      runner = null;
+    }
+  }
+
+  @Override
+  public synchronized boolean isPlaying() {
+    return runner.isRunning();
+  }
 }

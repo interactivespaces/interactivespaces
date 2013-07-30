@@ -22,10 +22,6 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -42,6 +38,10 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * A {@link SchedulerService} which uses quartz.

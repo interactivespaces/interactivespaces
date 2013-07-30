@@ -31,7 +31,7 @@ public interface ActivityComponent {
   /**
    * Get the name of the component.
    *
-   * @return
+   * @return the name of the component
    */
   String getName();
 

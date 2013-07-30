@@ -16,13 +16,13 @@
 
 package interactivespaces.activity;
 
-import interactivespaces.activity.ActivityStateTransition.TransitionResult;
+import com.google.common.collect.Lists;
 
-import java.util.Queue;
+import interactivespaces.activity.ActivityStateTransition.TransitionResult;
 
 import org.apache.commons.logging.Log;
 
-import com.google.common.collect.Lists;
+import java.util.Queue;
 
 /**
  * Run an activity through a set of state transitions.

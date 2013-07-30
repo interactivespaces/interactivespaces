@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,7 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -33,8 +34,7 @@ import org.ros.internal.transport.ProtocolNames;
 import org.ros.internal.transport.tcp.TcpRosProtocolDescription;
 import org.ros.namespace.GraphName;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.util.List;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -55,7 +55,8 @@ public class SlaveImplTest {
   public void testGetPublications() {
     SlaveServer mockSlave = mock(SlaveServer.class);
     DefaultPublisher<?> mockPublisher = mock(DefaultPublisher.class);
-    when(mockSlave.getPublications()).thenReturn(Lists.<DefaultPublisher<?>>newArrayList(mockPublisher));
+    when(mockSlave.getPublications()).thenReturn(
+        Lists.<DefaultPublisher<?>>newArrayList(mockPublisher));
     when(mockPublisher.getTopicName()).thenReturn(GraphName.of("/bar"));
     when(mockPublisher.getTopicMessageType()).thenReturn("/baz");
     when(mockPublisher.getTopicDeclarationAsList()).thenReturn(Lists.newArrayList("/bar", "/baz"));
@@ -78,7 +79,7 @@ public class SlaveImplTest {
             Matchers.eq(Sets.newHashSet(ProtocolNames.TCPROS, ProtocolNames.UDPROS)))).thenReturn(
         protocol);
     SlaveXmlRpcEndpointImpl slave = new SlaveXmlRpcEndpointImpl(mockSlave);
-    Object[][] protocols = new Object[][] { {ProtocolNames.TCPROS}, {ProtocolNames.UDPROS}};
+    Object[][] protocols = new Object[][] { { ProtocolNames.TCPROS }, { ProtocolNames.UDPROS } };
     List<Object> response = slave.requestTopic("/foo", "/bar", protocols);
     assertEquals(response.get(0), StatusCode.SUCCESS.toInt());
     assertEquals(response.get(2), protocol.toList());

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,15 +16,15 @@
 
 package org.ros;
 
-import java.net.URI;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
 import org.ros.internal.node.server.master.MasterServer;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 // TODO(damonkohler): Add /rosout node.
 /**
@@ -32,9 +32,9 @@ import com.google.common.annotations.VisibleForTesting;
  * of a ROS-based system. You must have a {@link RosCore} (either this
  * implementation or the default Python implementation distributed with ROS)
  * running in order for ROS nodes to communicate.
- * 
+ *
  * @see <a href="http://www.ros.org/wiki/roscore">roscore documentation</a>
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class RosCore {
@@ -61,7 +61,8 @@ public class RosCore {
     return new RosCore(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
   }
 
-  private RosCore(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService executorService) {
+  private RosCore(BindAddress bindAddress, AdvertiseAddress advertiseAddress,
+      ScheduledExecutorService executorService) {
     masterServer = new MasterServer(bindAddress, advertiseAddress, executorService);
   }
 

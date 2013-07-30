@@ -31,16 +31,16 @@ public enum StatusCode {
 
   public static StatusCode fromInt(int intValue) {
     switch (intValue) {
-    case -1:
-      return ERROR;
-    case 1:
-      return SUCCESS;
-    case 0:
-    default:
-      return FAILURE;
+      case -1:
+        return ERROR;
+      case 1:
+        return SUCCESS;
+      case 0:
+      default:
+        return FAILURE;
     }
   }
-  
+
   @Override
   public String toString() {
     switch (this) {

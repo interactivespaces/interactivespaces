@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,255 +22,254 @@ package interactivespaces.service.web;
  * @author Keith M. Hughes
  */
 public class HttpResponseCode {
-	
-    /**
-     * 100 Continue
-     */
-    public static final int CONTINUE = 100;
 
-    /**
-     * 101 Switching Protocols
-     */
-    public static final int SWITCHING_PROTOCOLS = 101;
+  /**
+   * 100 Continue
+   */
+  public static final int CONTINUE = 100;
 
-    /**
-     * 102 Processing (WebDAV, RFC2518)
-     */
-    public static final int PROCESSING = 102;
+  /**
+   * 101 Switching Protocols
+   */
+  public static final int SWITCHING_PROTOCOLS = 101;
 
-    /**
-     * 200 OK
-     */
-    public static final int OK = 200;
+  /**
+   * 102 Processing (WebDAV, RFC2518)
+   */
+  public static final int PROCESSING = 102;
 
-    /**
-     * 201 Created
-     */
-    public static final int CREATED = 201;
+  /**
+   * 200 OK
+   */
+  public static final int OK = 200;
 
-    /**
-     * 202 Accepted
-     */
-    public static final int ACCEPTED = 202;
+  /**
+   * 201 Created
+   */
+  public static final int CREATED = 201;
 
-    /**
-     * 203 Non-Authoritative Information (since HTTP/1.1)
-     */
-    public static final int NON_AUTHORITATIVE_INFORMATION = 203;
+  /**
+   * 202 Accepted
+   */
+  public static final int ACCEPTED = 202;
 
-    /**
-     * 204 No Content
-     */
-    public static final int NO_CONTENT = 204;
+  /**
+   * 203 Non-Authoritative Information (since HTTP/1.1)
+   */
+  public static final int NON_AUTHORITATIVE_INFORMATION = 203;
 
-    /**
-     * 205 Reset Content
-     */
-    public static final int RESET_CONTENT = 205;
+  /**
+   * 204 No Content
+   */
+  public static final int NO_CONTENT = 204;
 
-    /**
-     * 206 Partial Content
-     */
-    public static final int PARTIAL_CONTENT = 206;
+  /**
+   * 205 Reset Content
+   */
+  public static final int RESET_CONTENT = 205;
 
-    /**
-     * 207 Multi-Status (WebDAV, RFC2518)
-     */
-    public static final int MULTI_STATUS = 207;
+  /**
+   * 206 Partial Content
+   */
+  public static final int PARTIAL_CONTENT = 206;
 
-    /**
-     * 300 Multiple Choices
-     */
-    public static final int MULTIPLE_CHOICES = 300;
+  /**
+   * 207 Multi-Status (WebDAV, RFC2518)
+   */
+  public static final int MULTI_STATUS = 207;
 
-    /**
-     * 301 Moved Permanently
-     */
-    public static final int MOVED_PERMANENTLY = 301;
+  /**
+   * 300 Multiple Choices
+   */
+  public static final int MULTIPLE_CHOICES = 300;
 
-    /**
-     * 302 Found
-     */
-    public static final int FOUND = 302;
+  /**
+   * 301 Moved Permanently
+   */
+  public static final int MOVED_PERMANENTLY = 301;
 
-    /**
-     * 303 See Other (since HTTP/1.1)
-     */
-    public static final int SEE_OTHER = 303;
+  /**
+   * 302 Found
+   */
+  public static final int FOUND = 302;
 
-    /**
-     * 304 Not Modified
-     */
-    public static final int NOT_MODIFIED = 304;
+  /**
+   * 303 See Other (since HTTP/1.1)
+   */
+  public static final int SEE_OTHER = 303;
 
-    /**
-     * 305 Use Proxy (since HTTP/1.1)
-     */
-    public static final int USE_PROXY = 305;
+  /**
+   * 304 Not Modified
+   */
+  public static final int NOT_MODIFIED = 304;
 
-    /**
-     * 307 Temporary Redirect (since HTTP/1.1)
-     */
-    public static final int TEMPORARY_REDIRECT = 307;
+  /**
+   * 305 Use Proxy (since HTTP/1.1)
+   */
+  public static final int USE_PROXY = 305;
 
-    /**
-     * 400 Bad Request
-     */
-    public static final int BAD_REQUEST = 400;
+  /**
+   * 307 Temporary Redirect (since HTTP/1.1)
+   */
+  public static final int TEMPORARY_REDIRECT = 307;
 
-    /**
-     * 401 Unauthorized
-     */
-    public static final int UNAUTHORIZED = 401;
+  /**
+   * 400 Bad Request
+   */
+  public static final int BAD_REQUEST = 400;
 
-    /**
-     * 402 Payment Required
-     */
-    public static final int PAYMENT_REQUIRED = 402;
+  /**
+   * 401 Unauthorized
+   */
+  public static final int UNAUTHORIZED = 401;
 
-    /**
-     * 403 Forbidden
-     */
-    public static final int FORBIDDEN = 403;
+  /**
+   * 402 Payment Required
+   */
+  public static final int PAYMENT_REQUIRED = 402;
 
-    /**
-     * 404 Not Found
-     */
-    public static final int NOT_FOUND = 404;
+  /**
+   * 403 Forbidden
+   */
+  public static final int FORBIDDEN = 403;
 
-    /**
-     * 405 Method Not Allowed
-     */
-    public static final int METHOD_NOT_ALLOWED = 405;
+  /**
+   * 404 Not Found
+   */
+  public static final int NOT_FOUND = 404;
 
-    /**
-     * 406 Not Acceptable
-     */
-    public static final int NOT_ACCEPTABLE = 406;
+  /**
+   * 405 Method Not Allowed
+   */
+  public static final int METHOD_NOT_ALLOWED = 405;
 
-    /**
-     * 407 Proxy Authentication Required
-     */
-    public static final int PROXY_AUTHENTICATION_REQUIRED = 407;
+  /**
+   * 406 Not Acceptable
+   */
+  public static final int NOT_ACCEPTABLE = 406;
 
-    /**
-     * 408 Request Timeout
-     */
-    public static final int REQUEST_TIMEOUT = 408;
+  /**
+   * 407 Proxy Authentication Required
+   */
+  public static final int PROXY_AUTHENTICATION_REQUIRED = 407;
 
-    /**
-     * 409 Conflict
-     */
-    public static final int CONFLICT = 409;
+  /**
+   * 408 Request Timeout
+   */
+  public static final int REQUEST_TIMEOUT = 408;
 
-    /**
-     * 410 Gone
-     */
-    public static final int GONE = 410;
+  /**
+   * 409 Conflict
+   */
+  public static final int CONFLICT = 409;
 
-    /**
-     * 411 Length Required
-     */
-    public static final int LENGTH_REQUIRED = 411;
+  /**
+   * 410 Gone
+   */
+  public static final int GONE = 410;
 
-    /**
-     * 412 Precondition Failed
-     */
-    public static final int PRECONDITION_FAILED = 412;
+  /**
+   * 411 Length Required
+   */
+  public static final int LENGTH_REQUIRED = 411;
 
-    /**
-     * 413 Request Entity Too Large
-     */
-    public static final int REQUEST_ENTITY_TOO_LARGE = 413;
+  /**
+   * 412 Precondition Failed
+   */
+  public static final int PRECONDITION_FAILED = 412;
 
-    /**
-     * 414 Request-URI Too Long
-     */
-    public static final int REQUEST_URI_TOO_LONG = 414;
+  /**
+   * 413 Request Entity Too Large
+   */
+  public static final int REQUEST_ENTITY_TOO_LARGE = 413;
 
-    /**
-     * 415 Unsupported Media Type
-     */
-    public static final int UNSUPPORTED_MEDIA_TYPE = 415;
+  /**
+   * 414 Request-URI Too Long
+   */
+  public static final int REQUEST_URI_TOO_LONG = 414;
 
-    /**
-     * 416 Requested Range Not Satisfiable
-     */
-    public static final int REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+  /**
+   * 415 Unsupported Media Type
+   */
+  public static final int UNSUPPORTED_MEDIA_TYPE = 415;
 
-    /**
-     * 417 Expectation Failed
-     */
-    public static final int EXPECTATION_FAILED = 417;
+  /**
+   * 416 Requested Range Not Satisfiable
+   */
+  public static final int REQUESTED_RANGE_NOT_SATISFIABLE = 416;
 
-    /**
-     * 422 Unprocessable Entity (WebDAV, RFC4918)
-     */
-    public static final int UNPROCESSABLE_ENTITY = 422;
+  /**
+   * 417 Expectation Failed
+   */
+  public static final int EXPECTATION_FAILED = 417;
 
-    /**
-     * 423 Locked (WebDAV, RFC4918)
-     */
-    public static final int LOCKED = 423;
+  /**
+   * 422 Unprocessable Entity (WebDAV, RFC4918)
+   */
+  public static final int UNPROCESSABLE_ENTITY = 422;
 
-    /**
-     * 424 Failed Dependency (WebDAV, RFC4918)
-     */
-    public static final int FAILED_DEPENDENCY = 424;
+  /**
+   * 423 Locked (WebDAV, RFC4918)
+   */
+  public static final int LOCKED = 423;
 
-    /**
-     * 425 Unordered Collection (WebDAV, RFC3648)
-     */
-    public static final int UNORDERED_COLLECTION = 425;
+  /**
+   * 424 Failed Dependency (WebDAV, RFC4918)
+   */
+  public static final int FAILED_DEPENDENCY = 424;
 
-    /**
-     * 426 Upgrade Required (RFC2817)
-     */
-    public static final int UPGRADE_REQUIRED = 426;
+  /**
+   * 425 Unordered Collection (WebDAV, RFC3648)
+   */
+  public static final int UNORDERED_COLLECTION = 425;
 
-    /**
-     * 500 Internal Server Error
-     */
-    public static final int INTERNAL_SERVER_ERROR = 500;
+  /**
+   * 426 Upgrade Required (RFC2817)
+   */
+  public static final int UPGRADE_REQUIRED = 426;
 
-    /**
-     * 501 Not Implemented
-     */
-    public static final int NOT_IMPLEMENTED = 501;
+  /**
+   * 500 Internal Server Error
+   */
+  public static final int INTERNAL_SERVER_ERROR = 500;
 
-    /**
-     * 502 Bad Gateway
-     */
-    public static final int BAD_GATEWAY = 502;
+  /**
+   * 501 Not Implemented
+   */
+  public static final int NOT_IMPLEMENTED = 501;
 
-    /**
-     * 503 Service Unavailable
-     */
-    public static final int SERVICE_UNAVAILABLE = 503;
+  /**
+   * 502 Bad Gateway
+   */
+  public static final int BAD_GATEWAY = 502;
 
-    /**
-     * 504 Gateway Timeout
-     */
-    public static final int GATEWAY_TIMEOUT = 504;
+  /**
+   * 503 Service Unavailable
+   */
+  public static final int SERVICE_UNAVAILABLE = 503;
 
-    /**
-     * 505 HTTP Version Not Supported
-     */
-    public static final int HTTP_VERSION_NOT_SUPPORTED =
-            505;
+  /**
+   * 504 Gateway Timeout
+   */
+  public static final int GATEWAY_TIMEOUT = 504;
 
-    /**
-     * 506 Variant Also Negotiates (RFC2295)
-     */
-    public static final int VARIANT_ALSO_NEGOTIATES = 506;
+  /**
+   * 505 HTTP Version Not Supported
+   */
+  public static final int HTTP_VERSION_NOT_SUPPORTED = 505;
 
-    /**
-     * 507 Insufficient Storage (WebDAV, RFC4918)
-     */
-    public static final int INSUFFICIENT_STORAGE = 507;
+  /**
+   * 506 Variant Also Negotiates (RFC2295)
+   */
+  public static final int VARIANT_ALSO_NEGOTIATES = 506;
 
-    /**
-     * 510 Not Extended (RFC2774)
-     */
-	public static final int NOT_EXTENDED = 510;
+  /**
+   * 507 Insufficient Storage (WebDAV, RFC4918)
+   */
+  public static final int INSUFFICIENT_STORAGE = 507;
+
+  /**
+   * 510 Not Extended (RFC2774)
+   */
+  public static final int NOT_EXTENDED = 510;
 }

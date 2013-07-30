@@ -32,6 +32,7 @@ import org.mockito.Mockito;
  * @author Keith M. Hughes
  */
 public class WebServerActivityComponentTest {
+
   private WebServerWebSocketHandler delegate;
   private ActivityComponentContext activityComponentContext;
   private WebServerActivityComponent.MyWebServerWebSocketHandler handler;

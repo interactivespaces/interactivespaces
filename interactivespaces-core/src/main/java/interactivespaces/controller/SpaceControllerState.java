@@ -22,9 +22,25 @@ package interactivespaces.controller;
  * @author Keith M. Hughes
  */
 public enum SpaceControllerState {
+
+  /**
+   * Don't know the state.
+   */
   UNKNOWN("space.controller.state.unknown"),
+
+  /**
+   * Attempting a connection to the controller
+   */
   CONNECT_ATTEMPT("space.controller.state.connect.attempt"),
+
+  /**
+   * Unable to connect to the controller
+   */
   CONNECT_FAILURE("space.controller.state.connect.failure"),
+
+  /**
+   * The controller is running
+   */
   RUNNING("space.controller.state.running");
 
   /**

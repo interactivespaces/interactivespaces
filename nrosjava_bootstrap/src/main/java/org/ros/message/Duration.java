@@ -38,12 +38,12 @@ package org.ros.message;
  * ROS Duration representation. Time and Duration are primitive types in ROS.
  * ROS represents each as two 32-bit integers: seconds and nanoseconds since
  * epoch.
- * 
+ *
  * http://www.ros.org/wiki/msg
- * 
+ *
  * @author Jason Wolfe
  * @author kwc@willowgarage.com (Ken Conley)
- * 
+ *
  */
 public class Duration implements Comparable<Duration> {
 
@@ -135,7 +135,7 @@ public class Duration implements Comparable<Duration> {
 
   @Override
   /**
-   * Check for equality between Time objects.  
+   * Check for equality between Time objects.
    * equals() does not normalize Time representations, so fields must match exactly.
    */
   public boolean equals(Object obj) {

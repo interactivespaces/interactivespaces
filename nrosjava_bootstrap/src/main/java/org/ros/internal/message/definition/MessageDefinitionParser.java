@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -28,7 +28,7 @@ import java.io.StringReader;
 /**
  * Parses message definitions and invokes a {@link MessageDefinitionVisitor} for
  * each field.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class MessageDefinitionParser {
@@ -38,7 +38,7 @@ public class MessageDefinitionParser {
   public interface MessageDefinitionVisitor {
     /**
      * Called for each constant in the message definition.
-     * 
+     *
      * @param type
      *          the type of the constant
      * @param name
@@ -50,7 +50,7 @@ public class MessageDefinitionParser {
 
     /**
      * Called for each scalar in the message definition.
-     * 
+     *
      * @param type
      *          the type of the scalar
      * @param name
@@ -60,7 +60,7 @@ public class MessageDefinitionParser {
 
     /**
      * Called for each array in the message definition.
-     * 
+     *
      * @param type
      *          the type of the array
      * @param size
@@ -82,7 +82,7 @@ public class MessageDefinitionParser {
 
   /**
    * Parses the message definition
-   * 
+   *
    * @param messageType
    *          the type of message defined (e.g. std_msgs/String)
    * @param messageDefinition

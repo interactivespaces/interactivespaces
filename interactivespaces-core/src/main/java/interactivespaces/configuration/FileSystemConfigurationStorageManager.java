@@ -21,14 +21,14 @@ import interactivespaces.evaluation.ExpressionEvaluator;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.util.Map.Entry;
 import java.util.Properties;
-
-import org.apache.commons.logging.Log;
 
 /**
  * A file based {@link SystemConfigurationStorageManager}.

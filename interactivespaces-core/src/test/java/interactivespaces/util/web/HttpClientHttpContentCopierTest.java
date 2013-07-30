@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Keith M. Hughes
  */
 public class HttpClientHttpContentCopierTest {
+
   private static final String TEST_CONTENT = "This is a test";
   private Log log;
   private ScheduledExecutorService threadPool;

@@ -23,10 +23,10 @@ import interactivespaces.service.mail.receiver.MailReceiverListener;
 import interactivespaces.service.mail.receiver.MailReceiverService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
-
 import com.dumbster.smtp.SmtpServer;
 import com.dumbster.smtp.SmtpServerFactory;
+
+import java.util.Map;
 
 /**
  * A {@link MailReceiverService} which uses Dumbster.

@@ -16,11 +16,16 @@
 
 package interactivespaces.service.comm.serial.bluetooth.internal.jsr82;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.serial.bluetooth.BluetoothCommunicationEndpoint;
 import interactivespaces.service.comm.serial.bluetooth.BluetoothCommunicationEndpointService;
 import interactivespaces.service.comm.serial.bluetooth.BluetoothDevice;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.intel.bluetooth.BlueCoveConfigProperties;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,11 +39,6 @@ import javax.bluetooth.DiscoveryListener;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.intel.bluetooth.BlueCoveConfigProperties;
 
 /**
  * A bluetooth connection service using Jsr82.

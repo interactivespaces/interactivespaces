@@ -16,9 +16,9 @@
 
 package interactivespaces.evaluation;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+
+import java.util.Map;
 
 /**
  * A standalone {@link EvaluationEnvironment}.

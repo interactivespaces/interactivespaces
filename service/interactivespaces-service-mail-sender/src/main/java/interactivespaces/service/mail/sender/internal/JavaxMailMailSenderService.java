@@ -34,7 +34,7 @@ import javax.mail.internet.MimeMessage;
 
 /**
  * A {@link MailMessage} which uses Javax mail.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class JavaxMailMailSenderService implements MailSenderService {

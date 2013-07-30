@@ -22,12 +22,12 @@ import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
-import java.util.List;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
+
+import java.util.List;
 
 /**
  * OSGi activator for the Interactive Spaces Workbench.

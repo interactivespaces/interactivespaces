@@ -19,9 +19,9 @@ package interactivespaces.service.comm.serial.xbee.internal;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListener;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
+
+import java.util.List;
 
 /**
  * A parser for XBee response frames.

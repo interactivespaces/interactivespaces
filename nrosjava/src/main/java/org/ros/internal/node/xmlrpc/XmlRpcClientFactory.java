@@ -5,9 +5,9 @@
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -32,10 +32,10 @@ import java.lang.reflect.UndeclaredThrowableException;
 /**
  * Modified version of {@link org.apache.xmlrpc.client.util.ClientFactory} that
  * requires timeouts in calls.
- * 
+ *
  * @param <T>
  *          the type of {@link XmlRpcEndpoint} to create clients for
- * 
+ *
  * @author kwc@willowgarage.com (Ken Conley)
  * @author damonkohler@google.com (Damon Kohler)
  */
@@ -48,7 +48,7 @@ public class XmlRpcClientFactory<T extends org.ros.internal.node.xmlrpc.XmlRpcEn
 
   /**
    * Creates a new instance.
-   * 
+   *
    * @param pClient
    *          A fully configured XML-RPC client, which is used internally to
    *          perform XML-RPC calls.
@@ -63,11 +63,11 @@ public class XmlRpcClientFactory<T extends org.ros.internal.node.xmlrpc.XmlRpcEn
 
   /**
    * Creates a new instance. Shortcut for
-   * 
+   *
    * <pre>
    * new ClientFactory(pClient, new TypeConverterFactoryImpl());
    * </pre>
-   * 
+   *
    * @param pClient
    *          A fully configured XML-RPC client, which is used internally to
    *          perform XML-RPC calls.
@@ -104,7 +104,7 @@ public class XmlRpcClientFactory<T extends org.ros.internal.node.xmlrpc.XmlRpcEn
    * Creates an object, which is implementing the given interface. The objects
    * methods are internally calling an XML-RPC server by using the factories
    * client.
-   * 
+   *
    * @param pClassLoader
    *          The class loader, which is being used for loading classes, if
    *          required.

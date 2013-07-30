@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project.library;
 
-import java.io.File;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
@@ -25,6 +23,8 @@ import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.java.JavaJarCompiler;
 import interactivespaces.workbench.project.activity.builder.java.JavaxJavaJarCompiler;
+
+import java.io.File;
 
 /**
  * A Java library project builder

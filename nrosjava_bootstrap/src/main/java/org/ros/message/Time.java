@@ -1,11 +1,11 @@
 /*
  * Software License Agreement (BSD License)
- * 
+ *
  * Copyright (c) 2008, Willow Garage, Inc. All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer. * Redistributions in binary
  * form must reproduce the above copyright notice, this list of conditions and
@@ -13,7 +13,7 @@
  * with the distribution. * Neither the name of Willow Garage, Inc. nor the
  * names of its contributors may be used to endorse or promote products derived
  * from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,9 +32,9 @@ package org.ros.message;
 /**
  * ROS Time representation. Time and Time are primitive types in ROS. ROS
  * represents each as two 32-bit integers: seconds and nanoseconds since epoch.
- * 
+ *
  * @see "http://www.ros.org/wiki/msg"
- * 
+ *
  * @author Jason Wolfe
  * @author kwc@willowgarage.com (Ken Conley)
  */
@@ -129,17 +129,22 @@ public class Time implements Comparable<Time> {
   /**
    * Check for equality between {@link Time} objects.
    * <p>
-   * This method does not normalize {@link Time} representations, so fields must match
-   * exactly.
+   * This method does not normalize {@link Time} representations, so fields must
+   * match exactly.
    */
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     Time other = (Time) obj;
-    if (nsecs != other.nsecs) return false;
-    if (secs != other.secs) return false;
+    if (nsecs != other.nsecs)
+      return false;
+    if (secs != other.secs)
+      return false;
     return true;
   }
 

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,15 +15,6 @@
  */
 
 package org.ros.node;
-
-import java.util.Collection;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.logging.Log;
-import org.ros.concurrent.DefaultScheduledExecutorService;
-import org.ros.log.RosLogFactory;
-import org.ros.namespace.GraphName;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
@@ -34,9 +25,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import org.apache.commons.logging.Log;
+import org.ros.concurrent.DefaultScheduledExecutorService;
+import org.ros.log.RosLogFactory;
+import org.ros.namespace.GraphName;
+
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * Executes {@link NodeMain}s in separate threads.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class DefaultNodeMainExecutor implements NodeMainExecutor {
@@ -165,7 +165,7 @@ public class DefaultNodeMainExecutor implements NodeMainExecutor {
 
   /**
    * Trap and log any exceptions while shutting down the supplied {@link Node}.
-   * 
+   *
    * @param node
    *          the {@link Node} to shut down
    */
@@ -188,7 +188,7 @@ public class DefaultNodeMainExecutor implements NodeMainExecutor {
 
   /**
    * Register a {@link ConnectedNode} with the {@link NodeMainExecutor}.
-   * 
+   *
    * @param connectedNode
    *          the {@link ConnectedNode} to register
    */
@@ -207,7 +207,7 @@ public class DefaultNodeMainExecutor implements NodeMainExecutor {
 
   /**
    * Unregister a {@link Node} with the {@link NodeMainExecutor}.
-   * 
+   *
    * @param node
    *          the {@link Node} to unregister
    */

@@ -22,8 +22,6 @@ import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
-import org.osgi.service.startlevel.StartLevel;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -31,6 +29,7 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.osgi.service.startlevel.StartLevel;
 
 import java.io.BufferedReader;
 import java.io.File;

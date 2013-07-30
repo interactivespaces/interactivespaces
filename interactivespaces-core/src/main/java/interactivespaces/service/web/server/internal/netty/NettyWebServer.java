@@ -17,19 +17,16 @@
 package interactivespaces.service.web.server.internal.netty;
 
 import static org.jboss.netty.channel.Channels.pipeline;
+
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
-import interactivespaces.service.web.server.HttpAuthProvider;
-import interactivespaces.service.web.server.WebResourceAccessManager;
-
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -43,8 +40,11 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import java.io.File;
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A web server based on Netty.

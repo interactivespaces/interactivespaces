@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,6 +15,8 @@
  */
 
 package interactivespaces.workbench.project.activity.creator;
+
+import com.google.common.collect.Lists;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -30,132 +32,122 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-
 /**
  * A {@link ProjectCreator} implementation.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class ProjectCreatorImpl implements ProjectCreator {
 
-	/**
-	 * The list of activities to be handed to clients.
-	 */
-	private List<ProjectTemplate> activityProjectTemplates;
+  /**
+   * The list of activities to be handed to clients.
+   */
+  private List<ProjectTemplate> activityProjectTemplates;
 
-	/**
-	 * The list of activities to be used internally.
-	 */
-	private List<ProjectTemplate> activityProjectTemplatesInternal;
+  /**
+   * The list of activities to be used internally.
+   */
+  private List<ProjectTemplate> activityProjectTemplatesInternal;
 
-	/**
-	 * Templater to use
-	 */
-	private FreemarkerTemplater templater;
+  /**
+   * Templater to use
+   */
+  private FreemarkerTemplater templater;
 
-	/**
-	 * The workbench used by the creator.
-	 */
-	private InteractiveSpacesWorkbench workbench;
+  /**
+   * The workbench used by the creator.
+   */
+  private InteractiveSpacesWorkbench workbench;
 
-	public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench,
-			FreemarkerTemplater templater) {
-		this.workbench = workbench;
-		this.templater = templater;
+  public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
+    this.workbench = workbench;
+    this.templater = templater;
 
-		activityProjectTemplatesInternal = Lists.newArrayList();
-		activityProjectTemplates = Collections
-				.unmodifiableList(activityProjectTemplatesInternal);
+    activityProjectTemplatesInternal = Lists.newArrayList();
+    activityProjectTemplates = Collections.unmodifiableList(activityProjectTemplatesInternal);
 
-		activityProjectTemplatesInternal
-				.add(new GenericJavaActivityProjectTemplate());
-		activityProjectTemplatesInternal
-				.add(new GenericJavascriptActivityProjectTemplate());
-		activityProjectTemplatesInternal
-				.add(new GenericPythonActivityProjectTemplate());
-		activityProjectTemplatesInternal
-				.add(new GenericAndroidActivityProjectTemplate());
-	}
+    activityProjectTemplatesInternal.add(new GenericJavaActivityProjectTemplate());
+    activityProjectTemplatesInternal.add(new GenericJavascriptActivityProjectTemplate());
+    activityProjectTemplatesInternal.add(new GenericPythonActivityProjectTemplate());
+    activityProjectTemplatesInternal.add(new GenericAndroidActivityProjectTemplate());
+  }
 
-	@Override
-	public List<ProjectTemplate> getActivityProjectTemplates() {
-		return activityProjectTemplates;
-	}
+  @Override
+  public List<ProjectTemplate> getActivityProjectTemplates() {
+    return activityProjectTemplates;
+  }
 
-	@Override
-	public void createProject(ProjectCreationSpecification spec) {
-		try {
-			// Create the templateData hash
-			Map<String, Object> templateData = new HashMap<String, Object>();
-			templateData.put("spec", spec);
-			templateData.put("project", spec.getProject());
+  @Override
+  public void createProject(ProjectCreationSpecification spec) {
+    try {
+      // Create the templateData hash
+      Map<String, Object> templateData = new HashMap<String, Object>();
+      templateData.put("spec", spec);
+      templateData.put("project", spec.getProject());
 
-			writeProjectTemplate(spec, templateData);
+      writeProjectTemplate(spec, templateData);
 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
-	/**
-	 * Write out the code template.
-	 * 
-	 * @param spec
-	 *            the build specification
-	 * @param templateData
-	 *            data to go into the template
-	 */
-	private void writeProjectTemplate(ProjectCreationSpecification spec,
-			Map<String, Object> templateData) {
-		ProjectTemplate template = spec.getTemplate();
-		if (template == null) {
-			String projectType = spec.getProject().getType();
-			if ("activity".equals(projectType)) {
-				template = getActivityProjectTemplateByLanguage(spec
-						.getLanguage());
-			} else if ("library".equals(projectType)) {
-				template = new LibraryProjectTemplate();
-			}
-		}
+  /**
+   * Write out the code template.
+   *
+   * @param spec
+   *          the build specification
+   * @param templateData
+   *          data to go into the template
+   */
+  private void writeProjectTemplate(ProjectCreationSpecification spec,
+      Map<String, Object> templateData) {
+    ProjectTemplate template = spec.getTemplate();
+    if (template == null) {
+      String projectType = spec.getProject().getType();
+      if ("activity".equals(projectType)) {
+        template = getActivityProjectTemplateByLanguage(spec.getLanguage());
+      } else if ("library".equals(projectType)) {
+        template = new LibraryProjectTemplate();
+      }
+    }
 
-		writeProjectTemplate(template, spec, templateData);
-	}
+    writeProjectTemplate(template, spec, templateData);
+  }
 
-	/**
-	 * Get a generic project template by language.
-	 * 
-	 * @param language
-	 *            the language
-	 * 
-	 * @return the generic template for that language
-	 */
-	private ProjectTemplate getActivityProjectTemplateByLanguage(String language) {
-		if ("java".equals(language)) {
-			return new GenericJavaActivityProjectTemplate();
-		} else if ("python".equals(language)) {
-			return new GenericPythonActivityProjectTemplate();
-		} else if ("javascript".equals(language)) {
-			return new GenericJavascriptActivityProjectTemplate();
-		} else if ("android".equals(language)) {
-			return new GenericAndroidActivityProjectTemplate();
-		} else {
-			throw new InteractiveSpacesException(String.format(
-					"Unknown language %s", language));
-		}
-	}
+  /**
+   * Get a generic project template by language.
+   *
+   * @param language
+   *          the language
+   *
+   * @return the generic template for that language
+   */
+  private ProjectTemplate getActivityProjectTemplateByLanguage(String language) {
+    if ("java".equals(language)) {
+      return new GenericJavaActivityProjectTemplate();
+    } else if ("python".equals(language)) {
+      return new GenericPythonActivityProjectTemplate();
+    } else if ("javascript".equals(language)) {
+      return new GenericJavascriptActivityProjectTemplate();
+    } else if ("android".equals(language)) {
+      return new GenericAndroidActivityProjectTemplate();
+    } else {
+      throw new InteractiveSpacesException(String.format("Unknown language %s", language));
+    }
+  }
 
-	/**
-	 * Write out the code template.
-	 * 
-	 * @param spec
-	 *            the build specification
-	 * @param templateData
-	 *            data to go into the template
-	 */
-	private void writeProjectTemplate(ProjectTemplate sourceDescription,
-			ProjectCreationSpecification spec, Map<String, Object> templateData) {
-		sourceDescription.process(spec, workbench, templater, templateData);
-	}
+  /**
+   * Write out the code template.
+   *
+   * @param spec
+   *          the build specification
+   * @param templateData
+   *          data to go into the template
+   */
+  private void writeProjectTemplate(ProjectTemplate sourceDescription,
+      ProjectCreationSpecification spec, Map<String, Object> templateData) {
+    sourceDescription.process(spec, workbench, templater, templateData);
+  }
 }

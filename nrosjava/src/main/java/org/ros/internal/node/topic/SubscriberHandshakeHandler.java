@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,8 +15,6 @@
  */
 
 package org.ros.internal.node.topic;
-
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -31,12 +29,14 @@ import org.ros.log.RosLogFactory;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * Performs a handshake with the connected {@link Publisher} and connects the
  * {@link Publisher} to the {@link IncomingMessageQueue} on success.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
- * 
+ *
  * @param <T>
  *          the {@link Subscriber} may only subscribe to messages of this type
  */

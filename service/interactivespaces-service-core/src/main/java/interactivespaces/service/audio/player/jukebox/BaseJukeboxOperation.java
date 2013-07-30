@@ -19,9 +19,9 @@ package interactivespaces.service.audio.player.jukebox;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.apache.commons.logging.Log;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A base {@link JukeboxOperation} which provides some support for

@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.activity.builder;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
@@ -26,8 +28,6 @@ import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 import java.io.File;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * A base activity project builder which takes care of the portions of the build

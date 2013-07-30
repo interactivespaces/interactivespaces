@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -30,7 +30,7 @@ import java.net.URISyntaxException;
 /**
  * A node slave identifier which combines the node name of a node with the URI
  * for contacting the node's XMLRPC server.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class NodeIdentifier {
@@ -60,21 +60,22 @@ public class NodeIdentifier {
 
   /**
    * Constructs a new {@link NodeIdentifier}.
-   * 
+   *
    * Note that either {@code nodeName} or {@code uri} may be null but not both.
    * This is necessary because either is enough to uniquely identify a
    * {@link SlaveServer} and because, depending on context, one or the other may
    * not be available.
-   * 
+   *
    * Although either value may be {@code null}, we do not treat {@code null} as
    * a wildcard with respect to equality. Even though it should be safe to do
    * so, wildcards are unnecessary in this case and would likely lead to buggy
    * code.
-   * 
+   *
    * @param name
    *          the {@link GraphName} that the {@link Node} is known as
    * @param uri
-   *          the {@link URI} of the {@link Node}'s {@link SlaveServer} XML-RPC server
+   *          the {@link URI} of the {@link Node}'s {@link SlaveServer} XML-RPC
+   *          server
    */
   public NodeIdentifier(GraphName name, URI uri) {
     Preconditions.checkArgument(name != null || uri != null);

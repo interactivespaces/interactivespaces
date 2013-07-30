@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,7 +16,7 @@
 
 package org.ros.internal.transport.queue;
 
-import java.util.concurrent.ExecutorService;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -33,7 +33,7 @@ import org.ros.internal.message.MessageBuffers;
 import org.ros.log.RosLogFactory;
 import org.ros.message.MessageSerializer;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -56,13 +56,13 @@ public class OutgoingMessageQueue<T> {
   private T latchedMessage;
 
   private final class Writer extends CancellableLoop {
-	  
-	@Override
-	protected void setup() {
-		Thread.currentThread().setName("ros-outgoing-writer-thread");
-	}
 
-	@Override
+    @Override
+    protected void setup() {
+      Thread.currentThread().setName("ros-outgoing-writer-thread");
+    }
+
+    @Override
     public void loop() throws InterruptedException {
       T message = deque.take();
       final ChannelBuffer buffer = messageBufferPool.acquire();
@@ -110,11 +110,11 @@ public class OutgoingMessageQueue<T> {
    */
   public void add(T message) {
     try {
-		deque.put(message);
-		setLatchedMessage(message);
-	} catch (InterruptedException e) {
-		// Fon't care
-	}
+      deque.put(message);
+      setLatchedMessage(message);
+    } catch (InterruptedException e) {
+      // Fon't care
+    }
   }
 
   private void setLatchedMessage(T message) {

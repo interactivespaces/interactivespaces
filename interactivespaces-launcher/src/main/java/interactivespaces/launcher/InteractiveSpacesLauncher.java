@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -33,277 +33,268 @@ import java.util.List;
 
 /**
  * An OSGI launcher for Interactive Spaces.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesLauncher {
 
-	/**
-	 * The file extension used for files which give container extensions.
-	 */
-	private static final String EXTENSION_FILE_EXTENSION = ".ext";
+  /**
+   * The file extension used for files which give container extensions.
+   */
+  private static final String EXTENSION_FILE_EXTENSION = ".ext";
 
-	/**
-	 * The keyword header for a package line on an extensions file.
-	 */
-	public static final String EXTENSION_FILE_PATH_KEYWORD = "path:";
+  /**
+   * The keyword header for a package line on an extensions file.
+   */
+  public static final String EXTENSION_FILE_PATH_KEYWORD = "path:";
 
-	/**
-	 * The length of the keyword header for a package line on an extensions
-	 * file.
-	 */
-	public static final int EXTENSION_FILE_PATH_KEYWORD_LENGTH = EXTENSION_FILE_PATH_KEYWORD
-			.length();
+  /**
+   * The length of the keyword header for a package line on an extensions file.
+   */
+  public static final int EXTENSION_FILE_PATH_KEYWORD_LENGTH = EXTENSION_FILE_PATH_KEYWORD.length();
 
-	/**
-	 * The subdirectory which contains the system files.
-	 */
-	private static final String SPACES_LIB_JAVA_SYSTEM = "lib/system/java";
+  /**
+   * The subdirectory which contains the system files.
+   */
+  private static final String SPACES_LIB_JAVA_SYSTEM = "lib/system/java";
 
-	/**
-	 * The classloader for starting Interactive Spaces
-	 */
-	private ClassLoader classLoader;
+  /**
+   * The classloader for starting Interactive Spaces
+   */
+  private ClassLoader classLoader;
 
-	/**
-	 * The file which gives the process ID for the IS process.
-	 */
-	private File pidFile;
+  /**
+   * The file which gives the process ID for the IS process.
+   */
+  private File pidFile;
 
-	/**
-	 * The main method for IS.
-	 * 
-	 * @param args
-	 *            the command line arguments
-	 * 
-	 * @throws Exception
-	 *             fall down go boom
-	 */
-	public static void main(String[] args) throws Exception {
-		InteractiveSpacesLauncher launcher = new InteractiveSpacesLauncher();
-		launcher.launch(args);
-	}
+  /**
+   * The main method for IS.
+   *
+   * @param args
+   *          the command line arguments
+   *
+   * @throws Exception
+   *           fall down go boom
+   */
+  public static void main(String[] args) throws Exception {
+    InteractiveSpacesLauncher launcher = new InteractiveSpacesLauncher();
+    launcher.launch(args);
+  }
 
-	/**
-	 * Launch Interactive Spaces
-	 */
-	public void launch(String[] args) {
-		if (writePid()) {
-			createClassLoader();
-			boostrap(args);
-		}
-	}
+  /**
+   * Launch Interactive Spaces
+   */
+  public void launch(String[] args) {
+    if (writePid()) {
+      createClassLoader();
+      boostrap(args);
+    }
+  }
 
-	/**
-	 * Create the classloader to use to start the system.
-	 */
-	private void createClassLoader() {
-		File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
+  /**
+   * Create the classloader to use to start the system.
+   */
+  private void createClassLoader() {
+    File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
 
-		List<URL> urls = collectSystemLibClasspath(systemDirectory);
-		addExtensionsToClasspath(systemDirectory, urls);
+    List<URL> urls = collectSystemLibClasspath(systemDirectory);
+    addExtensionsToClasspath(systemDirectory, urls);
 
-		classLoader = new URLClassLoader(urls.toArray(new URL[0]));
-	}
+    classLoader = new URLClassLoader(urls.toArray(new URL[0]));
+  }
 
-	/**
-	 * Get the classpath to be used for starting the system.
-	 * 
-	 * @return
-	 */
-	private List<URL> collectSystemLibClasspath(File systemDirectory) {
-		List<URL> urls = new ArrayList<URL>();
-		File[] files = systemDirectory.listFiles();
-		if (files != null) {
-			for (File file : files) {
-				if (file.getName().endsWith(EXTENSION_FILE_EXTENSION)) {
-					continue;
-				}
+  /**
+   * Get the classpath to be used for starting the system.
+   *
+   * @return
+   */
+  private List<URL> collectSystemLibClasspath(File systemDirectory) {
+    List<URL> urls = new ArrayList<URL>();
+    File[] files = systemDirectory.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.getName().endsWith(EXTENSION_FILE_EXTENSION)) {
+          continue;
+        }
 
-				try {
-					URL url = file.toURI().toURL();
-					urls.add(url);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+        try {
+          URL url = file.toURI().toURL();
+          urls.add(url);
+        } catch (MalformedURLException e) {
+          e.printStackTrace();
+        }
+      }
+    }
 
-		if (urls.isEmpty()) {
-			System.err.format("No bootstrap files found in %s",
-					systemDirectory.getAbsolutePath());
-		}
+    if (urls.isEmpty()) {
+      System.err.format("No bootstrap files found in %s", systemDirectory.getAbsolutePath());
+    }
 
-		return urls;
-	}
+    return urls;
+  }
 
-	/**
-	 * If the {@link #SYSTEMJARS_CONF} exists in the system directory, extend
-	 * the classpath.
-	 * 
-	 * @param systemDirectory
-	 *            the system directory
-	 * @param urls
-	 *            the collection of URLs for the classpath.
-	 */
-	private void addExtensionsToClasspath(File systemDirectory, List<URL> urls) {
-		File[] extensionFiles = systemDirectory.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(EXTENSION_FILE_EXTENSION);
-			}
-		});
-		if (extensionFiles == null)
-			return;
+  /**
+   * If the {@link #SYSTEMJARS_CONF} exists in the system directory, extend the
+   * classpath.
+   *
+   * @param systemDirectory
+   *          the system directory
+   * @param urls
+   *          the collection of URLs for the classpath.
+   */
+  private void addExtensionsToClasspath(File systemDirectory, List<URL> urls) {
+    File[] extensionFiles = systemDirectory.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(EXTENSION_FILE_EXTENSION);
+      }
+    });
+    if (extensionFiles == null)
+      return;
 
-		for (File extensionFile : extensionFiles) {
-			processExtensionFile(urls, extensionFile);
-		}
+    for (File extensionFile : extensionFiles) {
+      processExtensionFile(urls, extensionFile);
+    }
 
-	}
+  }
 
-	/**
-	 * process an extension file.
-	 * 
-	 * @param urls
-	 *            the collection of urls to be placed on the classpath at boot
-	 * 
-	 * @param extensionFile
-	 *            the extension file to process
-	 */
-	private void processExtensionFile(List<URL> urls, File extensionFile) {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(extensionFile));
+  /**
+   * process an extension file.
+   *
+   * @param urls
+   *          the collection of urls to be placed on the classpath at boot
+   *
+   * @param extensionFile
+   *          the extension file to process
+   */
+  private void processExtensionFile(List<URL> urls, File extensionFile) {
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(extensionFile));
 
-			String line;
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (!line.isEmpty()) {
-					int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
-					if (pos == 0
-							&& line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-						urls.add(new File(line
-								.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH))
-								.toURI().toURL());
-					}
-				}
-			}
-		} catch (Exception e) {
-			System.out.format("Error while processing extensions file %s\n",
-					extensionFile);
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					// Don't care.
-				}
-			}
-		}
-	}
+      String line;
+      while ((line = reader.readLine()) != null) {
+        line = line.trim();
+        if (!line.isEmpty()) {
+          int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
+          if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
+            urls.add(new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)).toURI().toURL());
+          }
+        }
+      }
+    } catch (Exception e) {
+      System.out.format("Error while processing extensions file %s\n", extensionFile);
+      e.printStackTrace();
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          // Don't care.
+        }
+      }
+    }
+  }
 
-	/**
-	 * Bootstrap the framework.
-	 */
-	private void boostrap(String[] args) {
-		try {
-			Class<?> bootstrapClass = classLoader
-					.loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");
+  /**
+   * Bootstrap the framework.
+   */
+  private void boostrap(String[] args) {
+    try {
+      Class<?> bootstrapClass =
+          classLoader
+              .loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");
 
-			Object bootstrapInstance = bootstrapClass.newInstance();
+      Object bootstrapInstance = bootstrapClass.newInstance();
 
-			List<String> argList = new ArrayList<String>();
-			for (String arg : args) {
-				argList.add(arg);
-			}
+      List<String> argList = new ArrayList<String>();
+      for (String arg : args) {
+        argList.add(arg);
+      }
 
-			Method boostrapMethod = bootstrapClass
-					.getMethod("boot", List.class);
-			boostrapMethod.invoke(bootstrapInstance, argList);
-		} catch (Exception e) {
-			System.err.println("Could not create bootstrapper");
-			e.printStackTrace(System.err);
-		}
-	}
+      Method boostrapMethod = bootstrapClass.getMethod("boot", List.class);
+      boostrapMethod.invoke(bootstrapInstance, argList);
+    } catch (Exception e) {
+      System.err.println("Could not create bootstrapper");
+      e.printStackTrace(System.err);
+    }
+  }
 
-	/**
-	 * Try and write the pid file.
-	 * 
-	 * @return {@code true} if a pid file didn't previously exist and one
-	 *         couldn't be written.
-	 */
-	private boolean writePid() {
-		File runDirectory = new File("run");
-		if (!runDirectory.exists()) {
-			if (!runDirectory.mkdir()) {
-				System.err.format("Could not create run directory %s\n",
-						runDirectory);
-				return false;
-			}
-		}
+  /**
+   * Try and write the pid file.
+   *
+   * @return {@code true} if a pid file didn't previously exist and one couldn't
+   *         be written.
+   */
+  private boolean writePid() {
+    File runDirectory = new File("run");
+    if (!runDirectory.exists()) {
+      if (!runDirectory.mkdir()) {
+        System.err.format("Could not create run directory %s\n", runDirectory);
+        return false;
+      }
+    }
 
-		pidFile = new File(runDirectory, "interactivespaces.pid");
-		if (!pidFile.exists()) {
-			pidFile.deleteOnExit();
-			BufferedWriter out = null;
-			try {
-				out = new BufferedWriter(new FileWriter(pidFile));
-				out.append(Integer.toString(getPid()));
-			} catch (Exception e) {
-				System.err.format("Error while writing pid file %s\n", pidFile);
-				e.printStackTrace();
+    pidFile = new File(runDirectory, "interactivespaces.pid");
+    if (!pidFile.exists()) {
+      pidFile.deleteOnExit();
+      BufferedWriter out = null;
+      try {
+        out = new BufferedWriter(new FileWriter(pidFile));
+        out.append(Integer.toString(getPid()));
+      } catch (Exception e) {
+        System.err.format("Error while writing pid file %s\n", pidFile);
+        e.printStackTrace();
 
-				return false;
-			} finally {
-				if (out != null) {
-					try {
-						out.close();
-					} catch (IOException e) {
-						// Don't care
-					}
-				}
-			}
+        return false;
+      } finally {
+        if (out != null) {
+          try {
+            out.close();
+          } catch (IOException e) {
+            // Don't care
+          }
+        }
+      }
 
-			return true;
-		} else {
-			System.err
-					.format("InteractiveSpaces component already running. If it isn't running, delete %s\n",
-							pidFile.getAbsolutePath());
-			return false;
-		}
-	}
+      return true;
+    } else {
+      System.err.format(
+          "InteractiveSpaces component already running. If it isn't running, delete %s\n",
+          pidFile.getAbsolutePath());
+      return false;
+    }
+  }
 
-	/**
-	 * @return PID of node process if available, throws
-	 *         {@link UnsupportedOperationException} otherwise.
-	 */
-	private int getPid() {
-		// Java has no standard way of getting PID. MF.getName()
-		// returns '1234@localhost'.
-		try {
-			String mxName = ManagementFactory.getRuntimeMXBean().getName();
-			int idx = mxName.indexOf('@');
-			if (idx > 0) {
-				try {
-					return Integer.parseInt(mxName.substring(0, idx));
-				} catch (NumberFormatException e) {
-					return 0;
-				}
-			}
-		} catch (NoClassDefFoundError unused) {
-			// Android does not support ManagementFactory. Try to get the PID on
-			// Android.
-			try {
-				return (Integer) Class.forName("android.os.Process")
-						.getMethod("myPid").invoke(null);
-			} catch (Exception unused1) {
-				// Ignore this exception and fall through to the
-				// UnsupportedOperationException.
-			}
-		}
-		throw new UnsupportedOperationException();
-	}
+  /**
+   * @return PID of node process if available, throws
+   *         {@link UnsupportedOperationException} otherwise.
+   */
+  private int getPid() {
+    // Java has no standard way of getting PID. MF.getName()
+    // returns '1234@localhost'.
+    try {
+      String mxName = ManagementFactory.getRuntimeMXBean().getName();
+      int idx = mxName.indexOf('@');
+      if (idx > 0) {
+        try {
+          return Integer.parseInt(mxName.substring(0, idx));
+        } catch (NumberFormatException e) {
+          return 0;
+        }
+      }
+    } catch (NoClassDefFoundError unused) {
+      // Android does not support ManagementFactory. Try to get the PID on
+      // Android.
+      try {
+        return (Integer) Class.forName("android.os.Process").getMethod("myPid").invoke(null);
+      } catch (Exception unused1) {
+        // Ignore this exception and fall through to the
+        // UnsupportedOperationException.
+      }
+    }
+    throw new UnsupportedOperationException();
+  }
 
 }

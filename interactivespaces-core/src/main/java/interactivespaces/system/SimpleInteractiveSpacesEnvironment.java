@@ -34,7 +34,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * Usually used for testing.
  *
  * @author Keith M. Hughes
- * @since Jul 22, 2013
  */
 public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
 
@@ -124,7 +123,7 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getValue(String valueName) {
-    return (T)values.get(valueName);
+    return (T) values.get(valueName);
   }
 
   @Override
@@ -138,42 +137,48 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   /**
-   * @param systemConfiguration the systemConfiguration to set
+   * @param systemConfiguration
+   *          the systemConfiguration to set
    */
   public void setSystemConfiguration(Configuration systemConfiguration) {
     this.systemConfiguration = systemConfiguration;
   }
 
   /**
-   * @param filesystem the filesystem to set
+   * @param filesystem
+   *          the filesystem to set
    */
   public void setFilesystem(InteractiveSpacesFilesystem filesystem) {
     this.filesystem = filesystem;
   }
 
   /**
-   * @param log the log to set
+   * @param log
+   *          the log to set
    */
   public void setLog(Log log) {
     this.log = log;
   }
 
   /**
-   * @param executorService the executorService to set
+   * @param executorService
+   *          the executorService to set
    */
   public void setExecutorService(ScheduledExecutorService executorService) {
     this.executorService = executorService;
   }
 
   /**
-   * @param serviceRegistry the serviceRegistry to set
+   * @param serviceRegistry
+   *          the serviceRegistry to set
    */
   public void setServiceRegistry(ServiceRegistry serviceRegistry) {
     this.serviceRegistry = serviceRegistry;
   }
 
   /**
-   * @param timeProvider the timeProvider to set
+   * @param timeProvider
+   *          the timeProvider to set
    */
   public void setTimeProvider(TimeProvider timeProvider) {
     this.timeProvider = timeProvider;

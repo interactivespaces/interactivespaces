@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,6 +16,8 @@
 
 package interactivespaces.system.internal.osgi;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
@@ -24,176 +26,175 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
 
+import org.apache.commons.logging.Log;
+
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.commons.logging.Log;
-
-import com.google.common.collect.Maps;
-
 /**
  * A {@link InteractiveSpacesEnvironment} which lives in a ROS container.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class RosOsgiInteractiveSpacesEnvironment implements
-		InteractiveSpacesEnvironment {
+public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
 
-	/**
-	 * The system configuration.
-	 */
-	private Configuration systemConfiguration;
+  /**
+   * The system configuration.
+   */
+  private Configuration systemConfiguration;
 
-	/**
-	 * The executor service to use for thread pools.
-	 */
-	private ScheduledExecutorService executorService;
+  /**
+   * The executor service to use for thread pools.
+   */
+  private ScheduledExecutorService executorService;
 
-	/**
-	 * The file system for Interactive Spaces.
-	 */
-	private InteractiveSpacesFilesystem filesystem;
+  /**
+   * The file system for Interactive Spaces.
+   */
+  private InteractiveSpacesFilesystem filesystem;
 
-	/**
-	 * Network type for the container.
-	 * 
-	 * <p>
-	 * This allows distinguishing between different Interactive Spaces networks,
-	 * e.g. localdev, prod, fredbot.
-	 */
-	private String networkType;
-	
-	/**
-	 * The time provider for everyone to use.
-	 */
-	private TimeProvider timeProvider;
+  /**
+   * Network type for the container.
+   *
+   * <p>
+   * This allows distinguishing between different Interactive Spaces networks,
+   * e.g. localdev, prod, fredbot.
+   */
+  private String networkType;
 
-	/**
-	 * Values stored in the environment.
-	 */
-	private ConcurrentMap<String, Object> values = Maps.newConcurrentMap();
-	
-	/**
-	 * The service registry.
-	 */
-	private ServiceRegistry serviceRegistry = new SimpleServiceRegistry(this);
-	
-	/**
-	 * The platform logging provider.
-	 */
-	private LoggingProvider loggingProvider;
+  /**
+   * The time provider for everyone to use.
+   */
+  private TimeProvider timeProvider;
 
-	@Override
-	public Configuration getSystemConfiguration() {
-		return systemConfiguration;
-	}
+  /**
+   * Values stored in the environment.
+   */
+  private ConcurrentMap<String, Object> values = Maps.newConcurrentMap();
 
-	@Override
-	public String getNetworkType() {
-		return networkType;
-	}
+  /**
+   * The service registry.
+   */
+  private ServiceRegistry serviceRegistry = new SimpleServiceRegistry(this);
 
-	@Override
-	public InteractiveSpacesFilesystem getFilesystem() {
-		return filesystem;
-	}
+  /**
+   * The platform logging provider.
+   */
+  private LoggingProvider loggingProvider;
 
-	@Override
-	public ScheduledExecutorService getExecutorService() {
-		return executorService;
-	}
+  @Override
+  public Configuration getSystemConfiguration() {
+    return systemConfiguration;
+  }
 
-	@Override
-	public Log getLog() {
-		return loggingProvider.getLog();
-	}
+  @Override
+  public String getNetworkType() {
+    return networkType;
+  }
 
-	@Override
-	public Log getLog(String logName, String level) {
-		return loggingProvider.getLog(logName, level);
-	}
+  @Override
+  public InteractiveSpacesFilesystem getFilesystem() {
+    return filesystem;
+  }
 
-	@Override
-	public boolean modifyLogLevel(Log log, String level) {
-		return loggingProvider.modifyLogLevel(log, level);
-	}
+  @Override
+  public ScheduledExecutorService getExecutorService() {
+    return executorService;
+  }
 
-	@Override
-	public TimeProvider getTimeProvider() {
-		return timeProvider;
-	}
+  @Override
+  public Log getLog() {
+    return loggingProvider.getLog();
+  }
 
-	@Override
-	public ServiceRegistry getServiceRegistry() {
-		return serviceRegistry;
-	}
+  @Override
+  public Log getLog(String logName, String level) {
+    return loggingProvider.getLog(logName, level);
+  }
 
-	@Override
-	public <T> T getValue(String valueName) {
-		@SuppressWarnings("unchecked")
-		T value = (T) values.get(valueName);
+  @Override
+  public boolean modifyLogLevel(Log log, String level) {
+    return loggingProvider.modifyLogLevel(log, level);
+  }
 
-		return value;
-	}
+  @Override
+  public TimeProvider getTimeProvider() {
+    return timeProvider;
+  }
 
-	@Override
-	public void setValue(String valueName, Object value) {
-		values.put(valueName, value);
-	}
+  @Override
+  public ServiceRegistry getServiceRegistry() {
+    return serviceRegistry;
+  }
 
-	@Override
-	public void removeValue(String valueName) {
-		values.remove(valueName);
-	}
+  @Override
+  public <T> T getValue(String valueName) {
+    @SuppressWarnings("unchecked")
+    T value = (T) values.get(valueName);
 
-	/**
-	 * @param filesystem
-	 *            the filesystem to set
-	 */
-	public void setFilesystem(InteractiveSpacesFilesystem filesystem) {
-		this.filesystem = filesystem;
-	}
+    return value;
+  }
 
-	/**
-	 * The network type for Interactive Spaces.
-	 * 
-	 * <p>
-	 * This allows distinguishing between Interactive Spaces networks, e.g.
-	 * localdev, prod, fredbot.
-	 * 
-	 * @param networkType
-	 */
-	public void setNetworkType(String networkType) {
-		this.networkType = networkType;
-	}
+  @Override
+  public void setValue(String valueName, Object value) {
+    values.put(valueName, value);
+  }
 
-	/**
-	 * @param executorService
-	 *            the executorService to set
-	 */
-	public void setExecutorService(ScheduledExecutorService executorService) {
-		this.executorService = executorService;
-	}
+  @Override
+  public void removeValue(String valueName) {
+    values.remove(valueName);
+  }
 
-	/**
-	 * @param systemConfiguration
-	 *            the systemConfiguration to set
-	 */
-	public void setSystemConfiguration(Configuration systemConfiguration) {
-		this.systemConfiguration = systemConfiguration;
-	}
+  /**
+   * @param filesystem
+   *          the filesystem to set
+   */
+  public void setFilesystem(InteractiveSpacesFilesystem filesystem) {
+    this.filesystem = filesystem;
+  }
 
-	/**
-	 * @param timeProvider the timeProvider to set
-	 */
-	public void setTimeProvider(TimeProvider timeProvider) {
-		this.timeProvider = timeProvider;
-	}
+  /**
+   * The network type for Interactive Spaces.
+   *
+   * <p>
+   * This allows distinguishing between Interactive Spaces networks, e.g.
+   * localdev, prod, fredbot.
+   *
+   * @param networkType
+   */
+  public void setNetworkType(String networkType) {
+    this.networkType = networkType;
+  }
 
-	/**
-	 * @param loggingProvider the loggingProvider to set
-	 */
-	public void setLoggingProvider(LoggingProvider loggingProvider) {
-		this.loggingProvider = loggingProvider;
-	}
+  /**
+   * @param executorService
+   *          the executorService to set
+   */
+  public void setExecutorService(ScheduledExecutorService executorService) {
+    this.executorService = executorService;
+  }
+
+  /**
+   * @param systemConfiguration
+   *          the systemConfiguration to set
+   */
+  public void setSystemConfiguration(Configuration systemConfiguration) {
+    this.systemConfiguration = systemConfiguration;
+  }
+
+  /**
+   * @param timeProvider
+   *          the timeProvider to set
+   */
+  public void setTimeProvider(TimeProvider timeProvider) {
+    this.timeProvider = timeProvider;
+  }
+
+  /**
+   * @param loggingProvider
+   *          the loggingProvider to set
+   */
+  public void setLoggingProvider(LoggingProvider loggingProvider) {
+    this.loggingProvider = loggingProvider;
+  }
 }

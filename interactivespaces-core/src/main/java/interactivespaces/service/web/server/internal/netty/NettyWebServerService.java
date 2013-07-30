@@ -22,10 +22,10 @@ import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.internal.AbstractWebServerService;
 
+import org.apache.commons.logging.Log;
+
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-
-import org.apache.commons.logging.Log;
 
 /**
  * A {@link WebServerService} which gives NETTY web servers.

@@ -23,9 +23,9 @@ import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
+
+import java.util.Map;
 
 /**
  * An XBee communications endpoint service using the Interactive Spaces XBee

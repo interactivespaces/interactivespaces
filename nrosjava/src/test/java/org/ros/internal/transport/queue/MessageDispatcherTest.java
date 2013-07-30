@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -19,11 +19,6 @@ package org.ros.internal.transport.queue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.ros.concurrent.DefaultScheduledExecutorService;
@@ -33,8 +28,12 @@ import org.ros.internal.message.DefaultMessageFactory;
 import org.ros.internal.message.definition.MessageDefinitionReflectionProvider;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
-
 import std_msgs.Int32;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -50,7 +49,7 @@ public class MessageDispatcherTest {
   @Before
   public void before() {
     executorService = new DefaultScheduledExecutorService();
-    lazyMessages = MessageBlockingQueueFactory.newMessageBlockingQueue(128,false);
+    lazyMessages = MessageBlockingQueueFactory.newMessageBlockingQueue(128, false);
     messageFactory = new DefaultMessageFactory(new MessageDefinitionReflectionProvider());
   }
 

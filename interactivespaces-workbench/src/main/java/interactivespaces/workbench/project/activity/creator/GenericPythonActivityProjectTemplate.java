@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,33 +27,30 @@ import java.util.Map;
 
 /**
  * A project creator for Python projects.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class GenericPythonActivityProjectTemplate extends
-		BaseActivityProjectTemplate {
+public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTemplate {
 
-	public GenericPythonActivityProjectTemplate() {
-		super("Generic Simple Python Project");
-	}
+  public GenericPythonActivityProjectTemplate() {
+    super("Generic Simple Python Project");
+  }
 
-	@Override
-	public void onTemplateSetup(ProjectCreationSpecification spec,
-			ActivityProject activityProject,
-			Map<String, Object> fullTemplateData) {
-		activityProject.setActivityType("script");
+  @Override
+  public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
+      Map<String, Object> fullTemplateData) {
+    activityProject.setActivityType("script");
 
-		spec.setExecutable("SimplePythonActivity.py");
-		spec.addExtraConfigurationParameter("space.activity.log.level",
-				InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
-	}
+    spec.setExecutable("SimplePythonActivity.py");
+    spec.addExtraConfigurationParameter("space.activity.log.level",
+        InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
+  }
 
-	@Override
-	public void writeSpecificTemplates(ProjectCreationSpecification spec,
-			InteractiveSpacesWorkbench workbench,
-			FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-		templater.writeTemplate(fullTemplateData, new File(
-				getActivityResourceDirectory(spec), "SimplePythonActivity.py"),
-				"activity/generic/python/simple/SimplePythonActivity.py.ftl");
-	}
+  @Override
+  public void writeSpecificTemplates(ProjectCreationSpecification spec,
+      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
+      Map<String, Object> fullTemplateData) {
+    templater.writeTemplate(fullTemplateData, new File(getActivityResourceDirectory(spec),
+        "SimplePythonActivity.py"), "activity/generic/python/simple/SimplePythonActivity.py.ftl");
+  }
 }

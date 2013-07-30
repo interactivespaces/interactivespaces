@@ -23,22 +23,21 @@ package interactivespaces.activity.component;
  */
 public interface ActivityComponentFactory {
 
-	/**
-	 * Register a component class with the factory.
-	 *
-	 * @param componentName
-	 * @param componentClass
-	 */
-	void register(String componentName,
-			Class<? extends ActivityComponent> componentClass);
+  /**
+   * Register a component class with the factory.
+   *
+   * @param componentName
+   * @param componentClass
+   */
+  void register(String componentName, Class<? extends ActivityComponent> componentClass);
 
-	/**
-	 * Get a new instance of the component type.
-	 *
-	 * @param componentName
-	 *            the component name of the component
-	 *
-	 * @return a new instance of the requested component type
-	 */
-	<T extends ActivityComponent> T newComponent(String componentName);
+  /**
+   * Get a new instance of the component type.
+   *
+   * @param componentName
+   *          the component name of the component
+   *
+   * @return a new instance of the requested component type
+   */
+  <T extends ActivityComponent> T newComponent(String componentName);
 }

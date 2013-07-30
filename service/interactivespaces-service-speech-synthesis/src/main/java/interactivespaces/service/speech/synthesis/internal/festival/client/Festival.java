@@ -45,247 +45,244 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 class Festival extends Thread {
-	public static final int FT_SCHEME = 1;
-	public static final int FT_WAVE = 2;
+  public static final int FT_SCHEME = 1;
+  public static final int FT_WAVE = 2;
 
-	protected static byte[] endm;
-	protected Socket s;
-	protected String hostname = null;
-	protected InetAddress address = null;
-	protected int port = -1;
-	protected boolean closeOnExit;
+  protected static byte[] endm;
+  protected Socket s;
+  protected String hostname = null;
+  protected InetAddress address = null;
+  protected int port = -1;
+  protected boolean closeOnExit;
 
-	protected PrintWriter out;
-	protected InputStream in;
+  protected PrintWriter out;
+  protected InputStream in;
 
-	protected boolean ok;
+  protected boolean ok;
 
-	protected JobQueue jobs;
+  protected JobQueue jobs;
 
-	private byte buffer[];
-	private int buffered_p;
-	private int buffered_e;
+  private byte buffer[];
+  private int buffered_p;
+  private int buffered_e;
 
-	static {
-		String end = "ft_StUfF_key";
-		endm = new byte[end.length()];
+  static {
+    String end = "ft_StUfF_key";
+    endm = new byte[end.length()];
 
-		for (int i = 0; i < endm.length; i++) {
-			endm[i] = (byte) end.charAt(i);
-		}
+    for (int i = 0; i < endm.length; i++) {
+      endm[i] = (byte) end.charAt(i);
+    }
 
-	}
+  }
 
-	protected Festival(Socket sock, boolean close) {
-		s = sock;
-		closeOnExit = close;
-		jobs = new JobQueue();
-		buffer = new byte[8096];
-		buffered_p = 0;
-		buffered_e = 0;
-		ok = true;
-	}
+  protected Festival(Socket sock, boolean close) {
+    s = sock;
+    closeOnExit = close;
+    jobs = new JobQueue();
+    buffer = new byte[8096];
+    buffered_p = 0;
+    buffered_e = 0;
+    ok = true;
+  }
 
-	public Festival(Socket sock) {
-		this(sock, false);
-	}
+  public Festival(Socket sock) {
+    this(sock, false);
+  }
 
-	public Festival(InetAddress addr, int p) throws IOException {
-		this(new Socket(addr, p), true);
-		address = addr;
-		port = p;
-	}
+  public Festival(InetAddress addr, int p) throws IOException {
+    this(new Socket(addr, p), true);
+    address = addr;
+    port = p;
+  }
 
-	public Festival(String host, int p) throws IOException,
-			UnknownHostException {
-		this(InetAddress.getByName(host), p);
-		hostname = host;
-	}
+  public Festival(String host, int p) throws IOException, UnknownHostException {
+    this(InetAddress.getByName(host), p);
+    hostname = host;
+  }
 
-	public void run() {
-		try {
-			setPriority(getPriority() + 1);
-			out = new PrintWriter(s.getOutputStream());
-			in = s.getInputStream();
-			while (true) {
-				if (jobs.isEmpty()) {
-					if (ok)
-						suspend();
-					else
-						break;
-				} else {
-					Job job = (Job) jobs.get();
-					// System.out.println("sending "+job.command);
-					out.println(job.command);
-					out.flush();
+  public void run() {
+    try {
+      setPriority(getPriority() + 1);
+      out = new PrintWriter(s.getOutputStream());
+      in = s.getInputStream();
+      while (true) {
+        if (jobs.isEmpty()) {
+          if (ok)
+            suspend();
+          else
+            break;
+        } else {
+          Job job = (Job) jobs.get();
+          // System.out.println("sending "+job.command);
+          out.println(job.command);
+          out.flush();
 
-					String status;
+          String status;
 
-					job.session.notifyRunning(job.id);
+          job.session.notifyRunning(job.id);
 
-					while (true) {
-						status = getStatus();
-						if (status.startsWith("ER")) {
-							job.session.notifyError(job.id, "");
-							break;
-						} else if (status.startsWith("LP")) {
-							byte[] res = getResult();
-							job.session.notifyResult(job.id, FT_SCHEME, res);
-						} else if (status.startsWith("WV")) {
-							byte[] res = getResult();
-							job.session.notifyResult(job.id, FT_WAVE, res);
-						} else if (status.startsWith("OK")) {
-							break;
-						} else {
-							byte[] res = getResult();
-							job.session.notifyError(job.id, "unknown type");
-						}
-					}
+          while (true) {
+            status = getStatus();
+            if (status.startsWith("ER")) {
+              job.session.notifyError(job.id, "");
+              break;
+            } else if (status.startsWith("LP")) {
+              byte[] res = getResult();
+              job.session.notifyResult(job.id, FT_SCHEME, res);
+            } else if (status.startsWith("WV")) {
+              byte[] res = getResult();
+              job.session.notifyResult(job.id, FT_WAVE, res);
+            } else if (status.startsWith("OK")) {
+              break;
+            } else {
+              byte[] res = getResult();
+              job.session.notifyError(job.id, "unknown type");
+            }
+          }
 
-					job.session.notifyFinished(job.id);
-				}
-			}
-		} catch (IOException ex) {
-			System.err.println("IO Error '" + ex.getMessage() + "'");
-		} finally {
-			try {
-				closeSocket();
-			} catch (IOException ex) {
-				System.err.println("Error closing festival socket '"
-						+ ex.getMessage() + "'");
-			}
-			while (!jobs.isEmpty()) {
-				System.out.println("Left Job '" + ((Job) jobs.get()).command
-						+ "'");
-			}
-		}
-	}
+          job.session.notifyFinished(job.id);
+        }
+      }
+    } catch (IOException ex) {
+      System.err.println("IO Error '" + ex.getMessage() + "'");
+    } finally {
+      try {
+        closeSocket();
+      } catch (IOException ex) {
+        System.err.println("Error closing festival socket '" + ex.getMessage() + "'");
+      }
+      while (!jobs.isEmpty()) {
+        System.out.println("Left Job '" + ((Job) jobs.get()).command + "'");
+      }
+    }
+  }
 
-	public void connect() {
-		// System.err.println("Connecting");
-		start();
-	}
+  public void connect() {
+    // System.err.println("Connecting");
+    start();
+  }
 
-	public void disconnect(boolean carefully) {
-		// System.err.println("Disconnecting");
-		ok = false;
-		resume();
-		if (carefully) {
-			try {
-				join();
-			} catch (InterruptedException ex) {
-				stop();
-			}
-			;
-		} else
-			stop();
-	}
+  public void disconnect(boolean carefully) {
+    // System.err.println("Disconnecting");
+    ok = false;
+    resume();
+    if (carefully) {
+      try {
+        join();
+      } catch (InterruptedException ex) {
+        stop();
+      }
+      ;
+    } else
+      stop();
+  }
 
-	private void closeSocket() throws IOException {
-		if (closeOnExit) {
-			// System.err.println("Closing festival socket");
-			s.close();
-		}
-	}
+  private void closeSocket() throws IOException {
+    if (closeOnExit) {
+      // System.err.println("Closing festival socket");
+      s.close();
+    }
+  }
 
-	public void newJob(Integer id, String c, Session s) {
-		jobs.add(new Job(id, c, s));
-		resume();
-	}
+  public void newJob(Integer id, String c, Session s) {
+    jobs.add(new Job(id, c, s));
+    resume();
+  }
 
-	// finally! To the things which talk to festival.
+  // finally! To the things which talk to festival.
 
-	private byte[] readTo(InputStream s, char end) throws IOException {
-		if (buffered_e == buffered_p) {
-			buffered_p = 0;
-			buffered_e = s.read(buffer, 0, 8096);
-		}
+  private byte[] readTo(InputStream s, char end) throws IOException {
+    if (buffered_e == buffered_p) {
+      buffered_p = 0;
+      buffered_e = s.read(buffer, 0, 8096);
+    }
 
-		byte[] res = null;
-		for (int i = buffered_p; i < buffered_e; i++)
-			if (buffer[i] == (byte) end) {
-				res = new byte[i - buffered_p + 1];
-				break;
-			}
+    byte[] res = null;
+    for (int i = buffered_p; i < buffered_e; i++)
+      if (buffer[i] == (byte) end) {
+        res = new byte[i - buffered_p + 1];
+        break;
+      }
 
-		if (res == null)
-			res = new byte[buffered_e - buffered_p];
+    if (res == null)
+      res = new byte[buffered_e - buffered_p];
 
-		for (int i = 0; i < res.length; i++)
-			res[i] = buffer[buffered_p + i];
+    for (int i = 0; i < res.length; i++)
+      res[i] = buffer[buffered_p + i];
 
-		buffered_p = buffered_p + res.length;
+    buffered_p = buffered_p + res.length;
 
-		return res;
-	}
+    return res;
+  }
 
-	protected String getLine() throws IOException {
-		StringBuffer line = new StringBuffer(20);
+  protected String getLine() throws IOException {
+    StringBuffer line = new StringBuffer(20);
 
-		while (true) {
-			byte[] bit = readTo(in, '\n');
-			line.append(new String(bit));
+    while (true) {
+      byte[] bit = readTo(in, '\n');
+      line.append(new String(bit));
 
-			// System.out.println("got '"+line.toString()+"'");
+      // System.out.println("got '"+line.toString()+"'");
 
-			if (line.charAt(line.length() - 1) == '\n')
-				break;
-		}
+      if (line.charAt(line.length() - 1) == '\n')
+        break;
+    }
 
-		// System.out.println("result '"+line.toString()+"'");
-		return line.toString();
-	}
+    // System.out.println("result '"+line.toString()+"'");
+    return line.toString();
+  }
 
-	protected String getStatus() throws IOException {
-		String line = getLine();
+  protected String getStatus() throws IOException {
+    String line = getLine();
 
-		// System.out.println("        Status = '"+line+"'");
-		return line == null ? "EOF" : line;
-	}
+    // System.out.println("        Status = '"+line+"'");
+    return line == null ? "EOF" : line;
+  }
 
-	protected byte[] getResult() throws IOException {
-		byte[] res = new byte[0];
+  protected byte[] getResult() throws IOException {
+    byte[] res = new byte[0];
 
-		while (true) {
-			byte[] bit = readTo(in, 'y');
+    while (true) {
+      byte[] bit = readTo(in, 'y');
 
-			int end = bit.length - endm.length;
+      int end = bit.length - endm.length;
 
-			if (end < 0)
-				end = bit.length;
-			else {
-				for (int i = 0; i < endm.length; i++)
-					if (bit[i + end] != endm[i]) {
-						end = bit.length;
-						break;
-					}
-			}
+      if (end < 0)
+        end = bit.length;
+      else {
+        for (int i = 0; i < endm.length; i++)
+          if (bit[i + end] != endm[i]) {
+            end = bit.length;
+            break;
+          }
+      }
 
-			byte[] new_res = new byte[res.length + end];
+      byte[] new_res = new byte[res.length + end];
 
-			for (int i = 0; i < res.length; i++)
-				new_res[i] = res[i];
-			for (int i = 0; i < end; i++)
-				new_res[res.length + i] = bit[i];
+      for (int i = 0; i < res.length; i++)
+        new_res[i] = res[i];
+      for (int i = 0; i < end; i++)
+        new_res[res.length + i] = bit[i];
 
-			res = new_res;
+      res = new_res;
 
-			if (end < bit.length)
-				break;
-		}
+      if (end < bit.length)
+        break;
+    }
 
-		return res;
-	}
+    return res;
+  }
 
-	private static class Job {
-		Integer id;
-		String command;
-		Session session;
+  private static class Job {
+    Integer id;
+    String command;
+    Session session;
 
-		public Job(Integer i, String c, Session s) {
-			id = i;
-			command = c;
-			session = s;
-		}
-	}
+    public Job(Integer i, String c, Session s) {
+      id = i;
+      command = c;
+      session = s;
+    }
+  }
 }

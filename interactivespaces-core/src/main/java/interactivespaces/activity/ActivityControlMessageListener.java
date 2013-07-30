@@ -26,7 +26,8 @@ public interface ActivityControlMessageListener<T> {
   /**
    * A new control message has been received.
    *
-   * @param message the message to be sent
+   * @param message
+   *          the message to be sent
    */
   void onNewControlMessage(T message);
 }

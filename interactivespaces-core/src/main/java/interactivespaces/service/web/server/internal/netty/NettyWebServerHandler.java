@@ -24,20 +24,16 @@ import static org.jboss.netty.handler.codec.http.HttpMethod.POST;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpAuthResponse;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
-
-import java.io.IOException;
-import java.net.HttpCookie;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -63,8 +59,13 @@ import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import org.jboss.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.jboss.netty.util.CharsetUtil;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A web socket server handler for Netty.

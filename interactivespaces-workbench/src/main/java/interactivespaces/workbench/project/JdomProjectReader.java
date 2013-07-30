@@ -16,20 +16,20 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * A {@link ProjectReader} based on JDOM.

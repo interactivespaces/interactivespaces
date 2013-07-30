@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,14 +16,8 @@
 
 package org.ros.internal.node.xmlrpc;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 import org.ros.internal.node.response.Response;
@@ -36,8 +30,14 @@ import org.ros.internal.transport.ProtocolDescription;
 import org.ros.log.RosLogFactory;
 import org.ros.namespace.GraphName;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -110,8 +110,8 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
     if (slave.paramUpdate(GraphName.of(parameterName), parameterValue) > 0) {
       return Response.newSuccess("Success", null).toList();
     }
-    return Response
-        .newError("No subscribers for parameter key \"" + parameterName + "\".", null).toList();
+    return Response.newError("No subscribers for parameter key \"" + parameterName + "\".", null)
+        .toList();
   }
 
   @Override

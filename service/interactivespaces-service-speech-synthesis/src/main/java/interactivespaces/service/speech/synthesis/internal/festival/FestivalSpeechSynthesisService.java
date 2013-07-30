@@ -16,6 +16,8 @@
 
 package interactivespaces.service.speech.synthesis.internal.festival;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
@@ -29,13 +31,11 @@ import interactivespaces.service.speech.synthesis.internal.festival.client.Sessi
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
+import org.apache.commons.logging.Log;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-
-import com.google.common.collect.Maps;
 
 /**
  * A speech synthesis service based on Festival.

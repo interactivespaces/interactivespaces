@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,32 +31,32 @@ import javax.swing.JComponent;
  */
 public class ActivityProjectTemplateChooserWizard extends SingleComponentWizard {
 
-	/**
-	 * Combo box for picking the project template.
-	 */
-	private JComboBox comboBox;
-	
-	/**
-	 * The templates being shown.
-	 */
-	private List<ProjectTemplate> templates;
+  /**
+   * Combo box for picking the project template.
+   */
+  private JComboBox comboBox;
 
-	public ActivityProjectTemplateChooserWizard(List<ProjectTemplate> templates) {
-		this.templates = templates;
-		comboBox = new JComboBox(templates.toArray());
-	}
+  /**
+   * The templates being shown.
+   */
+  private List<ProjectTemplate> templates;
 
-	@Override
-	public JComponent getCurrentJComponent() {
-		return comboBox;
-	}
-	
-	/**
-	 * Get the selected project template.
-	 * 
-	 * @return the selected project template.
-	 */
-	public ProjectTemplate getSelectedTemplate() {
-		return templates.get(comboBox.getSelectedIndex());
-	}
+  public ActivityProjectTemplateChooserWizard(List<ProjectTemplate> templates) {
+    this.templates = templates;
+    comboBox = new JComboBox(templates.toArray());
+  }
+
+  @Override
+  public JComponent getCurrentJComponent() {
+    return comboBox;
+  }
+
+  /**
+   * Get the selected project template.
+   *
+   * @return the selected project template.
+   */
+  public ProjectTemplate getSelectedTemplate() {
+    return templates.get(comboBox.getSelectedIndex());
+  }
 }

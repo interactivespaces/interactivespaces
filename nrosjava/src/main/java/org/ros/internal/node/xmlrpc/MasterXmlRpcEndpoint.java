@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,14 +20,14 @@ import java.util.List;
 
 /**
  * An XML-RPC endpoint description of a ROS master.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Get the PID for the master process.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @return The pid of the process.
@@ -36,7 +36,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Register the caller as a provider of the specified service.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param service
@@ -51,7 +51,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Unregister the caller as a provider of the specified service.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param service
@@ -69,8 +69,8 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
    * Subscribe the caller to the specified topic. In addition to receiving a
    * list of current publishers, the subscriber will also receive notifications
    * of new publishers via the publisherUpdate API.
-   * 
-   * 
+   *
+   *
    * @param callerId
    *          ROS caller ID
    * @param topicName
@@ -88,7 +88,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Unregister the caller as a publisher of the topic.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param topicName
@@ -104,7 +104,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Register the caller as a publisher the topic.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param topicName
@@ -120,7 +120,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Unregister the caller as a publisher of the topic.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param topicName
@@ -138,7 +138,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
    * Get the XML-RPC URI of the node with the associated name/caller_id. This
    * API is for looking information about publishers and subscribers. Use
    * lookupService instead to lookup ROS-RPC URIs.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param nodeName
@@ -151,7 +151,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
    * Get list of topics that can be subscribed to. This does not return topics
    * that have no publishers. See getSystemState() to get more comprehensive
    * list.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param subgraph
@@ -165,7 +165,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Get a list of all topic types.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @return The types are in the list representation [[topic, message type],
@@ -176,7 +176,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
   /**
    * Retrieve list representation of system state (i.e. publishers, subscribers,
    * and services).
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @return System state is in list representation [publishers, subscribers,
@@ -190,7 +190,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Get the URI of the the master.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @return URI of the the master
@@ -199,7 +199,7 @@ public interface MasterXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Lookup all provider of a particular service.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param service

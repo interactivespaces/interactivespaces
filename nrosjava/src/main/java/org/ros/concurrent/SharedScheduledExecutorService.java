@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
  * A {@link ScheduledExecutorService} which cannot be shut down. This can be
  * safely injected into instances which should not be in control of the
  * {@link ExecutorService}'s lifecycle.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class SharedScheduledExecutorService implements ScheduledExecutorService {

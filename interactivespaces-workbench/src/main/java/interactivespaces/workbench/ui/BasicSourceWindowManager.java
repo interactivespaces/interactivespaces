@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,6 +15,10 @@
  */
 
 package interactivespaces.workbench.ui;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.Source;
@@ -28,312 +32,305 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
-
 /**
  * A basic implementation of a {@link SourceWindowManager}.
- * 
+ *
  * @author Keith M. Hughes
  * @since Sep 21, 2012
  */
 public class BasicSourceWindowManager implements SourceWindowManager {
 
-	/**
-	 * The name to give an untitled window.
-	 */
-	public static final String FILENAME_UNTITLED = "Untitled";
+  /**
+   * The name to give an untitled window.
+   */
+  public static final String FILENAME_UNTITLED = "Untitled";
 
-	/**
-	 * Mapping from full file paths to the code editors for them.
-	 */
-	private BiMap<String, SourceEditor> filenameToEditor = HashBiMap.create();
+  /**
+   * Mapping from full file paths to the code editors for them.
+   */
+  private BiMap<String, SourceEditor> filenameToEditor = HashBiMap.create();
 
-	/**
-	 * Mapping from full file paths to the code editors for them.
-	 */
-	private BiMap<JComponent, SourceEditor> componentToEditor = HashBiMap
-			.create();
+  /**
+   * Mapping from full file paths to the code editors for them.
+   */
+  private BiMap<JComponent, SourceEditor> componentToEditor = HashBiMap.create();
 
-	/**
-	 * The desktop where the windows reside.
-	 */
-	private JTabbedPane sourcePane;
+  /**
+   * The desktop where the windows reside.
+   */
+  private JTabbedPane sourcePane;
 
-	/**
-	 * Code editor listeners that should be placed on all code editors.
-	 */
-	private List<SourceEditorListener> editorListeners = Lists.newArrayList();
+  /**
+   * Code editor listeners that should be placed on all code editors.
+   */
+  private List<SourceEditorListener> editorListeners = Lists.newArrayList();
 
-	/**
-	 * The activity project manager used for file operations.
-	 */
-	private ActivityProjectManager activityProjectManager;
+  /**
+   * The activity project manager used for file operations.
+   */
+  private ActivityProjectManager activityProjectManager;
 
-	/**
-	 * The user interface factory for UI elements.
-	 */
-	private UserInterfaceFactory userInterfaceFactory;
-	
-	/**
-	 * The workbench UI we are part of.
-	 */
-	private WorkbenchUi workbenchUi;
+  /**
+   * The user interface factory for UI elements.
+   */
+  private UserInterfaceFactory userInterfaceFactory;
 
-	public BasicSourceWindowManager(WorkbenchUi workbenchUi,
-			JTabbedPane sourcePane,
-			ActivityProjectManager activityProjectManager) {
-		this.workbenchUi = workbenchUi;
-		this.activityProjectManager = activityProjectManager;
-		this.sourcePane = sourcePane;
+  /**
+   * The workbench UI we are part of.
+   */
+  private WorkbenchUi workbenchUi;
 
-		addSourceEditorListener(new SourceEditorListener() {
-			@Override
-			public void contentModified(SourceEditor editor) {
-				editorContentModified(editor);
-			}
-		});
+  public BasicSourceWindowManager(WorkbenchUi workbenchUi, JTabbedPane sourcePane,
+      ActivityProjectManager activityProjectManager) {
+    this.workbenchUi = workbenchUi;
+    this.activityProjectManager = activityProjectManager;
+    this.sourcePane = sourcePane;
 
-		sourcePane.addChangeListener(new ChangeListener() {
-			// This method is called whenever the selected tab changes
-			public void stateChanged(ChangeEvent evt) {
-				JTabbedPane pane = (JTabbedPane) evt.getSource();
+    addSourceEditorListener(new SourceEditorListener() {
+      @Override
+      public void contentModified(SourceEditor editor) {
+        editorContentModified(editor);
+      }
+    });
 
-				// Get current tab
-				JComponent component = (JComponent) pane.getSelectedComponent();
-				onSourceEditorWindowSelect(component);
-			}
-		});
-	}
+    sourcePane.addChangeListener(new ChangeListener() {
+      // This method is called whenever the selected tab changes
+      public void stateChanged(ChangeEvent evt) {
+        JTabbedPane pane = (JTabbedPane) evt.getSource();
 
-	@Override
-	public void addNewSourceWindow(Source source) {
-		// TODO(keith): Either support unnamed files (save before running
-		// program), or remove this.
-		String filePath = FILENAME_UNTITLED;
-		String fileName = FILENAME_UNTITLED;
+        // Get current tab
+        JComponent component = (JComponent) pane.getSelectedComponent();
+        onSourceEditorWindowSelect(component);
+      }
+    });
+  }
 
-		String sourceFilePath = source.getPath();
-		if (sourceFilePath != null) {
-			filePath = sourceFilePath;
-			fileName = source.getName();
-		}
+  @Override
+  public void addNewSourceWindow(Source source) {
+    // TODO(keith): Either support unnamed files (save before running
+    // program), or remove this.
+    String filePath = FILENAME_UNTITLED;
+    String fileName = FILENAME_UNTITLED;
 
-		SourceEditor editor = userInterfaceFactory.newSourceEditor(source);
-		source.setAdapter(editor);
-		editor.setContentModified(false);
+    String sourceFilePath = source.getPath();
+    if (sourceFilePath != null) {
+      filePath = sourceFilePath;
+      fileName = source.getName();
+    }
 
-		JComponent component = editor.getComponent();
-		JScrollPane scrollPane = new JScrollPane(component);
-		changeEditorTitle(editor, false);
-		component.setVisible(true);
+    SourceEditor editor = userInterfaceFactory.newSourceEditor(source);
+    source.setAdapter(editor);
+    editor.setContentModified(false);
 
-		filenameToEditor.put(filePath, editor);
-		componentToEditor.put(scrollPane, editor);
-		sourcePane.addTab(fileName, null, scrollPane, filePath);
-		sourcePane.setSelectedComponent(scrollPane);
+    JComponent component = editor.getComponent();
+    JScrollPane scrollPane = new JScrollPane(component);
+    changeEditorTitle(editor, false);
+    component.setVisible(true);
 
-		for (SourceEditorListener editorListener : editorListeners)
-			editor.addSourceEditorListener(editorListener);
+    filenameToEditor.put(filePath, editor);
+    componentToEditor.put(scrollPane, editor);
+    sourcePane.addTab(fileName, null, scrollPane, filePath);
+    sourcePane.setSelectedComponent(scrollPane);
 
-		// TODO(keith): Potential race condition here
-		editor.removeAllEdits();
-	}
+    for (SourceEditorListener editorListener : editorListeners)
+      editor.addSourceEditorListener(editorListener);
 
-	@Override
-	public void closeAllWindows() {
-		sourcePane.removeAll();
-		filenameToEditor.clear();
-	}
+    // TODO(keith): Potential race condition here
+    editor.removeAllEdits();
+  }
 
-	@Override
-	public boolean areWindowsVisible() {
-		// TODO(keith): Make work.
-		return false;
-	}
+  @Override
+  public void closeAllWindows() {
+    sourcePane.removeAll();
+    filenameToEditor.clear();
+  }
 
-	@Override
-	public void setWindowsVisible(boolean visible) {
-		// TODO Auto-generated method stub
-	}
+  @Override
+  public boolean areWindowsVisible() {
+    // TODO(keith): Make work.
+    return false;
+  }
 
-	@Override
-	public boolean hasModifiedWindows() {
-		boolean hasModified = false;
+  @Override
+  public void setWindowsVisible(boolean visible) {
+    // TODO Auto-generated method stub
+  }
 
-		for (SourceEditor editor : filenameToEditor.values())
-			hasModified |= editor.isContentModified();
+  @Override
+  public boolean hasModifiedWindows() {
+    boolean hasModified = false;
 
-		return hasModified;
-	}
+    for (SourceEditor editor : filenameToEditor.values())
+      hasModified |= editor.isContentModified();
 
-	@Override
-	public void saveAll() {
-		for (SourceEditor editor : filenameToEditor.values())
-			saveWindow(editor);
-	}
+    return hasModified;
+  }
 
-	@Override
-	public void saveCurrentWindow() {
-		SourceEditor editor = getCurrentEditor();
-		if (editor != null) {
-			saveWindow(editor);
-		}
-	}
+  @Override
+  public void saveAll() {
+    for (SourceEditor editor : filenameToEditor.values())
+      saveWindow(editor);
+  }
 
-	@Override
-	public String getCurrentWindowPath() {
-		SourceEditor editor = getCurrentEditor();
-		if (editor != null) {
-			return editor.getSource().getPath();
-		}
+  @Override
+  public void saveCurrentWindow() {
+    SourceEditor editor = getCurrentEditor();
+    if (editor != null) {
+      saveWindow(editor);
+    }
+  }
 
-		return null;
-	}
+  @Override
+  public String getCurrentWindowPath() {
+    SourceEditor editor = getCurrentEditor();
+    if (editor != null) {
+      return editor.getSource().getPath();
+    }
 
-	@Override
-	public void removeSourceWindow(String sourceFilePath) {
-		SourceEditor editor = filenameToEditor.get(sourceFilePath);
-		if (editor != null) {
-			JComponent component = editor.getComponent();
-			sourcePane.remove(component);
-			componentToEditor.remove(component);
-		}
-	}
+    return null;
+  }
 
-	@Override
-	public void revertCurrentWindow() {
-		SourceEditor editor = getCurrentEditor();
-		if (editor != null) {
-			editor.revert();
+  @Override
+  public void removeSourceWindow(String sourceFilePath) {
+    SourceEditor editor = filenameToEditor.get(sourceFilePath);
+    if (editor != null) {
+      JComponent component = editor.getComponent();
+      sourcePane.remove(component);
+      componentToEditor.remove(component);
+    }
+  }
 
-			changeEditorTitle(editor, false);
-		}
-	}
+  @Override
+  public void revertCurrentWindow() {
+    SourceEditor editor = getCurrentEditor();
+    if (editor != null) {
+      editor.revert();
 
-	@Override
-	public void undoEditCurrentWindow() {
-		SourceEditor editor = getCurrentEditor();
-		if (editor != null) {
-			editor.undoEdit();
+      changeEditorTitle(editor, false);
+    }
+  }
 
-			// changeEditorTitle(editor, false);
-		}
-	}
+  @Override
+  public void undoEditCurrentWindow() {
+    SourceEditor editor = getCurrentEditor();
+    if (editor != null) {
+      editor.undoEdit();
 
-	@Override
-	public void redoEditCurrentWindow() {
-		SourceEditor editor = getCurrentEditor();
-		if (editor != null) {
-			editor.redoEdit();
+      // changeEditorTitle(editor, false);
+    }
+  }
 
-			// TODO(keith): Check if any more pending undos so can properly set
-			// whether or not window needs to be saved.
-		}
-	}
+  @Override
+  public void redoEditCurrentWindow() {
+    SourceEditor editor = getCurrentEditor();
+    if (editor != null) {
+      editor.redoEdit();
 
-	@Override
-	public void addSourceEditorListener(SourceEditorListener editorListener) {
-		editorListeners.add(editorListener);
+      // TODO(keith): Check if any more pending undos so can properly set
+      // whether or not window needs to be saved.
+    }
+  }
 
-		// Also add into any existing editors
-		for (SourceEditor editor : filenameToEditor.values())
-			editor.addSourceEditorListener(editorListener);
-	}
+  @Override
+  public void addSourceEditorListener(SourceEditorListener editorListener) {
+    editorListeners.add(editorListener);
 
-	/**
-	 * Set the read-only status of all source editing panes.
-	 * 
-	 * @param readOnly
-	 *            {@code true} if the editors should be read-only
-	 */
-	private void setAllWindowsReadOnly(boolean readOnly) {
-		for (SourceEditor editor : filenameToEditor.values())
-			editor.setReadOnly(readOnly);
-	}
+    // Also add into any existing editors
+    for (SourceEditor editor : filenameToEditor.values())
+      editor.addSourceEditorListener(editorListener);
+  }
 
-	/**
-	 * A code editor has been selected from the tabbed pane.
-	 * 
-	 * @param component
-	 *            the selected editor's component
-	 */
-	private void onSourceEditorWindowSelect(JComponent component) {
-		SourceEditor selected = componentToEditor.get(component);
-		workbenchUi.onSourceEditorSelect(component.getActionMap());
-	}
+  /**
+   * Set the read-only status of all source editing panes.
+   *
+   * @param readOnly
+   *          {@code true} if the editors should be read-only
+   */
+  private void setAllWindowsReadOnly(boolean readOnly) {
+    for (SourceEditor editor : filenameToEditor.values())
+      editor.setReadOnly(readOnly);
+  }
 
-	/**
-	 * Get the currently selected code editor.
-	 * 
-	 * @return the currently selected code editor or {@code null} if none
-	 */
-	private SourceEditor getCurrentEditor() {
-		JComponent component = (JComponent) sourcePane.getSelectedComponent();
-		if (component != null) {
-			return componentToEditor.get(component);
-		}
+  /**
+   * A code editor has been selected from the tabbed pane.
+   *
+   * @param component
+   *          the selected editor's component
+   */
+  private void onSourceEditorWindowSelect(JComponent component) {
+    SourceEditor selected = componentToEditor.get(component);
+    workbenchUi.onSourceEditorSelect(component.getActionMap());
+  }
 
-		return null;
-	}
+  /**
+   * Get the currently selected code editor.
+   *
+   * @return the currently selected code editor or {@code null} if none
+   */
+  private SourceEditor getCurrentEditor() {
+    JComponent component = (JComponent) sourcePane.getSelectedComponent();
+    if (component != null) {
+      return componentToEditor.get(component);
+    }
 
-	/**
-	 * Save the contents of a window.
-	 * 
-	 * @param editor
-	 */
-	private void saveWindow(SourceEditor editor) {
-		editor.synchronizeToSource();
-		Source source = editor.getSource();
-		activityProjectManager.saveSource(source);
-		editor.setContentModified(false);
+    return null;
+  }
 
-		changeEditorTitle(editor, false);
-	}
+  /**
+   * Save the contents of a window.
+   *
+   * @param editor
+   */
+  private void saveWindow(SourceEditor editor) {
+    editor.synchronizeToSource();
+    Source source = editor.getSource();
+    activityProjectManager.saveSource(source);
+    editor.setContentModified(false);
 
-	/**
-	 * An editor's content has been modified.
-	 * 
-	 * @param editor
-	 */
-	private void editorContentModified(SourceEditor editor) {
-		if (!editor.isMarkedModified()) {
-			editor.setMarkedModified(true);
+    changeEditorTitle(editor, false);
+  }
 
-			changeEditorTitle(editor, true);
-		}
-	}
+  /**
+   * An editor's content has been modified.
+   *
+   * @param editor
+   */
+  private void editorContentModified(SourceEditor editor) {
+    if (!editor.isMarkedModified()) {
+      editor.setMarkedModified(true);
 
-	/**
-	 * Change the title of a source editor.
-	 * 
-	 * @param editor
-	 *            the editor to be modified.
-	 * @param markAsModified
-	 *            {@code true} if the editor should be marked as modified
-	 */
-	private void changeEditorTitle(SourceEditor editor, boolean markAsModified) {
-		String newTitle = editor.getSource().getName();
-		if (markAsModified)
-			newTitle = "*" + newTitle;
+      changeEditorTitle(editor, true);
+    }
+  }
 
-		JComponent component = editor.getComponent();
-		int index = 0;
-		for (Component c : sourcePane.getComponents()) {
-			if (c.equals(component)) {
-				sourcePane.setTitleAt(index, newTitle);
-				break;
-			}
+  /**
+   * Change the title of a source editor.
+   *
+   * @param editor
+   *          the editor to be modified.
+   * @param markAsModified
+   *          {@code true} if the editor should be marked as modified
+   */
+  private void changeEditorTitle(SourceEditor editor, boolean markAsModified) {
+    String newTitle = editor.getSource().getName();
+    if (markAsModified)
+      newTitle = "*" + newTitle;
 
-			index++;
-		}
-	}
+    JComponent component = editor.getComponent();
+    int index = 0;
+    for (Component c : sourcePane.getComponents()) {
+      if (c.equals(component)) {
+        sourcePane.setTitleAt(index, newTitle);
+        break;
+      }
 
-	@Override
-	public void setUserInterfaceFactory(
-			UserInterfaceFactory userInterfaceFactory) {
-		this.userInterfaceFactory = userInterfaceFactory;
-	}
+      index++;
+    }
+  }
+
+  @Override
+  public void setUserInterfaceFactory(UserInterfaceFactory userInterfaceFactory) {
+    this.userInterfaceFactory = userInterfaceFactory;
+  }
 
 }

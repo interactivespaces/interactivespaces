@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,6 +15,12 @@
  */
 
 package org.ros.concurrent;
+
+import com.google.common.collect.Maps;
+
+import org.apache.commons.logging.Log;
+import org.ros.exception.RosRuntimeException;
+import org.ros.log.RosLogFactory;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -28,16 +34,10 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.ros.exception.RosRuntimeException;
-import org.ros.log.RosLogFactory;
-
-import com.google.common.collect.Maps;
-
 /**
  * Wraps an {@link ScheduledExecutorService} to execute {@link Callable}s with
  * retries.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class RetryingExecutorService {
@@ -105,7 +105,7 @@ public class RetryingExecutorService {
    * Submit a new {@link Callable} to be executed. The submitted
    * {@link Callable} should return {@code true} to be retried, {@code false}
    * otherwise.
-   * 
+   *
    * @param callable
    *          the {@link Callable} to execute
    * @throws RejectedExecutionException
@@ -137,7 +137,7 @@ public class RetryingExecutorService {
   /**
    * Stops accepting new {@link Callable}s and waits for all submitted
    * {@link Callable}s to finish within the specified timeout.
-   * 
+   *
    * @param timeout
    *          the timeout in units of {@code unit}
    * @param unit

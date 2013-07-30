@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,8 +15,6 @@
  */
 
 package org.ros.internal.transport.queue;
-
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.CancellableLoop;
@@ -27,9 +25,11 @@ import org.ros.concurrent.SignalRunnable;
 import org.ros.log.RosLogFactory;
 import org.ros.message.MessageListener;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * @author damonkohler@google.com (Damon Kohler)
- * 
+ *
  * @param <T>
  *          the message type
  */
@@ -62,7 +62,7 @@ public class MessageDispatcher<T> extends CancellableLoop {
    * {@link ListenerGroup}. If {@link #latchMode} is {@code true}, the
    * {@link #latchedMessage} will be immediately dispatched to the specified
    * {@link MessageListener}.
-   * 
+   *
    * @see ListenerGroup#add(Object, int)
    */
   public void addListener(MessageListener<T> messageListener, int limit) {
@@ -81,7 +81,7 @@ public class MessageDispatcher<T> extends CancellableLoop {
   /**
    * Returns a newly allocated {@link SignalRunnable} for the specified
    * {@link LazyMessage}.
-   * 
+   *
    * @param lazyMessage
    *          the {@link LazyMessage} to signal {@link MessageListener}s with
    * @return the newly allocated {@link SignalRunnable}
@@ -116,9 +116,9 @@ public class MessageDispatcher<T> extends CancellableLoop {
     LazyMessage<T> lazyMessage = lazyMessages.take();
     synchronized (mutex) {
       latchedMessage = lazyMessage;
-//      if (log.isDebugEnabled()) {
-//        log.debug("Dispatching message: " + latchedMessage.get());
-//      }
+      // if (log.isDebugEnabled()) {
+      // log.debug("Dispatching message: " + latchedMessage.get());
+      // }
       messageListeners.signal(newSignalRunnable(latchedMessage));
     }
   }

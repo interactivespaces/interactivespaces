@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -46,14 +46,14 @@ public class StringFileProvider {
   private final StringFileDirectoryWalker stringFileDirectoryWalker;
 
   private final class StringFileDirectoryWalker extends DirectoryWalker {
-    
+
     private final Set<File> directories;
 
     private StringFileDirectoryWalker(FileFilter filter, int depthLimit) {
       super(filter, depthLimit);
       directories = Sets.newHashSet();
     }
-    
+
     // TODO(damonkohler): Update Apache Commons IO to the latest version.
     @SuppressWarnings("rawtypes")
     @Override
@@ -104,7 +104,7 @@ public class StringFileProvider {
 
   /**
    * Adds a new directory to be scanned for topic definition files.
-   * 
+   *
    * @param directory
    *          the directory to add
    */

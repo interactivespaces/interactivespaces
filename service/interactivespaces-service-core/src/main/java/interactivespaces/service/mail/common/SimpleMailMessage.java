@@ -16,9 +16,9 @@
 
 package interactivespaces.service.mail.common;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  * A concrete mail message which is composable.

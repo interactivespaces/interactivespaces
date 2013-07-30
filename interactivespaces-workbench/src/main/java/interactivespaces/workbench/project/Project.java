@@ -16,12 +16,12 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * An Interactive Spaces project.

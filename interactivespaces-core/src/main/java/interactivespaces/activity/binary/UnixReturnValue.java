@@ -16,9 +16,9 @@
 
 package interactivespaces.activity.binary;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+
+import java.util.Map;
 
 /**
  * All Unix return values.
@@ -26,8 +26,7 @@ import com.google.common.collect.Maps;
  * @author Keith M. Hughes
  */
 public enum UnixReturnValue {
-  EXIT_NORMALLY(0),
-  SIGHUP(1 + 128), /* Hangup (POSIX). */
+  EXIT_NORMALLY(0), SIGHUP(1 + 128), /* Hangup (POSIX). */
   SIGINT(2 + 128), /* Interrupt (ANSI). */
   SIGQUIT(3 + 128), /* Quit (POSIX+128). */
   SIGILL(4 + 128), /* Illegal instruction (ANSI). */

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -29,11 +29,11 @@ import java.util.concurrent.Callable;
  * A wrapper for {@link InetSocketAddress} that emphasizes the difference
  * between an address that should be used for binding a server port and one that
  * should be advertised to external entities.
- * 
+ *
  * An {@link AdvertiseAddress} encourages lazy lookups of port information to
  * prevent accidentally storing a bind port (e.g. 0 for OS picked) instead of
  * the advertised port.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class AdvertiseAddress {
@@ -49,7 +49,7 @@ public class AdvertiseAddress {
   /**
    * Best effort method, returns a new {@link AdvertiseAddress} where the host
    * is determined automatically.
-   * 
+   *
    * @return a suitable {@link AdvertiseAddress} for a publicly accessible
    *         {@link BindAddress}
    */

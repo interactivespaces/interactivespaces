@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.ros.internal.node.server.master;
 
@@ -22,7 +22,7 @@ import java.net.URI;
 
 /**
  * Tests for the {@link MasterRegistrationManagerImpl}.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class MasterRegistrationManagerImplTest {
@@ -38,7 +38,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register only a publisher and no subscribers.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -71,7 +71,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register only a subscriber and no publishers.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -103,9 +103,9 @@ public class MasterRegistrationManagerImplTest {
   }
 
   /**
-   * Register only a subscriber and no publishers. TopicSystemState message type will be
-   * the wildcard, there should be no topic type.
-   * 
+   * Register only a subscriber and no publishers. TopicSystemState message type
+   * will be the wildcard, there should be no topic type.
+   *
    * @throws Exception
    */
   @Test
@@ -139,7 +139,7 @@ public class MasterRegistrationManagerImplTest {
    * Register two subscribers, each with their own node. Both subscribers should
    * appear. The topic message type should be the second subscriber's message
    * type.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -191,7 +191,7 @@ public class MasterRegistrationManagerImplTest {
    * Register two subscribers and no publishers. The first subscriber's topic
    * will be real, the second will be the wildcard. The topic type should be the
    * first subscriber's.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -239,7 +239,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register one subscriber and one publisher, in that order. The subscriber
    * topic message type will be overwritten by the publishers.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -289,7 +289,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register one publisher and one subscriber, in that order. The subscriber
    * topic message type will not be overwritten by the subscriber.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -339,7 +339,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register two publishers. The topic message type will be overwritten by the
    * second publisher.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -392,7 +392,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register two publishers, each with the same node name but different URIs.
    * Make sure the first one gets shut down.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -440,7 +440,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register a single publisher and then delete it.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -465,7 +465,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register two publishers on the same node and then delete one of them.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -492,7 +492,8 @@ public class MasterRegistrationManagerImplTest {
     // Delete the first
     masterRegistrationManager.unregisterPublisher(nodeName, topicName1);
 
-    // TopicSystemState 1 should have no publishers at all. TopicSystemState 2 will have 1 publisher,
+    // TopicSystemState 1 should have no publishers at all. TopicSystemState 2
+    // will have 1 publisher,
     // and the node will show this published topic.
     assertTrue(topic1.getPublishers().isEmpty());
     assertEquals(Sets.newHashSet(topic2), node.getPublishers());
@@ -501,7 +502,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register a single subscriber and then delete it.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -526,7 +527,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register two subscribers on the same node and then delete one of them.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -553,7 +554,8 @@ public class MasterRegistrationManagerImplTest {
     // Delete the first
     masterRegistrationManager.unregisterSubscriber(nodeName, topicName1);
 
-    // TopicSystemState 1 should have no subscribers at all. TopicSystemState 2 will have 1
+    // TopicSystemState 1 should have no subscribers at all. TopicSystemState 2
+    // will have 1
     // subscriber,
     // and the node will show this subscribed topic.
     assertTrue(topic1.getSubscribers().isEmpty());
@@ -563,7 +565,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register the same subscriber twice. Should give same objects.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -600,7 +602,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register the same publisher twice. Should give same objects.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -638,7 +640,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register only a service.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -669,7 +671,7 @@ public class MasterRegistrationManagerImplTest {
 
   /**
    * Register a service and then unregister it. Make sure it goes away.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -695,7 +697,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register a service and then unregister it. Have a publisher registered for
    * the the same node. make sure node sticks around.
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -726,7 +728,7 @@ public class MasterRegistrationManagerImplTest {
   /**
    * Register a service and then force a node replacement. Make sure service
    * goes away.
-   * 
+   *
    * @throws Exception
    */
   @Test

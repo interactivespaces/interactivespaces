@@ -18,12 +18,12 @@ package interactivespaces.util.data.json;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * Test the {@link JsonMapper}.
@@ -34,12 +34,10 @@ public class JsonMapperTest {
 
   private static final String TEST_JSON_I18N = "{\"foo\":\"\\u0164\\u0117\\u015F\\u0167\"}";
 
-
   /**
    * A Unicode string to make sure we encode correctly.
    */
   public static final String TEST_VALUE_I18N = "\u0164\u0117\u015F\u0167";
-
 
   private JsonMapper mapper;
 

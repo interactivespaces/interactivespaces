@@ -16,17 +16,17 @@
 
 package interactivespaces.service.audio.player.jukebox;
 
+import com.google.common.collect.Sets;
+
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
 
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.apache.commons.logging.Log;
 
-import com.google.common.collect.Sets;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * a very basic audio jukebox.

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,10 +27,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A proxying {@link MasterUriProvider} which can be switched between providers.
- * 
+ *
  * <p>
  * This class is thread-safe.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class SwitchableMasterUriProvider implements MasterUriProvider {
@@ -104,7 +104,7 @@ public class SwitchableMasterUriProvider implements MasterUriProvider {
 
   /**
    * Switch between providers.
-   * 
+   *
    * @param switcher
    *          the new provider
    */
@@ -125,7 +125,7 @@ public class SwitchableMasterUriProvider implements MasterUriProvider {
   /**
    * Perform a switch between {@link MasterUriProvider} instances for the
    * {@link SwitchableMasterUriProvider}.
-   * 
+   *
    * <p>
    * This class permits the use of atomic provider switches.
    */
@@ -133,10 +133,10 @@ public class SwitchableMasterUriProvider implements MasterUriProvider {
 
     /**
      * Switch the provider in use.
-     * 
+     *
      * @param oldProvider
      *          a reference to the provider which came before
-     * 
+     *
      * @return the new provider to use
      */
     MasterUriProvider switchProvider(MasterUriProvider oldProvider);
@@ -159,10 +159,10 @@ public class SwitchableMasterUriProvider implements MasterUriProvider {
 
     /**
      * Get a service.
-     * 
+     *
      * <p>
      * This call can block indefinitely.
-     * 
+     *
      * @return the master {@link URI}
      */
     public URI getMasterUri() {
@@ -176,7 +176,7 @@ public class SwitchableMasterUriProvider implements MasterUriProvider {
 
     /**
      * Set the provider who will finally process the request.
-     * 
+     *
      * @param provider
      *          the {@link MasterUriProvider} to use
      */

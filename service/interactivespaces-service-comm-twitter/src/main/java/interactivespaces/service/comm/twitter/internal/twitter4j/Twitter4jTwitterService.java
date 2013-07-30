@@ -16,6 +16,9 @@
 
 package interactivespaces.service.comm.twitter.internal.twitter4j;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.service.comm.twitter.TwitterConnection;
 import interactivespaces.service.comm.twitter.TwitterService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -24,11 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 /**
- * A {@link TwitterService} for XMPP using the Smack libraries.
+ * A {@link TwitterService} using Twitter4j.
  *
  * @author Keith M. Hughes
  */

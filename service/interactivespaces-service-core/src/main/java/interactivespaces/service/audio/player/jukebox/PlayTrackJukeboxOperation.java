@@ -21,11 +21,11 @@ import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.AudioTrackPlayerFactory;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
 
+import org.apache.commons.logging.Log;
+
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.logging.Log;
 
 /**
  * A {@link JukeboxOperation} for playing a track.

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,7 +27,7 @@ import org.ros.exception.RosRuntimeException;
  * <p>
  * By contract, {@link ChannelBuffer}s provided by {@link #acquire()} must be
  * returned using {@link #release(ChannelBuffer)}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class MessageBufferPool {
@@ -64,7 +64,7 @@ public class MessageBufferPool {
   /**
    * Acquired {@link ChannelBuffer}s must be returned using
    * {@link #release(ChannelBuffer)}.
-   * 
+   *
    * @return an unused {@link ChannelBuffer}
    */
   public ChannelBuffer acquire() {
@@ -77,7 +77,7 @@ public class MessageBufferPool {
 
   /**
    * Release a previously acquired {@link ChannelBuffer}.
-   * 
+   *
    * @param channelBuffer
    *          the {@link ChannelBuffer} to release
    */

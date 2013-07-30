@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -65,9 +65,9 @@ public class NameResolver {
    * Resolve name relative to namespace. If namespace is not global, it will
    * first be resolved to a global name. This method will not resolve private
    * ~names.
-   * 
+   *
    * This does all remappings of both the namespace and name.
-   * 
+   *
    * @param namespace
    * @param name
    * @return the fully resolved name relative to the given namespace
@@ -139,7 +139,7 @@ public class NameResolver {
    * Construct a new child {@link NameResolver} with the same remappings as this
    * {@link NameResolver}. The namespace of the new child {@link NameResolver}
    * will be the resolved in this namespace.
-   * 
+   *
    * @param namespace
    *          the namespace of the child {@link NameResolver} relative to this
    *          {@link NameResolver}'s namespace

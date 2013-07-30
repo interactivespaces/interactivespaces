@@ -65,8 +65,8 @@ public class SimpleResponseXBeeFrameHandler implements ResponseXBeeFrameHandler 
         signalRxResponse(endpoint, parser.parseReceiveResponse(reader, bytesLeft, log), listeners,
             log);
       case XBeeApiConstants.FRAME_TYPE_RX_IO:
-        signalRxIoResponse(endpoint, parser.parseIoSampleResponse(reader, bytesLeft, log), listeners,
-            log);
+        signalRxIoResponse(endpoint, parser.parseIoSampleResponse(reader, bytesLeft, log),
+            listeners, log);
         break;
       default:
         log.warn(String.format("Unknown frame type %d\n", frameType));

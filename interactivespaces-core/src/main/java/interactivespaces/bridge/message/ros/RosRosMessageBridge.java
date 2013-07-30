@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,94 +27,93 @@ import org.ros.node.topic.Subscriber;
 
 /**
  * A message bridge which translates from ROS topics to ROS topics.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class RosRosMessageBridge implements MessageBridge {
-	
-	/**
-	 * The ROS node the bridge is attached to.
-	 * 
-	 * <p>
-	 * The bridge does not own the node, so should not shut it down.
-	 */
-	private ConnectedNode node;
 
-	/**
-	 * The bridge specification for the message bridge.
-	 */
-	private RosMessageBridgeSpecification<Object, Object> bridgeSpecification;
+  /**
+   * The ROS node the bridge is attached to.
+   *
+   * <p>
+   * The bridge does not own the node, so should not shut it down.
+   */
+  private ConnectedNode node;
 
-	/**
-	 * The subscriber for the source messages.
-	 */
-	private Subscriber<Object> subscriber;
+  /**
+   * The bridge specification for the message bridge.
+   */
+  private RosMessageBridgeSpecification<Object, Object> bridgeSpecification;
 
-	/**
-	 * The publisher for the destination messages.
-	 */
-	private Publisher<Object> publisher;
+  /**
+   * The subscriber for the source messages.
+   */
+  private Subscriber<Object> subscriber;
 
-	/**
-	 * Logger for messages.
-	 */
-	private Log log;
+  /**
+   * The publisher for the destination messages.
+   */
+  private Publisher<Object> publisher;
 
-	/**
-	 * @param node
-	 *            the node to attach the publishers and subscribers to, the
-	 *            bridge does not own the node
-	 */
-	public RosRosMessageBridge(
-			ConnectedNode node,
-			RosMessageBridgeSpecification<Object, Object> bridgeSpecification,
-			Log log) {
-		this.node = node;
-		this.bridgeSpecification = bridgeSpecification;
-		this.log = log;
-	}
+  /**
+   * Logger for messages.
+   */
+  private Log log;
 
-	@Override
-	public void startup() {
-		publisher = node.newPublisher(
-				GraphName.of(bridgeSpecification.getDestinationTopicName()),
-				bridgeSpecification.getDestinationTopicMessageType());
+  /**
+   * @param node
+   *          the node to attach the publishers and subscribers to, the bridge
+   *          does not own the node
+   */
+  public RosRosMessageBridge(ConnectedNode node,
+      RosMessageBridgeSpecification<Object, Object> bridgeSpecification, Log log) {
+    this.node = node;
+    this.bridgeSpecification = bridgeSpecification;
+    this.log = log;
+  }
 
-		subscriber = node.newSubscriber(
-				GraphName.of(bridgeSpecification.getSourceTopicName()),
-				bridgeSpecification.getSourceTopicMessageType());
+  @Override
+  public void startup() {
+    publisher =
+        node.newPublisher(GraphName.of(bridgeSpecification.getDestinationTopicName()),
+            bridgeSpecification.getDestinationTopicMessageType());
 
-		subscriber.addMessageListener(new MessageListener<Object>() {
-			@Override
-			public void onNewMessage(Object sourceMessage) {
-				translateAndPublishMessage(sourceMessage);
-			}
-		});
-	}
+    subscriber =
+        node.newSubscriber(GraphName.of(bridgeSpecification.getSourceTopicName()),
+            bridgeSpecification.getSourceTopicMessageType());
 
-	@Override
-	public void shutdown() {
-		subscriber.shutdown();
-		publisher.shutdown();
-	}
+    subscriber.addMessageListener(new MessageListener<Object>() {
+      @Override
+      public void onNewMessage(Object sourceMessage) {
+        translateAndPublishMessage(sourceMessage);
+      }
+    });
+  }
 
-	/**
-	 * Translate the source message and publish it to the destination.
-	 * 
-	 * @param sourceMessage
-	 *            the message which came in from the source
-	 */
-	private void translateAndPublishMessage(Object sourceMessage) {
-		try {
-			Object destinationMessage = node.getTopicMessageFactory().newFromType(
-					bridgeSpecification.getDestinationTopicMessageType());
+  @Override
+  public void shutdown() {
+    subscriber.shutdown();
+    publisher.shutdown();
+  }
 
-			bridgeSpecification.execute(sourceMessage, destinationMessage);
+  /**
+   * Translate the source message and publish it to the destination.
+   *
+   * @param sourceMessage
+   *          the message which came in from the source
+   */
+  private void translateAndPublishMessage(Object sourceMessage) {
+    try {
+      Object destinationMessage =
+          node.getTopicMessageFactory().newFromType(
+              bridgeSpecification.getDestinationTopicMessageType());
 
-			publisher.publish(destinationMessage);
-		} catch (Exception e) {
-			log.error("Could not publish bridge message", e);
-		}
-	}
+      bridgeSpecification.execute(sourceMessage, destinationMessage);
+
+      publisher.publish(destinationMessage);
+    } catch (Exception e) {
+      log.error("Could not publish bridge message", e);
+    }
+  }
 
 }

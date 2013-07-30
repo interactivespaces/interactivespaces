@@ -22,14 +22,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.HttpCookie;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -45,8 +38,13 @@ import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 
-
-import com.google.common.collect.Maps;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.HttpCookie;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Handle content for Netty.
@@ -55,125 +53,122 @@ import com.google.common.collect.Maps;
  */
 public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
-	/**
-	 * The parent content handler for this handler.
-	 */
-	private NettyWebServerHandler parentHandler;
+  /**
+   * The parent content handler for this handler.
+   */
+  private NettyWebServerHandler parentHandler;
 
-	/**
-	 * The URI prefix to be handled by this handler.
-	 */
-	private String uriPrefix;
+  /**
+   * The URI prefix to be handled by this handler.
+   */
+  private String uriPrefix;
 
-	/**
-	 * Base directory for content served by this handler.
-	 */
-	private File baseDir;
+  /**
+   * Base directory for content served by this handler.
+   */
+  private File baseDir;
 
+  /**
+   * Extra headers to add to the response.
+   */
+  private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
-	/**
-	 * Extra headers to add to the response.
-	 */
-	private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
+  public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String up, File baseDir,
+      Map<String, String> extraHttpContentHeaders) {
+    this.parentHandler = parentHandler;
 
-	public NettyStaticContentHandler(NettyWebServerHandler parentHandler,
-			String up, File baseDir, Map<String, String> extraHttpContentHeaders) {
-		this.parentHandler = parentHandler;
+    if (extraHttpContentHeaders != null) {
+      this.extraHttpContentHeaders.putAll(extraHttpContentHeaders);
+    }
 
-		if (extraHttpContentHeaders != null) {
-			this.extraHttpContentHeaders.putAll(extraHttpContentHeaders);
-		}
+    StringBuilder uriPrefix = new StringBuilder();
+    if (!up.startsWith("/")) {
+      uriPrefix.append('/');
+    }
+    uriPrefix.append(up);
+    if (!up.endsWith("/")) {
+      uriPrefix.append('/');
+    }
+    this.uriPrefix = uriPrefix.toString();
 
-		StringBuilder uriPrefix = new StringBuilder();
-		if (!up.startsWith("/")) {
-			uriPrefix.append('/');
-		}
-		uriPrefix.append(up);
-		if (!up.endsWith("/")) {
-			uriPrefix.append('/');
-		}
-		this.uriPrefix = uriPrefix.toString();
+    this.baseDir = baseDir;
+  }
 
-		this.baseDir = baseDir;
-	}
+  @Override
+  public boolean isHandledBy(HttpRequest req) {
+    return req.getUri().startsWith(uriPrefix);
+  }
 
-	@Override
-	public boolean isHandledBy(HttpRequest req) {
-		return req.getUri().startsWith(uriPrefix);
-	}
+  @Override
+  public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req,
+      Set<HttpCookie> cookiesToAdd) throws IOException {
+    String url = req.getUri();
 
-	@Override
-	public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
-			throws IOException {
-		String url = req.getUri();
+    // Strip off query parameters, if any, as we don't care.
+    int pos = url.indexOf('?');
+    if (pos != -1)
+      url = url.substring(0, pos);
 
-		// Strip off query parameters, if any, as we don't care.
-		int pos = url.indexOf('?');
-		if (pos != -1)
-			url = url.substring(0, pos);
+    int luriPrefixLength = uriPrefix.length();
+    String filepath = url.substring(url.indexOf(uriPrefix) + luriPrefixLength);
 
-		int luriPrefixLength = uriPrefix.length();
-		String filepath = url.substring(url.indexOf(uriPrefix)
-				+ luriPrefixLength);
+    // TODO(keith): Make sure this doesn't allow wandering outside of the
+    // file hierarchy rooted at baseDir (e.g. ../../.. type paths.
+    File file = new File(baseDir, filepath);
+    RandomAccessFile raf;
+    try {
+      raf = new RandomAccessFile(file, "r");
+    } catch (FileNotFoundException fnfe) {
+      parentHandler.sendError(ctx, NOT_FOUND);
+      return;
+    }
+    long fileLength = raf.length();
 
-		// TODO(keith): Make sure this doesn't allow wandering outside of the
-		// file hierarchy rooted at baseDir (e.g. ../../.. type paths.
-		File file = new File(baseDir, filepath);
-		RandomAccessFile raf;
-		try {
-			raf = new RandomAccessFile(file, "r");
-		} catch (FileNotFoundException fnfe) {
-			parentHandler.sendError(ctx, NOT_FOUND);
-			return;
-		}
-		long fileLength = raf.length();
+    HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+    parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
+    if (cookiesToAdd != null) {
+      CookieEncoder encoder = new CookieEncoder(true);
+      for (HttpCookie value : cookiesToAdd) {
+        encoder.addCookie(NettyHttpResponse.createNettyCookie(value));
+        response.addHeader("Set-Cookie", encoder.encode());
+      }
+    }
 
-		HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-		parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
-		if (cookiesToAdd != null) {
-	      CookieEncoder encoder = new CookieEncoder(true);
-	      for (HttpCookie value: cookiesToAdd) {
-	        encoder.addCookie(NettyHttpResponse.createNettyCookie(value));
-	        response.addHeader("Set-Cookie", encoder.encode());
-	      }
-		}
+    setContentLength(response, fileLength);
 
-		setContentLength(response, fileLength);
+    Channel ch = ctx.getChannel();
 
-		Channel ch = ctx.getChannel();
+    // Write the initial line and the header.
+    ch.write(response);
 
-		// Write the initial line and the header.
-		ch.write(response);
+    // Write the content.
+    ChannelFuture writeFuture;
+    if (ch.getPipeline().get(SslHandler.class) != null) {
+      // Cannot use zero-copy with HTTPS.
+      writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, 8192));
+    } else {
+      // No encryption - use zero-copy.
+      final FileRegion region = new DefaultFileRegion(raf.getChannel(), 0, fileLength);
+      writeFuture = ch.write(region);
+      writeFuture.addListener(new ChannelFutureProgressListener() {
+        @Override
+        public void operationComplete(ChannelFuture future) {
+          region.releaseExternalResources();
+        }
 
-		// Write the content.
-		ChannelFuture writeFuture;
-		if (ch.getPipeline().get(SslHandler.class) != null) {
-			// Cannot use zero-copy with HTTPS.
-			writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, 8192));
-		} else {
-			// No encryption - use zero-copy.
-			final FileRegion region = new DefaultFileRegion(raf.getChannel(),
-					0, fileLength);
-			writeFuture = ch.write(region);
-			writeFuture.addListener(new ChannelFutureProgressListener() {
-				@Override
-				public void operationComplete(ChannelFuture future) {
-					region.releaseExternalResources();
-				}
+        @Override
+        public void operationProgressed(ChannelFuture arg0, long arg1, long arg2, long arg3)
+            throws Exception {
+          // Do nothing
+        }
 
-				@Override
-				public void operationProgressed(ChannelFuture arg0, long arg1,
-						long arg2, long arg3) throws Exception {
-					// Do nothing
-				}
+      });
+    }
 
-			});
-		}
-
-		// Decide whether to close the connection or not.
-		if (!isKeepAlive(req)) {
-			// Close the connection when the whole content is written out.
-			writeFuture.addListener(ChannelFutureListener.CLOSE);
-		}
-	}
+    // Decide whether to close the connection or not.
+    if (!isKeepAlive(req)) {
+      // Close the connection when the whole content is written out.
+      writeFuture.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
 }

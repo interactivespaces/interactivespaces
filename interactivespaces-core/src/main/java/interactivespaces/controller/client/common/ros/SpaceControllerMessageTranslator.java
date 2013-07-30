@@ -16,14 +16,14 @@
 
 package interactivespaces.controller.client.common.ros;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 
-import java.util.Map;
-
 import interactivespaces_msgs.ControllerActivityStatus;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * Translation from various types of ROS controller messages between masters and

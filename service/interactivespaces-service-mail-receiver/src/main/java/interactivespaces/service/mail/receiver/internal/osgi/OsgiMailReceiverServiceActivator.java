@@ -20,13 +20,13 @@ import interactivespaces.service.mail.receiver.MailReceiverService;
 import interactivespaces.service.mail.receiver.internal.DumbsterMailReceiverService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An OSGI bundle activator for the mail receiver service.

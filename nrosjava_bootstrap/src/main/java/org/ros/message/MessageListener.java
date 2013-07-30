@@ -18,9 +18,9 @@ package org.ros.message;
 
 /**
  * A callback for asynchronous message-related operations.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
- * 
+ *
  * @param <T>
  *          the type of message expected
  */
@@ -28,7 +28,7 @@ public interface MessageListener<T> {
 
   /**
    * Called when a new message arrives.
-   * 
+   *
    * @param message
    *          the new message
    */

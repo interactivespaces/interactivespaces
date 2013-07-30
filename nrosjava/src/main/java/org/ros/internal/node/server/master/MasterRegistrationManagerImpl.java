@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,10 +16,7 @@
 
 package org.ros.internal.node.server.master;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.ros.internal.node.service.ServiceIdentifier;
@@ -28,14 +25,17 @@ import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.node.service.ServiceServer;
 
-import com.google.common.collect.Maps;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Manages all registration logic for the {@link MasterServer}.
- * 
+ *
  * <p>
  * This class is not thread-safe.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class MasterRegistrationManagerImpl {
@@ -54,8 +54,8 @@ public class MasterRegistrationManagerImpl {
   private final Map<GraphName, ServiceRegistrationInfo> services;
 
   /**
-   * A {@link Map} from {@link TopicSystemState} name to the {@link TopicRegistrationInfo}
-   * about the topic.
+   * A {@link Map} from {@link TopicSystemState} name to the
+   * {@link TopicRegistrationInfo} about the topic.
    */
   private final Map<GraphName, TopicRegistrationInfo> topics;
 
@@ -73,7 +73,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Register a publisher.
-   * 
+   *
    * @param nodeName
    *          name of the node with the publisher
    * @param nodeSlaveUri
@@ -82,7 +82,7 @@ public class MasterRegistrationManagerImpl {
    *          then name of the topic
    * @param topicMessageType
    *          message type of the topic
-   * 
+   *
    * @return The registration information for the topic.
    */
   public TopicRegistrationInfo registerPublisher(GraphName nodeName, URI nodeSlaveUri,
@@ -103,19 +103,19 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Unregister a publisher.
-   * 
+   *
    * @param nodeName
    *          name of the node which has the publisher
    * @param topicName
    *          name of the publisher's topic
-   * 
+   *
    * @return {@code true} if the publisher was actually registered before the
    *         call.
    */
   public boolean unregisterPublisher(GraphName nodeName, GraphName topicName) {
     if (log.isDebugEnabled()) {
-      log.debug(String.format("Unregistering publisher of topic %s from node %s",
-          topicName, nodeName));
+      log.debug(String.format("Unregistering publisher of topic %s from node %s", topicName,
+          nodeName));
     }
 
     TopicRegistrationInfo topic = obtainTopicRegistrationInfo(topicName, false);
@@ -150,7 +150,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Register a subscriber.
-   * 
+   *
    * @param nodeName
    *          name of the node with the subscriber
    * @param nodeSlaveUri
@@ -159,7 +159,7 @@ public class MasterRegistrationManagerImpl {
    *          then name of the topic
    * @param topicMessageType
    *          message type of the topic
-   * 
+   *
    * @return The registration information for the topic.
    */
   public TopicRegistrationInfo registerSubscriber(GraphName nodeName, URI nodeSlaveUri,
@@ -180,19 +180,19 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Unregister a subscriber.
-   * 
+   *
    * @param nodeName
    *          name of the node which has the subscriber
    * @param topicName
    *          name of the subscriber's topic
-   * 
+   *
    * @return {@code true} if the subscriber was actually registered before the
    *         call.
    */
   public boolean unregisterSubscriber(GraphName nodeName, GraphName topicName) {
     if (log.isDebugEnabled()) {
-      log.debug(String.format("Unregistering subscriber of topic %s from node %s",
-          topicName, nodeName));
+      log.debug(String.format("Unregistering subscriber of topic %s from node %s", topicName,
+          nodeName));
     }
 
     TopicRegistrationInfo topic = obtainTopicRegistrationInfo(topicName, false);
@@ -223,7 +223,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Register a service.
-   * 
+   *
    * @param nodeName
    *          name of the node with the service
    * @param nodeSlaveUri
@@ -232,7 +232,7 @@ public class MasterRegistrationManagerImpl {
    *          the name of the service
    * @param serviceUri
    *          URI of the service server on the node
-   * 
+   *
    * @return The registration information for the service.
    */
   public ServiceRegistrationInfo registerService(GraphName nodeName, URI nodeSlaveUri,
@@ -275,14 +275,14 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Unregister a service.
-   * 
+   *
    * @param nodeName
    *          name of the node with the service
    * @param serviceName
    *          the name of the service
    * @param serviceUri
    *          URI of the service server on the node
-   * 
+   *
    * @return {@code true} if the service was actually registered before the
    *         call.
    */
@@ -327,7 +327,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get all topics registered.
-   * 
+   *
    * @return An immutable collection of topics.
    */
   public Collection<TopicRegistrationInfo> getAllTopics() {
@@ -336,10 +336,10 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get the information known about a topic.
-   * 
+   *
    * @param topicName
    *          the name of the topic
-   * 
+   *
    * @return The information about the topic. Can be {@code null} if the topic
    *         was never registered.
    */
@@ -349,10 +349,10 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get the information known about a node.
-   * 
+   *
    * @param nodeName
    *          the name of the node
-   * 
+   *
    * @return The information about the node. Can be {@code null} if no topic was
    *         ever registered for the node.
    */
@@ -362,7 +362,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get all services registered.
-   * 
+   *
    * @return An immutable collection of services.
    */
   public Collection<ServiceRegistrationInfo> getAllServices() {
@@ -371,10 +371,10 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get the information known about a service.
-   * 
+   *
    * @param serviceName
    *          the name of the service
-   * 
+   *
    * @return The information about the service. Can be {@code null} if there is
    *         no service registered with the given name.
    */
@@ -384,12 +384,12 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get the {@link TopicRegistrationInfo} for the given topic name.
-   * 
+   *
    * @param topicName
    *          the name of the topic
    * @param shouldCreate
    *          {@code true} if a new one should be created if it isn't found
-   * 
+   *
    * @return The registration info for the topic. A new one will be created if
    *         none exists and on.
    */
@@ -406,12 +406,12 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Get the {@link NodeRegistrationInfo} for the given node slave identifier.
-   * 
+   *
    * @param nodeName
    *          the name of the node
    * @param nodeSlaveUri
    *          the URI for the node's slave server
-   * 
+   *
    * @return The registration info for the node. A new one will be created if
    *         none exists.
    */
@@ -445,7 +445,7 @@ public class MasterRegistrationManagerImpl {
   /**
    * A node is being replaced. Clean it up. This includes unregistering from
    * topic objects.
-   * 
+   *
    * @param node
    *          the node being replaced
    */
@@ -465,7 +465,7 @@ public class MasterRegistrationManagerImpl {
 
   /**
    * Remove a node from registration if it no longer has any registrations.
-   * 
+   *
    * @param node
    *          the node to possibly remove
    */

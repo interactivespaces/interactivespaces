@@ -53,14 +53,12 @@ public class SmackXmppChatService implements ChatService {
 
   @Override
   public void startup() {
-    // TODO Auto-generated method stub
-
+    // Nothing to do
   }
 
   @Override
   public void shutdown() {
-    // TODO Auto-generated method stub
-
+    // Nothing to do
   }
 
   @Override

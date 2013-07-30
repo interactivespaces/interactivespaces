@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -44,7 +44,7 @@ import java.util.List;
 
 /**
  * Provides access to the XML-RPC API exposed by a {@link MasterServer}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class MasterClient extends Client<MasterXmlRpcEndpoint> {
@@ -52,7 +52,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
   /**
    * Create a new {@link MasterClient} connected to the specified
    * {@link MasterServer} URI.
-   * 
+   *
    * @param uri
    *          the {@link URI} of the {@link MasterServer} to connect to
    */
@@ -62,7 +62,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
 
   /**
    * Registers the given {@link ServiceServer}.
-   * 
+   *
    * @param slave
    *          the {@link NodeIdentifier} where the {@link ServiceServer} is
    *          running
@@ -78,7 +78,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
 
   /**
    * Unregisters the specified {@link ServiceServer}.
-   * 
+   *
    * @param slave
    *          the {@link NodeIdentifier} where the {@link ServiceServer} is
    *          running
@@ -87,9 +87,8 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
    * @return the number of unregistered services
    */
   public Response<Integer> unregisterService(NodeIdentifier slave, ServiceServer<?, ?> service) {
-    return Response.fromListChecked(xmlRpcEndpoint.unregisterService(
-        slave.getName().toString(), service.getName().toString(), service.getUri().toString()),
-        new IntegerResultFactory());
+    return Response.fromListChecked(xmlRpcEndpoint.unregisterService(slave.getName().toString(),
+        service.getName().toString(), service.getUri().toString()), new IntegerResultFactory());
   }
 
   /**
@@ -97,7 +96,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
    * current {@link Publisher}s, the {@link Subscriber}s {@link SlaveServer}
    * will also receive notifications of new {@link Publisher}s via the
    * publisherUpdate API.
-   * 
+   *
    * @param slave
    *          the {@link NodeIdentifier} that the {@link Subscriber} is running
    *          on
@@ -107,14 +106,14 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
    *         currently publishing the specified topic
    */
   public Response<List<URI>> registerSubscriber(NodeIdentifier slave, Subscriber<?> subscriber) {
-    return Response.fromListChecked(xmlRpcEndpoint.registerSubscriber(slave.getName()
-        .toString(), subscriber.getTopicName().toString(), subscriber.getTopicMessageType(), slave
-        .getUri().toString()), new UriListResultFactory());
+    return Response.fromListChecked(xmlRpcEndpoint.registerSubscriber(slave.getName().toString(),
+        subscriber.getTopicName().toString(), subscriber.getTopicMessageType(), slave.getUri()
+            .toString()), new UriListResultFactory());
   }
 
   /**
    * Unregisters the specified {@link Subscriber}.
-   * 
+   *
    * @param slave
    *          the {@link NodeIdentifier} where the subscriber is running
    * @param subscriber
@@ -122,14 +121,14 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
    * @return the number of unregistered {@link Subscriber}s
    */
   public Response<Integer> unregisterSubscriber(NodeIdentifier slave, Subscriber<?> subscriber) {
-    return Response.fromListChecked(xmlRpcEndpoint.unregisterSubscriber(slave.getName()
-        .toString(), subscriber.getTopicName().toString(), slave.getUri().toString()),
+    return Response.fromListChecked(xmlRpcEndpoint.unregisterSubscriber(slave.getName().toString(),
+        subscriber.getTopicName().toString(), slave.getUri().toString()),
         new IntegerResultFactory());
   }
 
   /**
    * Registers the specified {@link PublisherDeclaration}.
-   * 
+   *
    * @param publisherDeclaration
    *          the {@link PublisherDeclaration} of the {@link Publisher} to
    *          register
@@ -148,7 +147,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
 
   /**
    * Unregisters the specified {@link PublisherDeclaration}.
-   * 
+   *
    * @param publisherIdentifier
    *          the {@link PublisherIdentifier} of the {@link Publisher} to
    *          unregister
@@ -213,7 +212,7 @@ public class MasterClient extends Client<MasterXmlRpcEndpoint> {
 
   /**
    * Get a {@link List} of all {@link TopicSystemState} message types.
-   * 
+   *
    * @param callerName
    *          the {@link GraphName} of the caller
    * @return a {@link List} of {@link TopicType}s

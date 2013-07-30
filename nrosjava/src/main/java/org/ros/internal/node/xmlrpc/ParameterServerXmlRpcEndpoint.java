@@ -24,14 +24,14 @@ import java.util.Map;
 
 /**
  * XML-RPC endpoint for a parameter server.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Deletes a parameter.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param key
@@ -42,7 +42,7 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Sets a parameter.
-   * 
+   *
    * <p>
    * NOTE: if value is a dictionary it will be treated as a parameter tree,
    * where key is the parameter namespace. For example
@@ -50,7 +50,7 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
    * Furthermore, it will replace all existing parameters in the key parameter
    * namespace with the parameters in value. You must set parameters
    * individually if you wish to perform a union update.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param key
@@ -73,12 +73,12 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Retrieve parameter value from server.
-   * 
+   *
    * <p>
    * If code is not 1, parameterValue should be ignored. If key is a namespace,
    * the return value will be a dictionary, where each key is a parameter in
    * that namespace. Sub-namespaces are also represented as dictionaries.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param key
@@ -90,7 +90,7 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Searches for a parameter key on the {@link ParameterServer}.
-   * 
+   *
    * <p>
    * Search starts in caller's namespace and proceeds upwards through parent
    * namespaces until Parameter Server finds a matching key. searchParam()'s
@@ -102,9 +102,9 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
    * I search for robot_description/arm it will return
    * /pr2/robot_description/arm, even though that parameter does not exist
    * (yet).
-   * 
+   *
    * If code is not 1, foundKey should be ignored.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param key
@@ -116,11 +116,11 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
   /**
    * Retrieves the parameter value from server and subscribe to updates to that
    * param. See paramUpdate() in the Node API.
-   * 
+   *
    * <p>
    * If code is not 1, parameterValue should be ignored. parameterValue is an
    * empty dictionary if the parameter has not been set yet.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param callerApi
@@ -133,11 +133,11 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
   /**
    * Unsubscribes from updates to the specified param. See paramUpdate() in the
    * Node API.
-   * 
+   *
    * <p>
    * A return value of zero means that the caller was not subscribed to the
    * parameter.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param callerApi
@@ -150,7 +150,7 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Check if parameter is stored on server.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @param key
@@ -161,7 +161,7 @@ public interface ParameterServerXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Gets the list of all parameter names stored on this server.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @return a {@link Collection} of parameter names

@@ -22,11 +22,10 @@ import interactivespaces.service.speech.synthesis.SpeechSynthesisPlayer;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
-
+import com.sun.speech.freetts.VoiceManager;
 import org.apache.commons.logging.Log;
 
-import com.sun.speech.freetts.VoiceManager;
+import java.util.Map;
 
 /**
  * A speech synthesis service based on FreeTTS.

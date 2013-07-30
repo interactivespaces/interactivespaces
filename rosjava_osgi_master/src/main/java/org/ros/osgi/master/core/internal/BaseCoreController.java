@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,83 +16,85 @@
 
 package org.ros.osgi.master.core.internal;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.ros.osgi.common.RosEnvironment;
 import org.ros.osgi.master.core.CoreController;
 import org.ros.osgi.master.core.CoreControllerListener;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
- * Support class that gives some convenience methods for the {@link CoreController}.
+ * Support class that gives some convenience methods for the
+ * {@link CoreController}.
  *
  * @author Keith M. Hughes
  */
 public abstract class BaseCoreController implements CoreController {
 
-	/**
-	 * The ROS Environment this master is to run in.
-	 */
-	protected RosEnvironment rosEnvironment;
-	
-	/**
-	 * All listeners for Core events.
-	 */
-	private List<CoreControllerListener> listeners = new CopyOnWriteArrayList<CoreControllerListener>();
-	
-	/**
-	 * {@code true} if the core is started.
-	 */
-	protected boolean started;
+  /**
+   * The ROS Environment this master is to run in.
+   */
+  protected RosEnvironment rosEnvironment;
 
-	@Override
-	public void addListener(CoreControllerListener listener) {
-		// Will be missing the started message otherwise.
-		if (started) {
-			listener.onCoreStartup();
-		}
+  /**
+   * All listeners for Core events.
+   */
+  private List<CoreControllerListener> listeners =
+      new CopyOnWriteArrayList<CoreControllerListener>();
 
-		listeners.add(listener);
-	}
+  /**
+   * {@code true} if the core is started.
+   */
+  protected boolean started;
 
-	@Override
-	public void removeListener(CoreControllerListener listener) {
-		listeners.remove(listener);
-	}
+  @Override
+  public void addListener(CoreControllerListener listener) {
+    // Will be missing the started message otherwise.
+    if (started) {
+      listener.onCoreStartup();
+    }
 
-	/**
-	 * Tell all listeners the master has started.
-	 */
-	protected void signalCoreStartup() {
-		for (CoreControllerListener listener : listeners) {
-			listener.onCoreStartup();
-		}
-	}
+    listeners.add(listener);
+  }
 
-	/**
-	 * Tell all listeners the master has shut doiwn.
-	 */
-	protected void signalCoreShutdown() {
-		for (CoreControllerListener listener : listeners) {
-			listener.onCoreShutdown();
-		}
-	}
+  @Override
+  public void removeListener(CoreControllerListener listener) {
+    listeners.remove(listener);
+  }
 
-	/**
-	 * Set the Ros Environment the server should run in.
-	 * 
-	 * @param rosEnvironment
-	 */
-	public void setRosEnvironment(RosEnvironment rosEnvironment) {
-		this.rosEnvironment = rosEnvironment;
-	}
+  /**
+   * Tell all listeners the master has started.
+   */
+  protected void signalCoreStartup() {
+    for (CoreControllerListener listener : listeners) {
+      listener.onCoreStartup();
+    }
+  }
 
-	/**
-	 * Remove the Ros Environment the server should run in.
-	 * 
-	 * @param rosEnvironment
-	 */
-	public void unsetRosEnvironment(RosEnvironment rosEnvironment) {
-		this.rosEnvironment = null;
-	}
+  /**
+   * Tell all listeners the master has shut doiwn.
+   */
+  protected void signalCoreShutdown() {
+    for (CoreControllerListener listener : listeners) {
+      listener.onCoreShutdown();
+    }
+  }
+
+  /**
+   * Set the Ros Environment the server should run in.
+   *
+   * @param rosEnvironment
+   */
+  public void setRosEnvironment(RosEnvironment rosEnvironment) {
+    this.rosEnvironment = rosEnvironment;
+  }
+
+  /**
+   * Remove the Ros Environment the server should run in.
+   *
+   * @param rosEnvironment
+   */
+  public void unsetRosEnvironment(RosEnvironment rosEnvironment) {
+    this.rosEnvironment = null;
+  }
 }

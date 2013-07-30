@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -84,17 +84,17 @@ public class InetAddressFactory {
   /**
    * Creates an {@link InetAddress} with both an IP and a host set so that no
    * further resolving will take place.
-   * 
+   *
    * If an IP address string is specified, this method ensures that it will be
    * used in place of a host name.
-   * 
+   *
    * If a host name other than {@code Address.LOCALHOST} is specified, this
    * method trys to find a non-loopback IP associated with the supplied host
    * name.
-   * 
+   *
    * If the specified host name is {@code Address.LOCALHOST}, this method
    * returns a loopback address.
-   * 
+   *
    * @param host
    * @return an {@link InetAddress} with both an IP and a host set (no further
    *         resolving will take place)

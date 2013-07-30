@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,13 +24,13 @@ import org.ros.namespace.GraphName;
 
 /**
  * The identifier for a topic in a ROS graph.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class TopicIdentifier {
-  
+
   private final GraphName name;
-  
+
   public static TopicIdentifier forName(String name) {
     return new TopicIdentifier(GraphName.of(name));
   }
@@ -40,7 +40,7 @@ public class TopicIdentifier {
     Preconditions.checkArgument(name.isGlobal());
     this.name = name;
   }
-  
+
   public ConnectionHeader toConnectionHeader() {
     ConnectionHeader connectionHeader = new ConnectionHeader();
     connectionHeader.addField(ConnectionHeaderFields.TOPIC, name.toString());
@@ -50,7 +50,7 @@ public class TopicIdentifier {
   public GraphName getName() {
     return name;
   }
-  
+
   @Override
   public String toString() {
     return "TopicIdentifier<" + name + ">";
@@ -66,13 +66,18 @@ public class TopicIdentifier {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     TopicIdentifier other = (TopicIdentifier) obj;
     if (name == null) {
-      if (other.name != null) return false;
-    } else if (!name.equals(other.name)) return false;
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
     return true;
   }
 }

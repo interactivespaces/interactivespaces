@@ -19,11 +19,9 @@ package interactivespaces.master.server.remote.client.ros;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.remote.RemoteMasterServerConstants;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
+
 import interactivespaces_msgs.ControllerDescription;
 import interactivespaces_msgs.MasterServerData;
-
-import java.nio.ByteOrder;
-
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.ros.message.MessageSerializer;
@@ -31,6 +29,8 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.topic.Publisher;
 import org.ros.osgi.common.RosEnvironment;
+
+import java.nio.ByteOrder;
 
 /**
  * A client for talking to an Master Server

@@ -16,17 +16,18 @@
 
 package interactivespaces.service.comm.serial.internal.rxtx;
 
-import gnu.io.CommPortIdentifier;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import gnu.io.CommPortIdentifier;
+
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * A factory for serial communication endpoints using the RXTX library.
@@ -86,7 +87,8 @@ public class RxtxSerialCommunicationEndpointService implements SerialCommunicati
 
   @Override
   public SerialCommunicationEndpoint newSerialEndpoint(String portName) {
-    return new RxtxSerialCommunicationEndpoint(portName, spaceEnvironment.getLog(), spaceEnvironment);
+    return new RxtxSerialCommunicationEndpoint(portName, spaceEnvironment.getLog(),
+        spaceEnvironment);
   }
 
   @Override

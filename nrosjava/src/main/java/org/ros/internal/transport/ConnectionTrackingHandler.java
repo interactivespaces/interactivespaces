@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,9 +15,6 @@
  */
 
 package org.ros.internal.transport;
-
-import java.io.IOException;
-import java.nio.channels.Channels;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -28,9 +25,12 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.ros.exception.RosRuntimeException;
 import org.ros.log.RosLogFactory;
 
+import java.io.IOException;
+import java.nio.channels.Channels;
+
 /**
  * Adds new {@link Channels} to the provided {@link ChannelGroup}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class ConnectionTrackingHandler extends SimpleChannelHandler {
@@ -72,7 +72,7 @@ public class ConnectionTrackingHandler extends SimpleChannelHandler {
       // and should not be fatal. However, in all cases the channel should be
       // closed.
       log.error("Channel exception: " + ctx.getChannel(), e.getCause());
-     } else {
+    } else {
       throw new RosRuntimeException(e.getCause());
     }
   }

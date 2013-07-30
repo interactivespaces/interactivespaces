@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  * All information known to the manager about a topic.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class TopicRegistrationInfo {
@@ -40,7 +40,7 @@ public class TopicRegistrationInfo {
 
   /**
    * The type of the topic's message.
-   * 
+   *
    * <p>
    * Can be {@code null} if no publisher has registered the type.
    */
@@ -77,7 +77,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Get the currently known message type of the topic.
-   * 
+   *
    * @return The message type. Can be {@code null} if unknown.
    */
   public String getMessageType() {
@@ -86,7 +86,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Does the topic have any publishers?
-   * 
+   *
    * @return {@code true} if the topic has any publishers.
    */
   public boolean hasPublishers() {
@@ -95,7 +95,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Does the topic have any subscribers?
-   * 
+   *
    * @return {@code true} if the topic has any publishers or subscribers.
    */
   public boolean hasSubscribers() {
@@ -104,7 +104,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Does the topic have any registrations?
-   * 
+   *
    * @return {@code true} if the topic has any publishers or subscribers.
    */
   public boolean hasRegistrations() {
@@ -113,7 +113,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Get a list of all known publishers for the topic.
-   * 
+   *
    * @return an immutable list of publishers
    */
   public Set<NodeRegistrationInfo> getPublishers() {
@@ -122,7 +122,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Add a new publisher to the topic.
-   * 
+   *
    * @param publisher
    *          the publisher to add
    * @param messageType
@@ -137,10 +137,10 @@ public class TopicRegistrationInfo {
 
   /**
    * Remove a publisher to the topic.
-   * 
+   *
    * @param publisher
    *          the publisher to add
-   * 
+   *
    * @return {@code true} if the publisher was registered in the first place
    */
   public boolean removePublisher(NodeRegistrationInfo publisher) {
@@ -149,7 +149,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Get a list of all known subscribers for the topic.
-   * 
+   *
    * @return an immutable list of publishers
    */
   public Set<NodeRegistrationInfo> getSubscribers() {
@@ -158,7 +158,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Add a new subscriber to the topic.
-   * 
+   *
    * @param subscriber
    *          the subscriber to add
    * @param messageType
@@ -173,10 +173,10 @@ public class TopicRegistrationInfo {
 
   /**
    * Remove a subscriber to the topic.
-   * 
+   *
    * @param subscriber
    *          the subscriber to add
-   * 
+   *
    * @return {@code true} if the subscriber was registered in the first place
    */
   public boolean removeSubscriber(NodeRegistrationInfo subscriber) {
@@ -185,7 +185,7 @@ public class TopicRegistrationInfo {
 
   /**
    * Register the message type of a {@link TopicSystemState}.
-   * 
+   *
    * @param topicMessageType
    *          the message type of the {@link TopicSystemState},
    *          {@link Subscriber}s can give a message type of

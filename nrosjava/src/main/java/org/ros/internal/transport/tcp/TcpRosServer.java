@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,10 +16,7 @@
 
 package org.ros.internal.transport.tcp;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteOrder;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -35,105 +32,104 @@ import org.ros.internal.node.service.ServiceManager;
 import org.ros.internal.node.topic.TopicParticipantManager;
 import org.ros.log.RosLogFactory;
 
-import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * The TCP server which is used for data communication between publishers and
  * subscribers or between a service and a service client.
- * 
+ *
  * <p>
  * This server is used after publishers, subscribers, services and service
  * clients have been told about each other by the master.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class TcpRosServer {
 
-	private static final Log log = RosLogFactory.getLog(TcpRosServer.class);
+  private static final Log log = RosLogFactory.getLog(TcpRosServer.class);
 
-	private final BindAddress bindAddress;
-	private final AdvertiseAddress advertiseAddress;
-	private final TopicParticipantManager topicParticipantManager;
-	private final ServiceManager serviceManager;
-	private final ScheduledExecutorService executorService;
+  private final BindAddress bindAddress;
+  private final AdvertiseAddress advertiseAddress;
+  private final TopicParticipantManager topicParticipantManager;
+  private final ServiceManager serviceManager;
+  private final ScheduledExecutorService executorService;
 
-	private ChannelFactory channelFactory;
-	private ServerBootstrap bootstrap;
-	private Channel outgoingChannel;
-	private ChannelGroup incomingChannelGroup;
+  private ChannelFactory channelFactory;
+  private ServerBootstrap bootstrap;
+  private Channel outgoingChannel;
+  private ChannelGroup incomingChannelGroup;
 
-	public TcpRosServer(BindAddress bindAddress,
-			AdvertiseAddress advertiseAddress,
-			TopicParticipantManager topicParticipantManager,
-			ServiceManager serviceManager,
-			ScheduledExecutorService executorService) {
-		this.bindAddress = bindAddress;
-		this.advertiseAddress = advertiseAddress;
-		this.topicParticipantManager = topicParticipantManager;
-		this.serviceManager = serviceManager;
-		this.executorService = executorService;
-	}
+  public TcpRosServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress,
+      TopicParticipantManager topicParticipantManager, ServiceManager serviceManager,
+      ScheduledExecutorService executorService) {
+    this.bindAddress = bindAddress;
+    this.advertiseAddress = advertiseAddress;
+    this.topicParticipantManager = topicParticipantManager;
+    this.serviceManager = serviceManager;
+    this.executorService = executorService;
+  }
 
-	public void start() {
-		Preconditions.checkState(outgoingChannel == null);
-		channelFactory = new NioServerSocketChannelFactory(executorService,
-				executorService);
-		bootstrap = new ServerBootstrap(channelFactory);
-		bootstrap.setOption("child.bufferFactory",
-				new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
-		bootstrap.setOption("child.keepAlive", true);
-		incomingChannelGroup = new DefaultChannelGroup();
-		bootstrap.setPipelineFactory(new TcpServerPipelineFactory(
-				incomingChannelGroup, topicParticipantManager, serviceManager));
+  public void start() {
+    Preconditions.checkState(outgoingChannel == null);
+    channelFactory = new NioServerSocketChannelFactory(executorService, executorService);
+    bootstrap = new ServerBootstrap(channelFactory);
+    bootstrap.setOption("child.bufferFactory",
+        new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
+    bootstrap.setOption("child.keepAlive", true);
+    incomingChannelGroup = new DefaultChannelGroup();
+    bootstrap.setPipelineFactory(new TcpServerPipelineFactory(incomingChannelGroup,
+        topicParticipantManager, serviceManager));
 
-		outgoingChannel = bootstrap.bind(bindAddress.toInetSocketAddress());
-		advertiseAddress.setPortCallable(new Callable<Integer>() {
-			@Override
-			public Integer call() throws Exception {
-				return ((InetSocketAddress) outgoingChannel.getLocalAddress())
-						.getPort();
-			}
-		});
-		if (log.isDebugEnabled()) {
-			log.debug(String.format("Bound to: %s, Advertising: %s", bindAddress, advertiseAddress));
-		}
-	}
+    outgoingChannel = bootstrap.bind(bindAddress.toInetSocketAddress());
+    advertiseAddress.setPortCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        return ((InetSocketAddress) outgoingChannel.getLocalAddress()).getPort();
+      }
+    });
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Bound to: %s, Advertising: %s", bindAddress, advertiseAddress));
+    }
+  }
 
-	/**
-	 * Close all incoming connections and the server socket.
-	 * 
-	 * <p>
-	 * Calling this method more than once has no effect.
-	 */
-	public void shutdown() {
-		if (log.isDebugEnabled()) {
-			log.debug("Shutting down: " + getAddress());
-		}
-		if (outgoingChannel != null) {
-			outgoingChannel.close().awaitUninterruptibly();
-		}
-		incomingChannelGroup.close().awaitUninterruptibly();
+  /**
+   * Close all incoming connections and the server socket.
+   *
+   * <p>
+   * Calling this method more than once has no effect.
+   */
+  public void shutdown() {
+    if (log.isDebugEnabled()) {
+      log.debug("Shutting down: " + getAddress());
+    }
+    if (outgoingChannel != null) {
+      outgoingChannel.close().awaitUninterruptibly();
+    }
+    incomingChannelGroup.close().awaitUninterruptibly();
 
-		if (bootstrap != null) {
-			bootstrap.shutdown();
-			bootstrap = null;
-		}
+    if (bootstrap != null) {
+      bootstrap.shutdown();
+      bootstrap = null;
+    }
 
-		outgoingChannel = null;
-	}
+    outgoingChannel = null;
+  }
 
-	/**
-	 * @return the advertise-able {@link InetSocketAddress} of this
-	 *         {@link TcpRosServer}
-	 */
-	public InetSocketAddress getAddress() {
-		return advertiseAddress.toInetSocketAddress();
-	}
+  /**
+   * @return the advertise-able {@link InetSocketAddress} of this
+   *         {@link TcpRosServer}
+   */
+  public InetSocketAddress getAddress() {
+    return advertiseAddress.toInetSocketAddress();
+  }
 
-	/**
-	 * @return the {@link AdvertiseAddress} of this {@link TcpRosServer}
-	 */
-	public AdvertiseAddress getAdvertiseAddress() {
-		return advertiseAddress;
-	}
+  /**
+   * @return the {@link AdvertiseAddress} of this {@link TcpRosServer}
+   */
+  public AdvertiseAddress getAdvertiseAddress() {
+    return advertiseAddress;
+  }
 }

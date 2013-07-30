@@ -1,4 +1,3 @@
-
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 //                                                                        \\
 //                 Centre for Speech Technology Research                  \\
@@ -39,102 +38,101 @@
 
 package interactivespaces.service.speech.synthesis.internal.festival.scheme;
 
-import java.lang.*;
-import java.util.*;
-import java.awt.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StreamTokenizer;
 
 public class ReflectingSchemeReader extends SchemeReader
 
 {
 
-	public ReflectingSchemeReader(Reader r) {
-		super(r);
-	}
+  public ReflectingSchemeReader(Reader r) {
+    super(r);
+  }
 
-	private int parseSexp(StringBuilder b) throws IOException {
+  private int parseSexp(StringBuilder b) throws IOException {
 
-		tk.nextToken();
+    tk.nextToken();
 
-		while (tk.ttype == StreamTokenizer.TT_EOL) {
-			b.append(" ");
-			tk.nextToken();
-		}
+    while (tk.ttype == StreamTokenizer.TT_EOL) {
+      b.append(" ");
+      tk.nextToken();
+    }
 
-		if (tk.ttype == StreamTokenizer.TT_EOF)
-			return SE_EOF;
+    if (tk.ttype == StreamTokenizer.TT_EOF)
+      return SE_EOF;
 
-		if (tk.ttype == '\'') {
-			b.append("'");
-			int t = parseSexp(b);
-			return t;
-		}
+    if (tk.ttype == '\'') {
+      b.append("'");
+      int t = parseSexp(b);
+      return t;
+    }
 
-		if (tk.ttype == ')') {
-			b.append(") ");
-			return SE_CB;
-		}
+    if (tk.ttype == ')') {
+      b.append(") ");
+      return SE_CB;
+    }
 
-		if (tk.ttype == '(') {
-			b.append("(");
-			while (true) {
-				int se_type = parseSexp(b);
+    if (tk.ttype == '(') {
+      b.append("(");
+      while (true) {
+        int se_type = parseSexp(b);
 
-				if (se_type == SE_EOF || se_type == SE_CB)
-					return SE_LIST;
-			}
-		}
+        if (se_type == SE_EOF || se_type == SE_CB)
+          return SE_LIST;
+      }
+    }
 
-		if (tk.ttype == StreamTokenizer.TT_WORD) {
-			b.append(tk.sval);
-			b.append(" ");
-			return SE_ATOM;
-		}
+    if (tk.ttype == StreamTokenizer.TT_WORD) {
+      b.append(tk.sval);
+      b.append(" ");
+      return SE_ATOM;
+    }
 
-		if (tk.ttype == '"') {
-			b.append('"');
-			int s = b.length();
-			b.append(tk.sval);
-			for (int i = s; i < b.length(); i++)
-				if (b.charAt(i) == '"') {
-					b.insert(i++, '\\');
-					b.setCharAt(i, '"');
-				} else if (b.charAt(i) == '\n') {
-					b.insert(i++, '\\');
-					b.setCharAt(i, 'n');
-				} else if (b.charAt(i) == '\r') {
-					b.insert(i++, '\\');
-					b.setCharAt(i, 'r');
-				} else if (b.charAt(i) == '\t') {
-					b.insert(i++, '\\');
-					b.setCharAt(i, 'r');
-				} else if (b.charAt(i) == '\\') {
-					b.insert(i++, '\\');
-					b.setCharAt(i, '\\');
-				}
-			b.append("\" ");
-			return SE_ATOM;
-		}
+    if (tk.ttype == '"') {
+      b.append('"');
+      int s = b.length();
+      b.append(tk.sval);
+      for (int i = s; i < b.length(); i++)
+        if (b.charAt(i) == '"') {
+          b.insert(i++, '\\');
+          b.setCharAt(i, '"');
+        } else if (b.charAt(i) == '\n') {
+          b.insert(i++, '\\');
+          b.setCharAt(i, 'n');
+        } else if (b.charAt(i) == '\r') {
+          b.insert(i++, '\\');
+          b.setCharAt(i, 'r');
+        } else if (b.charAt(i) == '\t') {
+          b.insert(i++, '\\');
+          b.setCharAt(i, 'r');
+        } else if (b.charAt(i) == '\\') {
+          b.insert(i++, '\\');
+          b.setCharAt(i, '\\');
+        }
+      b.append("\" ");
+      return SE_ATOM;
+    }
 
-		if (tk.ttype >= ' ' && tk.ttype <= '\u00ff') {
-			b.append((char) tk.ttype);
-			b.append(' ');
-			return SE_ATOM;
-		}
+    if (tk.ttype >= ' ' && tk.ttype <= '\u00ff') {
+      b.append((char) tk.ttype);
+      b.append(' ');
+      return SE_ATOM;
+    }
 
-		System.out.println("UNEXPECTED " + tk.ttype + " " + tk.sval);
-		return SE_EOF;
-	}
+    System.out.println("UNEXPECTED " + tk.ttype + " " + tk.sval);
+    return SE_EOF;
+  }
 
-	public Object nextExpr() throws IOException {
-		return (Object) nextExprString();
-	}
+  public Object nextExpr() throws IOException {
+    return (Object) nextExprString();
+  }
 
-	public String nextExprString() throws IOException {
-		StringBuilder exp = new StringBuilder(80);
+  public String nextExprString() throws IOException {
+    StringBuilder exp = new StringBuilder(80);
 
-		int type = parseSexp(exp);
+    int type = parseSexp(exp);
 
-		return type == SE_EOF ? (String) null : exp.toString();
-	}
+    return type == SE_EOF ? (String) null : exp.toString();
+  }
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Splits message definitions tuples (e.g. service definitions) into separate
  * message definitions.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class MessageDefinitionTupleParser {
@@ -34,7 +34,7 @@ public class MessageDefinitionTupleParser {
   /**
    * Splits the message definition tuple into a {@link List} of message
    * definitions. Split message definitions may be empty (e.g. std_srvs/Empty).
-   * 
+   *
    * @param definition
    *          the message definition tuple
    * @param size

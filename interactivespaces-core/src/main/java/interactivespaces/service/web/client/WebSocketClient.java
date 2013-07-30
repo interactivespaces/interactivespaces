@@ -26,8 +26,8 @@ import interactivespaces.util.resource.ManagedResource;
  */
 public interface WebSocketClient extends WebSocketConnection, ManagedResource {
 
-	/**
-	 * Ping the server.
-	 */
-	void ping();
+  /**
+   * Ping the server.
+   */
+  void ping();
 }

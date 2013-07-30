@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,18 +22,19 @@ package org.ros.osgi.common;
  * @author Keith M. Hughes
  */
 public class OsgiConstants {
-	/**
-	 * The relative name a node will use for its deployment node.
-	 */
-	public static final String DEPLOYMENT_ROOT_NAME = "osgi/deploy";
 
-	/**
-	 * The relative name a node will use for its deployment ROS topic.
-	 */
-	public static final String DEPLOYMENT_MASTER_NODE_NAME = "deployer";
+  /**
+   * The relative name a node will use for its deployment node.
+   */
+  public static final String DEPLOYMENT_ROOT_NAME = "osgi/deploy";
 
-	/**
-	 * The relative name a node will use for its deployment ROS topic.
-	 */
-	public static final String DEPLOYMENT_CLIENT_NODE_NAME = "deployee";
+  /**
+   * The relative name a node will use for its deployment ROS topic.
+   */
+  public static final String DEPLOYMENT_MASTER_NODE_NAME = "deployer";
+
+  /**
+   * The relative name a node will use for its deployment ROS topic.
+   */
+  public static final String DEPLOYMENT_CLIENT_NODE_NAME = "deployee";
 }

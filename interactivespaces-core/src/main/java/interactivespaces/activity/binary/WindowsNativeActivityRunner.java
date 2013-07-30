@@ -37,6 +37,9 @@ public class WindowsNativeActivityRunner extends BaseNativeActivityRunner {
    */
   public static final String OPERATING_SYSTEM_TAG = "windows";
 
+  /**
+   * Name of the application to run
+   */
   private String appName;
 
   public WindowsNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {

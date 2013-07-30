@@ -16,11 +16,11 @@
 
 package interactivespaces.activity;
 
+import com.google.common.collect.Maps;
+
 import interactivespaces.activity.ActivityStateTransitioner.SequenceTransitionResult;
 
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * A collection of {@link ActivityStateTransitioner} instances.

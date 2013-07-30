@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -31,39 +31,39 @@ import javax.swing.JFileChooser;
  */
 public class ChooseDirectoryWizard extends SingleComponentWizard {
 
-	/**
-	 * The directory chooser for this panel.
-	 */
-	private JFileChooser chooser;
-	
-	public ChooseDirectoryWizard() {
-		chooser = new JFileChooser();
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-		chooser.setControlButtonsAreShown(false);		
-	}
+  /**
+   * The directory chooser for this panel.
+   */
+  private JFileChooser chooser;
 
-	@Override
-	public JComponent getCurrentJComponent() {
-		return chooser;
-	}
+  public ChooseDirectoryWizard() {
+    chooser = new JFileChooser();
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+    chooser.setControlButtonsAreShown(false);
+  }
 
-	/**
-	 * Get the directory selected by the wizard.
-	 * 
-	 * @return the directory selected
-	 */
-	public File getSelectedDirectory() {
-		File dir = chooser.getSelectedFile();
-		if (dir == null) {
-			dir = chooser.getCurrentDirectory();
-		}
-		
-		return dir;
-	}
+  @Override
+  public JComponent getCurrentJComponent() {
+    return chooser;
+  }
 
-	@Override
-	public void completeWizard() {
-		System.out.format("Got %s\n", getSelectedDirectory());
-	}
+  /**
+   * Get the directory selected by the wizard.
+   *
+   * @return the directory selected
+   */
+  public File getSelectedDirectory() {
+    File dir = chooser.getSelectedFile();
+    if (dir == null) {
+      dir = chooser.getCurrentDirectory();
+    }
+
+    return dir;
+  }
+
+  @Override
+  public void completeWizard() {
+    System.out.format("Got %s\n", getSelectedDirectory());
+  }
 }

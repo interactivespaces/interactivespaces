@@ -25,41 +25,41 @@ import interactivespaces.domain.basic.ConfigurationParameter;
  */
 public class SimpleConfigurationParameter implements ConfigurationParameter {
 
-	/**
-	 * The name of the parameter.
-	 */
-	private String name;
+  /**
+   * The name of the parameter.
+   */
+  private String name;
 
-	/**
-	 * The value of the parameter.
-	 */
-	private String value;
+  /**
+   * The value of the parameter.
+   */
+  private String value;
 
-	public SimpleConfigurationParameter() {
-	}
+  public SimpleConfigurationParameter() {
+  }
 
-	public SimpleConfigurationParameter(String name, String value) {
-		this.name = name;
-		this.value = value;
-	}
+  public SimpleConfigurationParameter(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+  @Override
+  public String getName() {
+    return name;
+  }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public String getValue() {
+    return value;
+  }
 
-	@Override
-	public void setValue(String value) {
-		this.value = value;
-	}
+  @Override
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

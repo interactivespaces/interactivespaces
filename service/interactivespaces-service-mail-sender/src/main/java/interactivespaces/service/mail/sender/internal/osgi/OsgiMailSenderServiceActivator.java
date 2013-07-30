@@ -20,13 +20,13 @@ import interactivespaces.service.mail.sender.MailSenderService;
 import interactivespaces.service.mail.sender.internal.JavaxMailMailSenderService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An OSGI bundle activator for the mail sender service.

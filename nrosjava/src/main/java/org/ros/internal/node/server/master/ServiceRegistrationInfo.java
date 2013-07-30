@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -22,7 +22,7 @@ import java.net.URI;
 
 /**
  * Information a master needs about a service.
- * 
+ *
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class ServiceRegistrationInfo {
@@ -50,7 +50,7 @@ public class ServiceRegistrationInfo {
 
   /**
    * Get the name of the service.
-   * 
+   *
    * @return the serviceName
    */
   public GraphName getServiceName() {
@@ -59,7 +59,7 @@ public class ServiceRegistrationInfo {
 
   /**
    * Get the URI of the service server.
-   * 
+   *
    * @return the service URI
    */
   public URI getServiceUri() {
@@ -68,7 +68,7 @@ public class ServiceRegistrationInfo {
 
   /**
    * Get the information about the node which contains the service.
-   * 
+   *
    * @return The implementing node's information.
    */
   public NodeRegistrationInfo getNode() {

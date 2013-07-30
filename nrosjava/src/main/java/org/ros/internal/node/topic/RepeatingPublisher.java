@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,18 +16,18 @@
 
 package org.ros.internal.node.topic;
 
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.log.RosLogFactory;
 import org.ros.node.topic.Publisher;
 
-import com.google.common.base.Preconditions;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Repeatedly send a message out on a given {@link Publisher}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class RepeatingPublisher<MessageType> {
@@ -48,9 +48,10 @@ public class RepeatingPublisher<MessageType> {
     @Override
     public void loop() throws InterruptedException {
       publisher.publish(message);
-//      if (log.isDebugEnabled()) {
-//        log.debug(String.format("Published message %s to publisher %s ", message, publisher));
-//      }
+      // if (log.isDebugEnabled()) {
+      // log.debug(String.format("Published message %s to publisher %s ",
+      // message, publisher));
+      // }
       Thread.sleep((long) (1000.0d / frequency));
     }
   }

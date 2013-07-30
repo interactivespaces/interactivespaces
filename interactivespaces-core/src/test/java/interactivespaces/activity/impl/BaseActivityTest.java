@@ -54,6 +54,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Keith M. Hughes
  */
 public class BaseActivityTest {
+
   private BaseActivity activity;
 
   private ScheduledExecutorService executorService;

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Create {@link NodeConfiguration} instances using a ROS command-line and
  * environment specification.
- * 
+ *
  * @author kwc@willowgarage.com (Ken Conley)
  * @author damonkohler@google.com (Damon Kohler)
  */
@@ -58,7 +58,7 @@ public class CommandLineLoader {
    * Create new {@link CommandLineLoader} with specified command-line arguments.
    * Environment variables will be pulled from default {@link System}
    * environment variables.
-   * 
+   *
    * @param argv
    *          command-line arguments
    */
@@ -69,7 +69,7 @@ public class CommandLineLoader {
   /**
    * Create new {@link CommandLineLoader} with specified command-line arguments
    * and environment variables.
-   * 
+   *
    * @param argv
    *          command-line arguments
    * @param environment
@@ -140,7 +140,7 @@ public class CommandLineLoader {
 
   /**
    * Precedence:
-   * 
+   *
    * <ol>
    * <li>The __ns:= command line argument.</li>
    * <li>The ROS_NAMESPACE environment variable.</li>
@@ -159,7 +159,7 @@ public class CommandLineLoader {
 
   /**
    * Precedence (default: null):
-   * 
+   *
    * <ol>
    * <li>The __ip:= command line argument.</li>
    * <li>The ROS_IP environment variable.</li>
@@ -181,7 +181,7 @@ public class CommandLineLoader {
 
   /**
    * Precedence:
-   * 
+   *
    * <ol>
    * <li>The __master:= command line argument. This is not required but easy to
    * support.</li>

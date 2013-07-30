@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,12 +16,7 @@
 
 package org.ros.internal.node.client;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.logging.Log;
 import org.ros.concurrent.Holder;
@@ -39,12 +34,17 @@ import org.ros.internal.node.topic.PublisherIdentifier;
 import org.ros.internal.node.topic.TopicParticipantManagerListener;
 import org.ros.log.RosLogFactory;
 
-import com.google.common.base.Preconditions;
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Manages topic, and service registrations of a {@link SlaveServer} with the
  * {@link MasterServer}.
- * 
+ *
  * @author kwc@willowgarage.com (Ken Conley)
  * @author damonkohler@google.com (Damon Kohler)
  */
@@ -84,7 +84,7 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
    * Failed registration actions are retried periodically until they succeed.
    * This method adjusts the delay between successive retry attempts for any
    * particular registration action.
-   * 
+   *
    * @param delay
    *          the delay in units of {@code unit} between retries
    * @param unit
@@ -321,7 +321,7 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
   /**
    * Starts the {@link Registrar} for the {@link SlaveServer} identified by the
    * given {@link NodeIdentifier}.
-   * 
+   *
    * @param nodeIdentifier
    *          the {@link NodeIdentifier} for the {@link SlaveServer} this
    *          {@link Registrar} is responsible for
@@ -335,12 +335,12 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
 
   /**
    * Shuts down the {@link Registrar}.
-   * 
+   *
    * <p>
    * No further registration requests will be accepted. All queued registration
    * jobs have up to {@link #SHUTDOWN_TIMEOUT} {@link #SHUTDOWN_TIMEOUT_UNITS}
    * to complete before being canceled.
-   * 
+   *
    * <p>
    * Calling {@link #shutdown()} more than once has no effect.
    */

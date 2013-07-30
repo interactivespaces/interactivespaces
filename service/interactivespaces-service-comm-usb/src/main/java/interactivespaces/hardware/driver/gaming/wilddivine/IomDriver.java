@@ -43,7 +43,8 @@ import java.util.concurrent.Executors;
 public class IomDriver extends DriverSupport {
 
   public static void main(String[] args) {
-    final SimpleInteractiveSpacesEnvironment spaceEnvironment = new SimpleInteractiveSpacesEnvironment();
+    final SimpleInteractiveSpacesEnvironment spaceEnvironment =
+        new SimpleInteractiveSpacesEnvironment();
     spaceEnvironment.setExecutorService(Executors.newScheduledThreadPool(100));
     SimpleServiceRegistry serviceRegistry = new SimpleServiceRegistry(spaceEnvironment);
     spaceEnvironment.setServiceRegistry(serviceRegistry);
@@ -69,7 +70,7 @@ public class IomDriver extends DriverSupport {
       driver.startup();
 
       InteractiveSpacesUtilities.delay(20000);
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
     } finally {
       driver.shutdown();

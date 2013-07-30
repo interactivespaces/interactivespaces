@@ -16,13 +16,13 @@
 
 package interactivespaces.expression;
 
-import java.util.Map;
-
 import org.apache.commons.ognl.ClassResolver;
 import org.apache.commons.ognl.OgnlContext;
 
+import java.util.Map;
+
 /**
- * An {@link Expression Factory} which uses OGNL.
+ * An {@link ExpressionFactory} which uses OGNL.
  *
  * @author Keith M. Hughes
  */

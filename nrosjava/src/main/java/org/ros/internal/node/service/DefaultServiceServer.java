@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,8 +16,7 @@
 
 package org.ros.internal.node.service;
 
-import java.net.URI;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -39,11 +38,12 @@ import org.ros.node.service.ServiceResponseBuilder;
 import org.ros.node.service.ServiceServer;
 import org.ros.node.service.ServiceServerListener;
 
-import com.google.common.base.Preconditions;
+import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Default implementation of a {@link ServiceServer}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
@@ -139,7 +139,7 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
   /**
    * Signal all {@link ServiceServerListener}s that the {@link ServiceServer}
    * has been successfully registered with the master.
-   * 
+   *
    * <p>
    * Each listener is called in a separate thread.
    */
@@ -156,7 +156,7 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
   /**
    * Signal all {@link ServiceServerListener}s that the {@link ServiceServer}
    * has failed to register with the master.
-   * 
+   *
    * <p>
    * Each listener is called in a separate thread.
    */
@@ -173,7 +173,7 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
   /**
    * Signal all {@link ServiceServerListener}s that the {@link ServiceServer}
    * has been successfully unregistered with the master.
-   * 
+   *
    * <p>
    * Each listener is called in a separate thread.
    */
@@ -190,7 +190,7 @@ public class DefaultServiceServer<T, S> implements ServiceServer<T, S> {
   /**
    * Signal all {@link ServiceServerListener}s that the {@link ServiceServer}
    * has failed to unregister with the master.
-   * 
+   *
    * <p>
    * Each listener is called in a separate thread.
    */

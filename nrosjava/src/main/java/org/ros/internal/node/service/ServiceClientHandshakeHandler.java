@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -15,9 +15,6 @@
  */
 
 package org.ros.internal.node.service;
-
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -31,11 +28,14 @@ import org.ros.message.MessageDeserializer;
 import org.ros.node.service.ServiceResponseListener;
 import org.ros.node.service.ServiceServer;
 
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+
 /**
  * Performs a handshake with the connected {@link ServiceServer}.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
- * 
+ *
  * @param <T>
  *          the connected {@link ServiceServer} responds to requests of this
  *          type
@@ -45,14 +45,14 @@ import org.ros.node.service.ServiceServer;
 class ServiceClientHandshakeHandler<T, S> extends BaseClientHandshakeHandler {
 
   private static final Log log = RosLogFactory.getLog(ServiceClientHandshakeHandler.class);
-  
+
   private final Queue<ServiceResponseListener<S>> responseListeners;
   private final MessageDeserializer<S> deserializer;
   private final ExecutorService executorService;
 
   public ServiceClientHandshakeHandler(ConnectionHeader outgoingConnectionHeader,
-      Queue<ServiceResponseListener<S>> responseListeners,
-      MessageDeserializer<S> deserializer, ExecutorService executorService) {
+      Queue<ServiceResponseListener<S>> responseListeners, MessageDeserializer<S> deserializer,
+      ExecutorService executorService) {
     super(new ServiceClientHandshake(outgoingConnectionHeader), executorService);
     this.responseListeners = responseListeners;
     this.deserializer = deserializer;

@@ -24,6 +24,7 @@ import interactivespaces.InteractiveSpacesException;
  * @author Keith M. Hughes
  */
 public class EvaluationInteractiveSpacesException extends InteractiveSpacesException {
+
   /**
    *
    * @param message

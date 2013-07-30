@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -26,9 +26,9 @@ import java.util.regex.Pattern;
 
 /**
  * ROS graph resource name.
- * 
+ *
  * @see <a href="http://www.ros.org/wiki/Names">Names documentation</a>
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class GraphName {
@@ -56,7 +56,7 @@ public class GraphName {
   // Instead, try to use the same algorithm as in cpp and Python.
   /**
    * Creates an anonymous {@link GraphName}.
-   * 
+   *
    * @return a new {@link GraphName} suitable for creating an anonymous node
    */
   public static GraphName newAnonymous() {
@@ -79,7 +79,7 @@ public class GraphName {
 
   /**
    * Returns a new {@link GraphName} of the specified {@link #name}.
-   * 
+   *
    * @param name
    *          the name of this resource
    * @return a new {@link GraphName} for {@link #name}
@@ -97,7 +97,7 @@ public class GraphName {
    * Validate and convert the graph name into its canonical representation.
    * Canonical representations have no trailing slashes and can be global,
    * private, or relative.
-   * 
+   *
    * @param name
    * @return the canonical name for this {@link GraphName}
    */
@@ -117,7 +117,7 @@ public class GraphName {
 
   /**
    * Is this a /global/name?
-   * 
+   *
    * <ul>
    * <li>
    * If node node1 in the global / namespace accesses the resource /bar, that
@@ -129,7 +129,7 @@ public class GraphName {
    * If node node3 in the /wg/ namespace accesses the resource /foo/bar, that
    * will resolve to the name /foo/bar.</li>
    * </ul>
-   * 
+   *
    * @return {@code true} if this name is a global name, {@code false} otherwise
    */
   public boolean isGlobal() {
@@ -154,7 +154,7 @@ public class GraphName {
 
   /**
    * Is this a ~private/name?
-   * 
+   *
    * <ul>
    * <li>
    * If node node1 in the global / namespace accesses the resource ~bar, that
@@ -165,7 +165,7 @@ public class GraphName {
    * <li>If node node3 in the /wg/ namespace accesses the resource ~foo/bar,
    * that will resolve to the name /wg/node3/foo/bar.
    * </ul>
-   * 
+   *
    * @return {@code true} if the name is a private name, {@code false} otherwise
    */
   public boolean isPrivate() {
@@ -174,7 +174,7 @@ public class GraphName {
 
   /**
    * Is this a relative/name?
-   * 
+   *
    * <ul>
    * <li>If node node1 in the global / namespace accesses the resource ~bar,
    * that will resolve to the name /node1/bar.
@@ -183,7 +183,7 @@ public class GraphName {
    * <li>If node node3 in the /wg/ namespace accesses the resource ~foo/bar,
    * that will resolve to the name /wg/node3/foo/bar.
    * </ul>
-   * 
+   *
    * @return true if the name is a relative name.
    */
   public boolean isRelative() {
@@ -229,7 +229,7 @@ public class GraphName {
    * Convert name to a relative name representation. This does not take any
    * namespace into account; it simply strips any preceding characters for
    * global or private name representation.
-   * 
+   *
    * @return a relative {@link GraphName}
    */
   public GraphName toRelative() {
@@ -242,7 +242,7 @@ public class GraphName {
   /**
    * Convert name to a global name representation. This does not take any
    * namespace into account; it simply adds in the global prefix "/" if missing.
-   * 
+   *
    * @return a global {@link GraphName}
    */
   public GraphName toGlobal() {
@@ -257,7 +257,7 @@ public class GraphName {
 
   /**
    * Join this {@link GraphName} with another.
-   * 
+   *
    * @param other
    *          the {@link GraphName} to join with, if other is global, this will
    *          return other

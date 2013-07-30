@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * A combined XML-RPC endpoint for the master and parameter servers.
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class MasterXmlRpcEndpointImpl implements MasterXmlRpcEndpoint,
@@ -90,8 +90,8 @@ public class MasterXmlRpcEndpointImpl implements MasterXmlRpcEndpoint,
       String callerSlaveUri) {
     try {
       List<URI> subscribers =
-          master.registerPublisher(GraphName.of(callerId), new URI(callerSlaveUri), GraphName.of(
-              topicName), topicMessageType);
+          master.registerPublisher(GraphName.of(callerId), new URI(callerSlaveUri),
+              GraphName.of(topicName), topicMessageType);
       List<String> urls = Lists.newArrayList();
       for (URI uri : subscribers) {
         urls.add(uri.toString());
@@ -147,8 +147,8 @@ public class MasterXmlRpcEndpointImpl implements MasterXmlRpcEndpoint,
   public List<Object> registerService(String callerId, String serviceName, String serviceUri,
       String callerSlaveUri) {
     try {
-      master.registerService(GraphName.of(callerId), new URI(callerSlaveUri), GraphName.of(
-          serviceName), new URI(serviceUri));
+      master.registerService(GraphName.of(callerId), new URI(callerSlaveUri),
+          GraphName.of(serviceName), new URI(serviceUri));
       return Response.newSuccess("Success", 0).toList();
     } catch (URISyntaxException e) {
       throw new RosRuntimeException(e);

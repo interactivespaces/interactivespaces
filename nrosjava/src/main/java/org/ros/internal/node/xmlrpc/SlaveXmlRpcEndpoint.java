@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,7 +27,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Retrieve transport/topic statistics.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @return stats in the form of <br>
@@ -38,7 +38,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
    *         <br>
    *         subscribeStats: [[topicName, subConnectionData]...] <br>
    *         serviceStats: (proposed) [numRequests, bytesReceived, bytesSent] <br>
-   * 
+   *
    *         pubConnectionData: [connectionId, bytesSent, numSent, connected] <br>
    *         subConnectionData: [connectionId, bytesReceived, dropEstimate,
    *         connected] <br>
@@ -48,7 +48,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Retrieve transport/topic connection information.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @return busInfo in the form of:<br>
@@ -80,7 +80,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Retrieve a list of topics that this node publishes.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @return topicList is a list of topics published by this node and is of the
@@ -90,7 +90,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
 
   /**
    * Callback from master with updated value of subscribed parameter.
-   * 
+   *
    * @param callerId
    *          ROS caller ID.
    * @param key
@@ -128,7 +128,7 @@ public interface SlaveXmlRpcEndpoint extends XmlRpcEndpoint {
    * protocol along with any additional params required for establishing
    * connection. For example, for a TCP/IP-based connection, the source node may
    * return a port number of TCP/IP server.
-   * 
+   *
    * @param callerId
    *          ROS caller ID
    * @param topic

@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -41,7 +41,7 @@ public class TcpClientManager {
 
   public TcpClientManager(Executor executor) {
     this.executor = executor;
-	nettyTimer = new HashedWheelTimer();
+    nettyTimer = new HashedWheelTimer();
 
     channelGroup = new DefaultChannelGroup();
     tcpClients = Lists.newCopyOnWriteArrayList();
@@ -60,7 +60,7 @@ public class TcpClientManager {
    * Connects to a server.
    * <p>
    * This call blocks until the connection is established or fails.
-   * 
+   *
    * @param connectionName
    *          the name of the new connection
    * @param socketAddress
@@ -81,13 +81,13 @@ public class TcpClientManager {
    */
   public void shutdown() {
     channelGroup.close().awaitUninterruptibly();
-    
+
     // Shut down each client. This will free up many of their resources.
     for (TcpClient client : tcpClients) {
-    	client.shutdown();
+      client.shutdown();
     }
     tcpClients.clear();
-    
+
     nettyTimer.stop();
   }
 }

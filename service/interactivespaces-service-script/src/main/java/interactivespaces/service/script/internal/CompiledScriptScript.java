@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -30,50 +30,48 @@ import javax.script.SimpleBindings;
 
 /**
  * A {@link Script} for compiled scripts.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class CompiledScriptScript implements Script {
 
-	/**
-	 * The engine for compiling the scripts.
-	 */
-	private Compilable compileEngine;
+  /**
+   * The engine for compiling the scripts.
+   */
+  private Compilable compileEngine;
 
-	/**
-	 * Source for the script.
-	 */
-	private ScriptSource scriptSource;
+  /**
+   * Source for the script.
+   */
+  private ScriptSource scriptSource;
 
-	/**
-	 * The compiled script.
-	 */
-	private CompiledScript script;
+  /**
+   * The compiled script.
+   */
+  private CompiledScript script;
 
-	public CompiledScriptScript(Compilable compileEngine,
-			ScriptSource scriptSource) {
-		this.scriptSource = scriptSource;
+  public CompiledScriptScript(Compilable compileEngine, ScriptSource scriptSource) {
+    this.scriptSource = scriptSource;
 
-		try {
-			script = compileEngine.compile(scriptSource.getScriptContents());
-		} catch (ScriptException e) {
-			throw new InteractiveSpacesException("Could not compile script", e);
-		}
+    try {
+      script = compileEngine.compile(scriptSource.getScriptContents());
+    } catch (ScriptException e) {
+      throw new InteractiveSpacesException("Could not compile script", e);
+    }
 
-	}
+  }
 
-	@Override
-	public Object eval(Map<String, Object> bindings) {
-		Bindings myBindings = new SimpleBindings(bindings);
-		try {
-			if (scriptSource.isModified()) {
-				script = compileEngine
-						.compile(scriptSource.getScriptContents());
-			}
+  @Override
+  public Object eval(Map<String, Object> bindings) {
+    Bindings myBindings = new SimpleBindings(bindings);
+    try {
+      if (scriptSource.isModified()) {
+        script = compileEngine.compile(scriptSource.getScriptContents());
+      }
 
-			return script.eval(myBindings);
-		} catch (ScriptException e) {
-			throw new InteractiveSpacesException("Could not evaluate script", e);
-		}
-	}
+      return script.eval(myBindings);
+    } catch (ScriptException e) {
+      throw new InteractiveSpacesException("Could not evaluate script", e);
+    }
+  }
 }

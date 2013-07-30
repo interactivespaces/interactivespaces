@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -77,7 +77,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The default implementation of a {@link Node}.
- * 
+ *
  * @author ethan.rublee@gmail.com (Ethan Rublee)
  * @author kwc@willowgarage.com (Ken Conley)
  * @author damonkohler@google.com (Damon Kohler)
@@ -118,7 +118,7 @@ public class DefaultNode implements ConnectedNode {
   /**
    * {@link DefaultNode}s should only be constructed using the
    * {@link DefaultNodeFactory}.
-   * 
+   *
    * @param nodeConfiguration
    *          the {@link NodeConfiguration} for this {@link Node}
    * @param nodeListeners
@@ -409,25 +409,24 @@ public class DefaultNode implements ConnectedNode {
     for (Subscriber<?> subscriber : topicParticipantManager.getSubscribers()) {
       subscriber.shutdown();
     }
-	for (ServiceServer<?, ?> serviceServer : serviceManager.getServers()) {
-		try {
-			Response<Integer> response = masterClient.unregisterService(
-					slaveServer.toNodeIdentifier(), serviceServer);
-			if (DEBUG) {
-				if (response.getResult() == 0) {
-					System.err.println("Failed to unregister service: "
-							+ serviceServer.getName());
-				}
-			}
-		} catch (XmlRpcTimeoutException e) {
-			log.error(e);
-		} catch (RemoteException e) {
-			log.error(e);
-		}
-	}
+    for (ServiceServer<?, ?> serviceServer : serviceManager.getServers()) {
+      try {
+        Response<Integer> response =
+            masterClient.unregisterService(slaveServer.toNodeIdentifier(), serviceServer);
+        if (DEBUG) {
+          if (response.getResult() == 0) {
+            System.err.println("Failed to unregister service: " + serviceServer.getName());
+          }
+        }
+      } catch (XmlRpcTimeoutException e) {
+        log.error(e);
+      } catch (RemoteException e) {
+        log.error(e);
+      }
+    }
 
-	serviceManager.shutdown();
-	
+    serviceManager.shutdown();
+
     parameterManager.shutdown();
     registrar.shutdown();
     slaveServer.shutdown();

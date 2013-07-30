@@ -16,6 +16,9 @@
 
 package interactivespaces.util.web;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.service.web.WebSocketConnection;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.internal.netty.NettyWebSocketClient;
@@ -23,6 +26,13 @@ import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerSupport;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
+
+import junit.framework.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.Jdk14Logger;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.URI;
 import java.util.List;
@@ -35,17 +45,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import junit.framework.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.Jdk14Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 /**
  * A test for web socket connections.
  *
@@ -55,6 +54,7 @@ import com.google.common.collect.Maps;
  * @author Keith M. Hughes
  */
 public class WebSocketTest {
+
   private Log log;
   private ScheduledExecutorService threadPool;
 

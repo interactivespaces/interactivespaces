@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -27,7 +27,7 @@ import java.util.Map;
 
 /**
  * Provides access to a {@link ParameterServer}.
- * 
+ *
  * <p>
  * A parameter server is a shared, multi-variate dictionary that is accessible
  * via network APIs. Nodes use this server to store and retrieve parameters at
@@ -35,10 +35,10 @@ import java.util.Map;
  * static, non-binary data such as configuration parameters. It is meant to be
  * globally viewable so that tools can easily inspect the configuration state of
  * the system and modify if necessary.
- * 
+ *
  * @see <a href="http://www.ros.org/wiki/Parameter%20Server">Parameter server
  *      documentation</a>
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public interface ParameterTree {
@@ -146,7 +146,7 @@ public interface ParameterTree {
    * @param name
    *          the parameter name
    * @return the parameter value:w
-   * 
+   *
    * @throws ParameterNotFoundException
    *           if the parameter is not found
    * @throws ParameterClassCastException
@@ -335,7 +335,7 @@ public interface ParameterTree {
 
   /**
    * Deletes a specified parameter.
-   * 
+   *
    * @param name
    *          the parameter name
    */
@@ -350,7 +350,7 @@ public interface ParameterTree {
    * Search for parameter key on the Parameter Server. Search starts in caller's
    * namespace and proceeds upwards through parent namespaces until the
    * {@link ParameterServer} finds a matching key.
-   * 
+   *
    * @param name
    *          the parameter name to search for
    * @return the name of the found parameter or {@code null} if no matching
@@ -370,7 +370,7 @@ public interface ParameterTree {
 
   /**
    * Subscribes to changes to the specified parameter.
-   * 
+   *
    * @param name
    *          the parameter name to subscribe to
    * @param listener

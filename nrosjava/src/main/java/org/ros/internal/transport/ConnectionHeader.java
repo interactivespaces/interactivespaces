@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -16,10 +16,8 @@
 
 package org.ros.internal.transport;
 
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -27,8 +25,10 @@ import org.ros.exception.RosRuntimeException;
 import org.ros.internal.message.MessageBuffers;
 import org.ros.log.RosLogFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
@@ -42,7 +42,7 @@ public class ConnectionHeader {
   /**
    * Decodes a header that came over the wire into a {@link Map} of fields and
    * values.
-   * 
+   *
    * @param buffer
    *          the incoming {@link ChannelBuffer} containing the header
    * @return a {@link Map} of header fields and values
@@ -89,7 +89,7 @@ public class ConnectionHeader {
 
   /**
    * Encodes this {@link ConnectionHeader} for transmission over the wire.
-   * 
+   *
    * @return a {@link ChannelBuffer} containing the encoded header for wire
    *         transmission
    */

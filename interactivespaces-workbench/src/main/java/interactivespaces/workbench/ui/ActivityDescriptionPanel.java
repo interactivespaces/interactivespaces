@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -40,235 +40,235 @@ import javax.swing.JTextField;
 
 /**
  * A panel to allow editing of Activity Descriptions.
- * 
+ *
  * @author Keith M. Hughes
  * @since Sep 25, 2012
  */
 public class ActivityDescriptionPanel extends JPanel {
 
-	/**
-	 * Input control for the name of the project.
-	 */
-	private JTextField projectNameInput;
+  /**
+   * Input control for the name of the project.
+   */
+  private JTextField projectNameInput;
 
-	/**
-	 * Input control for the description of the project.
-	 */
-	private JTextArea projectDescriptionInput;
+  /**
+   * Input control for the description of the project.
+   */
+  private JTextArea projectDescriptionInput;
 
-	/**
-	 * Input control for the identifying name of the project.
-	 */
-	private JTextField projectIdentifyingNameInput;
+  /**
+   * Input control for the identifying name of the project.
+   */
+  private JTextField projectIdentifyingNameInput;
 
-	/**
-	 * Input control for the version of the project.
-	 */
-	private JTextField projectVersionInput;
+  /**
+   * Input control for the version of the project.
+   */
+  private JTextField projectVersionInput;
 
-	/**
-	 * The activity description being editted or created.
-	 */
-	private Project project;
+  /**
+   * The activity description being editted or created.
+   */
+  private Project project;
 
-	/**
-	 * The display for validation messages.
-	 */
-	private ValidationMessageDisplay validationMessageDisplay;
+  /**
+   * The display for validation messages.
+   */
+  private ValidationMessageDisplay validationMessageDisplay;
 
-	private ActivityIdentifyingNameValidator identifyingNameValidator;
+  private ActivityIdentifyingNameValidator identifyingNameValidator;
 
-	private ActivityVersionValidator versionValidator;
-	
-	/**
-	 * Creates a fresh {@link ActivityDescription} to back the panel.
-	 */
-	public ActivityDescriptionPanel() {
-		this(new Project());
-	}
+  private ActivityVersionValidator versionValidator;
 
-	/**
-	 * Uses the supplied {@link ActivityDescription}
-	 * 
-	 * @param project
-	 *            the activity description to back the panel
-	 */
-	public ActivityDescriptionPanel(Project activityDescription) {
-		setLayout(new GridBagLayout());
+  /**
+   * Creates a fresh {@link ActivityDescription} to back the panel.
+   */
+  public ActivityDescriptionPanel() {
+    this(new Project());
+  }
 
-		KeyListener verifyingKeyListener = new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
+  /**
+   * Uses the supplied {@link ActivityDescription}
+   *
+   * @param project
+   *          the activity description to back the panel
+   */
+  public ActivityDescriptionPanel(Project activityDescription) {
+    setLayout(new GridBagLayout());
 
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
+    KeyListener verifyingKeyListener = new KeyListener() {
+      @Override
+      public void keyTyped(KeyEvent e) {
+      }
 
-			@Override
-			public void keyReleased(KeyEvent e) {
-				checkValidation();
-			}
-		};
+      @Override
+      public void keyPressed(KeyEvent e) {
+      }
 
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(2, 2, 2, 2);
+      @Override
+      public void keyReleased(KeyEvent e) {
+        checkValidation();
+      }
+    };
 
-		// Components that are too short or narrow for their space
-		// Should be pinned to the northwest (upper left) corner
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(2, 2, 2, 2);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.weightx = 0.0;
-		gbc.weighty = 1.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		add(new JLabel("Name:"), gbc);
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		projectNameInput = new JTextField();
-		projectNameInput.addKeyListener(verifyingKeyListener);
-		add(projectNameInput, gbc);
+    // Components that are too short or narrow for their space
+    // Should be pinned to the northwest (upper left) corner
+    gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		add(new JLabel("Description:"), gbc);
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 1;
-		projectDescriptionInput = new JTextArea();
-		projectDescriptionInput.setRows(4);
-		JScrollPane scrollPane = new JScrollPane(projectDescriptionInput);
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.weightx = 0.0;
+    gbc.weighty = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    add(new JLabel("Name:"), gbc);
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridx = 1;
+    projectNameInput = new JTextField();
+    projectNameInput.addKeyListener(verifyingKeyListener);
+    add(projectNameInput, gbc);
 
-		add(scrollPane, gbc);
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.weightx = 0.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    add(new JLabel("Description:"), gbc);
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.gridx = 1;
+    projectDescriptionInput = new JTextArea();
+    projectDescriptionInput.setRows(4);
+    JScrollPane scrollPane = new JScrollPane(projectDescriptionInput);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.gridheight = 1;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		add(new JLabel("Identifying name:"), gbc);
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		projectIdentifyingNameInput = new JTextField();
-		projectIdentifyingNameInput.addKeyListener(verifyingKeyListener);
-		add(projectIdentifyingNameInput, gbc);
+    add(scrollPane, gbc);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		add(new JLabel("Version:"), gbc);
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		projectVersionInput = new JTextField();
-		projectVersionInput.addKeyListener(verifyingKeyListener);
-		add(projectVersionInput, gbc);
-		
-		setProject(activityDescription);
-		
-		identifyingNameValidator = new ActivityIdentifyingNameValidator();
-		versionValidator = new ActivityVersionValidator();
-	}
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.gridheight = 1;
+    gbc.weightx = 0.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    add(new JLabel("Identifying name:"), gbc);
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridx = 1;
+    projectIdentifyingNameInput = new JTextField();
+    projectIdentifyingNameInput.addKeyListener(verifyingKeyListener);
+    add(projectIdentifyingNameInput, gbc);
 
-	/**
-	 * Set the description to back the panel.
-	 * 
-	 * @param project
-	 *            the project to use
-	 */
-	public void setProject(Project project) {
-		this.project = project;
-		
-		String name = project.getName();
-		if (name != null) {
-			projectNameInput.setText(name);
-		}
+    gbc.gridy++;
+    gbc.gridx = 0;
+    gbc.weightx = 0.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    add(new JLabel("Version:"), gbc);
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.gridx = 1;
+    projectVersionInput = new JTextField();
+    projectVersionInput.addKeyListener(verifyingKeyListener);
+    add(projectVersionInput, gbc);
 
-		String description = project.getDescription();
-		if (description != null) {
-			projectDescriptionInput.setText(description);
-		}
-		
-		String identifyingName = project.getIdentifyingName();
-		if (identifyingName != null) {
-			projectIdentifyingNameInput.setText(identifyingName);
-		}
-		
-		String version = project.getVersion();
-		if (version != null) {
-			projectVersionInput.setText(version);
-		}
-	}
+    setProject(activityDescription);
 
-	/**
-	 * Synchronize the activity description to what is in the edit boxes.
-	 */
-	public void syncProjectDescription() {
-		project.setName(projectNameInput.getText());
-		project.setDescription(projectDescriptionInput.getText());
-		project.setIdentifyingName(projectIdentifyingNameInput
-				.getText());
-		project.setVersion(projectVersionInput.getText());
-	}
+    identifyingNameValidator = new ActivityIdentifyingNameValidator();
+    versionValidator = new ActivityVersionValidator();
+  }
 
-	/**
-	 * Get the activity description being used.
-	 * 
-	 * @return the activity description
-	 */
-	public Project getProjectDescription() {
-		syncProjectDescription();
-		
-		return project;
-	}
+  /**
+   * Set the description to back the panel.
+   *
+   * @param project
+   *          the project to use
+   */
+  public void setProject(Project project) {
+    this.project = project;
 
-	/**
-	 * Check the validation of this panel
-	 * 
-	 * @return the result of the validation check
-	 */
-	public ValidationResult checkValidation() {
-		String projectName = projectNameInput.getText().trim();
-		int sizeName = projectName.length();
-		if (sizeName == 0) {
-			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR, "A project name is required.");
-			return ValidationResult.ERRORS;
-		}
-		
-		String identifyingName = projectIdentifyingNameInput.getText().trim();
-		DomainValidationResult validationResult = identifyingNameValidator.validate(identifyingName);
-		if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
-			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
-					validationResult.getDescription());
-			
-			return ValidationResult.ERRORS;
-		}
-		
-		String version = projectVersionInput.getText().trim();
-		validationResult = versionValidator.validate(version);
-		if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
-			validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
-					validationResult.getDescription());
-			
-			return ValidationResult.ERRORS;
-		}
+    String name = project.getName();
+    if (name != null) {
+      projectNameInput.setText(name);
+    }
 
-		validationMessageDisplay.clearValidationMessage();
-		
-		return ValidationResult.OK;
-	}
+    String description = project.getDescription();
+    if (description != null) {
+      projectDescriptionInput.setText(description);
+    }
 
-	/**
-	 * @param validationMessageDisplay the validationMessageDisplay to set
-	 */
-	public void setValidationMessageDisplay(
-			ValidationMessageDisplay validationMessageDisplay) {
-		this.validationMessageDisplay = validationMessageDisplay;
-	}
+    String identifyingName = project.getIdentifyingName();
+    if (identifyingName != null) {
+      projectIdentifyingNameInput.setText(identifyingName);
+    }
+
+    String version = project.getVersion();
+    if (version != null) {
+      projectVersionInput.setText(version);
+    }
+  }
+
+  /**
+   * Synchronize the activity description to what is in the edit boxes.
+   */
+  public void syncProjectDescription() {
+    project.setName(projectNameInput.getText());
+    project.setDescription(projectDescriptionInput.getText());
+    project.setIdentifyingName(projectIdentifyingNameInput.getText());
+    project.setVersion(projectVersionInput.getText());
+  }
+
+  /**
+   * Get the activity description being used.
+   *
+   * @return the activity description
+   */
+  public Project getProjectDescription() {
+    syncProjectDescription();
+
+    return project;
+  }
+
+  /**
+   * Check the validation of this panel
+   *
+   * @return the result of the validation check
+   */
+  public ValidationResult checkValidation() {
+    String projectName = projectNameInput.getText().trim();
+    int sizeName = projectName.length();
+    if (sizeName == 0) {
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
+          "A project name is required.");
+      return ValidationResult.ERRORS;
+    }
+
+    String identifyingName = projectIdentifyingNameInput.getText().trim();
+    DomainValidationResult validationResult = identifyingNameValidator.validate(identifyingName);
+    if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
+          validationResult.getDescription());
+
+      return ValidationResult.ERRORS;
+    }
+
+    String version = projectVersionInput.getText().trim();
+    validationResult = versionValidator.validate(version);
+    if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
+          validationResult.getDescription());
+
+      return ValidationResult.ERRORS;
+    }
+
+    validationMessageDisplay.clearValidationMessage();
+
+    return ValidationResult.OK;
+  }
+
+  /**
+   * @param validationMessageDisplay
+   *          the validationMessageDisplay to set
+   */
+  public void setValidationMessageDisplay(ValidationMessageDisplay validationMessageDisplay) {
+    this.validationMessageDisplay = validationMessageDisplay;
+  }
 }

@@ -16,20 +16,20 @@
 
 package interactivespaces.domain.support;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivityDependency;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link ActivityDescriptionReader} which uses JDOM to process the XML.

@@ -14,7 +14,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
- * under the License.    
+ * under the License.
  */
 
 package org.ros.internal.xmlrpc.webserver;
@@ -23,167 +23,166 @@ import org.apache.xmlrpc.common.XmlRpcHttpRequestConfigImpl;
 
 /**
  * Data from the XMLRPC request.
- * 
+ *
  * <p>
  * This code is derived from the web server which came with the Apache XMLRPC
  * server.
- * 
+ *
  * @author Apache
  * @author Keith M. Hughes
  */
 public class XmlRpcServerClientRequestData extends XmlRpcHttpRequestConfigImpl {
 
-	/**
-	 * The connection for the specific XMLRPC request.
-	 */
-	private final XmlRpcServerClientConnection connection;
+  /**
+   * The connection for the specific XMLRPC request.
+   */
+  private final XmlRpcServerClientConnection connection;
 
-	/**
-	 * {@code true} if the connection should be kept open between requests.
-	 */
-	private boolean keepAlive;
-	
-	/**
-	 * The HTTP method for the call.
-	 */
-	private String method;
-	
-	/**
-	 * The HTTP version for the call.
-	 */
-	private String httpVersion;
-	
-	/**
-	 * The length of content.
-	 */
-	private long contentLength = -1;
-	
-	/**
-	 * {@code true} if the call was successful.
-	 */
-	private boolean success;
+  /**
+   * {@code true} if the connection should be kept open between requests.
+   */
+  private boolean keepAlive;
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param pConnection
-	 *            The connection, which is serving the request.
-	 */
-	public XmlRpcServerClientRequestData(XmlRpcServerClientConnection connection) {
-		this.connection = connection;
-	}
+  /**
+   * The HTTP method for the call.
+   */
+  private String method;
 
-	/**
-	 * Returns the connection, which is serving the request.
-	 * 
-	 * @return The request connection.
-	 */
-	public XmlRpcServerClientConnection getConnection() {
-		return connection;
-	}
+  /**
+   * The HTTP version for the call.
+   */
+  private String httpVersion;
 
-	/**
-	 * Returns, whether HTTP keepAlive is enabled for this connection.
-	 * 
-	 * @return True, if keepAlive is enabled, false otherwise.
-	 */
-	public boolean isKeepAlive() {
-		return keepAlive;
-	}
+  /**
+   * The length of content.
+   */
+  private long contentLength = -1;
 
-	/**
-	 * Set whether HTTP keepAlive is enabled for this connection.
-	 * 
-	 * @param keepAlive
-	 *            {@code true} if keep alive is enabled
-	 */
-	public void setKeepAlive(boolean keepAlive) {
-		this.keepAlive = keepAlive;
-	}
+  /**
+   * {@code true} if the call was successful.
+   */
+  private boolean success;
 
-	/**
-	 * Returns the requests HTTP version.
-	 * 
-	 * @return HTTP version, for example {@code 1.0}.
-	 */
-	public String getHttpVersion() {
-		return httpVersion;
-	}
+  /**
+   * Creates a new instance.
+   *
+   * @param pConnection
+   *          The connection, which is serving the request.
+   */
+  public XmlRpcServerClientRequestData(XmlRpcServerClientConnection connection) {
+    this.connection = connection;
+  }
 
-	/**
-	 * Sets the requests HTTP version.
-	 * 
-	 * @param httpVersion
-	 *            HTTP version, for example {@code 1.1}
-	 */
-	public void setHttpVersion(String httpVersion) {
-		this.httpVersion = httpVersion;
-	}
+  /**
+   * Returns the connection, which is serving the request.
+   *
+   * @return The request connection.
+   */
+  public XmlRpcServerClientConnection getConnection() {
+    return connection;
+  }
 
-	/**
-	 * Returns the requests content length.
-	 * 
-	 * @return Content length, or {@code -1} if unknown.
-	 */
-	public long getContentLength() {
-		return contentLength;
-	}
+  /**
+   * Returns, whether HTTP keepAlive is enabled for this connection.
+   *
+   * @return True, if keepAlive is enabled, false otherwise.
+   */
+  public boolean isKeepAlive() {
+    return keepAlive;
+  }
 
-	/**
-	 * Sets the requests content length.
-	 * 
-	 * @param contentLength
-	 *            content length, or {@code -1} if unknown
-	 */
-	public void setContentLength(int contentLength) {
-		this.contentLength = contentLength;
-	}
+  /**
+   * Set whether HTTP keepAlive is enabled for this connection.
+   *
+   * @param keepAlive
+   *          {@code true} if keep alive is enabled
+   */
+  public void setKeepAlive(boolean keepAlive) {
+    this.keepAlive = keepAlive;
+  }
 
-	/**
-	 * Is a byte array for buffering the output required?
-	 * 
-	 * @return {@code true} if the byte array is required, false otherwise.
-	 */
-	public boolean isByteArrayRequired() {
-		return isKeepAlive() || !isEnabledForExtensions()
-				|| !isContentLengthOptional();
-	}
+  /**
+   * Returns the requests HTTP version.
+   *
+   * @return HTTP version, for example {@code 1.0}.
+   */
+  public String getHttpVersion() {
+    return httpVersion;
+  }
 
-	/**
-	 * Get the request method.
-	 * 
-	 * @return The request method, should be {@code POST}.
-	 */
-	public String getMethod() {
-		return method;
-	}
+  /**
+   * Sets the requests HTTP version.
+   *
+   * @param httpVersion
+   *          HTTP version, for example {@code 1.1}
+   */
+  public void setHttpVersion(String httpVersion) {
+    this.httpVersion = httpVersion;
+  }
 
-	/**
-	 * Set the request HTTP method.
-	 * 
-	 * @param method
-	 *            the request method, should be {@code POST}
-	 */
-	public void setMethod(String method) {
-		this.method = method;
-	}
+  /**
+   * Returns the requests content length.
+   *
+   * @return Content length, or {@code -1} if unknown.
+   */
+  public long getContentLength() {
+    return contentLength;
+  }
 
-	/**
-	 * Get whether the request was executed successful.
-	 * 
-	 * @return {@code true} for success, {@code false} if an error occurred.
-	 */
-	public boolean isSuccess() {
-		return success;
-	}
+  /**
+   * Sets the requests content length.
+   *
+   * @param contentLength
+   *          content length, or {@code -1} if unknown
+   */
+  public void setContentLength(int contentLength) {
+    this.contentLength = contentLength;
+  }
 
-	/**
-	 * Set whether the request was executed successfully or not.
-	 * 
-	 * @param success
-	 *            {@code true} for success, {@code false} if an error occurred
-	 */
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
+  /**
+   * Is a byte array for buffering the output required?
+   *
+   * @return {@code true} if the byte array is required, false otherwise.
+   */
+  public boolean isByteArrayRequired() {
+    return isKeepAlive() || !isEnabledForExtensions() || !isContentLengthOptional();
+  }
+
+  /**
+   * Get the request method.
+   *
+   * @return The request method, should be {@code POST}.
+   */
+  public String getMethod() {
+    return method;
+  }
+
+  /**
+   * Set the request HTTP method.
+   *
+   * @param method
+   *          the request method, should be {@code POST}
+   */
+  public void setMethod(String method) {
+    this.method = method;
+  }
+
+  /**
+   * Get whether the request was executed successful.
+   *
+   * @return {@code true} for success, {@code false} if an error occurred.
+   */
+  public boolean isSuccess() {
+    return success;
+  }
+
+  /**
+   * Set whether the request was executed successfully or not.
+   *
+   * @param success
+   *          {@code true} for success, {@code false} if an error occurred
+   */
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
 }
