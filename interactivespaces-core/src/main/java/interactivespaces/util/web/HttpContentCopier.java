@@ -20,6 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -63,4 +64,25 @@ public interface HttpContentCopier extends ManagedResource {
    */
   void copyTo(String destinationUri, File source, String sourceParameterName,
       Map<String, String> params);
+
+  /**
+   * Copy content to a remote web server using an HTTP POST.
+   *
+   * @param destinationUri
+   *          URI for the destination server
+   * @param source
+   *          the content to be copied
+   * @param sourceFileName
+   *          the file name to be given to the source
+   * @param sourceParameterName
+   *          the name of the parameter for the file
+   * @param params
+   *          any parameters which should be included in the post, can be
+   *          {@code null}
+   *
+   * @throws InteractiveSpacesException
+   *           if transfer was not successful
+   */
+  void copyTo(String destinationUri, InputStream source, String sourceFileName,
+      String sourceParameterName, Map<String, String> params);
 }

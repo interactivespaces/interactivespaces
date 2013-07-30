@@ -25,7 +25,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.AbstractContentBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -109,13 +111,40 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
   @Override
   public void copyTo(String destinationUri, File source, String sourceParameterName,
       Map<String, String> params) {
+    FileBody contentBody = new FileBody(source);
+
+    doCopyTo(destinationUri, sourceParameterName, params, contentBody);
+  }
+
+  @Override
+  public void copyTo(String destinationUri, InputStream source, String sourceFileName, String sourceParameterName,
+      Map<String, String> params) {
+    InputStreamBody contentBody = new InputStreamBody(source, sourceFileName);
+
+    doCopyTo(destinationUri, sourceParameterName, params, contentBody);
+  }
+
+  /**
+   * Perform the actual content copy.
+   *
+   * @param destinationUri
+   *          URI for the destination
+   * @param sourceParameterName
+   *          the parameter name in the HTTP form post for the content
+   * @param params
+   *          the parameters to be included, can be {@code null}
+   * @param contentBody
+   *          the content to be sent
+   */
+  private void doCopyTo(String destinationUri, String sourceParameterName,
+      Map<String, String> params, AbstractContentBody contentBody) {
     HttpEntity entity = null;
     try {
       HttpPost httppost = new HttpPost(destinationUri);
 
       MultipartEntity mpEntity = new MultipartEntity();
 
-      mpEntity.addPart(sourceParameterName, new FileBody(source));
+      mpEntity.addPart(sourceParameterName, contentBody);
 
       if (params != null) {
         for (Entry<String, String> entry : params.entrySet()) {

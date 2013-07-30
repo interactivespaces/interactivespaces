@@ -34,8 +34,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -140,10 +142,10 @@ public class HttpClientHttpContentCopierTest {
   }
 
   /**
-   * Test a file upload.
+   * Test a file upload from a file.
    */
   @Test
-  public void testFileUpload() throws Exception {
+  public void testFileUploadFile() throws Exception {
     File source = getTempFile();
     final File destination = getTempFile();
 
@@ -168,6 +170,41 @@ public class HttpClientHttpContentCopierTest {
     expectedParameters.put("bletch", "spam");
 
     copier.copyTo(getUrlPrefix(), source, sourceParameterName, expectedParameters);
+
+    Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+    Assert.assertEquals(TEST_CONTENT, Files.readFile(destination).trim());
+    Assert.assertEquals(expectedParameters, receivedParameters.get());
+  }
+
+  /**
+   * Test a file upload from an input stream.
+   */
+  @Test
+  public void testFileUploadInputStream() throws Exception {
+    final File destination = getTempFile();
+
+    InputStream source = new ByteArrayInputStream(TEST_CONTENT.getBytes());
+
+    final AtomicReference<Map<String, String>> receivedParameters =
+        new AtomicReference<Map<String, String>>();
+    final CountDownLatch latch = new CountDownLatch(1);
+
+    webServer.setHttpFileUploadListener(new HttpFileUploadListener() {
+      @Override
+      public void handleHttpFileUpload(HttpFileUpload fileUpload) {
+        fileUpload.moveTo(destination);
+        receivedParameters.set(fileUpload.getParameters());
+        latch.countDown();
+      }
+    });
+
+    String sourceParameterName = "myfile";
+    Map<String, String> expectedParameters = Maps.newHashMap();
+    expectedParameters.put("foo", "bar");
+    expectedParameters.put("bletch", "spam");
+
+    copier.copyTo(getUrlPrefix(), source, "foo.txt", sourceParameterName, expectedParameters);
 
     Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
