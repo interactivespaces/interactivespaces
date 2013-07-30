@@ -22,7 +22,6 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpFileUpload;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -195,8 +194,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
 
         return true;
       } catch (Exception e) {
-        throw new InteractiveSpacesException(String.format("Unable to save uploaded file to %s",
-            destination), e);
+        throw new InteractiveSpacesException("Unable to save uploaded file to output stream", e);
       }
     } else {
       return false;
