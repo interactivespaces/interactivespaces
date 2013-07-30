@@ -338,14 +338,12 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
     fullStatus.setHostId(controllerInfo.getHostId());
 
     for (InstalledLiveActivity activity : controllerControl.getAllInstalledLiveActivities()) {
-      System.out.println("activity in statusall is " + activity.getIdentifyingName());
       ControllerActivityStatus cas = rosMessageFactory.newFromType(ControllerActivityStatus._TYPE);
       cas.setUuid(activity.getUuid());
 
       ActiveControllerActivity activeActivity =
           controllerControl.getActiveActivityByUuid(cas.getUuid());
       if (activeActivity != null) {
-        System.out.println("Active activity in statusall is " + activity.getIdentifyingName());
         Activity instance = activeActivity.getInstance();
         ActivityState state = null;
         if (instance != null) {

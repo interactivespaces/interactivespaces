@@ -21,6 +21,8 @@ import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpFileUpload;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpRequest;
@@ -33,6 +35,7 @@ import org.jboss.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataTy
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -172,6 +175,23 @@ public class NettyHttpFileUpload implements HttpFileUpload {
     if (hasFile()) {
       try {
         fileUpload.renameTo(destination);
+
+        return true;
+      } catch (Exception e) {
+        throw new InteractiveSpacesException(String.format("Unable to save uploaded file to %s",
+            destination), e);
+      }
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public boolean copyTo(OutputStream destination) {
+    if (hasFile()) {
+      try {
+        ChannelBuffer channelBuffer = fileUpload.getChannelBuffer();
+        channelBuffer.getBytes(0, destination, channelBuffer.readableBytes());
 
         return true;
       } catch (Exception e) {

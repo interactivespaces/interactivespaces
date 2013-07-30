@@ -16,9 +16,8 @@
 
 package interactivespaces.service.web.server;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.data.resource.CopyableResource;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -26,7 +25,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public interface HttpFileUpload {
+public interface HttpFileUpload extends CopyableResource {
 
   /**
    * Is there actually a file in the upload?
@@ -34,20 +33,6 @@ public interface HttpFileUpload {
    * @return {@code true} if a file was loaded.
    */
   boolean hasFile();
-
-  /**
-   * Move the file to the given destination.
-   *
-   * @param destination
-   *          where to write the new file
-   *
-   * @return {@code true} if there was a file to move an the move was
-   *         successful, {@code false} if there was no file to move
-   *
-   * @throws InteractiveSpacesException
-   *           something ba happened during the move
-   */
-  boolean moveTo(File destination);
 
   /**
    * Get the file name the file had.
