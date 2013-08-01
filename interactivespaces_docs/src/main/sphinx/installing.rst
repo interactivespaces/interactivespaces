@@ -1,7 +1,8 @@
 Installing and Updating Interactive Spaces
 *****************************
 
-Installing and updating Interactive Spaces is pretty simple. 
+Before we can get started, we need to install Interactive spaces on a computer.
+Installing and updating Interactive Spaces is pretty simple.
 
 Installing Interactive Spaces
 =============================
@@ -11,12 +12,12 @@ Installing Interactive Spaces from the supplied installers is very easy.
 Prerequisites
 -------------
 
-Before you can install Interactive Spaces on your computer, you should make sure you have Java installed first. 
+Before you can install Interactive Spaces on your computer, you should make sure you have Java installed first.
 
 Interactive Spaces requires at least Java 1.6.
 
-If you want to be able to easily build activities, you should install the Ant 
-building tool. This is going away for non-Java activities and possibly even 
+If you want to be able to easily build activities, you should install the Ant
+building tool. This is going away for non-Java activities and possibly even
 for Java activities.
 
 Installing a Local Master
@@ -41,12 +42,12 @@ If you are using a command line interface for your operating system, use the com
 
 where *x.y.z* is the version of the Interactive Spaces Master you are installing.
 
-For now just accept all of the default settings by clicking Next on the configuration page. 
+For now just accept all of the default settings by clicking Next on the configuration page.
 
 Testing the Master Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To test if your installation happened correctly, open up a command shell and go to the directory where you installed the master. Once there, type the command 
+To test if your installation happened correctly, open up a command shell and go to the directory where you installed the master. Once there, type the command
 
 ::
 
@@ -83,18 +84,18 @@ where *x.y.z* is the version of the Interactive Spaces Controller you are instal
 
 If you are auto-configuring the controller, make sure you don't check the manual configuration checkbox.
 
-Testing the Controller Installation 
+Testing the Controller Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To test if your installation happened correctly, first make sure you have a Master started. Then 
-open up a command shell and go to the directory where you installed the controller. 
-Once there, type the command 
+To test if your installation happened correctly, first make sure you have a Master started. Then
+open up a command shell and go to the directory where you installed the controller.
+Once there, type the command
 
 ::
 
   bin/startup_linux.bash
 
-You should see a bunch of text scroll by as the controller starts up. 
+You should see a bunch of text scroll by as the controller starts up.
 
 Go to the Master Web Interface in your browser. The URL is
 
@@ -102,38 +103,41 @@ Go to the Master Web Interface in your browser. The URL is
 
   http://localhost:8080/interactivespaces
 
-Go to the Controller menu. You should see an entry with the name of the controller you created. 
+Go to the Controller menu. You should see an entry with the name of the controller you created.
 Click on this and click Connect. If everything is working you should see
 
 ::
 
   New subscriber for controller status
 
-appear in the controller window. Also, if you refresh the controller page in the Master Web 
+appear in the controller window. Also, if you refresh the controller page in the Master Web
 Interface you should see it say that the controller is in the running state.
 
 Manually Configuring a Controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before you install a manually configured controller, you need a UUID for the controller. 
+This is an advanced topic and is not normally done. Only do this if you really have no other
+choice.
 
-You can get this by creating a new controller in the Master webapp. Click on the 
-**Space Controller** menu, 
-then *New*. Decide on a Host ID for the controller. The Controller Name you use is only for the 
-master, pick something descriptive for the controller. Then click *Save*. The master will create a 
-UUID for the controller and display it in the next screen. 
+Before you install a manually configured controller, you need a UUID for the controller.
 
-You will enter both the controller Host ID and UUID during the controller installation when 
+You can get this by creating a new controller in the Master webapp. Click on the
+**Space Controller** menu,
+then *New*. Decide on a Host ID for the controller. The Controller Name you use is only for the
+master, pick something descriptive for the controller. Then click *Save*. The master will create a
+UUID for the controller and display it in the next screen.
+
+You will enter both the controller Host ID and UUID during the controller installation when
 prompted. Be sure to chose the manually configured option during installation.
 
 Installing the Workbench
 ------------------------
 
-The Interactive Spaces Workbench provides you with example code, documentation, and the 
+The Interactive Spaces Workbench provides you with example code, documentation, and the
 Workbench application which can help you maintain and deploy your activities.
 
 
-If you are using a windowing system, find the icon for the Interactive Spaces Controller 
+If you are using a windowing system, find the icon for the Interactive Spaces Controller
 installer and double click on it. The installer is a Java jar file.
 
 If you are using a command line interface for your operating system, use the command
@@ -148,7 +152,7 @@ where *x.y.z* is the version of the Interactive Spaces Workbench you are install
 Updating An Installation
 ========================
 
-Upadting an installation is currently more complicated than it needs to be,
+Updating an installation is currently more complicated than it needs to be,
 but that will change soon.
 
 Delete the contents of the following folders in your master and in all of

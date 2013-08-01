@@ -17,17 +17,17 @@
 package interactivespaces.launcher;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +89,10 @@ public class InteractiveSpacesLauncher {
     if (writePid()) {
       createClassLoader();
       boostrap(args);
+    } else {
+      System.err.format(
+          "InteractiveSpaces component already running. Lock found on %s\n",
+          pidFile.getAbsolutePath());
     }
   }
 
@@ -237,32 +241,46 @@ public class InteractiveSpacesLauncher {
     }
 
     pidFile = new File(runDirectory, "interactivespaces.pid");
-    if (!pidFile.exists()) {
-      pidFile.deleteOnExit();
-      BufferedWriter out = null;
-      try {
-        out = new BufferedWriter(new FileWriter(pidFile));
-        out.append(Integer.toString(getPid()));
-      } catch (Exception e) {
-        System.err.format("Error while writing pid file %s\n", pidFile);
-        e.printStackTrace();
 
+    try {
+      RandomAccessFile pidRaf = new RandomAccessFile(pidFile, "rw");
+      FileLock fl = pidRaf.getChannel().tryLock(0, Long.MAX_VALUE, false);
+
+      if (fl != null) {
+        writePidFile(pidRaf);
+
+        pidFile.deleteOnExit();
+
+        return true;
+      } else {
+        // someone else has the lock
         return false;
-      } finally {
-        if (out != null) {
-          try {
-            out.close();
-          } catch (IOException e) {
-            // Don't care
-          }
-        }
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+
+      return false;
+    }
+  }
+
+  /**
+   * Attempt to write into the PID file.
+   *
+   * @param pidRaf
+   *          the file reference
+   *
+   * @return {@code true} if the write was successful
+   */
+  private boolean writePidFile(RandomAccessFile pidRaf) {
+    try {
+      pidRaf.writeChars(Integer.toString(getPid()));
+
+      pidRaf.close();
 
       return true;
-    } else {
-      System.err.format(
-          "InteractiveSpaces component already running. If it isn't running, delete %s\n",
-          pidFile.getAbsolutePath());
+    } catch (IOException e) {
+      e.printStackTrace();
+
       return false;
     }
   }
