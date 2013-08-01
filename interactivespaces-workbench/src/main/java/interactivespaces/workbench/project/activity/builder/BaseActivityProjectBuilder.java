@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.configuration.Configuration;
+import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectResource;
@@ -37,6 +39,7 @@ import java.util.Map;
  */
 public class BaseActivityProjectBuilder implements ProjectBuilder {
 
+  private static final String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
   /**
    * Subdirectory of build folder which contains the staged activity
    */
@@ -143,8 +146,15 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
    *          context for the build
    */
   private void copyResources(Project project, File stagingDirectory, ProjectBuildContext context) {
+    SimpleConfiguration workbenchConfig = context.getWorkbench().getWorkbenchConfig();
+    SimpleConfiguration resourceConfig = SimpleConfiguration.newConfiguration();
+    resourceConfig.setParent(workbenchConfig);
+
+    resourceConfig.setValue(CONFIGURATION_PROPERTY_PROJECT_HOME, project.getBaseDirectory()
+        .getAbsolutePath());
+
     for (ProjectResource resource : project.getResources()) {
-      copyResource(resource, project, stagingDirectory, context);
+      copyResource(resource, project, stagingDirectory, context, resourceConfig);
     }
   }
 
@@ -157,23 +167,24 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
    *          where the items will be copied
    * @param context
    *          context for the build
+   * @param resourceConfig
+   *          configuration specifically for the resource copying
    */
   private void copyResource(ProjectResource resource, Project project, File stagingDirectory,
-      ProjectBuildContext context) {
+      ProjectBuildContext context, Configuration resourceConfig) {
     if (resource.getDestinationDirectory() != null) {
       File destDir = new File(stagingDirectory, resource.getDestinationDirectory());
       makeDirectory(destDir);
 
       if (resource.getSourceDirectory() != null) {
-        String evaluate =
-            context.getWorkbench().getWorkbenchConfig().evaluate(resource.getSourceDirectory());
-        System.out.println(evaluate);
+        String evaluate = resourceConfig.evaluate(resource.getSourceDirectory());
+
         File srcDir = new File(evaluate);
         Files.copyDirectory(srcDir, destDir, true);
       } else {
         // There is a file to be copied.
         File srcFile =
-            new File(context.getWorkbench().getWorkbenchConfig().evaluate(resource.getSourceFile()));
+            new File(resourceConfig.evaluate(resource.getSourceFile()));
         Files.copyFile(srcFile, new File(destDir, srcFile.getName()));
       }
     } else {
