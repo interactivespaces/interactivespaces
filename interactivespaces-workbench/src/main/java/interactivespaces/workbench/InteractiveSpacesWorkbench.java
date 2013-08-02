@@ -35,6 +35,7 @@ import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.activity.builder.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
@@ -615,6 +616,10 @@ public class InteractiveSpacesWorkbench {
       } else if ("clean".equals(command)) {
         System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = cleanActivityProject(project);
+      } else if ("doc".equals(command)) {
+        System.out.format("Building Docs for project %s\n", project.getBaseDirectory()
+            .getAbsolutePath());
+        noErrors = generateDocs(project);
       } else if ("ide".equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory()
             .getAbsolutePath());
@@ -623,6 +628,31 @@ public class InteractiveSpacesWorkbench {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = deployProject(project, commands.remove(0));
       }
+    }
+  }
+
+  /**
+   * generate the docs for a project.
+   *
+   * @param project
+   *          the project
+   *
+   * @return {@code true} if the build was successful
+   */
+  public boolean generateDocs(Project project) {
+    // TODO(keith): Make work for other project types
+    if ("library".equals(project.getType()) || "java".equals(project.getBuilderType())) {
+      ExternalJavadocGenerator generator = new ExternalJavadocGenerator();
+      ProjectBuildContext context = new ProjectBuildContext(project, this);
+
+      generator.generate(context);
+
+      return true;
+    } else {
+      System.err.format("Project located at %s is not a java project\n", project.getBaseDirectory()
+          .getAbsolutePath());
+
+      return false;
     }
   }
 

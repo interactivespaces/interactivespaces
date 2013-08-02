@@ -19,8 +19,6 @@ package interactivespaces.activity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
 
-import sun.org.mozilla.javascript.JavaAdapter;
-
 /**
  * A collection of property names used in the Interactive Spaces system
  * configuration specifically for activities to use.
@@ -41,7 +39,7 @@ public class ActivitySystemConfiguration {
   /**
    * Name of the configuration property for flags to be handed to the native
    * platform browser to start up a browser app. Uses
-   * {@link JavaAdapter.text.MessageFormat} to format, {0} is the URL to open to
+   * {@link java.text.MessageFormat} to format, {0} is the URL to open to
    * start.
    */
   public static final String ACTIVITY_NATIVE_BROWSER_COMMAND_FLAGS_PREFIX =

@@ -88,7 +88,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @return the output directory for building
    */
   private File getOutputDirectory(File buildDirectory) {
-    File outputDirectory = new File(buildDirectory, "classes");
+    File outputDirectory = new File(buildDirectory, JavaJarCompiler.CLASSES_DIRECTORY);
     if (!outputDirectory.exists()) {
       if (!outputDirectory.mkdirs()) {
         throw new InteractiveSpacesException(String.format(

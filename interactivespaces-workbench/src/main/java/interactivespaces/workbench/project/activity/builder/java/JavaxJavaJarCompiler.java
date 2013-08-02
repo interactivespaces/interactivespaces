@@ -56,8 +56,6 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   public static final String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
       "interactivespaces.workbench.builder.java.compileflags";
 
-  public static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
-
   @Override
   public boolean build(File jarDestinationFile, File compilationFolder,
       JavaProjectExtensions extensions, ProjectBuildContext context) throws Exception {
