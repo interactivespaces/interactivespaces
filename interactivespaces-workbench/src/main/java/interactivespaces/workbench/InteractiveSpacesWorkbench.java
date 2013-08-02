@@ -35,7 +35,10 @@ import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.activity.builder.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.activity.builder.java.ExternalJavadocGenerator;
+import interactivespaces.workbench.project.activity.builder.java.JavadocGenerator;
+import interactivespaces.workbench.project.activity.builder.java.OsgiBundleCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
@@ -66,7 +69,23 @@ import java.util.Map;
  */
 public class InteractiveSpacesWorkbench {
 
-  private static final String FILENAME_JAR_EXTENSION = ".jar";
+  public static final String COMMAND_RECURSIVE = "walk";
+
+  public static final String COMMAND_OSGI = "osgi";
+
+  public static final String COMMAND_CREATE = "create";
+
+  public static final String COMMAND_DEPLOY = "deploy";
+
+  public static final String COMMAND_IDE = "ide";
+
+  public static final String COMMAND_DOCS = "docs";
+
+  public static final String COMMAND_CLEAN = "clean";
+
+  public static final String COMMAND_BUILD = "build";
+
+  public static final String FILENAME_JAR_EXTENSION = ".jar";
 
   /**
    * The file extension used for files which give container extensions.
@@ -276,7 +295,7 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void copyBuildArtifacts(Project project, File destination) {
-    File[] artifacts = new File(project.getBaseDirectory(), "build").listFiles(new FileFilter() {
+    File[] artifacts = new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
       @Override
       public boolean accept(File pathname) {
         return pathname.isFile();
@@ -286,6 +305,18 @@ public class InteractiveSpacesWorkbench {
       for (File artifact : artifacts) {
         Files.copyFile(artifact, new File(destination, artifact.getName()));
       }
+    }
+  }
+
+  public void createOsgi(String file) {
+    System.out.format("Making %s into an OSGi bundle\n", file);
+
+    OsgiBundleCreator osgiBundleCreator = new BndOsgiBundleCreator();
+    try {
+      osgiBundleCreator.createBundle(new File(file), null);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
@@ -425,15 +456,17 @@ public class InteractiveSpacesWorkbench {
   public void doCommands(List<String> commands) {
     String command = commands.remove(0);
 
-    if ("create".equals(command)) {
+    if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating project");
       createProject(commands);
+    } else if (COMMAND_OSGI.equals(command)) {
+      createOsgi(commands.remove(0));
     } else {
       File baseDir = new File(command);
       if (projectManager.isProjectFolder(baseDir)) {
         doCommandsOnProject(baseDir, commands);
       } else {
-        if (!commands.isEmpty() && "walk".equals(commands.get(0))) {
+        if (!commands.isEmpty() && COMMAND_RECURSIVE.equals(commands.get(0))) {
           commands.remove(0);
 
           doCommandsOnTree(baseDir, commands);
@@ -603,28 +636,28 @@ public class InteractiveSpacesWorkbench {
    */
   private void doCommandsOnProject(Project project, List<String> commands) {
     if (commands.isEmpty()) {
-      commands.add("build");
+      commands.add(COMMAND_BUILD);
     }
 
     boolean noErrors = true;
     while (!commands.isEmpty() && noErrors) {
       String command = commands.remove(0);
 
-      if ("build".equals(command)) {
+      if (COMMAND_BUILD.equals(command)) {
         System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = buildProject(project);
-      } else if ("clean".equals(command)) {
+      } else if (COMMAND_CLEAN.equals(command)) {
         System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = cleanActivityProject(project);
-      } else if ("doc".equals(command)) {
+      } else if (COMMAND_DOCS.equals(command)) {
         System.out.format("Building Docs for project %s\n", project.getBaseDirectory()
             .getAbsolutePath());
         noErrors = generateDocs(project);
-      } else if ("ide".equals(command)) {
+      } else if (COMMAND_IDE.equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory()
             .getAbsolutePath());
         noErrors = generateIdeActivityProject(project, commands.remove(0));
-      } else if ("deploy".equals(command)) {
+      } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = deployProject(project, commands.remove(0));
       }
@@ -642,7 +675,7 @@ public class InteractiveSpacesWorkbench {
   public boolean generateDocs(Project project) {
     // TODO(keith): Make work for other project types
     if ("library".equals(project.getType()) || "java".equals(project.getBuilderType())) {
-      ExternalJavadocGenerator generator = new ExternalJavadocGenerator();
+      JavadocGenerator generator = new ExternalJavadocGenerator();
       ProjectBuildContext context = new ProjectBuildContext(project, this);
 
       generator.generate(context);
