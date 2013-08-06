@@ -57,14 +57,16 @@ public class BaseRequestXBeeFrame implements RequestXBeeFrame {
   }
 
   @Override
-  public void add(int b) {
+  public RequestXBeeFrame add(int b) {
     writeByte(b);
     checksum += b;
     length++;
+
+    return this;
   }
 
   @Override
-  public void add16(int i) {
+  public RequestXBeeFrame add16(int i) {
     int b1 = (i >> 8) & 0xff;
     int b2 = i & 0xff;
 
@@ -72,28 +74,34 @@ public class BaseRequestXBeeFrame implements RequestXBeeFrame {
     writeByte(b2);
     checksum += b1 + b2;
     length += 2;
+
+    return this;
   }
 
   @Override
-  public void add(byte[] ba) {
+  public RequestXBeeFrame add(byte[] ba) {
     for (byte b : ba) {
       writeByte(b);
       checksum += ((int) b & 0xff);
     }
     length += ba.length;
+
+    return this;
   }
 
   @Override
-  public void add(int[] ia) {
+  public RequestXBeeFrame add(int[] ia) {
     for (int i : ia) {
       writeByte(i);
       checksum += i & 0xff;
     }
     length += ia.length;
+
+    return this;
   }
 
   @Override
-  public void write(XBeeCommunicationEndpoint xbeeEndpoint) {
+  public RequestXBeeFrame write(XBeeCommunicationEndpoint xbeeEndpoint) {
     checksum &= 0xff;
     checksum = 0xff - checksum;
     writeByte(checksum);
@@ -112,6 +120,8 @@ public class BaseRequestXBeeFrame implements RequestXBeeFrame {
 
     commEndpoint.write(bytes);
     commEndpoint.flush();
+
+    return this;
   }
 
   /**
