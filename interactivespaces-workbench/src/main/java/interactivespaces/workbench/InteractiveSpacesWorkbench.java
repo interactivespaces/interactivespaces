@@ -340,8 +340,14 @@ public class InteractiveSpacesWorkbench {
       }
     }
 
+    File controllerDirectory = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File javaSystemDirectory =
-        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)), "lib/system/java");
+        new File(controllerDirectory, "lib/system/java");
+    if (!javaSystemDirectory.isDirectory()) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("Controller directory %s configured by %s does not appear to be valid.",
+              controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
+    }
     classpath.add(new File(javaSystemDirectory,
         "com.springsource.org.apache.commons.logging-1.1.1.jar"));
 
@@ -471,7 +477,8 @@ public class InteractiveSpacesWorkbench {
 
           doCommandsOnTree(baseDir, commands);
         } else {
-          System.out.format("%s is not a project directory\n", baseDir.getAbsolutePath());
+          throw new SimpleInteractiveSpacesException(String.format("%s is not a project directory",
+              baseDir.getAbsolutePath()));
         }
       }
     }
