@@ -1,4 +1,4 @@
-package interactivespaces.example.comm.xbee.coordinator;
+package interactivespaces.example.comm.xbee.coordinator.iosamples;
 
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
@@ -19,13 +19,12 @@ import interactivespaces.util.InteractiveSpacesUtilities;
  * an XBee radio configured as a Coordinator.
  *
  * <p>
- * This example sends a couple of AP commands to the local radio, sends a
- * Transmit packet to a remote radio, and will display IO sample frames if sent
- * from the remote radio.
+ * This example sends AP T commands to the remote radio to set DIO0 to be an
+ * analog input, DIO1 to be a digital input, and the sample rate to be 1 second.
  *
  * @author Keith M. Hughes
  */
-public class XBeeCoordinatorExampleActivity extends BaseActivity {
+public class XBeeIoSamplesCoordinatorExampleActivity extends BaseActivity {
 
   /**
    * The name of the config property for obtaining the serial port.
@@ -112,5 +111,27 @@ public class XBeeCoordinatorExampleActivity extends BaseActivity {
     xbee.newTxRequestXBeeFrame(remoteAddress, 0x03, 0, 0).add16(1234).write(xbee);
 
     getLog().info("Wrote TX request");
+
+    InteractiveSpacesUtilities.delay(1000);
+
+    // Configure DIO0 to be an analog input
+    xbee.newAtRemoteRequestXBeeFrame(remoteAddress, XBeeApiConstants.AT_COMMAND_D0, 0)
+        .add(XBeeApiConstants.IO_FUNCTION_ANALOG).write(xbee);
+
+    InteractiveSpacesUtilities.delay(1000);
+
+    // Configure DIO1 to be a digital input
+    xbee.newAtRemoteRequestXBeeFrame(remoteAddress, XBeeApiConstants.AT_COMMAND_D1, 0)
+        .add(XBeeApiConstants.IO_FUNCTION_DIGITAL_INPUT).write(xbee);
+
+    InteractiveSpacesUtilities.delay(1000);
+
+    // Want a sample every 1000 msec (1 second), which is 03e8 hex
+    xbee.newAtRemoteRequestXBeeFrame(remoteAddress, XBeeApiConstants.AT_COMMAND_IR, 0)
+        .add16(0x03e8).write(xbee);
+
+    // Since DH and DL are left at 0, samples are only send to coordinator.
+    // Set DH and DL to specify a destination.
+
   }
 }
