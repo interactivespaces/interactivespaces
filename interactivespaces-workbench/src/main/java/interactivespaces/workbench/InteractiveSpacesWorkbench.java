@@ -295,12 +295,13 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void copyBuildArtifacts(Project project, File destination) {
-    File[] artifacts = new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.isFile();
-      }
-    });
+    File[] artifacts =
+        new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
+          @Override
+          public boolean accept(File pathname) {
+            return pathname.isFile();
+          }
+        });
     if (artifacts != null) {
       for (File artifact : artifacts) {
         Files.copyFile(artifact, new File(destination, artifact.getName()));
@@ -342,11 +343,12 @@ public class InteractiveSpacesWorkbench {
 
     File controllerDirectory = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File javaSystemDirectory =
-        new File(controllerDirectory, "lib/system/java");
+        new File(controllerDirectory,
+            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
     if (!javaSystemDirectory.isDirectory()) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Controller directory %s configured by %s does not appear to be valid.",
-              controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Controller directory %s configured by %s does not appear to be valid.",
+          controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
     }
     classpath.add(new File(javaSystemDirectory,
         "com.springsource.org.apache.commons.logging-1.1.1.jar"));
@@ -373,7 +375,8 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)), "lib/system/java")
+        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
+            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
             .listFiles(new FilenameFilter() {
 
               @Override

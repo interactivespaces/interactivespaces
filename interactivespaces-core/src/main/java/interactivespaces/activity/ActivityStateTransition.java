@@ -100,6 +100,11 @@ public abstract class ActivityStateTransition {
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "ActivityStateTransition [description=" + description + "]";
+  }
+
   /**
    * Transition for starting up an activity.
    */

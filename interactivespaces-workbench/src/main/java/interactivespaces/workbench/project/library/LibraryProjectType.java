@@ -24,6 +24,7 @@ import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.java.JavaProject;
 
 /**
  * A project type for library projects.
@@ -55,6 +56,6 @@ public class LibraryProjectType implements ProjectType {
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
     return new JavaEclipseIdeProjectCreatorSpecification(
-        Lists.newArrayList(LibraryProjectTemplate.SOURCE_MAIN_JAVA));
+        Lists.newArrayList(JavaProject.SOURCE_MAIN_JAVA));
   }
 }
