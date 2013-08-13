@@ -4,7 +4,12 @@ source tools/setup_functions.sh
 
 setup_ros_path $PWD
 
-gradle install
+if [ `newest_file interactivespaces_msgs/` -nt `newest_file nrosjava_messages/` ]; then
+  echo Messages have been modified, forcing rebuild.
+  (cd nrosjava_messages; gradle clean)
+fi
+
+gradle -x javadoc -x test install
 
 mvnsub master clean install
 mvnsub controller clean install

@@ -199,3 +199,8 @@ function install_maven {
   echo You need to install a local maven repo, try tools/install_maven.sh
   false
 }
+
+function newest_file {
+  DIR=$1
+  find $DIR -type f | xargs ls -t 2> /dev/null | head -1
+}
