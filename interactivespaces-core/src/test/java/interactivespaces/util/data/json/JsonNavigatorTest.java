@@ -139,6 +139,46 @@ public class JsonNavigatorTest {
   }
 
   /**
+   * Make sure primitives are properly handled.
+   */
+  @Test
+  public void testArrayPrimitives() {
+    Map<String, Object> root = Maps.newHashMap();
+
+    String keyString = "test";
+    List<Object> data = Lists.newArrayList();
+    root.put(keyString, data);
+
+    String valueString = "bar";
+    data.add(valueString);
+
+    int valueInteger = 1234;
+    data.add(valueInteger);
+
+    double valueDouble = 1.23456;
+    data.add(valueDouble);
+
+    boolean valueBoolean = true;
+    data.add(valueBoolean);
+
+    Map<String, Object> valueMap = Maps.newHashMap();
+    data.add(valueMap);
+    valueMap.put("foo", "bar");
+    valueMap.put("bletch", 123);
+
+    JsonNavigator nav = new JsonNavigator(root);
+    nav.down(keyString);
+
+    assertEquals(valueString, nav.getString(0));
+    assertEquals((Integer) valueInteger, nav.getInteger(1));
+    assertEquals((Double) valueDouble, nav.getDouble(2));
+    assertEquals((Boolean) valueBoolean, nav.getBoolean(3));
+    assertEquals(valueMap, nav.getItem(4));
+
+    assertEquals(data.size(), nav.getSize());
+  }
+
+  /**
    * Test using the path API
    */
   @Test
