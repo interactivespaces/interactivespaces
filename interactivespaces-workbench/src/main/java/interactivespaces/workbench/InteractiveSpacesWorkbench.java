@@ -69,22 +69,50 @@ import java.util.Map;
  */
 public class InteractiveSpacesWorkbench {
 
+  /**
+   * Command to recursively walk over a set of directories looking for the IS
+   * project folders,
+   */
   public static final String COMMAND_RECURSIVE = "walk";
 
+  /**
+   * Command to create an OSGi bundle from an existing jar.
+   */
   public static final String COMMAND_OSGI = "osgi";
 
+  /**
+   * Command to create a new project.
+   */
   public static final String COMMAND_CREATE = "create";
 
+  /**
+   * Command to deploy a project.
+   */
   public static final String COMMAND_DEPLOY = "deploy";
 
+  /**
+   * Command to create an IDE project for an IS project.
+   */
   public static final String COMMAND_IDE = "ide";
 
+  /**
+   * Command to create documentation from a project.
+   */
   public static final String COMMAND_DOCS = "docs";
 
+  /**
+   * Command to clean a project.
+   */
   public static final String COMMAND_CLEAN = "clean";
 
+  /**
+   * command to build a project.
+   */
   public static final String COMMAND_BUILD = "build";
 
+  /**
+   * File extension for a Java jar file.
+   */
   public static final String FILENAME_JAR_EXTENSION = ".jar";
 
   /**
@@ -621,7 +649,7 @@ public class InteractiveSpacesWorkbench {
    * @param console
    *          the console for IO
    *
-   * @return a valid value for the prquestion
+   * @return a valid value for the question
    */
   private String getValue(String prompt, Validator validator, Console console) {
     String fullPrompt = prompt + ": ";
@@ -629,8 +657,9 @@ public class InteractiveSpacesWorkbench {
     String value = console.readLine(fullPrompt);
     DomainValidationResult result = validator.validate(value);
     while (result.getResultType().equals(DomainValidationResultType.ERRORS)) {
-      console.printf(result.getDescription());
+      console.printf("%s\n", result.getDescription());
       value = console.readLine(fullPrompt);
+      result = validator.validate(value);
     }
 
     return value;

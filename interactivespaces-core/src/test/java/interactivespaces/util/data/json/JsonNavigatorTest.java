@@ -146,36 +146,44 @@ public class JsonNavigatorTest {
     Map<String, Object> root = Maps.newHashMap();
 
     String keyString = "test";
-    List<Object> data = Lists.newArrayList();
-    root.put(keyString, data);
+    List<Object> array = Lists.newArrayList();
+    root.put(keyString, array);
 
-    String valueString = "bar";
-    data.add(valueString);
+    String objectValue1 = "bar";
+    String arrayValueString = objectValue1;
+    array.add(arrayValueString);
 
-    int valueInteger = 1234;
-    data.add(valueInteger);
+    int arrayValueInteger = 1234;
+    array.add(arrayValueInteger);
 
-    double valueDouble = 1.23456;
-    data.add(valueDouble);
+    double arrayValueDouble = 1.23456;
+    array.add(arrayValueDouble);
 
-    boolean valueBoolean = true;
-    data.add(valueBoolean);
+    boolean arrayValueBoolean = true;
+    array.add(arrayValueBoolean);
 
-    Map<String, Object> valueMap = Maps.newHashMap();
-    data.add(valueMap);
-    valueMap.put("foo", "bar");
-    valueMap.put("bletch", 123);
+    Map<String, Object> arrayValueMap = Maps.newHashMap();
+    array.add(arrayValueMap);
+    String objectKey1 = "foo";
+    arrayValueMap.put(objectKey1, objectValue1);
+    String objectKey2 = "bletch";
+    int objectValue2 = 123;
+    arrayValueMap.put(objectKey2, objectValue2);
 
     JsonNavigator nav = new JsonNavigator(root);
     nav.down(keyString);
 
-    assertEquals(valueString, nav.getString(0));
-    assertEquals((Integer) valueInteger, nav.getInteger(1));
-    assertEquals((Double) valueDouble, nav.getDouble(2));
-    assertEquals((Boolean) valueBoolean, nav.getBoolean(3));
-    assertEquals(valueMap, nav.getItem(4));
+    assertEquals(arrayValueString, nav.getString(0));
+    assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
+    assertEquals((Double) arrayValueDouble, nav.getDouble(2));
+    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueMap, nav.getItem(4));
 
-    assertEquals(data.size(), nav.getSize());
+    assertEquals(array.size(), nav.getSize());
+
+    nav.down(4);
+    assertEquals(objectValue1, nav.getString(objectKey1));
+    assertEquals((Integer)objectValue2, nav.getInteger(objectKey2));
   }
 
   /**

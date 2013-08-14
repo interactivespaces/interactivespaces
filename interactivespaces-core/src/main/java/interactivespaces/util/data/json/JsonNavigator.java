@@ -16,7 +16,6 @@
 
 package interactivespaces.util.data.json;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -433,11 +432,11 @@ public class JsonNavigator {
         nav.push(currentArray);
         currentObject = (Map<String, Object>) value;
 
-        // Type already a MAP
+        currentType = JsonType.OBJECT;
       } else if (value instanceof List) {
         nav.push(currentArray);
         currentArray = (List<Object>) value;
-        currentType = JsonType.ARRAY;
+        // Already an array
         currentArraySize = currentArray.size();
         currentArrayPosition = 0;
       } else {
