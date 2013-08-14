@@ -19,7 +19,7 @@ package org.ros.concurrent;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * Class for getting a {@link MessagelockingQueue}.
+ * Class for getting a {@link MessageBlockingQueue}.
  *
  * @author Keith M. Hughes
  */
@@ -31,7 +31,7 @@ public class MessageBlockingQueueFactory {
    * @param capacity
    *          base capacity of the queue
    * @param finite
-   *          {@true} if the queue should be finite and drop messages when full
+   *          {@code true} if the queue should be finite and drop messages when full
    *
    * @return an implementation giving the requested features
    */

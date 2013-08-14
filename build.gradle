@@ -46,7 +46,7 @@ allprojects {
   ext.osgiVersion = '1.5.1'
 
   group = 'interactivespaces'
-  version = osgiVersion + '-2013081201'
+  version = osgiVersion + '-2013081301'
 }
 
 subprojects {

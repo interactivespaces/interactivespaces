@@ -76,8 +76,7 @@ public class TcpClientManager {
   }
 
   /**
-   * Sets all {@link TcpClientConnection}s as non-persistent and closes all open
-   * {@link Channel}s.
+   * Shuts down all {@link TcpClient}s and closes all open {@link Channel}s.
    */
   public void shutdown() {
     channelGroup.close().awaitUninterruptibly();
