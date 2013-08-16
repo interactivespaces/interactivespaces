@@ -16,12 +16,17 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-// TODO(keith): Remove duplication from root build.gradle
-nonjavaProjects = [ 'interactivespaces_docs', 'interactivespaces-controller-android', 'service', 'interactivespaces_build',
-    'master', 'controller', 'workbench']
-
 task javadoc(type: Javadoc) {
+  // TODO(keith): Remove duplication from root build.gradle
+  nonjavaProjects = [
+    'interactivespaces_docs',
+    'interactivespaces-controller-android',
+    'service', 'interactivespaces_build',
+    'master', 'controller', 'workbench'
+  ]
+
   javaProjects = rootProject.subprojects.findResults { (!nonjavaProjects.contains(it.name)) ? it : null }
+  println javaProjects
   source javaProjects.collect { it.sourceSets.main.allJava }
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
   destinationDir = new File("${buildDir}/html", 'javadoc')

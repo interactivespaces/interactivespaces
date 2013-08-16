@@ -36,12 +36,12 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
   /**
    * UDP Client service
    */
-  //private NettyUdpClientNetworkCommunicationEndpointService udpClientService;
+  private NettyUdpClientNetworkCommunicationEndpointService udpClientService;
 
   /**
    * UDP Client service
    */
-  //private NettyUdpServerNetworkCommunicationEndpointService udpServerService;
+  private NettyUdpServerNetworkCommunicationEndpointService udpServerService;
 
   @Override
   protected void allRequiredServicesAvailable() {
@@ -49,10 +49,10 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
 
     registerNewInteractiveSpacesService(xbeeCommEndpointService);
 
-//    udpClientService = new NettyUdpClientNetworkCommunicationEndpointService();
-//    registerNewInteractiveSpacesService(udpClientService);
-//
-//    udpServerService = new NettyUdpServerNetworkCommunicationEndpointService();
-//    registerNewInteractiveSpacesService(udpServerService);
+    udpClientService = new NettyUdpClientNetworkCommunicationEndpointService();
+    registerNewInteractiveSpacesService(udpClientService);
+
+    udpServerService = new NettyUdpServerNetworkCommunicationEndpointService();
+    registerNewInteractiveSpacesService(udpServerService);
  }
 }
