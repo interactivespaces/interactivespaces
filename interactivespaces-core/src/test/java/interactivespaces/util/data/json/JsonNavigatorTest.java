@@ -184,7 +184,17 @@ public class JsonNavigatorTest {
     nav.down(4);
     assertEquals(objectValue1, nav.getString(objectKey1));
     assertEquals((Integer)objectValue2, nav.getInteger(objectKey2));
-  }
+
+    nav.up();
+
+    assertEquals(arrayValueString, nav.getString(0));
+    assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
+    assertEquals((Double) arrayValueDouble, nav.getDouble(2));
+    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueMap, nav.getItem(4));
+
+    assertEquals(array.size(), nav.getSize());
+ }
 
   /**
    * Test using the path API

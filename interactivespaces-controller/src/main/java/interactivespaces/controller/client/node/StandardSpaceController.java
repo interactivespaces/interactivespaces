@@ -356,14 +356,6 @@ public class StandardSpaceController implements SpaceController,
     controllerCommunicator.notifyRemoteMasterServerAboutStartup(controllerInfo);
 
     startedUp = true;
-
-    // Make sure we shutdown all activities properly.
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        shutdown();
-      }
-    });
   }
 
   /**

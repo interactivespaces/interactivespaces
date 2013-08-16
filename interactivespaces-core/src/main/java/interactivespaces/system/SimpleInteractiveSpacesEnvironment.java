@@ -170,7 +170,7 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
 
   /**
    * @param serviceRegistry
-   *          the serviceRegistry to set
+   *          the service registry to set
    */
   public void setServiceRegistry(ServiceRegistry serviceRegistry) {
     this.serviceRegistry = serviceRegistry;

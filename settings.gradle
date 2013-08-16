@@ -48,4 +48,7 @@ include 'nrosjava_bootstrap', 'nrosjava_messages',
         'service:interactivespaces-service-androidos',
 	'service:interactivespaces-service-comm-serial',
 	'service:interactivespaces-service-comm-usb',
-        'service:interactivespaces-service-comm-bluetooth'
+        'service:interactivespaces-service-comm-bluetooth',
+        'interactivespaces_build:master',
+        'interactivespaces_build:controller',
+        'interactivespaces_build:workbench'

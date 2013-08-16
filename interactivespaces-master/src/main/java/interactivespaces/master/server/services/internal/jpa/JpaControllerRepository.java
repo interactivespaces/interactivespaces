@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A JPA implementation of {@linkControllerRepository}.
+ * A JPA implementation of {@link ControllerRepository}.
  *
  * @author Keith M. Hughes
  */

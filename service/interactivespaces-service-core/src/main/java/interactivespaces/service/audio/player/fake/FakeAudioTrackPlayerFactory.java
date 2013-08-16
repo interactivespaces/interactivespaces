@@ -24,7 +24,7 @@ import interactivespaces.service.audio.player.PlayableAudioTrack;
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link TrackPlayerfactory} for {@link FakeAudioTrackPlayer} instances.
+ * An {@link AudioTrackPlayerFactory} for {@link FakeAudioTrackPlayer} instances.
  *
  * @author Keith M. Hughes
  */
