@@ -26,7 +26,6 @@ task javadoc(type: Javadoc) {
   ]
 
   javaProjects = rootProject.subprojects.findResults { (!nonjavaProjects.contains(it.name)) ? it : null }
-  println javaProjects
   source javaProjects.collect { it.sourceSets.main.allJava }
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
   destinationDir = new File("${buildDir}/html", 'javadoc')

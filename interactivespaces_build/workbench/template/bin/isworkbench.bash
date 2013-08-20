@@ -9,5 +9,5 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # Get to the directory above the bin directory.
 cd $DIR/..
 
-java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar ${@}
+java -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar ${@}
 
