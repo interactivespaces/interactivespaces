@@ -1,5 +1,10 @@
 
 function colorize_output {
+  # If not a valid tty, bail before trying tput
+  if ! tty -s; then
+    return
+  fi
+
   if [ "$1" == "reset" ]; then
     tput setaf 7
   elif [ "$1" == "OK" ]; then

@@ -29,3 +29,5 @@ setup_ros_path $PWD
 check_ros path $PWD
 
 check_maven repository $HOME/.m2 || install_maven m2
+
+echo Done with interactive-spaces setup.
