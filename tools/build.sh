@@ -11,4 +11,4 @@ fi
 
 gradle -x javadoc -x test install installDev
 
-eche Done with interactivespaces build.
+echo Done with interactivespaces build.
