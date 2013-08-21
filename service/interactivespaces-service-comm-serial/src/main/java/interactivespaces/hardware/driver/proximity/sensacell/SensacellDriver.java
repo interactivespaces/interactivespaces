@@ -138,7 +138,7 @@ public class SensacellDriver extends DriverSupport {
   private SerialCommunicationEndpoint cellEndpoint;
 
   /**
-   * {@true} if the cell has completed setup.
+   * {@code true} if the cell has completed setup.
    */
   private boolean setupComplete;
 

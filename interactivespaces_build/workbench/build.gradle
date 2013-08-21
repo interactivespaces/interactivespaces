@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,20 +13,13 @@
  * the License.
  */
 
-dependencies {
-  compile project(':interactivespaces-core')
-
-  testCompile 'junit:junit:4.8.2'
-  testCompile 'org.mockito:mockito-all:1.8.5'
+task assembleContainers(type: Exec) {
+  commandLine "mvn", "clean", "install", "-DinteractiveSpacesVersion=${version}"
 }
 
-jar {
-  manifest {
-    version = osgiVersion
-    symbolicName = 'interactivespaces.service.mail.common'
-	
-    instruction 'Export-Package',
-		'interactivespaces.service.mail.common.*'
-  }
+task installDev(type: Exec, dependsOn: [assembleContainers]) {
+  // TODO(keith): get the common parts into a generic task available to all
+  def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+  def containerDir = getProperty("interactivespaces.dev.home") + "/workbench"
+  commandLine "bash", "../install_container.bash", version, "workbench" , containerDir, stagingDir
 }
-

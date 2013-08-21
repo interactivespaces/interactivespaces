@@ -28,24 +28,30 @@ public interface RequestXBeeFrame {
    *
    * @param b
    *          the byte to add
+   *
+   * @return the frame that was added to
    */
-  void add(int b);
+  RequestXBeeFrame add(int b);
 
   /**
    * Add a new 16-bit integer to the frame.
    *
    * @param i
    *          the integer to add
+   *
+   * @return the frame that was added to
    */
-  void add16(int i);
+  RequestXBeeFrame add16(int i);
 
   /**
    * Add an array of bytes to the frame.
    *
    * @param ba
    *          the bytes to add
+   *
+   * @return the frame that was added to
    */
-  void add(byte[] ba);
+  RequestXBeeFrame add(byte[] ba);
 
   /**
    * Add an array of bytes to the frame.
@@ -55,15 +61,18 @@ public interface RequestXBeeFrame {
    *
    * @param ia
    *          the bytes to add
+   *
+   * @return the frame that was added to
    */
-  void add(int[] ia);
+  RequestXBeeFrame add(int[] ia);
 
   /**
    * Write the frame to the XBee.
    *
    * @param commEndpoint
    *          the communication endpoint for the XBee
+   *
+   * @return the frame that was added to
    */
-  void write(XBeeCommunicationEndpoint commEndpoint);
-
+  RequestXBeeFrame write(XBeeCommunicationEndpoint commEndpoint);
 }

@@ -50,7 +50,7 @@ public interface Space extends PersistedObject, Serializable {
    * Set the name of the space.
    *
    * @param name
-   *          The new name for the space.
+   *          the new name for the space
    */
   void setName(String name);
 
@@ -76,7 +76,7 @@ public interface Space extends PersistedObject, Serializable {
    * This removes the old metadata completely.
    *
    * @param metadata
-   *          the metadata for the space (can by {@link null}
+   *          the metadata for the space, can by {@code null}
    */
   void setMetadata(Map<String, Object> metadata);
 
@@ -161,7 +161,7 @@ public interface Space extends PersistedObject, Serializable {
    *
    * @return this space
    */
-  Space addActivityGroups(LiveActivityGroup... activityGroup);
+  Space addActivityGroups(LiveActivityGroup... activityGroups);
 
   /**
    * Remove a activity group from the space.

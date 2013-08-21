@@ -17,7 +17,6 @@
 package interactivespaces.example.comm.xbee.endpoint.iosamples;
 
 import interactivespaces.activity.impl.BaseActivity;
-import interactivespaces.service.comm.serial.xbee.AtLocalRequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
@@ -28,7 +27,12 @@ import interactivespaces.util.ByteUtils;
 
 /**
  * An Interactive Spaces Java-based activity which sets up an XBee Radio for
- * analog and digital digital transmission to the coordinator.
+ * analog and digital IO Sample transmission to the coordinator.
+ *
+ * <p>
+ * It will also log any Receive packets it receives.
+ *
+ * @author Keith M. Hughes
  */
 public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
 
@@ -54,7 +58,7 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
 
     xbee = service.newXBeeCommunicationEndpoint(portName, getLog());
 
-    // Let IS manage the connection, which eans we don't have to start it or
+    // Let IS manage the connection, whichm eans we don't have to start it or
     // shut it down.
     addManagedResource(xbee);
 
@@ -65,6 +69,7 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
           AtLocalResponseXBeeFrame response) {
         getLog().info(response);
         getLog().info(ByteUtils.toHexString(response.getCommandData()));
+        getLog().info(response.isSuccess());
       }
 
       @Override
@@ -79,23 +84,19 @@ public class XBeeIoSamplesEndpointExampleActivity extends BaseActivity {
   @Override
   public void onActivityStartup() {
     getLog().info("Activity interactivespaces.example.comm.xbee.endpoint.iosamples startup");
-    AtLocalRequestXBeeFrame frame1 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0);
-    frame1.add(XBeeApiConstants.IO_FUNCTION_ANALOG);
 
-    frame1.write(xbee);
+    // Configure DIO0 to be an analog input
+    xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D0)
+        .add(XBeeApiConstants.IO_FUNCTION_ANALOG).write(xbee);
 
-    AtLocalRequestXBeeFrame frame2 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_P2);
-    frame2.add(XBeeApiConstants.IO_FUNCTION_DIGITAL_INPUT);
+    // Configure DIO1 to be a digital input
+    xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_D1)
+        .add(XBeeApiConstants.IO_FUNCTION_DIGITAL_INPUT).write(xbee);
 
-    frame2.write(xbee);
+    // Want a sample every 1000 msec (1 second), which is 03e8 hex
+    xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR).add16(0x03e8).write(xbee);
 
-    AtLocalRequestXBeeFrame frame3 =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_IR);
-    frame3.add(0x36);
-    frame3.add(0x34);
-
-    frame3.write(xbee);
+    // Since DH and DL are left at 0, samples are only send to coordinator.
+    // Set DH and DL to specify a destination.
   }
 }

@@ -3,20 +3,27 @@ package interactivespaces.example.comm.xbee.coordinator;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.service.comm.serial.xbee.AtLocalResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.AtRemoteResponseXBeeFrame;
-import interactivespaces.service.comm.serial.xbee.RequestXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RxIoSampleXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.RxResponseXBeeFrame;
 import interactivespaces.service.comm.serial.xbee.TxStatusXBeeFrame;
+import interactivespaces.service.comm.serial.xbee.XBeeAddress64;
 import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.XBeeResponseListenerSupport;
-import interactivespaces.service.comm.serial.xbee.internal.TxRequestXBeeFrameImpl;
-import interactivespaces.service.comm.serial.xbee.internal.XBeeAddress64Impl;
 import interactivespaces.util.ByteUtils;
+import interactivespaces.util.InteractiveSpacesUtilities;
 
 /**
- * A simple Interactive Spaces Java-based activity.
+ * A simple Interactive Spaces Java-based activity which listens for events from
+ * an XBee radio configured as a Coordinator.
+ *
+ * <p>
+ * This example sends a couple of AP commands to the local radio, sends a
+ * Transmit packet to a remote radio, and will display IO sample frames if sent
+ * from the remote radio.
+ *
+ * @author Keith M. Hughes
  */
 public class XBeeCoordinatorExampleActivity extends BaseActivity {
 
@@ -94,20 +101,15 @@ public class XBeeCoordinatorExampleActivity extends BaseActivity {
     //
     // Using the escape code for the frame ID to make sure escapes are
     // happening properly.
-    RequestXBeeFrame atLocalRequest =
-        xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_AP, 0x7d);
-
-    atLocalRequest.write(xbee);
+    xbee.newAtLocalRequestXBeeFrame(XBeeApiConstants.AT_COMMAND_AP, 0x7d).write(xbee);
 
     getLog().info("Wrote AT command");
 
     // Send a TX packet to the remote radio. It will have frame ID 3.
-    RequestXBeeFrame txRequest =
-        new TxRequestXBeeFrameImpl(new XBeeAddress64Impl(getConfiguration()
-            .getRequiredPropertyString(CONFIGURATION_PROPERTY_XBEE_REMOTE_ADDRESS64)), 0x03, 0, 0);
-    txRequest.add16(1234);
-
-    txRequest.write(xbee);
+    XBeeAddress64 remoteAddress =
+        xbee.newXBeeAddress64(getConfiguration().getRequiredPropertyString(
+            CONFIGURATION_PROPERTY_XBEE_REMOTE_ADDRESS64));
+    xbee.newTxRequestXBeeFrame(remoteAddress, 0x03, 0, 0).add16(1234).write(xbee);
 
     getLog().info("Wrote TX request");
   }

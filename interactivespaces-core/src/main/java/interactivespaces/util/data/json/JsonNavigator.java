@@ -27,6 +27,9 @@ import java.util.Stack;
  */
 public class JsonNavigator {
 
+  /**
+   * The type of data context currently being examined.
+   */
   public enum JsonType {
     OBJECT, ARRAY;
   }
@@ -55,6 +58,16 @@ public class JsonNavigator {
    * The current list, if it is a list.
    */
   private List<Object> currentArray;
+
+  /**
+   * Current position in array if in an array
+   */
+  private int currentArrayPosition;
+
+  /**
+   * Current size of array if in an array
+   */
+  private int currentArraySize;
 
   public JsonNavigator(Map<String, Object> root) {
     this.root = root;
@@ -195,6 +208,140 @@ public class JsonNavigator {
   }
 
   /**
+   * If the current level is a object, get a string field from the object.
+   *
+   * @param pos
+   *          position in the array
+   *
+   * @return value of the field
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public String getString(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      String value = (String) currentArray.get(pos);
+      return value;
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a array for position %d", pos));
+    }
+  }
+
+  /**
+   * If the current level is a object, get an integer field from the object.
+   *
+   * @param pos
+   *          position in the array
+   *
+   * @return value of the field
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public Integer getInteger(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      Integer value = (Integer) currentArray.get(pos);
+      return value;
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a array for position %d", pos));
+    }
+  }
+
+  /**
+   * If the current level is a object, get a double field from the object.
+   *
+   * @param pos
+   *          position in the array
+   *
+   * @return value of the field
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public Double getDouble(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      Object value = currentArray.get(pos);
+      if (Double.class.isInstance(value)) {
+        return (Double) value;
+      } else if (Integer.class.isInstance(value)) {
+
+        return ((Integer) value).doubleValue();
+      } else if (value == null) {
+        return null;
+      } else {
+        throw new JsonInteractiveSpacesException(
+            String.format("Array field %d is not numeric", pos));
+      }
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a array for position %d", pos));
+    }
+  }
+
+  /**
+   * If the current level is a object, get a boolean field from the object.
+   *
+   * @param pos
+   *          position in the array
+   *
+   * @return value of the field
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public Boolean getBoolean(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      Boolean value = (Boolean) currentArray.get(pos);
+
+      return value;
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a array for position %d", pos));
+    }
+  }
+
+  /**
+   * If the current level is a object, get an object field from the object.
+   *
+   * @param pos
+   *          position in the array
+   *
+   * @return value of the field
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public <T> T getItem(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      @SuppressWarnings("unchecked")
+      T value = (T) currentArray.get(pos);
+
+      return value;
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a array for position %d", pos));
+    }
+  }
+
+  /**
+   * If the current level is an array, get the size of the array.
+   *
+   * @return size of the current array
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  public int getSize() {
+    if (currentType == JsonType.ARRAY) {
+      return currentArraySize;
+    } else {
+      throw new JsonInteractiveSpacesException("Current level is not array");
+    }
+  }
+
+  /**
    * If the current level is a object, get that object
    *
    * @return the current object
@@ -248,6 +395,8 @@ public class JsonNavigator {
         nav.push(currentObject);
         currentArray = (List<Object>) value;
         currentType = JsonType.ARRAY;
+        currentArraySize = currentArray.size();
+        currentArrayPosition = 0;
       } else {
         throw new JsonInteractiveSpacesException(String.format(
             "The named item %s is neither an object or an array", name));
@@ -257,6 +406,48 @@ public class JsonNavigator {
     } else {
       throw new JsonInteractiveSpacesException(String.format(
           "Current level is not a object for name %s", name));
+    }
+  }
+
+  /**
+   * Move into the array to the item at a given position.
+   *
+   * <p>
+   * The next level must be a collection, not a primitive.
+   *
+   * @param pos
+   *          the position in the array
+   *
+   * @return this navigator object
+   *
+   * @throws JsonInteractiveSpacesException
+   *           not an array
+   */
+  @SuppressWarnings("unchecked")
+  public JsonNavigator down(int pos) {
+    if (currentType == JsonType.ARRAY) {
+      Object value = currentArray.get(pos);
+
+      if (value instanceof Map) {
+        nav.push(currentArray);
+        currentObject = (Map<String, Object>) value;
+
+        currentType = JsonType.OBJECT;
+      } else if (value instanceof List) {
+        nav.push(currentArray);
+        currentArray = (List<Object>) value;
+        // Already an array
+        currentArraySize = currentArray.size();
+        currentArrayPosition = 0;
+      } else {
+        throw new JsonInteractiveSpacesException(String.format(
+            "The posiiton %d is neither an object or an array", pos));
+      }
+
+      return this;
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not an array for position %d", pos));
     }
   }
 

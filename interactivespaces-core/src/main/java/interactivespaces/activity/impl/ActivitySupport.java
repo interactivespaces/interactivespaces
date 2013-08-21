@@ -126,7 +126,7 @@ public abstract class ActivitySupport implements Activity {
    * Set the controller this activity is running under.
    *
    * @param controller
-   *          The controller in charge of this activity.
+   *          the controller in charge of this activity
    */
   public void setController(SpaceController controller) {
     this.controller = controller;
@@ -192,10 +192,10 @@ public abstract class ActivitySupport implements Activity {
   }
 
   /**
-   * Set the activity state.
+   * Set the activity status.
    *
-   * @param activityState
-   *          The new activity state.
+   * @param activityStatus
+   *          the new activity status
    */
   protected void setActivityStatus(ActivityStatus activityStatus) {
     ActivityStatus oldStatus = this.activityStatus;
@@ -208,7 +208,7 @@ public abstract class ActivitySupport implements Activity {
    * Set the activity state.
    *
    * @param activityStatus
-   *          The new activity stus.
+   *          the new activity status
    */
   protected void setActivityStatus(ActivityState state) {
     setActivityStatus(state, null, null);
@@ -218,12 +218,12 @@ public abstract class ActivitySupport implements Activity {
    * Set the activity state.
    *
    * <p>
-   * The exception field will be null.
+   * The exception field will be {@code null}.
    *
    * @param status
    *          new status of the activity.
    * @param description
-   *          New description of the activity. can be null.
+   *          new description of the activity, can be {@code null}.
    */
   protected void setActivityStatus(ActivityState state, String description) {
     setActivityStatus(state, description, null);
@@ -233,11 +233,11 @@ public abstract class ActivitySupport implements Activity {
    * Set the activity state.
    *
    * @param status
-   *          new status of the activity.
+   *          new status of the activity
    * @param description
-   *          New description of the activity. can be null.
+   *          new description of the activity. can be {@code null}
    * @param exception
-   *          Exception that occurred. Can be null.
+   *          exception that occurred, can be {@code null}
    */
   protected void setActivityStatus(ActivityState state, String description, Throwable exception) {
     setActivityStatus(new ActivityStatus(state, description, exception));
@@ -257,6 +257,5 @@ public abstract class ActivitySupport implements Activity {
     } else {
       getLog().error(message, e);
     }
-
   }
 }

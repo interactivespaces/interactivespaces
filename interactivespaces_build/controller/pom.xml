@@ -11,7 +11,7 @@
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-controller-installer</artifactId>
-	<version>1.5.0</version>
+    <version>${interactiveSpacesVersion}</version>
 
 	<name>Interactive Spaces Controller</name>
 
@@ -96,6 +96,12 @@
 								</copy>
 								<copy todir="${staging.dir}">
 									<fileset dir="${basedir}/../template-common" />
+                                    <filterchain>
+                                        <replacetokens>
+                                            <token key="INTERACTIVESPACES_VERSION"
+                                                value="${project.version}"/>
+                                        </replacetokens>
+                                    </filterchain>
 								</copy>
 								<copy todir="${staging.dir}">
 									<fileset dir="${basedir}/../common" />

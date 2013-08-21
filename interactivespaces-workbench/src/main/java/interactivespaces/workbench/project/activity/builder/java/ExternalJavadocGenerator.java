@@ -22,7 +22,6 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -35,14 +34,9 @@ import java.util.ArrayList;
  *
  * @author Keith M. Hughes
  */
-public class ExternalJavadocGenerator {
+public class ExternalJavadocGenerator implements JavadocGenerator {
 
-  /**
-   * Generate the Javadoc.
-   *
-   * @param context
-   *          the project context
-   */
+  @Override
   public void generate(ProjectBuildContext context) {
     File docBuildFolder = new File(context.getBuildDirectory(), "docs/html/javadoc");
     Files.directoryExists(docBuildFolder);

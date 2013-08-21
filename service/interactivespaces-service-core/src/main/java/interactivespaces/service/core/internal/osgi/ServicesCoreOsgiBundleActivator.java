@@ -17,6 +17,8 @@
 package interactivespaces.service.core.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
+import interactivespaces.service.comm.network.client.internal.netty.NettyUdpClientNetworkCommunicationEndpointService;
+import interactivespaces.service.comm.network.server.internal.netty.NettyUdpServerNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
 
 /**
@@ -31,10 +33,26 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
    */
   private InteractiveSpacesXBeeCommunicationEndpointService xbeeCommEndpointService;
 
+  /**
+   * UDP Client service
+   */
+  private NettyUdpClientNetworkCommunicationEndpointService udpClientService;
+
+  /**
+   * UDP Client service
+   */
+  private NettyUdpServerNetworkCommunicationEndpointService udpServerService;
+
   @Override
   protected void allRequiredServicesAvailable() {
     xbeeCommEndpointService = new InteractiveSpacesXBeeCommunicationEndpointService();
 
     registerNewInteractiveSpacesService(xbeeCommEndpointService);
-  }
+
+    udpClientService = new NettyUdpClientNetworkCommunicationEndpointService();
+    registerNewInteractiveSpacesService(udpClientService);
+
+    udpServerService = new NettyUdpServerNetworkCommunicationEndpointService();
+    registerNewInteractiveSpacesService(udpServerService);
+ }
 }

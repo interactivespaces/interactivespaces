@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>XBee IOSamples Coordinator Radio Example Activity</name>
+    <description>
+This Java-based activity drives an XBee coordinator radio and talks to a remote radio. The remote radio will be remotely setup to have DIO9 be an analog input and DIO1 be a digital input. The sample time will be 1 second.
+    </description>
+
+    <identifyingName>interactivespaces.example.comm.xbee.coordinator.iosamples</identifyingName>
+    <version>1.0.0</version>
+</project>

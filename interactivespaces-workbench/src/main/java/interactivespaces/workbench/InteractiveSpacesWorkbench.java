@@ -35,7 +35,10 @@ import interactivespaces.workbench.project.activity.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.activity.builder.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.activity.builder.java.ExternalJavadocGenerator;
+import interactivespaces.workbench.project.activity.builder.java.JavadocGenerator;
+import interactivespaces.workbench.project.activity.builder.java.OsgiBundleCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
@@ -66,7 +69,51 @@ import java.util.Map;
  */
 public class InteractiveSpacesWorkbench {
 
-  private static final String FILENAME_JAR_EXTENSION = ".jar";
+  /**
+   * Command to recursively walk over a set of directories looking for the IS
+   * project folders,
+   */
+  public static final String COMMAND_RECURSIVE = "walk";
+
+  /**
+   * Command to create an OSGi bundle from an existing jar.
+   */
+  public static final String COMMAND_OSGI = "osgi";
+
+  /**
+   * Command to create a new project.
+   */
+  public static final String COMMAND_CREATE = "create";
+
+  /**
+   * Command to deploy a project.
+   */
+  public static final String COMMAND_DEPLOY = "deploy";
+
+  /**
+   * Command to create an IDE project for an IS project.
+   */
+  public static final String COMMAND_IDE = "ide";
+
+  /**
+   * Command to create documentation from a project.
+   */
+  public static final String COMMAND_DOCS = "docs";
+
+  /**
+   * Command to clean a project.
+   */
+  public static final String COMMAND_CLEAN = "clean";
+
+  /**
+   * command to build a project.
+   */
+  public static final String COMMAND_BUILD = "build";
+
+  /**
+   * File extension for a Java jar file.
+   */
+  public static final String FILENAME_JAR_EXTENSION = ".jar";
 
   /**
    * The file extension used for files which give container extensions.
@@ -276,16 +323,29 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void copyBuildArtifacts(Project project, File destination) {
-    File[] artifacts = new File(project.getBaseDirectory(), "build").listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.isFile();
-      }
-    });
+    File[] artifacts =
+        new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
+          @Override
+          public boolean accept(File pathname) {
+            return pathname.isFile();
+          }
+        });
     if (artifacts != null) {
       for (File artifact : artifacts) {
         Files.copyFile(artifact, new File(destination, artifact.getName()));
       }
+    }
+  }
+
+  public void createOsgi(String file) {
+    System.out.format("Making %s into an OSGi bundle\n", file);
+
+    OsgiBundleCreator osgiBundleCreator = new BndOsgiBundleCreator();
+    try {
+      osgiBundleCreator.createBundle(new File(file), null);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
@@ -311,11 +371,12 @@ public class InteractiveSpacesWorkbench {
 
     File controllerDirectory = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File javaSystemDirectory =
-        new File(controllerDirectory, "lib/system/java");
+        new File(controllerDirectory,
+            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
     if (!javaSystemDirectory.isDirectory()) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Controller directory %s configured by %s does not appear to be valid.",
-              controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Controller directory %s configured by %s does not appear to be valid.",
+          controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
     }
     classpath.add(new File(javaSystemDirectory,
         "com.springsource.org.apache.commons.logging-1.1.1.jar"));
@@ -342,7 +403,8 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)), "lib/system/java")
+        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
+            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
             .listFiles(new FilenameFilter() {
 
               @Override
@@ -431,15 +493,17 @@ public class InteractiveSpacesWorkbench {
   public void doCommands(List<String> commands) {
     String command = commands.remove(0);
 
-    if ("create".equals(command)) {
+    if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating project");
       createProject(commands);
+    } else if (COMMAND_OSGI.equals(command)) {
+      createOsgi(commands.remove(0));
     } else {
       File baseDir = new File(command);
       if (projectManager.isProjectFolder(baseDir)) {
         doCommandsOnProject(baseDir, commands);
       } else {
-        if (!commands.isEmpty() && "walk".equals(commands.get(0))) {
+        if (!commands.isEmpty() && COMMAND_RECURSIVE.equals(commands.get(0))) {
           commands.remove(0);
 
           doCommandsOnTree(baseDir, commands);
@@ -585,7 +649,7 @@ public class InteractiveSpacesWorkbench {
    * @param console
    *          the console for IO
    *
-   * @return a valid value for the prquestion
+   * @return a valid value for the question
    */
   private String getValue(String prompt, Validator validator, Console console) {
     String fullPrompt = prompt + ": ";
@@ -593,8 +657,9 @@ public class InteractiveSpacesWorkbench {
     String value = console.readLine(fullPrompt);
     DomainValidationResult result = validator.validate(value);
     while (result.getResultType().equals(DomainValidationResultType.ERRORS)) {
-      console.printf(result.getDescription());
+      console.printf("%s\n", result.getDescription());
       value = console.readLine(fullPrompt);
+      result = validator.validate(value);
     }
 
     return value;
@@ -610,28 +675,28 @@ public class InteractiveSpacesWorkbench {
    */
   private void doCommandsOnProject(Project project, List<String> commands) {
     if (commands.isEmpty()) {
-      commands.add("build");
+      commands.add(COMMAND_BUILD);
     }
 
     boolean noErrors = true;
     while (!commands.isEmpty() && noErrors) {
       String command = commands.remove(0);
 
-      if ("build".equals(command)) {
+      if (COMMAND_BUILD.equals(command)) {
         System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = buildProject(project);
-      } else if ("clean".equals(command)) {
+      } else if (COMMAND_CLEAN.equals(command)) {
         System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = cleanActivityProject(project);
-      } else if ("doc".equals(command)) {
+      } else if (COMMAND_DOCS.equals(command)) {
         System.out.format("Building Docs for project %s\n", project.getBaseDirectory()
             .getAbsolutePath());
         noErrors = generateDocs(project);
-      } else if ("ide".equals(command)) {
+      } else if (COMMAND_IDE.equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory()
             .getAbsolutePath());
         noErrors = generateIdeActivityProject(project, commands.remove(0));
-      } else if ("deploy".equals(command)) {
+      } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = deployProject(project, commands.remove(0));
       }
@@ -649,7 +714,7 @@ public class InteractiveSpacesWorkbench {
   public boolean generateDocs(Project project) {
     // TODO(keith): Make work for other project types
     if ("library".equals(project.getType()) || "java".equals(project.getBuilderType())) {
-      ExternalJavadocGenerator generator = new ExternalJavadocGenerator();
+      JavadocGenerator generator = new ExternalJavadocGenerator();
       ProjectBuildContext context = new ProjectBuildContext(project, this);
 
       generator.generate(context);

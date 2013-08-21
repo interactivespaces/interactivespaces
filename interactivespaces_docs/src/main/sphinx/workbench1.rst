@@ -21,14 +21,14 @@ like
 
 ::
 
-  bin/isworkbench.bash <dir> build
+  bin/isworkbench.bash <projectdir> build
 
-where ``dir`` is the folder which contains the project. For example, you can build
-the Simple Web Activity Example project with the command
+where ``<projectdir>`` is the folder which contains the project. For example, you can build
+the Simple Java Activity Example project with the command
 
 ::
 
-  bin/isworkbench.bash examples/interactivespaces-example-activity-java-simple build
+  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello build
 
 
 Creating an Activity Project
@@ -61,9 +61,9 @@ non-Java project, the same command works.
 
 ::
 
-  bin/isworkbench.bash <dir> ide eclipse
+  bin/isworkbench.bash <projectdir> ide eclipse
 
-where ``<dir>`` is the directory containing the Activity project.
+where ``<projectdir>`` is the directory containing the Activity project.
 
 For example
 
@@ -423,6 +423,29 @@ which are then automatically imported into the master or deployed to all control
 containing Live Activities based on the Activity being copied.
 
 
+Creating Documentation for a Project
+----------------------------
+
+When creating projects like library projects that may be shared with others,
+it is important to give good documentation for those who will use the library.
+The Workbench can create documentation fort your project.
+
+::
+
+  bin/isworkbench.bash <projectdir> docs
+
+where ``<projectdir>`` is the folder which contains the project. For example, you can build
+the Simple Web Activity Example project with the command
+
+::
+
+  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello docs
+
+The Workbench can only create Javadocs at the moment, which means it currently
+only works on Java-based Activities
+or Library projects. The output of the command will be placed in the ``build/docs`` folder
+of your project.
+
 Performing Workbench Operations on a Collection of Projects
 ---------------------------------
 
@@ -475,11 +498,22 @@ made into what is called an OSGi bundle. Many open source libraries are already
 OSGi compatible, but not all are. Because of this, the Interactive Spaces
 Workbench provides a way of making a Java jar into an OSGi compatible one.
 
+To create an OSGi bundle, you use the command
+
+::
+
+  bin/isworkbench osgi <pathToJar>
+
+where ``<pathToJar>`` is the path to the Java library you want made into an OSGi
+bundle. The output of the command will be a new jar with the prefix ``interactivespaces.``
+added to its name. For instance, if your jar was originally called ``foo-1.0.0.jar``,
+the OSGi bundle created from the jar will be called ``interactivespaces.foo-1.0.0.jar``.
+
 Best Practices for Developing in Interactive Spaces
 ===================================================
 
-There are some simple things you can do if you want to develop reasonably quickly in
-Interactive Spaces.
+There are some simple things you can do if you want to develop reasonably
+quickly in Interactive Spaces.
 
 .. _workbench1-best-practice-import-deploy-label:
 

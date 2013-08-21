@@ -244,6 +244,26 @@ and process the images that are being seen. The Master would have a record for
 probably just the camera Live Activity in this case, and consumers of the
 camera events.
 
+Importing and Deploying Activities
+----------------------------------
+
+**Importing** an Activity into the Master places the Activity in the
+Activity Repository and places information about the Activity into the
+Master Domain Model.
+
+.. image:: images/ActivityImporting.png
+
+**Deploying** a Live Activity from the Master involves copying the Activity that
+the Live Activity is based on from the Master Activity Repository to
+the Local Activities for the Space Controller that hosts the Live Activity.
+
+.. image:: images/LiveActivityDeploying.png
+
+Deploying does not copy any configurations associated with the Live Activity, it is
+necessary to Configure the Live Activity from the Master Web Admin for the Live Activity
+configurations to be sent to the Space Controller.
+
+
 
 Live Activity Group
 ===================

@@ -144,6 +144,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       components.configureComponents(getConfiguration(), componentContext);
       components.startupComponents();
 
+      commonActivityStartup();
+
       callOnActivityStartup();
 
       setActivityStatus(ActivityState.RUNNING, null);
@@ -158,6 +160,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       componentContext.endStartupPhase(true);
 
       try {
+        commonActivityPostStartup();
+
         callOnActivityPostStartup();
       } catch (Throwable e) {
         logException("Exception while running Post Startup", e);
@@ -329,6 +333,13 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       cleanShutdown = false;
     }
 
+    try {
+      commonActivityPreShutdown();
+    } catch (Exception e) {
+      logException("Error while calling commonActivityPreShutdown", e);
+      cleanShutdown = false;
+    }
+
     componentContext.beginShutdownPhase();
     boolean handlersAllComplete =
         componentContext.waitOnNoProcessingHandlings(SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME,
@@ -350,6 +361,15 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       }
     } catch (Exception e) {
       logException("Error while calling onActivityShutdown", e);
+      cleanShutdown = false;
+    }
+
+    try {
+      if (cleanShutdown) {
+        commonActivityShutdown();
+      }
+    } catch (Exception e) {
+      logException("Error while calling commonActivityShutdown", e);
       cleanShutdown = false;
     }
 
@@ -497,6 +517,72 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * user.
    */
   public void commonActivitySetup() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common startup tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityStartup() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common post startup tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityPostStartup() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common activate tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityActivate() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common deactivate tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityDeactivate() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common pre-shutdown tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityPreShutdown() {
+    // Default is do nothing.
+  }
+
+  /**
+   * Any common shutdown tasks.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only
+   * be touched if you know what you are doing.
+   */
+  public void commonActivityShutdown() {
     // Default is do nothing.
   }
 

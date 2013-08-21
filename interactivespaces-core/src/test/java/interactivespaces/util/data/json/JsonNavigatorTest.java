@@ -139,6 +139,64 @@ public class JsonNavigatorTest {
   }
 
   /**
+   * Make sure primitives are properly handled.
+   */
+  @Test
+  public void testArrayPrimitives() {
+    Map<String, Object> root = Maps.newHashMap();
+
+    String keyString = "test";
+    List<Object> array = Lists.newArrayList();
+    root.put(keyString, array);
+
+    String objectValue1 = "bar";
+    String arrayValueString = objectValue1;
+    array.add(arrayValueString);
+
+    int arrayValueInteger = 1234;
+    array.add(arrayValueInteger);
+
+    double arrayValueDouble = 1.23456;
+    array.add(arrayValueDouble);
+
+    boolean arrayValueBoolean = true;
+    array.add(arrayValueBoolean);
+
+    Map<String, Object> arrayValueMap = Maps.newHashMap();
+    array.add(arrayValueMap);
+    String objectKey1 = "foo";
+    arrayValueMap.put(objectKey1, objectValue1);
+    String objectKey2 = "bletch";
+    int objectValue2 = 123;
+    arrayValueMap.put(objectKey2, objectValue2);
+
+    JsonNavigator nav = new JsonNavigator(root);
+    nav.down(keyString);
+
+    assertEquals(arrayValueString, nav.getString(0));
+    assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
+    assertEquals((Double) arrayValueDouble, nav.getDouble(2));
+    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueMap, nav.getItem(4));
+
+    assertEquals(array.size(), nav.getSize());
+
+    nav.down(4);
+    assertEquals(objectValue1, nav.getString(objectKey1));
+    assertEquals((Integer)objectValue2, nav.getInteger(objectKey2));
+
+    nav.up();
+
+    assertEquals(arrayValueString, nav.getString(0));
+    assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
+    assertEquals((Double) arrayValueDouble, nav.getDouble(2));
+    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueMap, nav.getItem(4));
+
+    assertEquals(array.size(), nav.getSize());
+ }
+
+  /**
    * Test using the path API
    */
   @Test

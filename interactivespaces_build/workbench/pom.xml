@@ -18,7 +18,7 @@ the License.
 
 	<groupId>interactivespaces</groupId>
 	<artifactId>interactivespaces-workbench-installer</artifactId>
-	<version>1.5.0</version>
+    <version>${interactiveSpacesVersion}</version>
 
 	<name>Interactive Spaces Workbench</name>
 
@@ -93,6 +93,12 @@ the License.
 								</copy>
 								<copy todir="${staging.dir}">
 									<fileset dir="${basedir}/template" />
+                                    <filterchain>
+                                        <replacetokens>
+                                            <token key="INTERACTIVESPACES_VERSION"
+                                                value="${project.version}"/>
+                                        </replacetokens>
+                                    </filterchain>
 								</copy>
                                 <copy todir="${staging.dir}/examples">
                                     <fileset dir="${basedir}/../../examples/activity">

@@ -30,7 +30,16 @@ buildscript {
 
 }
 
+
 allprojects {
+  ext.nonjavaProjects = [ 
+    'interactivespaces_docs', 
+    'interactivespaces-controller-android', 
+    'service', 
+    'interactivespaces_build', 
+    'master', 'controller', 'workbench'
+  ]
+
   if (project.hasProperty("buildTypeProp")) {
     ext.buildType = project.buildTypeProp
   } else {
@@ -43,14 +52,14 @@ allprojects {
     ext.androidSdkJar = "$androidPlatformHome/android.jar"
   }
 
-  ext.osgiVersion = '1.5.0'
+  ext.osgiVersion = '1.5.1'
 
   group = 'interactivespaces'
-  version = osgiVersion
+  version = osgiVersion;
 }
 
 subprojects {
-  if (name != 'interactivespaces_docs' && name != 'interactivespaces-controller-android'&& name != 'service') {
+  if (!ext.nonjavaProjects.contains(name)) {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'eclipse'

@@ -24,7 +24,13 @@ import interactivespaces.service.comm.serial.xbee.XBeeResponseListenerSupport;
 import interactivespaces.util.ByteUtils;
 
 /**
- * A simple Interactive Spaces Java-based activity.
+ * A simple Interactive Spaces Java-based activity which demonstrates
+ * using an XBee radio configured as either an endpoint or a router.
+ *
+ * <p>
+ * This example will log an Receive packet if it comes in.
+ *
+ * @author Keith M. Hughes
  */
 public class XBeeEndpointExampleActivity extends BaseActivity {
 
@@ -49,7 +55,7 @@ public class XBeeEndpointExampleActivity extends BaseActivity {
 
 		xbee = service.newXBeeCommunicationEndpoint(portName, getLog());
 
-		// Let IS manage the connection, which eans we don't have to start it or
+		// Let IS manage the connection, which means we don't have to start it or
 		// shut it down.
 		addManagedResource(xbee);
 
@@ -62,35 +68,5 @@ public class XBeeEndpointExampleActivity extends BaseActivity {
 				getLog().info(ByteUtils.toHexString(response.getReceivedData()));
 			}
 		});
-	}
-
-	@Override
-	public void onActivityStartup() {
-		getLog().info(
-				"Activity interactivespaces.example.comm.xbee.endpoint startup");
-	}
-
-	@Override
-	public void onActivityActivate() {
-		getLog().info(
-				"Activity interactivespaces.example.comm.xbee.endpoint activate");
-	}
-
-	@Override
-	public void onActivityDeactivate() {
-		getLog().info(
-				"Activity interactivespaces.example.comm.xbee.endpoint deactivate");
-	}
-
-	@Override
-	public void onActivityShutdown() {
-		getLog().info(
-				"Activity interactivespaces.example.comm.xbee.endpoint shutdown");
-	}
-
-	@Override
-	public void onActivityCleanup() {
-		getLog().info(
-				"Activity interactivespaces.example.comm.xbee.endpoint cleanup");
 	}
 }

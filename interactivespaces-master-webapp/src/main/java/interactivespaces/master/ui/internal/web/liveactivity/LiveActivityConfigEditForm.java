@@ -186,7 +186,8 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
    * @param configuration
    *          the configuration which may be changed
    *
-   * @return {@true} if there were any parameters changed in the configuration
+   * @return {@code true} if there were any parameters changed in the
+   *         configuration
    */
   private boolean mergeParameters(Map<String, String> map, ActivityConfiguration configuration) {
     boolean changed = false;

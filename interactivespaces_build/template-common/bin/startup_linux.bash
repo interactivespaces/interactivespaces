@@ -18,9 +18,9 @@ fi
 
 # Start up Interactive Spaces
 if [ $# == 0 ] || [ $1 == "foreground" ]; then
-  java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar
+  java -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
 fi
 
 if [ "$1" == "background" ]; then
-  nohup java -server -jar interactivespaces-launcher-${interactivespaces.version}.jar --noshell &>/dev/null &
+  nohup java -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar --noshell &>/dev/null &
 fi
