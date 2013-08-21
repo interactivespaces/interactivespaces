@@ -16,6 +16,8 @@
 
 package interactivespaces.service.comm.network.client;
 
+import java.net.InetSocketAddress;
+
 /**
  * A listener for {@link UdpClientNetworkCommunicationEndpoint}.
  *
@@ -30,6 +32,9 @@ public interface UdpClientNetworkCommunicationEndpointListener {
    *          endpoint the response is from
    * @param response
    *          the data of the response
+   * @param remoteAddress
+   *          the remote address
    */
-  void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response);
+  void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response,
+      InetSocketAddress remoteAddress);
 }

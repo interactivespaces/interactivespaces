@@ -50,16 +50,6 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     UdpClientNetworkCommunicationEndpoint {
 
   /**
-   * The remote host to write to.
-   */
-  private String remoteHost;
-
-  /**
-   * The remote port to write to.
-   */
-  private int remotePort;
-
-  /**
    * The bootstrap for the UDP client.
    */
   private ConnectionlessBootstrap bootstrap;
@@ -82,10 +72,7 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
    */
   private Log log;
 
-  NettyUdpClientNetworkCommunicationEndpoint(String remoteHost, int remotePort,
-      ExecutorService executorService, Log log) {
-    this.remoteHost = remoteHost;
-    this.remotePort = remotePort;
+  NettyUdpClientNetworkCommunicationEndpoint(ExecutorService executorService, Log log) {
     this.executorService = executorService;
     this.log = log;
   }
@@ -131,9 +118,9 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
   }
 
   @Override
-  public void write(byte[] bytes) {
+  public void write(byte[] bytes, InetSocketAddress remoteAddress) {
     ChannelBuffer cb = ChannelBuffers.copiedBuffer(bytes);
-    outputChannel.write(cb, new InetSocketAddress(remoteHost, remotePort));
+    outputChannel.write(cb, remoteAddress);
   }
 
   @Override
@@ -151,10 +138,12 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
    *
    * @param buffer
    *          the channel buffer for the packet
+   * @param remoteAddress
+   *          address of the remote response
    */
-  private void handleMessageReceived(ChannelBuffer buffer) {
+  private void handleMessageReceived(ChannelBuffer buffer, InetSocketAddress remoteAddress) {
     for (UdpClientNetworkCommunicationEndpointListener listener : listeners) {
-      listener.onUdpResponse(this, buffer.array());
+      listener.onUdpResponse(this, buffer.array(), remoteAddress);
     }
   }
 
@@ -169,7 +158,7 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
       ChannelBuffer msg = (ChannelBuffer) e.getMessage();
 
-      handleMessageReceived(msg);
+      handleMessageReceived(msg, (InetSocketAddress) e.getRemoteAddress());
     }
 
     @Override

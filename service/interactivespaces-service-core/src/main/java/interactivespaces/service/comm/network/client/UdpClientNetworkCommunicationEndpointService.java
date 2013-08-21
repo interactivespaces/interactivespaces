@@ -35,14 +35,10 @@ public interface UdpClientNetworkCommunicationEndpointService extends SupportedS
   /**
    * Create a new UDP client endpoint.
    *
-   * @param remoteHost
-   *          remote host
-   * @param remotePort
-   *          port on remote host
    * @param log
    *          the logger to use
    *
    * @return the communication endpoint
    */
-  UdpClientNetworkCommunicationEndpoint newClient(String remoteHost, int remotePort, Log log);
+  UdpClientNetworkCommunicationEndpoint newClient(Log log);
 }
