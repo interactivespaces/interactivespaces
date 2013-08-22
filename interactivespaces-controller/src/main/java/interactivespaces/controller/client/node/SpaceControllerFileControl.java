@@ -86,6 +86,10 @@ public class SpaceControllerFileControl implements DirectoryWatcherListener {
     watcher.addDirectory(controlDirectory);
     watcher.addDirectoryWatcherListener(this);
 
+    // The trains must keep running
+    watcher.setStopOnException(false);
+
+
     watcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
 
     spaceEnvironment.getLog().info("File control of space controller started");

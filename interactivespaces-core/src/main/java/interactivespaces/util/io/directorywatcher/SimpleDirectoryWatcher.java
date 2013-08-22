@@ -22,6 +22,8 @@ import com.google.common.collect.Sets;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.Files;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +63,16 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   private boolean cleanFirst = false;
 
   /**
+   * {@code true} if the watcher should stop when there is an exception.
+   */
+  private boolean stopOnException = true;
+
+  /**
+   * The logger to use.
+   */
+  private Log log;
+
+  /**
    * Construct a new SimpleWatcher.
    *
    * @param cleanFirst
@@ -79,12 +91,30 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
    *          watched
    */
   public SimpleDirectoryWatcher(boolean cleanFirst) {
+    this(cleanFirst, null);
+  }
+
+  /**
+   * Construct a new SimpleWatcher.
+   *
+   * @param cleanFirst
+   *          {@code true} if added directories are cleaned before they are
+   *          watched
+   * @param log
+   *          the logger to use
+   */
+  public SimpleDirectoryWatcher(boolean cleanFirst, Log log) {
+    this.log = log;
     setCleanFirst(cleanFirst);
   }
 
   @Override
   public synchronized void startup(InteractiveSpacesEnvironment environment, long period,
       TimeUnit unit) {
+    // If no log was set, we will use the space environment log
+    if (log == null) {
+      log = environment.getLog();
+    }
     scanningFuture = environment.getExecutorService().scheduleAtFixedRate(this, 0, period, unit);
   }
 
@@ -223,11 +253,27 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
 
   @Override
   public void run() {
-    scan();
+    try {
+      scan();
+    } catch (Throwable e) {
+      log.error("Exception happened during directory watcher scan", e);
+
+      if (stopOnException) {
+        // TODO(keith): Not entirely happy with this. maybe
+        // eventually put the future into this instance and shut it
+        // down.
+        throw new RuntimeException();
+      }
+    }
   }
 
   @Override
   public void setCleanFirst(boolean cleanFirst) {
     this.cleanFirst = cleanFirst;
+  }
+
+  @Override
+  public void setStopOnException(boolean stopOnException) {
+    this.stopOnException = stopOnException;
   }
 }

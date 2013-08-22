@@ -105,4 +105,15 @@ public interface DirectoryWatcher {
    *          {@code true} if the directories should be cleaned first
    */
   void setCleanFirst(boolean cleanFirst);
+
+  /**
+   * Should the watcher stop if there is ever an exception while running?
+   *
+   * <p>
+   * By default the watcher stops.
+   *
+   * @param stopOnException
+   *          {@code true} if the watcher should stop on exception
+   */
+  void setStopOnException(boolean stopOnException);
 }

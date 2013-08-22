@@ -16,12 +16,30 @@
 
 package interactivespaces;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * An Interactive Spaces exception happened.
  *
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesException extends RuntimeException {
+
+  /**
+   * Get the stack trace from an exception as a string.
+   *
+   * @param t
+   *          the exception
+   *
+   * @return the stack trace
+   */
+  public static String getStackTrace(Throwable t) {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    t.printStackTrace(pw);
+    return sw.toString();
+  }
 
   public InteractiveSpacesException(String message) {
     super(message);

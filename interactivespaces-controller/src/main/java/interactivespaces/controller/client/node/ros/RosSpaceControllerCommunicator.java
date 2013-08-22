@@ -19,6 +19,7 @@ package interactivespaces.controller.client.node.ros;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
@@ -347,7 +348,12 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
         Activity instance = activeActivity.getInstance();
         ActivityState state = null;
         if (instance != null) {
-          state = instance.getActivityStatus().getState();
+          ActivityStatus activityStatus = instance.getActivityStatus();
+          state = activityStatus.getState();
+          if (activityStatus.getException() != null) {
+            cas.setStatusDetail(InteractiveSpacesException.getStackTrace(activityStatus
+                .getException()));
+          }
         } else {
           state = ActivityState.READY;
         }
@@ -646,6 +652,9 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
           rosMessageFactory.newFromType(ControllerActivityStatus._TYPE);
       status.setUuid(uuid);
       status.setStatus(translateActivityState(astatus.getState()));
+      if (astatus.getException() != null) {
+        status.setStatusDetail(InteractiveSpacesException.getStackTrace(astatus.getException()));
+      }
 
       activityStatusPublisher.publish(status);
     } catch (Exception e) {

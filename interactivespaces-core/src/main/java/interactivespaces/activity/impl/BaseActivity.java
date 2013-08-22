@@ -262,7 +262,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     } catch (Exception e) {
       logException("Cannot activate activity", e);
 
-      setActivityStatus(ActivityState.ACTIVATE_FAILURE, null);
+      setActivityStatus(ActivityState.ACTIVATE_FAILURE, null, e);
     }
   }
 
@@ -299,7 +299,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     } catch (Exception e) {
       logException("Cannot deactivate activity", e);
 
-      setActivityStatus(ActivityState.DEACTIVATE_FAILURE, null);
+      setActivityStatus(ActivityState.DEACTIVATE_FAILURE, null, e);
     }
   }
 
@@ -324,11 +324,13 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   @Override
   public void shutdown() {
+    Throwable t = null;
     boolean cleanShutdown = true;
 
     try {
       callOnActivityPreShutdown();
     } catch (Exception e) {
+      t = e;
       logException("Error while calling onActivityPreShutdown", e);
       cleanShutdown = false;
     }
@@ -336,6 +338,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       commonActivityPreShutdown();
     } catch (Exception e) {
+      t = e;
       logException("Error while calling commonActivityPreShutdown", e);
       cleanShutdown = false;
     }
@@ -360,6 +363,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         callOnActivityShutdown();
       }
     } catch (Exception e) {
+      t = e;
       logException("Error while calling onActivityShutdown", e);
       cleanShutdown = false;
     }
@@ -369,6 +373,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         commonActivityShutdown();
       }
     } catch (Exception e) {
+      t = e;
       logException("Error while calling commonActivityShutdown", e);
       cleanShutdown = false;
     }
@@ -376,12 +381,14 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       callOnActivityCleanup();
     } catch (Exception e) {
+      t = e;
       logException("Error while calling onActivityCleanup", e);
       cleanShutdown = false;
     }
     try {
       commonActivityCleanup();
     } catch (Exception e) {
+      t = e;
       logException("Error while cleaning up common activity", e);
       cleanShutdown = false;
     }
@@ -391,6 +398,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         cleanShutdown = false;
       }
     } catch (Exception e) {
+      t = e;
       logException("Error while shutting down activity components", e);
       cleanShutdown = false;
     }
@@ -401,7 +409,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     if (cleanShutdown) {
       setActivityStatus(ActivityState.READY, "Post clean shutdown");
     } else {
-      setActivityStatus(ActivityState.SHUTDOWN_FAILURE, "Failures during shutdown");
+      setActivityStatus(ActivityState.SHUTDOWN_FAILURE, "Failures during shutdown", t);
     }
   }
 
@@ -455,6 +463,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     boolean areAllComponentsRunning = components.areAllComponentsRunning();
     boolean callOnCheckActivityState = callOnCheckActivityState();
     if (!areAllComponentsRunning || !callOnCheckActivityState) {
+      // TODO(keith): Figure out if we can get an exception in here
       setActivityStatus(ActivityState.CRASHED, "Activity no longer running");
       getLog().error(
           String.format(
