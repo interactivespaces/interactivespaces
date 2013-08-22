@@ -202,6 +202,11 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   }
 
   @Override
+  public String getFormName() {
+    return fileUpload.getName();
+  }
+
+  @Override
   public String getFilename() {
     if (hasFile()) {
       return fileUpload.getFilename();

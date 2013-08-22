@@ -145,10 +145,25 @@
 
 		<property name="masterRosContext" ref="interactivespaces.master.ros.context" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
+        <property name="masterDataBundleManager" ref="interactivespaces.master.ros.databundlemanager" />
+
+        <property name="log" ref="interactivespaces.master.logger" />
 	</bean>
 
-	<bean id="interactivespaces.master.networkinfo.client"
+    <bean id="interactivespaces.master.ros.databundlemanager"
+        class="interactivespaces.master.server.services.internal.ros.RosMasterDataBundleManager"
+        destroy-method="shutdown" init-method="startup">
+
+        <property name="rosRemoteControllerClient" ref="interactivespaces.controller.remote.client" />
+
+        <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+
+        <property name="repositoryServer" ref="interactivespaces.resource.repository.server" />
+
+        <property name="log" ref="interactivespaces.master.logger" />
+    </bean>
+
+    <bean id="interactivespaces.master.networkinfo.client"
 		class="interactivespaces.network.client.internal.ros.RosNetworkInformationClient"
 		destroy-method="shutdown" init-method="startup">
 

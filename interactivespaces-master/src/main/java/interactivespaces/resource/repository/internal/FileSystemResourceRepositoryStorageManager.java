@@ -27,8 +27,10 @@ import interactivespaces.util.io.Files;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -86,6 +88,13 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
       "interactivespaces.repository.resource.location";
 
   /**
+   * Default value for the location of the data repository.
+   */
+  public static final String DEFAULT_REPOSITORY_DATA_LOCATION =
+      "repository/interactivespaces/data";
+
+
+  /**
    * Default value for the location of the resources repository.
    */
   public static final String DEFAULT_REPOSITORY_RESOURCE_LOCATION =
@@ -112,7 +121,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   private File stagingDirectory;
 
   /**
-   * Base location of the repository.
+   * Base location of the activity repository.
    */
   private File activityRepositoryBaseLocation;
 
@@ -120,6 +129,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    * Path to the repository in the file system.
    */
   private String activityRepositoryPath;
+
+  /**
+   * Base location of the data repository.
+   */
+  private File dataRepositoryBaseLocation;
 
   /**
    * Base location of the generic resource repository.
@@ -159,6 +173,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
             DEFAULT_REPOSITORY_ACTIVITY_LOCATION);
     activityRepositoryBaseLocation = new File(baseInstallDir, activityRepositoryPath);
     ensureWriteableDirectory("activity", activityRepositoryBaseLocation);
+
+    // TODO(peringknife): Check repository base same way as above.
+    String dataRepositoryPath = DEFAULT_REPOSITORY_DATA_LOCATION;
+    dataRepositoryBaseLocation = new File(baseInstallDir, dataRepositoryPath);
+    ensureWriteableDirectory("data", dataRepositoryBaseLocation);
 
     resourceRepositoryPath =
         systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_RESOURCE_LOCATION,
@@ -287,6 +306,17 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     }
   }
 
+  @Override
+  public OutputStream newResourceOutputStream(String category, String name, String version) {
+    File resourceFile = getRepositoryFile(category, name, version);
+    try {
+      return new FileOutputStream(resourceFile);
+    } catch (FileNotFoundException e) {
+      throw new InteractiveSpacesException(
+          "Could not create resource output stream " + resourceFile.getPath(), e);
+    }
+  }
+
   /**
    * Get the repository filename used for a given activity.
    *
@@ -301,9 +331,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    */
   private File getRepositoryFile(String category, String name, String version) {
     // TODO(keith): Fix, cheesy
-    File baseLocation = activityRepositoryBaseLocation;
-    if (category.equals(RESOURCE_CATEGORY_GENERIC)) {
-      baseLocation = resourceRepositoryBaseLocation;
+    File baseLocation = resourceRepositoryBaseLocation;
+    if (RESOURCE_CATEGORY_ACTIVITY.equals(category)) {
+      baseLocation = activityRepositoryBaseLocation;
+    } else if (RESOURCE_CATEGORY_DATA.equals(category)) {
+      baseLocation = dataRepositoryBaseLocation;
     }
 
     return new File(baseLocation, getRepositoryResourceName(category, name, version));

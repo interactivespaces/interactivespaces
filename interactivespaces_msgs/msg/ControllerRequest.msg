@@ -16,7 +16,7 @@
 
 int32 operation
 
-# Rwquest the full status of the controller.
+# Request the full status of the controller.
 int32 OPERATION_STATUS = 0
 
 # Shut down the entire controller.
@@ -36,6 +36,20 @@ int32 OPERATION_CLEAN_DATA_TMP = 5
 
 # Clean the controller's permanent data folder.
 int32 OPERATION_CLEAN_DATA_PERMANENT = 6
+
+# Clean all of the controller's temp data.
+int32 OPERATION_CLEAN_DATA_TMP_ALL = 7
+
+# Clean all of the controller's permanent data.
+int32 OPERATION_CLEAN_DATA_PERMANENT_ALL = 8
+
+# Initiate capture for a controller/activity data bundle.
+# Payload will be a ControllerDataRequest message.
+int32 OPERATION_CAPTURE_DATA = 9
+
+# Initiate restore for a controller/activity data bundle.
+# Payload will be a ControllerDataRequest message.
+int32 OPERATION_RESTORE_DATA = 10
 
 # Any payload needed by the request.
 byte[] payload

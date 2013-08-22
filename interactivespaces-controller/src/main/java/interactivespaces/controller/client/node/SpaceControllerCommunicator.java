@@ -71,4 +71,16 @@ public interface SpaceControllerCommunicator {
    *          the controllerControl to set
    */
   void setControllerControl(SpaceControllerControl controllerControl);
+
+  /**
+   * Publish a controller data status message.
+   * @param type
+   *          type of transfer
+   * @param statusCode
+   *          status code (success/failure) for the message
+   * @param e
+   *          exception for an error, or {@code null} on success
+   */
+  void publishControllerDataStatus(SpaceControllerDataOperation type,
+      SpaceControllerStatus statusCode, Exception e);
 }

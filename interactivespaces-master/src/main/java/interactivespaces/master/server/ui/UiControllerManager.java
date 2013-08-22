@@ -131,6 +131,22 @@ public interface UiControllerManager {
   UiControllerManager statusControllers(List<String> ids);
 
   /**
+   * Capture the data bundle for the given controller ID.
+   * @param id
+   *          Id of the target controller.
+   * @return the controller manager which performed the operation.
+   */
+  UiControllerManager captureControllerDataBundle(String id);
+
+  /**
+   * Restore the data bundle for the given controller ID.
+   * @param id
+   *          Id of the target controller.
+   * @return the controller manager which performed the operation.
+   */
+  UiControllerManager restoreControllerDataBundle(String id);
+
+  /**
    * Shut down all activities on the specified controller.
    *
    * @param id

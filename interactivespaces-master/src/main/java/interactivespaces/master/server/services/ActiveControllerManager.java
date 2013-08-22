@@ -97,6 +97,22 @@ public interface ActiveControllerManager {
   void forceStatusController(SpaceController controller);
 
   /**
+   * Capture the data bundle from the controller.
+   *
+   * @param controller
+   *          the controller
+   */
+  void captureControllerDataBundle(SpaceController controller);
+
+  /**
+   * Restore a previously captured data bundle to the controller.
+   *
+   * @param controller
+   *          the controller
+   */
+  void restoreControllerDataBundle(SpaceController controller);
+
+  /**
    * Shutdown all activities on a controller node.
    *
    * @param controller

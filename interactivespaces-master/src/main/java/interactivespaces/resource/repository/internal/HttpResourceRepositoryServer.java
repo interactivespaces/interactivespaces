@@ -16,19 +16,22 @@
 
 package interactivespaces.resource.repository.internal;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.common.ResourceRepositoryUploadChannel;
 import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.service.web.HttpResponseCode;
-import interactivespaces.service.web.server.HttpDynamicRequestHandler;
-import interactivespaces.service.web.server.HttpRequest;
-import interactivespaces.service.web.server.HttpResponse;
-import interactivespaces.service.web.server.WebServer;
+import interactivespaces.service.web.server.*;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.data.resource.CopyableResourceListener;
 import interactivespaces.util.io.Files;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An Interactive Spaces resource repository server using HTTP.
@@ -54,6 +57,11 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
    */
   private static final String ACTIVITY_REPOSITORY_SERVER_NAME =
       "interactivespaces_activity_repository";
+
+  /**
+   * Parameter key for the UUID field.
+   */
+  private static final String UUID_PARAMETER_KEY = "uuid";
 
   /**
    * Webserver for the activity repository.
@@ -85,6 +93,12 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
    */
   private ResourceRepositoryStorageManager repositoryStorageManager;
 
+  /**
+   * Map for linking resource upload channels to content listeners.
+   */
+  private Map<String, CopyableResourceListener> resourceUploadListenerMap =
+      new HashMap<String, CopyableResourceListener>();
+
   @Override
   public void startup() {
     repositoryPort =
@@ -102,6 +116,13 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
       @Override
       public void handle(HttpRequest request, HttpResponse response) {
         handleResourceRequest(request, response);
+      }
+    });
+
+    repositoryServer.setHttpFileUploadListener(new HttpFileUploadListener() {
+      @Override
+      public void handleHttpFileUpload(HttpFileUpload fileUpload) {
+        handleResourceUpload(fileUpload);
       }
     });
 
@@ -127,6 +148,11 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
     // TODO(keith): Get this from something fancier which we can store resources
     // in, get their meta-data, etc.
     return repositoryBaseUrl + "/" + category + "/" + name + "/" + version;
+  }
+
+  @Override
+  public OutputStream createResourceOutputStream(String category, String name, String version) {
+    return repositoryStorageManager.newResourceOutputStream(category, name, version);
   }
 
   /**
@@ -166,6 +192,27 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
           String.format("No such resource %s:%s of category %s", name, version, category));
       response.setResponseCode(HttpResponseCode.NOT_FOUND);
     }
+  }
+
+  @Override
+  public void registerResourceUploadListener(ResourceRepositoryUploadChannel channel,
+      CopyableResourceListener listener) {
+    resourceUploadListenerMap.put(channel.getChannelId(), listener);
+  }
+
+  @Override
+  public void removeResourceUploadListener(ResourceRepositoryUploadChannel channel) {
+    resourceUploadListenerMap.remove(channel.getChannelId());
+  }
+
+  private void handleResourceUpload(HttpFileUpload resourceUpload) {
+    String name = resourceUpload.getFormName();
+    String uuid = resourceUpload.getParameters().get(UUID_PARAMETER_KEY);
+    CopyableResourceListener listener = resourceUploadListenerMap.get(name);
+    if (listener == null) {
+      throw new InteractiveSpacesException("Missing file upload handler key " + name);
+    }
+    listener.onUploadSuccess(uuid, resourceUpload);
   }
 
   /**

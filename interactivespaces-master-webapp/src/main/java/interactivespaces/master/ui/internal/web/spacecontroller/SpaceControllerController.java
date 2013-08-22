@@ -182,6 +182,30 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
     }
   }
 
+  @RequestMapping(value = "/spacecontroller/{id}/restoredata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> restoreData(@PathVariable String id) {
+    try {
+      uiControllerManager.restoreControllerDataBundle(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/capturedata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> captureData(@PathVariable String id) {
+    try {
+      uiControllerManager.captureControllerDataBundle(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
   @RequestMapping(value = "/spacecontroller/{id}/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownController(@PathVariable String id) {

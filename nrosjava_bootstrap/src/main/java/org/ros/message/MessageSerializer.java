@@ -26,5 +26,24 @@ import org.jboss.netty.buffer.ChannelBuffer;
  */
 public interface MessageSerializer<T> {
 
+  /**
+   * Serialize the message into a dynamically allocated channel buffer.
+   *
+   * @param message
+   *          message to serialize
+   * @return
+   *          channel buffer containing serialized content
+   */
+  ChannelBuffer serialize(T message);
+
+  /**
+   * Serialize the given message into the provided channel buffer.
+   *
+   * @param message
+   *           message to serialize
+   * @param buffer
+   *           output buffer to use for serialization
+   */
   void serialize(T message, ChannelBuffer buffer);
+
 }

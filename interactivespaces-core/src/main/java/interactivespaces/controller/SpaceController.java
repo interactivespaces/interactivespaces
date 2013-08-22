@@ -119,6 +119,22 @@ public interface SpaceController {
   void statusActivity(String uuid);
 
   /**
+   * Capture data for the given controller from a URI.
+   *
+   * @param bundleUri
+   *          The transfer uri.
+   */
+  void captureControllerDataBundle(String bundleUri);
+
+  /**
+   * Restore data for the given controller from a URI.
+   *
+   * @param bundleUri
+   *          The transfer uri.
+   */
+  void restoreControllerDataBundle(String bundleUri);
+
+  /**
    * Get a factory for native activities runners.
    *
    * @return the factory to use

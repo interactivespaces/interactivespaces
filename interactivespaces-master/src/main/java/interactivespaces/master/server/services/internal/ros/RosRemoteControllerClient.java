@@ -27,10 +27,10 @@ import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.services.internal.MasterDataBundleManager;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
-
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
 import interactivespaces_msgs.ControllerActivityRuntimeRequest;
@@ -45,7 +45,6 @@ import interactivespaces_msgs.LiveActivityDeployRequest;
 import interactivespaces_msgs.LiveActivityDeployStatus;
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
@@ -55,7 +54,6 @@ import org.ros.node.topic.CountDownPublisherListener;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,6 +102,11 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
    * Message factory for ROS messages.
    */
   private MessageFactory rosMessageFactory;
+
+  /**
+   * Data bundle manager for this controller;
+   */
+  private MasterDataBundleManager masterDataBundleManager;
 
   /**
    * Listener for all controller status message updates.
@@ -196,6 +199,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
         handleRemoteActivityStatusUpdate(status);
       }
     };
+
+    masterDataBundleManager.startup();
   }
 
   @Override
@@ -206,6 +211,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
     controllerCommunicators.clear();
 
     remoteControllerClientListeners.clear();
+
+    masterDataBundleManager.shutdown();
   }
 
   @Override
@@ -238,8 +245,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
   @Override
   public void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeployRequest request) {
-    ChannelBuffer serialize = newSerializeBuffer();
-    liveActivityDeployRequestSerializer.serialize(request, serialize);
+    ChannelBuffer serialize = liveActivityDeployRequestSerializer.serialize(request);
     sendControllerRequest(liveActivity.getActiveController(),
         ControllerRequest.OPERATION_DEPLOY_LIVE_ACTIVITY, serialize);
   }
@@ -256,8 +262,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
   @Override
   public void deleteActivity(ActiveLiveActivity liveActivity, LiveActivityDeleteRequest request) {
-    ChannelBuffer serialize = newSerializeBuffer();
-    liveActivityDeleteRequestSerializer.serialize(request, serialize);
+    ChannelBuffer serialize = liveActivityDeleteRequestSerializer.serialize(request);
     sendControllerRequest(liveActivity.getActiveController(),
         ControllerRequest.OPERATION_DELETE_LIVE_ACTIVITY, serialize);
   }
@@ -267,14 +272,22 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
     return rosMessageFactory.newFromType(LiveActivityDeleteRequest._TYPE);
   }
 
+  @Override
+  public void captureControllerDataBundle(ActiveSpaceController controller) {
+    masterDataBundleManager.captureControllerDataBundle(controller);
+  }
+
+  @Override
+  public void restoreControllerDataBundle(ActiveSpaceController controller) {
+    masterDataBundleManager.restoreControllerDataBundle(controller);
+  }
+
   /**
-   * Get a properly created serialization buffer.
-   *
-   * @return a properly created serialization buffer
+   * @param masterDataBundleManager
+   *          The data bundle manager to use. Can be null.
    */
-  public ChannelBuffer newSerializeBuffer() {
-    ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(ByteOrder.LITTLE_ENDIAN, 256);
-    return serialize;
+  public void setMasterDataBundleManager(MasterDataBundleManager masterDataBundleManager) {
+    this.masterDataBundleManager = masterDataBundleManager;
   }
 
   @Override
@@ -297,8 +310,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
         rosMessageFactory.newFromType(ActivityConfigurationRequest._TYPE);
     request.setParameters(parameterRequests);
 
-    ChannelBuffer serialize = newSerializeBuffer();
-    activityConfigurationRequestSerializer.serialize(request, serialize);
+    ChannelBuffer serialize = activityConfigurationRequestSerializer.serialize(request);
 
     sendActivityRuntimeRequest(activity, ControllerActivityRuntimeRequest.OPERATION_CONFIGURE,
         serialize);
@@ -358,7 +370,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
    * @param payload
    *          any data to be sent with the request (can be {@code null})
    */
-  private void sendControllerRequest(ActiveSpaceController controller, int operation,
+  void sendControllerRequest(ActiveSpaceController controller, int operation,
       ChannelBuffer payload) {
     ControllerRequest request = rosMessageFactory.newFromType(ControllerRequest._TYPE);
     request.setOperation(operation);
@@ -474,6 +486,14 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
         remoteControllerClientListeners.signalActivityDelete(deleteStatus.getUuid(), deleteResult);
 
+        break;
+
+      case ControllerStatus.STATUS_DATA_CAPTURE:
+        log.info("Received data capture response " + status.getStatusCode());
+        break;
+
+      case ControllerStatus.STATUS_DATA_RESTORE:
+        log.info("Received data restore response " + status.getStatusCode());
         break;
 
       default:
@@ -645,7 +665,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   /**
-   * @param rosEnvironment
+   * @param masterRosContext
    *          the rosEnvironment to set
    */
   public void setMasterRosContext(MasterRosContext masterRosContext) {
