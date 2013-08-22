@@ -9,4 +9,4 @@ if [ `newest_file interactivespaces_msgs/` -nt `newest_file nrosjava_messages/` 
   (cd nrosjava_messages; gradle clean)
 fi
 
-gradle -x javadoc -x test install installDev
+gradle install installDev
