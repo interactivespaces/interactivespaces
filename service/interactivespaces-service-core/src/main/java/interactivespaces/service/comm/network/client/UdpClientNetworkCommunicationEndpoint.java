@@ -18,6 +18,8 @@ package interactivespaces.service.comm.network.client;
 
 import interactivespaces.util.resource.ManagedResource;
 
+import java.net.InetSocketAddress;
+
 /**
  * A communication endpoint for UDP clients.
  *
@@ -30,8 +32,10 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
    *
    * @param data
    *          data in the packet
+   * @param remoteAddress
+   *          the remote address to send the packet to
    */
-  void write(byte[] data);
+  void write(byte[] data, InetSocketAddress remoteAddress);
 
   /**
    * Add a listener to the endpoint.

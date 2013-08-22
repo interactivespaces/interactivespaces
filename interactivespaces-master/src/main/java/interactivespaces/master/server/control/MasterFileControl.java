@@ -130,9 +130,11 @@ public class MasterFileControl implements DirectoryWatcherListener {
     watcher.addDirectory(controlDirectory);
     watcher.addDirectoryWatcherListener(this);
 
+    // The trains must keep running
+    watcher.setStopOnException(false);
+
     watcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
 
-    System.out.println(controlDirectory.list());
     spaceEnvironment.getLog().info(
         String.format("File control of master started, watching %s",
             controlDirectory.getAbsolutePath()));

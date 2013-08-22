@@ -37,9 +37,8 @@ public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSuppo
   }
 
   @Override
-  public UdpClientNetworkCommunicationEndpoint
-      newClient(String remoteHost, int remotePort, Log log) {
-    return new NettyUdpClientNetworkCommunicationEndpoint(remoteHost, remotePort,
-        spaceEnvironment.getExecutorService(), log);
+  public UdpClientNetworkCommunicationEndpoint newClient(Log log) {
+    return new NettyUdpClientNetworkCommunicationEndpoint(spaceEnvironment.getExecutorService(),
+        log);
   }
 }

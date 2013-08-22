@@ -186,7 +186,7 @@ public interface Configuration {
    * @param property
    *          name of the property
    * @param delineator
-   *          the string to use to seperate the property value into a list of
+   *          the string to use to separate the property value into a list of
    *          strings
    *
    * @return the list of values or {@code null} if no such property.
@@ -202,7 +202,7 @@ public interface Configuration {
    * @param property
    *          name of the property
    * @param delineator
-   *          the string to use to seperate the property value into seperate
+   *          the string to use to separate the property value into seperate
    *          strings
    *
    * @return the set of distinct values or {@code null} if no such property.

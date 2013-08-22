@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,6 +48,7 @@ public class NettyUdpServicesTest {
 
   private UdpServerNetworkCommunicationEndpoint serverEndpoint;
   private UdpClientNetworkCommunicationEndpoint clientEndpoint;
+  private InetSocketAddress remoteAddress;
 
   @Before
   public void setup() {
@@ -64,7 +66,8 @@ public class NettyUdpServicesTest {
     clientService.setSpaceEnvironment(spaceEnvironment);
     clientService.startup();
 
-    clientEndpoint = clientService.newClient("127.0.0.1", serverPort, spaceEnvironment.getLog());
+    remoteAddress = new InetSocketAddress("127.0.0.1", serverPort);
+    clientEndpoint = clientService.newClient(spaceEnvironment.getLog());
   }
 
   @After
@@ -88,14 +91,15 @@ public class NettyUdpServicesTest {
 
     final AtomicReference<String> receivedRequestMessage = new AtomicReference<String>();
     final AtomicReference<String> receivedResponseMessage = new AtomicReference<String>();
+    final AtomicReference<InetSocketAddress> receivedSocketAddress = new AtomicReference<InetSocketAddress>();
 
     final CountDownLatch countdownLatch = new CountDownLatch(2);
 
     serverEndpoint.addListener(new UdpServerNetworkCommunicationEndpointListener() {
 
       @Override
-      public void
-          onUdpRequest(UdpServerNetworkCommunicationEndpoint endpoint, UdpServerRequest request) {
+      public void onUdpRequest(UdpServerNetworkCommunicationEndpoint endpoint,
+          UdpServerRequest request) {
         String newValue = new String(request.getRequest());
         receivedRequestMessage.set(newValue);
         if (receivedRequestMessage.get().equals(expectedRequestMessage)) {
@@ -108,8 +112,10 @@ public class NettyUdpServicesTest {
 
     clientEndpoint.addListener(new UdpClientNetworkCommunicationEndpointListener() {
       @Override
-      public void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response) {
+      public void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response,
+          InetSocketAddress remoteAddress) {
         receivedResponseMessage.set(new String(response));
+        receivedSocketAddress.set(remoteAddress);
 
         countdownLatch.countDown();
       }
@@ -118,10 +124,13 @@ public class NettyUdpServicesTest {
     serverEndpoint.startup();
 
     clientEndpoint.startup();
-    clientEndpoint.write(requestBytes);
+    clientEndpoint.write(requestBytes, remoteAddress);
 
     Assert.assertTrue("Response took too long", countdownLatch.await(5, TimeUnit.SECONDS));
     Assert.assertEquals(expectedRequestMessage, receivedRequestMessage.get());
     Assert.assertEquals(expectedResponseMessage, receivedResponseMessage.get());
+    Assert.assertEquals(remoteAddress.getPort(), receivedSocketAddress.get().getPort());
+    Assert.assertEquals(remoteAddress.getHostName(), receivedSocketAddress.get().getHostName());
+
   }
 }
