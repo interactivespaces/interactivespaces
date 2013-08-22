@@ -139,6 +139,24 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   }
 
   @Override
+  public void captureControllerDataBundle(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("capturing data for controller %s", controller.getHostId()));
+
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.captureControllerDataBundle(acontroller);
+  }
+
+  @Override
+  public void restoreControllerDataBundle(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("Restoring data for controller %s", controller.getHostId()));
+
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.restoreControllerDataBundle(acontroller);
+  }
+
+  @Override
   public void shutdownController(SpaceController controller) {
     spaceEnvironment.getLog().info(
         String.format("Shutting down controller %s", controller.getHostId()));

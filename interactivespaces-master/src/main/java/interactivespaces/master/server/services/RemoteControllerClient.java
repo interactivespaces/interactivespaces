@@ -93,6 +93,20 @@ public interface RemoteControllerClient {
   void shutdownAllActivities(ActiveSpaceController controller);
 
   /**
+   * Capture the data bundle for the given controller.
+   * @param controller
+   *          Controller for which to capture the data bundle.
+   */
+  void captureControllerDataBundle(ActiveSpaceController controller);
+
+  /**
+   * Restore the data bundle for the given controller.
+   * @param controller
+   *          Controller for which to capture the data bundle.
+   */
+  void restoreControllerDataBundle(ActiveSpaceController controller);
+
+  /**
    * Deploy an activity to its controller.
    *
    * @param liveActivity

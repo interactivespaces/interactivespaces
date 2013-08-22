@@ -242,6 +242,18 @@ public class BasicUiControllerManager implements UiControllerManager {
   }
 
   @Override
+  public UiControllerManager captureControllerDataBundle(String id) {
+    activeControllerManager.captureControllerDataBundle(getSpaceControllerById(id));
+    return this;
+  }
+
+  @Override
+  public UiControllerManager restoreControllerDataBundle(String id) {
+    activeControllerManager.restoreControllerDataBundle(getSpaceControllerById(id));
+    return this;
+  }
+
+  @Override
   public UiControllerManager shutdownAllActivities(String id) {
     SpaceController controller = controllerRepository.getSpaceControllerById(id);
     if (controller != null) {
@@ -637,4 +649,22 @@ public class BasicUiControllerManager implements UiControllerManager {
     this.spaceEnvironment = spaceEnvironment;
   }
 
+  /**
+   * Get a valid SpaceController, or throw an exception if not found.
+   *
+   * @param id
+   *          id of the desired space controller
+   * @return
+   *          space controller object
+   * @throws
+   *          EntityNotFoundInteractiveSpacesException
+   */
+  private SpaceController getSpaceControllerById(String id) {
+    SpaceController controller = controllerRepository.getSpaceControllerById(id);
+    if (controller == null) {
+      throw new EntityNotFoundInteractiveSpacesException(String.format(
+          "Space controller with ID %s not found", id));
+    }
+    return controller;
+  }
 }

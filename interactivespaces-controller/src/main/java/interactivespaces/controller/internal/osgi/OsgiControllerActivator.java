@@ -19,6 +19,8 @@ package interactivespaces.controller.internal.osgi;
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.ControllerDataBundleManager;
+import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
@@ -188,14 +190,16 @@ public class OsgiControllerActivator implements BundleActivator {
 						controllerActivityInstaller, rosEnvironment,
 						spaceEnvironment);
 
-				spaceController = new StandardSpaceController(
-						activityInstallationManager, controllerRepository,
-						controllerActivityFactory, nativeActivityRunnerFactory,
-						activityConfigurationManager, activityStorageManager,
-						activityLogFactory, spaceControllerCommunicator,
-						new FileSystemSpaceControllerInfoPersister(),
-						spaceSystemControl, spaceEnvironment);
-				spaceController.startup();
+        ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
+
+        spaceController = new StandardSpaceController(
+            activityInstallationManager, controllerRepository,
+            controllerActivityFactory, nativeActivityRunnerFactory,
+            activityConfigurationManager, activityStorageManager,
+            activityLogFactory, spaceControllerCommunicator,
+            new FileSystemSpaceControllerInfoPersister(),
+            spaceSystemControl, spaceEnvironment, dataBundleManager);
+        spaceController.startup();
 
 				controllerShell = new OsgiControllerShell(spaceController,
 						spaceSystemControl, controllerRepository, bundleContext);

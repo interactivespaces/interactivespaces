@@ -55,6 +55,14 @@ function shutdownController() {
     }
 }
 
+function captureData() {
+  doAjaxCommand('capturedata');
+}
+
+function restoreData() {
+  doAjaxCommand('restoredata');
+}
+
 function shutdownActivities() {
     if (confirm("Are you sure you want to shut down all applications on the controller?")) {
         doAjaxCommand('activities/shutdown');
@@ -75,6 +83,8 @@ function shutdownActivities() {
     onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/metadata/edit.html'" title="Edit the space controller metadata">Metadata</button></li>
 <li><button type="button" onclick="shutdownController()" title="Shutdown the controller">Shutdown</button></li>
 <li><button type="button" onclick="shutdownActivities()" title="Shutdown all activities on the controller">Shutdown All Activities</button></li>
+<li><button type="button" onclick="captureData()" title="Capture controller data">Capture Data</button></li>
+<li><button type="button" onclick="restoreData()" title="Restore controller data">Restore Data</button></li>
 <li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all Live Activities on this Controller">Deploy</button></li>
 <#if !(liveactivities?has_content)>
 <li><button type="button" onclick="deleteController()" title="Delete space controller on master">Delete</button></li>

@@ -71,6 +71,7 @@ public class StandardSpaceControllerTest {
   private SpaceControllerInfoPersister controllerInfoPersister;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private ServiceRegistry serviceRegistry;
+  private ControllerDataBundleManager dataBundleManager;
 
   private Configuration systemConfiguration;
 
@@ -93,6 +94,7 @@ public class StandardSpaceControllerTest {
     spaceSystemControl = mock(InteractiveSpacesSystemControl.class);
     controllerInfoPersister = mock(SpaceControllerInfoPersister.class);
     systemConfiguration = SimpleConfiguration.newConfiguration();
+    dataBundleManager = mock(SpaceControllerDataBundleManager.class);
 
     spaceEnvironment = mock(InteractiveSpacesEnvironment.class);
     when(spaceEnvironment.getLog()).thenReturn(log);
@@ -113,7 +115,7 @@ public class StandardSpaceControllerTest {
         new StandardSpaceController(activityInstallationManager, controllerRepository,
             activeControllerActivityFactory, nativeAppRunnerFactory, configurationManager,
             activityStorageManager, activityLogFactory, controllerCommunicator,
-            controllerInfoPersister, spaceSystemControl, spaceEnvironment);
+            controllerInfoPersister, spaceSystemControl, spaceEnvironment, dataBundleManager);
 
     controller.startup();
   }

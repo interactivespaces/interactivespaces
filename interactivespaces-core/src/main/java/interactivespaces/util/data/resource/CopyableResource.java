@@ -45,7 +45,7 @@ public interface CopyableResource {
   boolean moveTo(File destination);
 
   /**
-   * Move the resource to the given destination.
+   * Copy the resource to the given stream.
    *
    * <p>
    * The output stream is not closed by the call, that is the responsibility of

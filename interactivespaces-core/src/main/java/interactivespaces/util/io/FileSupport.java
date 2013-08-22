@@ -1,22 +1,4 @@
-/*
- * Copyright (C) 2012 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package interactivespaces.util.io;
-
-import interactivespaces.InteractiveSpacesException;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,16 +8,9 @@ import java.io.OutputStream;
 /**
  * Various useful file routines.
  *
- * @author Keith M. Hughes
- * @deprecated Replaced with FileSupport interface.
+ * @author Trevor Pering
  */
-public class Files {
-
-  /**
-   * Static instance of the object variant of this class. This is an
-   * intermediate transition until this entire class can be removed.
-   */
-  private final static FileSupportImpl FILE_SUPPORT_INSTANCE = new FileSupportImpl();
+public interface FileSupport {
 
   /**
    * Place the contents of a directory into a zip file.
@@ -45,9 +20,7 @@ public class Files {
    * @param basePath
    *          the source content directory
    */
-  static public void zip(File target, File basePath) {
-    FILE_SUPPORT_INSTANCE.zip(target, basePath);
-  }
+  void zip(File target, File basePath);
 
   /**
    * Place the contents of a zip file into a base directory.
@@ -57,9 +30,7 @@ public class Files {
    * @param baseLocation
    *          where the contents will be written
    */
-  static public void unzip(File source, File baseLocation) {
-    FILE_SUPPORT_INSTANCE.unzip(source, baseLocation);
-  }
+  void unzip(File source, File baseLocation);
 
   /**
    * Copy the source directory to the destination directory.
@@ -76,9 +47,7 @@ public class Files {
    * @param destDir
    *          the destination directory
    */
-  static public final void cleanDuplicateDirectory(File srcDir, File destDir) {
-    FILE_SUPPORT_INSTANCE.cleanDuplicateDirectory(srcDir, destDir);
-  }
+  void cleanDuplicateDirectory(File srcDir, File destDir);
 
   /**
    * Copy the contents of the source directory to the destination directory.
@@ -94,9 +63,7 @@ public class Files {
    *          {@code true} if should overwrite files if already in the
    *          destination folder
    */
-  static public void copyDirectory(File sourceDir, File destDir, boolean overwrite) {
-    FILE_SUPPORT_INSTANCE.copyDirectory(sourceDir, destDir, overwrite);
-  }
+  void copyDirectory(File sourceDir, File destDir, boolean overwrite);
 
   /**
    * Copy an input stream to an output file.
@@ -109,9 +76,7 @@ public class Files {
    * @param destination
    *          the destination file to copy to
    */
-  static public void copyFile(File source, File destination) {
-    FILE_SUPPORT_INSTANCE.copyFile(source, destination);
-  }
+  void copyFile(File source, File destination);
 
   /**
    * Copy an input stream to an output file.
@@ -124,11 +89,9 @@ public class Files {
    * @param file
    *          the file where the input stream's contents will be copied
    *
-   * @throws IOException
+   * @throws java.io.IOException
    */
-  static public void copyInputStream(InputStream in, File file) throws IOException {
-    FILE_SUPPORT_INSTANCE.copyInputStream(in, file);
-  }
+  void copyInputStream(InputStream in, File file) throws IOException;
 
   /**
    * Copy an input stream to an output stream.
@@ -141,11 +104,9 @@ public class Files {
    * @param out
    *          the output stream
    *
-   * @throws IOException
+   * @throws java.io.IOException
    */
-  static public void copyInputStream(InputStream in, OutputStream out) throws IOException {
-    FILE_SUPPORT_INSTANCE.copyInputStream(in, out);
-  }
+  void copyInputStream(InputStream in, OutputStream out) throws IOException;
 
   /**
    * Copy an input stream to an output stream.
@@ -157,11 +118,9 @@ public class Files {
    * @param closeOnCompletion
    *          {@code true} if the streams should be closed when the copy finishes.
    *
-   * @throws IOException
+   * @throws java.io.IOException
    */
-  static public void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException {
-    FILE_SUPPORT_INSTANCE.copyStream(in, out, closeOnCompletion);
-  }
+  void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException;
 
   /**
    * Read the contents of an input stream and return a string containing the
@@ -172,11 +131,9 @@ public class Files {
    *
    * @return a string containing the contents
    *
-   * @throws IOException
+   * @throws java.io.IOException
    */
-  static public String inputStreamAsString(InputStream in) throws IOException {
-    return FILE_SUPPORT_INSTANCE.inputStreamAsString(in);
-  }
+  String inputStreamAsString(InputStream in) throws IOException;
 
   /**
    * Delete a file.
@@ -190,9 +147,7 @@ public class Files {
    * @param file
    *          the file to be deleted
    */
-  static public void delete(File file) {
-    FILE_SUPPORT_INSTANCE.delete(file);
-  }
+  void delete(File file);
 
   /**
    * Delete the contents of a directory.
@@ -203,9 +158,7 @@ public class Files {
    * @param file
    *          the directory to be deleted
    */
-  static public void deleteDirectoryContents(File file) {
-    FILE_SUPPORT_INSTANCE.deleteDirectoryContents(file);
-  }
+  void deleteDirectoryContents(File file);
 
   /**
    * Get a file as a string.
@@ -215,9 +168,7 @@ public class Files {
    *
    * @return the contents of the file
    */
-  static public String readFile(File file) {
-    return FILE_SUPPORT_INSTANCE.readFile(file);
-  }
+  String readFile(File file);
 
   /**
    * Write a string into a file.
@@ -230,9 +181,7 @@ public class Files {
    * @param contents
    *          the contents to be written into the file
    */
-  static public void writeFile(File file, String contents) {
-    FILE_SUPPORT_INSTANCE.writeFile(file, contents);
-  }
+  void writeFile(File file, String contents);
 
   /**
    * Make sure a directory exists. If not, it will be created.
@@ -240,10 +189,8 @@ public class Files {
    * @param dir
    *          the directory that should exist
    *
-   * @throws InteractiveSpacesException
+   * @throws interactivespaces.InteractiveSpacesException
    *           if there is a file at the location and it is not a directory
    */
-  public static void directoryExists(File dir) {
-    FILE_SUPPORT_INSTANCE.directoryExists(dir);
-  }
+  void directoryExists(File dir);
 }

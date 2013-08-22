@@ -26,6 +26,8 @@ int32 STATUS_INSTALL = 3
 int32 STATUS_FULL = 4
 int32 STATUS_ACTIVITY_INSTALL = 5
 int32 STATUS_ACTIVITY_DELETE = 6
+int32 STATUS_DATA_RESTORE = 7
+int32 STATUS_DATA_CAPTURE = 8
 
 # A string identifier giving more detail of the status
 string statusCode

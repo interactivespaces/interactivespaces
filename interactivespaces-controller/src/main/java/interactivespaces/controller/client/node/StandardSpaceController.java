@@ -123,6 +123,11 @@ public class StandardSpaceController implements SpaceController,
   private long heartbeatDelay = HEARTBEAT_DELAY_DEFAULT;
 
   /**
+   * Manager for space controller data operations.
+   */
+  private final ControllerDataBundleManager dataBundleManager;
+
+  /**
    * All activities in this controller, indexed by UUID.
    */
   private Map<String, ActiveControllerActivity> activities = Maps.newHashMap();
@@ -282,7 +287,7 @@ public class StandardSpaceController implements SpaceController,
       SpaceControllerCommunicator controllerCommunicator,
       SpaceControllerInfoPersister controllerInfoPersister,
       InteractiveSpacesSystemControl spaceSystemControl,
-      InteractiveSpacesEnvironment spaceEnvironment) {
+      InteractiveSpacesEnvironment spaceEnvironment, ControllerDataBundleManager dataBundleManager) {
     this.activityInstallationManager = activityInstallationManager;
     this.controllerRepository = controllerRepository;
     this.activeControllerActivityFactory = activeControllerActivityFactory;
@@ -290,6 +295,9 @@ public class StandardSpaceController implements SpaceController,
     this.configurationManager = configurationManager;
     this.activityStorageManager = activityStorageManager;
     this.activityLogFactory = activityLogFactory;
+
+    this.dataBundleManager = dataBundleManager;
+    dataBundleManager.setSpaceController(this);
 
     this.controllerCommunicator = controllerCommunicator;
     controllerCommunicator.setControllerControl(this);
@@ -347,6 +355,8 @@ public class StandardSpaceController implements SpaceController,
             }
           }
         }, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
+
+    dataBundleManager.startup();
 
     startupControllerControl();
     startupCoreControllerServices();
@@ -445,6 +455,8 @@ public class StandardSpaceController implements SpaceController,
 
         controllerHeartbeatControl.cancel(true);
         controllerHeartbeatControl = null;
+
+        dataBundleManager.shutdown();
 
         activityWatcherControl.cancel(true);
         activityWatcherControl = null;
@@ -567,6 +579,58 @@ public class StandardSpaceController implements SpaceController,
 
     for (ActiveControllerActivity app : getAllActiveActivities()) {
       attemptActivityShutdown(app);
+    }
+  }
+
+  @Override
+  public void captureControllerDataBundle(final String bundleUri) {
+    spaceEnvironment.getLog().info("Capture controller data bundle");
+    spaceEnvironment.getExecutorService().submit(new Runnable() {
+      public void run() {
+        executeCaptureControllerDataBundle(bundleUri);
+      }
+    });
+  }
+
+  /**
+   * Execute a capture controller data bundle request from the master. This will trigger
+   * the data content push back to the master, and send off a success/failure message.
+   * @param bundleUri Uri bundle to send the captured data bundle to.
+   */
+  private void executeCaptureControllerDataBundle(final String bundleUri) {
+    try {
+      dataBundleManager.captureControllerDataBundle(bundleUri);
+      controllerCommunicator.publishControllerDataStatus(
+          SpaceControllerDataOperation.DATA_CAPTURE, SpaceControllerStatus.SUCCESS, null);
+    } catch (Exception e) {
+      controllerCommunicator.publishControllerDataStatus(
+          SpaceControllerDataOperation.DATA_CAPTURE, SpaceControllerStatus.FAILURE, e);
+    }
+  }
+
+  @Override
+  public void restoreControllerDataBundle(final String bundleUri) {
+    spaceEnvironment.getLog().info("Restore controller data bundle");
+    spaceEnvironment.getExecutorService().submit(new Runnable() {
+      public void run() {
+        executeRestoreControllerDataBundle(bundleUri);
+      }
+    });
+  }
+
+  /**
+   * Execute the restore data bundle operation. Will trigger the restore, and send back
+   * a success/failure message.
+   * @param bundleUri URI for the data bundle to be fetched from.
+   */
+  private void executeRestoreControllerDataBundle(final String bundleUri) {
+    try {
+      dataBundleManager.restoreControllerDataBundle(bundleUri);
+      controllerCommunicator.publishControllerDataStatus(
+          SpaceControllerDataOperation.DATA_RESTORE, SpaceControllerStatus.SUCCESS, null);
+    } catch (Exception e) {
+      controllerCommunicator.publishControllerDataStatus(
+          SpaceControllerDataOperation.DATA_RESTORE, SpaceControllerStatus.FAILURE, e);
     }
   }
 

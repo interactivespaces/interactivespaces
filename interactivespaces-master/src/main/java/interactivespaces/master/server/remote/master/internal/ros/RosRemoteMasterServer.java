@@ -166,8 +166,8 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
   }
 
   /**
-   * @param rosEnvironment
-   *          the rosEnvironment to set
+   * @param masterRosContext
+   *          the masterRosContext to set
    */
   public void setMasterRosContext(MasterRosContext masterRosContext) {
     this.masterRosContext = masterRosContext;

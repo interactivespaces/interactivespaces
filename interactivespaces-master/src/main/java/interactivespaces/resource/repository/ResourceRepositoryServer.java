@@ -17,6 +17,11 @@
 package interactivespaces.resource.repository;
 
 
+import interactivespaces.common.ResourceRepositoryUploadChannel;
+import interactivespaces.util.data.resource.CopyableResourceListener;
+
+import java.io.OutputStream;
+
 /**
  * A repository server for Interactive Spaces resources.
  *
@@ -47,4 +52,30 @@ public interface ResourceRepositoryServer {
    * @return full URI for the resource with this server.
    */
   String getResourceUri(String category, String name, String version);
+
+  /**
+   * Create an output stream for writing a new resource into the repository.
+   * @param category
+   *          category of the resource
+   * @param name
+   *          the name of the resource
+   * @param version
+   *          the version of the resource
+   *
+   * @return stream to use for writing the resource
+   */
+  OutputStream createResourceOutputStream(String category, String name, String version);
+
+  /**
+   * Register an upload listener for the given key.
+   * @param listener
+   *          Listener to use when an indicated resource is uploaded.
+   */
+  void registerResourceUploadListener(ResourceRepositoryUploadChannel channel,
+      CopyableResourceListener listener);
+
+  /**
+   * Remove the upload listener for the given key.
+   */
+  void removeResourceUploadListener(ResourceRepositoryUploadChannel channel);
 }

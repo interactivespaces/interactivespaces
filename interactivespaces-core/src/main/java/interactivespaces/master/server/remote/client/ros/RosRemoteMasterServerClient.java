@@ -90,9 +90,7 @@ public class RosRemoteMasterServerClient implements RemoteMasterServerClient {
     MasterServerData data = masterTopicPublisher.newMessage();
     data.setDataType(MasterServerData.DATA_TYPE_CONTROLLER_STARTUP);
 
-    ChannelBuffer serialize = ChannelBuffers.dynamicBuffer(ByteOrder.LITTLE_ENDIAN, 256);
-
-    controllerDescriptionSerializer.serialize(description, serialize);
+    ChannelBuffer serialize = controllerDescriptionSerializer.serialize(description);
     data.setData(serialize);
 
     masterTopicPublisher.publish(data);

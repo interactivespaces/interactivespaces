@@ -18,7 +18,9 @@ package interactivespaces.resource.repository;
 
 import interactivespaces.InteractiveSpacesException;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * A storage manager for the Interactive Spaces activity repository.
@@ -30,6 +32,8 @@ public interface ResourceRepositoryStorageManager {
   public static final String RESOURCE_CATEGORY_GENERIC = "resource";
 
   public static final String RESOURCE_CATEGORY_ACTIVITY = "activity";
+
+  public static final String RESOURCE_CATEGORY_DATA = "data";
 
   /**
    * Start the storage manager up.
@@ -138,4 +142,18 @@ public interface ResourceRepositoryStorageManager {
    *         resource
    */
   InputStream getResourceStream(String category, String name, String version);
+
+  /**
+   * Create an output stream for writing a new resource into the repository.
+   *
+   * @param category
+   *          category of the resource
+   * @param name
+   *          the name of the resource
+   * @param version
+   *          the version of the resource
+   *
+   * @return stream to use for writing the resource
+   */
+  OutputStream newResourceOutputStream(String category, String name, String version);
 }

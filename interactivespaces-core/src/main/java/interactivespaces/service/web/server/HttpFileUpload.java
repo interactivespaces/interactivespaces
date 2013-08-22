@@ -28,6 +28,13 @@ import java.util.Map;
 public interface HttpFileUpload extends CopyableResource {
 
   /**
+   * Get the form name of the file upload.
+   *
+   * @return the upload name.
+   */
+  String getFormName();
+
+  /**
    * Is there actually a file in the upload?
    *
    * @return {@code true} if a file was loaded.
