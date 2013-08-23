@@ -93,5 +93,5 @@ public interface RemoteSpaceControllerClientListener {
    * @param status
    *          state change status of the remote activity
    */
-  void onLiveActivityStateChange(String uuid, ActivityState state);
+  void onLiveActivityStateChange(String uuid, ActivityState state, String detail);
 }

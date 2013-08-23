@@ -56,19 +56,21 @@ import java.util.Map;
 public class BasicMasterWebsocketManager implements MasterWebsocketManager,
     MultipleConnectionWebSocketHandler, RemoteSpaceControllerClientListener {
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME = "statusTime";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME = "statusTime";
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS = "status";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS = "status";
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_NAME_ID = "id";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_DETAIL = "statusDetail";
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_NAME_UUID = "uuid";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_ID = "id";
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY = "liveactivity";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_UUID = "uuid";
 
-  private static final String WEBSOCKET_STATUS_PARAMETER_NAME_TYPE = "type";
+  public static final String WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY = "liveactivity";
 
-  private static final String WEBSOCKET_COMMAND_EXTENSION_PREFIX = "/extension/";
+  public static final String WEBSOCKET_STATUS_PARAMETER_NAME_TYPE = "type";
+
+  public static final String WEBSOCKET_COMMAND_EXTENSION_PREFIX = "/extension/";
 
   /**
    * The space environment.
@@ -157,7 +159,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
   }
 
   @Override
-  public void onLiveActivityStateChange(String uuid, ActivityState state) {
+  public void onLiveActivityStateChange(String uuid, ActivityState state, String detail) {
     LiveActivity liveActivity = activityRepository.getLiveActivityByUuid(uuid);
     if (liveActivity != null) {
       Map<String, Object> data = Maps.newHashMap();
@@ -167,6 +169,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_UUID, uuid);
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_ID, liveActivity.getId());
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS, state.getDescription());
+      data.put(WEBSOCKET_STATUS_PARAMETER_NAME_DETAIL, detail);
 
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment
           .getTimeProvider().getCurrentTime()));

@@ -61,7 +61,6 @@ import interactivespaces_msgs.LiveActivityDeployStatus;
 import interactivespaces_msgs.LocatableResourceDescription;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
@@ -75,7 +74,6 @@ import org.ros.node.topic.PublisherListener;
 import org.ros.node.topic.Subscriber;
 import org.ros.osgi.common.RosEnvironment;
 
-import java.nio.ByteOrder;
 import java.util.Map;
 
 /**

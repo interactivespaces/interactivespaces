@@ -34,7 +34,7 @@ public class Event {
   private String source;
 
   /**
-   * The data of the event.
+   * The data of the event, can be {@code null}.
    */
   private Object data;
 
@@ -45,7 +45,7 @@ public class Event {
    * @param source
    *          the source of the event
    * @param data
-   *          the data of the event (can be {@link null}
+   *          the data of the event, can be {@code null}
    */
   public Event(String type, String source, Object data) {
     this.type = type;
@@ -74,7 +74,7 @@ public class Event {
   /**
    * Get the data for the event.
    *
-   * @return the event data packet (can be {@code null})
+   * @return the event data packet, can be {@code null}
    */
   @SuppressWarnings("unchecked")
   public <T> T getData() {

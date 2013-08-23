@@ -370,8 +370,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
    * @param payload
    *          any data to be sent with the request (can be {@code null})
    */
-  void sendControllerRequest(ActiveSpaceController controller, int operation,
-      ChannelBuffer payload) {
+  void
+      sendControllerRequest(ActiveSpaceController controller, int operation, ChannelBuffer payload) {
     ControllerRequest request = rosMessageFactory.newFromType(ControllerRequest._TYPE);
     request.setOperation(operation);
 
@@ -592,7 +592,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
       log.info(String.format("Remote activity %s has reported state %s", status.getUuid(), newState));
     }
 
-    remoteControllerClientListeners.signalActivityStateChange(status.getUuid(), newState);
+    remoteControllerClientListeners.signalActivityStateChange(status.getUuid(), newState,
+        status.getStatusDetail());
   }
 
   @Override

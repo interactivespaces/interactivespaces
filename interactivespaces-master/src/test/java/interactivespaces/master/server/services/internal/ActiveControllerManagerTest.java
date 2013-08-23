@@ -95,9 +95,9 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     ActiveLiveActivity activeLiveActivity = activeLiveActivity(liveActivity);
 
     ActivityState oldState = ActivityState.DEPLOY_ATTEMPT;
-    activeLiveActivity.setRuntimeState(oldState);
+    activeLiveActivity.setRuntimeState(oldState, null);
     remoteControllerListenerHelper.signalActivityStateChange(liveActivity.getUuid(),
-        ActivityState.READY);
+        ActivityState.READY, null);
     assertEquals(ActivityState.READY, activeLiveActivity.getRuntimeState());
     Mockito.verify(controllerListener, Mockito.times(1)).onLiveActivityStateChange(
         liveActivity.getUuid(), oldState, ActivityState.READY);
@@ -113,8 +113,9 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 
     ActivityState startState = ActivityState.DEPLOY_ATTEMPT;
     ActivityState finalState = ActivityState.DEPLOY_FAILURE;
-    activeLiveActivity.setRuntimeState(startState);
-    remoteControllerListenerHelper.signalActivityStateChange(liveActivity.getUuid(), finalState);
+    activeLiveActivity.setRuntimeState(startState, null);
+    remoteControllerListenerHelper.signalActivityStateChange(liveActivity.getUuid(), finalState,
+        null);
     assertEquals(finalState, activeLiveActivity.getRuntimeState());
     Mockito.verify(controllerListener, Mockito.times(1)).onLiveActivityStateChange(
         liveActivity.getUuid(), startState, finalState);

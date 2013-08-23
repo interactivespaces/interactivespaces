@@ -88,7 +88,7 @@ public class BasicActiveControllerManagerTest {
     activity.setController(controller);
     ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
     active.setDeployState(null);
-    active.setRuntimeState(null);
+    active.setRuntimeState(null, null);
 
     controllerManager.onLiveActivityInstall(activityUuid, result);
 
@@ -115,7 +115,7 @@ public class BasicActiveControllerManagerTest {
     activity.setController(controller);
     ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
     active.setDeployState(null);
-    active.setRuntimeState(null);
+    active.setRuntimeState(null, null);
 
     controllerManager.onLiveActivityInstall(activityUuid, result);
 
@@ -144,7 +144,7 @@ public class BasicActiveControllerManagerTest {
     activity.setLastDeployDate(lastDeployDate);
     ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
     active.setDeployState(null);
-    active.setRuntimeState(null);
+    active.setRuntimeState(null, null);
 
     controllerManager.onLiveActivityDelete(activityUuid, result);
 
@@ -174,7 +174,7 @@ public class BasicActiveControllerManagerTest {
     activity.setLastDeployDate(lastDeployDate);
     ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
     active.setDeployState(null);
-    active.setRuntimeState(null);
+    active.setRuntimeState(null, null);
 
     controllerManager.onLiveActivityDelete(activityUuid, result);
 
@@ -203,7 +203,7 @@ public class BasicActiveControllerManagerTest {
     activity.setController(controller);
     ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
     active.setDeployState(null);
-    active.setRuntimeState(null);
+    active.setRuntimeState(null, null);
 
     controllerManager.onLiveActivityDelete(activityUuid, result);
 

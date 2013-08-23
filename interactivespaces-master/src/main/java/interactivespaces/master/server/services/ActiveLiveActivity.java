@@ -61,6 +61,11 @@ public class ActiveLiveActivity {
   private ActivityState runtimeState = ActivityState.UNKNOWN;
 
   /**
+   * Detail about the runtime state, can be {@code null}.
+   */
+  private String runtimeStateDetail;
+
+  /**
    * The deploy state of the activity.
    *
    * <p>
@@ -336,13 +341,25 @@ public class ActiveLiveActivity {
   }
 
   /**
+   * Get the current detail of the activity runtime state.
+   *
+   * @return the runtime state detail, can be {@code null}
+   */
+  public String getRuntimeStateDetail() {
+    return runtimeStateDetail;
+  }
+
+  /**
    * Set the current local knowledge of the activity state.
    *
    * @param runtimeState
    *          the state to set
+   * @param runtimeStateDetail
+   *        detail about the runtime state, can be {@code null}
    */
-  public void setRuntimeState(ActivityState runtimeState) {
+  public void setRuntimeState(ActivityState runtimeState, String runtimeStateDetail) {
     this.runtimeState = runtimeState;
+    this.runtimeStateDetail = runtimeStateDetail;
 
     lastStateUpdate = timeProvider.getCurrentTime();
   }
@@ -394,7 +411,7 @@ public class ActiveLiveActivity {
    * Attempt a remote startup.
    */
   private void attemptRemoteStartup() {
-    setRuntimeState(ActivityState.STARTUP_ATTEMPT);
+    setRuntimeState(ActivityState.STARTUP_ATTEMPT, null);
     remoteControllerClient.startupActivity(this);
   }
 
@@ -402,7 +419,7 @@ public class ActiveLiveActivity {
    * Attempt a remote activation.
    */
   private void attemptRemoteActivation() {
-    setRuntimeState(ActivityState.ACTIVATE_ATTEMPT);
+    setRuntimeState(ActivityState.ACTIVATE_ATTEMPT, null);
     remoteControllerClient.activateActivity(this);
   }
 
@@ -410,7 +427,7 @@ public class ActiveLiveActivity {
    * Attempt a remote deactivation.
    */
   private void attemptRemoteDeactivation() {
-    setRuntimeState(ActivityState.DEACTIVATE_ATTEMPT);
+    setRuntimeState(ActivityState.DEACTIVATE_ATTEMPT, null);
     remoteControllerClient.deactivateActivity(this);
   }
 
@@ -418,7 +435,7 @@ public class ActiveLiveActivity {
    * Attempt a remote shutdown.
    */
   private void attemptRemoteShutdown() {
-    setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT);
+    setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT, null);
     remoteControllerClient.shutdownActivity(this);
   }
 }

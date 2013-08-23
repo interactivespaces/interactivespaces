@@ -165,13 +165,16 @@ public class RemoteControllerClientListenerHelper {
    * Send the activity state change message to all listeners.
    *
    * @param uuid
-   *          UUID of the activity.
-   * @param status
-   *          Deploy status of the remote activity.
+   *          UUID of the activity
+   * @param newRuntimeState
+   *          runtime status of the remote activity
+   * @param newRuntimeStateDetail
+   *          detail about the new runtime state, can be {@code null}
    */
-  public void signalActivityStateChange(String uuid, ActivityState state) {
+  public void signalActivityStateChange(String uuid, ActivityState newRuntimeState,
+      String newRuntimeStateDetail) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityStateChange(uuid, state);
+      listener.onLiveActivityStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
     }
   }
 

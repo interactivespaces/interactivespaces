@@ -748,7 +748,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
           // If not running, should update the status as there may be an
           // error or something that is currently being shown.
           active.setDeployState(ActivityState.UNKNOWN);
-          active.setRuntimeState(ActivityState.UNKNOWN);
+          active.setRuntimeState(ActivityState.UNKNOWN, null);
           active.getLiveActivity().setLastDeployDate(null);
 
           spaceEnvironment.getLog().info(
@@ -758,7 +758,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
         case DOESNT_EXIST:
           active.setDeployState(ActivityState.DOESNT_EXIST);
-          active.setRuntimeState(ActivityState.DOESNT_EXIST);
+          active.setRuntimeState(ActivityState.DOESNT_EXIST, null);
 
           spaceEnvironment.getLog().info(
               String.format(
@@ -779,14 +779,14 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   }
 
   @Override
-  public void onLiveActivityStateChange(String uuid, ActivityState newState) {
+  public void onLiveActivityStateChange(String uuid, ActivityState newState, String newStateDetail) {
     ActiveLiveActivity active = getActiveActivityByUuid(uuid);
     if (active != null) {
       ActivityState oldState;
       synchronized (active) {
         oldState = active.getRuntimeState();
 
-        active.setRuntimeState(newState);
+        active.setRuntimeState(newState, newStateDetail);
 
         if (newState.equals(ActivityState.READY)) {
           active.clearRunningStateModel();

@@ -1,12 +1,12 @@
 <#--
  * Copyright (C) 2012 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -60,7 +60,7 @@ function remoteDeleteLiveActivity() {
 <li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy activity to the controller">Deploy</button></li>
 <li><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/edit.html'" title="Edit the activity details">Edit</button></li>
 <li><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></li>
-<li><button type="button" id="editMetadataButton" 
+<li><button type="button" id="editMetadataButton"
     onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></li>
 <li><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></li>
 <#if !(liveactivitygroups?has_content)>
@@ -122,7 +122,7 @@ Last: <#if liveactivity.activity.lastDeployDate??>
 <td>
 <#if liveactivity.active?has_content>
   <span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
-   as of 
+   as of
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
@@ -138,13 +138,13 @@ Last: <#if liveactivity.activity.lastDeployDate??>
 Directly Running
 <#else>
 Not Directly Running
-</#if> 
+</#if>
 &bull;
 <#if liveactivity.active.directActivated>
 Directly Activated
 <#else>
 Not Directly Activated
-</#if> 
+</#if>
 &bull;
 running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
 &bull;
@@ -172,6 +172,15 @@ activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 <p>
 None
 </p>
+</#if>
+
+<#if liveactivity.active.runtimeStateDetail?has_content>
+<h2>Runtime State Details</h2>
+
+<pre>
+${liveactivity.active.runtimeStateDetail}
+</pre>
+
 </#if>
 
 

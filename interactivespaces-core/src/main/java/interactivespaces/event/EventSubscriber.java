@@ -17,7 +17,7 @@
 package interactivespaces.event;
 
 /**
- * A subscriber for {@olink Event}.
+ * A subscriber for {@link Event}.
  *
  * @author Keith M. Hughes
  */
