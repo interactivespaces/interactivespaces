@@ -38,6 +38,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,6 +149,8 @@ public class InteractiveSpacesFrameworkBootstrap {
     } else {
       setupShutdownHandler();
 
+      setupExceptionHandler();
+
       try {
         createCoreServices(args);
 
@@ -178,6 +181,19 @@ public class InteractiveSpacesFrameworkBootstrap {
         System.exit(0);
       }
     }
+  }
+
+  /**
+   * Set up the default exception handler.
+   */
+  private void setupExceptionHandler() {
+    Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        loggingProvider.getLog().error(
+            String.format("Caught uncaught exception from thread %s", t), e);
+      }
+    });
   }
 
   /**
