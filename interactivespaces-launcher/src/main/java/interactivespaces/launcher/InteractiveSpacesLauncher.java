@@ -275,8 +275,6 @@ public class InteractiveSpacesLauncher {
     try {
       pidRaf.writeChars(Integer.toString(getPid()));
 
-      pidRaf.close();
-
       return true;
     } catch (IOException e) {
       e.printStackTrace();

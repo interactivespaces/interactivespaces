@@ -80,10 +80,10 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
   /**
    * Convert a map to a JSON string.
    *
-   * @param chaName
-   *          the name of the output channel to send the message on
-   * @param message
-   *          the message to send
+   * @param map
+   *          the map to convert to a string
+   *
+   * @return the JSON string representation of the map
    */
   public String jsonStringify(Map<String, Object> map) {
     return MAPPER.toString(map);
@@ -94,6 +94,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
    *
    * @param data
    *          the JSON string
+   *
    * @return the map for the string
    */
   public Map<String, Object> jsonParse(String data) {

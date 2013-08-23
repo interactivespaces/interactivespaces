@@ -235,7 +235,13 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
    */
   private void signalFileAdded(File fileAdded) {
     for (DirectoryWatcherListener listener : listeners) {
-      listener.onFileAdded(fileAdded);
+      try {
+        listener.onFileAdded(fileAdded);
+      } catch (Exception e) {
+        log.error(
+            String.format("Exception while signalling file added %s", fileAdded.getAbsolutePath()),
+            e);
+      }
     }
   }
 
@@ -247,7 +253,13 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
    */
   private void signalFileRemoved(File fileRemoved) {
     for (DirectoryWatcherListener listener : listeners) {
-      listener.onFileRemoved(fileRemoved);
+      try {
+        listener.onFileRemoved(fileRemoved);
+      } catch (Exception e) {
+        log.error(
+            String.format("Exception while signalling file removed %s",
+                fileRemoved.getAbsolutePath()), e);
+      }
     }
   }
 

@@ -20,6 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An interruptable loop.
@@ -36,6 +37,17 @@ public abstract class CancellableLoop implements Runnable {
    */
   private Thread thread;
 
+  /**
+   * Any exception which may have happened during execution.
+   */
+  private AtomicReference<Exception> exception = new AtomicReference<Exception>();
+
+  /**
+   * Runtime state of the loop.
+   */
+  private AtomicReference<RuntimeState> runtimeState = new AtomicReference<RuntimeState>(
+      RuntimeState.READY);
+
   @Override
   public void run() {
     synchronized (this) {
@@ -44,15 +56,21 @@ public abstract class CancellableLoop implements Runnable {
       }
 
       thread = Thread.currentThread();
+      runtimeState.set(RuntimeState.READY);
     }
     try {
       setup();
       while (!thread.isInterrupted()) {
         loop();
       }
+
+      runtimeState.set(RuntimeState.SHUTDOWN);
     } catch (InterruptedException e) {
+      runtimeState.set(RuntimeState.SHUTDOWN);
       handleInterruptedException(e);
     } catch (Exception e) {
+      exception.set(e);
+      runtimeState.set(RuntimeState.CRASH);
       handleException(e);
     } finally {
       thread = null;
@@ -112,5 +130,15 @@ public abstract class CancellableLoop implements Runnable {
    */
   public synchronized boolean isRunning() {
     return thread != null && !thread.isInterrupted();
+  }
+
+  /**
+   * Get the exception that was thrown during the loop running.
+   *
+   * @return the exception thrown, can be {@code null} if no exception has yet
+   *         been thrown
+   */
+  public Exception getException() {
+    return exception.get();
   }
 }
