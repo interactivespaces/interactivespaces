@@ -1,0 +1,14 @@
+#N canvas 517 472 450 300 10;
+#X msg 26 14 connect 127.0.0.1 7771;
+#X obj 105 244 sendOSC;
+#X msg 61 42 disconnect;
+#X msg 163 77 send /osc/1 440;
+#X msg 163 112 send /osc/1 880;
+#X msg 303 77 send /osc/2 660;
+#X msg 303 112 send /osc/2 990;
+#X connect 0 0 1 0;
+#X connect 2 0 1 0;
+#X connect 3 0 1 0;
+#X connect 4 0 1 0;
+#X connect 5 0 1 0;
+#X connect 6 0 1 0;

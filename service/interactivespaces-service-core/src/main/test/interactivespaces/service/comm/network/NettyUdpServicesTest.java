@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.com.network;
+package interactivespaces.service.comm.network;
 
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointListener;
@@ -114,7 +114,8 @@ public class NettyUdpServicesTest {
       @Override
       public void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response,
           InetSocketAddress remoteAddress) {
-        receivedResponseMessage.set(new String(response));
+        String message = new String(response);
+        receivedResponseMessage.set(message);
         receivedSocketAddress.set(remoteAddress);
 
         countdownLatch.countDown();
@@ -124,7 +125,7 @@ public class NettyUdpServicesTest {
     serverEndpoint.startup();
 
     clientEndpoint.startup();
-    clientEndpoint.write(requestBytes, remoteAddress);
+    clientEndpoint.write(remoteAddress, requestBytes);
 
     Assert.assertTrue("Response took too long", countdownLatch.await(5, TimeUnit.SECONDS));
     Assert.assertEquals(expectedRequestMessage, receivedRequestMessage.get());

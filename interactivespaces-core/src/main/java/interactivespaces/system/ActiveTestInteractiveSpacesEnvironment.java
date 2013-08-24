@@ -153,4 +153,11 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
   public void removeValue(String valueName) {
     values.remove(valueName);
   }
+
+  /**
+   * Shutdown the environment.
+   */
+  public void shutdown() {
+    executorService.shutdown();
+  }
 }

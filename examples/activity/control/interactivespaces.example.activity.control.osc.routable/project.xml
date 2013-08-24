@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>Open Sound Control Routable Input Java Example</name>
+    <description>
+An Open Sound Control example which uses an analog message to determine the frequency.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.control.osc.routable</identifyingName>
+    <version>1.0.0</version>
+</project>

@@ -20,6 +20,8 @@ import interactivespaces.service.SupportedService;
 
 import org.apache.commons.logging.Log;
 
+import java.nio.ByteOrder;
+
 /**
  * A communication endpoint service for UDP clients.
  *
@@ -35,10 +37,25 @@ public interface UdpClientNetworkCommunicationEndpointService extends SupportedS
   /**
    * Create a new UDP client endpoint.
    *
+   * <p>
+   * Packets will be big-endian
+   *
    * @param log
    *          the logger to use
    *
    * @return the communication endpoint
    */
   UdpClientNetworkCommunicationEndpoint newClient(Log log);
+
+  /**
+   * Create a new UDP client endpoint.
+   *
+   * @param byteOrder
+   *          the byte order for the endpoint
+   * @param log
+   *          the logger to use
+   *
+   * @return the communication endpoint
+   */
+  UdpClientNetworkCommunicationEndpoint newClient(ByteOrder byteOrder, Log log);
 }

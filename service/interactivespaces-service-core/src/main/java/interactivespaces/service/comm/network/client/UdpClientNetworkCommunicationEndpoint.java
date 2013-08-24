@@ -30,12 +30,58 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
   /**
    * Write a packet to the remote server.
    *
-   * @param data
-   *          data in the packet
    * @param remoteAddress
    *          the remote address to send the packet to
+   * @param data
+   *          data in the packet
    */
-  void write(byte[] data, InetSocketAddress remoteAddress);
+  void write(InetSocketAddress remoteAddress, byte[] data);
+
+  /**
+   * Write a packet to the remote server.
+   *
+   * @param remoteAddress
+   *          the remote address to send the packet to
+   * @param data
+   *          data in the packet
+   * @param length
+   *          number of bytes to send from the array
+   */
+  void write(InetSocketAddress remoteAddress, byte[] data, int length);
+
+  /**
+   * Write a packet to the remote server.
+   *
+   * @param remoteAddress
+   *          the remote address to send the packet to
+   * @param data
+   *          data in the packet
+   * @param offset
+   *          position of the first byte in the array to send
+   * @param length
+   *          number of bytes to send from the array
+   */
+  void write(InetSocketAddress remoteAddress, byte[] data, int offset, int length);
+
+  /**
+   * Create a new UDP packet.
+   *
+   * <p>
+   * The packet will be of a dynamic size.
+   *
+   * @return UDP packet of the proper endian
+   */
+  UdpPacket newUdpPacket();
+
+  /**
+   * Create a new UDP packet.
+   *
+   * @param size
+   *          size of the packet
+   *
+   * @return UDP packet of the proper endian
+   */
+  UdpPacket newUdpPacket(int size);
 
   /**
    * Add a listener to the endpoint.

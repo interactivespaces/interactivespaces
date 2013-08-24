@@ -20,6 +20,8 @@ import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointService;
 
+import java.nio.ByteOrder;
+
 import org.apache.commons.logging.Log;
 
 /**
@@ -38,7 +40,12 @@ public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public UdpClientNetworkCommunicationEndpoint newClient(Log log) {
-    return new NettyUdpClientNetworkCommunicationEndpoint(spaceEnvironment.getExecutorService(),
-        log);
+    return newClient(ByteOrder.BIG_ENDIAN, log);
+  }
+
+  @Override
+  public UdpClientNetworkCommunicationEndpoint newClient(ByteOrder byteOrder, Log log) {
+    return new NettyUdpClientNetworkCommunicationEndpoint(byteOrder,
+        spaceEnvironment.getExecutorService(), log);
   }
 }

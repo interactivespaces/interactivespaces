@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointListener;
+import interactivespaces.service.comm.network.client.UdpPacket;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -38,6 +39,7 @@ import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -48,6 +50,16 @@ import java.util.concurrent.ExecutorService;
  */
 public class NettyUdpClientNetworkCommunicationEndpoint implements
     UdpClientNetworkCommunicationEndpoint {
+
+  /**
+   * Default number of bytes in a dynamic buffer
+   */
+  public static final int DYNAMIC_BUFFER_INITIAL_SIZE = 512;
+
+  /**
+   * Byte order for endpoint packets.
+   */
+  private ByteOrder byteOrder;
 
   /**
    * The bootstrap for the UDP client.
@@ -72,7 +84,9 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
    */
   private Log log;
 
-  NettyUdpClientNetworkCommunicationEndpoint(ExecutorService executorService, Log log) {
+  NettyUdpClientNetworkCommunicationEndpoint(ByteOrder byteOrder, ExecutorService executorService,
+      Log log) {
+    this.byteOrder = byteOrder;
     this.executorService = executorService;
     this.log = log;
   }
@@ -118,9 +132,29 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
   }
 
   @Override
-  public void write(byte[] bytes, InetSocketAddress remoteAddress) {
-    ChannelBuffer cb = ChannelBuffers.copiedBuffer(bytes);
+  public void write(InetSocketAddress remoteAddress, byte[] bytes) {
+    write(remoteAddress, bytes, bytes.length);
+  }
+
+  @Override
+  public void write(InetSocketAddress remoteAddress, byte[] bytes, int length) {
+    write(remoteAddress, bytes, 0, length);
+  }
+
+  @Override
+  public void write(InetSocketAddress remoteAddress, byte[] bytes, int offset, int length) {
+    ChannelBuffer cb = ChannelBuffers.copiedBuffer(bytes, offset, length);
     outputChannel.write(cb, remoteAddress);
+  }
+
+  @Override
+  public UdpPacket newUdpPacket() {
+    return new NettyUdpPacket(ChannelBuffers.dynamicBuffer(byteOrder, DYNAMIC_BUFFER_INITIAL_SIZE));
+  }
+
+  @Override
+  public UdpPacket newUdpPacket(int size) {
+    return new NettyUdpPacket(ChannelBuffers.buffer(byteOrder, size));
   }
 
   @Override
@@ -165,6 +199,72 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
       log.error("Error while handling UDP client message", e.getCause());
       e.getChannel().close();
+    }
+  }
+
+  class NettyUdpPacket implements UdpPacket {
+    /**
+     * Buffer for the packet.
+     */
+    private ChannelBuffer buffer;
+
+    public NettyUdpPacket(ChannelBuffer buffer) {
+      this.buffer = buffer;
+    }
+
+    @Override
+    public void write(InetSocketAddress remoteAddress) {
+      outputChannel.write(buffer, remoteAddress);
+    }
+
+    @Override
+    public void writeByte(int value) {
+      buffer.writeByte(value);
+    }
+
+    @Override
+    public void writeShort(int value) {
+      buffer.writeShort(value);
+    }
+
+    @Override
+    public void writeMedium(int value) {
+      buffer.writeMedium(value);
+    }
+
+    @Override
+    public void writeInt(int value) {
+      buffer.writeInt(value);
+    }
+
+    @Override
+    public void writeLong(long value) {
+      buffer.writeLong(value);
+    }
+
+    @Override
+    public void writeChar(int value) {
+      buffer.writeChar(value);
+    }
+
+    @Override
+    public void writeFloat(float value) {
+      buffer.writeFloat(value);
+    }
+
+    @Override
+    public void writeDouble(double value) {
+      buffer.writeDouble(value);
+    }
+
+    @Override
+    public void writeBytes(byte[] src) {
+      buffer.writeBytes(src);
+    }
+
+    @Override
+    public void writeBytes(byte[] src, int srcIndex, int length) {
+      buffer.writeBytes(src, srcIndex, length);
     }
   }
 }
