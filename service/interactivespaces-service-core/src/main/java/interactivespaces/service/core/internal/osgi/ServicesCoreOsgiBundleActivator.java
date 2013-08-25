@@ -20,8 +20,8 @@ import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivato
 import interactivespaces.service.comm.network.client.internal.netty.NettyUdpClientNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.network.server.internal.netty.NettyUdpServerNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
-import interactivespaces.service.control.osc.OscClientCommunicationEndpointService;
-import interactivespaces.service.control.osc.internal.InteractiveSpacesOscClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.internal.InteractiveSpacesOpenSoundControlClientCommunicationEndpointService;
 
 /**
  * The Bundle Activator for the core InteractiveSpaces services.
@@ -48,7 +48,7 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
   /**
    * Open Sound Control service
    */
-  private OscClientCommunicationEndpointService oscService;
+  private OpenSoundControlClientCommunicationEndpointService oscService;
 
   @Override
   protected void allRequiredServicesAvailable() {
@@ -62,7 +62,7 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
     udpServerService = new NettyUdpServerNetworkCommunicationEndpointService();
     registerNewInteractiveSpacesService(udpServerService);
 
-    oscService = new InteractiveSpacesOscClientCommunicationEndpointService();
+    oscService = new InteractiveSpacesOpenSoundControlClientCommunicationEndpointService();
     registerNewInteractiveSpacesService(oscService);
   }
 }

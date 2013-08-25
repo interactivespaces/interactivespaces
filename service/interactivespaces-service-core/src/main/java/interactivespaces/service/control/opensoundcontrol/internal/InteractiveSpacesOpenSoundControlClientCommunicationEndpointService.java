@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.service.control.osc.internal;
+package interactivespaces.service.control.opensoundcontrol.internal;
 
 import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.network.client.internal.netty.NettyUdpClientNetworkCommunicationEndpointService;
-import interactivespaces.service.control.osc.OscClientCommunicationEndpoint;
-import interactivespaces.service.control.osc.OscClientCommunicationEndpointService;
-import interactivespaces.service.control.osc.OscClientPacket;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientPacket;
 import interactivespaces.system.ActiveTestInteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -31,12 +31,12 @@ import java.nio.ByteOrder;
 
 /**
  * An Interactive Spaces implementation of
- * {@link OscClientCommunicationEndpointService}.
+ * {@link OpenSoundControlClientCommunicationEndpointService}.
  *
  * @author Keith M. Hughes
  */
-public class InteractiveSpacesOscClientCommunicationEndpointService extends BaseSupportedService
-    implements OscClientCommunicationEndpointService {
+public class InteractiveSpacesOpenSoundControlClientCommunicationEndpointService extends BaseSupportedService
+    implements OpenSoundControlClientCommunicationEndpointService {
 
   public static void main(String[] args) {
     ActiveTestInteractiveSpacesEnvironment spaceEnvironment =
@@ -44,15 +44,15 @@ public class InteractiveSpacesOscClientCommunicationEndpointService extends Base
 
     spaceEnvironment.getServiceRegistry().registerService(
         new NettyUdpClientNetworkCommunicationEndpointService());
-    InteractiveSpacesOscClientCommunicationEndpointService service =
-        new InteractiveSpacesOscClientCommunicationEndpointService();
+    InteractiveSpacesOpenSoundControlClientCommunicationEndpointService service =
+        new InteractiveSpacesOpenSoundControlClientCommunicationEndpointService();
     service.setSpaceEnvironment(spaceEnvironment);
     service.startup();
 
-    OscClientCommunicationEndpoint endpoint =
-        service.newEndpoint("127.0.0.1", 7771, spaceEnvironment.getLog());
+    OpenSoundControlClientCommunicationEndpoint endpoint =
+        service.newUdpEndpoint("127.0.0.1", 7771, spaceEnvironment.getLog());
     endpoint.startup();
-    OscClientPacket packet = endpoint.newOscPacket("/osc/1", "f");
+    OpenSoundControlClientPacket packet = endpoint.newPacket("/osc/1", "f");
     packet.writeFloat(440.0f);
     packet.write();
     endpoint.shutdown();
@@ -77,8 +77,8 @@ public class InteractiveSpacesOscClientCommunicationEndpointService extends Base
   }
 
   @Override
-  public OscClientCommunicationEndpoint newEndpoint(String remoteHost, int remotePort, Log log) {
-    return new InteractiveSpacesOscClientCommunicationsEndpoint(new InetSocketAddress(remoteHost,
+  public OpenSoundControlClientCommunicationEndpoint newUdpEndpoint(String remoteHost, int remotePort, Log log) {
+    return new InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint(new InetSocketAddress(remoteHost,
         remotePort), udpEndpointService.newClient(ByteOrder.BIG_ENDIAN, log), log);
   }
 }

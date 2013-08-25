@@ -14,23 +14,23 @@
  * the License.
  */
 
-package interactivespaces.service.control.osc.internal;
+package interactivespaces.service.control.opensoundcontrol.internal;
 
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpPacket;
-import interactivespaces.service.control.osc.OscClientCommunicationEndpoint;
-import interactivespaces.service.control.osc.OscClientPacket;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientPacket;
 
 import java.net.InetSocketAddress;
 
 import org.apache.commons.logging.Log;
 
 /**
- * An Interactive Spaces implementation of an {@link OscClientCommunicationEndpoint}.
+ * An Interactive Spaces implementation of an {@link OpenSoundControlClientCommunicationEndpoint}.
  *
  * @author Keith M. Hughes
  */
-public class InteractiveSpacesOscClientCommunicationsEndpoint implements OscClientCommunicationEndpoint {
+public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint implements OpenSoundControlClientCommunicationEndpoint {
 
   /**
    * Padding bytes.
@@ -57,7 +57,7 @@ public class InteractiveSpacesOscClientCommunicationsEndpoint implements OscClie
    */
   private Log log;
 
-  public InteractiveSpacesOscClientCommunicationsEndpoint(InetSocketAddress remoteAddress,
+  public InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint(InetSocketAddress remoteAddress,
       UdpClientNetworkCommunicationEndpoint commEndpoint, Log log) {
     this.remoteAddress = remoteAddress;
     this.commEndpoint = commEndpoint;
@@ -75,16 +75,21 @@ public class InteractiveSpacesOscClientCommunicationsEndpoint implements OscClie
   }
 
   @Override
-  public OscClientPacket newOscPacket(String address, String types) {
+  public OpenSoundControlClientPacket newPacket(String address, String types) {
+    return new InteractiveSpacesOscPacket(address, types);
+  }
+
+  @Override
+  public OpenSoundControlClientPacket newPacket(String address, byte... types) {
     return new InteractiveSpacesOscPacket(address, types);
   }
 
   /**
-   * An OSC packet for an {@link InteractiveSpacesOscClientCommunicationsEndpoint}.
+   * An OSC packet for an {@link InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint}.
    *
    * @author Keith M. Hughes
    */
-  public class InteractiveSpacesOscPacket implements OscClientPacket {
+  public class InteractiveSpacesOscPacket implements OpenSoundControlClientPacket {
 
     /**
      * OSC Address for the packet
@@ -97,7 +102,11 @@ public class InteractiveSpacesOscClientCommunicationsEndpoint implements OscClie
     private UdpPacket packet;
 
     public InteractiveSpacesOscPacket(String address, String types) {
-      packet = commEndpoint.newUdpPacket();
+      this(address, types.getBytes());
+    }
+
+    public InteractiveSpacesOscPacket(String address, byte... types) {
+      packet = commEndpoint.newDynamicUdpPacket();
 
       writeString(address);
       writeArgumentTypes(types);
@@ -146,11 +155,15 @@ public class InteractiveSpacesOscClientCommunicationsEndpoint implements OscClie
      * @param types
      *          the argument types
      */
-    private void writeArgumentTypes(String types) {
+    private void writeArgumentTypes(byte... types) {
       packet.writeByte(COMMA);
-      byte[] bytes = types.getBytes();
-      packet.writeBytes(bytes);
-      packet.writeBytes(PADDING, 0, 4 - ((bytes.length + 1) % 4));
+      packet.writeBytes(types);
+      packet.writeBytes(PADDING, 0, 4 - ((types.length + 1) % 4));
+    }
+
+    @Override
+    public int getPacketSize() {
+      return packet.getPacketSize();
     }
   }
 }

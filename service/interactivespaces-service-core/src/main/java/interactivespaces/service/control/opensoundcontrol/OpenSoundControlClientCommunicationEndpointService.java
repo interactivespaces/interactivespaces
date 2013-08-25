@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.service.control.osc;
+package interactivespaces.service.control.opensoundcontrol;
 
 
 import interactivespaces.service.SupportedService;
@@ -26,15 +26,15 @@ import org.apache.commons.logging.Log;
  *
  * @author Keith M. Hughes
  */
-public interface OscClientCommunicationEndpointService extends SupportedService {
+public interface OpenSoundControlClientCommunicationEndpointService extends SupportedService {
 
   /**
    * The name of the service.
    */
-  public static final String SERVICE_NAME = "control.osc.client";
+  public static final String SERVICE_NAME = "control.opensoundcontrol.client";
 
   /**
-   * Create a new endpoint.
+   * Create a new endpoint which uses UDP.
    *
    * @param remoteHost
    *          the remote host containing the OSC server
@@ -45,5 +45,5 @@ public interface OscClientCommunicationEndpointService extends SupportedService 
    *
    * @return the new endpoint
    */
-  OscClientCommunicationEndpoint newEndpoint(String remoteHost, int remotePort, Log log);
+  OpenSoundControlClientCommunicationEndpoint newUdpEndpoint(String remoteHost, int remotePort, Log log);
 }

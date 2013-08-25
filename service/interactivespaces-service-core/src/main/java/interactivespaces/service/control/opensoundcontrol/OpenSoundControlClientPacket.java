@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.service.control.osc;
+package interactivespaces.service.control.opensoundcontrol;
 
 /**
  * An Open Sound Control packet.
  *
  * @author Keith M. Hughes
  */
-public interface OscClientPacket {
+public interface OpenSoundControlClientPacket {
 
   /**
    * Get the OSC address for the packet.
@@ -75,4 +75,10 @@ public interface OscClientPacket {
    */
   void writeDouble(double value);
 
+  /**
+   * Get the size of the packet so far.
+   *
+   * @return size of packet in bytes
+   */
+  int getPacketSize();
 }

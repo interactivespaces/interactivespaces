@@ -35,109 +35,124 @@ public interface UdpPacket {
    */
   void write(InetSocketAddress remoteAddress);
 
-
   /**
-   * Sets the specified byte at the current {@code writerIndex}
-   * and increases the {@code writerIndex} by {@code 1} in this buffer.
-   * The 24 high-order bits of the specified value are ignored.
+   * Write out the lowest byte of the int into the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 1}
+   *           if there is not enough room in the packet for the data
    */
-  void writeByte(int   value);
+  void writeByte(int value);
 
   /**
-   * Sets the specified 16-bit short integer at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 2}
-   * in this buffer.  The 16 high-order bits of the specified value are ignored.
+   * Write the lower 16 bits of the int into the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 2}
+   *           if there is not enough room in the packet for the data
    */
   void writeShort(int value);
 
   /**
-   * Sets the specified 24-bit medium integer at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 3}
-   * in this buffer.
+   * Write the lower 24 bits of the int into the packet
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 3}
+   *           if there is not enough room in the packet for the data
    */
-  void writeMedium(int   value);
+  void writeMedium(int value);
 
   /**
-   * Sets the specified 32-bit integer at the current {@code writerIndex}
-   * and increases the {@code writerIndex} by {@code 4} in this buffer.
+   * Write the int into the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 4}
+   *           if there is not enough room in the packet for the data
    */
-  void writeInt(int   value);
+  void writeInt(int value);
 
   /**
-   * Sets the specified 64-bit long integer at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 8}
-   * in this buffer.
+   * Write the long into the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 8}
+   *           if there is not enough room in the packet for the data
    */
-  void writeLong(long  value);
+  void writeLong(long value);
 
   /**
-   * Sets the specified 2-byte UTF-16 character at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 2}
-   * in this buffer.  The 16 high-order bits of the specified value are ignored.
+   * Write the lower 16 bits of the int as a UTF-16 character in the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 2}
+   *           if there is not enough room in the packet for the data
    */
   void writeChar(int value);
 
   /**
-   * Sets the specified 32-bit floating point number at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 4}
-   * in this buffer.
+   * Write the floating point number in the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 4}
+   *           if there is not enough room in the packet for the data
    */
   void writeFloat(float value);
 
   /**
-   * Sets the specified 64-bit floating point number at the current
-   * {@code writerIndex} and increases the {@code writerIndex} by {@code 8}
-   * in this buffer.
+   * Write the double in the packet.
+   *
+   * @param value
+   *          the value to write
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code this.writableBytes} is less than {@code 8}
+   *           if there is not enough room in the packet for the data
    */
   void writeDouble(double value);
 
   /**
-   * Transfers the specified source array's data to this buffer starting at
-   * the current {@code writerIndex} and increases the {@code writerIndex}
-   * by the number of the transferred bytes (= {@code src.length}).
+   * TWrite the entire byte array into the packet.
+   *
+   * @param src
+   *          the byte array
    *
    * @throws IndexOutOfBoundsException
-   *         if {@code src.length} is greater than {@code this.writableBytes}
+   *           if there is not enough room in the packet for the data
    */
   void writeBytes(byte[] src);
 
   /**
-   * Transfers the specified source array's data to this buffer starting at
-   * the current {@code writerIndex} and increases the {@code writerIndex}
-   * by the number of the transferred bytes (= {@code length}).
+   * Write part of a byte array into the packet.
    *
-   * @param srcIndex the first index of the source
-   * @param length   the number of bytes to transfer
+   * @param src
+   *          the source bytes
+   * @param srcIndex
+   *          the first index of the source
+   * @param length
+   *          the number of bytes to transfer
    *
    * @throws IndexOutOfBoundsException
-   *         if the specified {@code srcIndex} is less than {@code 0},
-   *         if {@code srcIndex + length} is greater than
-   *            {@code src.length}, or
-   *         if {@code length} is greater than {@code this.writableBytes}
+   *           if there is not enough room in the packet for the data
    */
   void writeBytes(byte[] src, int srcIndex, int length);
+
+  /**
+   * Get the current size of the packet.
+   *
+   * @return current size in bytes
+   */
+  int getPacketSize();
 }

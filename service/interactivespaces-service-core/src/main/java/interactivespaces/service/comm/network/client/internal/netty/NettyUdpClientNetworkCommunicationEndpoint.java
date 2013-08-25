@@ -148,7 +148,7 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
   }
 
   @Override
-  public UdpPacket newUdpPacket() {
+  public UdpPacket newDynamicUdpPacket() {
     return new NettyUdpPacket(ChannelBuffers.dynamicBuffer(byteOrder, DYNAMIC_BUFFER_INITIAL_SIZE));
   }
 
@@ -265,6 +265,11 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     @Override
     public void writeBytes(byte[] src, int srcIndex, int length) {
       buffer.writeBytes(src, srcIndex, length);
+    }
+
+    @Override
+    public int getPacketSize() {
+      return buffer.readableBytes();
     }
   }
 }

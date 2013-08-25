@@ -17,9 +17,10 @@
 package interactivespaces.example.activity.control.osc.routable;
 
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.service.control.osc.OscCommunicationEndpoint;
-import interactivespaces.service.control.osc.OscCommunicationEndpointService;
-import interactivespaces.service.control.osc.OscPacket;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientPacket;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlConstants;
 
 import java.util.Map;
 
@@ -72,7 +73,7 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
   /**
    * The communication endpoint for speaking to the OSC service.
    */
-  private OscCommunicationEndpoint controlEndpoint;
+  private OpenSoundControlClientCommunicationEndpoint controlEndpoint;
 
   /**
    * The multiplier for the signal being sent to the OSC address.
@@ -92,16 +93,16 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
   @Override
   public void onActivitySetup() {
 
-    OscCommunicationEndpointService endpointService =
+    OpenSoundControlClientCommunicationEndpointService endpointService =
         getSpaceEnvironment().getServiceRegistry().getRequiredService(
-            OscCommunicationEndpointService.SERVICE_NAME);
+            OpenSoundControlClientCommunicationEndpointService.SERVICE_NAME);
 
     String remoteHost =
         getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_OSC_SERVER_HOST);
     int remotePort =
         getConfiguration().getRequiredPropertyInteger(CONFIGURATION_PROPERTY_OSC_SERVER_PORT);
 
-    controlEndpoint = endpointService.newEndpoint(remoteHost, remotePort, getLog());
+    controlEndpoint = endpointService.newUdpEndpoint(remoteHost, remotePort, getLog());
     addManagedResource(controlEndpoint);
 
     frequencyBase =
@@ -142,7 +143,7 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
    *          the analog signal to send
    */
   private void sendOscPacket(int analog) {
-    OscPacket packet = controlEndpoint.newOscPacket(oscAddress, "f");
+    OpenSoundControlClientPacket packet = controlEndpoint.newPacket(oscAddress, OpenSoundControlConstants.OPEN_SOUND_CONTROL_ARGUMENT_TYPE_FLOAT32);
     packet.writeFloat(analog * signalMultiplier + frequencyBase);
     packet.write();
   }

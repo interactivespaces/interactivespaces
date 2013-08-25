@@ -71,7 +71,7 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
    *
    * @return UDP packet of the proper endian
    */
-  UdpPacket newUdpPacket();
+  UdpPacket newDynamicUdpPacket();
 
   /**
    * Create a new UDP packet.
