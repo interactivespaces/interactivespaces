@@ -16,8 +16,6 @@
 
 package interactivespaces.service.comm.network.client;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-
 import java.net.InetSocketAddress;
 
 /**
