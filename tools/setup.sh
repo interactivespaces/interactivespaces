@@ -2,7 +2,7 @@
 
 source tools/setup_functions.sh
 
-check_gradle Gradle 1.6 || install_gradle 1.6
+check_gradle Gradle 1.7 || install_gradle 1.7
 check_gradle Groovy 1.8.6
 check_gradle Ivy 2.2.0
 check_gradle JVM 1.6.0
