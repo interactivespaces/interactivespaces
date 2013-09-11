@@ -30,6 +30,7 @@ import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesE
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.ui.JsonSupport;
@@ -184,6 +185,11 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
                       "Recived status update in web socket master client for unknown live activity UUID %s",
                       uuid));
     }
+  }
+
+  @Override
+  public void onDataBundleStateChange(String uuid, DataBundleState state) {
+    // For now don't care.
   }
 
   @Override

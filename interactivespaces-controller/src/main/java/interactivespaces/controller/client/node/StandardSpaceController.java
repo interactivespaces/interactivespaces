@@ -33,6 +33,7 @@ import interactivespaces.activity.component.CoreExistingActivityComponentFactory
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
+import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.configuration.LiveActivityConfigurationManager;
 import interactivespaces.controller.activity.installation.ActivityInstallationListener;

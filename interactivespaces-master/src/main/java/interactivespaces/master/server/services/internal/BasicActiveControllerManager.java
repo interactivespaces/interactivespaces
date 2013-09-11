@@ -141,18 +141,20 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void captureControllerDataBundle(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("capturing data for controller %s", controller.getHostId()));
+        String.format("Capturing data bundle for controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    acontroller.setDataBundleState(DataBundleState.CAPTURE_REQUESTED);
     remoteControllerClient.captureControllerDataBundle(acontroller);
   }
 
   @Override
   public void restoreControllerDataBundle(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("Restoring data for controller %s", controller.getHostId()));
+        String.format("Restoring data bundle for controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    acontroller.setDataBundleState(DataBundleState.RESTORE_REQUESTED);
     remoteControllerClient.restoreControllerDataBundle(acontroller);
   }
 
@@ -796,6 +798,17 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       controllerListeners.signalLiveActivityStateChange(uuid, oldState, newState);
     } else {
       logUnknownLiveActivity(uuid);
+    }
+  }
+
+  @Override
+  public void onDataBundleStateChange(String uuid, DataBundleState state) {
+    ActiveSpaceController controller = getActiveControllerByUuid(uuid);
+    if (controller != null) {
+      controller.setDataBundleState(state);
+    } else {
+      spaceEnvironment.getLog().warn(
+          String.format("Data bundle state change update from unknown controller with UUID %s", uuid));
     }
   }
 

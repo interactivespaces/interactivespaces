@@ -254,6 +254,34 @@ public class BasicUiControllerManager implements UiControllerManager {
   }
 
   @Override
+  public UiControllerManager captureDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.captureControllerDataBundle(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to capture data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+    return this;
+  }
+
+  @Override
+  public UiControllerManager restoreDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.restoreControllerDataBundle(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to capture data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+    return this;
+  }
+
+  @Override
   public UiControllerManager shutdownAllActivities(String id) {
     SpaceController controller = controllerRepository.getSpaceControllerById(id);
     if (controller != null) {

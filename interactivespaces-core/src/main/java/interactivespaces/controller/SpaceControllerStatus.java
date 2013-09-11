@@ -14,7 +14,11 @@
  * the License.
  */
 
-package interactivespaces.controller.client.node;
+package interactivespaces.controller;
+
+import com.google.common.collect.Maps;
+
+import java.util.Map;
 
 /**
  * @author peringknife@google.com (Trevor Pering)
@@ -30,6 +34,42 @@ public enum SpaceControllerStatus {
    * Space controller failure.
    */
   FAILURE("failure");
+
+  /**
+   * Static map containing the reverse-lookup from the description to the enum type.
+   */
+  private static final Map<String, SpaceControllerStatus> descriptionMap = Maps.newHashMap();
+
+  /**
+   * Construct the requisite reverse-lookup map.
+   */
+  static {
+    for (SpaceControllerStatus status : SpaceControllerStatus.values()) {
+      descriptionMap.put(status.getDescription(), status);
+    }
+  }
+
+  /**
+   * Return a enum value given the associated description.
+   *
+   * @param description
+   *            description to look up
+   * @return
+   *            the matching enum
+   */
+  public static SpaceControllerStatus fromDescription(String description) {
+    return descriptionMap.get(description);
+  }
+
+  /**
+   * Checks if the status indicates success.
+   *
+   * @return
+   *            {@code true} if success
+   */
+  public static boolean isSuccessDescription(String description) {
+    return SUCCESS.equals(fromDescription(description));
+  }
 
   /**
    * String value to use for this constant.

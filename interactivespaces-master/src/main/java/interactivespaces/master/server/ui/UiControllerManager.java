@@ -147,6 +147,20 @@ public interface UiControllerManager {
   UiControllerManager restoreControllerDataBundle(String id);
 
   /**
+   * Capture the data bundle for all controllers.
+
+   * @return the controller manager which performed the operation.
+   */
+  UiControllerManager captureDataAllControllers();
+
+  /**
+   * Restore the data bundles for all controllers.
+
+   * @return the controller manager which performed the operation.
+   */
+  UiControllerManager restoreDataAllControllers();
+
+  /**
    * Shut down all activities on the specified controller.
    *
    * @param id

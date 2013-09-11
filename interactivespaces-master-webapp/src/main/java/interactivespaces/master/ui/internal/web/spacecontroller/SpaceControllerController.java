@@ -276,6 +276,22 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
     return "redirect:/spacecontroller/all.html";
   }
 
+  @RequestMapping(value = "/spacecontroller/all/capturedata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> captureDataAllControllers() {
+    uiControllerManager.captureDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
+  @RequestMapping(value = "/spacecontroller/all/restoredata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object>  restoreDataAllControllers() {
+    uiControllerManager.restoreDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
   @RequestMapping(value = "/spacecontroller/all/status.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusAllControllers() {

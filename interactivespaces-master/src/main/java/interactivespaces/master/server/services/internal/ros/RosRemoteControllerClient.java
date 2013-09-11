@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
+import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.common.ros.RosSpaceControllerSupport;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -27,6 +28,7 @@ import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.MasterDataBundleManager;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
@@ -490,10 +492,18 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
 
       case ControllerStatus.STATUS_DATA_CAPTURE:
         log.info("Received data capture response " + status.getStatusCode());
+        DataBundleState captureState =
+            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ?
+            DataBundleState.CAPTURE_RECEIVED : DataBundleState.CAPTURE_ERROR;
+        remoteControllerClientListeners.signalDataBundleState(status.getUuid(), captureState);
         break;
 
       case ControllerStatus.STATUS_DATA_RESTORE:
         log.info("Received data restore response " + status.getStatusCode());
+        DataBundleState restoreState =
+            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ?
+            DataBundleState.RESTORE_RECEIVED : DataBundleState.RESTORE_ERROR;
+        remoteControllerClientListeners.signalDataBundleState(status.getUuid(), restoreState);
         break;
 
       default:

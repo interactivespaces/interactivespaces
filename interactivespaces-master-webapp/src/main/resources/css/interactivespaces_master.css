@@ -204,3 +204,13 @@ tr.odd {
     padding-left: 1em;
     padding-right: 1em;
 }
+
+.status-header,
+.status-value {
+    padding-right: 10px;
+}
+
+.databundle-header {
+    font-weight: bold;
+    padding-right: 10px;
+}

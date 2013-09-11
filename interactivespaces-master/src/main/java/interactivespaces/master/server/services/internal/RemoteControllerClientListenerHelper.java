@@ -179,6 +179,20 @@ public class RemoteControllerClientListenerHelper {
   }
 
   /**
+   * Send the data bundle state change message to all listeners.
+   *
+   * @param uuid
+   *          UUID of the activity.
+   * @param status
+   *          data bundle status
+   */
+  public void signalDataBundleState(String uuid, DataBundleState status) {
+    for (RemoteSpaceControllerClientListener listener : listeners) {
+      listener.onDataBundleStateChange(uuid, status);
+    }
+  }
+
+  /**
    * Clear all listeners from the helper.
    */
   public void clear() {

@@ -18,6 +18,7 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
@@ -92,6 +93,18 @@ public interface RemoteSpaceControllerClientListener {
    *          UUID of the activity
    * @param status
    *          state change status of the remote activity
+   * @param detail
+   *          detail associated with activity status change
    */
   void onLiveActivityStateChange(String uuid, ActivityState state, String detail);
+
+  /**
+   * Data bundle control has a status update.
+   *
+   * @param uuid
+   *          UUID of the controller
+   * @param state
+   *          state change status of the controller data bundle transfer
+   */
+  void onDataBundleStateChange(String uuid, DataBundleState state);
 }

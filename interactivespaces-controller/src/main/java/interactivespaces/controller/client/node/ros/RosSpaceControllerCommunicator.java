@@ -34,7 +34,7 @@ import interactivespaces.controller.client.node.SpaceControllerLiveActivityDelet
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteStatus;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployRequest;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployStatus;
-import interactivespaces.controller.client.node.SpaceControllerStatus;
+import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
@@ -59,7 +59,6 @@ import interactivespaces_msgs.LiveActivityDeleteStatus;
 import interactivespaces_msgs.LiveActivityDeployRequest;
 import interactivespaces_msgs.LiveActivityDeployStatus;
 import interactivespaces_msgs.LocatableResourceDescription;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageDeserializer;
@@ -415,7 +414,9 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
     statusMsg.setStatus(status);
     statusMsg.setUuid(controllerControl.getControllerInfo().getUuid());
     statusMsg.setStatusCode(statusCode.getDescription());
-    statusMsg.setStatusDetail(ExceptionUtils.getStackTrace(e));
+    if (e != null) {
+      statusMsg.setStatusDetail(InteractiveSpacesException.getStackTrace(e));
+    }
 
     controllerStatusPublisher.publish(statusMsg);
   }

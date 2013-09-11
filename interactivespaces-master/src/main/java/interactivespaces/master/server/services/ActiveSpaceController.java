@@ -18,6 +18,7 @@ package interactivespaces.master.server.services;
 
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.time.TimeProvider;
 
 import java.util.Date;
@@ -46,6 +47,16 @@ public class ActiveSpaceController {
    * Timestamp of the last update.
    */
   private Long lastStateUpdate;
+
+  /**
+   * Current known data bundle state of the controller.
+   */
+  private DataBundleState dataBundleState = DataBundleState.NO_REQUEST;
+
+  /**
+   * Timestamp of the last data bundle state update.
+   */
+  private Long lastDataBundleStateUpdate;
 
   /**
    * The time provider.
@@ -113,6 +124,47 @@ public class ActiveSpaceController {
   public Date getLastStateUpdateDate() {
     if (lastStateUpdate != null) {
       return new Date(lastStateUpdate);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * @return the data bundle state
+   */
+  public DataBundleState getDataBundleState() {
+    return dataBundleState;
+  }
+
+  /**
+   * @param dataBundleState
+   *          the data bundle state to set
+   */
+  public void setDataBundleState(DataBundleState dataBundleState) {
+    this.dataBundleState = dataBundleState;
+
+    lastDataBundleStateUpdate = timeProvider.getCurrentTime();
+  }
+
+  /**
+   * Get the lastDataBundleStateUpdate of the last update.
+   *
+   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has
+   *         never been updated.
+   */
+  public Long getLastDataBundleStateUpdate() {
+    return lastDataBundleStateUpdate;
+  }
+
+  /**
+   * Get the lastDataBundleStateUpdate of the last update as a date.
+   *
+   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has
+   *         never been updated.
+   */
+  public Date getLastDataBundleStateUpdateDate() {
+    if (lastDataBundleStateUpdate != null) {
+      return new Date(lastDataBundleStateUpdate);
     } else {
       return null;
     }

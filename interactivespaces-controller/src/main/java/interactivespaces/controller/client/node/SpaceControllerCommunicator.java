@@ -17,6 +17,7 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityStatus;
+import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 
 /**

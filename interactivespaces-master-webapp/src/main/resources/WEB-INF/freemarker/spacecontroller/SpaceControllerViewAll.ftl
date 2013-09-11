@@ -38,6 +38,18 @@ function shutdownAllControllers() {
     }
 }
 
+function captureDataAllControllers() {
+  if (confirm("Are you sure you want to capture data bundles for all controllers?")) {
+    doAjaxCommand('capturedata');
+  }
+}
+
+function restoreDataAllControllers() {
+  if (confirm("Are you sure you want to restore data bundles for all controllers?")) {
+    doAjaxCommand('restoredata');
+  }
+}
+
 function shutdownAllActivitiesAllControllers() {
     if (confirm("Are you sure you want to shut down all applications on all controllers?")) {
         window.location='/interactivespaces/spacecontroller/all/activities/shutdown.html';
@@ -56,6 +68,8 @@ function shutdownAllActivitiesAllControllers() {
 <li><button type="button" id="forceStatusAllButton" onclick="doAjaxCommand('forcestatus')" title="Status from all controllers, whether or not they have been connected">Force Status All</button></li>
 <li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
 <li><button type="button" id="shutdownAllButton" onclick="shutdownAllControllers();" title="Shut down all connected controllers">Shutdown All</button></li>
+<li><button type="button" id="captureDataAllButton" onclick="captureDataAllControllers()" title="Capture All Data">Capture All Data</button></li>
+<li><button type="button" id="restoreDataAllButton" onclick="restoreDataAllControllers()" title="Restore All Data">Restore All Data</button></li>
 <li><button type="button" id="newButton" onclick="window.location='/interactivespaces/spacecontroller/new.html?mode=embedded'" title="Create a new controller">New</button></li>
 </ul></div>
 
@@ -63,15 +77,41 @@ function shutdownAllActivitiesAllControllers() {
 </div>
 
 <table>
-<tr><th>Name</th><th>Status</th></tr>
+  <tr>
+    <th>Name</th>
+    <th class="status-header">Status</th>
+    <th class="databundle-header">Data Bundle</th>
+  </tr>
 
-<#list spacecontrollers as spacecontroller>
-<tr>
-<td><a href="${spacecontroller.controller.id}/view.html">${spacecontroller.controller.name}</a></td>
-<td><#if spacecontroller.lastStateUpdate??><#assign t  = spacecontroller.lastStateUpdateDate?datetime><#else><#assign t = 'Unknown'></#if>
-<span class="spacecontroller-status spacecontroller-status-${spacecontroller.state.name()}"><@spring.message spacecontroller.state.description /></span>
-as of ${t}</td>
-</#list>
+  <#list spacecontrollers as spacecontroller>
+    <tr>
+      <td>
+        <a href="${spacecontroller.controller.id}/view.html">${spacecontroller.controller.name}</a>
+      </td>
+      <td class="status-value">
+        <#if spacecontroller.lastStateUpdate??>
+          <#assign t  = spacecontroller.lastStateUpdateDate?datetime>
+        <#else>
+          <#assign t = 'Unknown'>
+        </#if>
+        <span class="spacecontroller-status spacecontroller-status-${spacecontroller.state.name()}">
+          <@spring.message spacecontroller.state.description />
+        </span>
+        as of ${t}
+      </td>
+      <td class="databundle-value">
+        <#if spacecontroller.lastDataBundleStateUpdate??>
+          <#assign t  = spacecontroller.lastDataBundleStateUpdateDate?datetime>
+        <#else>
+          <#assign t = 'Unknown'>
+        </#if>
+        <span class="spacecontroller-status spacecontroller-status-${spacecontroller.dataBundleState.name()}">
+          <@spring.message spacecontroller.dataBundleState.description />
+        </span>
+        as of ${t}
+      </td>
+    </tr>
+  </#list>
 </ul>
 
 

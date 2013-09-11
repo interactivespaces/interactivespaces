@@ -181,6 +181,20 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 None
 </p>
 </#if>
+<h2>Advanced Properties</h2>
+<table class="advanced-properties">
+  <tr>
+    <td class="databundle-header">Data Bundle State</td>
+    <td class="databundle-value">
+      <#if lspacecontroller.lastDataBundleStateUpdate??>
+        <#assign t  = lspacecontroller.lastDataBundleStateUpdateDate?datetime>
+      <#else>
+        <#assign t = 'Unknown'>
+      </#if>
+      <@spring.message lspacecontroller.dataBundleState.description /> as of ${t}
+    </td>
+  </tr>
+</table>
 
 </body>
 <html>
