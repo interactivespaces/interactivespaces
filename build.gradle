@@ -32,27 +32,31 @@ buildscript {
 
 
 allprojects {
-  ext.nonjavaProjects = [ 
-    'interactivespaces_docs', 
-    'interactivespaces-controller-android', 
-    'service', 
-    'interactivespaces_build', 
-    'master', 'controller', 'workbench'
-  ]
+  ext {
+    nonjavaProjects = [ 
+      'interactivespaces_docs', 
+      'interactivespaces-controller-android', 
+      'service', 
+      'interactivespaces_build', 
+      'master', 'controller', 'workbench'
+    ]
 
-  if (project.hasProperty("buildTypeProp")) {
-    ext.buildType = project.buildTypeProp
-  } else {
-    ext.buildType = "standard"
+    javaProjects = rootProject.subprojects.findResults { (!nonjavaProjects.contains(it.name)) ? it : null }
+
+    if (project.hasProperty("buildTypeProp")) {
+      buildType = project.buildTypeProp
+    } else {
+      buildType = "standard"
+    }
+
+    if (buildType == 'android') {
+      androidPlatformHome = getProperty("android.sdk.home") + "/platforms/" + getProperty("android.platform")
+      androidPlatformTools = getProperty("android.sdk.home") + "/platform-tools"
+      androidSdkJar = "$androidPlatformHome/android.jar"
+    }
+
+    osgiVersion = '1.5.2'
   }
-
-  if (buildType == 'android') {
-    ext.androidPlatformHome = getProperty("android.sdk.home") + "/platforms/" + getProperty("android.platform")
-    ext.androidPlatformTools = getProperty("android.sdk.home") + "/platform-tools"
-    ext.androidSdkJar = "$androidPlatformHome/android.jar"
-  }
-
-  ext.osgiVersion = '1.5.2'
 
   group = 'interactivespaces'
   version = osgiVersion;
@@ -67,6 +71,20 @@ subprojects {
 
     if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'
+    }
+
+    apply plugin: 'jacoco'
+ 
+    jacocoTestReport {
+      group = "reporting"
+      description = "Generate Jacoco coverage reports after running tests."
+      reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled false
+      }
+
+      additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
     }
 
     // Add in configuratations to the standard Java build
