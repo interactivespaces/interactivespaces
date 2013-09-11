@@ -33,14 +33,14 @@ class MyAssemblyPlugin implements Plugin<Project>  {
     void configureConfigurations(final Project project) {
         ConfigurationContainer configurations = project.getConfigurations()
  
-        Configuration runtimeConfiguration = configurations.add(RUNTIME_CONFIGURATION_NAME).setVisible(true).setTransitive(false)
+        Configuration runtimeConfiguration = configurations.create(RUNTIME_CONFIGURATION_NAME).setVisible(true).setTransitive(false)
                 .setDescription("Classpath for running the specified dependencies.")
   
         configurations.getByName(Dependency.DEFAULT_CONFIGURATION).extendsFrom(runtimeConfiguration)
     }
 
     void configureBuildDependents(Project project) {
-        DefaultTask buildDependentsTask = project.getTasks().add(BUILD_DEPENDENTS_TASK_NAME, DefaultTask.class)
+        DefaultTask buildDependentsTask = project.getTasks().create(BUILD_DEPENDENTS_TASK_NAME, DefaultTask.class)
         buildDependentsTask.setDescription("Assembles this project and all projects that depend on it.")
         buildDependentsTask.setGroup(BasePlugin.BUILD_GROUP)
     }
