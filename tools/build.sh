@@ -9,6 +9,6 @@ if [ `newest_file interactivespaces_msgs/` -nt `newest_file nrosjava_messages/` 
   (cd nrosjava_messages; gradle clean)
 fi
 
-gradle install installDev
+gradle -x test install installDev
 
 echo Done with interactivespaces build.
