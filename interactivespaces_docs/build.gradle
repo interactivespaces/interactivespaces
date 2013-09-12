@@ -16,6 +16,15 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+apply plugin: 'eclipse'
+
+eclipse {
+  project {
+    name = 'Interactive Spaces Docs'
+    natures 'org.eclipse.wst.common.project.facet.core.nature'
+  }
+}
+
 task javadoc(type: Javadoc) {
   source javaProjects.collect { it.sourceSets.main.allJava }
   classpath = files(javaProjects.collect { it.sourceSets.main.compileClasspath })
