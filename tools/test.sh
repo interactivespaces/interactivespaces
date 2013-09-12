@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+ROOTDIR=$(dirname $(dirname $0))
+cd $ROOTDIR
+
 source tools/setup_functions.sh
 
 setup_ros_path $PWD

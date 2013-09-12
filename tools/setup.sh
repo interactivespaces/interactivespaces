@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+ROOTDIR=$(dirname $(dirname $0))
+cd $ROOTDIR
+
 source tools/setup_functions.sh
 
 check_gradle Gradle 1.7 || install_gradle 1.7
