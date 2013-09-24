@@ -21,15 +21,17 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Test the {@link JsonNavigator}.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class JsonNavigatorTest {
@@ -60,9 +62,12 @@ public class JsonNavigatorTest {
     String keyBoolean = "boolean";
     boolean valueBoolean = true;
     root.put(keyBoolean, valueBoolean);
+    
+    Set<String> properties = Sets.newHashSet(keyString1, keyString1, keyInteger, keyDouble, keyBoolean);
 
     JsonNavigator nav = new JsonNavigator(root);
 
+    assertEquals(properties, nav.getCurrentProperties());
     assertEquals(valueString1, nav.getString(keyString1));
     assertEquals(valueString2, nav.getString(keyString2));
     assertEquals((Integer) valueInteger, nav.getInteger(keyInteger));
@@ -183,7 +188,7 @@ public class JsonNavigatorTest {
 
     nav.down(4);
     assertEquals(objectValue1, nav.getString(objectKey1));
-    assertEquals((Integer)objectValue2, nav.getInteger(objectKey2));
+    assertEquals((Integer) objectValue2, nav.getInteger(objectKey2));
 
     nav.up();
 
@@ -194,7 +199,7 @@ public class JsonNavigatorTest {
     assertEquals(arrayValueMap, nav.getItem(4));
 
     assertEquals(array.size(), nav.getSize());
- }
+  }
 
   /**
    * Test using the path API

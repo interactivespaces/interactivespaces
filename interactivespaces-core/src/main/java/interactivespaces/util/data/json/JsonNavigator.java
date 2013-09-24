@@ -18,11 +18,12 @@ package interactivespaces.util.data.json;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
- * A navigator for JSON objects
- *
+ * A navigator for JSON objects.
+ * 
  * @author Keith M. Hughes
  */
 public class JsonNavigator {
@@ -31,7 +32,15 @@ public class JsonNavigator {
    * The type of data context currently being examined.
    */
   public enum JsonType {
-    OBJECT, ARRAY;
+    /**
+     * The current type is an object.
+     */
+    OBJECT,
+
+    /**
+     * The current type is an array.
+     */
+    ARRAY;
   }
 
   /**
@@ -77,7 +86,7 @@ public class JsonNavigator {
 
   /**
    * Get the root object of the navigator.
-   *
+   * 
    * @return the root object
    */
   public Map<String, Object> getRoot() {
@@ -97,7 +106,7 @@ public class JsonNavigator {
 
   /**
    * Get the current type of the current navigation point.
-   *
+   * 
    * @return
    */
   public JsonType getCurrentType() {
@@ -106,10 +115,10 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a string field from the object.
-   *
+   * 
    * @param name
    *          name of the field
-   *
+   * 
    * @return value of the field, or {@code null} if nothing for that key
    */
   public String getString(String name) {
@@ -124,10 +133,10 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get an integer field from the object.
-   *
+   * 
    * @param name
    *          name of the field
-   *
+   * 
    * @return value of the field, or {@code null} if nothing for that key
    */
   public Integer getInteger(String name) {
@@ -142,10 +151,10 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a double field from the object.
-   *
+   * 
    * @param name
    *          name of the field
-   *
+   * 
    * @return value of the field, or {@code null} if nothing for that key
    */
   public Double getDouble(String name) {
@@ -170,16 +179,15 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a boolean field from the object.
-   *
+   * 
    * @param name
    *          name of the field
-   *
+   * 
    * @return value of the field, or {@code null} if nothing for that key
    */
   public Boolean getBoolean(String name) {
     if (currentType == JsonType.OBJECT) {
       Boolean value = (Boolean) currentObject.get(name);
-
       return value;
     } else {
       throw new JsonInteractiveSpacesException(String.format(
@@ -188,11 +196,25 @@ public class JsonNavigator {
   }
 
   /**
+   * If the current level is a object, get the names of all properties for that
+   * object.
+   * 
+   * @return names of all properties for the object
+   */
+  public Set<String> getCurrentProperties() {
+    if (currentType == JsonType.OBJECT) {
+      return currentObject.keySet();
+    } else {
+      throw new JsonInteractiveSpacesException("Current level is not a object");
+    }
+  }
+
+  /**
    * If the current level is a object, get an object field from the object.
-   *
+   * 
    * @param name
    *          name of the field
-   *
+   * 
    * @return value of the field, or {@code null} if nothing for that key
    */
   public <T> T getItem(String name) {
@@ -209,12 +231,12 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a string field from the object.
-   *
+   * 
    * @param pos
    *          position in the array
-   *
+   * 
    * @return value of the field
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -230,12 +252,12 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get an integer field from the object.
-   *
+   * 
    * @param pos
    *          position in the array
-   *
+   * 
    * @return value of the field
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -251,12 +273,12 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a double field from the object.
-   *
+   * 
    * @param pos
    *          position in the array
-   *
+   * 
    * @return value of the field
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -282,12 +304,12 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get a boolean field from the object.
-   *
+   * 
    * @param pos
    *          position in the array
-   *
+   * 
    * @return value of the field
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -304,12 +326,12 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get an object field from the object.
-   *
+   * 
    * @param pos
    *          position in the array
-   *
+   * 
    * @return value of the field
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -327,9 +349,9 @@ public class JsonNavigator {
 
   /**
    * If the current level is an array, get the size of the array.
-   *
+   * 
    * @return size of the current array
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -343,9 +365,9 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get that object
-   *
+   * 
    * @return the current object
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           the current level was not an object
    */
@@ -359,7 +381,7 @@ public class JsonNavigator {
 
   /**
    * If the current level is a object, get an object field from the object.
-   *
+   * 
    * @return the JsonBuilder for the current level
    */
   public JsonBuilder getCurrentAsJsonBuilder() {
@@ -372,13 +394,13 @@ public class JsonNavigator {
 
   /**
    * Move into the object to the object at a given name.
-   *
+   * 
    * <p>
    * The next level must be a collection, not a primitive.
-   *
+   * 
    * @param name
    *          the name to move down to
-   *
+   * 
    * @return this navigator object
    */
   @SuppressWarnings("unchecked")
@@ -411,15 +433,15 @@ public class JsonNavigator {
 
   /**
    * Move into the array to the item at a given position.
-   *
+   * 
    * <p>
    * The next level must be a collection, not a primitive.
-   *
+   * 
    * @param pos
    *          the position in the array
-   *
+   * 
    * @return this navigator object
-   *
+   * 
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
@@ -453,7 +475,7 @@ public class JsonNavigator {
 
   /**
    * Move up one level in the navigation.
-   *
+   * 
    * @return this navigator object
    */
   @SuppressWarnings("unchecked")
