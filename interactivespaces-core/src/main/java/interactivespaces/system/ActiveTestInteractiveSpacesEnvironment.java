@@ -22,7 +22,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
-import interactivespaces.time.LocalTimeProvider;
+import interactivespaces.time.SettableTimeProvider;
 import interactivespaces.time.TimeProvider;
 
 import org.apache.commons.logging.Log;
@@ -52,7 +52,7 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
     environment.executorService = Executors.newScheduledThreadPool(100);
     environment.log = new Jdk14Logger("test.interactive.spaces");
     environment.serviceRegistry = new SimpleServiceRegistry(environment);
-    environment.timeProvider = new LocalTimeProvider();
+    environment.timeProvider = new SettableTimeProvider();
 
     return environment;
   }
