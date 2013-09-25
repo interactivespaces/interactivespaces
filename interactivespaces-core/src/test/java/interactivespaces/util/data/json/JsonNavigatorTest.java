@@ -62,17 +62,18 @@ public class JsonNavigatorTest {
     String keyBoolean = "boolean";
     boolean valueBoolean = true;
     root.put(keyBoolean, valueBoolean);
-    
-    Set<String> properties = Sets.newHashSet(keyString1, keyString1, keyInteger, keyDouble, keyBoolean);
+
+    Set<String> properties =
+        Sets.newHashSet(keyString1, keyString1, keyInteger, keyDouble, keyBoolean);
 
     JsonNavigator nav = new JsonNavigator(root);
 
-    assertEquals(properties, nav.getCurrentProperties());
+    assertEquals(properties, nav.getProperties());
     assertEquals(valueString1, nav.getString(keyString1));
     assertEquals(valueString2, nav.getString(keyString2));
     assertEquals((Integer) valueInteger, nav.getInteger(keyInteger));
     assertEquals((Double) valueDouble, nav.getDouble(keyDouble));
-    assertEquals((Boolean) valueBoolean, nav.getBoolean(keyBoolean));
+    assertEquals(valueBoolean, nav.getBoolean(keyBoolean));
 
     assertEquals(Double.valueOf(valueInteger), nav.getDouble(keyInteger));
   }
@@ -181,7 +182,7 @@ public class JsonNavigatorTest {
     assertEquals(arrayValueString, nav.getString(0));
     assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
     assertEquals((Double) arrayValueDouble, nav.getDouble(2));
-    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueBoolean, nav.getBoolean(3));
     assertEquals(arrayValueMap, nav.getItem(4));
 
     assertEquals(array.size(), nav.getSize());
@@ -195,14 +196,14 @@ public class JsonNavigatorTest {
     assertEquals(arrayValueString, nav.getString(0));
     assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
     assertEquals((Double) arrayValueDouble, nav.getDouble(2));
-    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueBoolean, nav.getBoolean(3));
     assertEquals(arrayValueMap, nav.getItem(4));
 
     assertEquals(array.size(), nav.getSize());
   }
 
   /**
-   * Test using the path API
+   * Test using the path API.
    */
   @Test
   public void testPaths() {
@@ -273,6 +274,5 @@ public class JsonNavigatorTest {
     } catch (JsonInteractiveSpacesException e) {
       // Expected
     }
-
   }
 }
