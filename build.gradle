@@ -30,9 +30,18 @@ buildscript {
 
 }
 
-
 allprojects {
   ext {
+    // Specify the IS version here.
+    //
+    // The intermediate designation is for marking a particular build
+    // as an intermediate version. An intermediate version must never
+    // be pushed to production.
+    //
+    // Final versions should set the intermediate designation to null.
+    interactiveSpacesVersion = '1.5.3'
+    interactiveSpacesVersionIntermediateDesignation = 'SNAPSHOT'
+
     nonjavaProjects = [ 
       'interactivespaces_docs', 
       'interactivespaces-controller-android', 
@@ -55,16 +64,13 @@ allprojects {
       androidSdkJar = "$androidPlatformHome/android.jar"
     }
 
-    /**
-     * If the version number ends in odd (e.g., 1.5.3) then this is a development release and should not
-     * be pushed to production. An even release (e.g., 1.5.2) means it's stable and is an official release.
-     * This system allows intermediate dev/test versions to exist without being confused with release versions.
-     */
-    osgiVersion = '1.5.3'
+    osgiVersion = interactiveSpacesVersionIntermediateDesignation ? 
+        interactiveSpacesVersion + "." + interactiveSpacesVersionIntermediateDesignation :
+        interactiveSpacesVersion
   }
 
   group = 'interactivespaces'
-  version = osgiVersion;
+  version = osgiVersion
 }
 
 subprojects {
