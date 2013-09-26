@@ -49,7 +49,7 @@ public class ProjectDependency {
   /**
    * Get the name of the dependency.
    *
-   * @return The name of the dependency.
+   * @return the name of the dependency
    */
   public String getName() {
     return name;
@@ -68,7 +68,7 @@ public class ProjectDependency {
   /**
    * Get the minimum version necessary for the activity.
    *
-   * @return
+   * @return the minimum version
    */
   public String getMinimumVersion() {
     return minimumVersion;
@@ -87,7 +87,7 @@ public class ProjectDependency {
   /**
    * Get the maximum version necessary for the activity.
    *
-   * @return
+   * @return the maximum version
    */
   public String getMaximumVersion() {
     return maximumVersion;
@@ -121,5 +121,34 @@ public class ProjectDependency {
    */
   public void setRequired(boolean required) {
     this.required = required;
+  }
+
+  /**
+   * Get the OSGi formatted version string for this dependency.
+   *
+   * @return the OSGI version string
+   */
+  public String getOsgiVersionString() {
+    StringBuilder builder = new StringBuilder();
+    if (maximumVersion != null) {
+      builder.append("[").append(minimumVersion).append(',').append(maximumVersion);
+      if (minimumVersion.equals(maximumVersion)) {
+        // If same want exact range
+        builder.append(']');
+      } else {
+        // Want exclusive range
+        builder.append(')');
+      }
+    } else {
+      builder.append(minimumVersion);
+    }
+
+    return builder.toString();
+  }
+
+  @Override
+  public String toString() {
+    return "ProjectDependency [name=" + name + ", minimumVersion=" + minimumVersion
+        + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
   }
 }

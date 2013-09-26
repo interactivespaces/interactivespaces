@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
+import aQute.lib.osgi.Constants;
+
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Builder;
 import aQute.lib.osgi.Jar;
@@ -34,16 +36,21 @@ import java.util.regex.Pattern;
 public class BndOsgiBundleCreator implements OsgiBundleCreator {
 
   @Override
-  public void createBundle(File source, File output) throws Exception {
+  public void createBundle(File source, File output, List<File> classpath) throws Exception {
     Analyzer analyzer = new Analyzer();
     try {
       analyzer.setJar(source);
       analyzer.setPedantic(true);
+
+      if (classpath != null) {
+        analyzer.setClasspath((File[]) classpath.toArray());
+      }
+
       Jar sourceJar = analyzer.getJar();
 
-      analyzer.setProperty(Analyzer.IMPORT_PACKAGE, "*;resolution:=optional");
+      analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
 
-      if (analyzer.getProperty(Analyzer.BUNDLE_SYMBOLICNAME) == null) {
+      if (analyzer.getProperty(Constants.BUNDLE_SYMBOLICNAME) == null) {
         Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
         String base = source.getName();
         Matcher m = p.matcher(base);
@@ -54,21 +61,21 @@ public class BndOsgiBundleCreator implements OsgiBundleCreator {
           System.err
               .println("Can not calculate name of output bundle, rename jar or use -properties");
         }
-        analyzer.setProperty(Analyzer.BUNDLE_SYMBOLICNAME, base);
+        analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
       }
 
       String export = analyzer.calculateExportsFromContents(sourceJar);
-      analyzer.setProperty(Analyzer.EXPORT_PACKAGE, export);
+      analyzer.setProperty(Constants.EXPORT_PACKAGE, export);
 
       analyzer.mergeManifest(sourceJar.getManifest());
 
       //
       // Cleanup the version ..
       //
-      String version = analyzer.getProperty(Analyzer.BUNDLE_VERSION);
+      String version = analyzer.getProperty(Constants.BUNDLE_VERSION);
       if (version != null) {
-        version = Builder.cleanupVersion(version);
-        analyzer.setProperty(Analyzer.BUNDLE_VERSION, version);
+        version = Analyzer.cleanupVersion(version);
+        analyzer.setProperty(Constants.BUNDLE_VERSION, version);
       }
 
       if (output == null)

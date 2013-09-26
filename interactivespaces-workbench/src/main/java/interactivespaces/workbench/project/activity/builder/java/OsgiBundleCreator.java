@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity.builder.java;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Create an OSGi bundle from a source.
@@ -32,10 +33,11 @@ public interface OsgiBundleCreator {
    *          file for the source jar
    * @param output
    *          where the file should be written
+   * @param classpath
+   *          the classpath for the bundle
    *
    * @throws Exception
    *           something bad happened
    */
-  void createBundle(File source, File output) throws Exception;
-
+  void createBundle(File source, File output, List<File> classpath) throws Exception;
 }

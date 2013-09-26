@@ -342,7 +342,7 @@ public class InteractiveSpacesWorkbench {
 
     OsgiBundleCreator osgiBundleCreator = new BndOsgiBundleCreator();
     try {
-      osgiBundleCreator.createBundle(new File(file), null);
+      osgiBundleCreator.createBundle(new File(file), null, null);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
