@@ -16,10 +16,8 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
-import aQute.lib.osgi.Constants;
-
 import aQute.lib.osgi.Analyzer;
-import aQute.lib.osgi.Builder;
+import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
 import aQute.lib.osgi.Verifier;
 
@@ -29,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Create an OSGi bundle from a source file using BND
+ * Create an OSGi bundle from a source file using BND.
  *
  * @author Keith M. Hughes
  */
@@ -59,7 +57,7 @@ public class BndOsgiBundleCreator implements OsgiBundleCreator {
           base = m.group(1);
         } else {
           System.err
-              .println("Can not calculate name of output bundle, rename jar or use -properties");
+          .println("Can not calculate name of output bundle, rename jar or use -properties");
         }
         analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
       }
@@ -78,13 +76,15 @@ public class BndOsgiBundleCreator implements OsgiBundleCreator {
         analyzer.setProperty(Constants.BUNDLE_VERSION, version);
       }
 
-      if (output == null)
+      if (output == null) {
         output = source.getAbsoluteFile().getParentFile();
+      }
 
       String path = "interactivespaces." + source.getName();
 
-      if (output.isDirectory())
+      if (output.isDirectory()) {
         output = new File(output, path);
+      }
 
       analyzer.calcManifest();
       Jar finalJar = analyzer.getJar();

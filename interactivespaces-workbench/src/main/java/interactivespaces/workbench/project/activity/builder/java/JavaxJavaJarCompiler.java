@@ -18,6 +18,7 @@ package interactivespaces.workbench.project.activity.builder.java;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -51,7 +52,7 @@ import javax.tools.ToolProvider;
 
 /**
  * A {@link JavaJarCompiler} using the system Java compiler.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class JavaxJavaJarCompiler implements JavaJarCompiler {
@@ -71,6 +72,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    */
   public static final String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
       "interactivespaces.workbench.builder.java.compileflags";
+
+  /**
+   * Size of IO buffers in bytes.
+   */
+  public static final int IO_BUFFER_SIZE = 1024;
 
   /**
    * The version of Java being compiled for.
@@ -106,16 +112,16 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * Compile the project.
-   * 
+   *
    * @param project
    *          the project being compiled
    * @param compilationBuildDirectory
    *          the build folder for compilation artifacts
    * @param context
    *          the project build context
-   * 
+   *
    * @return {@code true} if the compilation was successful
-   * 
+   *
    * @throws IOException
    */
   private boolean compile(Project project, File compilationBuildDirectory,
@@ -152,10 +158,10 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * Get all compiler options to be used.
-   * 
+   *
    * @param context
    *          the build context
-   * 
+   *
    * @return the complete compiler options
    */
   private List<String> getCompilerOptions(ProjectBuildContext context) {
@@ -179,10 +185,10 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * get a list of files to compile.
-   * 
+   *
    * @param project
    *          the project being built
-   * 
+   *
    * @return a list of all Java files to be handed to the Java compiler
    */
   private List<File> getCompilationFiles(Project project) {
@@ -196,10 +202,10 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * Scan the given directory for files to add.
-   * 
+   *
    * <p>
    * This method will recurse into subdirectories.
-   * 
+   *
    * @param directory
    *          the directory to scan
    * @param files
@@ -223,7 +229,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * Create the JAR file for the artifact.
-   * 
+   *
    * @param project
    *          the project being built
    * @param jarDestinationFile
@@ -232,9 +238,9 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          folder that the Java class files were compiled into
    */
   private void createJarFile(Project project, File jarDestinationFile, File compilationFolder,
-      List<File> classpath) {
+      List<File> classpath) throws Exception {
     // Create a buffer for reading the files
-    byte[] buf = new byte[1024];
+    byte[] buf = new byte[IO_BUFFER_SIZE];
 
     Manifest manifest = createManifest(project, compilationFolder, classpath);
     JarOutputStream out = null;
@@ -245,29 +251,23 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       writeJarFile(compilationFolder, buf, out, "");
 
       // Complete the ZIP file
-      out.flush();
+      out.close();
     } catch (IOException e) {
       throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
           jarDestinationFile.getAbsolutePath()), e);
     } finally {
-      if (out != null) {
-        try {
-          out.close();
-        } catch (IOException e) {
-          // Don't care
-        }
-      }
+      Closeables.close(out, true);
     }
   }
 
   /**
    * Create a manifest for the object
-   * 
+   *
    * @param project
    *          the project being created
    * @param compilationFolder
    *          folder where the Java files were compiled to
-   * 
+   *
    * @return the manifest
    */
   private Manifest createManifest(Project project, File compilationFolder, List<File> classpath) {
@@ -315,7 +315,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   /**
    * Make sure that all project dependencies are given the version range stated
    * in the project dependencies.
-   * 
+   *
    * @param dependencyInfo
    *          the collection of packages to the project dependency
    * @param analyzer
@@ -339,7 +339,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    * project dependencies. The {@code dependencyInfo} map will be keyed by Java
    * package names coming from project dependencies and will have a value of the
    * project dependency itself.
-   * 
+   *
    * @param classpath
    *          the classpath to be analyzed
    * @param project
@@ -379,7 +379,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * Write out the contents of the folder to the distribution file.
-   * 
+   *
    * @param activityFolder
    *          folder being written to the build
    * @param buf
@@ -396,20 +396,25 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       if (file.isDirectory()) {
         writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/");
       } else {
-        FileInputStream in = new FileInputStream(file);
+        FileInputStream in = null;
+        try {
+          in = new FileInputStream(file);
 
-        // Add ZIP entry to output stream.
-        jarOutputStream.putNextEntry(new JarEntry(parentPath + file.getName()));
+          // Add ZIP entry to output stream.
+          jarOutputStream.putNextEntry(new JarEntry(parentPath + file.getName()));
 
-        // Transfer bytes from the file to the ZIP file
-        int len;
-        while ((len = in.read(buf)) > 0) {
-          jarOutputStream.write(buf, 0, len);
+          // Transfer bytes from the file to the ZIP file
+          int len;
+          while ((len = in.read(buf)) > 0) {
+            jarOutputStream.write(buf, 0, len);
+          }
+
+          // Complete the entry
+          jarOutputStream.closeEntry();
+          in.close();
+        } finally {
+          Closeables.close(in, true);
         }
-
-        // Complete the entry
-        jarOutputStream.closeEntry();
-        in.close();
       }
     }
   }

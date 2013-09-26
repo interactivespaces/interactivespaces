@@ -25,10 +25,20 @@ import java.util.Map;
 
 /**
  * An Interactive Spaces project.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class Project {
+
+  /**
+   * The project type for an activity project.
+   */
+  public static final String PROJECT_TYPE_ACTIVITY = "activity";
+
+  /**
+   * The project type for an activity project.
+   */
+  public static final String PROJECT_TYPE_LIBRARY = "library";
 
   /**
    * The base directory for the file.
@@ -86,6 +96,8 @@ public class Project {
   private Map<String, Object> metadata = Maps.newHashMap();
 
   /**
+   * Get the type of the project.
+   * 
    * @return the type
    */
   public String getType() {
@@ -93,6 +105,8 @@ public class Project {
   }
 
   /**
+   * Set the type of the project.
+   * 
    * @param type
    *          the type to set
    */
@@ -102,30 +116,37 @@ public class Project {
 
   /**
    * Set the base directory for the project.
-   *
+   * 
    * @param baseDirectory
+   *          the base directory for the project
    */
   public void setBaseDirectory(File baseDirectory) {
     this.baseDirectory = baseDirectory;
   }
 
   /**
-   * @return the baseDirectory
+   * Get the base directory of the project.
+   * 
+   * @return the base directory
    */
   public File getBaseDirectory() {
     return baseDirectory;
   }
 
   /**
-   * @return the builderType
+   * Get the type of builder for the project.
+   * 
+   * @return the builder type
    */
   public String getBuilderType() {
     return builderType;
   }
 
   /**
+   * Set the builder type of the project.
+   * 
    * @param builderType
-   *          the builderType to set
+   *          the builder type to set
    */
   public void setBuilderType(String builderType) {
     this.builderType = builderType;
@@ -133,8 +154,8 @@ public class Project {
 
   /**
    * Get the identifying name for the project.
-   *
-   * @return The identifying name
+   * 
+   * @return the identifying name
    */
   public String getIdentifyingName() {
     return identifyingName;
@@ -142,9 +163,9 @@ public class Project {
 
   /**
    * Set the identifying name for the project.
-   *
+   * 
    * @param name
-   *          The identifying name
+   *          the identifying name
    */
   public void setIdentifyingName(String identifyingName) {
     this.identifyingName = identifyingName;
@@ -152,8 +173,8 @@ public class Project {
 
   /**
    * Get the descriptive name for the project.
-   *
-   * @return The descriptive name
+   * 
+   * @return the descriptive name
    */
   public String getName() {
     return name;
@@ -161,9 +182,9 @@ public class Project {
 
   /**
    * Set the descriptive name for the project.
-   *
+   * 
    * @param name
-   *          The descriptive name
+   *          the descriptive name
    */
   public void setName(String name) {
     this.name = name;
@@ -171,7 +192,7 @@ public class Project {
 
   /**
    * Get the description of the project.
-   *
+   * 
    * @return the description. Can be {@code null}.
    */
   public String getDescription() {
@@ -180,7 +201,7 @@ public class Project {
 
   /**
    * Set the description of the project.
-   *
+   * 
    * @param description
    *          the description. Can be {@code null}.
    */
@@ -190,7 +211,7 @@ public class Project {
 
   /**
    * Get the version for the project.
-   *
+   * 
    * @return The version
    */
   public String getVersion() {
@@ -199,7 +220,7 @@ public class Project {
 
   /**
    * Set the version for the project.
-   *
+   * 
    * @param version
    *          the version
    */
@@ -209,7 +230,7 @@ public class Project {
 
   /**
    * Add a dependency to the project.
-   *
+   * 
    * @param dependency
    *          the dependency to add
    */
@@ -219,7 +240,7 @@ public class Project {
 
   /**
    * Get a list of all dependencies the project has.
-   *
+   * 
    * @return
    */
   public List<ProjectDependency> getDependencies() {
@@ -228,7 +249,7 @@ public class Project {
 
   /**
    * Add a deployment to the project.
-   *
+   * 
    * @param deployment
    *          the deployment to add
    */
@@ -238,7 +259,7 @@ public class Project {
 
   /**
    * Get a list of all deployments the project has.
-   *
+   * 
    * @return
    */
   public List<ProjectDeployment> getDeployments() {
@@ -247,7 +268,7 @@ public class Project {
 
   /**
    * Add a resource to the project.
-   *
+   * 
    * @param resource
    *          the resource to add
    */
@@ -257,7 +278,7 @@ public class Project {
 
   /**
    * Get a list of all resources the project has.
-   *
+   * 
    * @return
    */
   public List<ProjectResource> getResources() {
@@ -266,10 +287,10 @@ public class Project {
 
   /**
    * Set the metadata for the project.
-   *
+   * 
    * <p>
    * This removes the old metadata completely.
-   *
+   * 
    * @param metadata
    *          the metadata for the project (can be {@link null}
    */
@@ -279,7 +300,7 @@ public class Project {
 
   /**
    * Get the metadata for the project.
-   *
+   * 
    * @return the project's meta data
    */
   public Map<String, Object> getMetadata() {

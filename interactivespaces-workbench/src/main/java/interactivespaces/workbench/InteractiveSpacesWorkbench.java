@@ -17,6 +17,7 @@
 package interactivespaces.workbench;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -71,7 +72,7 @@ public class InteractiveSpacesWorkbench {
 
   /**
    * Command to recursively walk over a set of directories looking for the IS
-   * project folders,
+   * project folders.
    */
   public static final String COMMAND_RECURSIVE = "walk";
 
@@ -193,6 +194,12 @@ public class InteractiveSpacesWorkbench {
    */
   private UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
 
+  /**
+   * Construct a workbench.
+   *
+   * @param workbenchConfig
+   *          the configuration for the workbench
+   */
   public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig) {
     this.workbenchConfig = workbenchConfig;
     workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
@@ -213,6 +220,8 @@ public class InteractiveSpacesWorkbench {
    *
    * @param project
    *          the project to be built
+   *
+   * @return {@code true} if properly built project
    */
   public boolean buildProject(Project project) {
     ProjectBuildContext context = new ProjectBuildContext(project, this);
@@ -227,8 +236,7 @@ public class InteractiveSpacesWorkbench {
     }
 
     if (builder.build(project, context)) {
-
-      if ("activity".equals(project.getType())) {
+      if (Project.PROJECT_TYPE_ACTIVITY.equals(project.getType())) {
         try {
           activityProjectPackager.packageActivityProject(project, context);
         } catch (SimpleInteractiveSpacesException e) {
@@ -236,7 +244,6 @@ public class InteractiveSpacesWorkbench {
 
           return false;
         } catch (Exception e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
 
           return false;
@@ -255,6 +262,8 @@ public class InteractiveSpacesWorkbench {
    *
    * @param project
    *          the project to be built
+   *
+   * @return {@code true} if the project was cleaned properly
    */
   public boolean cleanActivityProject(Project project) {
     ProjectBuildContext context = new ProjectBuildContext(project, this);
@@ -337,6 +346,12 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
+  /**
+   * Create an OSGi bundle from an existing JAR.
+   *
+   * @param file
+   *          the jar file
+   */
   public void createOsgi(String file) {
     System.out.format("Making %s into an OSGi bundle\n", file);
 
@@ -352,7 +367,7 @@ public class InteractiveSpacesWorkbench {
   /**
    * Get a list of all files on the controller's classpath.
    *
-   * @return
+   * @return all files on the classpath
    */
   public List<File> getControllerClasspath() {
     List<File> classpath = Lists.newArrayList();
@@ -405,20 +420,19 @@ public class InteractiveSpacesWorkbench {
     File[] extensionFiles =
         new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
             InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
-            .listFiles(new FilenameFilter() {
+    .listFiles(new FilenameFilter() {
 
-              @Override
-              public boolean accept(File dir, String name) {
-                return name.endsWith(EXTENSION_FILE_EXTENSION);
-              }
-            });
-    if (extensionFiles == null)
-      return;
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(EXTENSION_FILE_EXTENSION);
+      }
+    });
 
-    for (File extensionFile : extensionFiles) {
-      processExtensionFile(files, extensionFile);
+    if (extensionFiles != null) {
+      for (File extensionFile : extensionFiles) {
+        processExtensionFile(files, extensionFile);
+      }
     }
-
   }
 
   /**
@@ -432,20 +446,19 @@ public class InteractiveSpacesWorkbench {
   public void addAlternateControllerExtensionsClasspath(List<File> files, String alternate) {
     File[] alternateFiles =
         new File(new File(workbenchBaseDir, "alternate"), alternate)
-            .listFiles(new FilenameFilter() {
+    .listFiles(new FilenameFilter() {
 
-              @Override
-              public boolean accept(File dir, String name) {
-                return name.endsWith(FILENAME_JAR_EXTENSION);
-              }
-            });
-    if (alternateFiles == null)
-      return;
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(FILENAME_JAR_EXTENSION);
+      }
+    });
 
-    for (File alternateFile : alternateFiles) {
-      files.add(alternateFile);
+    if (alternateFiles != null) {
+      for (File alternateFile : alternateFiles) {
+        files.add(alternateFile);
+      }
     }
-
   }
 
   /**
@@ -475,12 +488,10 @@ public class InteractiveSpacesWorkbench {
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          // Don't care.
-        }
+      try {
+        Closeables.close(reader, false);
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -489,6 +500,7 @@ public class InteractiveSpacesWorkbench {
    * Perform a series of commands.
    *
    * @param commands
+   *          the commands to run
    */
   public void doCommands(List<String> commands) {
     String command = commands.remove(0);
@@ -516,7 +528,7 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Do a series of workbench commands on a project directory
+   * Do a series of workbench commands on a project directory.
    *
    * @param baseDir
    *          base directory of the project
