@@ -21,15 +21,17 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Test the {@link JsonNavigator}.
- *
+ * 
  * @author Keith M. Hughes
  */
 public class JsonNavigatorTest {
@@ -61,13 +63,17 @@ public class JsonNavigatorTest {
     boolean valueBoolean = true;
     root.put(keyBoolean, valueBoolean);
 
+    Set<String> properties =
+        Sets.newHashSet(keyString1, keyString1, keyInteger, keyDouble, keyBoolean);
+
     JsonNavigator nav = new JsonNavigator(root);
 
+    assertEquals(properties, nav.getProperties());
     assertEquals(valueString1, nav.getString(keyString1));
     assertEquals(valueString2, nav.getString(keyString2));
     assertEquals((Integer) valueInteger, nav.getInteger(keyInteger));
     assertEquals((Double) valueDouble, nav.getDouble(keyDouble));
-    assertEquals((Boolean) valueBoolean, nav.getBoolean(keyBoolean));
+    assertEquals(valueBoolean, nav.getBoolean(keyBoolean));
 
     assertEquals(Double.valueOf(valueInteger), nav.getDouble(keyInteger));
   }
@@ -176,28 +182,28 @@ public class JsonNavigatorTest {
     assertEquals(arrayValueString, nav.getString(0));
     assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
     assertEquals((Double) arrayValueDouble, nav.getDouble(2));
-    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueBoolean, nav.getBoolean(3));
     assertEquals(arrayValueMap, nav.getItem(4));
 
     assertEquals(array.size(), nav.getSize());
 
     nav.down(4);
     assertEquals(objectValue1, nav.getString(objectKey1));
-    assertEquals((Integer)objectValue2, nav.getInteger(objectKey2));
+    assertEquals((Integer) objectValue2, nav.getInteger(objectKey2));
 
     nav.up();
 
     assertEquals(arrayValueString, nav.getString(0));
     assertEquals((Integer) arrayValueInteger, nav.getInteger(1));
     assertEquals((Double) arrayValueDouble, nav.getDouble(2));
-    assertEquals((Boolean) arrayValueBoolean, nav.getBoolean(3));
+    assertEquals(arrayValueBoolean, nav.getBoolean(3));
     assertEquals(arrayValueMap, nav.getItem(4));
 
     assertEquals(array.size(), nav.getSize());
- }
+  }
 
   /**
-   * Test using the path API
+   * Test using the path API.
    */
   @Test
   public void testPaths() {
@@ -268,6 +274,5 @@ public class JsonNavigatorTest {
     } catch (JsonInteractiveSpacesException e) {
       // Expected
     }
-
   }
 }
