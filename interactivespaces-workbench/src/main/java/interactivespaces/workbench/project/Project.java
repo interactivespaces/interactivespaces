@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * An Interactive Spaces project.
- * 
+ *
  * @author Keith M. Hughes
  */
 public class Project {
@@ -97,7 +97,7 @@ public class Project {
 
   /**
    * Get the type of the project.
-   * 
+   *
    * @return the type
    */
   public String getType() {
@@ -106,7 +106,7 @@ public class Project {
 
   /**
    * Set the type of the project.
-   * 
+   *
    * @param type
    *          the type to set
    */
@@ -116,7 +116,7 @@ public class Project {
 
   /**
    * Set the base directory for the project.
-   * 
+   *
    * @param baseDirectory
    *          the base directory for the project
    */
@@ -126,7 +126,7 @@ public class Project {
 
   /**
    * Get the base directory of the project.
-   * 
+   *
    * @return the base directory
    */
   public File getBaseDirectory() {
@@ -135,7 +135,7 @@ public class Project {
 
   /**
    * Get the type of builder for the project.
-   * 
+   *
    * @return the builder type
    */
   public String getBuilderType() {
@@ -144,7 +144,7 @@ public class Project {
 
   /**
    * Set the builder type of the project.
-   * 
+   *
    * @param builderType
    *          the builder type to set
    */
@@ -154,7 +154,7 @@ public class Project {
 
   /**
    * Get the identifying name for the project.
-   * 
+   *
    * @return the identifying name
    */
   public String getIdentifyingName() {
@@ -163,8 +163,8 @@ public class Project {
 
   /**
    * Set the identifying name for the project.
-   * 
-   * @param name
+   *
+   * @param identifyingName
    *          the identifying name
    */
   public void setIdentifyingName(String identifyingName) {
@@ -173,7 +173,7 @@ public class Project {
 
   /**
    * Get the descriptive name for the project.
-   * 
+   *
    * @return the descriptive name
    */
   public String getName() {
@@ -182,7 +182,7 @@ public class Project {
 
   /**
    * Set the descriptive name for the project.
-   * 
+   *
    * @param name
    *          the descriptive name
    */
@@ -192,7 +192,7 @@ public class Project {
 
   /**
    * Get the description of the project.
-   * 
+   *
    * @return the description. Can be {@code null}.
    */
   public String getDescription() {
@@ -201,7 +201,7 @@ public class Project {
 
   /**
    * Set the description of the project.
-   * 
+   *
    * @param description
    *          the description. Can be {@code null}.
    */
@@ -211,7 +211,7 @@ public class Project {
 
   /**
    * Get the version for the project.
-   * 
+   *
    * @return The version
    */
   public String getVersion() {
@@ -220,7 +220,7 @@ public class Project {
 
   /**
    * Set the version for the project.
-   * 
+   *
    * @param version
    *          the version
    */
@@ -230,7 +230,7 @@ public class Project {
 
   /**
    * Add a dependency to the project.
-   * 
+   *
    * @param dependency
    *          the dependency to add
    */
@@ -240,8 +240,8 @@ public class Project {
 
   /**
    * Get a list of all dependencies the project has.
-   * 
-   * @return
+   *
+   * @return a copy of the dependencies list
    */
   public List<ProjectDependency> getDependencies() {
     return Lists.newArrayList(dependencies);
@@ -249,7 +249,7 @@ public class Project {
 
   /**
    * Add a deployment to the project.
-   * 
+   *
    * @param deployment
    *          the deployment to add
    */
@@ -259,8 +259,8 @@ public class Project {
 
   /**
    * Get a list of all deployments the project has.
-   * 
-   * @return
+   *
+   * @return a copy of the deployments list
    */
   public List<ProjectDeployment> getDeployments() {
     return Lists.newArrayList(deployments);
@@ -268,7 +268,7 @@ public class Project {
 
   /**
    * Add a resource to the project.
-   * 
+   *
    * @param resource
    *          the resource to add
    */
@@ -278,8 +278,8 @@ public class Project {
 
   /**
    * Get a list of all resources the project has.
-   * 
-   * @return
+   *
+   * @return a new copy of the resources
    */
   public List<ProjectResource> getResources() {
     return Lists.newArrayList(resources);
@@ -287,10 +287,10 @@ public class Project {
 
   /**
    * Set the metadata for the project.
-   * 
+   *
    * <p>
    * This removes the old metadata completely.
-   * 
+   *
    * @param metadata
    *          the metadata for the project (can be {@link null}
    */
@@ -300,7 +300,7 @@ public class Project {
 
   /**
    * Get the metadata for the project.
-   * 
+   *
    * @return the project's meta data
    */
   public Map<String, Object> getMetadata() {
