@@ -55,7 +55,12 @@ allprojects {
       androidSdkJar = "$androidPlatformHome/android.jar"
     }
 
-    osgiVersion = '1.5.2'
+    /**
+     * If the version number ends in odd (e.g., 1.5.3) then this is a development release and should not
+     * be pushed to production. An even release (e.g., 1.5.2) means it's stable and is an official release.
+     * This system allows intermediate dev/test versions to exist without being confused with release versions.
+     */
+    osgiVersion = '1.5.3'
   }
 
   group = 'interactivespaces'
