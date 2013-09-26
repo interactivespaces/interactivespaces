@@ -18,7 +18,6 @@ package org.ros.time;
 
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
 import org.ros.RosTest;
 import org.ros.address.InetAddressFactory;
 import org.ros.namespace.GraphName;
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class NtpTimeProviderTest extends RosTest {
 
-  @Test
+  //@Test
   public void testNtpUbuntuCom() throws InterruptedException {
     final NtpTimeProvider ntpTimeProvider =
         new NtpTimeProvider(InetAddressFactory.newFromHostString("ntp.ubuntu.com"),
