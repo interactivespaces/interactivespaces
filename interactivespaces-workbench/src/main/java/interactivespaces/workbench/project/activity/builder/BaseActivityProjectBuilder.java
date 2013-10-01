@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * A base activity project builder which takes care of the portions of the build
- * needed by all types of activity projects
+ * needed by all types of activity projects.
  *
  * @author Keith M. Hughes
  */
@@ -41,7 +41,7 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 
   private static final String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
   /**
-   * Subdirectory of build folder which contains the staged activity
+   * Subdirectory of build folder which contains the staged activity.
    */
   public static final String ACTIVITY_BUILD_DIRECTORY_STAGING = "staging";
 
@@ -83,6 +83,8 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
    *          the build context
    * @param stagingDirectory
    *          the staging directory where build artifacts go
+   *
+   * @return {@code true} if build part was successful
    */
   public boolean onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
     // Default is nothing
@@ -173,7 +175,8 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
   private void copyResource(ProjectResource resource, Project project, File stagingDirectory,
       ProjectBuildContext context, Configuration resourceConfig) {
     if (resource.getDestinationDirectory() != null) {
-      File destDir = new File(stagingDirectory, resource.getDestinationDirectory());
+      File destDir =
+          new File(stagingDirectory, resourceConfig.evaluate(resource.getDestinationDirectory()));
       makeDirectory(destDir);
 
       if (resource.getSourceDirectory() != null) {
@@ -191,10 +194,9 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
       // Have a dest file
       // There is a file to be copied.
       File destFile =
-          new File(context.getWorkbench().getWorkbenchConfig()
-              .evaluate(resource.getDestinationFile()));
+          new File(stagingDirectory, resourceConfig.evaluate(resource.getDestinationFile()));
       File srcFile =
-          new File(context.getWorkbench().getWorkbenchConfig().evaluate(resource.getSourceFile()));
+          new File(resourceConfig.evaluate(resource.getSourceFile()));
       Files.copyFile(srcFile, destFile);
     }
   }
