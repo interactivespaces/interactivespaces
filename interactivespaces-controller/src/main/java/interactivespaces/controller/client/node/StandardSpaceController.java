@@ -18,6 +18,7 @@ package interactivespaces.controller.client.node;
 
 import com.google.common.collect.Maps;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityListener;
@@ -93,20 +94,6 @@ public class StandardSpaceController implements SpaceController,
    */
   private static final ActivityStatus LIVE_ACTIVITY_READY_STATUS = new ActivityStatus(
       ActivityState.READY, null);
-
-  /**
-   * A live activity status for installed live activities that currently are
-   * running.
-   */
-  private static final ActivityStatus LIVE_ACTIVITY_RUNNING_STATUS = new ActivityStatus(
-      ActivityState.RUNNING, null);
-
-  /**
-   * A live activity status for installed live activities that currently are
-   * activated.
-   */
-  private static final ActivityStatus LIVE_ACTIVITY_ACTIVE_STATUS = new ActivityStatus(
-      ActivityState.ACTIVE, null);
 
   /**
    * The heartbeatLoop for this controller.
@@ -192,12 +179,12 @@ public class StandardSpaceController implements SpaceController,
   /**
    * The Interactive Spaces environment being run under.
    */
-  protected InteractiveSpacesEnvironment spaceEnvironment;
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * The Interactive Spaces system controller.
    */
-  protected InteractiveSpacesSystemControl spaceSystemControl;
+  private InteractiveSpacesSystemControl spaceSystemControl;
 
   /**
    * Information about the controller
@@ -279,6 +266,11 @@ public class StandardSpaceController implements SpaceController,
    */
   private SpaceControllerFileControl fileControl;
 
+  /**
+   * Create a new StandardSpaceController.
+   *
+   * TODO(khughes): Fix this so it uses .set build pattern.
+   */
   public StandardSpaceController(ActivityInstallationManager activityInstallationManager,
       LocalSpaceControllerRepository controllerRepository,
       ActiveControllerActivityFactory activeControllerActivityFactory,
@@ -525,6 +517,12 @@ public class StandardSpaceController implements SpaceController,
         case ACTIVATE:
           activateActivity(activity.getUuid());
           break;
+        case READY:
+          break;
+        default:
+          spaceEnvironment.getLog().error(String.format(
+              "Unknown startup type %s for activity %s/%s", activity.getControllerStartupType(),
+              activity.getIdentifyingName(), activity.getUuid()));
       }
     }
   }
@@ -871,9 +869,10 @@ public class StandardSpaceController implements SpaceController,
       }
     }
 
-    if (activity == null)
+    if (activity == null) {
       spaceEnvironment.getLog().warn(
           String.format("Could not find active live activity with uuid %s", uuid));
+    }
 
     return activity;
   }
@@ -934,7 +933,7 @@ public class StandardSpaceController implements SpaceController,
               String.format(
                   "Attempt to startup live activity %s which was running, sending RUNNINg",
                   activity.getUuid()));
-          publishActivityStatus(activity.getUuid(), LIVE_ACTIVITY_RUNNING_STATUS);
+          publishActivityStatus(activity.getUuid(), activity.getActivityStatus());
 
           break;
 
@@ -985,12 +984,12 @@ public class StandardSpaceController implements SpaceController,
         break;
 
       case ACTIVE:
-        // If was already shut down, just signal READY
+        // If was already active, then just re-publish the status.
         spaceEnvironment.getLog().warn(
             String.format(
                 "Attempt to activate live activity %s which was activated, sending ACTIVE",
                 activity.getUuid()));
-        publishActivityStatus(activity.getUuid(), LIVE_ACTIVITY_ACTIVE_STATUS);
+        publishActivityStatus(activity.getUuid(), activity.getActivityStatus());
         break;
 
       case READY:

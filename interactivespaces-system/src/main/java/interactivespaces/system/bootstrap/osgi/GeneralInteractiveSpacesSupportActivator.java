@@ -122,7 +122,20 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    */
   private ContainerCustomizerProvider containerCustomizerProvider;
 
+  /**
+   * The platform time provider.
+   */
   private TimeProvider timeProvider;
+
+  /**
+   * Host address to use if address lookup fails.
+   */
+  private static final String UNKNOWN_HOST_ADDRESS = "unknown";
+
+  /**
+   * Update period for
+   */
+  private static final long NTP_UPDATE_PERIOD_SECONDS = 10L;
 
   @Override
   public void start(BundleContext context) throws Exception {
@@ -251,6 +264,11 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   /**
    * Get the time provider to use.
    *
+   * @param containerProperties
+   *          properties to use for configuration
+   * @param log
+   *          logger for messages
+   *
    * @return the time provider to use
    */
   public TimeProvider getTimeProvider(Map<String, String> containerProperties, Log log) {
@@ -267,7 +285,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         InetAddress ntpAddress = InetAddressFactory.newFromHostString(host);
         // TODO(keith): Make sure got valid address. Also, move copy of
         // factory class into IS.
-        return new NtpTimeProvider(ntpAddress, 10L, TimeUnit.SECONDS, executorService, log);
+        return new NtpTimeProvider(ntpAddress, NTP_UPDATE_PERIOD_SECONDS, TimeUnit.SECONDS, executorService, log);
       } else {
         log.warn(String.format(
             "Could not find host for NTP time provider. No value for configuration %s",
@@ -297,8 +315,11 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    * Set up the full ROS environment.
    *
    * @param context
+   *          osgi context
    * @param containerProperties
+   *          properties for configuration
    * @param log
+   *          logger to use
    */
   private void setupRosEnvironment(BundleContext context, Map<String, String> containerProperties,
       Log log) {
@@ -360,6 +381,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    * Set up the system configuration.
    *
    * @param context
+   *          bundle context to use
    */
   private void setupSystemConfiguration(BundleContext context,
       Map<String, String> containerProperties) {
@@ -382,6 +404,29 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION,
         context.getProperty(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION));
 
+    String hostAddress = convertHostnameToAddress(containerProperties.get(
+        InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
+    systemConfiguration.setValue(
+        InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, hostAddress);
+
     spaceEnvironment.setSystemConfiguration(systemConfiguration);
+  }
+
+  /**
+   * Convert the given hostname to an address.
+   *
+   * @param hostname
+   *          hostname to convert
+   *
+   * @return host address
+   */
+  private String convertHostnameToAddress(String hostname) {
+    try {
+      InetAddress address = InetAddress.getByName(hostname);
+      return address.getHostAddress();
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error("Could not convert hostname to address", e);
+      return UNKNOWN_HOST_ADDRESS;
+    }
   }
 }

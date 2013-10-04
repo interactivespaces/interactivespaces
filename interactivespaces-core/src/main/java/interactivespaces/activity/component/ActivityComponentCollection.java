@@ -24,6 +24,7 @@ import interactivespaces.util.graph.DependencyResolver;
 
 import org.apache.commons.logging.Log;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -190,6 +191,13 @@ public class ActivityComponentCollection {
     }
 
     throw new InteractiveSpacesException(String.format("No activity component with name %s", name));
+  }
+
+  /**
+   * Return a list of all the current components.
+   */
+  public Collection<ActivityComponent> getComponents() {
+    return Lists.newArrayList(components);
   }
 
   /**

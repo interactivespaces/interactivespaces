@@ -36,41 +36,46 @@ public interface InteractiveSpacesEnvironment {
   /**
    * Configuration property containing the Interactive Spaces version.
    */
-  public static final String CONFIGURATION_INTERACTIVESPACES_VERSION =
+  String CONFIGURATION_INTERACTIVESPACES_VERSION =
       CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION;
 
   /**
    * Configuration property giving the Interactive Spaces container type.
    */
-  public static final String CONFIGURATION_CONTAINER_TYPE = "interactivespaces.container.type";
+  String CONFIGURATION_CONTAINER_TYPE = "interactivespaces.container.type";
 
   /**
    * Configuration property value for the master Interactive Spaces container
    * type.
    */
-  public static final String CONFIGURATION_CONTAINER_TYPE_MASTER = "master";
+  String CONFIGURATION_CONTAINER_TYPE_MASTER = "master";
 
   /**
    * Configuration property value for the controller Interactive Spaces
    * container type.
    */
-  public static final String CONFIGURATION_CONTAINER_TYPE_CONTROLLER = "controller";
+  String CONFIGURATION_CONTAINER_TYPE_CONTROLLER = "controller";
 
   /**
    * Configuration property giving the Interactive Spaces type, e.g. prod, dev,
    * local.
    */
-  public static final String CONFIGURATION_NETWORK_TYPE = "interactivespaces.network.type";
+  String CONFIGURATION_NETWORK_TYPE = "interactivespaces.network.type";
 
   /**
    * Configuration property giving the host ID for the system.
    */
-  public static final String CONFIGURATION_HOSTID = "interactivespaces.hostid";
+  String CONFIGURATION_HOSTID = "interactivespaces.hostid";
 
   /**
    * Configuration property giving the hostname for the system.
    */
-  public static final String CONFIGURATION_HOSTNAME = "interactivespaces.host";
+  String CONFIGURATION_HOSTNAME = "interactivespaces.host";
+
+  /**
+   * Configuration property giving the host address for the system.
+   */
+  String CONFIGURATION_HOST_ADDRESS = "interactivespaces.host.address";
 
   /**
    * Configuration property which will be {@code true} if the container should
@@ -80,74 +85,74 @@ public interface InteractiveSpacesEnvironment {
    * This is a suggestion, the container may not be file controllable. This is
    * used to request that the controller be file controllable.
    */
-  public static final String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE =
+  String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE =
       "interactivespaces.container.control.file";
 
   /**
    * Configuration property which says what the time provider should be.
    */
-  public static final String CONFIGURATION_PROVIDER_TIME = "interactivespaces.provider.time";
+  String CONFIGURATION_PROVIDER_TIME = "interactivespaces.provider.time";
 
   /**
    * Configuration property value which says what the time provider should be
    * local.
    */
-  public static final String CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL = "local";
+  String CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL = "local";
 
   /**
    * Configuration property value which says what the time provider should be
    * ntp.
    */
-  public static final String CONFIGURATION_VALUE_PROVIDER_TIME_NTP = "ntp";
+  String CONFIGURATION_VALUE_PROVIDER_TIME_NTP = "ntp";
 
   /**
    * Configuration property which says what the URL of the NTP time provider
    * should be.
    */
-  public static final String CONFIGURATION_PROVIDER_TIME_NTP_URL =
+  String CONFIGURATION_PROVIDER_TIME_NTP_URL =
       "interactivespaces.provider.time.ntp.url";
 
   /**
    * Configuration property value which says what the default time provider
    * should be.
    */
-  public static final String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT =
+  String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT =
       CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL;
 
   /**
    * The log level for warnings and above.
    */
-  public static final String LOG_LEVEL_WARN = LoggingProvider.LOG_LEVEL_WARN;
+  String LOG_LEVEL_WARN = LoggingProvider.LOG_LEVEL_WARN;
 
   /**
    * The log level for trace and above.
    */
-  public static final String LOG_LEVEL_TRACE = LoggingProvider.LOG_LEVEL_TRACE;
+  String LOG_LEVEL_TRACE = LoggingProvider.LOG_LEVEL_TRACE;
 
   /**
    * The log level for no logging.
    */
-  public static final String LOG_LEVEL_OFF = LoggingProvider.LOG_LEVEL_OFF;
+  String LOG_LEVEL_OFF = LoggingProvider.LOG_LEVEL_OFF;
 
   /**
    * The log level for info and above.
    */
-  public static final String LOG_LEVEL_INFO = LoggingProvider.LOG_LEVEL_INFO;
+  String LOG_LEVEL_INFO = LoggingProvider.LOG_LEVEL_INFO;
 
   /**
    * The log level for debug and above.
    */
-  public static final String LOG_LEVEL_DEBUG = LoggingProvider.LOG_LEVEL_DEBUG;
+  String LOG_LEVEL_DEBUG = LoggingProvider.LOG_LEVEL_DEBUG;
 
   /**
    * The log level for fatal.
    */
-  public static final String LOG_LEVEL_FATAL = LoggingProvider.LOG_LEVEL_FATAL;
+  String LOG_LEVEL_FATAL = LoggingProvider.LOG_LEVEL_FATAL;
 
   /**
    * The log level for error and above.
    */
-  public static final String LOG_LEVEL_ERROR = LoggingProvider.LOG_LEVEL_ERROR;
+  String LOG_LEVEL_ERROR = LoggingProvider.LOG_LEVEL_ERROR;
 
   /**
    * Get the Interactive Spaces system configuration.
@@ -187,7 +192,9 @@ public interface InteractiveSpacesEnvironment {
    * Get a named log.
    *
    * @param logName
-   *          the name the log should have
+   *            the name the log should have
+   * @param level
+   *            default logging level
    *
    * @return the requested named log
    */
@@ -215,7 +222,7 @@ public interface InteractiveSpacesEnvironment {
    * This allows distinguishing between different Interactive Spaces networks,
    * e.g. localdev, prod, fredbot.
    *
-   * @return
+   * @return network type currently used
    */
   String getNetworkType();
 
@@ -238,6 +245,8 @@ public interface InteractiveSpacesEnvironment {
    *
    * @param valueName
    *          the name of the value
+   * @param <T>
+   *          type of target value
    *
    * @return the requested value, or {@code null} if not found
    */

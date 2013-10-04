@@ -174,11 +174,11 @@ None
 </p>
 </#if>
 
-<#if liveactivity.active.runtimeStateDetail?has_content>
+<#if runtimeStateDetail?has_content>
 <h2>Runtime State Details</h2>
 
 <pre>
-${liveactivity.active.runtimeStateDetail}
+${runtimeStateDetail}
 </pre>
 
 </#if>

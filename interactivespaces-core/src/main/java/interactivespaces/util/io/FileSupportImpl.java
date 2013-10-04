@@ -41,6 +41,11 @@ import static com.google.common.io.Closeables.closeQuietly;
  */
 public class FileSupportImpl implements FileSupport {
 
+  /**
+   * Default buffer size for copy operations.
+   */
+  private static final int COPY_DEFAULT_BUFFER_SIZE = 4096;
+
   @Override
   public void zip(File target, File basePath) {
     if (target.exists()) {
@@ -149,14 +154,24 @@ public class FileSupportImpl implements FileSupport {
   public void copyDirectory(File sourceDir, File destDir, boolean overwrite) {
     directoryExists(destDir);
 
-    for (File src : sourceDir.listFiles()) {
-      File dst = new File(destDir, src.getName());
-      if (src.isDirectory()) {
-        copyDirectory(src, dst, overwrite);
-      } else {
-        if (!dst.exists() || overwrite) {
-          copyFile(src, dst);
+    File[] sourceFiles = sourceDir.listFiles();
+    if (sourceFiles == null) {
+      throw new InteractiveSpacesException(
+          "Missing source directory " + sourceDir.getAbsolutePath());
+    }
+
+    for (File src : sourceFiles) {
+      try {
+        File dst = new File(destDir, src.getName());
+        if (src.isDirectory()) {
+          copyDirectory(src, dst, overwrite);
+        } else {
+          if (!dst.exists() || overwrite) {
+            copyFile(src, dst);
+          }
         }
+      } catch (Exception e) {
+        throw new InteractiveSpacesException("While copying file " + src.getAbsolutePath(), e);
       }
     }
   }
@@ -215,11 +230,12 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException {
     try {
-      byte[] buffer = new byte[4096];
+      byte[] buffer = new byte[COPY_DEFAULT_BUFFER_SIZE];
       int len;
 
-      while ((len = in.read(buffer)) > 0)
+      while ((len = in.read(buffer)) > 0) {
         out.write(buffer, 0, len);
+      }
 
       out.flush();
     } finally {
@@ -261,8 +277,9 @@ public class FileSupportImpl implements FileSupport {
   public void deleteDirectoryContents(File file) {
     File[] files = file.listFiles();
     if (files != null) {
-      for (File contained : files)
+      for (File contained : files) {
         delete(contained);
+      }
     }
   }
 

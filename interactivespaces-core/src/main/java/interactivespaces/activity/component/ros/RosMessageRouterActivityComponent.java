@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.ros.RosActivity;
@@ -144,7 +143,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 
     super.configureComponent(configuration, componentContext);
 
-    boolean hasRouteErrors = false;
+    StringBuilder routeErrors = new StringBuilder();
 
     String inputNames = configuration.getPropertyString(CONFIGURATION_ROUTES_INPUTS);
     if (inputNames != null) {
@@ -155,7 +154,9 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
           activity.getLog().error(
               String.format("Input route %s missing topic configuration %s", inputName,
                   propertyName));
-          hasRouteErrors = true;
+          routeErrors.append(routeErrors.length() > 0 ? ", " : "")
+              .append("missing input route=").append(inputName)
+              .append(":").append(propertyName);
         }
       }
     }
@@ -169,13 +170,15 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
           activity.getLog().error(
               String.format("Output route %s missing topic configuration %s", outputName,
                   propertyName));
-          hasRouteErrors = true;
+          routeErrors.append(routeErrors.length() > 0 ? ", " : "")
+              .append("missing output route=").append(outputName)
+              .append(":").append(propertyName);
         }
       }
     }
 
-    if (hasRouteErrors) {
-      throw new InteractiveSpacesException("Router has missing routes");
+    if (routeErrors.length() > 0) {
+      throw new InteractiveSpacesException("Router has missing routes: " + routeErrors);
     }
 
     if ((inputNames == null || inputNames.isEmpty())

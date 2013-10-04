@@ -203,6 +203,7 @@ public class StandardSpaceControllerTest {
         activeControllerActivityFactory.newActiveActivity(liveActivity, activityFilesystem,
             configuration, controller)).thenReturn(expectedActive);
     when(expectedActive.getCachedActivityStatus()).thenReturn(new ActivityStatus(startState, null));
+    when(expectedActive.getActivityStatus()).thenReturn(new ActivityStatus(startState, null));
     when(expectedActive.getActivityState()).thenReturn(startState);
     when(expectedActive.getUuid()).thenReturn(activityUuid);
     ActiveControllerActivity active = controller.getActiveActivityByUuid(activityUuid, true);

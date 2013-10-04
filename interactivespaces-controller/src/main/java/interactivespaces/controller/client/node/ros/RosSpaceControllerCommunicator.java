@@ -83,6 +83,11 @@ import java.util.Map;
 public class RosSpaceControllerCommunicator implements SpaceControllerCommunicator {
 
   /**
+   * Startup delay for space controller startup notification.
+   */
+  public static final int STARTUP_NOTIFICATION_DELAY_MS = 1000;
+
+  /**
    * The controller being controlled.
    */
   private SpaceControllerControl controllerControl;
@@ -167,6 +172,16 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * Create a new space controller communicator.
+   *
+   * @param spaceControllerActivityInstaller
+   *          activity installer
+   * @param rosEnvironment
+   *          ROS environment
+   * @param spaceEnvironment
+   *          space environment
+   */
   public RosSpaceControllerCommunicator(
       SpaceControllerActivityInstallationManager spaceControllerActivityInstaller,
       RosEnvironment rosEnvironment, InteractiveSpacesEnvironment spaceEnvironment) {
@@ -260,7 +275,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
   public void notifyRemoteMasterServerAboutStartup(SimpleSpaceController controllerInfo) {
     RemoteMasterServerClient masterServerClient = new RosRemoteMasterServerClient();
     masterServerClient.startup(rosEnvironment);
-    InteractiveSpacesUtilities.delay(1000);
+    InteractiveSpacesUtilities.delay(STARTUP_NOTIFICATION_DELAY_MS);
 
     masterServerClient.sendControllerDescription(controllerInfo);
     masterServerClient.shutdown();
@@ -408,8 +423,8 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
       SpaceControllerStatus statusCode, Exception e) {
     ControllerStatus statusMsg = rosMessageFactory.newFromType(ControllerStatus._TYPE);
 
-    int status = SpaceControllerDataOperation.DATA_CAPTURE.equals(type) ?
-        ControllerStatus.STATUS_DATA_CAPTURE : ControllerStatus.STATUS_DATA_RESTORE;
+    int status = SpaceControllerDataOperation.DATA_CAPTURE.equals(type)
+        ? ControllerStatus.STATUS_DATA_CAPTURE : ControllerStatus.STATUS_DATA_RESTORE;
 
     statusMsg.setStatus(status);
     statusMsg.setUuid(controllerControl.getControllerInfo().getUuid());
@@ -693,6 +708,11 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
         status.setStatusDetail(InteractiveSpacesException.getStackTrace(astatus.getException()));
       }
 
+      String description = astatus.getDescription();
+      if (description != null) {
+        status.setStatusDetail(astatus.getDescription());
+      }
+
       activityStatusPublisher.publish(status);
     } catch (Exception e) {
       spaceEnvironment.getLog()
@@ -768,6 +788,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    * Set the Ros Environment the controller should run in.
    *
    * @param rosEnvironment
+   *          the ros environment for this communicator
    */
   public void setRosEnvironment(RosEnvironment rosEnvironment) {
     this.rosEnvironment = rosEnvironment;

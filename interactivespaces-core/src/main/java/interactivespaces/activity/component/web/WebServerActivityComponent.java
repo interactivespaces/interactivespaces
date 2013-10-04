@@ -19,12 +19,10 @@ package interactivespaces.activity.component.web;
 import com.google.common.collect.Lists;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
-import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -32,6 +30,7 @@ import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
+import interactivespaces.system.InteractiveSpacesEnvironment;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -75,9 +74,19 @@ public class WebServerActivityComponent extends BaseActivityComponent {
   public static final int WEB_SERVER_PORT_DEFAULT = 9000;
 
   /**
+   * Host identifier to use if not specified in configuraiton.
+   */
+  public static final String WEB_SERVER_DEFAULT_HOST = "localhost";
+
+  /**
    * URL for the web activity.
    */
   private String webContentUrl;
+
+  /**
+   * URL for the initial content page for this server.
+   */
+  private String webInitialPage;
 
   /**
    * Port the web server will run on.
@@ -149,8 +158,14 @@ public class WebServerActivityComponent extends BaseActivityComponent {
         webServerService.newWebServer(String.format("%sWebServer", activity.getName()),
             webServerPort, activity.getLog());
 
+    String webServerHost = configuration.getPropertyString(
+        InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, WEB_SERVER_DEFAULT_HOST);
+
     webContentPath = "/" + activity.getName();
-    webContentUrl = "http://localhost:" + webServer.getPort() + webContentPath;
+    webContentUrl = "http://" + webServerHost + ":" + webServer.getPort() + webContentPath;
+
+    webInitialPage = webContentUrl + "/"
+        + configuration.getPropertyString(WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE);
 
     String contentLocation = configuration.getPropertyString(CONFIGURATION_WEBAPP_CONTENT_LOCATION);
     if (contentLocation != null) {
@@ -181,22 +196,21 @@ public class WebServerActivityComponent extends BaseActivityComponent {
   @Override
   public void startupComponent() {
     webServer.startup();
-    getComponentContext().getActivity().getLog().info("web server component started up");
+    getLog().info("web server component started up");
   }
 
   @Override
   public void shutdownComponent() {
     long start = System.currentTimeMillis();
-    Log log = getComponentContext().getActivity().getLog();
-    log.info("Shutting down web server activity component");
+    getLog().info("Shutting down web server activity component");
 
     if (webServer != null) {
       webServer.shutdown();
       webServer = null;
     }
 
-    if (log.isInfoEnabled()) {
-      log.info(String.format("Web server activity component shut down in %s msecs",
+    if (getLog().isInfoEnabled()) {
+      getLog().info(String.format("Web server activity component shut down in %s msecs",
           System.currentTimeMillis() - start));
     }
   }
@@ -393,6 +407,14 @@ public class WebServerActivityComponent extends BaseActivityComponent {
      */
     private File baseDir;
 
+    /**
+     * Create a basic static content object.
+     *
+     * @param uriPrefix
+     *            content prefix
+     * @param baseDir
+     *            directory path for content
+     */
     public StaticContent(String uriPrefix, File baseDir) {
       this.uriPrefix = uriPrefix;
       this.baseDir = baseDir;
@@ -435,6 +457,16 @@ public class WebServerActivityComponent extends BaseActivityComponent {
      */
     private HttpDynamicRequestHandler requestHandler;
 
+    /**
+     * Create a dynamic content object.
+     *
+     * @param requestHandler
+     *            dynamic request handler
+     * @param uriPrefix
+     *            uri prefix that is handled
+     * @param usePath
+     *            path for handling the content
+     */
     public DynamicContent(HttpDynamicRequestHandler requestHandler, String uriPrefix,
         boolean usePath) {
       this.requestHandler = requestHandler;
@@ -483,6 +515,14 @@ public class WebServerActivityComponent extends BaseActivityComponent {
      */
     private ActivityComponentContext activityComponentContext;
 
+    /**
+     * Create a simple web socket handler factory.
+     *
+     * @param delegate
+     *            creator factory delegate
+     * @param activityComponentContext
+     *            context for created socket handlers
+     */
     public MyWebServerWebSocketHandlerFactory(WebServerWebSocketHandlerFactory delegate,
         ActivityComponentContext activityComponentContext) {
       this.delegate = delegate;
@@ -615,4 +655,19 @@ public class WebServerActivityComponent extends BaseActivityComponent {
       }
     }
   }
+
+  @Override
+  public String getComponentStatusDetail() {
+    return webInitialPage;
+  }
+
+  /**
+   * Get the logger for this component.
+   *
+   * @return logger
+   */
+  private Log getLog() {
+    return getComponentContext().getActivity().getLog();
+  }
+
 }

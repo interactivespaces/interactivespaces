@@ -25,10 +25,13 @@ import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.hardware.driver.Driver;
 import interactivespaces.util.concurrency.ManagedCommands;
+import interactivespaces.util.io.Files;
 import interactivespaces.util.resource.ManagedResource;
 import interactivespaces.util.resource.ManagedResources;
 
+import java.io.File;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Support for building an Interactive Spaces activity.
@@ -49,9 +52,14 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   private static final int SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME = 500;
 
   /**
+   * Filename for activity startup config log.
+   */
+  private static final String ACTIVITY_STARTUP_CONFIG_LOG = "startup.conf";
+
+  /**
    * All components in the activity.
    */
-  private ActivityComponentCollection components = new ActivityComponentCollection();;
+  private ActivityComponentCollection components = new ActivityComponentCollection();
 
   /**
    * Context all activity components will run under.
@@ -73,6 +81,9 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    *
    * @param componentName
    *          the name of the component
+   * @param <T>
+   *            type of activity component retrieved
+   *
    * @return the component with the given name, or {@code null} if none
    */
   public <T extends ActivityComponent> T getComponent(String componentName) {
@@ -123,6 +134,10 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
+    if (getLog().isInfoEnabled()) {
+      logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
+    }
+
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
     componentContext =
@@ -148,7 +163,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       callOnActivityStartup();
 
-      setActivityStatus(ActivityState.RUNNING, null);
+      setCompositeActivityState(ActivityState.RUNNING);
 
       if (getLog().isInfoEnabled()) {
         getLog().info(
@@ -188,7 +203,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Properly call {@link #onActivityStartup()}.
    */
-  private final void callOnActivitySetup() {
+  private void callOnActivitySetup() {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
@@ -201,7 +216,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Properly call {@link #onActivityStartup()}.
    */
-  private final void callOnActivityStartup() {
+  private void callOnActivityStartup() {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
@@ -214,7 +229,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Properly call {@link #onActivityPostStartup()}.
    */
-  private final void callOnActivityPostStartup() {
+  private void callOnActivityPostStartup() {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
@@ -253,12 +268,32 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     // Default is to do nothing.
   }
 
+  /**
+   * Get the active status detail for this activity. By default this is simply
+   * an 'active' indicator along with status details from any managed components.
+   *
+   * @param baseDetail
+   *            basic detail for this activity, sans components
+   *
+   * @return status detail for this activity including components
+   */
+  protected String getActivityStatusDetailComposite(String baseDetail) {
+    StringBuilder detailString = new StringBuilder(baseDetail);
+    for (ActivityComponent component : components.getComponents()) {
+      String detail = component.getComponentStatusDetail();
+      if (detail != null) {
+        detailString.append(" ").append(detail);
+      }
+    }
+    return detailString.toString();
+  }
+
   @Override
   public void activate() {
     try {
       callOnActivityActivate();
 
-      setActivityStatus(ActivityState.ACTIVE, null);
+      setCompositeActivityState(ActivityState.ACTIVE);
     } catch (Exception e) {
       logException("Cannot activate activity", e);
 
@@ -295,7 +330,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       callOnActivityDeactivate();
 
-      setActivityStatus(ActivityState.RUNNING, null);
+      setCompositeActivityState(ActivityState.RUNNING);
     } catch (Exception e) {
       logException("Cannot deactivate activity", e);
 
@@ -688,5 +723,34 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    */
   public ActivityComponentContext getActivityComponentContext() {
     return componentContext;
+  }
+
+  /**
+   * Set the activity status and include detail of internal components.
+   *
+   * @param status
+   *          new status of the activity.
+   */
+  private void setCompositeActivityState(ActivityState status) {
+    setActivityStatus(status, getActivityStatusDetailComposite(status.toString()), null);
+  }
+
+  /**
+   * Log the activity configuration information to an activity config log file.
+   */
+  private void logConfiguration(String logFile) {
+    try {
+      StringBuilder logBuilder = new StringBuilder();
+      getLog().info("Logging activity configuration to " + logFile);
+      Map<String, String> configMap = getConfiguration().getCollapsedMap();
+      TreeMap<String, String> sortedMap = new TreeMap<String, String>(configMap);
+      for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
+        logBuilder.append(String.format("%s=%s\n", entry.getKey(), entry.getValue()));
+      }
+      File configLog = new File(getActivityFilesystem().getLogDirectory(), logFile);
+      Files.writeFile(configLog, logBuilder.toString());
+    } catch (Exception e) {
+      getLog().error("While logging activity configuration", e);
+    }
   }
 }

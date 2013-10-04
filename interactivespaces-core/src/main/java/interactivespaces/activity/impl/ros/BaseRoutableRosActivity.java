@@ -16,7 +16,6 @@
 
 package interactivespaces.activity.impl.ros;
 
-import interactivespaces.activity.Activity;
 import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.component.ros.RoutableInputMessageListener;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
@@ -24,10 +23,7 @@ import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
 
 import interactivespaces_msgs.GenericMessage;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -42,6 +38,12 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
    * The JSON mapper.
    */
   private static final JsonMapper MAPPER;
+
+  /**
+   * Json message type indicator.
+   * TODO(khughes): Move constant to more centralized location.
+   */
+  private static final String JSON_MESSAGE_TYPE = "json";
 
   static {
     MAPPER = new JsonMapper();
@@ -64,17 +66,30 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
               @SuppressWarnings("unchecked")
               @Override
               public void onNewRoutableInputMessage(String channelName, GenericMessage message) {
-                if ("json".equals(message.getType())) {
-                  try {
-                    callOnNewInputJson(channelName, message);
-                  } catch (Exception e) {
-                    getLog().error("Could not process input message", e);
-                  }
-                } else {
-                  callOnNewInputString(channelName, message);
-                }
+                handleRoutableInputMessage(channelName, message);
               }
             }));
+  }
+
+  /**
+   * Handle a new input message.
+   *
+   * @param channelName
+   *          the name of the channel
+   * @param message
+   *          the generic message
+   *
+   */
+  private void handleRoutableInputMessage(String channelName, GenericMessage message) {
+    if (JSON_MESSAGE_TYPE.equals(message.getType())) {
+      try {
+        callOnNewInputJson(channelName, message);
+      } catch (Exception e) {
+        getLog().error("Could not process input message", e);
+      }
+    } else {
+      callOnNewInputString(channelName, message);
+    }
   }
 
   /**
@@ -137,7 +152,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
     GenericMessage outgoing = router.newMessage();
 
     try {
-      outgoing.setType("json");
+      outgoing.setType(JSON_MESSAGE_TYPE);
       outgoing.setMessage(MAPPER.toString(message));
 
       router.writeOutputMessage(channelName, outgoing);
@@ -186,13 +201,8 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
    *          the name of the channel
    * @param message
    *          the message in JSON format
-   *
-   * @throws IOException
-   * @throws JsonParseException
-   * @throws JsonMappingException
    */
-  private void callOnNewInputJson(String channelName, GenericMessage message) throws IOException,
-      JsonParseException, JsonMappingException {
+  private void callOnNewInputJson(String channelName, GenericMessage message) {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {

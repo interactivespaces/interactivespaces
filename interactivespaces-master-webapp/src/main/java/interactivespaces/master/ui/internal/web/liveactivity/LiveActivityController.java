@@ -65,6 +65,16 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   private ControllerRepository controllerRepository;
 
   /**
+   * Regexp pattern for finding HTTP links.
+   */
+  private static final String HTTP_LINK_REGEXP = "http://\\S+";
+
+  /**
+   * Format string to use when replacing HTTP links during rewrites.
+   */
+  private static final String HTTP_LINK_REPLACEMENT = "<a href='$0'>$0</a>";
+
+  /**
    * Display a list of all installed activities.
    *
    * @return Model and view for controller list display.
@@ -91,6 +101,8 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
       mav.addObject("liveactivity", liveactivity);
       mav.addObject("metadata",
           UiUtilities.getMetadataView(liveactivity.getActivity().getMetadata()));
+      mav.addObject("runtimeStateDetail",
+          rewriteRuntimeStateDetail(liveactivity.getActive().getRuntimeStateDetail()));
 
       List<LiveActivityGroup> groups =
           Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveactivity
@@ -306,6 +318,19 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
     } catch (EntityNotFoundInteractiveSpacesException e) {
       return getNoSuchLiveActivityResult();
     }
+  }
+
+  /**
+   * Rewrite the given detail string, linkifying any embedded http links.
+   *
+   * @param detail detail message to rewrite
+   * @return  rewritten detail message
+   */
+  private String rewriteRuntimeStateDetail(String detail) {
+    if (detail == null) {
+      return null;
+    }
+    return detail.replaceAll(HTTP_LINK_REGEXP, HTTP_LINK_REPLACEMENT);
   }
 
   /**

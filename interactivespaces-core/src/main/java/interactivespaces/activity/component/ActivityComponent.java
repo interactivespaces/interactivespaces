@@ -16,7 +16,6 @@
 
 package interactivespaces.activity.component;
 
-import interactivespaces.activity.Activity;
 import interactivespaces.configuration.Configuration;
 
 import java.util.List;
@@ -49,8 +48,6 @@ public interface ActivityComponent {
    *          the configuration containing parameters for the web server
    * @param componentContext
    *          the context the component is running in
-   *
-   * @return this component instance
    */
   void configureComponent(Configuration configuration, ActivityComponentContext componentContext);
 
@@ -72,9 +69,16 @@ public interface ActivityComponent {
   boolean isComponentRunning();
 
   /**
-   * get the component context the component is running under.
+   * Get the component context the component is running under.
    *
    * @return the component context
    */
   ActivityComponentContext getComponentContext();
+
+  /**
+   * Get the component status detail.
+   *
+   * @return the component status detail
+   */
+  String getComponentStatusDetail();
 }

@@ -52,6 +52,11 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   }
 
   @Override
+  public String getComponentStatusDetail() {
+     return null;
+  }
+
+  @Override
   public void configureComponent(Configuration configuration,
       ActivityComponentContext componentContext) {
     this.componentContext = componentContext;
