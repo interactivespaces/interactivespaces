@@ -16,13 +16,11 @@
 
 package interactivespaces.controller.client.node.ros;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
+import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerCommunicator;
@@ -34,7 +32,6 @@ import interactivespaces.controller.client.node.SpaceControllerLiveActivityDelet
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteStatus;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployRequest;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployStatus;
-import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
@@ -43,7 +40,6 @@ import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerCl
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.util.data.resource.LocatableResource;
-
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
 import interactivespaces_msgs.ControllerActivityRuntimeRequest;
@@ -59,11 +55,15 @@ import interactivespaces_msgs.LiveActivityDeleteStatus;
 import interactivespaces_msgs.LiveActivityDeployRequest;
 import interactivespaces_msgs.LiveActivityDeployStatus;
 import interactivespaces_msgs.LocatableResourceDescription;
+
+import java.util.Map;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
+import org.ros.message.MessageSerializationFactory;
 import org.ros.message.MessageSerializer;
 import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
@@ -73,7 +73,8 @@ import org.ros.node.topic.PublisherListener;
 import org.ros.node.topic.Subscriber;
 import org.ros.osgi.common.RosEnvironment;
 
-import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 
 /**
  * An {@link SpaceControllerCommunicator} using ROS for communication.
@@ -83,9 +84,9 @@ import java.util.Map;
 public class RosSpaceControllerCommunicator implements SpaceControllerCommunicator {
 
   /**
-   * Startup delay for space controller startup notification.
+   * Startup delay for space controller startup notification. In milliseconds.
    */
-  public static final int STARTUP_NOTIFICATION_DELAY_MS = 1000;
+  public static final int STARTUP_NOTIFICATION_DELAY = 1000;
 
   /**
    * The controller being controlled.
@@ -242,40 +243,34 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
           }
         });
 
+    MessageSerializationFactory messageSerializationFactory = node.getMessageSerializationFactory();
     controllerFullStatusMessageSerializer =
-        node.getMessageSerializationFactory().newMessageSerializer(
-            "interactivespaces_msgs/ControllerFullStatus");
+        messageSerializationFactory.newMessageSerializer(ControllerFullStatus._TYPE);
 
     activityConfigurationRequestDeserializer =
-        node.getMessageSerializationFactory().newMessageDeserializer(
-            "interactivespaces_msgs/ActivityConfigurationRequest");
+        messageSerializationFactory.newMessageDeserializer(ActivityConfigurationRequest._TYPE);
 
     liveActivityDeployStatusSerializer =
-        node.getMessageSerializationFactory().newMessageSerializer(
-            "interactivespaces_msgs/LiveActivityDeployStatus");
+        messageSerializationFactory.newMessageSerializer(LiveActivityDeployStatus._TYPE);
 
     liveActivityDeployRequestDeserializer =
-        node.getMessageSerializationFactory().newMessageDeserializer(
-            "interactivespaces_msgs/LiveActivityDeployRequest");
+        messageSerializationFactory.newMessageDeserializer(LiveActivityDeployRequest._TYPE);
 
     liveActivityDeleteStatusSerializer =
-        node.getMessageSerializationFactory().newMessageSerializer(
-            "interactivespaces_msgs/LiveActivityDeleteStatus");
+        messageSerializationFactory.newMessageSerializer(LiveActivityDeleteStatus._TYPE);
 
     liveActivityDeleteRequestDeserializer =
-        node.getMessageSerializationFactory().newMessageDeserializer(
-            "interactivespaces_msgs/LiveActivityDeleteRequest");
+        messageSerializationFactory.newMessageDeserializer(LiveActivityDeleteRequest._TYPE);
 
     controllerDataRequestMessageDeserializer =
-        node.getMessageSerializationFactory().newMessageDeserializer(
-            "interactivespaces_msgs/ControllerDataRequest");
+        messageSerializationFactory.newMessageDeserializer(ControllerDataRequest._TYPE);
   }
 
   @Override
   public void notifyRemoteMasterServerAboutStartup(SimpleSpaceController controllerInfo) {
     RemoteMasterServerClient masterServerClient = new RosRemoteMasterServerClient();
     masterServerClient.startup(rosEnvironment);
-    InteractiveSpacesUtilities.delay(STARTUP_NOTIFICATION_DELAY_MS);
+    InteractiveSpacesUtilities.delay(STARTUP_NOTIFICATION_DELAY);
 
     masterServerClient.sendControllerDescription(controllerInfo);
     masterServerClient.shutdown();
@@ -337,6 +332,16 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
 
       case ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT:
         controllerControl.cleanControllerPermanentData();
+
+        break;
+
+      case ControllerRequest.OPERATION_CLEAN_DATA_TMP_ALL:
+        controllerControl.cleanControllerTempDataAll();
+
+        break;
+
+      case ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT_ALL:
+        controllerControl.cleanControllerPermanentDataAll();
 
         break;
 
@@ -423,8 +428,9 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
       SpaceControllerStatus statusCode, Exception e) {
     ControllerStatus statusMsg = rosMessageFactory.newFromType(ControllerStatus._TYPE);
 
-    int status = SpaceControllerDataOperation.DATA_CAPTURE.equals(type)
-        ? ControllerStatus.STATUS_DATA_CAPTURE : ControllerStatus.STATUS_DATA_RESTORE;
+    int status =
+        SpaceControllerDataOperation.DATA_CAPTURE.equals(type) ? ControllerStatus.STATUS_DATA_CAPTURE
+            : ControllerStatus.STATUS_DATA_RESTORE;
 
     statusMsg.setStatus(status);
     statusMsg.setUuid(controllerControl.getControllerInfo().getUuid());
@@ -621,6 +627,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
   @VisibleForTesting
   void handleActivityRuntimeRequest(final ControllerActivityRuntimeRequest request) {
     spaceEnvironment.getExecutorService().submit(new Runnable() {
+      @Override
       public void run() {
         String uuid = request.getUuid();
         switch (request.getOperation()) {
@@ -726,7 +733,8 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    * Translate an Interactive Spaces activity status to its ROS message
    * equivalent.
    *
-   * @param state object
+   * @param state
+   *          object
    * @return status code
    */
   private int translateActivityState(ActivityState state) {
@@ -807,6 +815,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    * @param controllerControl
    *          the controllerControl to set
    */
+  @Override
   public void setControllerControl(SpaceControllerControl controllerControl) {
     this.controllerControl = controllerControl;
   }
@@ -829,7 +838,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
     /**
      * heartbeatLoop status is always the same, so create once.
      */
-    private ControllerStatus status;
+    private final ControllerStatus status;
 
     public RosControllerHeartbeat() {
       status = rosMessageFactory.newFromType(ControllerStatus._TYPE);

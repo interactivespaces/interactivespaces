@@ -86,4 +86,14 @@ public interface SpaceControllerControl extends SpaceController {
    * Clean the permanent data folder for the controller.
    */
   void cleanControllerPermanentData();
+
+  /**
+   * Clean the temp data folder for the controller and all live activities.
+   */
+  void cleanControllerTempDataAll();
+
+  /**
+   * Clean the permanent data folder for the controller and all live activities.
+   */
+  void cleanControllerPermanentDataAll();
 }

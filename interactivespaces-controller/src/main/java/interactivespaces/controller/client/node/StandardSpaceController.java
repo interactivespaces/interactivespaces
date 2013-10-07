@@ -16,9 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import com.google.common.collect.Maps;
-
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityListener;
@@ -31,6 +28,7 @@ import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.component.CoreExistingActivityComponentFactory;
+import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
@@ -56,7 +54,8 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.concurrency.SequentialEventQueue;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
@@ -66,6 +65,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 
 /**
  * A base implementation of {@link SpaceController} which gives basic
@@ -108,7 +110,7 @@ public class StandardSpaceController implements SpaceController,
   /**
    * Number of milliseconds the heartbeatLoop waits before each beat.
    */
-  private long heartbeatDelay = HEARTBEAT_DELAY_DEFAULT;
+  private final long heartbeatDelay = HEARTBEAT_DELAY_DEFAULT;
 
   /**
    * Manager for space controller data operations.
@@ -118,7 +120,7 @@ public class StandardSpaceController implements SpaceController,
   /**
    * All activities in this controller, indexed by UUID.
    */
-  private Map<String, ActiveControllerActivity> activities = Maps.newHashMap();
+  private final Map<String, ActiveControllerActivity> activeActivities = Maps.newHashMap();
 
   /**
    * Watches activities for this controller.
@@ -134,7 +136,7 @@ public class StandardSpaceController implements SpaceController,
    * Number of milliseconds the activityWatcher waits before scanning for
    * activity state.
    */
-  private long activityWatcherDelay = WATCHER_DELAY_DEFAULT;
+  private final long activityWatcherDelay = WATCHER_DELAY_DEFAULT;
 
   /**
    * For important alerts worthy of paging, etc.
@@ -144,27 +146,27 @@ public class StandardSpaceController implements SpaceController,
   /**
    * Receives activities deployed to the controller.
    */
-  private ActivityInstallationManager activityInstallationManager;
+  private final ActivityInstallationManager activityInstallationManager;
 
   /**
    * A loader for container activities.
    */
-  private ActiveControllerActivityFactory activeControllerActivityFactory;
+  private final ActiveControllerActivityFactory activeControllerActivityFactory;
 
   /**
    * Local repository of controller information.
    */
-  private LocalSpaceControllerRepository controllerRepository;
+  private final LocalSpaceControllerRepository controllerRepository;
 
   /**
    * A factory for native app runners.
    */
-  private NativeActivityRunnerFactory nativeActivityRunnerFactory;
+  private final NativeActivityRunnerFactory nativeActivityRunnerFactory;
 
   /**
    * The configuration manager for activities.
    */
-  private LiveActivityConfigurationManager configurationManager;
+  private final LiveActivityConfigurationManager configurationManager;
 
   /**
    * The component factory to be used by this controller.
@@ -174,27 +176,27 @@ public class StandardSpaceController implements SpaceController,
   /**
    * Log factory for activities.
    */
-  private ActivityLogFactory activityLogFactory;
+  private final ActivityLogFactory activityLogFactory;
 
   /**
    * The Interactive Spaces environment being run under.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * The Interactive Spaces system controller.
    */
-  private InteractiveSpacesSystemControl spaceSystemControl;
+  private final InteractiveSpacesSystemControl spaceSystemControl;
 
   /**
    * Information about the controller
    */
-  private SimpleSpaceController controllerInfo = new SimpleSpaceController();
+  private final SimpleSpaceController controllerInfo = new SimpleSpaceController();
 
   /**
    * The storage manager for activities.
    */
-  private ActivityStorageManager activityStorageManager;
+  private final ActivityStorageManager activityStorageManager;
 
   /**
    * All activity state transitioners.
@@ -204,12 +206,12 @@ public class StandardSpaceController implements SpaceController,
   /**
    * The controller communicator for remote control.
    */
-  private SpaceControllerCommunicator controllerCommunicator;
+  private final SpaceControllerCommunicator controllerCommunicator;
 
   /**
    * A listener for installation events.
    */
-  private ActivityInstallationListener activityInstallationListener =
+  private final ActivityInstallationListener activityInstallationListener =
       new ActivityInstallationListener() {
         @Override
         public void onActivityInstall(String uuid) {
@@ -225,7 +227,7 @@ public class StandardSpaceController implements SpaceController,
   /**
    * A listener for activity events.
    */
-  private ActivityListener activityListener = new ActivityListener() {
+  private final ActivityListener activityListener = new ActivityListener() {
     @Override
     public void onActivityStatusChange(Activity activity, ActivityStatus oldStatus,
         ActivityStatus newStatus) {
@@ -246,7 +248,7 @@ public class StandardSpaceController implements SpaceController,
   /**
    * The persister for information about the controller.
    */
-  private SpaceControllerInfoPersister controllerInfoPersister;
+  private final SpaceControllerInfoPersister controllerInfoPersister;
 
   /**
    * The IS service for web servers.
@@ -265,6 +267,11 @@ public class StandardSpaceController implements SpaceController,
    * This can be {@code null} if it wasn't requested.
    */
   private SpaceControllerFileControl fileControl;
+
+  /**
+   * Support for file operations.
+   */
+  private FileSupport fileSupport = new FileSupportImpl();
 
   /**
    * Create a new StandardSpaceController.
@@ -520,9 +527,10 @@ public class StandardSpaceController implements SpaceController,
         case READY:
           break;
         default:
-          spaceEnvironment.getLog().error(String.format(
-              "Unknown startup type %s for activity %s/%s", activity.getControllerStartupType(),
-              activity.getIdentifyingName(), activity.getUuid()));
+          spaceEnvironment.getLog().error(
+              String.format("Unknown startup type %s for activity %s/%s",
+                  activity.getControllerStartupType(), activity.getIdentifyingName(),
+                  activity.getUuid()));
       }
     }
   }
@@ -537,17 +545,21 @@ public class StandardSpaceController implements SpaceController,
    */
   private void initializeConfiguration(Configuration configuration,
       ActivityFilesystem activityFilesystem) {
-    configuration.setValue("activity.installdir", activityFilesystem.getInstallDirectory()
-        .getAbsolutePath());
-    configuration.setValue("activity.logdir", activityFilesystem.getLogDirectory()
-        .getAbsolutePath());
-    configuration.setValue("activity.datadir", activityFilesystem.getPermanentDataDirectory()
-        .getAbsolutePath());
-    configuration.setValue("activity.tmpdir", activityFilesystem.getTempDataDirectory()
-        .getAbsolutePath());
+    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_INSTALL,
+        activityFilesystem.getInstallDirectory().getAbsolutePath());
+    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_LOG,
+        activityFilesystem.getLogDirectory().getAbsolutePath());
+    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_DATA,
+        activityFilesystem.getPermanentDataDirectory().getAbsolutePath());
+    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_TMP,
+        activityFilesystem.getTempDataDirectory().getAbsolutePath());
+
+    // TODO(keith): Move to interactivespaces-system during bootstrap
     InteractiveSpacesFilesystem filesystem = spaceEnvironment.getFilesystem();
-    configuration.setValue("system.datadir", filesystem.getDataDirectory().getAbsolutePath());
-    configuration.setValue("system.tmpdir", filesystem.getTempDirectory().getAbsolutePath());
+    configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_SYSTEM_FILESYSTEM_DIR_DATA,
+        filesystem.getDataDirectory().getAbsolutePath());
+    configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_SYSTEM_FILESYSTEM_DIR_TMP,
+        filesystem.getTempDirectory().getAbsolutePath());
   }
 
   /**
@@ -585,6 +597,7 @@ public class StandardSpaceController implements SpaceController,
   public void captureControllerDataBundle(final String bundleUri) {
     spaceEnvironment.getLog().info("Capture controller data bundle");
     spaceEnvironment.getExecutorService().submit(new Runnable() {
+      @Override
       public void run() {
         executeCaptureControllerDataBundle(bundleUri);
       }
@@ -592,18 +605,21 @@ public class StandardSpaceController implements SpaceController,
   }
 
   /**
-   * Execute a capture controller data bundle request from the master. This will trigger
-   * the data content push back to the master, and send off a success/failure message.
-   * @param bundleUri Uri bundle to send the captured data bundle to.
+   * Execute a capture controller data bundle request from the master. This will
+   * trigger the data content push back to the master, and send off a
+   * success/failure message.
+   *
+   * @param bundleUri
+   *          Uri bundle to send the captured data bundle to.
    */
   private void executeCaptureControllerDataBundle(final String bundleUri) {
     try {
       dataBundleManager.captureControllerDataBundle(bundleUri);
-      controllerCommunicator.publishControllerDataStatus(
-          SpaceControllerDataOperation.DATA_CAPTURE, SpaceControllerStatus.SUCCESS, null);
+      controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_CAPTURE,
+          SpaceControllerStatus.SUCCESS, null);
     } catch (Exception e) {
-      controllerCommunicator.publishControllerDataStatus(
-          SpaceControllerDataOperation.DATA_CAPTURE, SpaceControllerStatus.FAILURE, e);
+      controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_CAPTURE,
+          SpaceControllerStatus.FAILURE, e);
     }
   }
 
@@ -611,6 +627,7 @@ public class StandardSpaceController implements SpaceController,
   public void restoreControllerDataBundle(final String bundleUri) {
     spaceEnvironment.getLog().info("Restore controller data bundle");
     spaceEnvironment.getExecutorService().submit(new Runnable() {
+      @Override
       public void run() {
         executeRestoreControllerDataBundle(bundleUri);
       }
@@ -618,18 +635,20 @@ public class StandardSpaceController implements SpaceController,
   }
 
   /**
-   * Execute the restore data bundle operation. Will trigger the restore, and send back
-   * a success/failure message.
-   * @param bundleUri URI for the data bundle to be fetched from.
+   * Execute the restore data bundle operation. Will trigger the restore, and
+   * send back a success/failure message.
+   *
+   * @param bundleUri
+   *          URI for the data bundle to be fetched from.
    */
   private void executeRestoreControllerDataBundle(final String bundleUri) {
     try {
       dataBundleManager.restoreControllerDataBundle(bundleUri);
-      controllerCommunicator.publishControllerDataStatus(
-          SpaceControllerDataOperation.DATA_RESTORE, SpaceControllerStatus.SUCCESS, null);
+      controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_RESTORE,
+          SpaceControllerStatus.SUCCESS, null);
     } catch (Exception e) {
-      controllerCommunicator.publishControllerDataStatus(
-          SpaceControllerDataOperation.DATA_RESTORE, SpaceControllerStatus.FAILURE, e);
+      controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_RESTORE,
+          SpaceControllerStatus.FAILURE, e);
     }
   }
 
@@ -808,14 +827,50 @@ public class StandardSpaceController implements SpaceController,
   public void cleanControllerTempData() {
     spaceEnvironment.getLog().info("Cleaning controller temp directory");
 
-    Files.deleteDirectoryContents(spaceEnvironment.getFilesystem().getTempDirectory());
+    fileSupport.deleteDirectoryContents(spaceEnvironment.getFilesystem().getTempDirectory());
   }
 
   @Override
   public void cleanControllerPermanentData() {
     spaceEnvironment.getLog().info("Cleaning controller permanent directory");
 
-    Files.deleteDirectoryContents(spaceEnvironment.getFilesystem().getDataDirectory());
+    fileSupport.deleteDirectoryContents(spaceEnvironment.getFilesystem().getDataDirectory());
+  }
+
+  @Override
+  public void cleanControllerTempDataAll() {
+    spaceEnvironment.getLog().info("Cleaning controller and live activiy temp directories");
+
+    cleanControllerTempData();
+    cleanAllLiveActivityTempData();
+  }
+
+  /**
+   * Clean the temp data for all live activities.
+   */
+  @VisibleForTesting
+  void cleanAllLiveActivityTempData() {
+    for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
+      cleanActivityTmpData(activity.getUuid());
+    }
+  }
+
+  @Override
+  public void cleanControllerPermanentDataAll() {
+    spaceEnvironment.getLog().info("Cleaning controller and live activiy permanent directories");
+
+    cleanControllerPermanentData();
+    cleanAllLiveActivityPermanentData();
+  }
+
+  /**
+   * Clean the permanent data for all live activities.
+   */
+  @VisibleForTesting
+  void cleanAllLiveActivityPermanentData() {
+    for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
+      cleanActivityPermanentData(activity.getUuid());
+    }
   }
 
   @Override
@@ -858,13 +913,13 @@ public class StandardSpaceController implements SpaceController,
    */
   ActiveControllerActivity getActiveActivityByUuid(String uuid, boolean create) {
     ActiveControllerActivity activity = null;
-    synchronized (activities) {
-      activity = activities.get(uuid);
+    synchronized (activeActivities) {
+      activity = activeActivities.get(uuid);
       if (activity == null && create) {
-        activity = newLiveActivityFromRepository(uuid);
+        activity = newActiveActivityFromRepository(uuid);
 
         if (activity != null) {
-          activities.put(uuid, activity);
+          addActiveActivity(uuid, activity);
         }
       }
     }
@@ -878,14 +933,27 @@ public class StandardSpaceController implements SpaceController,
   }
 
   /**
-   * Create an activity from the repository.
+   * Add in a new active activity.
+   *
+   * @param uuid
+   *          uuid of the activity
+   * @param activity
+   *          the active activity
+   */
+  @VisibleForTesting
+  void addActiveActivity(String uuid, ActiveControllerActivity activity) {
+    activeActivities.put(uuid, activity);
+  }
+
+  /**
+   * Create an active activity from the repository.
    *
    * @param uuid
    *          UUID of the activity to create
    *
    * @return The active app with a runner.
    */
-  private ActiveControllerActivity newLiveActivityFromRepository(String uuid) {
+  private ActiveControllerActivity newActiveActivityFromRepository(String uuid) {
     InstalledLiveActivity liveActivity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
     if (liveActivity != null) {
       ActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
@@ -1072,8 +1140,8 @@ public class StandardSpaceController implements SpaceController,
    */
   public Collection<ActiveControllerActivity> getAllActiveActivities() {
     // TODO(keith): Think about how this should be in the controller.
-    synchronized (activities) {
-      return new ArrayList<ActiveControllerActivity>(activities.values());
+    synchronized (activeActivities) {
+      return new ArrayList<ActiveControllerActivity>(activeActivities.values());
     }
   }
 
@@ -1222,5 +1290,19 @@ public class StandardSpaceController implements SpaceController,
 
     serviceRegistry.unregisterService(webSocketClientService);
     webSocketClientService.shutdown();
+  }
+
+  /**
+   * Set the file support to be used.
+   *
+   * <p>
+   * This is for testing and no other reason.
+   *
+   * @param fileSupport
+   *          the file support to use
+   */
+  @VisibleForTesting
+  void setFileSupport(FileSupport fileSupport) {
+    this.fileSupport = fileSupport;
   }
 }

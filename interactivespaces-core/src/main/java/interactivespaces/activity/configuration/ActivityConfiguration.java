@@ -16,8 +16,9 @@
 
 package interactivespaces.activity.configuration;
 
+
 /**
- * useful configuration constants and methods for Interactive Spaces activities.
+ * Useful configuration constants and methods for Interactive Spaces activities.
  *
  * @author Keith M. Hughes
  */
@@ -31,7 +32,7 @@ public class ActivityConfiguration {
 
   /**
    * Configuration property giving the flags that a native activity would use to
-   * launch
+   * launch.
    */
   public static final String CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS =
       "space.activity.executable.flags";
@@ -41,4 +42,23 @@ public class ActivityConfiguration {
    */
   public static final String CONFIGURATION_ACTIVITY_TYPE = "space.activity.type";
 
+  /**
+   * Configuration property which will give the activity's installation directory.
+   */
+  public static final String CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_INSTALL = "activity.installdir";
+
+  /**
+   * Configuration property which will give the activity's log directory.
+   */
+  public static final String CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_LOG = "activity.logdir";
+
+  /**
+   * Configuration property which will give the activity's permanent data directory.
+   */
+  public static final String CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_DATA = "activity.datadir";
+
+  /**
+   * Configuration property which will give the activity's temp data directory.
+   */
+  public static final String CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_TMP = "activity.tmpdir";
 }

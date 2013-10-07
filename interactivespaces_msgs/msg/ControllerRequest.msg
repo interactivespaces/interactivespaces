@@ -38,9 +38,11 @@ int32 OPERATION_CLEAN_DATA_TMP = 5
 int32 OPERATION_CLEAN_DATA_PERMANENT = 6
 
 # Clean all of the controller's temp data.
+# This will include the controller's data and all live activities.
 int32 OPERATION_CLEAN_DATA_TMP_ALL = 7
 
 # Clean all of the controller's permanent data.
+# This will include the controller's data and all live activities.
 int32 OPERATION_CLEAN_DATA_PERMANENT_ALL = 8
 
 # Initiate capture for a controller/activity data bundle.

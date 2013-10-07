@@ -22,9 +22,9 @@ import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
 
-import org.apache.commons.logging.Log;
-
 import java.util.concurrent.ScheduledExecutorService;
+
+import org.apache.commons.logging.Log;
 
 /**
  * The Interactive Spaces environment being run in.
@@ -85,8 +85,7 @@ public interface InteractiveSpacesEnvironment {
    * This is a suggestion, the container may not be file controllable. This is
    * used to request that the controller be file controllable.
    */
-  String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE =
-      "interactivespaces.container.control.file";
+  String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE = "interactivespaces.container.control.file";
 
   /**
    * Configuration property which says what the time provider should be.
@@ -109,15 +108,25 @@ public interface InteractiveSpacesEnvironment {
    * Configuration property which says what the URL of the NTP time provider
    * should be.
    */
-  String CONFIGURATION_PROVIDER_TIME_NTP_URL =
-      "interactivespaces.provider.time.ntp.url";
+  String CONFIGURATION_PROVIDER_TIME_NTP_URL = "interactivespaces.provider.time.ntp.url";
 
   /**
    * Configuration property value which says what the default time provider
    * should be.
    */
-  String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT =
-      CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL;
+  String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT = CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL;
+
+  /**
+   * Configuration property giving the location of the system's permanent data
+   * directory.
+   */
+  String CONFIGURATION_SYSTEM_FILESYSTEM_DIR_DATA = "system.datadir";
+
+  /**
+   * Configuration property giving the location of the system's temp data
+   * directory.
+   */
+  String CONFIGURATION_SYSTEM_FILESYSTEM_DIR_TMP = "system.tmpdir";
 
   /**
    * The log level for warnings and above.
@@ -192,9 +201,9 @@ public interface InteractiveSpacesEnvironment {
    * Get a named log.
    *
    * @param logName
-   *            the name the log should have
+   *          the name the log should have
    * @param level
-   *            default logging level
+   *          default logging level
    *
    * @return the requested named log
    */

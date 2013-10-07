@@ -33,12 +33,15 @@ import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.configuration.LiveActivityConfigurationManager;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
+import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.controller.logging.ActivityLogFactory;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.util.io.FileSupport;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;
@@ -47,6 +50,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.ros.concurrent.DefaultScheduledExecutorService;
 
+import java.io.File;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -72,8 +76,11 @@ public class StandardSpaceControllerTest {
   private InteractiveSpacesEnvironment spaceEnvironment;
   private ServiceRegistry serviceRegistry;
   private ControllerDataBundleManager dataBundleManager;
+  private InteractiveSpacesFilesystem systemFilesystem;
 
   private Configuration systemConfiguration;
+
+  private FileSupport fileSupport;
 
   private Log log;
 
@@ -96,10 +103,13 @@ public class StandardSpaceControllerTest {
     systemConfiguration = SimpleConfiguration.newConfiguration();
     dataBundleManager = mock(SpaceControllerDataBundleManager.class);
 
+    systemFilesystem = mock(InteractiveSpacesFilesystem.class);
+
     spaceEnvironment = mock(InteractiveSpacesEnvironment.class);
     when(spaceEnvironment.getLog()).thenReturn(log);
     when(spaceEnvironment.getSystemConfiguration()).thenReturn(systemConfiguration);
     when(spaceEnvironment.getExecutorService()).thenReturn(executorService);
+    when(spaceEnvironment.getFilesystem()).thenReturn(systemFilesystem);
 
     serviceRegistry = mock(ServiceRegistry.class);
     when(spaceEnvironment.getServiceRegistry()).thenReturn(serviceRegistry);
@@ -116,6 +126,9 @@ public class StandardSpaceControllerTest {
             activeControllerActivityFactory, nativeAppRunnerFactory, configurationManager,
             activityStorageManager, activityLogFactory, controllerCommunicator,
             controllerInfoPersister, spaceSystemControl, spaceEnvironment, dataBundleManager);
+
+    fileSupport = mock(FileSupport.class);
+    controller.setFileSupport(fileSupport);
 
     controller.startup();
   }
@@ -196,7 +209,7 @@ public class StandardSpaceControllerTest {
 
     SimpleInstalledLiveActivity liveActivity = new SimpleInstalledLiveActivity();
     when(controllerRepository.getInstalledLiveActivityByUuid(activityUuid))
-        .thenReturn(liveActivity);
+    .thenReturn(liveActivity);
 
     ActiveControllerActivity expectedActive = mock(ActiveControllerActivity.class);
     when(
@@ -219,7 +232,109 @@ public class StandardSpaceControllerTest {
     assertEquals(finishState, activityStatus.getValue().getState());
   }
 
-  public static interface ActivityAction {
+  /**
+   * Test cleaning the permanent data directory.
+   */
+  @Test
+  public void testCleanPermanentDataDir() {
+    File systemDatadir = new File("permanent");
+
+    when(systemFilesystem.getDataDirectory()).thenReturn(systemDatadir);
+
+    controller.cleanControllerPermanentData();
+
+    verify(fileSupport, times(1)).deleteDirectoryContents(systemDatadir);
+  }
+
+  /**
+   * Test cleaning the permanent data directory.
+   */
+  @Test
+  public void testCleanTempDataDir() {
+    File systemDatadir = new File("temp");
+
+    when(systemFilesystem.getTempDirectory()).thenReturn(systemDatadir);
+
+    controller.cleanControllerTempData();
+
+    verify(fileSupport, times(1)).deleteDirectoryContents(systemDatadir);
+  }
+
+  /**
+   * Test cleaning a live activity's temp dir.
+   */
+  @Test
+  public void testCleanLiveActivityTempDataDir() {
+    String uuid = "foo";
+
+    controller.cleanActivityTmpData(uuid);
+
+    verify(activityStorageManager, times(1)).cleanTmpActivityDataDirectory(uuid);
+  }
+
+  /**
+   * Test trying to clean a live activity's temp dir when it is active.
+   */
+  @Test
+  public void testCleanLiveActivityTempDataDirWhenRunning() {
+    String uuid = "foo";
+
+    InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
+    when(installedActivity.getUuid()).thenReturn(uuid);
+    ActiveControllerActivity active =
+        new ActiveControllerActivity(installedActivity, null, null, null, null);
+    controller.addActiveActivity(uuid, active);
+    active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
+
+    controller.cleanActivityTmpData(uuid);
+
+    verify(activityStorageManager, times(0)).cleanTmpActivityDataDirectory(uuid);
+  }
+
+  /**
+   * Test cleaning a live activity's permanent dir.
+   */
+  @Test
+  public void testCleanLiveActivityPermanentDataDir() {
+    String uuid = "foo";
+
+    controller.cleanActivityPermanentData(uuid);
+
+    verify(activityStorageManager, times(1)).cleanPermanentActivityDataDirectory(uuid);
+  }
+
+  /**
+   * Test trying to clean a live activity's permanent dir when it is active.
+   */
+  @Test
+  public void testCleanLiveActivityPermanentDataDirWhenRunning() {
+    String uuid = "foo";
+
+    InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
+    when(installedActivity.getUuid()).thenReturn(uuid);
+    ActiveControllerActivity active =
+        new ActiveControllerActivity(installedActivity, null, null, null, null);
+    controller.addActiveActivity(uuid, active);
+    active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
+
+    controller.cleanActivityPermanentData(uuid);
+
+    verify(activityStorageManager, times(0)).cleanPermanentActivityDataDirectory(uuid);
+  }
+
+  /**
+   * An action for an activity to do in the middle of a test sequence.
+   *
+   * @author Keith M. Hughes
+   */
+  public interface ActivityAction {
+
+    /**
+     * The operation to do for a given UUID
+     *
+     * @param uuid
+     *          UUID of the activity
+     */
     void doit(String uuid);
   }
 }

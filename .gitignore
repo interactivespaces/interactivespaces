@@ -17,5 +17,5 @@ interactivespaces_docs/src/main/sphinx/javadoc.pyc
 **/test_output/
 **/osgi_build/
 **/target/
-
+interactivespaces-controller-android/libs/**
 

@@ -94,6 +94,20 @@ public class ActiveControllerActivity implements ActivityControl {
    */
   private Object instanceLock = new Object();
 
+  /**
+   * Construct a new active activity.
+   *
+   * @param installedActivity
+   *          the installed activity this is part of
+   * @param activityWrapper
+   *          the wrapper for running the activity
+   * @param activityFilesystem
+   *          the activity's file system
+   * @param configuration
+   *          the configuration for the activity
+   * @param controller
+   *          the controller the activity is running under
+   */
   public ActiveControllerActivity(InstalledLiveActivity installedActivity,
       ActivityWrapper activityWrapper, ActivityFilesystem activityFilesystem,
       LiveActivityConfiguration configuration, StandardSpaceController controller) {
@@ -239,12 +253,25 @@ public class ActiveControllerActivity implements ActivityControl {
   }
 
   /**
-   * Set the instance to be used for this active activity
+   * Set the instance to be used for this active activity.
    *
    * @param instance
+   *          the instance of the activity
    */
   @VisibleForTesting
   void setInstance(Activity instance) {
     this.instance = instance;
   }
+
+  /**
+   * Set the cached activity status.
+   *
+   * @param cachedActivityStatus
+   *          the new cached activity status
+   */
+  @VisibleForTesting
+  void setCachedActivityStatus(ActivityStatus cachedActivityStatus) {
+    this.cachedActivityStatus = cachedActivityStatus;
+  }
+
 }
