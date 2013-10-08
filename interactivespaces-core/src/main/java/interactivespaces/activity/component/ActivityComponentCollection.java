@@ -17,8 +17,10 @@
 package interactivespaces.activity.component;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.graph.DependencyResolver;
 
@@ -26,6 +28,7 @@ import org.apache.commons.logging.Log;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -41,7 +44,12 @@ public class ActivityComponentCollection {
   /**
    * All components in the activity.
    */
-  private List<ActivityComponent> components = new CopyOnWriteArrayList<ActivityComponent>();
+  private final List<ActivityComponent> components = new CopyOnWriteArrayList<ActivityComponent>();
+
+  /**
+   * Set of component names in the activity.
+   */
+  private final Set<String> componentNames = Sets.newHashSet();
 
   /**
    * The log for the collection.
@@ -55,11 +63,29 @@ public class ActivityComponentCollection {
    *          the component to add.
    */
   public void addComponent(ActivityComponent component) {
+    // There's a subtle behavior here in the case where two activity components with
+    // the same name are dependencies of a single dependent node. In that case, only one of the
+    // dependencies needs to be resolved before ethe dependent node, which isn't the correct
+    // behavior in the strict sense of a dependency. This behavior isn't really supported by
+    // the system since activity components are generally considered to be singletons. Therefore,
+    // help aid development by detecting the case of multiple components and throwing an error.
+    String componentName = component.getName();
+    if (componentNames.contains(componentName)) {
+      throw new SimpleInteractiveSpacesException(
+          "Multiple activity components added for name " + componentName);
+    }
+    componentNames.add(componentName);
+
     components.add(component);
   }
 
   /**
    * Configure all the components in the in the collection in dependency order.
+   *
+   * @param configuration
+   *          configuration to use for configuring components
+   * @param componentContext
+   *          the context for the activity components
    */
   public void configureComponents(Configuration configuration,
       ActivityComponentContext componentContext) {
@@ -89,6 +115,8 @@ public class ActivityComponentCollection {
 
   /**
    * Startup all components in the container.
+   *
+   * @throws Exception on internal startup error
    */
   public void startupComponents() throws Exception {
     List<ActivityComponent> startedComponents = Lists.newArrayList();
@@ -179,6 +207,9 @@ public class ActivityComponentCollection {
    *
    * @param name
    *          name of the component
+   * @param <T>
+   *          specific type of activity component
+   *
    * @return the component with the given name.
    */
   @SuppressWarnings("unchecked")
@@ -195,6 +226,8 @@ public class ActivityComponentCollection {
 
   /**
    * Return a list of all the current components.
+   *
+   * @return list of all components
    */
   public Collection<ActivityComponent> getComponents() {
     return Lists.newArrayList(components);
@@ -203,7 +236,7 @@ public class ActivityComponentCollection {
   /**
    * Get status messages on all components.
    *
-   * @return
+   * @return status message for all components
    */
   public List<String> getComponentStatuses() {
     // TODO(keith): Create. Probably will need special class with all
