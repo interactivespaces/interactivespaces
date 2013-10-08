@@ -18,10 +18,10 @@ package interactivespaces.activity.impl.ros;
 
 import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.component.ros.RoutableInputMessageListener;
+import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
-
 import interactivespaces_msgs.GenericMessage;
 
 import java.util.Map;
@@ -39,12 +39,6 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
    */
   private static final JsonMapper MAPPER;
 
-  /**
-   * Json message type indicator.
-   * TODO(khughes): Move constant to more centralized location.
-   */
-  private static final String JSON_MESSAGE_TYPE = "json";
-
   static {
     MAPPER = new JsonMapper();
   }
@@ -60,9 +54,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
 
     router =
         addActivityComponent(new RosMessageRouterActivityComponent<GenericMessage>(
-            "interactivespaces_msgs/GenericMessage",
-            new RoutableInputMessageListener<GenericMessage>() {
-
+            GenericMessage._TYPE, new RoutableInputMessageListener<GenericMessage>() {
               @SuppressWarnings("unchecked")
               @Override
               public void onNewRoutableInputMessage(String channelName, GenericMessage message) {
@@ -78,17 +70,20 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
    *          the name of the channel
    * @param message
    *          the generic message
-   *
    */
   private void handleRoutableInputMessage(String channelName, GenericMessage message) {
-    if (JSON_MESSAGE_TYPE.equals(message.getType())) {
+    if (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(message.getType())) {
       try {
         callOnNewInputJson(channelName, message);
       } catch (Exception e) {
         getLog().error("Could not process input message", e);
       }
-    } else {
+    } else if (MessageRouterSupportedMessageTypes.STRING_MESSAGE_TYPE.equals(message.getType())) {
       callOnNewInputString(channelName, message);
+    } else {
+      getLog().warn(
+          String.format("Dropped message on channel %s of unknown type %s", channelName,
+              message.getType()));
     }
   }
 
@@ -152,7 +147,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
     GenericMessage outgoing = router.newMessage();
 
     try {
-      outgoing.setType(JSON_MESSAGE_TYPE);
+      outgoing.setType(MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE);
       outgoing.setMessage(MAPPER.toString(message));
 
       router.writeOutputMessage(channelName, outgoing);
@@ -185,7 +180,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
   public void sendOutputString(String channelName, String message) {
     GenericMessage outgoing = router.newMessage();
     try {
-      outgoing.setType("string");
+      outgoing.setType(MessageRouterSupportedMessageTypes.STRING_MESSAGE_TYPE);
       outgoing.setMessage(message);
 
       router.writeOutputMessage(channelName, outgoing);
