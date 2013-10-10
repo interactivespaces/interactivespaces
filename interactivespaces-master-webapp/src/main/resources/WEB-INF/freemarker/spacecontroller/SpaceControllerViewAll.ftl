@@ -32,6 +32,30 @@ function doAjaxCommand(command) {
   });
 }
 
+function cleanActivitiesTempDataAllControllers() {
+    if (confirm("Are you sure you want to clean the tmp data for all live activities on all space controllers?")) {
+        doAjaxCommand('cleanactivitiestmpdata');
+    }
+}
+
+function cleanActivitiesPermanentDataAllControllers() {
+    if (confirm("Are you sure you want to clean the permanent data for all live activities on all space controllers?")) {
+        doAjaxCommand('cleanactivitiespermanentdata');
+    }
+}
+
+function cleanTempDataAllControllers() {
+    if (confirm("Are you sure you want to clean the tmp data for all space controllers?")) {
+        doAjaxCommand('cleantmpdata');
+    }
+}
+
+function cleanPermanentDataAllControllers() {
+    if (confirm("Are you sure you want to clean the permanent data for all space controllers?")) {
+        doAjaxCommand('cleanpermanentdata');
+    }
+}
+
 function shutdownAllControllers() {
     if (confirm("Are you sure you want to shutdown all controllers?")) {
         window.location='/interactivespaces/spacecontroller/all/shutdown.html';
@@ -68,6 +92,10 @@ function shutdownAllActivitiesAllControllers() {
 <li><button type="button" id="forceStatusAllButton" onclick="doAjaxCommand('forcestatus')" title="Status from all controllers, whether or not they have been connected">Force Status All</button></li>
 <li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
 <li><button type="button" id="shutdownAllButton" onclick="shutdownAllControllers();" title="Shut down all connected controllers">Shutdown All</button></li>
+<li><button type="button" onclick="cleanActivitiesTempDataAllControllers()" title="Clean the tmp data for all live activities on all controllers">Clean Activities Tmp</button></li>
+<li><button type="button" onclick="cleanActivitiesPermanentDataAllControllers()" title="Clean the permanent data for all live activities on all controllers">Clean Activities Permanent</button></li>
+<li><button type="button" onclick="cleanTempDataAllControllers()" title="Clean the tmp data for all controllers">Clean Tmp</button></li>
+<li><button type="button" onclick="cleanPermanentDataAllControllers()" title="Clean the permanent data for all controllers">Clean Permanent</button></li>
 <li><button type="button" id="captureDataAllButton" onclick="captureDataAllControllers()" title="Capture All Data">Capture All Data</button></li>
 <li><button type="button" id="restoreDataAllButton" onclick="restoreDataAllControllers()" title="Restore All Data">Restore All Data</button></li>
 <li><button type="button" id="newButton" onclick="window.location='/interactivespaces/spacecontroller/new.html?mode=embedded'" title="Create a new controller">New</button></li>

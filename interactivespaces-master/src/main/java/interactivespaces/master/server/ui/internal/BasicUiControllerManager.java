@@ -16,9 +16,6 @@
 
 package interactivespaces.master.server.ui.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
@@ -33,6 +30,9 @@ import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesE
 import interactivespaces.master.server.ui.UiControllerManager;
 import interactivespaces.master.server.ui.UiLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.List;
 import java.util.Set;
@@ -66,15 +66,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager deleteController(String id) {
-    SpaceController controller = controllerRepository.getSpaceControllerById(id);
-    if (controller != null) {
-      controllerRepository.deleteSpaceController(controller);
-    } else {
-      spaceEnvironment.getLog().error(String.format("Unknown controller %s", id));
-
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Space controller with ID %s not found", id));
-    }
+    controllerRepository.deleteSpaceController(getSpaceControllerById(id));
 
     return this;
   }
@@ -242,14 +234,104 @@ public class BasicUiControllerManager implements UiControllerManager {
   }
 
   @Override
+  public UiControllerManager cleanControllerTempData(String id) {
+    activeControllerManager.cleanControllerTempData(getSpaceControllerById(id));
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerTempDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.cleanControllerTempData(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to clean temp data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerPermanentData(String id) {
+    activeControllerManager.cleanControllerPermanentData(getSpaceControllerById(id));
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerPermanentDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.cleanControllerPermanentData(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to clean permanent data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerActivitiesTempData(String id) {
+    activeControllerManager.cleanControllerActivitiesTempData(getSpaceControllerById(id));
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerActivitiesTempDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.cleanControllerActivitiesTempData(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to clean all temp data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerActivitiesPermanentData(String id) {
+    activeControllerManager.cleanControllerActivitiesPermanentData(getSpaceControllerById(id));
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanControllerActivitiesPermanentDataAllControllers() {
+    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+      try {
+        activeControllerManager.cleanControllerActivitiesPermanentData(controller);
+      } catch (Exception e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to clean all permanent data from controller %s (%s)",
+                controller.getUuid(), controller.getName()), e);
+      }
+    }
+
+    return this;
+  }
+
+  @Override
   public UiControllerManager captureControllerDataBundle(String id) {
     activeControllerManager.captureControllerDataBundle(getSpaceControllerById(id));
+
     return this;
   }
 
   @Override
   public UiControllerManager restoreControllerDataBundle(String id) {
     activeControllerManager.restoreControllerDataBundle(getSpaceControllerById(id));
+
     return this;
   }
 
@@ -260,8 +342,8 @@ public class BasicUiControllerManager implements UiControllerManager {
         activeControllerManager.captureControllerDataBundle(controller);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format("Unable to capture data from controller %s (%s)",
-                controller.getUuid(), controller.getName()), e);
+            String.format("Unable to capture data from controller %s (%s)", controller.getUuid(),
+                controller.getName()), e);
       }
     }
     return this;
@@ -274,8 +356,8 @@ public class BasicUiControllerManager implements UiControllerManager {
         activeControllerManager.restoreControllerDataBundle(controller);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format("Unable to capture data from controller %s (%s)",
-                controller.getUuid(), controller.getName()), e);
+            String.format("Unable to capture data from controller %s (%s)", controller.getUuid(),
+                controller.getName()), e);
       }
     }
     return this;
@@ -343,193 +425,119 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager deleteLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.deleteLiveActivity(activity);
+    activeControllerManager.deleteLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager deployLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.deployLiveActivity(activity);
+    activeControllerManager.deployLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager configureLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.configureLiveActivity(activity);
+    activeControllerManager.configureLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager startupLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.startupLiveActivity(activity);
+    activeControllerManager.startupLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager activateLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.activateLiveActivity(activity);
+    activeControllerManager.activateLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager deactivateLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.deactivateLiveActivity(activity);
+    activeControllerManager.deactivateLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager shutdownLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
-
-    activeControllerManager.shutdownLiveActivity(activity);
+    activeControllerManager.shutdownLiveActivity(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager statusLiveActivity(String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
-    }
+    activeControllerManager.statusLiveActivity(getLiveActivityById(id));
 
-    activeControllerManager.statusLiveActivity(activity);
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanLiveActivityPermanentData(String id) {
+    activeControllerManager.cleanLiveActivityPermanentData(getLiveActivityById(id));
+
+    return this;
+  }
+
+  @Override
+  public UiControllerManager cleanLiveActivityTempData(String id) {
+    activeControllerManager.cleanLiveActivityTempData(getLiveActivityById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager deployLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.deployLiveActivityGroup(group);
+    activeControllerManager.deployLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager configureLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.configureLiveActivityGroup(group);
+    activeControllerManager.configureLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager startupLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.startupLiveActivityGroup(group);
+    activeControllerManager.startupLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager activateLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.activateLiveActivityGroup(group);
+    activeControllerManager.activateLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager deactivateLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.deactivateLiveActivityGroup(group);
+    activeControllerManager.deactivateLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager shutdownLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
-
-    activeControllerManager.shutdownLiveActivityGroup(group);
+    activeControllerManager.shutdownLiveActivityGroup(getLiveActivityGroupById(id));
 
     return this;
   }
 
   @Override
   public UiControllerManager forceShutdownLiveActivitiesLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
+    LiveActivityGroup group = getLiveActivityGroupById(id);
 
     for (GroupLiveActivity gla : group.getActivities()) {
       activeControllerManager.shutdownLiveActivity(gla.getActivity());
@@ -540,11 +548,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager statusLiveActivityGroup(String id) {
-    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
-    if (group == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
-    }
+    LiveActivityGroup group = getLiveActivityGroupById(id);
 
     for (GroupLiveActivity gla : group.getActivities()) {
       statusLiveActivity(gla.getActivity().getId());
@@ -555,11 +559,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager liveActivityStatusSpace(String id) {
-    Space space = activityRepository.getSpaceById(id);
-    if (space == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Space with ID %s not found", id));
-    }
+    Space space = getSpaceById(id);
 
     Set<String> liveActivityIds = Sets.newHashSet();
     statusSpace(space, liveActivityIds);
@@ -630,19 +630,101 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   /**
    * Create a new {@link UiLiveActivity} with the active part properly filled
-   * out.
+   * out for a given live activity, if there is an active version (controller
+   * specified).
    *
    * @param activity
-   * @return
+   *          the live activity
+   *
+   * @return the UI live activity
    */
-  protected UiLiveActivity newUiLiveActivity(LiveActivity activity) {
+  private UiLiveActivity newUiLiveActivity(LiveActivity activity) {
     ActiveLiveActivity active = null;
     if (activity.getController() != null) {
       active = activeControllerManager.getActiveLiveActivity(activity);
     }
 
-    UiLiveActivity e = new UiLiveActivity(activity, active);
-    return e;
+    return new UiLiveActivity(activity, active);
+  }
+
+  /**
+   * Get a valid SpaceController, or throw an exception if not found.
+   *
+   * @param id
+   *          id of the desired space controller
+   *
+   * @return space controller object
+   *
+   * @throws EntityNotFoundInteractiveSpacesException
+   *           if the entity is not found
+   */
+  private SpaceController getSpaceControllerById(String id) {
+    SpaceController controller = controllerRepository.getSpaceControllerById(id);
+    if (controller == null) {
+      throw new EntityNotFoundInteractiveSpacesException(String.format(
+          "Space controller with ID %s not found", id));
+    }
+    return controller;
+  }
+
+  /**
+   * Get a valid live activity, or throw an exception if not found.
+   *
+   * @param id
+   *          id of the desired live activity
+   *
+   * @return live activity object
+   *
+   * @throws EntityNotFoundInteractiveSpacesException
+   *           if the entity is not found
+   */
+  private LiveActivity getLiveActivityById(String id) {
+    LiveActivity activity = activityRepository.getLiveActivityById(id);
+    if (activity == null) {
+      throw new EntityNotFoundInteractiveSpacesException(String.format(
+          "Live activity with ID %s not found", id));
+    }
+    return activity;
+  }
+
+  /**
+   * Get a valid live activity group, or throw an exception if not found.
+   *
+   * @param id
+   *          id of the desired live activity group
+   *
+   * @return live activity group object
+   *
+   * @throws EntityNotFoundInteractiveSpacesException
+   *           if the entity is not found
+   */
+  private LiveActivityGroup getLiveActivityGroupById(String id) {
+    LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
+    if (group == null) {
+      throw new EntityNotFoundInteractiveSpacesException(String.format(
+          "Live activity group with ID %s not found", id));
+    }
+    return group;
+  }
+
+  /**
+   * Get a valid space, or throw an exception if not found.
+   *
+   * @param id
+   *          id of the desired space
+   *
+   * @return space object
+   *
+   * @throws EntityNotFoundInteractiveSpacesException
+   *           if the entity is not found
+   */
+  private Space getSpaceById(String id) {
+    Space space = activityRepository.getSpaceById(id);
+    if (space == null) {
+      throw new EntityNotFoundInteractiveSpacesException(String.format(
+          "Space with ID %s not found", id));
+    }
+    return space;
   }
 
   /**
@@ -675,24 +757,5 @@ public class BasicUiControllerManager implements UiControllerManager {
    */
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
-  }
-
-  /**
-   * Get a valid SpaceController, or throw an exception if not found.
-   *
-   * @param id
-   *          id of the desired space controller
-   * @return
-   *          space controller object
-   * @throws
-   *          EntityNotFoundInteractiveSpacesException
-   */
-  private SpaceController getSpaceControllerById(String id) {
-    SpaceController controller = controllerRepository.getSpaceControllerById(id);
-    if (controller == null) {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Space controller with ID %s not found", id));
-    }
-    return controller;
   }
 }

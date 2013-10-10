@@ -32,6 +32,18 @@ function doAjaxCommand(command) {
   });
 }
 
+function cleanTempDataLiveActivity() {
+    if (confirm("Are you sure you want to clean the tmp data for the activity?")) {
+        doAjaxCommand('cleantmpdata');
+    }
+}
+
+function cleanPermanentDataLiveActivity() {
+    if (confirm("Are you sure you want to clean the permanent data for the activity?")) {
+        doAjaxCommand('cleanpermanentdata');
+    }
+}
+
 function deleteLiveActivity() {
     if (confirm("Are you sure you want to delete the activity?")) {
         window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/delete.html'
@@ -62,6 +74,8 @@ function remoteDeleteLiveActivity() {
 <li><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></li>
 <li><button type="button" id="editMetadataButton"
     onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></li>
+<li><button type="button" onclick="cleanTempDataLiveActivity()" title="Delete temp data for live activity">Clean Tmp</button></li>
+<li><button type="button" onclick="cleanPermanentDataLiveActivity()" title="Delete permanent data for live activity">Clean Permanent</button></li>
 <li><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></li>
 <#if !(liveactivitygroups?has_content)>
 <li><button type="button" onclick="deleteLiveActivity()" title="Delete activity on master">Delete</button></li>

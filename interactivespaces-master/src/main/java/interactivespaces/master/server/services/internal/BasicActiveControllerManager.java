@@ -16,11 +16,6 @@
 
 package interactivespaces.master.server.services.internal;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.GroupLiveActivity;
@@ -38,6 +33,12 @@ import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerHelper;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,28 +54,30 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   /**
    * All active controllers keyed by their controller's UUID.
    */
-  private Map<String, ActiveSpaceController> activeSpaceControllers = Maps.newHashMap();
+  private final Map<String, ActiveSpaceController> activeSpaceControllers = Maps.newHashMap();
 
   /**
    * All active activities keyed by their live activity's UUID.
    */
-  private Map<String, ActiveLiveActivity> activeActivities = Maps.newHashMap();
+  private final Map<String, ActiveLiveActivity> activeActivities = Maps.newHashMap();
 
   /**
    * Active live activities mapped by the ID of the controller which contains
    * the live activity.
    */
-  private Multimap<String, ActiveLiveActivity> activeActivitiesByController = HashMultimap.create();
+  private final Multimap<String, ActiveLiveActivity> activeActivitiesByController = HashMultimap
+      .create();
 
   /**
    * All active activity groups keyed by their activity group's ID.
    */
-  private Map<String, ActiveLiveActivityGroup> activeActivityGroups = Maps.newHashMap();
+  private final Map<String, ActiveLiveActivityGroup> activeActivityGroups = Maps.newHashMap();
 
   /**
    * Listeners for events in the manager.
    */
-  private SpaceControllerListenerHelper controllerListeners = new SpaceControllerListenerHelper();
+  private final SpaceControllerListenerHelper controllerListeners =
+      new SpaceControllerListenerHelper();
 
   /**
    * The client for interacting with a controller remotely.
@@ -136,6 +139,50 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     remoteControllerClient.requestStatus(acontroller);
+  }
+
+  @Override
+  public void cleanControllerTempData(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting controller temp data clean from controller %s",
+            controller.getHostId()));
+
+    // To make sure something is listening for the request.
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.cleanControllerTempData(acontroller);
+  }
+
+  @Override
+  public void cleanControllerPermanentData(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting controller permanent data clean from controller %s",
+            controller.getHostId()));
+
+    // To make sure something is listening for the request.
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.cleanControllerPermanentData(acontroller);
+  }
+
+  @Override
+  public void cleanControllerActivitiesTempData(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting all activity temp data clean from controller %s",
+            controller.getHostId()));
+
+    // To make sure something is listening for the request.
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.cleanControllerActivitiesTempData(acontroller);
+  }
+
+  @Override
+  public void cleanControllerActivitiesPermanentData(SpaceController controller) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting all activities permanent data clean from controller %s",
+            controller.getHostId()));
+
+    // To make sure something is listening for the request.
+    ActiveSpaceController acontroller = getActiveSpaceController(controller);
+    remoteControllerClient.cleanControllerActivitiesPermanentData(acontroller);
   }
 
   @Override
@@ -323,6 +370,36 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
             .getUuid()));
 
     activeLiveActivity.status();
+  }
+
+  @Override
+  public void cleanLiveActivityPermanentData(LiveActivity activity) {
+    cleanLiveActivityPermanentData(getActiveLiveActivity(activity));
+  }
+
+  @Override
+  public void cleanLiveActivityPermanentData(ActiveLiveActivity activity) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting permanent data clean for activity %s", activity.getLiveActivity().getUuid()));
+
+    synchronized (activity) {
+      remoteControllerClient.cleanActivityPermanentData(activity);
+    }
+  }
+
+  @Override
+  public void cleanLiveActivityTempData(LiveActivity activity) {
+    cleanLiveActivityTempData(getActiveLiveActivity(activity));
+  }
+
+  @Override
+  public void cleanLiveActivityTempData(ActiveLiveActivity activity) {
+    spaceEnvironment.getLog().info(
+        String.format("Requesting temp data clean for activity %s", activity.getLiveActivity().getUuid()));
+
+    synchronized (activity) {
+      remoteControllerClient.cleanActivityTempData(activity);
+    }
   }
 
   @Override
@@ -647,6 +724,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
    * @return the active controller associated with the uuid, or {@code null} if
    *         none
    */
+  @VisibleForTesting
   ActiveSpaceController getActiveControllerByUuid(String uuid) {
     synchronized (activeSpaceControllers) {
       return activeSpaceControllers.get(uuid);
@@ -808,7 +886,8 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       controller.setDataBundleState(state);
     } else {
       spaceEnvironment.getLog().warn(
-          String.format("Data bundle state change update from unknown controller with UUID %s", uuid));
+          String.format("Data bundle state change update from unknown controller with UUID %s",
+              uuid));
     }
   }
 

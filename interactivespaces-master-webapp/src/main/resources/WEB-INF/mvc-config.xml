@@ -176,7 +176,6 @@
 		class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityController"
 		parent="abstractLiveControllerClass">
 		<property name="activityRepository" ref="activityRepository" />
-		<property name="controllerRepository" ref="controllerRepository" />
 	</bean>
 
 	<bean id="liveActivityAction"

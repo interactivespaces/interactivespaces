@@ -1,4 +1,4 @@
-##
+#
 # Copyright (C) 2012 Google Inc.
 # 
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -37,13 +37,11 @@ int32 OPERATION_CLEAN_DATA_TMP = 5
 # Clean the controller's permanent data folder.
 int32 OPERATION_CLEAN_DATA_PERMANENT = 6
 
-# Clean all of the controller's temp data.
-# This will include the controller's data and all live activities.
-int32 OPERATION_CLEAN_DATA_TMP_ALL = 7
+# Clean the temp data of all live activities on the controller.
+int32 OPERATION_CLEAN_DATA_TMP_ACTIVITIES = 7
 
-# Clean all of the controller's permanent data.
-# This will include the controller's data and all live activities.
-int32 OPERATION_CLEAN_DATA_PERMANENT_ALL = 8
+# Clean the permanent data of all live activities on the controller.
+int32 OPERATION_CLEAN_DATA_PERMANENT_ACTIVITIES = 8
 
 # Initiate capture for a controller/activity data bundle.
 # Payload will be a ControllerDataRequest message.

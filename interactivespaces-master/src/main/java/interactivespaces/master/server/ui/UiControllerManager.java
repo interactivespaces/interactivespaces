@@ -22,7 +22,7 @@ import interactivespaces.domain.basic.SpaceController;
 import java.util.List;
 
 /**
- * Manager for the ui control of controllers.
+ * Manager for the UI control of controllers.
  *
  * @author Keith M. Hughes
  */
@@ -31,8 +31,7 @@ public interface UiControllerManager {
   /**
    * Message key for non-existent controllers.
    */
-  public static final String MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN =
-      "space.domain.controller.unknown";
+  String MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN = "space.domain.controller.unknown";
 
   /**
    * Delete a controller from the controller repository.
@@ -40,7 +39,7 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deleteController(String id);
 
@@ -50,28 +49,28 @@ public interface UiControllerManager {
    * @param ids
    *          IDs of the controllers
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager shutdownControllers(List<String> ids);
 
   /**
    * Connect to all controllers in the repository.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager connectToAllControllers();
 
   /**
    * Disconnect to all controllers in the repository.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager disconnectFromAllControllers();
 
   /**
    * Shut down all controllers in the repository.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager shutdownAllControllers();
 
@@ -79,7 +78,7 @@ public interface UiControllerManager {
    * Get the status from all controllers in the repository that are not marked
    * unknown. This means no one has tried connecting.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager statusFromAllControllers();
 
@@ -87,7 +86,7 @@ public interface UiControllerManager {
    * Get the status from all controllers in the repository, whether or not they
    * are connected.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager forceStatusFromAllControllers();
 
@@ -98,9 +97,9 @@ public interface UiControllerManager {
    * Illegal controller IDs will be ignored.
    *
    * @param ids
-   *          IDs of all controllers.
+   *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager connectToControllers(List<String> ids);
 
@@ -111,9 +110,9 @@ public interface UiControllerManager {
    * Illegal controller IDs will be ignored.
    *
    * @param ids
-   *          IDs of all controllers.
+   *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager disconnectFromControllers(List<String> ids);
 
@@ -124,39 +123,111 @@ public interface UiControllerManager {
    * Illegal controller IDs will be ignored.
    *
    * @param ids
-   *          IDs of all controllers.
+   *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager statusControllers(List<String> ids);
 
   /**
-   * Capture the data bundle for the given controller ID.
+   * Clean the temp data folder for the specified controller.
+   *
    * @param id
-   *          Id of the target controller.
-   * @return the controller manager which performed the operation.
+   *          ID of the controller to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerTempData(String id);
+
+  /**
+   * Clean the temp data folder for all controllers.
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerTempDataAllControllers();
+
+  /**
+   * Clean the permanent data folder for the controller.
+   *
+   * @param id
+   *          ID of the controller to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerPermanentData(String id);
+
+  /**
+   * Clean the permanent data folder for all controllers.
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerPermanentDataAllControllers();
+
+  /**
+   * Clean the temp data folder for all live activities on a controller.
+   *
+   * @param id
+   *          ID of the controller to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerActivitiesTempData(String id);
+
+  /**
+   * Clean the temp data folder for all live activities on all controllers.
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerActivitiesTempDataAllControllers();
+
+  /**
+   * Clean the permanent data folder for all live activities on a controller.
+   *
+   * @param id
+   *          ID of the controller to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerActivitiesPermanentData(String id);
+
+  /**
+   * Clean the permanent data folder all live activities on all controllers.
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanControllerActivitiesPermanentDataAllControllers();
+
+  /**
+   * Capture the data bundle for the given controller ID.
+   *
+   * @param id
+   *          Id of the target controller
+   *
+   * @return the controller manager which performed the operation
    */
   UiControllerManager captureControllerDataBundle(String id);
 
   /**
    * Restore the data bundle for the given controller ID.
+   *
    * @param id
-   *          Id of the target controller.
-   * @return the controller manager which performed the operation.
+   *          Id of the target controller
+   *
+   * @return the controller manager which performed the operation
    */
   UiControllerManager restoreControllerDataBundle(String id);
 
   /**
    * Capture the data bundle for all controllers.
-
-   * @return the controller manager which performed the operation.
+   *
+   * @return the controller manager which performed the operation
    */
   UiControllerManager captureDataAllControllers();
 
   /**
    * Restore the data bundles for all controllers.
-
-   * @return the controller manager which performed the operation.
+   *
+   * @return the controller manager which performed the operation
    */
   UiControllerManager restoreDataAllControllers();
 
@@ -164,16 +235,16 @@ public interface UiControllerManager {
    * Shut down all activities on the specified controller.
    *
    * @param id
-   *          ID of the controller.
+   *          ID of the controller
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager shutdownAllActivities(String id);
 
   /**
    * Shut down all activities on all controllers.
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager shutdownAllActivitiesAllControllers();
 
@@ -183,7 +254,7 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deployAllControllerActivityInstances(String id);
 
@@ -194,7 +265,7 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deployAllActivityInstances(String id);
 
@@ -202,9 +273,9 @@ public interface UiControllerManager {
    * Deploy the specified live activity to its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deployLiveActivity(String id);
 
@@ -214,7 +285,7 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deleteLiveActivity(String id);
 
@@ -222,9 +293,9 @@ public interface UiControllerManager {
    * Configure a live activity on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager configureLiveActivity(String id);
 
@@ -232,9 +303,9 @@ public interface UiControllerManager {
    * Start a live activity on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager startupLiveActivity(String id);
 
@@ -242,9 +313,9 @@ public interface UiControllerManager {
    * Activate a live activity on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager activateLiveActivity(String id);
 
@@ -252,9 +323,9 @@ public interface UiControllerManager {
    * Deactivate a live activity on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deactivateLiveActivity(String id);
 
@@ -262,9 +333,9 @@ public interface UiControllerManager {
    * Shut a live activity down on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager shutdownLiveActivity(String id);
 
@@ -272,19 +343,39 @@ public interface UiControllerManager {
    * Status of a live activity on its controller.
    *
    * @param id
-   *          ID of the live activity.
+   *          ID of the live activity
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager statusLiveActivity(String id);
+
+  /**
+   * Clean the permanent data folder for the live activity.
+   *
+   * @param id
+   *          ID of the live activity to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanLiveActivityPermanentData(String id);
+
+  /**
+   * Clean the temp data folder for the live activity.
+   *
+   * @param id
+   *          ID of the live activity to clean
+   *
+   * @return the controller manager which performed the operation
+   */
+  UiControllerManager cleanLiveActivityTempData(String id);
 
   /**
    * Deploy the specified activity group.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deployLiveActivityGroup(String id);
 
@@ -292,9 +383,9 @@ public interface UiControllerManager {
    * Configure the specified activity group.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager configureLiveActivityGroup(String id);
 
@@ -302,9 +393,9 @@ public interface UiControllerManager {
    * Start an activity group on its controller.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager startupLiveActivityGroup(String id);
 
@@ -312,9 +403,9 @@ public interface UiControllerManager {
    * Activate an activity group on its controller.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager activateLiveActivityGroup(String id);
 
@@ -322,29 +413,29 @@ public interface UiControllerManager {
    * Deactivate an activity group on its controller.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager deactivateLiveActivityGroup(String id);
 
   /**
-   * Shut an activity group
+   * Shut an activity group.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
    * @return the controller manager which performed the operation.
    */
   UiControllerManager shutdownLiveActivityGroup(String id);
 
   /**
-   * Force all live activities in a live activity group to shutdown
+   * Force all live activities in a live activity group to shutdown.
    *
    * @param id
-   *          ID of the activity group.
+   *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager forceShutdownLiveActivitiesLiveActivityGroup(String id);
 
@@ -352,9 +443,9 @@ public interface UiControllerManager {
    * Status of all live activities in a live activity group.
    *
    * @param id
-   *          ID of the live activity group.
+   *          ID of the live activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager statusLiveActivityGroup(String id);
 
@@ -363,9 +454,9 @@ public interface UiControllerManager {
    * its subspaces.
    *
    * @param id
-   *          ID of the space.
+   *          ID of the space
    *
-   * @return the controller manager which performed the operation.
+   * @return the controller manager which performed the operation
    */
   UiControllerManager liveActivityStatusSpace(String id);
 
@@ -377,7 +468,7 @@ public interface UiControllerManager {
    * The latter won't be there if the live activity isn't associated with a
    * controller.
    *
-   * @return
+   * @return all UI live activities
    */
   List<UiLiveActivity> getAllUiLiveActivities();
 
@@ -392,7 +483,7 @@ public interface UiControllerManager {
    * @param controller
    *          the controller which contains the activities
    *
-   * @return
+   * @return all UI live activities for the controller
    */
   List<UiLiveActivity> getAllUiLiveActivitiesByController(SpaceController controller);
 
@@ -406,18 +497,17 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return
+   * @return the UI live activity
    */
   UiLiveActivity getUiLiveActivity(String id);
 
   /**
-   * Get the ui live activity component for all given live activities.
+   * Get the UI live activity component for all given live activities.
    *
    * @param activities
    *          the activities
    *
-   * @return
+   * @return list of the UI live activities
    */
   List<UiLiveActivity> getUiLiveActivities(List<LiveActivity> activities);
-
 }

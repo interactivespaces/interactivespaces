@@ -16,20 +16,19 @@
 
 package interactivespaces.master.ui.internal.web.liveactivity;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.UiActivityManager;
 import interactivespaces.master.server.ui.UiLiveActivity;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 import interactivespaces.master.ui.internal.web.UiUtilities;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,11 +57,6 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
    * Repository for activity entities.
    */
   private ActivityRepository activityRepository;
-
-  /**
-   * Repository for controller entities.
-   */
-  private ControllerRepository controllerRepository;
 
   /**
    * Regexp pattern for finding HTTP links.
@@ -101,8 +95,8 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
       mav.addObject("liveactivity", liveactivity);
       mav.addObject("metadata",
           UiUtilities.getMetadataView(liveactivity.getActivity().getMetadata()));
-      mav.addObject("runtimeStateDetail",
-          rewriteRuntimeStateDetail(liveactivity.getActive().getRuntimeStateDetail()));
+      mav.addObject("runtimeStateDetail", rewriteRuntimeStateDetail(liveactivity.getActive()
+          .getRuntimeStateDetail()));
 
       List<LiveActivityGroup> groups =
           Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveactivity
@@ -293,6 +287,30 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
     }
   }
 
+  @RequestMapping(value = "/liveactivity/{id}/cleantmpdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanTempDataActivity(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanLiveActivityTempData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchLiveActivityResult();
+    }
+  }
+
+  @RequestMapping(value = "/liveactivity/{id}/cleanpermanentdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanPermanentDataActivity(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanLiveActivityPermanentData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchLiveActivityResult();
+    }
+  }
+
   @RequestMapping(value = "/liveactivity/{id}/delete.html", method = RequestMethod.GET)
   public ModelAndView deleteActivity(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
@@ -323,8 +341,9 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   /**
    * Rewrite the given detail string, linkifying any embedded http links.
    *
-   * @param detail detail message to rewrite
-   * @return  rewritten detail message
+   * @param detail
+   *          detail message to rewrite
+   * @return rewritten detail message
    */
   private String rewriteRuntimeStateDetail(String detail) {
     if (detail == null) {
@@ -349,13 +368,5 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
-  }
-
-  /**
-   * @param controllerRepository
-   *          the controllerRepository to set
-   */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
   }
 }

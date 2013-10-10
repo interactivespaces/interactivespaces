@@ -24,6 +24,8 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.services.ActiveLiveActivity;
+import interactivespaces.master.server.services.ActiveSpaceController;
+import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
@@ -46,7 +48,8 @@ public class BasicActiveControllerManagerTest {
   private SpaceControllerListener listener;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private TimeProvider timeProvider;
-  long timestamp = 4321;
+  private RemoteControllerClient remoteControllerClient;
+  private final long timestamp = 4321;
   private Log log;
 
   @Before
@@ -64,8 +67,11 @@ public class BasicActiveControllerManagerTest {
 
     listener = Mockito.mock(SpaceControllerListener.class);
 
+    remoteControllerClient = Mockito.mock(RemoteControllerClient.class);
+
     controllerManager = new BasicActiveControllerManager();
     controllerManager.setSpaceEnvironment(spaceEnvironment);
+    controllerManager.setRemoteControllerClient(remoteControllerClient);
 
     controllerManager.addControllerListener(listener);
   }
@@ -210,5 +216,103 @@ public class BasicActiveControllerManagerTest {
     Mockito.verify(listener).onLiveActivityDelete(activityUuid, result, timestamp);
     assertEquals(ActivityState.DOESNT_EXIST, active.getRuntimeState());
     assertEquals(ActivityState.DOESNT_EXIST, active.getDeployState());
+  }
+
+  /**
+   * Test cleaning a controller's permanent data.
+   */
+  @Test
+  public void testCleanControllerPermanantData() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    controllerManager.cleanControllerPermanentData(controller);
+
+    ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerPermanentData(acontroller);
+  }
+
+  /**
+   * Test cleaning all permanent data for a controller and all live activities.
+   */
+  @Test
+  public void testCleanControllerPermanantDataAll() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    controllerManager.cleanControllerActivitiesPermanentData(controller);
+
+    ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerActivitiesPermanentData(acontroller);
+  }
+
+  /**
+   * Test cleaning a controller's temp data.
+   */
+  @Test
+  public void testCleanControllerTempData() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    controllerManager.cleanControllerTempData(controller);
+
+    ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerTempData(acontroller);
+  }
+
+  /**
+   * Test cleaning temp data for a controller and all live activities.
+   */
+  @Test
+  public void testCleanControllerTempDataAll() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    controllerManager.cleanControllerActivitiesTempData(controller);
+
+    ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerActivitiesTempData(acontroller);
+  }
+
+  /**
+   * Test cleaning the permanent data for an activity.
+   */
+  @Test
+  public void testActivityPermanentClean() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setController(controller);
+
+    controllerManager.cleanLiveActivityPermanentData(activity);
+
+    ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
+
+    Mockito.verify(remoteControllerClient).cleanActivityPermanentData(active);
+  }
+
+  /**
+   * Test cleaning the temp data for an activity.
+   */
+  @Test
+  public void testActivityTempClean() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setController(controller);
+
+    controllerManager.cleanLiveActivityTempData(activity);
+
+    ActiveLiveActivity active = controllerManager.getActiveLiveActivity(activity);
+
+    Mockito.verify(remoteControllerClient).cleanActivityTempData(active);
   }
 }

@@ -40,6 +40,10 @@ import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerCl
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.util.data.resource.LocatableResource;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
+
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
 import interactivespaces_msgs.ControllerActivityRuntimeRequest;
@@ -55,9 +59,6 @@ import interactivespaces_msgs.LiveActivityDeleteStatus;
 import interactivespaces_msgs.LiveActivityDeployRequest;
 import interactivespaces_msgs.LiveActivityDeployStatus;
 import interactivespaces_msgs.LocatableResourceDescription;
-
-import java.util.Map;
-
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageDeserializer;
@@ -73,8 +74,7 @@ import org.ros.node.topic.PublisherListener;
 import org.ros.node.topic.Subscriber;
 import org.ros.osgi.common.RosEnvironment;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * An {@link SpaceControllerCommunicator} using ROS for communication.
@@ -335,12 +335,12 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
 
         break;
 
-      case ControllerRequest.OPERATION_CLEAN_DATA_TMP_ALL:
+      case ControllerRequest.OPERATION_CLEAN_DATA_TMP_ACTIVITIES:
         controllerControl.cleanControllerTempDataAll();
 
         break;
 
-      case ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT_ALL:
+      case ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT_ACTIVITIES:
         controllerControl.cleanControllerPermanentDataAll();
 
         break;

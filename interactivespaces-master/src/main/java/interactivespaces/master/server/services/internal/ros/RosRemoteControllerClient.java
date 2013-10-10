@@ -16,8 +16,6 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.SpaceControllerStatus;
@@ -29,10 +27,14 @@ import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.DataBundleState;
-import interactivespaces.master.server.services.internal.MasterDataBundleManager;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
+import interactivespaces.master.server.services.internal.MasterDataBundleManager;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import interactivespaces_msgs.ActivityConfigurationParameterRequest;
 import interactivespaces_msgs.ActivityConfigurationRequest;
 import interactivespaces_msgs.ControllerActivityRuntimeRequest;
@@ -57,7 +59,6 @@ import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -77,13 +78,13 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   /**
    * Number of milliseconds to wait for a controller connect.
    */
-  private long controllerConnectionTimeWait = CONTROLLER_CONNECTION_TIME_WAIT_DEFAULT;
+  private final long controllerConnectionTimeWait = CONTROLLER_CONNECTION_TIME_WAIT_DEFAULT;
 
   /**
    * Map of controller communicators keyed by the name of the remote ROS node.
    */
-  private Map<String, SpaceControllerCommunicator> controllerCommunicators =
-      new HashMap<String, RosRemoteControllerClient.SpaceControllerCommunicator>();
+  private final Map<String, SpaceControllerCommunicator> controllerCommunicators = Maps
+      .newHashMap();
 
   /**
    * Helps with listeners for activity events.
@@ -275,6 +276,26 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   @Override
+  public void cleanControllerTempData(ActiveSpaceController controller) {
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CLEAN_DATA_TMP);
+  }
+
+  @Override
+  public void cleanControllerPermanentData(ActiveSpaceController controller) {
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT);
+  }
+
+  @Override
+  public void cleanControllerActivitiesTempData(ActiveSpaceController controller) {
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CLEAN_DATA_TMP_ACTIVITIES);
+  }
+
+  @Override
+  public void cleanControllerActivitiesPermanentData(ActiveSpaceController controller) {
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CLEAN_DATA_PERMANENT_ACTIVITIES);
+  }
+
+  @Override
   public void captureControllerDataBundle(ActiveSpaceController controller) {
     masterDataBundleManager.captureControllerDataBundle(controller);
   }
@@ -282,14 +303,6 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   @Override
   public void restoreControllerDataBundle(ActiveSpaceController controller) {
     masterDataBundleManager.restoreControllerDataBundle(controller);
-  }
-
-  /**
-   * @param masterDataBundleManager
-   *          The data bundle manager to use. Can be null.
-   */
-  public void setMasterDataBundleManager(MasterDataBundleManager masterDataBundleManager) {
-    this.masterDataBundleManager = masterDataBundleManager;
   }
 
   @Override
@@ -342,6 +355,18 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   @Override
   public void statusActivity(ActiveLiveActivity activity) {
     sendActivityRuntimeRequest(activity, ControllerActivityRuntimeRequest.OPERATION_STATUS, null);
+  }
+
+  @Override
+  public void cleanActivityPermanentData(ActiveLiveActivity activity) {
+    sendActivityRuntimeRequest(activity,
+        ControllerActivityRuntimeRequest.OPERATION_CLEAN_DATA_PERMANENT, null);
+  }
+
+  @Override
+  public void cleanActivityTempData(ActiveLiveActivity activity) {
+    sendActivityRuntimeRequest(activity, ControllerActivityRuntimeRequest.OPERATION_CLEAN_DATA_TMP,
+        null);
   }
 
   /**
@@ -493,16 +518,16 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
       case ControllerStatus.STATUS_DATA_CAPTURE:
         log.info("Received data capture response " + status.getStatusCode());
         DataBundleState captureState =
-            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ?
-            DataBundleState.CAPTURE_RECEIVED : DataBundleState.CAPTURE_ERROR;
+            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ? DataBundleState.CAPTURE_RECEIVED
+                : DataBundleState.CAPTURE_ERROR;
         remoteControllerClientListeners.signalDataBundleState(status.getUuid(), captureState);
         break;
 
       case ControllerStatus.STATUS_DATA_RESTORE:
         log.info("Received data restore response " + status.getStatusCode());
         DataBundleState restoreState =
-            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ?
-            DataBundleState.RESTORE_RECEIVED : DataBundleState.RESTORE_ERROR;
+            SpaceControllerStatus.isSuccessDescription(status.getStatusCode()) ? DataBundleState.RESTORE_RECEIVED
+                : DataBundleState.RESTORE_ERROR;
         remoteControllerClientListeners.signalDataBundleState(status.getUuid(), restoreState);
         break;
 
@@ -513,7 +538,10 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   /**
+   * Handle a controller heartbeat message.
+   *
    * @param status
+   *          the status message for the heartbeat
    */
   public void handleControllerHeartbeat(ControllerStatus status) {
     long timestamp = System.currentTimeMillis();
@@ -692,6 +720,16 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   /**
+   * Set the master's data bundle manager.
+   *
+   * @param masterDataBundleManager
+   *          the data bundle manager to use, can be {@code null}
+   */
+  public void setMasterDataBundleManager(MasterDataBundleManager masterDataBundleManager) {
+    this.masterDataBundleManager = masterDataBundleManager;
+  }
+
+  /**
    * Bundles the subscribers and publishers for communication with a space
    * controller.
    *
@@ -702,7 +740,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
     /**
      * The space controller we are the communicator for.
      */
-    private ActiveSpaceController spaceController;
+    private final ActiveSpaceController spaceController;
 
     /**
      * The publisher for activity runtime requests.
@@ -729,6 +767,12 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
      */
     private CountDownPublisherListener<ControllerRequest> publisherListener;
 
+    /**
+     * Construct a communicator.
+     *
+     * @param spaceController
+     *          the space controller being communicated with
+     */
     public SpaceControllerCommunicator(ActiveSpaceController spaceController) {
       this.spaceController = spaceController;
     }
@@ -740,6 +784,8 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
      *          the node which is running the communicator
      * @param remoteNode
      *          the remote node
+     * @param controllerStatusListener
+     *          the listener for controller status messages
      * @param activityStatusListener
      *          the listener for activity status messages
      */
@@ -784,7 +830,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
      * Send a request to a controller.
      *
      * @param request
-     *          The request to send.
+     *          the request to send
      */
     public void sendControllerRequest(ControllerRequest request) {
       try {

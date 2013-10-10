@@ -44,6 +44,30 @@ function doAjaxCommand(command) {
   });
 }
 
+function cleanActivitiesTempDataSpaceController() {
+    if (confirm("Are you sure you want to clean the tmp data for all live activities on the space controller?")) {
+        doAjaxCommand('cleanactivitiestmpdata');
+    }
+}
+
+function cleanActivitiesPermanentDataSpaceController() {
+    if (confirm("Are you sure you want to clean the permanent data for all live activities on the space controller?")) {
+        doAjaxCommand('cleanactivitiespermanentdata');
+    }
+}
+
+function cleanTempDataSpaceController() {
+    if (confirm("Are you sure you want to clean the tmp data for the space controller?")) {
+        doAjaxCommand('cleantmpdata');
+    }
+}
+
+function cleanPermanentDataSpaceController() {
+    if (confirm("Are you sure you want to clean the permanent data for the space controller?")) {
+        doAjaxCommand('cleanpermanentdata');
+    }
+}
+
 function deleteController() {
     if (confirm("Are you sure you want to delete the controller?")) {
         window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/delete.html'
@@ -83,6 +107,10 @@ function shutdownActivities() {
     onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/metadata/edit.html'" title="Edit the space controller metadata">Metadata</button></li>
 <li><button type="button" onclick="shutdownController()" title="Shutdown the controller">Shutdown</button></li>
 <li><button type="button" onclick="shutdownActivities()" title="Shutdown all activities on the controller">Shutdown All Activities</button></li>
+<li><button type="button" onclick="cleanActivitiesTempDataSpaceController()" title="Clean the tmp data for all live activities on the controller">Clean Activities Tmp</button></li>
+<li><button type="button" onclick="cleanActivitiesPermanentDataSpaceController()" title="Clean the permanent data for all live activities on the controller">Clean Activities Permanent</button></li>
+<li><button type="button" onclick="cleanTempDataSpaceController()" title="Clean the controller's tmp data">Clean Tmp</button></li>
+<li><button type="button" onclick="cleanPermanentDataSpaceController()" title="Clean the controller's permanent data">Clean Permanent</button></li>
 <li><button type="button" onclick="captureData()" title="Capture controller data">Capture Data</button></li>
 <li><button type="button" onclick="restoreData()" title="Restore controller data">Restore Data</button></li>
 <li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all Live Activities on this Controller">Deploy</button></li>

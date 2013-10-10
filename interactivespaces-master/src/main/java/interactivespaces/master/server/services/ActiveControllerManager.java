@@ -42,6 +42,7 @@ public interface ActiveControllerManager {
    * controller.
    *
    * @param controller
+   *          the controller to connect to
    */
   void connectController(SpaceController controller);
 
@@ -54,30 +55,31 @@ public interface ActiveControllerManager {
    * controller.
    *
    * @param controller
+   *          the controller to disconnect
    */
   void disconnectController(SpaceController controller);
 
   /**
-   * Restart a controller node.
+   * Restart a controller.
    *
    * <p>
-   * The controller node will be brought up in a clean state.
+   * The controller will be brought up in a clean state.
    *
    * @param controller
-   *          The node to restart.
+   *          the controller to restart
    */
   void restartController(SpaceController controller);
 
   /**
-   * Shutdown a controller node.
+   * Shutdown a controller.
    *
    * @param controller
-   *          The node to shutdown.
+   *          the controller to shutdown
    */
   void shutdownController(SpaceController controller);
 
   /**
-   * Request a status from a controller node.
+   * Request a status from a controller.
    *
    * <p>
    * This will be a noop if the controller has never been connected or has been
@@ -89,12 +91,44 @@ public interface ActiveControllerManager {
   void statusController(SpaceController controller);
 
   /**
-   * Force request a status from a controller node.
+   * Force request a status from a controller.
    *
    * @param controller
    *          the controller
    */
   void forceStatusController(SpaceController controller);
+
+  /**
+   * Clean the temp data folder for the controller.
+   *
+   * @param controller
+   *          controller to clean
+   */
+  void cleanControllerTempData(SpaceController controller);
+
+  /**
+   * Clean the permanent data folder for the controller.
+   *
+   * @param controller
+   *          controller to clean
+   */
+  void cleanControllerPermanentData(SpaceController controller);
+
+  /**
+   * Clean the temp data folder for all live activities on the controller.
+   *
+   * @param controller
+   *          controller to clean
+   */
+  void cleanControllerActivitiesTempData(SpaceController controller);
+
+  /**
+   * Clean the permanent data folder for all live activities on the controller.
+   *
+   * @param controller
+   *          controller to clean
+   */
+  void cleanControllerActivitiesPermanentData(SpaceController controller);
 
   /**
    * Capture the data bundle from the controller.
@@ -113,10 +147,10 @@ public interface ActiveControllerManager {
   void restoreControllerDataBundle(SpaceController controller);
 
   /**
-   * Shutdown all activities on a controller node.
+   * Shutdown all activities on a controller.
    *
    * @param controller
-   *          The node to shutdown.
+   *          the controller
    */
   void shutdownAllActivities(SpaceController controller);
 
@@ -140,7 +174,7 @@ public interface ActiveControllerManager {
    * Configure an activity on a controller.
    *
    * @param activity
-   *          The activity to configure.
+   *          the activity to configure
    */
   void configureLiveActivity(LiveActivity activity);
 
@@ -148,7 +182,7 @@ public interface ActiveControllerManager {
    * Start an activity on a controller.
    *
    * @param activity
-   *          The activity to start.
+   *          the activity to start
    */
   void startupLiveActivity(LiveActivity activity);
 
@@ -156,7 +190,7 @@ public interface ActiveControllerManager {
    * Activate an activity on a controller.
    *
    * @param activity
-   *          The activity to activate.
+   *          the activity to activate
    */
   void activateLiveActivity(LiveActivity activity);
 
@@ -164,7 +198,7 @@ public interface ActiveControllerManager {
    * Deactivate an activity on a controller.
    *
    * @param activity
-   *          The activity to deactivate.
+   *          the activity to deactivate
    */
   void deactivateLiveActivity(LiveActivity activity);
 
@@ -176,24 +210,39 @@ public interface ActiveControllerManager {
    * groups.
    *
    * @param activity
-   *          The activity to shut down.
+   *          the activity to shut down
    */
   void shutdownLiveActivity(LiveActivity activity);
 
   /**
    * Status of an activity on its controller.
    *
-   *
    * @param activity
-   *          The activity.
+   *          the activity to get the status for
    */
   void statusLiveActivity(LiveActivity activity);
+
+  /**
+   * Clean the permanent data of an activity on its controller.
+   *
+   * @param activity
+   *          the activity to clean
+   */
+  void cleanLiveActivityPermanentData(LiveActivity activity);
+
+  /**
+   * Clean the temp data of an activity on its controller.
+   *
+   * @param activity
+   *          the activity to clean
+   */
+  void cleanLiveActivityTempData(LiveActivity activity);
 
   /**
    * Deploy an activity group on a controller.
    *
    * @param activityGroup
-   *          The activity group to deploy.
+   *          the activity group to deploy
    */
   void deployLiveActivityGroup(LiveActivityGroup activityGroup);
 
@@ -280,7 +329,7 @@ public interface ActiveControllerManager {
    *
    * @return the active controllers for the controllers
    */
-  List<ActiveSpaceController> getActiveSpaceControllers(List<SpaceController> controller);
+  List<ActiveSpaceController> getActiveSpaceControllers(List<SpaceController> controllers);
 
   /**
    * Add in a new controller listener.

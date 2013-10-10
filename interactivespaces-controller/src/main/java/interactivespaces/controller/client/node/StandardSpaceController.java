@@ -59,15 +59,15 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
 
 /**
  * A base implementation of {@link SpaceController} which gives basic
@@ -800,6 +800,8 @@ public class StandardSpaceController implements SpaceController,
       }
     }
 
+    spaceEnvironment.getLog().info(
+        String.format("Cleaning activity tmp directory for activity %s.", uuid));
     activityStorageManager.cleanTmpActivityDataDirectory(uuid);
   }
 
@@ -820,6 +822,8 @@ public class StandardSpaceController implements SpaceController,
       }
     }
 
+    spaceEnvironment.getLog().info(
+        String.format("Cleaning activity permanent directory for activity %s.", uuid));
     activityStorageManager.cleanPermanentActivityDataDirectory(uuid);
   }
 
@@ -839,17 +843,6 @@ public class StandardSpaceController implements SpaceController,
 
   @Override
   public void cleanControllerTempDataAll() {
-    spaceEnvironment.getLog().info("Cleaning controller and live activiy temp directories");
-
-    cleanControllerTempData();
-    cleanAllLiveActivityTempData();
-  }
-
-  /**
-   * Clean the temp data for all live activities.
-   */
-  @VisibleForTesting
-  void cleanAllLiveActivityTempData() {
     for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
       cleanActivityTmpData(activity.getUuid());
     }
@@ -857,17 +850,8 @@ public class StandardSpaceController implements SpaceController,
 
   @Override
   public void cleanControllerPermanentDataAll() {
-    spaceEnvironment.getLog().info("Cleaning controller and live activiy permanent directories");
+    spaceEnvironment.getLog().info("Cleaning live activity permanent directories");
 
-    cleanControllerPermanentData();
-    cleanAllLiveActivityPermanentData();
-  }
-
-  /**
-   * Clean the permanent data for all live activities.
-   */
-  @VisibleForTesting
-  void cleanAllLiveActivityPermanentData() {
     for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
       cleanActivityPermanentData(activity.getUuid());
     }

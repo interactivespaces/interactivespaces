@@ -16,24 +16,26 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 
 /**
- * A {@link InteractiveSpacesException} for entities which are not found.
+ * A {@link SimpleInteractiveSpacesException} for entities which are not found.
  *
  * @author Keith M. Hughes
  */
-public class EntityNotFoundInteractiveSpacesException extends InteractiveSpacesException {
+public class EntityNotFoundInteractiveSpacesException extends SimpleInteractiveSpacesException {
   /**
-   *
+   * The UID for the serialization.
    */
   private static final long serialVersionUID = -8428724375774147347L;
 
+  /**
+   * Construct an entity not found exception.
+   *
+   * @param message
+   *          message for the exception
+   */
   public EntityNotFoundInteractiveSpacesException(String message) {
     super(message);
-  }
-
-  public EntityNotFoundInteractiveSpacesException(String message, Throwable cause) {
-    super(message, cause);
   }
 }

@@ -16,9 +16,6 @@
 
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActiveSpaceController;
@@ -30,6 +27,9 @@ import interactivespaces.master.server.ui.UiLiveActivity;
 import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 import interactivespaces.master.ui.internal.web.UiUtilities;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -182,6 +182,56 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
     }
   }
 
+  @RequestMapping(value = "/spacecontroller/{id}/cleantmpdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanTempData(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanControllerTempData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiestmpdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanActivitiesTempData(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanControllerActivitiesTempData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/cleanpermanentdata.json",
+      method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanPermanentData(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanControllerPermanentData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiespermanentdata.json",
+      method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanActivitiesPermanentData(@PathVariable String id) {
+    try {
+      uiControllerManager.cleanControllerActivitiesPermanentData(id);
+
+      return JsonSupport.getSimpleSuccessJsonResponse();
+    } catch (EntityNotFoundInteractiveSpacesException e) {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
   @RequestMapping(value = "/spacecontroller/{id}/restoredata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> restoreData(@PathVariable String id) {
@@ -276,6 +326,38 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
     return "redirect:/spacecontroller/all.html";
   }
 
+  @RequestMapping(value = "/spacecontroller/all/cleantmpdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanTempDataAllControllers() {
+    uiControllerManager.cleanControllerTempDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
+  @RequestMapping(value = "/spacecontroller/all/cleanactivitiestmpdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanActivitiesTempDataAllControllers() {
+    uiControllerManager.cleanControllerActivitiesTempDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
+  @RequestMapping(value = "/spacecontroller/all/cleanpermanentdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanPermanentDataAllControllers() {
+    uiControllerManager.cleanControllerPermanentDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
+  @RequestMapping(value = "/spacecontroller/all/cleanactivitiespermanentdata.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> cleanActivitiesPermanentDataAllControllers() {
+    uiControllerManager.cleanControllerActivitiesPermanentDataAllControllers();
+
+    return JsonSupport.getSimpleSuccessJsonResponse();
+  }
+
   @RequestMapping(value = "/spacecontroller/all/capturedata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> captureDataAllControllers() {
@@ -286,7 +368,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
 
   @RequestMapping(value = "/spacecontroller/all/restoredata.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object>  restoreDataAllControllers() {
+  Map<String, ? extends Object> restoreDataAllControllers() {
     uiControllerManager.restoreDataAllControllers();
 
     return JsonSupport.getSimpleSuccessJsonResponse();
@@ -362,6 +444,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
    * @param activeControllerManager
    *          the activeControllerManager to set
    */
+  @Override
   public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
     this.activeControllerManager = activeControllerManager;
   }

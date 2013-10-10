@@ -102,10 +102,26 @@ public interface InternalActiveControllerManager extends ActiveControllerManager
   /**
    * Status of a active live activity.
    *
-   * @param tiveLiveActivity
+   * @param activeLiveActivity
    *          the active live activity
    */
   void statusActiveLiveActivity(ActiveLiveActivity activeLiveActivity);
+
+  /**
+   * Clean the permanent data of an activity on its controller.
+   *
+   * @param activeLiveActivity
+   *          the active live activity
+   */
+  void cleanLiveActivityPermanentData(ActiveLiveActivity activeLiveActivity);
+
+  /**
+   * Clean the temp data of an activity on its controller.
+   *
+   * @param activeLiveActivity
+   *          the active live activity
+   */
+  void cleanLiveActivityTempData(ActiveLiveActivity activeLiveActivity);
 
   /**
    * Deploy a active activity group on a controller.
