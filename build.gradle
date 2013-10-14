@@ -40,7 +40,7 @@ allprojects {
     //
     // Final versions should set the intermediate designation to null.
     interactiveSpacesVersion = '1.5.3'
-    interactiveSpacesVersionIntermediateDesignation = 'SNAPSHOT'
+    interactiveSpacesVersionIntermediateDesignation = null
 
     nonjavaProjects = [ 
       'interactivespaces_docs', 
