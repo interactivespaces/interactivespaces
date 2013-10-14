@@ -374,8 +374,14 @@ property `org.osgi.service.http.port`. This property is set in `config/container
 The Master uses an HTTP server for deploying Live Activities to their controllers. The controller
 receives a URL for this server when the Master tells it a Live Activity is being deployed to
 the controller. The port for this HTTP server can be changed with the
-configuration property `interactivespaces.master.api.websocket.port`. The default value of
+configuration property `interactivespaces.repository.activities.server.port`. The default value of
 `10000` is used if this property doesn't exist. This configuration property should be set
+in `config/interactivespaces/master.conf`.
+ 
+The Master uses a websocket server for live activities that want to provide a richer admin interface than
+the Master Web Application. The port for this websocket server can be changed with the
+configuration property `interactivespaces.master.api.websocket.port`. The default value of
+`8090` is used if this property doesn't exist. This configuration property should be set
 in `config/interactivespaces/master.conf`.
 
 Notification for Issues

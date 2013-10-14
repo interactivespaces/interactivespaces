@@ -25,6 +25,7 @@ import org.ros.node.NodeMain;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -39,45 +40,45 @@ import java.util.concurrent.ScheduledExecutorService;
 public interface RosEnvironment {
 
   /**
+   * The separator between ROS names, e.g. node names, topic names.
+   */
+  String ROS_NAME_SEPARATOR = "/";
+
+  /**
    * Name the ROS node will have as its base name.
    */
-  public static final String PROPERTY_ROS_NODE_NAME = "org.ros.node.name";
+  String CONFIGURATION_ROS_NODE_NAME = "org.ros.node.name";
 
   /**
    * The host this node is running on. Can either be a resolvable domain name or
    * an IP address.
    */
-  public static final String PROPERTY_ROS_HOST = "org.ros.host";
+  String CONFIGURATION_ROS_HOST = "org.ros.host";
 
   /**
    * URI of the ROS master.
    */
-  public static final String PROPERTY_ROS_MASTER_URI = "org.ros.master.uri";
-
-  /**
-   * Name the ROS node will have as its base name.
-   */
-  public static final String PROPERTY_ROS_NETWORK_TYPE = "org.ros.network.type";
+  String CONFIGURATION_ROS_MASTER_URI = "org.ros.master.uri";
 
   /**
    * Configuration property giving the ROS container type.
    */
-  public static final String CONFIGURATION_ROS_CONTAINER_TYPE = "org.ros.container.type";
+  String CONFIGURATION_ROS_CONTAINER_TYPE = "org.ros.container.type";
 
   /**
    * Configuration property value for the master ROS container type.
    */
-  public static final String CONFIGURATION_ROS_CONTAINER_TYPE_MASTER = "master";
+  String CONFIGURATION_ROS_CONTAINER_TYPE_MASTER = "master";
 
   /**
    * Configuration property value for the node ROS container type.
    */
-  public static final String CONFIGURATION_ROS_CONTAINER_TYPE_NODE = "node";
+  String CONFIGURATION_ROS_CONTAINER_TYPE_NODE = "node";
 
   /**
    * Configuration property giving the ROS network type, e.g. prod, dev, local.
    */
-  public static final String CONFIGURATION_ROS_NETWORK_TYPE = "org.ros.network.type";
+  String CONFIGURATION_ROS_NETWORK_TYPE = "org.ros.network.type";
 
   /**
    * Get the node configuration to be used as a public node for this
@@ -214,6 +215,14 @@ public interface RosEnvironment {
    *          the value if the property
    */
   void setProperty(String property, String value);
+
+  /**
+   * Add a collection of name/value properties to the ROS environment.
+   *
+   * @param properties
+   *          a collection of name/value pairs of properties
+   */
+  void setProperties(Map<String, String> properties);
 
   /**
    * Is this environment a master environment?

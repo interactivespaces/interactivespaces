@@ -54,8 +54,8 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
   private RosEnvironment rosEnvironment;
 
   /**
-	 *
-	 */
+   * The prefix to put on URLs for accessing the repository.
+   */
   private static final String REPOSITORY_BUNDLE_URL_PREFIX = "/ros/feature";
 
   /**
@@ -109,10 +109,22 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
    */
   private InetSocketAddress masterSocketAddress;
 
+  /**
+   * The bootstrap for the deployment server.
+   */
+  private ServerBootstrap serverBootstrap;
+
   @Override
   public void startup() {
     serverName = "ROSDeploymentServer";
-    port = 8085;
+
+    String repositoryPort = rosEnvironment.getProperty(CONFIGURATION_ROS_DEPLOYMENT_SERVER_PORT);
+    if (repositoryPort != null) {
+      port = Integer.parseInt(repositoryPort);
+    } else {
+      port = CONFIGURATION_DEFAULT_ROS_DEPLOYMENT_SERVER_PORT;
+    }
+
     executorService = rosEnvironment.getExecutorService();
     log = rosEnvironment.getLog();
 
@@ -122,10 +134,11 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
         new NettyWebServerHandler(REPOSITORY_BUNDLE_URL_PREFIX, this, featureRepository, log);
     channelFactory = new NioServerSocketChannelFactory(executorService, executorService);
 
-    ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
+    serverBootstrap = new ServerBootstrap(channelFactory);
 
     // Set up the event pipeline factory.
-    bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+    serverBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+      @Override
       public ChannelPipeline getPipeline() throws Exception {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
@@ -139,7 +152,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
     });
 
     masterSocketAddress = new InetSocketAddress(port);
-    serverChannel = bootstrap.bind(masterSocketAddress);
+    serverChannel = serverBootstrap.bind(masterSocketAddress);
     allChannels.add(serverChannel);
   }
 
@@ -147,6 +160,8 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
   public void shutdown() {
     ChannelGroupFuture future = allChannels.close();
     future.awaitUninterruptibly();
+
+    serverBootstrap.shutdown();
   }
 
   @Override
@@ -167,6 +182,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
    * A new channel was opened. Register it so it can be properly shut down.
    *
    * @param channel
+   *          the channel which was opened
    */
   public void channelOpened(Channel channel) {
     allChannels.add(channel);
@@ -175,25 +191,27 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
   /**
    * Get the web server's logger.
    *
-   * @return
+   * @return the web server's logger
    */
   public Log getLog() {
     return log;
   }
 
   /**
-   * Set the Ros Environment the server should run in.
+   * Set the ROS Environment the server should run in.
    *
    * @param rosEnvironment
+   *          the ROS environment to be used
    */
   public void setRosEnvironment(RosEnvironment rosEnvironment) {
     this.rosEnvironment = rosEnvironment;
   }
 
   /**
-   * Remove the Ros Environment the server should run in.
+   * Remove the ROS Environment the server should run in.
    *
    * @param rosEnvironment
+   *          the ROS environment which was used
    */
   public void unsetRosEnvironment(RosEnvironment rosEnvironment) {
     this.rosEnvironment = null;
@@ -203,6 +221,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
    * Set the feature repository the server should run with.
    *
    * @param featureRepository
+   *          the feature repository to use
    */
   public void setFeatureRepository(FeatureRepository featureRepository) {
     this.featureRepository = featureRepository;
@@ -212,6 +231,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
    * Remove the feature repository the server should run with.
    *
    * @param featureRepository
+   *          the feature repository which was being used
    */
   public void unsetFeatureRepository(FeatureRepository featureRepository) {
     this.featureRepository = null;

@@ -44,11 +44,11 @@ jar {
 		'*'
 
     instruction 'Service-Component',
-		'OSGI-INF/master.xml',
-		'OSGI-INF/remote-repository.xml',
-		'OSGI-INF/feature-repository.xml',
-		'OSGI-INF/feature-bundle-resolver.xml',
-		'OSGI-INF/deployment-server.xml'
+		'OSGI-INF/master.xml'
+		// 'OSGI-INF/remote-repository.xml',
+		// 'OSGI-INF/feature-repository.xml',
+		// 'OSGI-INF/feature-bundle-resolver.xml',
+		// 'OSGI-INF/deployment-server.xml'
   }
 }
 

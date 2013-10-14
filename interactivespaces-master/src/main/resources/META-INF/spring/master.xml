@@ -535,7 +535,7 @@
 		availability="mandatory" interface="interactivespaces.service.alert.AlertService" />
 
 	<osgi:reference id="ros.deployment.manager"
-		availability="mandatory" interface="org.ros.osgi.deployment.master.DeploymentServer" />
+		availability="optional" interface="org.ros.osgi.deployment.master.DeploymentServer" />
 
 	<osgi:reference id="ros.environment" availability="mandatory"
 		interface="org.ros.osgi.common.RosEnvironment" />

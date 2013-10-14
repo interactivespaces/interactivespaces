@@ -249,8 +249,10 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     timeProvider = getTimeProvider(containerProperties, loggingProvider.getLog());
     spaceEnvironment.setTimeProvider(timeProvider);
 
-    setupRosEnvironment(context, containerProperties, loggingProvider.getLog());
+    setupRosEnvironment(context, systemConfigurationStorageManager.getSystemConfiguration()
+        .getCollapsedMap(), loggingProvider.getLog());
 
+    // TODO(keith): Get the value property in a central place.
     spaceEnvironment.setValue("environment.ros", rosEnvironment);
 
     // Potentially request the container to permit file control.
@@ -285,7 +287,8 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         InetAddress ntpAddress = InetAddressFactory.newFromHostString(host);
         // TODO(keith): Make sure got valid address. Also, move copy of
         // factory class into IS.
-        return new NtpTimeProvider(ntpAddress, NTP_UPDATE_PERIOD_SECONDS, TimeUnit.SECONDS, executorService, log);
+        return new NtpTimeProvider(ntpAddress, NTP_UPDATE_PERIOD_SECONDS, TimeUnit.SECONDS,
+            executorService, log);
       } else {
         log.warn(String.format(
             "Could not find host for NTP time provider. No value for configuration %s",
@@ -363,16 +366,18 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    *          the properties from the container configuration
    */
   private void configureRosFromInteractiveSpaces(Map<String, String> containerProperties) {
-    rosEnvironment.setProperty(RosEnvironment.PROPERTY_ROS_NODE_NAME,
-        "/" + containerProperties.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
-    rosEnvironment.setProperty(RosEnvironment.PROPERTY_ROS_NETWORK_TYPE,
+    rosEnvironment.setProperty(
+        RosEnvironment.CONFIGURATION_ROS_NODE_NAME,
+        RosEnvironment.ROS_NAME_SEPARATOR
+            + containerProperties.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
+    rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_NETWORK_TYPE,
         spaceEnvironment.getNetworkType());
     rosEnvironment.setProperty(
         RosEnvironment.CONFIGURATION_ROS_CONTAINER_TYPE,
         spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
             InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE));
     rosEnvironment.setProperty(
-        RosEnvironment.PROPERTY_ROS_HOST,
+        RosEnvironment.CONFIGURATION_ROS_HOST,
         spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
             InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
   }
@@ -404,28 +409,29 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION,
         context.getProperty(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION));
 
-    String hostAddress = convertHostnameToAddress(containerProperties.get(
-        InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
-    systemConfiguration.setValue(
-        InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, hostAddress);
+    String hostAddress =
+        convertHostnameToAddress(containerProperties
+            .get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
+    systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS,
+        hostAddress);
 
     spaceEnvironment.setSystemConfiguration(systemConfiguration);
   }
 
   /**
-   * Convert the given hostname to an address.
+   * Convert the given hostname to an IP address.
    *
    * @param hostname
    *          hostname to convert
    *
-   * @return host address
+   * @return host IP address
    */
   private String convertHostnameToAddress(String hostname) {
     try {
       InetAddress address = InetAddress.getByName(hostname);
       return address.getHostAddress();
     } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not convert hostname to address", e);
+      spaceEnvironment.getLog().error("Could not convert hostname to IP address", e);
       return UNKNOWN_HOST_ADDRESS;
     }
   }

@@ -26,6 +26,16 @@ import java.util.Set;
 public interface RemoteRepositoryMaster {
 
   /**
+   * Configuration parameter giving the port for the ROS deployment server.
+   */
+  String CONFIGURATION_ROS_DEPLOYMENT_SERVER_PORT = "org.ros.deployment.server.port";
+
+  /**
+   * The default value for the server port for the ROS deployment server.
+   */
+  int CONFIGURATION_DEFAULT_ROS_DEPLOYMENT_SERVER_PORT = 8085;
+
+  /**
    * Start up the master.
    */
   void startup();
@@ -40,7 +50,9 @@ public interface RemoteRepositoryMaster {
    * from this master.
    *
    * @param bundles
-   * @return
+   *          the bundles requested
+   *
+   * @return the bundles rewritten to be URIs
    */
   Set<String> getBundleUris(Set<String> bundles);
 
