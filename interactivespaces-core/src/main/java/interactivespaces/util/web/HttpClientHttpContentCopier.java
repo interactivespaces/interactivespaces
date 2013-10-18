@@ -17,6 +17,9 @@
 package interactivespaces.util.web;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+
+import com.google.common.io.Closeables;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,6 +33,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.util.EntityUtils;
 
 import java.io.File;
@@ -47,6 +51,11 @@ import java.util.Map.Entry;
 public class HttpClientHttpContentCopier implements HttpContentCopier {
 
   /**
+   * The default number of total connections.
+   */
+  public static final int TOTAL_CONNECTIONS_ALLOWED_DEFAULT = 20;
+
+  /**
    * Number of bytes in the copy buffer.
    */
   private static final int BUFFER_SIZE = 4096;
@@ -56,14 +65,51 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
    */
   private HttpClient client;
 
+  /**
+   * Connection manager for the client.
+   */
+  private ThreadSafeClientConnManager connectionManager;
+
+  /**
+   * The total number of connections allowed.
+   */
+  private final int totalConnectionsAllowed;
+
+  /**
+   * Construct a copier which allows a maximum of
+   * {@link #TOTAL_CONNECTIONS_ALLOWED_DEFAULT} connections.
+   */
+  public HttpClientHttpContentCopier() {
+    this(TOTAL_CONNECTIONS_ALLOWED_DEFAULT);
+  }
+
+  /**
+   * Construct a copier with a specified maximum number of connections.
+   *
+   * @param totalConnectionsAllowed
+   *          the maximum total number of connections allowed
+   */
+  public HttpClientHttpContentCopier(int totalConnectionsAllowed) {
+    this.totalConnectionsAllowed = totalConnectionsAllowed;
+  }
+
   @Override
   public void startup() {
-    client = new DefaultHttpClient();
+    connectionManager = new ThreadSafeClientConnManager();
+    connectionManager.setDefaultMaxPerRoute(totalConnectionsAllowed);
+    connectionManager.setMaxTotal(totalConnectionsAllowed);
+
+    client = new DefaultHttpClient(connectionManager);
   }
 
   @Override
   public void shutdown() {
-    client.getConnectionManager().shutdown();
+    if (connectionManager != null) {
+      connectionManager.shutdown();
+
+      connectionManager = null;
+      client = null;
+    }
   }
 
   @Override
@@ -81,13 +127,19 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
           InputStream in = entity.getContent();
           try {
             transferFile(in, destination);
-          } finally {
-            in.close();
-          }
 
+            in.close();
+            in = null;
+          } catch (IOException e) {
+            throw new InteractiveSpacesException(String.format(
+                "Exception during copy of HTTP resource %s to %s", sourceUri,
+                destination.getAbsolutePath()), e);
+          } finally {
+            Closeables.closeQuietly(in);
+          }
         }
       } else {
-        throw new InteractiveSpacesException(String.format(
+        throw new SimpleInteractiveSpacesException(String.format(
             "Server returned bad status code %d for source URI %s during HTTP copy", statusCode,
             sourceUri));
       }
@@ -117,11 +169,16 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
   }
 
   @Override
-  public void copyTo(String destinationUri, InputStream source, String sourceFileName, String sourceParameterName,
-      Map<String, String> params) {
+  public void copyTo(String destinationUri, InputStream source, String sourceFileName,
+      String sourceParameterName, Map<String, String> params) {
     InputStreamBody contentBody = new InputStreamBody(source, sourceFileName);
 
     doCopyTo(destinationUri, sourceParameterName, params, contentBody);
+  }
+
+  @Override
+  public int getTotalConnectionsAllowed() {
+    return totalConnectionsAllowed;
   }
 
   /**
@@ -160,7 +217,7 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode != HttpStatus.SC_OK) {
-        throw new InteractiveSpacesException(String.format(
+        throw new SimpleInteractiveSpacesException(String.format(
             "Server returned bad status code %d for source URI %s during HTTP copy", statusCode,
             destinationUri));
       }
@@ -199,18 +256,18 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
       byte[] buffer = new byte[BUFFER_SIZE];
 
       int len;
-      while ((len = in.read(buffer)) > 0)
+      while ((len = in.read(buffer)) > 0) {
         out.write(buffer, 0, len);
+      }
 
       out.flush();
+
+      out.close();
+      out = null;
+    } catch (Exception e) {
+      throw new InteractiveSpacesException("Error during copy of HTTP resource", e);
     } finally {
-      if (out != null) {
-        try {
-          out.close();
-        } catch (IOException e) {
-          // Don't care.
-        }
-      }
+      Closeables.closeQuietly(out);
     }
   }
 }

@@ -39,15 +39,26 @@ public interface HttpContentCopier extends ManagedResource {
    * <p>
    * This method blocks until the transfer is complete or it fails.
    *
+   * <p>
+   * This method will fail if there are not enough connections available and
+   * blocking until a connection becomes ready is not enabled.
+   *
    * @param sourceUri
    *          the URI to copy the content from
    * @param destination
    *          where to copy the content to
+   *
+   * @throws InteractiveSpacesException
+   *           if transfer was not successful
    */
-  void copy(String sourceUri, File destination);
+  void copy(String sourceUri, File destination) throws InteractiveSpacesException;
 
   /**
    * Copy content to a remote web server using an HTTP POST.
+   *
+   * <p>
+   * This method will fail if there are not enough connections available and
+   * blocking until a connection becomes ready is not enabled.
    *
    * @param destinationUri
    *          URI for the destination server
@@ -63,10 +74,14 @@ public interface HttpContentCopier extends ManagedResource {
    *           if transfer was not successful
    */
   void copyTo(String destinationUri, File source, String sourceParameterName,
-      Map<String, String> params);
+      Map<String, String> params) throws InteractiveSpacesException;
 
   /**
    * Copy content to a remote web server using an HTTP POST.
+   *
+   * <p>
+   * This method will fail if there are not enough connections available and
+   * blocking until a connection becomes ready is not enabled.
    *
    * @param destinationUri
    *          URI for the destination server
@@ -84,5 +99,12 @@ public interface HttpContentCopier extends ManagedResource {
    *           if transfer was not successful
    */
   void copyTo(String destinationUri, InputStream source, String sourceFileName,
-      String sourceParameterName, Map<String, String> params);
+      String sourceParameterName, Map<String, String> params) throws InteractiveSpacesException;
+
+  /**
+   * Get the total number of simultaneous connections allowed.
+   *
+   * @return the total number of connections, or {@code 0} if there is no limit
+   */
+  int getTotalConnectionsAllowed();
 }
