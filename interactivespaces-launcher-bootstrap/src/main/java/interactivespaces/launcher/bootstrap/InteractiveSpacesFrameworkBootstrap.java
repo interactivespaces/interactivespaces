@@ -19,6 +19,7 @@ package interactivespaces.launcher.bootstrap;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
+import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
@@ -57,14 +58,51 @@ import java.util.jar.Manifest;
 public class InteractiveSpacesFrameworkBootstrap {
 
   /**
+   * The argument for saying the container should run with no shell access.
+   */
+  public static final String ARGS_NOSHELL = "--noshell";
+
+  /**
+   * The default OSGi startup level for bundles.
+   */
+  public static final int STARTUP_LEVEL_DEFAULT = 1;
+
+  /**
+   * The OSGi startup level for bundles which should start after most bundles
+   * but not the ones which really require everything running.
+   */
+  public static final int STARTUP_LEVEL_PENULTIMATE = 4;
+
+  /**
+   * The OSGi startup level for bundles which should start after everything else
+   * is started.
+   */
+  public static final int STARTUP_LEVEL_LAST = 5;
+
+  /**
+   * External packages loaded from the Interactive Spaces system folder.
+   */
+  public static final String[] PACKAGES_SYSTEM_EXTERNAL =
+      new String[] { "org.apache.commons.logging; version=1.1.1",
+          "org.apache.commons.logging.impl; version=1.1.1" };
+
+  /**
+   * Packages loaded from the Interactive Spaces system folder that are part of
+   * Interactive Spaces.
+   */
+  public static final String[] PACKAGES_SYSTEM_INTERACTIVESPACES = new String[] {
+      "interactivespaces.system.core.logging", "interactivespaces.system.core.configuration",
+      "interactivespaces.system.core.container" };
+
+  /**
    * The Jar Manifest property that gives the Interactive Spaces version.
    */
-  private static final String MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION = "Bundle-Version";
+  public static final String MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION = "Bundle-Version";
 
   /**
    * The file extension used for files which give container extensions.
    */
-  private static final String EXTENSION_FILE_EXTENSION = ".ext";
+  public static final String EXTENSION_FILE_EXTENSION = ".ext";
 
   /**
    * The keyword header for a package line on an extensions file.
@@ -78,15 +116,15 @@ public class InteractiveSpacesFrameworkBootstrap {
       .length();
 
   /**
-   * Where the OSGi framework launcher can be found.
+   * The folder where Interactive Spaces will cache OSGi plugins.
    */
-  private static final String OSGI_FRAMEWORK_LAUNCH_FRAMEWORK_FACTORY =
-      "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
+  public static final String FOLDER_PLUGINS_CACHE = "plugins-cache";
 
   /**
-   * Subdirectory which will contain the bootstrap bundles.
+   * Where the OSGi framework launcher can be found.
    */
-  public static final String BUNDLE_DIRECTORY_BOOTSTRAP = "bootstrap";
+  public static final String OSGI_FRAMEWORK_LAUNCH_FRAMEWORK_FACTORY =
+      "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
 
   /**
    * The OSGI framework which has been started.
@@ -96,7 +134,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * All bundles installed.
    */
-  private Set<Bundle> bundles = new HashSet<Bundle>();
+  private final Set<Bundle> bundles = new HashSet<Bundle>();
 
   /**
    * The initial set of bundles to load.
@@ -128,30 +166,44 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private File baseInstallFolder;
 
+  /**
+   * The OSGi bundle context for the OSGi framework bundle.
+   */
   private BundleContext rootBundleContext;
 
+  /**
+   * The service for controlling the start levels of bundles.
+   */
   private StartLevel startLevelService;
 
   /**
    * Boot the framework.
+   *
+   * @param args
+   *          the arguments to be passed to the bootstrap
    */
   public void boot(List<String> args) {
     // TODO(keith): Better command line processing
-    needShell = !args.contains("--noshell");
+    needShell = !args.contains(ARGS_NOSHELL);
 
     baseInstallFolder = new File(".");
 
-    getBootstrapBundleJars(BUNDLE_DIRECTORY_BOOTSTRAP);
+    initialBundles = new ArrayList<File>();
+
+    getBootstrapBundleJars(new File(baseInstallFolder,
+        ContainerFilesystemLayout.FOLDER_BUNDLE_BOOTSTRAP));
 
     // If no bundle JAR files are in the directory, then exit.
     if (initialBundles.isEmpty()) {
-      loggingProvider.getLog().warn("No bundles to install.");
+      loggingProvider.getLog().warn("No bootstrap bundles to install.");
     } else {
       setupShutdownHandler();
 
       setupExceptionHandler();
 
       try {
+        loadStartupFolder();
+
         createCoreServices(args);
 
         List<String> loadclasses = new ArrayList<String>();
@@ -160,27 +212,41 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         registerCoreServices();
 
-        // System.out.println("Got loadclasses " + loadclasses);
-        // for (String loadclass : loadclasses) {
-        // Class<?> loadclazz =
-        // getClass().getClassLoader().loadClass(loadclass);
-        // System.out.println("Loaded class " + loadclazz);
-        // Method method = loadclazz.getMethod("getProperties");
-        // method.invoke(null);
-        // }
-
         startBundles(initialBundles);
 
         // Wait for framework to stop.
         framework.waitForStop(0);
-        System.exit(0);
 
-      } catch (Exception ex) {
-        System.err.println("Error starting framework: " + ex);
-        ex.printStackTrace();
         System.exit(0);
+      } catch (Throwable ex) {
+        loggingProvider.getLog().error("Error starting framework", ex);
+
+        System.exit(1);
       }
     }
+  }
+
+  /**
+   * Load the contents of the startup folder, which contains additional
+   * resources for the container.
+   *
+   * @throws Exception
+   *           could not create the startup folder or load it
+   */
+  private void loadStartupFolder() throws Exception {
+    File startupFolder =
+        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_BUNDLE_STARTUP);
+    if (startupFolder.exists()) {
+      if (startupFolder.isFile()) {
+        throw new Exception(String.format("Startup folder %s is a file not a folder.",
+            startupFolder.getAbsolutePath()));
+      }
+    } else if (!startupFolder.mkdirs()) {
+      throw new Exception(String.format("Cannot create startup folder %s.",
+          startupFolder.getAbsolutePath()));
+    }
+
+    getBootstrapBundleJars(startupFolder);
   }
 
   /**
@@ -229,13 +295,12 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * Start all bundles.
    *
-   * @param ctxt
-   *          the framework bundle context
-   * @param bundleList
-   *          the list of all bundles
    * @param jars
-   *          the jars for the bundles
+   *          the jars to start as OSGi bundles
+   *
    * @throws BundleException
+   *           something happened while starting bundles that could not be
+   *           recovered from
    */
   protected void startBundles(List<File> jars) throws BundleException {
     for (File bundleFile : jars) {
@@ -243,12 +308,12 @@ public class InteractiveSpacesFrameworkBootstrap {
 
       Bundle b = rootBundleContext.installBundle(bundleUri);
 
-      int startLevel = 1;
+      int startLevel = STARTUP_LEVEL_DEFAULT;
       String symbolicName = b.getSymbolicName();
       if (symbolicName.equals("interactivespaces.master.webapp")) {
-        startLevel = 5;
+        startLevel = STARTUP_LEVEL_LAST;
       } else if (symbolicName.equals("interactivespaces.master")) {
-        startLevel = 4;
+        startLevel = STARTUP_LEVEL_PENULTIMATE;
       }
 
       if (startLevel != 1) {
@@ -272,7 +337,7 @@ public class InteractiveSpacesFrameworkBootstrap {
       }
     }
 
-    startLevelService.setStartLevel(5);
+    startLevelService.setStartLevel(STARTUP_LEVEL_LAST);
   }
 
   /**
@@ -283,7 +348,6 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void startBundle(Bundle bundle) {
     try {
-
       bundle.start();
     } catch (Exception e) {
       loggingProvider.getLog().error(
@@ -294,12 +358,10 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * Create, configure, and start the OSGi framework instance.
    *
-   * @throws IOException
    * @throws Exception
-   * @throws BundleException
+   *           unable to create and/or start the framework
    */
-  private void createAndStartFramework(List<String> loadclasses) throws IOException, Exception,
-      BundleException {
+  private void createAndStartFramework(List<String> loadclasses) throws Exception {
     Map<String, String> m = new HashMap<String, String>();
 
     m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
@@ -311,11 +373,12 @@ public class InteractiveSpacesFrameworkBootstrap {
     }
 
     List<String> extraPackages = new ArrayList<String>();
-    extraPackages.add("org.apache.commons.logging; version=1.1.1");
-    extraPackages.add("org.apache.commons.logging.impl; version=1.1.1");
-    extraPackages.add("interactivespaces.system.core.logging");
-    extraPackages.add("interactivespaces.system.core.configuration");
-    extraPackages.add("interactivespaces.system.core.container");
+    for (String pckage : PACKAGES_SYSTEM_EXTERNAL) {
+      extraPackages.add(pckage);
+    }
+    for (String pckage : PACKAGES_SYSTEM_INTERACTIVESPACES) {
+      extraPackages.add(pckage);
+    }
 
     addControllerExtensionsClasspath(extraPackages, loadclasses);
 
@@ -335,7 +398,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     m.putAll(configurationProvider.getInitialConfiguration());
 
-    File file = new File(baseInstallFolder, "plugins-cache");
+    File file = new File(baseInstallFolder, FOLDER_PLUGINS_CACHE);
     m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
 
     framework = getFrameworkFactory().newFramework(m);
@@ -356,6 +419,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void setupShutdownHandler() {
     Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
       public void run() {
         try {
           if (framework != null) {
@@ -375,17 +439,17 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @param bootstrapFolder
    *          the folder containing the bootstrap bundles
    */
-  private void getBootstrapBundleJars(String bootstrapFolder) {
+  private void getBootstrapBundleJars(File folder) {
     // Look in the specified bundle directory to create a list
     // of all JAR files to install.
-    File[] files = new File(baseInstallFolder, bootstrapFolder).listFiles(new FilenameFilter() {
+    File[] files = folder.listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {
         String filename = name.toLowerCase();
         return filename.endsWith(".jar") || filename.endsWith(".war");
       }
     });
-    initialBundles = new ArrayList<File>();
+
     for (File f : files) {
       initialBundles.add(f);
     }
@@ -421,15 +485,16 @@ public class InteractiveSpacesFrameworkBootstrap {
       BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
       try {
         for (String s = br.readLine(); s != null; s = br.readLine()) {
-          s = s.trim();
           // Try to load first non-empty, non-commented line.
-          if ((s.length() > 0) && (s.charAt(0) != '#')) {
+          s = s.trim();
+          if (!s.isEmpty() && s.charAt(0) != '#') {
             return (FrameworkFactory) classLoader.loadClass(s).newInstance();
           }
         }
       } finally {
-        if (br != null)
+        if (br != null) {
           br.close();
+        }
       }
     }
 
@@ -468,12 +533,13 @@ public class InteractiveSpacesFrameworkBootstrap {
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
-        if (reader != null)
+        if (reader != null) {
           try {
             reader.close();
           } catch (IOException e) {
             // Don't care. Closing.
           }
+        }
       }
     }
 
@@ -490,15 +556,17 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void addControllerExtensionsClasspath(List<String> packages, List<String> loadclasses) {
     File[] extensionFiles =
-        new File(baseInstallFolder, "lib/system/java").listFiles(new FilenameFilter() {
+        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM)
+            .listFiles(new FilenameFilter() {
 
-          @Override
-          public boolean accept(File dir, String name) {
-            return name.endsWith(EXTENSION_FILE_EXTENSION);
-          }
-        });
-    if (extensionFiles == null)
+              @Override
+              public boolean accept(File dir, String name) {
+                return name.endsWith(EXTENSION_FILE_EXTENSION);
+              }
+            });
+    if (extensionFiles == null) {
       return;
+    }
 
     for (File extensionFile : extensionFiles) {
       processExtensionFile(packages, loadclasses, extensionFile);
