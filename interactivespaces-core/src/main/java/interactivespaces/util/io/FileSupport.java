@@ -1,5 +1,7 @@
 package interactivespaces.util.io;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +9,9 @@ import java.io.OutputStream;
 
 /**
  * Various useful file routines.
+ *
+ * TODO(peringknife): All the explicit IOExceptions in this class/interface should be converted
+ *   to be unchecked IS exception of some sort.
  *
  * @author Trevor Pering
  */
@@ -89,7 +94,8 @@ public interface FileSupport {
    * @param file
    *          the file where the input stream's contents will be copied
    *
-   * @throws java.io.IOException
+   * @throws IOException
+   *           io problem with operation
    */
   void copyInputStream(InputStream in, File file) throws IOException;
 
@@ -104,7 +110,8 @@ public interface FileSupport {
    * @param out
    *          the output stream
    *
-   * @throws java.io.IOException
+   * @throws IOException
+   *           io problem with operation
    */
   void copyInputStream(InputStream in, OutputStream out) throws IOException;
 
@@ -118,7 +125,8 @@ public interface FileSupport {
    * @param closeOnCompletion
    *          {@code true} if the streams should be closed when the copy finishes.
    *
-   * @throws java.io.IOException
+   * @throws IOException
+   *           io problem with operation
    */
   void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException;
 
@@ -131,9 +139,23 @@ public interface FileSupport {
    *
    * @return a string containing the contents
    *
-   * @throws java.io.IOException
+   * @throws IOException
+   *           io problem with operation
    */
   String inputStreamAsString(InputStream in) throws IOException;
+
+  /**
+   * Read all the availble data from an input stream and return it as a string.
+   *
+   * @param in
+   *          the input stream to read
+   *
+   * @return a string containing the contents, or {@code null} if input is {@code null}
+   *
+   * @throws IOException
+   *           io problem with operation
+   */
+  String readAvailableToString(InputStream in) throws IOException;
 
   /**
    * Delete a file.
@@ -189,8 +211,8 @@ public interface FileSupport {
    * @param dir
    *          the directory that should exist
    *
-   * @throws interactivespaces.InteractiveSpacesException
-   *           if there is a file at the location and it is not a directory
+   * @throws SimpleInteractiveSpacesException
+   *           if the result is not the existence of a valid directory
    */
-  void directoryExists(File dir);
+  void directoryExists(File dir) throws SimpleInteractiveSpacesException;
 }

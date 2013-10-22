@@ -17,6 +17,7 @@
 package interactivespaces.util.io;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +50,8 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public void zip(File target, File basePath) {
     if (target.exists()) {
-      throw new InteractiveSpacesException("Cowardly refusing to overwrite existing output file " + target);
+      throw new SimpleInteractiveSpacesException(
+          "Cowardly refusing to overwrite existing output file " + target);
     }
     ZipOutputStream zipOutputStream = null;
     try {
@@ -94,7 +96,7 @@ public class FileSupportImpl implements FileSupport {
           }
         }
       } else {
-        throw new InteractiveSpacesException("Unsupported file type for " + relPath);
+        throw new SimpleInteractiveSpacesException("Unsupported file type for " + relPath);
       }
     } finally {
       closeQuietly(fileStream);
@@ -114,13 +116,13 @@ public class FileSupportImpl implements FileSupport {
         if (entry.isDirectory()) {
           File newDir = new File(baseLocation, entry.getName());
           if (!newDir.exists() && !newDir.mkdirs()) {
-            throw new InteractiveSpacesException("Could not create directory: " + newDir);
+            throw new SimpleInteractiveSpacesException("Could not create directory: " + newDir);
           }
         } else {
           File file = new File(baseLocation, entry.getName());
           File parentFile = file.getParentFile();
           if (!parentFile.exists() && !parentFile.mkdirs()) {
-            throw new InteractiveSpacesException("Could not create directory: " + parentFile);
+            throw new SimpleInteractiveSpacesException("Could not create directory: " + parentFile);
           }
 
           copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(
@@ -156,7 +158,7 @@ public class FileSupportImpl implements FileSupport {
 
     File[] sourceFiles = sourceDir.listFiles();
     if (sourceFiles == null) {
-      throw new InteractiveSpacesException(
+      throw new SimpleInteractiveSpacesException(
           "Missing source directory " + sourceDir.getAbsolutePath());
     }
 
@@ -263,6 +265,20 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
+  public String readAvailableToString(InputStream in) throws IOException {
+    if (in == null) {
+      return null;
+    }
+    byte[] buffer = new byte[COPY_DEFAULT_BUFFER_SIZE];
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    while (in.available() > 0) {
+      int length = in.read(buffer);
+      bos.write(buffer, 0, length);
+    }
+    return bos.toString();
+  }
+
+  @Override
   public final void delete(File file) {
     if (file.exists()) {
       if (file.isDirectory()) {
@@ -324,12 +340,12 @@ public class FileSupportImpl implements FileSupport {
   public void directoryExists(File dir) {
     if (dir.exists()) {
       if (!dir.isDirectory()) {
-        throw new InteractiveSpacesException(String.format("%s is not a directory",
+        throw new SimpleInteractiveSpacesException(String.format("%s is not a directory",
             dir.getAbsolutePath()));
       }
     } else {
       if (!dir.mkdirs()) {
-        throw new InteractiveSpacesException(String.format("Could not create directory %s",
+        throw new SimpleInteractiveSpacesException(String.format("Could not create directory %s",
             dir.getAbsolutePath()));
       }
     }

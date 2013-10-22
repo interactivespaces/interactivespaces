@@ -16,14 +16,9 @@
 
 package interactivespaces.activity.binary;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * A {@link NativeActivityRunner} for OS-X.
@@ -37,42 +32,16 @@ public class OsxNativeActivityRunner extends BaseNativeActivityRunner {
    */
   public static final String OPERATING_SYSTEM_TAG = "osx";
 
-  private String appName;
-
+  /**
+   * Create a new activity runner for osx.
+   *
+   * @param spaceEnvironment
+   *          environment to use
+   * @param log
+   *          logger for logging
+   */
   public OsxNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
-  }
-
-  @Override
-  public String[] getCommand() {
-    List<String> builder = new ArrayList<String>();
-
-    appName = (String) config.get(ACTIVITYNAME);
-    if (appName != null) {
-      builder.add(appName);
-
-      String commandFlags = (String) config.get(FLAGS);
-      for (String arg : commandFlags.split("\\s")) {
-        builder.add(arg);
-      }
-
-      // Build up the command line.
-      for (Entry<String, Object> entry : config.entrySet()) {
-        if (ACTIVITYNAME.equals(entry.getKey()) || FLAGS.equals(entry.getKey()))
-          continue;
-
-        String arg = " --" + entry.getKey();
-        Object value = entry.getValue();
-        if (value != null)
-          arg += "=" + value.toString();
-
-        builder.add(arg);
-      }
-
-      return builder.toArray(new String[builder.size()]);
-    } else {
-      throw new InteractiveSpacesException("No property called " + ACTIVITYNAME);
-    }
   }
 
   @Override
@@ -84,7 +53,7 @@ public class OsxNativeActivityRunner extends BaseNativeActivityRunner {
     } else {
       returnValue = Integer.toString(exitValue);
     }
-    log.info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
+    getLog().info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
 
     return true;
   }
