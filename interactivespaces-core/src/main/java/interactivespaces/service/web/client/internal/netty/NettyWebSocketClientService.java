@@ -16,13 +16,13 @@
 
 package interactivespaces.service.web.client.internal.netty;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.service.web.client.WebSocketClientService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
@@ -45,7 +45,7 @@ public class NettyWebSocketClientService implements WebSocketClientService {
   /**
    * The metadata for the service.
    */
-  private Map<String, Object> metadata = Maps.newHashMap();
+  private final Map<String, Object> metadata = Maps.newHashMap();
 
   @Override
   public Map<String, Object> getMetadata() {
@@ -81,7 +81,6 @@ public class NettyWebSocketClientService implements WebSocketClientService {
 
   @Override
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    // TODO Auto-generated method stub
-
+    this.spaceEnvironment = spaceEnvironment;
   }
 }

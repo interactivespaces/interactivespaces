@@ -1,0 +1,84 @@
+<html>
+
+<head>
+<script type="text/javascript">
+
+var initialX = null;
+var initialY = null;
+var initialZ = null;
+
+var ws; 
+
+function writeData(data) {
+    var dataElement = document.getElementById('data');
+    dataElement.innerText = data;
+}
+
+function pageLoaded () {
+  ws = new WebSocket("ws://@HOST@:8081/mobile"); 
+
+  ws.onopen = function(event) { 
+	  writeData("The WebSocket Connection Is Open.");
+  }
+
+  ws.onmessage = function(event) { 
+  }
+
+  ws.onclose = function(event) { 
+      writeData("The WebSocket Connection Has Been Closed."); 
+  }
+}
+
+function handleOrientationEvent(event) {
+
+    var x = event.beta ? event.beta : event.y;
+    var y = event.gamma ? event.gamma : event.x;
+    var z = event.alpha ? event.alpha : event.z;
+
+    window.console && console.info('Raw position: x, y, z: ', x, y, z);
+
+    if (!initialX && !initialY) {
+
+        initialX = x;
+        initialY = y;
+        initialZ = z;
+
+    } else {
+
+        var positionX = initialX - x;
+        var positionY = initialY - y;
+        var positionZ = initialZ - z;
+
+        var message = {"x":positionX, "y": positionY, "z": positionZ};
+        ws.send(JSON.stringify(message));
+    }
+}
+
+function isEventFired() {
+    if (!initialX && !initialY) {
+        var warningElement = document.getElementById('warning');
+        warningElement.innerText = 'Warning: Cannot receive device orientation events, this browser is not supported.';
+        warningElement.style.display = 'inline-block';
+    }
+}
+
+// Webkit en Mozilla variant beide registreren.
+window.addEventListener("MozOrientation", handleOrientationEvent, true);
+window.addEventListener("deviceorientation", handleOrientationEvent, true);
+
+setTimeout(isEventFired, 2000);
+</script>
+</head>
+
+<body onload="pageLoaded();">
+<h1>Hello, World, from Interactive Spaces</h1>
+
+<p id="data">
+</p>
+
+<p id="warning">
+</p>
+
+</body>
+</html>
+

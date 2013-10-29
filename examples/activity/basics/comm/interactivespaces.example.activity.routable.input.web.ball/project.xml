@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>Ball Web Java Activity Example</name>
+    <description>
+An example Java-based web activity which uses web sockets to communicate between the Live Activity and the browser application. The activity receives events from a route giving x,y,z coordinates which move the ball.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.routable.input.web.ball</identifyingName>
+    <version>1.0.0</version>
+</project>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>External Proxy Internal  Activity Example</name>
+    <description>
+This example shows a bar code for an external facing web application. When scanned by a mobile device, the mobile device's orientation will be sent to this activity.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.externalproxy.internal</identifyingName>
+    <version>1.0.0</version>
+</project>
