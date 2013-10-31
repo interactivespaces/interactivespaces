@@ -22,6 +22,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
@@ -31,7 +32,6 @@ import interactivespaces.controller.activity.wrapper.internal.osnative.NativeAct
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 import org.osgi.framework.BundleContext;
@@ -56,6 +56,12 @@ public class OsgiActiveControllerActivityFactory implements ActiveControllerActi
    */
   private Map<String, ActivityWrapperFactory> activityWrapperFactories = Maps.newConcurrentMap();
 
+  /**
+   * Create a new factory with the given context.
+   *
+   * @param bundleContext
+   *          context for creating activities
+   */
   public OsgiActiveControllerActivityFactory(BundleContext bundleContext) {
     this.bundleContext = bundleContext;
 
@@ -69,7 +75,7 @@ public class OsgiActiveControllerActivityFactory implements ActiveControllerActi
   @Override
   public ActiveControllerActivity createActiveLiveActivity(String activityType,
       InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, StandardSpaceController controller) {
+      LiveActivityConfiguration configuration, SpaceController controller) {
 
     ActivityWrapperFactory wrapperFactory =
         activityWrapperFactories.get(activityType.toLowerCase());
@@ -95,7 +101,7 @@ public class OsgiActiveControllerActivityFactory implements ActiveControllerActi
   @Override
   public ActiveControllerActivity newActiveActivity(InstalledLiveActivity liveActivity,
       ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      StandardSpaceController controller) {
+      SpaceController controller) {
     String type = getConfiguredType(configuration);
 
     return createActiveLiveActivity(type, liveActivity, activityFilesystem, configuration,

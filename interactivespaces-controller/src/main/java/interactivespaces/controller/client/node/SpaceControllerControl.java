@@ -88,6 +88,72 @@ public interface SpaceControllerControl extends SpaceController {
   void cleanControllerPermanentData();
 
   /**
+   * Start up all activities in the controller that aren't currently started.
+   */
+  void startupAllActivities();
+
+  /**
+   * Shut down all activities in the controller.
+   */
+  void shutdownAllActivities();
+
+  /**
+   * Start up an activity given its UUID.
+   *
+   * @param uuid
+   *          UUID of the activity to start.
+   */
+  void startupActivity(String uuid);
+
+  /**
+   * Start up an activity given its UUID.
+   *
+   * @param uuid
+   *          UUID of the activity to start.
+   */
+  void shutdownActivity(String uuid);
+
+  /**
+   * Start up an activity given its UUID.
+   *
+   * @param uuid
+   *          UUID of the activity to activate.
+   */
+  void activateActivity(String uuid);
+
+  /**
+   * Start up an activity given its UUID.
+   *
+   * @param uuid
+   *          UUID of the activity to deactivate
+   */
+  void deactivateActivity(String uuid);
+
+  /**
+   * Cause a status check of an activity given its UUID.
+   *
+   * @param uuid
+   *          UUID of the activity to get the status of
+   */
+  void statusActivity(String uuid);
+
+  /**
+   * Capture data for the given controller from a URI.
+   *
+   * @param bundleUri
+   *          The transfer uri.
+   */
+  void captureControllerDataBundle(String bundleUri);
+
+  /**
+   * Restore data for the given controller from a URI.
+   *
+   * @param bundleUri
+   *          The transfer uri.
+   */
+  void restoreControllerDataBundle(String bundleUri);
+
+  /**
    * Clean the temp data folder for the controller and all live activities.
    */
   void cleanControllerTempDataAll();

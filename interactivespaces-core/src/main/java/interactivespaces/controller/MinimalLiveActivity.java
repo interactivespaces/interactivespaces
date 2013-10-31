@@ -14,28 +14,18 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
-
-import interactivespaces.controller.MinimalLiveActivity;
-
-import org.apache.commons.logging.Log;
+package interactivespaces.controller;
 
 /**
- * A factory for loggers for activities.
+ * Minimal representation of a live activity.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public interface ActivityLogFactory {
-
+public interface MinimalLiveActivity {
   /**
-   * Get the logger for a local activity.
+   * Get the UUID of the activity.
    *
-   * @param activity
-   *          the activity a logger is needed for
-   * @param level
-   *          initial level for the logger
-   *
-   * @return a fully configured logger at the requested level
+   * @return The UUID.
    */
-  Log createLogger(MinimalLiveActivity activity, String level);
+  String getUuid();
 }

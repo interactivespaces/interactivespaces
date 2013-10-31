@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.logging;
 
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -36,13 +36,19 @@ public class InteractiveSpacesEnvironmentActivityLogFactory implements ActivityL
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * Create a new activity log factory for the given space environment.
+   *
+   * @param spaceEnvironment
+   *          environment to define logging context
+   */
   public InteractiveSpacesEnvironmentActivityLogFactory(
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public Log createLogger(InstalledLiveActivity activity, String level) {
+  public Log createLogger(MinimalLiveActivity activity, String level) {
     return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level);
   }
 }

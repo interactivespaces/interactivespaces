@@ -18,6 +18,7 @@ package interactivespaces.controller.domain;
 
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
+import interactivespaces.controller.MinimalLiveActivity;
 
 import java.util.Date;
 
@@ -26,27 +27,20 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public interface InstalledLiveActivity {
-
-  /**
-   * Get the UUID of the activity.
-   *
-   * @return The UUID.
-   */
-  String getUuid();
+public interface InstalledLiveActivity extends MinimalLiveActivity {
 
   /**
    * Set the UUID of the activity.
    *
    * @param uuid
-   *          The UUID.
+   *          the UUID
    */
   void setUuid(String uuid);
 
   /**
    * Get the identifying name of the activity.
    *
-   * @return The identifying name.
+   * @return the identifying name
    */
   String getIdentifyingName();
 
@@ -54,14 +48,14 @@ public interface InstalledLiveActivity {
    * Set the identifying name of the activity.
    *
    * @param identifyingName
-   *          The identifying name of the activity.
+   *          the identifying name of the activity
    */
   void setIdentifyingName(String identifyingName);
 
   /**
    * Get the version of the activity.
    *
-   * @return The activity version.
+   * @return the activity version
    */
   String getVersion();
 
@@ -69,9 +63,9 @@ public interface InstalledLiveActivity {
    * Set the version of the activity.
    *
    * @param version
-   *          The version of the activity.
+   *          the activity version
    */
-  void setVersion(String identifyingName);
+  void setVersion(String version);
 
   /**
    * Get the date the activity was last deployed.
@@ -91,7 +85,7 @@ public interface InstalledLiveActivity {
   /**
    * Get the location of the activity's installation.
    *
-   * @return The fully qualified path of the install.
+   * @return the fully qualified path of the install
    */
   String getBaseInstallationLocation();
 
@@ -106,7 +100,7 @@ public interface InstalledLiveActivity {
   /**
    * Get the status of the installation.
    *
-   * @return The last known status of the installation.
+   * @return the last known status of the installation
    */
   ActivityInstallationStatus getInstallationStatus();
 
@@ -121,7 +115,7 @@ public interface InstalledLiveActivity {
   /**
    * Get the last known status of the activity.
    *
-   * @return the last known status of the activity.
+   * @return the last known status of the activity
    */
   ActivityState getLastActivityState();
 

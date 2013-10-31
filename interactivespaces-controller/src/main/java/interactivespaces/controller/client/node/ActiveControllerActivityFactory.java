@@ -19,8 +19,8 @@ package interactivespaces.controller.client.node;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
-import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
@@ -49,7 +49,7 @@ public interface ActiveControllerActivityFactory {
    */
   ActiveControllerActivity createActiveLiveActivity(String activityType,
       InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, StandardSpaceController controller);
+      LiveActivityConfiguration configuration, SpaceController controller);
 
   /**
    * Create an appropriate runner.
@@ -57,6 +57,7 @@ public interface ActiveControllerActivityFactory {
    * <p>
    * The activity type is determined from the {@code configuration} using the
    * {@link #getConfiguredType(Configuration)} method.
+   *
    *
    * @param liapp
    *          the activity to be run.
@@ -71,7 +72,7 @@ public interface ActiveControllerActivityFactory {
    */
   ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp,
       ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      StandardSpaceController controller);
+      SpaceController controller);
 
   /**
    * Get the activity type of the activity.
@@ -84,12 +85,13 @@ public interface ActiveControllerActivityFactory {
    * @throws InteractiveSpacesException
    *           if can't determine the activity type.
    */
-  String getConfiguredType(Configuration configuration);
+  String getConfiguredType(Configuration configuration) throws InteractiveSpacesException;
 
   /**
    * Register an {@link ActivityWrapperFactory}.
    *
    * @param factory
+   *          activity wrapper factory
    */
   void registerActivityWrapperFactory(ActivityWrapperFactory factory);
 
@@ -100,6 +102,7 @@ public interface ActiveControllerActivityFactory {
    * Nothing happens if the factory was never registered.
    *
    * @param factory
+   *          activity wrapper factory
    */
   void unregisterActivityWrapperFactory(ActivityWrapperFactory factory);
 }

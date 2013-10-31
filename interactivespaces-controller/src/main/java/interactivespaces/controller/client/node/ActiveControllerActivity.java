@@ -24,6 +24,7 @@ import interactivespaces.activity.ActivityControl;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.domain.InstalledLiveActivity;
@@ -74,7 +75,7 @@ public class ActiveControllerActivity implements ActivityControl {
    * <p>
    * This can be null if an instance hasn't been created yet.
    */
-  private StandardSpaceController controller;
+  private SpaceController controller;
 
   /**
    * The activity being run.
@@ -110,7 +111,7 @@ public class ActiveControllerActivity implements ActivityControl {
    */
   public ActiveControllerActivity(InstalledLiveActivity installedActivity,
       ActivityWrapper activityWrapper, ActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, StandardSpaceController controller) {
+      LiveActivityConfiguration configuration, SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;
@@ -150,7 +151,7 @@ public class ActiveControllerActivity implements ActivityControl {
       if (instance == null) {
         configuration.load();
         instance = activityWrapper.newInstance();
-        controller.initializeInstance(installedActivity, activityFilesystem, instance,
+        controller.initializeActivityInstance(installedActivity, activityFilesystem, instance,
             configuration, activityWrapper.newExecutionContext());
         instance.startup();
       } else {

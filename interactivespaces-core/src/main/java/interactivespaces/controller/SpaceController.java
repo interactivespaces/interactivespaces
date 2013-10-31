@@ -16,8 +16,12 @@
 
 package interactivespaces.controller;
 
+import interactivespaces.activity.Activity;
+import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.component.ActivityComponentFactory;
+import interactivespaces.activity.execution.ActivityExecutionContext;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
@@ -37,22 +41,22 @@ public interface SpaceController {
    * Environment value giving the controller's
    * {@link NativeActivityRunnerFactory}.
    */
-  public static final String ENVIRONMENT_CONTROLLER_NATIVE_RUNNER = "controller.native.runner";
+  String ENVIRONMENT_CONTROLLER_NATIVE_RUNNER = "controller.native.runner";
 
   /**
    * Configuration property giving the UUID of the controller.
    */
-  public static final String CONFIGURATION_CONTROLLER_UUID = "interactivespaces.controller.uuid";
+  String CONFIGURATION_CONTROLLER_UUID = "interactivespaces.controller.uuid";
 
   /**
    * Configuration property giving the name of the controller.
    */
-  public static final String CONFIGURATION_CONTROLLER_NAME = "interactivespaces.controller.name";
+  String CONFIGURATION_CONTROLLER_NAME = "interactivespaces.controller.name";
 
   /**
    * Configuration property giving the description of the controller.
    */
-  public static final String CONFIGURATION_CONTROLLER_DESCRIPTION =
+  String CONFIGURATION_CONTROLLER_DESCRIPTION =
       "interactivespaces.controller.description";
 
   /**
@@ -67,72 +71,6 @@ public interface SpaceController {
    * This will shut down all apps in the controller as well.
    */
   void shutdown();
-
-  /**
-   * Start up all activities in the controller that aren't currently started.
-   */
-  void startupAllActivities();
-
-  /**
-   * Shut down all activities in the controller.
-   */
-  void shutdownAllActivities();
-
-  /**
-   * Start up an activity given its UUID.
-   *
-   * @param uuid
-   *          UUID of the activity to start.
-   */
-  void startupActivity(String uuid);
-
-  /**
-   * Start up an activity given its UUID.
-   *
-   * @param uuid
-   *          UUID of the activity to start.
-   */
-  void shutdownActivity(String uuid);
-
-  /**
-   * Start up an activity given its UUID.
-   *
-   * @param uuid
-   *          UUID of the activity to activate.
-   */
-  void activateActivity(String uuid);
-
-  /**
-   * Start up an activity given its UUID.
-   *
-   * @param uuid
-   *          UUID of the activity to deactivate
-   */
-  void deactivateActivity(String uuid);
-
-  /**
-   * Cause a status check of an activity given its UUID.
-   *
-   * @param uuid
-   *          UUID of the activity to get the status of
-   */
-  void statusActivity(String uuid);
-
-  /**
-   * Capture data for the given controller from a URI.
-   *
-   * @param bundleUri
-   *          The transfer uri.
-   */
-  void captureControllerDataBundle(String bundleUri);
-
-  /**
-   * Restore data for the given controller from a URI.
-   *
-   * @param bundleUri
-   *          The transfer uri.
-   */
-  void restoreControllerDataBundle(String bundleUri);
 
   /**
    * Get a factory for native activities runners.
@@ -161,4 +99,21 @@ public interface SpaceController {
    * @return information about the controller
    */
   SimpleSpaceController getControllerInfo();
+
+  /**
+   * Prepare an instance of an activity to run.
+   *
+   * @param activity
+   *          information about the activity whose instance is to be initialized
+   * @param activityFilesystem
+   *          the filesystem for the activity instance
+   * @param instance
+ *            the instance of the activity being started up
+   * @param configuration
+*             the configuration for the instance
+   * @param executionContext
+   *          execution context for this activity
+   */
+  void initializeActivityInstance(MinimalLiveActivity activity, ActivityFilesystem activityFilesystem,
+      Activity instance, Configuration configuration, ActivityExecutionContext executionContext);
 }
