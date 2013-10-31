@@ -98,26 +98,34 @@ function shutdownActivities() {
 
 <h1>Space Controller: ${spacecontroller.name}</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" onclick="doAjaxCommand('connect')">Connect</button></li>
-<li><button type="button" onclick="doAjaxCommand('disconnect')">Disconnect</button></li>
-<li><button type="button" onclick="doAjaxCommand('status')">Status</button></li>
-<li><button type="button" id="editButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/edit.html'" title="Edit the application details">Edit</button></li>
-<li><button type="button" id="editMetadataButton" 
-    onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/metadata/edit.html'" title="Edit the space controller metadata">Metadata</button></li>
-<li><button type="button" onclick="shutdownController()" title="Shutdown the controller">Shutdown</button></li>
-<li><button type="button" onclick="shutdownActivities()" title="Shutdown all activities on the controller">Shutdown All Activities</button></li>
-<li><button type="button" onclick="cleanActivitiesTempDataSpaceController()" title="Clean the tmp data for all live activities on the controller">Clean Activities Tmp</button></li>
-<li><button type="button" onclick="cleanActivitiesPermanentDataSpaceController()" title="Clean the permanent data for all live activities on the controller">Clean Activities Permanent</button></li>
-<li><button type="button" onclick="cleanTempDataSpaceController()" title="Clean the controller's tmp data">Clean Tmp</button></li>
-<li><button type="button" onclick="cleanPermanentDataSpaceController()" title="Clean the controller's permanent data">Clean Permanent</button></li>
-<li><button type="button" onclick="captureData()" title="Capture controller data">Capture Data</button></li>
-<li><button type="button" onclick="restoreData()" title="Restore controller data">Restore Data</button></li>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all Live Activities on this Controller">Deploy</button></li>
-<#if !(liveactivities?has_content)>
-<li><button type="button" onclick="deleteController()" title="Delete space controller on master">Delete</button></li>
-</#if>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" onclick="doAjaxCommand('connect')">Connect</button></td>
+    <td><button type="button" onclick="doAjaxCommand('disconnect')">Disconnect</button></td>
+    <td><button type="button" onclick="doAjaxCommand('status')">Status</button></td>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/edit.html'" title="Edit the application details">Edit</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/metadata/edit.html'" title="Edit the space controller metadata">Metadata</button></td>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all Live Activities on this Controller">Deploy</button></td>
+    <td><button type="button" onclick="captureData()" title="Capture controller data">Capture Data</button></td>
+  </tr>
+  <tr>
+    <td><button type="button" onclick="cleanActivitiesTempDataSpaceController()" title="Clean the tmp data for all live activities on the controller">Clean Activities Tmp</button></td>
+    <td><button type="button" onclick="cleanActivitiesPermanentDataSpaceController()" title="Clean the permanent data for all live activities on the controller">Clean Activities Permanent</button></td>
+    <td><button type="button" onclick="cleanTempDataSpaceController()" title="Clean the controller's tmp data">Clean Tmp</button></td>
+    <td><button type="button" onclick="cleanPermanentDataSpaceController()" title="Clean the controller's permanent data">Clean Permanent</button></td>
+    <td><button type="button" onclick="shutdownController()" title="Shutdown the controller">Shutdown</button></td>
+    <td><button type="button" onclick="shutdownActivities()" title="Shutdown all activities on the controller">Shutdown All Activities</button></td>
+    <td><button type="button" onclick="restoreData()" title="Restore controller data">Restore Data</button></td>
+    <#if liveactivities?has_content>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Can not delete controller containing live activities'>
+    <#else>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Delete space controller on master'>
+    </#if>
+    <td><button type="button" onclick="deleteController()" title="${title}" ${disabledAttribute}>Delete</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
@@ -140,9 +148,28 @@ ${spacecontroller.description}
 <td>${spacecontroller.hostId}</td>
 </tr>
 <tr>
-<th>Status</th>
-<td><#if lspacecontroller.lastStateUpdate??><#assign t  = lspacecontroller.lastStateUpdateDate?datetime><#else><#assign t = 'Unknown'></#if>
-<@spring.message lspacecontroller.state.description /> as of ${t}</td>
+  <th>Mode</th>
+  <td>
+    <#if spacecontroller.getMode()??>
+      <span class="status-box status-box-inner spacecontroller-mode spacecontroller-mode-${spacecontroller.getMode().name()}">
+        <@spring.message spacecontroller.getMode().description />
+      </span>
+    </#if>
+  </td>
+</tr>
+<tr>
+  <th>Status</th>
+  <td>
+    <#if lspacecontroller.lastStateUpdate??>
+      <#assign t  = lspacecontroller.lastStateUpdateDate?datetime>
+    <#else>
+      <#assign t = 'Unknown'>
+    </#if>
+    <span class="status-box status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.state.name()}">
+      <@spring.message lspacecontroller.state.description />
+    </span>
+    <span class="as-of-timestamp">as of ${t}</span>
+  </td>
 </tr>
 <tr>
 <th valign="top">Metadata</th>
@@ -165,13 +192,15 @@ ${spacecontroller.description}
     <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td>
 <div id="liveactivity-info-${liveactivity.activity.uuid}">
-<span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
- as of 
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<span class="as-of-timestamp">
+ as of
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
     Unknown
   </#if>
+</span>
 </div>
 <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
@@ -193,7 +222,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </td>
 <td>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>
@@ -219,7 +248,9 @@ None
       <#else>
         <#assign t = 'Unknown'>
       </#if>
-      <@spring.message lspacecontroller.dataBundleState.description /> as of ${t}
+      <span class="as-of-timestamp">
+        <@spring.message lspacecontroller.dataBundleState.description /> as of ${t}
+      </span>
     </td>
   </tr>
 </table>

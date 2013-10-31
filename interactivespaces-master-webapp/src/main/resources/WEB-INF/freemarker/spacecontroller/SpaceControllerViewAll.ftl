@@ -85,58 +85,83 @@ function shutdownAllActivitiesAllControllers() {
 
 <h1>Space Controllers</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="connectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/connect.html'" title="Connect to all known controllers">Connect All</button></li>
-<li><button type="button" id="disconnectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/disconnect.html'" title="Disconnect from all known controllers">Disconnect All</button></li>
-<li><button type="button" id="statusAllButton" onclick="doAjaxCommand('status')" title="Status from all controllers that claim they are in some sort of connection">Status All</button></li>
-<li><button type="button" id="forceStatusAllButton" onclick="doAjaxCommand('forcestatus')" title="Status from all controllers, whether or not they have been connected">Force Status All</button></li>
-<li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
-<li><button type="button" id="shutdownAllButton" onclick="shutdownAllControllers();" title="Shut down all connected controllers">Shutdown All</button></li>
-<li><button type="button" onclick="cleanActivitiesTempDataAllControllers()" title="Clean the tmp data for all live activities on all controllers">Clean Activities Tmp</button></li>
-<li><button type="button" onclick="cleanActivitiesPermanentDataAllControllers()" title="Clean the permanent data for all live activities on all controllers">Clean Activities Permanent</button></li>
-<li><button type="button" onclick="cleanTempDataAllControllers()" title="Clean the tmp data for all controllers">Clean Tmp</button></li>
-<li><button type="button" onclick="cleanPermanentDataAllControllers()" title="Clean the permanent data for all controllers">Clean Permanent</button></li>
-<li><button type="button" id="captureDataAllButton" onclick="captureDataAllControllers()" title="Capture All Data">Capture All Data</button></li>
-<li><button type="button" id="restoreDataAllButton" onclick="restoreDataAllControllers()" title="Restore All Data">Restore All Data</button></li>
-<li><button type="button" id="newButton" onclick="window.location='/interactivespaces/spacecontroller/new.html?mode=embedded'" title="Create a new controller">New</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="connectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/connect.html'" title="Connect to all known controllers">Connect All</button></td>
+    <td><button type="button" id="statusAllButton" onclick="doAjaxCommand('status')" title="Status from all controllers that claim they are in some sort of connection">Status All</button></td>
+    <td><button type="button" id="shutdownAllButton" onclick="shutdownAllControllers();" title="Shut down all connected controllers">Shutdown All</button></td>
+    <td><button type="button" onclick="cleanTempDataAllControllers()" title="Clean the tmp data for all controllers">Clean Tmp</button></td>
+    <td><button type="button" onclick="cleanPermanentDataAllControllers()" title="Clean the permanent data for all controllers">Clean Permanent</button></td>
+    <td><button type="button" id="captureDataAllButton" onclick="captureDataAllControllers()" title="Capture All Data">Capture All Data</button></td>
+    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/spacecontroller/new.html?mode=embedded'" title="Create a new controller">New</button></td>
+  <tr>
+  </tr>
+    <td><button type="button" id="disconnectAllButton" onclick="window.location='/interactivespaces/spacecontroller/all/disconnect.html'" title="Disconnect from all known controllers">Disconnect All</button></td>
+    <td><button type="button" id="forceStatusAllButton" onclick="doAjaxCommand('forcestatus')" title="Status from all controllers, whether or not they have been connected">Force Status All</button></td>
+    <td><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></td>
+    <td><button type="button" onclick="cleanActivitiesTempDataAllControllers()" title="Clean the tmp data for all live activities on all controllers">Clean Activities Tmp</button></td>
+    <td><button type="button" onclick="cleanActivitiesPermanentDataAllControllers()" title="Clean the permanent data for all live activities on all controllers">Clean Activities Permanent</button></td>
+    <td><button type="button" id="restoreDataAllButton" onclick="restoreDataAllControllers()" title="Restore All Data">Restore All Data</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
 
-<table>
+<table class="all-controllers-table">
   <tr>
-    <th>Name</th>
+    <th class="name-header">Name</th>
+    <th class="mode-header">Mode</th>
     <th class="status-header">Status</th>
+    <th></th>
     <th class="databundle-header">Data Bundle</th>
+    <th></th>
   </tr>
 
-  <#list spacecontrollers as spacecontroller>
-    <tr>
+  <#list lspacecontrollers as lspacecontroller>
+    <#assign trCss = (lspacecontroller_index % 2 == 0)?string("even","odd")>
+    <tr class="${trCss}">
       <td>
-        <a href="${spacecontroller.controller.id}/view.html">${spacecontroller.controller.name}</a>
+        <a href="${lspacecontroller.controller.id}/view.html">${lspacecontroller.controller.name}</a>
+      </td>
+      <td class="mode-value">
+        <#if lspacecontroller.controller.getMode()??>
+          <div class="status-box">
+            <div class="status-box-inner spacecontroller-mode spacecontroller-mode-${lspacecontroller.controller.getMode().name()}">
+              <@spring.message lspacecontroller.controller.getMode().description />
+            </div>
+          </div>
+        </#if>
       </td>
       <td class="status-value">
-        <#if spacecontroller.lastStateUpdate??>
-          <#assign t  = spacecontroller.lastStateUpdateDate?datetime>
+        <div class="status-box">
+          <div class="status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.state.name()}">
+            <@spring.message lspacecontroller.state.description />
+          </div>
+        </div>
+      </td>
+      <td>
+        <#if lspacecontroller.lastStateUpdate??>
+          <#assign t  = lspacecontroller.lastStateUpdateDate?datetime>
         <#else>
           <#assign t = 'Unknown'>
         </#if>
-        <span class="spacecontroller-status spacecontroller-status-${spacecontroller.state.name()}">
-          <@spring.message spacecontroller.state.description />
-        </span>
-        as of ${t}
+        <span class="as-of-timestamp">as of ${t}</span>
       </td>
       <td class="databundle-value">
-        <#if spacecontroller.lastDataBundleStateUpdate??>
-          <#assign t  = spacecontroller.lastDataBundleStateUpdateDate?datetime>
+        <div class="status-box">
+          <div class="status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.dataBundleState.name()}">
+            <@spring.message lspacecontroller.dataBundleState.description />
+          </div>
+        </div>
+      </td>
+      <td>
+        <#if lspacecontroller.lastDataBundleStateUpdate??>
+          <#assign t  = lspacecontroller.lastDataBundleStateUpdateDate?datetime>
         <#else>
           <#assign t = 'Unknown'>
         </#if>
-        <span class="spacecontroller-status spacecontroller-status-${spacecontroller.dataBundleState.name()}">
-          <@spring.message spacecontroller.dataBundleState.description />
-        </span>
-        as of ${t}
+        <span class="as-of-timestamp">as of ${t}</span>
       </td>
     </tr>
   </#list>

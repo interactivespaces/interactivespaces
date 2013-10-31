@@ -24,7 +24,13 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerUtils {
+public final class SpaceControllerUtils {
+
+  /**
+   * Private constructor for utility class.
+   */
+  private SpaceControllerUtils() {
+  }
 
   /**
    * Copy the source to a POJO template.
@@ -62,6 +68,7 @@ public class SpaceControllerUtils {
     destination.setName(source.getName());
     destination.setDescription(source.getDescription());
     destination.setHostId(source.getHostId());
+    destination.setMode(source.getMode());
   }
 
 }

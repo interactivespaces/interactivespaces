@@ -56,15 +56,21 @@ function deleteActivity() {
 
 <h1>Activity: ${activity.name}</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all out of date Live Activities based on this Activity">Update Deployments</button></li>
-<li><button type="button" id="editButton" onclick="window.location='/interactivespaces/activity/${activity.id}/edit.html'" title="Edit the activity details">Edit</button></li>
-<li><button type="button" id="editMetadataButton" 
-    onclick="window.location='/interactivespaces/activity/${activity.id}/metadata/edit.html'" title="Edit the activity metadata">Metadata</button></li>
-<#if !(liveactivities?has_content)>    
-<li><button type="button" onclick="deleteActivity()" title="Delete activity on master">Delete</button></li>
-</#if>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all out of date Live Activities based on this Activity">Update Deployments</button></td>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/activity/${activity.id}/edit.html'" title="Edit the activity details">Edit</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/activity/${activity.id}/metadata/edit.html'" title="Edit the activity metadata">Metadata</button></td>
+    <#if liveactivities?has_content>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Can not delete activity in a group'>
+    <#else>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Delete activity on master'>
+    </#if>
+    <td><button type="button" onclick="deleteActivity()" title="${title}" ${disabledAttribute}>Delete</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
@@ -106,13 +112,15 @@ ${activity.description}
     <tr class="${trCss}">
     <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td><#if liveactivity.active?has_content><div id="liveactivity-${liveactivity.activity.uuid}">
-<span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<span class="as-of-timestamp">
  as of 
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
     Unknown
   </#if>
+</span>
 </div>
 <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
@@ -137,7 +145,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </td>
 <td>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>

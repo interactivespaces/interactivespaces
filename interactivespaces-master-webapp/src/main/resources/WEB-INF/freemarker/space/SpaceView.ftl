@@ -44,24 +44,30 @@ function deleteSpace() {
 
 <h1>Space: ${space.name}</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></li>
-<li><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></li>
-<li><button type="button" d="deactivateButton" onclick="doAjaxCommand('deactivate')"">Deactivate</button></li>
-<li><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></li>
-<li><button type="button" id="statusButton" onclick="doAjaxCommand('liveactivitystatus')">Status</button></li>
-<li><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></li>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></li>
-<li><button type="button" id="liveActivitiesButton" 
-    onclick="window.location='/interactivespaces/space/${space.id}/liveactivities.html'" title="Get all live activities that are part of the space and its subspaces">Live Activities</button></li>
-<li><button type="button" id="editButton" 
-    onclick="window.location='/interactivespaces/space/${space.id}/edit.html'" title="Edit the space details">Edit</button></li>
-<li><button type="button" id="editMetadataButton" 
-    onclick="window.location='/interactivespaces/space/${space.id}/metadata/edit.html'" title="Edit the space metadata">Metadata</button></li>
-<#if !(cspaces?has_content)>
-<li><button type="button" onclick="deleteSpace()" title="Delete space on master">Delete</button></li>
-</#if>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></td>
+    <td><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></td>
+    <td><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')"">Deactivate</button></td>
+    <td><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></td>
+    <td><button type="button" id="statusButton" onclick="doAjaxCommand('liveactivitystatus')">Status</button></td>
+    <td><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></td>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></td>
+  </tr>
+  <tr>
+    <td><button type="button" id="liveActivitiesButton" onclick="window.location='/interactivespaces/space/${space.id}/liveactivities.html'" title="Get all live activities that are part of the space and its subspaces">Live Activities</button></td>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/space/${space.id}/edit.html'" title="Edit the space details">Edit</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/space/${space.id}/metadata/edit.html'" title="Edit the space metadata">Metadata</button></td>
+    <#if liveactivities?has_content>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Can not delete space containing live activities'>
+    <#else>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Delete space on master'>
+    </#if>
+    <td><button type="button" onclick="deleteSpace()" title="${title}" ${disabledAttribute}>Delete</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

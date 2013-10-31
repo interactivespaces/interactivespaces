@@ -20,6 +20,7 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.support.SpaceControllerUtils;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+import interactivespaces.master.ui.internal.web.WebSupport;
 
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,22 +48,53 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
    */
   private ControllerRepository controllerRepository;
 
+  /**
+   * Set the allowed fields for the given data binder.
+   *
+   * @param dataBinder
+   *          binder to set allowed fields for
+   */
   @InitBinder
   public void setAllowedFields(WebDataBinder dataBinder) {
     dataBinder.setDisallowedFields("id");
   }
 
+  /**
+   * Setup a GET method form.
+   *
+   * @param id
+   *          id of the controller
+   * @param model
+   *          data model
+   *
+   * @return form continuation
+   */
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
     SpaceController controller = controllerRepository.getSpaceControllerById(id);
     model.addAttribute("spacecontroller", SpaceControllerUtils.toTemplate(controller));
     model.addAttribute("id", id);
+    model.addAttribute("modes", WebSupport.getControllerModes(messageSource, locale));
 
     addGlobalModelItems(model);
 
     return "spacecontroller/SpaceControllerEdit";
   }
 
+  /**
+   * Process form submit request.
+   *
+   * @param id
+   *          id of the controller
+   * @param template
+   *          data template to process
+   * @param result
+   *          binding result
+   * @param status
+   *          the session status
+   *
+   * @return form continuation
+   */
   @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
   public String processSubmit(@PathVariable("id") String id,
       @ModelAttribute("spacecontroller") SpaceController template, BindingResult result,

@@ -54,11 +54,13 @@ $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
 
 <h1>Live Activities</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="Create a new live activity">New</button></li>
-<li><button type="button" id="nstatusAllButton" onclick="doAjaxCommandByUrl('/interactivespaces/spacecontroller/all/status.json')" title="Get the status of all Live Activities on all Space Controllers">Status All</button></li>
-<li><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="Create a new live activity">New</button></td>
+    <td><button type="button" id="nstatusAllButton" onclick="doAjaxCommandByUrl('/interactivespaces/spacecontroller/all/status.json')" title="Get the status of all Live Activities on all Space Controllers">Status All</button></td>
+    <td><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
@@ -71,13 +73,15 @@ $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
 <tr class="${trCss}">
 <td><a href="${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-<span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
- as of 
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<span class="as-of-timestamp">
+ as of
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
     Unknown
   </#if>
+</span>
 </div>
 <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
@@ -102,7 +106,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </td>
 <td>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>

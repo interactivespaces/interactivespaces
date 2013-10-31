@@ -23,11 +23,14 @@ import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
+import org.springframework.context.MessageSource;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +43,7 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class WebSupport {
+public final class WebSupport {
 
   /**
    * Format to be used for Activity selection names.
@@ -48,6 +51,12 @@ public class WebSupport {
    * Argument 0 is the name of the activity, argument 1 is the activity version.
    */
   public static final String FORMAT_APPLICATION_SELECTION_NAME = "{0} ({1})";
+
+  /**
+   * Private default constructor for utility class.
+   */
+  private WebSupport() {
+  }
 
   /**
    * Get a selection list of activities.
@@ -91,6 +100,24 @@ public class WebSupport {
   }
 
   /**
+   * Get a selection list of controller modes.
+   *
+   * @param messageSource
+   *          messages for translation
+   * @param locale
+   *          locale for translation
+   *
+   * @return list of controller modes
+   */
+  public static Map<String, String> getControllerModes(MessageSource messageSource, Locale locale) {
+    Map<String, String> items = Maps.newLinkedHashMap();
+    for (SpaceControllerMode mode : SpaceControllerMode.values()) {
+      items.put(mode.name(), messageSource.getMessage(mode.getDescription(), null, locale));
+    }
+    return items;
+  }
+
+  /**
    * Get a map of live activity names keyed by IDs.
    *
    * @param activities
@@ -111,7 +138,7 @@ public class WebSupport {
   }
 
   /**
-   * Get a selection list of activity groups
+   * Get a selection list of activity groups.
    *
    * @param groups
    *          The activity groups.
@@ -131,7 +158,7 @@ public class WebSupport {
   }
 
   /**
-   * Get a selection list of spaces
+   * Get a selection list of spaces.
    *
    * @param spaces
    *          the spaces

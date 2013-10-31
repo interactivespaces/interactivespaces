@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerMode;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import java.util.Map.Entry;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -54,36 +57,72 @@ import javax.persistence.Version;
 public class JpaSpaceController implements SpaceController {
 
   /**
+   * Column length to use for the ID.
+   */
+  public static final int ID_COLUMN_LENGTH = 64;
+
+  /**
+   * Column length to use for the hostId.
+   */
+  public static final int HOSTID_COLUMN_LENGTH = 512;
+
+  /**
+   * Column length to use for the uuid.
+   */
+  public static final int UUID_COLUMN_LENGTH = 64;
+
+  /**
+   * Column length to use for the name.
+   */
+  public static final int NAME_COLUMN_LENGTH = 512;
+
+  /**
+   * Column length to use for the description.
+   */
+  public static final int DESCRIPTION_COLUMN_LENGTH = 2048;
+
+  /**
+   * Column length to use for ID.
+   */
+  public static final int MODE_COLUMN_LENGTH = 32;
+
+  /**
    * The persistence ID for the space controller.
    */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(nullable = false, length = 64)
+  @Column(nullable = false, length = ID_COLUMN_LENGTH)
   private String id;
 
   /**
    * ID of the host. This should be usable to find the host in the network.
    */
-  @Column(nullable = false, length = 512)
+  @Column(nullable = false, length = HOSTID_COLUMN_LENGTH)
   private String hostId;
 
   /**
    * UUID of the controller.
    */
-  @Column(nullable = false, length = 64)
+  @Column(nullable = false, length = UUID_COLUMN_LENGTH)
   private String uuid;
 
   /**
    * Name of the controller.
    */
-  @Column(nullable = false, length = 512)
+  @Column(nullable = false, length = NAME_COLUMN_LENGTH)
   private String name;
 
   /**
    * Description of the controller.
    */
-  @Column(nullable = true, length = 2048)
+  @Column(nullable = true, length = DESCRIPTION_COLUMN_LENGTH)
   private String description;
+
+  /**
+   * Mode of the controller (e.g., active, inactive, deprecated).
+   */
+  @Enumerated(EnumType.STRING)
+  private SpaceControllerMode mode = SpaceControllerMode.ENABLED;
 
   /**
    * The metadata.
@@ -170,8 +209,19 @@ public class JpaSpaceController implements SpaceController {
   }
 
   @Override
+  public SpaceControllerMode getMode() {
+    return mode;
+  }
+
+  @Override
+  public void setMode(SpaceControllerMode mode) {
+    this.mode = mode;
+  }
+
+  @Override
   public String toString() {
-    return "JpaSpaceController [id=" + id + ", hostId=" + hostId + ", uuid=" + uuid + ", name="
-        + name + ", description=" + description + ", metadata=" + getMetadata() + "]";
+    return "JpaSpaceController [id=" + id + ", hostId=" + hostId + ", uuid=" + uuid
+        + ", name=" + name + ", description=" + description + ", metadata=" + getMetadata()
+        + ", mode=" + mode + "]";
   }
 }

@@ -44,11 +44,13 @@ function deleteScript() {
 
 <h1>Named Script: ${script.name}</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" onclick="doAjaxCommand('run')" title="Run the named script">Run</button></li>
-<li><button type="button" id="editButton" onclick="window.location='/interactivespaces/admin/namedscript/${script.id}/edit.html'" title="Edit the script">Edit</button></li>
-<li><button type="button" onclick="deleteScript()" title="Delete the script">Delete</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" onclick="doAjaxCommand('run')" title="Run the named script">Run</button></td>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/admin/namedscript/${script.id}/edit.html'" title="Edit the script">Edit</button></td>
+    <td><button type="button" onclick="deleteScript()" title="Delete the script">Delete</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

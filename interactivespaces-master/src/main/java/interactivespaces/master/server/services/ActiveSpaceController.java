@@ -63,6 +63,14 @@ public class ActiveSpaceController {
    */
   private TimeProvider timeProvider;
 
+  /**
+   * Create an active space controller for the given controller entry.
+   *
+   * @param controller
+   *          controller entry
+   * @param timeProvider
+   *          time provider for timestamps
+   */
   public ActiveSpaceController(SpaceController controller, TimeProvider timeProvider) {
     this.controller = controller;
     this.timeProvider = timeProvider;

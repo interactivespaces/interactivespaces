@@ -27,9 +27,11 @@
 
 <h1>Live Activity Groups</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivitygroup/new.html?mode=embedded'" title="Create a new live activity group">New</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivitygroup/new.html?mode=embedded'" title="Create a new live activity group">New</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

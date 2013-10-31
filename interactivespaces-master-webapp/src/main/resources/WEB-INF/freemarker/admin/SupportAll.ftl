@@ -45,10 +45,12 @@ function importMasterDomainModel() {
 
 <h2>Support</h2>
 
-<div class="commandBar"><ul>
-<li><button type="button" onclick="doAjaxCommand('exportMasterDomainModel')" title="Export the Master Domain Model">Export Master Model</button></li>
-<li><button type="button" onclick="importMasterDomainModel()" title="Import the Master Domain Model">Import Master Model</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" onclick="doAjaxCommand('exportMasterDomainModel')" title="Export the Master Domain Model">Export Master Model</button></td>
+    <td><button type="button" onclick="importMasterDomainModel()" title="Import the Master Domain Model">Import Master Model</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

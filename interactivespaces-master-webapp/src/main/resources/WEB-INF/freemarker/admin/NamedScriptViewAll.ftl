@@ -28,9 +28,11 @@
 
 <h2>Scripts</h2>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="newScriptButton" onclick="window.location='new.html?mode=embedded'" title="Create a new script">New</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="newScriptButton" onclick="window.location='new.html?mode=embedded'" title="Create a new script">New</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

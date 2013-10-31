@@ -51,13 +51,15 @@ $('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
 <tr class="${trCss}">
 <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-<span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
- as of 
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<span class="as-of-timestamp">
+ as of
   <#if liveactivity.active.lastStateUpdate??>
     ${liveactivity.active.lastStateUpdateDate?datetime}
   <#else>
     Unknown
   </#if>
+</span>
 </div>
 <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
@@ -82,7 +84,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </td>
 <td>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>

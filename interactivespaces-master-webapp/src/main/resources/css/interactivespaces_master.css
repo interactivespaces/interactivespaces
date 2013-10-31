@@ -14,203 +14,212 @@
  * the License.
  */
 #navMain {
-	margin: 0;
-	padding: 0;
-	margin-top: 5px;
-	margin-bottom: 10px;
-	background-color: #eeeeee;
-	background-image: url('/interactivespaces/img/navmain_bg.gif');
-	background-position: bottom;
-	background-repeat: repeat-x;
+  margin: 0;
+  padding: 0;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  background-color: #eeeeee;
+  background-image: url('/interactivespaces/img/navmain_bg.gif');
+  background-position: bottom;
+  background-repeat: repeat-x;
 }
 
 #navMain ul {
-	list-style-type: none;
-	list-style-position: inside;
-	list-style-image: none;
-	display: inline;
+  list-style-type: none;
+  list-style-position: inside;
+  list-style-image: none;
+  display: inline;
 }
 
 #navMain li {
-	display: inline;
+  display: inline;
 }
 
 #navMain a {
-	text-decoration: none;
-	font-weight: bold;
-	color: black;
+  text-decoration: none;
+  font-weight: bold;
+  color: black;
 }
 
 #navMain a:hover {
-	text-decoration: underline;
-	color: red;
+  text-decoration: underline;
+  color: red;
 }
 
 #navRegion ul {
-	list-style-type: none;
-	list-style-position: inside;
-	list-style-image: none;
-	display: inline;
+  list-style-type: none;
+  list-style-position: inside;
+  list-style-image: none;
+  display: inline;
 }
 
 #navRegion li {
-	display: inline;
+  display: inline;
 }
 
-#commandBar {
-	padding: 10px;
+.commandBar td {
+  padding: 2px;
 }
 
-.commandBar ul {
-	list-style-type: none;
-	list-style-position: inside;
-	list-style-image: none;
-	display: inline;
+.commandBar button {
+  width: 100%;
 }
 
-.commandBar li {
-	display: inline;
+.out-of-date-indicator img {
+  height: 1em;
 }
 
-.commandBar a {
-	text-decoration: none;
-	font-weight: bold;
-	color: black;
-}
-
-.commandBar a:hover {
-	text-decoration: underline;
-	color: red;
+.as-of-timestamp {
+  padding-right: 0.5em;
 }
 
 #body {
-	margin: 0.25in;
+  margin: 0.25in;
 }
 
 #content {
-	margin-top: 2em;
+  margin-top: 2em;
+}
+
+table {
+  border-collapse: collapse;
 }
 
 table.searchResults {
-	margin-top: 10pt;
+  margin-top: 10pt;
 }
 
 #entityMenu li {
-	display: inline;
+  display: inline;
 }
 
 table.columns {
-	width: 100%;
-	padding: 20pt;
+  width: 100%;
+  padding: 20pt;
 }
 
 table.columns td {
-	vertical-align: top;
-}
-
-tr.odd {
-	background-color: #eee;
-}
-
-tr.even {
-	
+  vertical-align: top;
 }
 
 th {
-	text-align: left;
+  text-align: left;
 }
 
 tr.form-row {
-	padding-top: 10px;
+  padding-top: 10px;
 }
 
 div.form-row {
-	clear: both;
-	padding-top: 10px;
+  clear: both;
+  padding-top: 10px;
 }
 
 div.form-row span.form-label {
-	float: left;
-	width: 100px;
-	text-align: right;
+  float: left;
+  width: 100px;
+  text-align: right;
 }
 
 div.form-row span.form-field {
-	float: right;
-	width: 335px;
-	text-align: left;
+  float: right;
+  width: 335px;
+  text-align: left;
 }
 
 div.form-row span.form-errors {
-	float: right;
-	width: 335px;
-	text-align: left;
+  float: right;
+  width: 335px;
+  text-align: left;
 }
 
 #spaceName {
-	font-weight: bold;
-	font-size: 24pt;
+  font-weight: bold;
+  font-size: 24pt;
 }
 
 tr.even {
-	background-color: #ffffff;
 }
 
 tr.odd {
-	background-color: #e0e0e0;
+  background-color: rgba(0,0,0,0.1);
+}
+
+.all-controllers-table {
+  margin-top: 10px;
 }
 
 .liveactivity-info-popup {
-	display: none;
-	z-index: 9002;
-	border: 2px solid #000;
-	padding: 10px;
-	background-color: #FFFFFF;
+  display: none;
+  z-index: 9002;
+  border: 2px solid #000;
+  padding: 10px;
+  background-color: #FFFFFF;
+}
+
+.status-box {
+  font-weight: bold;
+  background-color: #CCC;
+  margin-right: 0.1em;
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+}
+
+.status-box-inner {
+  padding-left: 1em;
+  padding-right: 1em;
+  width: auto;
 }
 
 .liveactivity-status {
-	
 }
 
 .liveactivity-status-RUNNING {
-	background-color: #00ff00;
-	font-weight: bold;
-	padding-left: 1em;
-	padding-right: 1em;
+  background-color: #00ff00;
 }
 
 .liveactivity-status-ACTIVE {
-	background-color: #53beff;
-	font-weight: bold;
-	padding-left: 1em;
-	padding-right: 1em;
+  background-color: #53beff;
 }
 
 .liveactivity-status-CRASHED {
-	background-color: #ff5757;
-	font-weight: bold;
-	padding-left: 1em;
-	padding-right: 1em;
+  background-color: #ff5757;
 }
-
 
 .spacecontroller-status {
-    
 }
 
-.spacecontroller-status-RUNNING {
-    background-color: #00ff00;
-    font-weight: bold;
-    padding-left: 1em;
-    padding-right: 1em;
+.spacecontroller-status-CONNECT_ATTEMPT,
+.spacecontroller-status-CAPTURE_REQUESTED,
+.spacecontroller-status-RESTORE_REQUESTED {
+  background-color: #88F;
 }
 
-.status-header,
-.status-value {
-    padding-right: 10px;
+.spacecontroller-status-CONNECT_FAILURE,
+.spacecontroller-status-CAPTURE_ERROR,
+.spacecontroller-status-RESTORE_ERROR {
+  background-color: #F88;
+}
+
+.spacecontroller-status-RUNNING,
+.spacecontroller-status-RESTORE_RECEIVED,
+.spacecontroller-status-CAPTURE_RECEIVED {
+  background-color: #8F8;
+}
+
+.spacecontroller-mode {
+}
+
+.spacecontroller-mode-ENABLED {
+  background-color: #8C8;
+}
+
+.spacecontroller-mode-DISABLED {
+  background-color: #F88;
 }
 
 .databundle-header {
-    font-weight: bold;
-    padding-right: 10px;
+  font-weight: bold;
+  padding-right: 10px;
 }

@@ -28,9 +28,11 @@
 
 <h2>Activities</h2>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="uploadButton" onclick="window.location='upload.html?mode=embedded'" title="Upload an activity">Upload</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="uploadButton" onclick="window.location='upload.html?mode=embedded'" title="Upload an activity">Upload</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

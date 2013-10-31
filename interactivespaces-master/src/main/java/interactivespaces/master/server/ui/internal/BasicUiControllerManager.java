@@ -21,6 +21,7 @@ import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
@@ -73,7 +74,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager connectToAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.connectController(controller);
       } catch (Exception e) {
@@ -88,7 +89,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager disconnectFromAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.disconnectController(controller);
       } catch (Exception e) {
@@ -103,7 +104,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager statusFromAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.statusController(controller);
       } catch (Exception e) {
@@ -118,7 +119,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager forceStatusFromAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.forceStatusController(controller);
       } catch (Exception e) {
@@ -202,7 +203,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager shutdownAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.shutdownController(controller);
       } catch (Exception e) {
@@ -242,7 +243,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager cleanControllerTempDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.cleanControllerTempData(controller);
       } catch (Exception e) {
@@ -264,7 +265,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager cleanControllerPermanentDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.cleanControllerPermanentData(controller);
       } catch (Exception e) {
@@ -286,7 +287,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager cleanControllerActivitiesTempDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.cleanControllerActivitiesTempData(controller);
       } catch (Exception e) {
@@ -308,7 +309,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager cleanControllerActivitiesPermanentDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.cleanControllerActivitiesPermanentData(controller);
       } catch (Exception e) {
@@ -337,7 +338,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager captureDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.captureControllerDataBundle(controller);
       } catch (Exception e) {
@@ -351,7 +352,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager restoreDataAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.restoreControllerDataBundle(controller);
       } catch (Exception e) {
@@ -378,7 +379,7 @@ public class BasicUiControllerManager implements UiControllerManager {
 
   @Override
   public UiControllerManager shutdownAllActivitiesAllControllers() {
-    for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeControllerManager.shutdownAllActivities(controller);
       } catch (Exception e) {
@@ -685,6 +686,23 @@ public class BasicUiControllerManager implements UiControllerManager {
           "Live activity with ID %s not found", id));
     }
     return activity;
+  }
+
+  /**
+   * Get all enabled space controllers, which are ones that are not marked disabled
+   * or otherwise should not be contacted for normal "all" operations.
+   *
+   * @return list of enabled space controllers
+   */
+  private List<SpaceController> getAllEnabledSpaceControllers() {
+    List<SpaceController> allControllers = controllerRepository.getAllSpaceControllers();
+    List<SpaceController> liveControllers = Lists.newArrayListWithExpectedSize(allControllers.size());
+    for (SpaceController controller : allControllers) {
+      if (SpaceControllerMode.isControllerEnabled(controller)) {
+        liveControllers.add(controller);
+      }
+    }
+    return liveControllers;
   }
 
   /**

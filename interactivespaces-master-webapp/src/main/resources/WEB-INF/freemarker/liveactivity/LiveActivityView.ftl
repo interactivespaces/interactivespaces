@@ -62,26 +62,33 @@ function remoteDeleteLiveActivity() {
 
 <h1>Live Activity: ${liveactivity.activity.name}</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></li>
-<li><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></li>
-<li><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></li>
-<li><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></li>
-<li><button type="button" id="statusButton" onclick="doAjaxCommand('status')">Status</button></li>
-<li><button type="button" id="configureButton" onclick="doAjaxCommand('configure')" title="Configure activity on the controller">Configure</button></li>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy activity to the controller">Deploy</button></li>
-<li><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/edit.html'" title="Edit the activity details">Edit</button></li>
-<li><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></li>
-<li><button type="button" id="editMetadataButton"
-    onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></li>
-<li><button type="button" onclick="cleanTempDataLiveActivity()" title="Delete temp data for live activity">Clean Tmp</button></li>
-<li><button type="button" onclick="cleanPermanentDataLiveActivity()" title="Delete permanent data for live activity">Clean Permanent</button></li>
-<li><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></li>
-<#if !(liveactivitygroups?has_content)>
-<li><button type="button" onclick="deleteLiveActivity()" title="Delete activity on master">Delete</button></li>
-</#if>
-
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></td>
+    <td><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></td>
+    <td><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></td>
+    <td><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></td>
+    <td><button type="button" id="statusButton" onclick="doAjaxCommand('status')">Status</button></td>
+    <td><button type="button" id="configureButton" onclick="doAjaxCommand('configure')" title="Configure activity on the controller">Configure</button></td>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy activity to the controller">Deploy</button></td>
+  </tr>
+  <tr>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/edit.html'" title="Edit the activity details">Edit</button></td>
+    <td><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></td>
+    <td><button type="button" onclick="cleanTempDataLiveActivity()" title="Delete temp data for live activity">Clean Tmp</button></td>
+    <td><button type="button" onclick="cleanPermanentDataLiveActivity()" title="Delete permanent data for live activity">Clean Permanent</button></td>
+    <td><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></td>
+    <#if liveactivitygroups?has_content>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Can not delete a live activity contained in a group'>
+    <#else>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Delete activity on master'>
+    </#if>
+    <td><button type="button" onclick="deleteLiveActivity()" title="${title}" ${disabledAttribute}>Delete</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
@@ -120,7 +127,7 @@ Last: <#if liveactivity.activity.lastDeployDate??>
       Unknown
     </#if>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 &bull;
@@ -135,13 +142,15 @@ Last: <#if liveactivity.activity.lastDeployDate??>
 <th>Status</th>
 <td>
 <#if liveactivity.active?has_content>
-  <span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
-   as of
-  <#if liveactivity.active.lastStateUpdate??>
-    ${liveactivity.active.lastStateUpdateDate?datetime}
-  <#else>
-    Unknown
-  </#if>
+  <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+  <span class="as-of-timestamp">
+    as of
+    <#if liveactivity.active.lastStateUpdate??>
+      ${liveactivity.active.lastStateUpdateDate?datetime}
+    <#else>
+      Unknown
+    </#if>
+  </span>
 </#if>
 </td>
 </tr>

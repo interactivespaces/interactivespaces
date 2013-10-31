@@ -30,34 +30,48 @@
 <form  method="post">
 
 <table>
-<tr>
-<th>UUID</th>
-<td>${spacecontroller.uuid}</td>
-</tr>
-<tr>
-<td>Name</td>
-<td>
-<@spring.formInput path="spacecontroller.name" />
-<@spring.showErrors '<br>', 'fieldError' />
- </td>
+  <tr>
+    <th>UUID</th>
+    <td>${spacecontroller.uuid}</td>
+  </tr>
+  <tr>
+    <th>Name</th>
+    <td>
+      <@spring.formInput path="spacecontroller.name" />
+      <@spring.showErrors '<br>', 'fieldError' />
+    </td>
+  </tr>
 
-</tr>
-<tr>
-<td valign="top">Description</td><td><@spring.formTextarea path="spacecontroller.description" attributes='rows="5" cols="40"' /></td>
-</tr>
-<tr>
-<td>Host ID</td>
-<td>
-<@spring.formInput path="spacecontroller.hostId" />
-<@spring.showErrors '<br>', 'fieldError' />
- </td>
+  <tr>
+    <th>Host ID</th>
+    <td>
+      <@spring.formInput path="spacecontroller.hostId" />
+      <@spring.showErrors '<br>', 'fieldError' />
+    </td>
+  </tr>
 
-<tr>
-<th>&nbsp;</th>
-<td>
-<input type="submit" value="Save" />
-<button type="button" id="cancelButton" onclick="window.location='/interactivespaces/spacecontroller/${id}/view.html'" title="Cancel the edit">Cancel</button>
-</td>
+  <tr>
+    <th>Mode</th>
+    <td>
+      <@spring.formSingleSelect "spacecontroller.mode", modes, "" />
+      <@spring.showErrors '<br>', 'fieldError' />
+    </td>
+  </tr>
+
+  <tr>
+    <th valign="top">Description</th>
+    <td>
+      <@spring.formTextarea path="spacecontroller.description" attributes='rows="5" cols="40"' />
+    </td>
+  </tr>
+
+  <tr>
+    <th>&nbsp;</th>
+    <td>
+      <input type="submit" value="Save" />
+      <button type="button" id="cancelButton" onclick="window.location='/interactivespaces/spacecontroller/${id}/view.html'" title="Cancel the edit">Cancel</button>
+    </td>
+  </tr>
 </table>
 
 </form>

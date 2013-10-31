@@ -55,23 +55,30 @@ function deleteActivityGroup() {
 
 <h2>Live Activity Group: ${liveactivitygroup.name}</h2>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></li>
-<li><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></li>
-<li><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></li>
-<li><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></li>
-<li><button type="button" id="statusButton" onclick="doAjaxCommand('liveactivitystatus')">Status</button></li>
-<li><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></li>
-<li><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></li>
-<li><button type="button" id="editButton" 
-    onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/edit.html'" title="Edit the live activity group details">Edit</button></li>
-<li><button type="button" id="editMetadataButton" 
-    onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/metadata/edit.html'" title="Edit the live activity group metadata">Metadata</button></li>
-<#if !(spaces?has_content)>
-<li><button type="button" onclick="deleteActivityGroup()" title="Delete activity group on master">Delete</button></li>
-</#if>
-<li><button type="button" onclick="doAjaxCommand('forceshutdownliveactivities')" title="Force all live activities in the group to shut down">Force Shutdown</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></td>
+    <td><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></td>
+    <td><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></td>
+    <td><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></td>
+    <td><button type="button" id="statusButton" onclick="doAjaxCommand('liveactivitystatus')">Status</button></td>
+    <td><button type="button" id="configureButton" onclick="doAjaxCommand('configure')">Configure</button></td>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')">Deploy</button></td>
+  </tr>
+  <tr>
+    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/edit.html'" title="Edit the live activity group details">Edit</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/metadata/edit.html'" title="Edit the live activity group metadata">Metadata</button></td>
+    <#if spaces?has_content>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Can not delete activity group in a space'>
+    <#else>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Delete activity group on master'>
+    </#if>
+    <td><button type="button" onclick="deleteActivityGroup()" title="${title}" ${disabledAttribute}>Delete</button></td>
+    <td><button type="button" onclick="doAjaxCommand('forceshutdownliveactivities')" title="Force all live activities in the group to shut down">Force Shutdown</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>
@@ -104,13 +111,15 @@ ${liveactivitygroup.description}
 <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
 <td>
 <#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-  <span class="liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
-  as of 
-  <#if liveactivity.active.lastStateUpdate??>
-    ${liveactivity.active.lastStateUpdateDate?datetime}
-  <#else>
-    Unknown
-  </#if>
+  <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+  <span class="as-of-timestamp">
+    as of
+    <#if liveactivity.active.lastStateUpdate??>
+      ${liveactivity.active.lastStateUpdateDate?datetime}
+    <#else>
+      Unknown
+    </#if>
+  </span>
 </div>
 <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
@@ -133,7 +142,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </td>
 <td>
 <#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
+<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>

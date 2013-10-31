@@ -27,9 +27,11 @@
 
 <h1>Spaces</h1>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="newButton" onclick="window.location='/interactivespaces/space/new.html?mode=embedded'" title="Create a new space">New</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/space/new.html?mode=embedded'" title="Create a new space">New</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

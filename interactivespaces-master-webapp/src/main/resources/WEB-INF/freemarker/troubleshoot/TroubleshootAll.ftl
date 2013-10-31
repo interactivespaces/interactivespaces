@@ -28,10 +28,12 @@
 
 <h2>Troubleshoot</h2>
 
-<div class="commandBar"><ul>
-<li><button type="button" id="topicsButton" onclick="window.location='topics.html'" title="See all topics">Topics</button></li>
-<li><button type="button" id="nodesButton" onclick="window.location='nodes.html'" title="See all nodes">Nodes</button></li>
-</ul></div>
+<table class="commandBar">
+  <tr>
+    <td><button type="button" id="topicsButton" onclick="window.location='topics.html'" title="See all topics">Topics</button></td>
+    <td><button type="button" id="nodesButton" onclick="window.location='nodes.html'" title="See all nodes">Nodes</button></td>
+  </tr>
+</table>
 
 <div id="commandResult">
 </div>

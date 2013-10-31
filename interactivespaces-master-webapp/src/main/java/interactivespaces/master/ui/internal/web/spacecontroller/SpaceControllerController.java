@@ -79,7 +79,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("spacecontroller/SpaceControllerViewAll");
-    mav.addObject("spacecontrollers", controllers);
+    mav.addObject("lspacecontrollers", controllers);
 
     return mav;
   }
