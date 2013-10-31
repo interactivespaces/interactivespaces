@@ -16,6 +16,8 @@
 
 package interactivespaces.service.comm.network.server;
 
+import java.net.InetSocketAddress;
+
 /**
  * A request which has come into a {@link UdpServerNetworkCommunicationEndpoint}
  * .
@@ -23,6 +25,13 @@ package interactivespaces.service.comm.network.server;
  * @author Keith M. Hughes
  */
 public interface UdpServerRequest {
+
+  /**
+   * Get the address of the remote connection.
+   *
+   * @return the address of the remote connection
+   */
+  InetSocketAddress getRemoteAddress();
 
   /**
    * Get the request to the server.

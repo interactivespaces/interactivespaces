@@ -16,18 +16,16 @@
 
 package interactivespaces.service.comm.network.server.internal.netty;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointListener;
 import interactivespaces.service.comm.network.server.UdpServerRequest;
 
-import org.jboss.netty.buffer.ChannelBuffers;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -41,7 +39,6 @@ import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -51,22 +48,6 @@ import java.util.concurrent.ExecutorService;
  */
 public class NettyUdpServerNetworkCommunicationEndpoint implements
     UdpServerNetworkCommunicationEndpoint {
-
-  private static final Random random = new Random();
-
-  // Quotes from Mohandas K. Gandhi:
-  private static final String[] quotes = { "Where there is love there is life.",
-      "First they ignore you, then they laugh at you, then they fight you, then you win.",
-      "Be the change you want to see in the world.",
-      "The weak can never forgive. Forgiveness is the attribute of the strong.", };
-
-  private static String nextQuote() {
-    int quoteId;
-    synchronized (random) {
-      quoteId = random.nextInt(quotes.length);
-    }
-    return quotes[quoteId];
-  }
 
   /**
    * The port the server is listening to.
@@ -81,18 +62,18 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
   /**
    * The listeners to endpoint events
    */
-  private List<UdpServerNetworkCommunicationEndpointListener> listeners = Lists
+  private final List<UdpServerNetworkCommunicationEndpointListener> listeners = Lists
       .newCopyOnWriteArrayList();
 
   /**
    * Executor service for this endpoint
    */
-  private ExecutorService executorService;
+  private final ExecutorService executorService;
 
   /**
    * Logger for this endpoint.
    */
-  private Log log;
+  private final Log log;
 
   public NettyUdpServerNetworkCommunicationEndpoint(int serverPort,
       ExecutorService executorService, Log log) {
@@ -108,6 +89,7 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
 
     // Configure the pipeline factory.
     bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+      @Override
       public ChannelPipeline getPipeline() throws Exception {
         return Channels.pipeline(new NettyUdpServerHandler());
       }
@@ -193,10 +175,15 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
     /**
      * The message event from the request.
      */
-    private MessageEvent event;
+    private final MessageEvent event;
 
     public NettyUdpServerRequest(MessageEvent event) {
       this.event = event;
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+      return (InetSocketAddress)event.getRemoteAddress();
     }
 
     @Override
