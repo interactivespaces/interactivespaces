@@ -110,6 +110,12 @@ tr.form-row {
   padding-top: 10px;
 }
 
+.liveactivity-list .liveactivity-name,
+.liveactivity-details th,
+.controller-details th {
+  padding-right: 10px;
+}
+
 div.form-row {
   clear: both;
   padding-top: 10px;
@@ -147,6 +153,10 @@ tr.odd {
 
 .all-controllers-table {
   margin-top: 10px;
+}
+
+.controller-view-all .all-controllers-table .controller-name {
+  padding-right: 10px;
 }
 
 .liveactivity-info-popup {

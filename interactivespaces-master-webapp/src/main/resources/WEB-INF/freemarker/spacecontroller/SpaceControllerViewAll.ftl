@@ -21,7 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
+<body class="controller-view-all">
 <script type="text/javascript">
 function doAjaxCommand(command) {
   $.ajax({
@@ -121,7 +121,7 @@ function shutdownAllActivitiesAllControllers() {
   <#list lspacecontrollers as lspacecontroller>
     <#assign trCss = (lspacecontroller_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-      <td>
+      <td class="controller-name">
         <a href="${lspacecontroller.controller.id}/view.html">${lspacecontroller.controller.name}</a>
       </td>
       <td class="mode-value">

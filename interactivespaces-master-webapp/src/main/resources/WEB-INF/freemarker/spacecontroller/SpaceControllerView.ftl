@@ -134,7 +134,7 @@ function shutdownActivities() {
 ${spacecontroller.description}
 </p></#if>
 
-<table>
+<table class="controller-details">
 <tr>
 <th>ID</th>
 <td>${spacecontroller.id}</td>
@@ -183,60 +183,79 @@ ${spacecontroller.description}
 
 <#if liveactivities?has_content>
 
-<table>
-<tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></td>
+  <table class="liveactivity-list">
+  <tr><th>Name</th><th>Status</th><th></th><th>Up to date?</th></tr>
 
-<#list liveactivities as liveactivity>
-<#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
+  <#list liveactivities as liveactivity>
+    <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-    <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
-<td>
-<div id="liveactivity-info-${liveactivity.activity.uuid}">
-<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
-<span class="as-of-timestamp">
- as of
-  <#if liveactivity.active.lastStateUpdate??>
-    ${liveactivity.active.lastStateUpdateDate?datetime}
-  <#else>
-    Unknown
-  </#if>
-</span>
-</div>
-<div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
-<div><#if liveactivity.active.directRunning>
-Directly Running
-<#else>
-Not directly running
-</#if> 
-</div><div>
-<#if liveactivity.active.directActivated>
-Directly activated
-<#else>
-Not directly activated
-</#if> 
-</div><div>
-Running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
-</div><div>
-Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
-</div></div>
-</td>
-<td>
-<#if liveactivity.activity.outOfDate>
-<span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
-</#if>
-<#if liveactivity.active.deployState != "READY">
-<span>
-<@spring.message liveactivity.active.deployState.description />
-</span>
-</#if>
-</td>
+      <td class="liveactivity-name">
+        <a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a>
+      </td>
+      <td>
+        <#if liveactivity.active?has_content>
+          <div class="status-box" id="liveactivity-info-${liveactivity.activity.uuid}">
+            <div class="status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}">
+              <@spring.message liveactivity.active.runtimeState.description />
+            </div>
+          </div>
+          <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
+            <div>
+              <#if liveactivity.active.directRunning>
+                Directly Running
+              <#else>
+                Not directly running
+              </#if>
+            </div>
+            <div>
+              <#if liveactivity.active.directActivated>
+                Directly activated
+              <#else>
+                Not directly activated
+              </#if>
+            </div>
+            <div>
+              Running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
+            </div>
+            <div>
+              Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
+            </div>
+          </div>
+        <#else>
+          <span style="color: red;">No controller assigned!</span>
+        </#if>
+      </td>
+      <td>
+        <#if liveactivity.active?has_content>
+          <span class="as-of-timestamp">
+           as of
+            <#if liveactivity.active.lastStateUpdate??>
+              ${liveactivity.active.lastStateUpdateDate?datetime}
+            <#else>
+              Unknown
+            </#if>
+          </span>
+        </#if>
+      </td>
+      <td>
+        <#if liveactivity.activity.outOfDate>
+        <span title="Live Activity is out of date" class="out-of-date-indicator">
+          <img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" />
+        </span>
+        </#if>
+        <#if liveactivity.active.deployState != "READY">
+          <span>
+            <@spring.message liveactivity.active.deployState.description />
+          </span>
+        </#if>
+      </td>
     </tr>
-</#list>
-</table>
+  </#list>
+  </table>
 <#else>
-<p>
-None
-</p>
+  <p>
+  None
+  </p>
 </#if>
 <h2>Advanced Properties</h2>
 <table class="advanced-properties">

@@ -20,7 +20,7 @@
 <#include "/allpages_head.ftl" >
 </head>
 
-<body>
+<body class="liveactivity-view">
 
 <script type="text/javascript">
 function doAjaxCommand(command) {
@@ -97,7 +97,7 @@ function remoteDeleteLiveActivity() {
 ${liveactivity.activity.description}
 </p></#if>
 
-<table>
+<table class="liveactivity-details">
 <tr>
 <th>ID</th>
 <td>${liveactivity.activity.id}</td>
