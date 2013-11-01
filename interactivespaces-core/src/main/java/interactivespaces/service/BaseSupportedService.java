@@ -16,8 +16,6 @@
 
 package interactivespaces.service;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.Collections;
@@ -33,11 +31,11 @@ public abstract class BaseSupportedService implements SupportedService {
   /**
    * The space environment for this service.
    */
-  protected InteractiveSpacesEnvironment spaceEnvironment;
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
   @Override
   public Map<String, Object> getMetadata() {
-    return Collections.EMPTY_MAP;
+    return Collections.emptyMap();
   }
 
   @Override
@@ -53,5 +51,14 @@ public abstract class BaseSupportedService implements SupportedService {
   @Override
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
+  }
+
+  /**
+   * Get the space environment.
+   *
+   * @return the space environment
+   */
+  protected InteractiveSpacesEnvironment getSpaceEnvironment() {
+    return spaceEnvironment;
   }
 }

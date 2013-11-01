@@ -16,37 +16,29 @@
 
 package interactivespaces.service.androidos.impl;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.androidos.AndroidOsService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import android.content.Context;
 
-import java.util.Map;
-
 /**
- * A simple implementation of {@link AndroidOsService}
+ * A simple implementation of {@link AndroidOsService}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleAndroidOsService implements AndroidOsService {
+public class SimpleAndroidOsService extends BaseSupportedService implements AndroidOsService {
 
   /**
    * The Android context the service was started under.
    */
-  private Context context;
+  private final Context context;
 
   /**
-   * Interactive Spaces environment for the service.
+   * Construct an Android service.
+   *
+   * @param context
+   *          the Android context
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
   public SimpleAndroidOsService(Context context) {
     this.context = context;
   }
@@ -62,17 +54,7 @@ public class SimpleAndroidOsService implements AndroidOsService {
   }
 
   @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
-
-  @Override
   public String getName() {
     return AndroidOsService.SERVICE_NAME;
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

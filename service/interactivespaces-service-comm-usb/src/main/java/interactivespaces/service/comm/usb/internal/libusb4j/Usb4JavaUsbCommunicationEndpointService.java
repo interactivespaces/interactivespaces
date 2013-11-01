@@ -16,15 +16,12 @@
 
 package interactivespaces.service.comm.usb.internal.libusb4j;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.usb.UsbCommunicationEndpoint;
 import interactivespaces.service.comm.usb.UsbCommunicationEndpointService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.usb.UsbDevice;
 import javax.usb.UsbDeviceDescriptor;
@@ -38,22 +35,13 @@ import javax.usb.UsbServices;
  *
  * @author Keith M. Hughes
  */
-public class Usb4JavaUsbCommunicationEndpointService implements UsbCommunicationEndpointService {
+public class Usb4JavaUsbCommunicationEndpointService extends BaseSupportedService implements
+    UsbCommunicationEndpointService {
 
   /**
    * The root USB hub for the host computer
    */
   private UsbHub rootHub;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
 
   @Override
   public String getName() {
@@ -69,18 +57,6 @@ public class Usb4JavaUsbCommunicationEndpointService implements UsbCommunication
     } catch (Exception e) {
       throw new InteractiveSpacesException("Could not obtain the USB Root Hub", e);
     }
-  }
-
-  @Override
-  public void shutdown() {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -115,7 +91,7 @@ public class Usb4JavaUsbCommunicationEndpointService implements UsbCommunication
     if (currDevice.isUsbHub()) {
       UsbHub hub = (UsbHub) currDevice;
       @SuppressWarnings("unchecked")
-      List<UsbDevice> attachedUsbDevices = (List<UsbDevice>) hub.getAttachedUsbDevices();
+      List<UsbDevice> attachedUsbDevices = hub.getAttachedUsbDevices();
       for (UsbDevice child : attachedUsbDevices) {
         UsbDevice possible = findDevice(vendor, product, child);
         if (possible != null) {

@@ -16,35 +16,16 @@
 
 package interactivespaces.service.comm.chat.internal.xmpp.smack;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.chat.ChatConnection;
 import interactivespaces.service.comm.chat.ChatService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import java.util.Map;
 
 /**
  * A {@link ChatService} for XMPP using the Smack libraries.
  *
  * @author Keith M. Hughes
  */
-public class SmackXmppChatService implements ChatService {
-
-  /**
-   * Space environment for this service.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
+public class SmackXmppChatService extends BaseSupportedService implements ChatService {
 
   @Override
   public String getName() {
@@ -52,22 +33,7 @@ public class SmackXmppChatService implements ChatService {
   }
 
   @Override
-  public void startup() {
-    // Nothing to do
-  }
-
-  @Override
-  public void shutdown() {
-    // Nothing to do
-  }
-
-  @Override
   public ChatConnection newChatConnection(String username, String password) {
     return new SmackXmppChatConnection(username, password);
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

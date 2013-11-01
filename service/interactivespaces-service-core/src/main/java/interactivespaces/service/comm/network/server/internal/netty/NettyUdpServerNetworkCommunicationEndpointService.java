@@ -27,8 +27,8 @@ import org.apache.commons.logging.Log;
  *
  * @author Keith M. Hughes
  */
-public class NettyUdpServerNetworkCommunicationEndpointService extends BaseSupportedService implements
-    UdpServerNetworkCommunicationEndpointService {
+public class NettyUdpServerNetworkCommunicationEndpointService extends BaseSupportedService
+    implements UdpServerNetworkCommunicationEndpointService {
 
   @Override
   public String getName() {
@@ -37,6 +37,7 @@ public class NettyUdpServerNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public UdpServerNetworkCommunicationEndpoint newServer(int serverPort, Log log) {
-    return new NettyUdpServerNetworkCommunicationEndpoint(serverPort, spaceEnvironment.getExecutorService(), log);
+    return new NettyUdpServerNetworkCommunicationEndpoint(serverPort, getSpaceEnvironment()
+        .getExecutorService(), log);
   }
 }

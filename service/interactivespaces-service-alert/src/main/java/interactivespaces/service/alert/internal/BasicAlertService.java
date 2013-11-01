@@ -16,14 +16,11 @@
 
 package interactivespaces.service.alert.internal;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.alert.AlertNotifier;
 import interactivespaces.service.alert.AlertService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -31,27 +28,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Keith M. Hughes
  */
-public class BasicAlertService implements AlertService {
+public class BasicAlertService extends BaseSupportedService implements AlertService {
 
   /**
    * All alert notifiers for the service.
    */
-  private List<AlertNotifier> alertNotifiers = new CopyOnWriteArrayList<AlertNotifier>();
-
-  /**
-   * Interactive Spaces environment for scripting engine.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
+  private final List<AlertNotifier> alertNotifiers = new CopyOnWriteArrayList<AlertNotifier>();
 
   @Override
   public String getName() {
@@ -60,40 +42,30 @@ public class BasicAlertService implements AlertService {
 
   @Override
   public void startup() {
-    spaceEnvironment.getLog().info("Alert manager started");
-  }
-
-  @Override
-  public void shutdown() {
-    // Nothing to do
+    getSpaceEnvironment().getLog().info("Alert manager started");
   }
 
   @Override
   public void raiseAlert(String alertType, String id, String message) {
-    spaceEnvironment.getLog().error("Alert being raised.");
+    getSpaceEnvironment().getLog().error("Alert being raised.");
 
     for (AlertNotifier notifier : alertNotifiers) {
       try {
         notifier.notify(alertType, id, message);
       } catch (Exception e) {
-        spaceEnvironment.getLog().error("Error notifying about alert", e);
+        getSpaceEnvironment().getLog().error("Error notifying about alert", e);
       }
     }
   }
 
   @Override
   public void registerAlertNotifier(AlertNotifier notifier) {
-    spaceEnvironment.getLog().info("Alert notifier registered with alert manager");
+    getSpaceEnvironment().getLog().info("Alert notifier registered with alert manager");
     alertNotifiers.add(notifier);
   }
 
   @Override
   public void unregisterAlertNotifier(AlertNotifier notifier) {
     alertNotifiers.remove(notifier);
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

@@ -16,43 +16,25 @@
 
 package interactivespaces.service.speech.synthesis.internal.freetts;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisPlayer;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.sun.speech.freetts.VoiceManager;
 import org.apache.commons.logging.Log;
-
-import java.util.Map;
 
 /**
  * A speech synthesis service based on FreeTTS.
  *
  * @author Keith M. Hughes
  */
-public class FreeTtsSpeechSynthesisService implements SpeechSynthesisService {
+public class FreeTtsSpeechSynthesisService extends BaseSupportedService implements
+    SpeechSynthesisService {
 
   /**
    * The voice manager for getting voices.
    */
   private VoiceManager voiceManager;
-
-  /**
-   * Spave environment for the service.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
 
   @Override
   public String getName() {
@@ -67,23 +49,13 @@ public class FreeTtsSpeechSynthesisService implements SpeechSynthesisService {
   }
 
   @Override
-  public void shutdown() {
-    // Nothing to do
-  }
-
-  @Override
   public SpeechSynthesisPlayer newPlayer(Log log) {
-    return new FreeTtsSpeechSynthesisPlayer(voiceManager, spaceEnvironment.getExecutorService(),
-        log);
+    return new FreeTtsSpeechSynthesisPlayer(voiceManager, getSpaceEnvironment()
+        .getExecutorService(), log);
   }
 
   @Override
   public SpeechSynthesisPlayer newPlayer() {
-    return newPlayer(spaceEnvironment.getLog());
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
+    return newPlayer(getSpaceEnvironment().getLog());
   }
 }

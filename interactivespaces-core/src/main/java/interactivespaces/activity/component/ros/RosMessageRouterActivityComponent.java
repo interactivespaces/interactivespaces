@@ -26,16 +26,16 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.ros.message.MessageListener;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * An {@link ActivityComponent} instance which supports multiple named message
@@ -288,8 +288,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     if (messageFactory != null) {
       return messageFactory.newMessage();
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "No publishers to provide a message of type %s", rosMessageType));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "No output routes declared so could not create a message of type %s", rosMessageType));
     }
   }
 
@@ -366,7 +366,6 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   }
 
   /**
-   *
    * Create a new handler invocation ID.
    *
    * @return a unique ID for the handler invocation

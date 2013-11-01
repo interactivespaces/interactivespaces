@@ -16,9 +16,8 @@
 
 package interactivespaces.controller.client.node.internal.osgi;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
@@ -26,15 +25,11 @@ import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
-import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
-import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
-import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
-import org.osgi.framework.BundleContext;
+import com.google.common.collect.Maps;
 
 import java.util.Map;
 
@@ -44,33 +39,13 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class OsgiActiveControllerActivityFactory implements ActiveControllerActivityFactory {
-
-  /**
-   * OSGi bundle context the factory lives in.
-   */
-  private BundleContext bundleContext;
+public class SimpleActiveControllerActivityFactory implements ActiveControllerActivityFactory {
 
   /**
    * Mapping of activity types to wrapper factories for that type.
    */
-  private Map<String, ActivityWrapperFactory> activityWrapperFactories = Maps.newConcurrentMap();
-
-  /**
-   * Create a new factory with the given context.
-   *
-   * @param bundleContext
-   *          context for creating activities
-   */
-  public OsgiActiveControllerActivityFactory(BundleContext bundleContext) {
-    this.bundleContext = bundleContext;
-
-    registerActivityWrapperFactory(new NativeActivityWrapperFactory());
-    registerActivityWrapperFactory(new WebActivityWrapperFactory());
-    registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
-
-    registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(bundleContext));
-  }
+  private final Map<String, ActivityWrapperFactory> activityWrapperFactories = Maps
+      .newConcurrentMap();
 
   @Override
   public ActiveControllerActivity createActiveLiveActivity(String activityType,
@@ -94,7 +69,8 @@ public class OsgiActiveControllerActivityFactory implements ActiveControllerActi
           String.format("Unsupported activity type %s for activity %s", activityType.toString(),
               liveActivity.getUuid());
       controller.getSpaceEnvironment().getLog().warn(message);
-      throw new InteractiveSpacesException(message);
+
+      throw new SimpleInteractiveSpacesException(message);
     }
   }
 

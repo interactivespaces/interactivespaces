@@ -20,7 +20,6 @@ import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivato
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.service.alert.notifier.mail.internal.BasicMailAlertNotifier;
 import interactivespaces.service.mail.sender.MailSenderService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * An OSGi activator for a mail alert notifier.
@@ -30,12 +29,14 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 public class OsgiMailAlertNotifierActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
-   * OSGi service tracker for the interactive spaces environment.
+   * OSGi service tracker for the mail sender service.
    */
   private MyServiceTracker<MailSenderService> mailSenderServiceTracker;
-  private MyServiceTracker<AlertService> alertServiceTracker;
 
-  private BasicMailAlertNotifier mailAlertNotifier;
+  /**
+   * OSGi service tracker for the alert service.
+   */
+  private MyServiceTracker<AlertService> alertServiceTracker;
 
   @Override
   public void onStart() {
@@ -45,19 +46,12 @@ public class OsgiMailAlertNotifierActivator extends InteractiveSpacesServiceOsgi
   }
 
   @Override
-  public void onStop() {
-    mailAlertNotifier.shutdown();
-  }
-
-  @Override
   protected void allRequiredServicesAvailable() {
-    InteractiveSpacesEnvironment spaceEnvironment =
-        interactiveSpacesEnvironmentTracker.getMyService();
     MailSenderService mailSenderService = mailSenderServiceTracker.getMyService();
     AlertService alertService = alertServiceTracker.getMyService();
 
-    mailAlertNotifier =
-        new BasicMailAlertNotifier(alertService, mailSenderService, spaceEnvironment);
-    mailAlertNotifier.startup();
+    BasicMailAlertNotifier mailAlertNotifier =
+        new BasicMailAlertNotifier(alertService, mailSenderService);
+    registerNewInteractiveSpacesService(mailAlertNotifier);
   }
 }

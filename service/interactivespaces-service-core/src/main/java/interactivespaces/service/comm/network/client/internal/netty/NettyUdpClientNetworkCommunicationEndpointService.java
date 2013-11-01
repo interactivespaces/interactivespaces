@@ -20,9 +20,9 @@ import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointService;
 
-import java.nio.ByteOrder;
-
 import org.apache.commons.logging.Log;
+
+import java.nio.ByteOrder;
 
 /**
  * Netty implementation of the
@@ -45,7 +45,7 @@ public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public UdpClientNetworkCommunicationEndpoint newClient(ByteOrder byteOrder, Log log) {
-    return new NettyUdpClientNetworkCommunicationEndpoint(byteOrder,
-        spaceEnvironment.getExecutorService(), log);
+    return new NettyUdpClientNetworkCommunicationEndpoint(byteOrder, getSpaceEnvironment()
+        .getExecutorService(), log);
   }
 }

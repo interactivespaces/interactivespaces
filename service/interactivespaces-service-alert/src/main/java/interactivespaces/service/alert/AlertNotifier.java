@@ -16,22 +16,14 @@
 
 package interactivespaces.service.alert;
 
+import interactivespaces.service.SupportedService;
+
 /**
  * Provide notification for an alert.
  *
  * @author Keith M. Hughes
  */
-public interface AlertNotifier {
-
-  /**
-   * Start the notifier up.
-   */
-  void startup();
-
-  /**
-   * Shut the notifier down.
-   */
-  void shutdown();
+public interface AlertNotifier extends SupportedService {
 
   /**
    * Send a notification about the alert.

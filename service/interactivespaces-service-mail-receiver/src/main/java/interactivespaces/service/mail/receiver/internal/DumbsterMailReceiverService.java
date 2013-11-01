@@ -16,8 +16,7 @@
 
 package interactivespaces.service.mail.receiver.internal;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.mail.common.MailMessage;
 import interactivespaces.service.mail.receiver.MailReceiverListener;
 import interactivespaces.service.mail.receiver.MailReceiverService;
@@ -26,19 +25,13 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import com.dumbster.smtp.SmtpServer;
 import com.dumbster.smtp.SmtpServerFactory;
 
-import java.util.Map;
-
 /**
  * A {@link MailReceiverService} which uses Dumbster.
  *
  * @author Keith M. Hughes
  */
-public class DumbsterMailReceiverService implements MailReceiverService, MailReceiverListener {
-
-  /**
-   * Space environment being run under.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+public class DumbsterMailReceiverService extends BaseSupportedService implements
+    MailReceiverService, MailReceiverListener {
 
   /**
    * The SMTP server.
@@ -46,19 +39,9 @@ public class DumbsterMailReceiverService implements MailReceiverService, MailRec
   private SmtpServer server;
 
   /**
-   * The mail store to use..
+   * The mail store to use.
    */
-  private CallbackMailStore mailStore = new CallbackMailStore();
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
+  private final CallbackMailStore mailStore = new CallbackMailStore();
 
   @Override
   public String getName() {
@@ -67,7 +50,7 @@ public class DumbsterMailReceiverService implements MailReceiverService, MailRec
 
   @Override
   public void startup() {
-    spaceEnvironment.getLog().info("Starting mail server");
+    getSpaceEnvironment().getLog().info("Starting mail server");
 
     server = SmtpServerFactory.startServer(9999);
     server.setThreaded(true);
@@ -94,12 +77,7 @@ public class DumbsterMailReceiverService implements MailReceiverService, MailRec
 
   @Override
   public void onMailMessageReceive(MailMessage message) {
-    spaceEnvironment.getLog().info(String.format("Got email message\n%s", message.getBody()));
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
+    getSpaceEnvironment().getLog().info(String.format("Got email message\n%s", message.getBody()));
   }
 
   /**

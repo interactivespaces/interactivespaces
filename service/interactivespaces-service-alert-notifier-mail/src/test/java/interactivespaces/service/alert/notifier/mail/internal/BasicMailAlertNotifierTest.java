@@ -18,14 +18,14 @@ package interactivespaces.service.alert.notifier.mail.internal;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.alert.AlertNotifier;
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.service.mail.common.MailMessage;
 import interactivespaces.service.mail.sender.MailSenderService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,8 @@ public class BasicMailAlertNotifierTest {
     mailSenderService = Mockito.mock(MailSenderService.class);
     alertService = Mockito.mock(AlertService.class);
 
-    notifier = new BasicMailAlertNotifier(alertService, mailSenderService, spaceEnvironment);
+    notifier = new BasicMailAlertNotifier(alertService, mailSenderService);
+    notifier.setSpaceEnvironment(spaceEnvironment);
   }
 
   /**
@@ -81,7 +82,7 @@ public class BasicMailAlertNotifierTest {
   }
 
   /**
-   * Email with default values
+   * Email with default values.
    */
   @Test
   public void testSendingMailDefaults() {
@@ -89,7 +90,8 @@ public class BasicMailAlertNotifierTest {
     Mockito
         .when(
             configuration
-                .getPropertyString(BasicMailAlertNotifier.CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_FROM))
+                .getPropertyString(
+                    BasicMailAlertNotifier.CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_FROM))
         .thenReturn(fromAddress);
     String toAddress = "dudley.doright@gmail.com";
     Mockito

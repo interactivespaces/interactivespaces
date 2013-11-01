@@ -16,14 +16,11 @@
 
 package interactivespaces.service.mail.sender.internal;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.mail.common.MailMessage;
 import interactivespaces.service.mail.sender.MailSenderService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -37,7 +34,7 @@ import javax.mail.internet.MimeMessage;
  *
  * @author Keith M. Hughes
  */
-public class JavaxMailMailSenderService implements MailSenderService {
+public class JavaxMailMailSenderService extends BaseSupportedService implements MailSenderService {
 
   /**
    * The default SMTP port.
@@ -45,34 +42,19 @@ public class JavaxMailMailSenderService implements MailSenderService {
   private static final String SMTP_PORT_DEFAULT = "25";
 
   /**
-   * Configuration property for SMTP host interactive spaces should use
+   * Configuration property for SMTP host interactive spaces should use.
    */
   public static final String CONFIGURATION_MAIL_SMTP_HOST = "interactivespaces.mail.smtp.host";
 
   /**
-   * Configuration property for SMTP host port interactive spaces should use
+   * Configuration property for SMTP host port interactive spaces should use.
    */
   public static final String CONFIGURATION_MAIL_SMTP_PORT = "interactivespaces.mail.smtp.port";
-
-  /**
-   * Space environment being run under.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * The Javamail mailerSession for sending messages.
    */
   private Session mailerSession;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
 
   @Override
   public String getName() {
@@ -81,23 +63,23 @@ public class JavaxMailMailSenderService implements MailSenderService {
 
   @Override
   public void startup() {
-    spaceEnvironment.getLog().info("Mail sending service starting up");
+    getSpaceEnvironment().getLog().info("Mail sending service starting up");
 
     Properties props = System.getProperties();
 
     // Setup mail server
     String smtpHost =
-        spaceEnvironment.getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_HOST);
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_HOST);
     if (smtpHost != null) {
       props.put("mail.smtp.host", smtpHost);
       props.put(
           "mail.smtp.port",
-          spaceEnvironment.getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_PORT,
+          getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_PORT,
               SMTP_PORT_DEFAULT));
 
       mailerSession = Session.getDefaultInstance(props, null);
     } else {
-      spaceEnvironment.getLog().warn("Mail service not configured. No smptp host given");
+      getSpaceEnvironment().getLog().warn("Mail service not configured. No smptp host given");
     }
   }
 
@@ -133,18 +115,9 @@ public class JavaxMailMailSenderService implements MailSenderService {
       transport.sendMessage(msg, msg.getAllRecipients());
       transport.close();
 
-      spaceEnvironment.getLog().info("Sent mail successfully");
+      getSpaceEnvironment().getLog().info("Sent mail successfully");
     } catch (Throwable e) {
       throw new InteractiveSpacesException("Could not send mail", e);
     }
-  }
-
-  @Override
-  public void shutdown() {
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

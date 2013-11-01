@@ -16,20 +16,21 @@
 
 package interactivespaces.service.speech.synthesis.internal.festival;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisPlayer;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
 import interactivespaces.service.speech.synthesis.internal.festival.client.Request;
 import interactivespaces.service.speech.synthesis.internal.festival.client.RequestListener;
 import interactivespaces.service.speech.synthesis.internal.festival.client.Session;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
@@ -42,7 +43,8 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
+public class FestivalSpeechSynthesisService extends BaseSupportedService implements
+    SpeechSynthesisService {
 
   /**
    * The name of the configuration property giving the binary.
@@ -131,21 +133,6 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
    */
   private Session session;
 
-  /**
-   * The space environment for the service.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
-
   @Override
   public String getName() {
     return SpeechSynthesisService.SERVICE_NAME;
@@ -157,15 +144,15 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
     session = null;
 
     host =
-        spaceEnvironment.getSystemConfiguration().getPropertyString(
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(
             CONFIGURATION_PROPERTY_NAME_HOST, CONFIGURATION_PROPERTY_DEFAULT_HOST);
 
     port =
-        spaceEnvironment.getSystemConfiguration().getPropertyInteger(
+        getSpaceEnvironment().getSystemConfiguration().getPropertyInteger(
             CONFIGURATION_PROPERTY_NAME_PORT, CONFIGURATION_PROPERTY_DEFAULT_PORT);
 
     String startupType =
-        spaceEnvironment.getSystemConfiguration().getPropertyString(
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(
             CONFIGURATION_PROPERTY_NAME_STARTUP, CONFIGURATION_PROPERTY_DEFAULT_STARTUP);
 
     if (CONFIGURATION_PROPERTY_VALUE_ON_STARTUP.equals(startupType)) {
@@ -183,14 +170,15 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
    *          {@code true} if the server is being started up for immediate use
    *
    * @throws InteractiveSpacesException
+   *           unable to start up the server
    */
-  public void startupServer(boolean immediate) throws InteractiveSpacesException {
+  private void startupServer(boolean immediate) throws InteractiveSpacesException {
     if (speechServer == null) {
       NativeActivityRunnerFactory runnerFactory =
-          spaceEnvironment.getValue(SpaceController.ENVIRONMENT_CONTROLLER_NATIVE_RUNNER);
+          getSpaceEnvironment().getValue(SpaceController.ENVIRONMENT_CONTROLLER_NATIVE_RUNNER);
 
-      speechServer = runnerFactory.newPlatformNativeActivityRunner(spaceEnvironment.getLog());
-      Configuration configuration = spaceEnvironment.getSystemConfiguration();
+      speechServer = runnerFactory.newPlatformNativeActivityRunner(getSpaceEnvironment().getLog());
+      Configuration configuration = getSpaceEnvironment().getSystemConfiguration();
       Map<String, Object> appConfig = Maps.newHashMap();
       appConfig
           .put(
@@ -214,7 +202,7 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
       try {
         session = new Session(host, port);
       } catch (UnknownHostException e) {
-        throw new InteractiveSpacesException("Festival client has unknown host", e);
+        throw new SimpleInteractiveSpacesException("Festival client has unknown host");
       } catch (IOException e) {
         throw new InteractiveSpacesException("Festival client can't connect", e);
       }
@@ -240,17 +228,12 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
 
   @Override
   public SpeechSynthesisPlayer newPlayer() {
-    return newPlayer(spaceEnvironment.getLog());
+    return newPlayer(getSpaceEnvironment().getLog());
   }
 
   @Override
   public SpeechSynthesisPlayer newPlayer(Log log) {
     return new FestivalSpeechSynthesisPlayer();
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 
   /**
@@ -259,25 +242,34 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
    * @author Keith M. Hughes
    */
   private class RequestHandler implements RequestListener {
+    @Override
     public void requestRunning(Request request) {
-      spaceEnvironment.getLog().info(String.format("Request %s running\n", request.command));
+      getSpaceEnvironment().getLog().info(String.format("Request %s running\n", request.command));
     }
 
+    @Override
     public void requestResult(Request request, Object result) {
-      spaceEnvironment.getLog().info(
+      getSpaceEnvironment().getLog().info(
           String.format("Request %s, result %s\n", request.command, result.toString()));
     }
 
+    @Override
     public void requestError(Request request, String message) {
-      spaceEnvironment.getLog().info(
+      getSpaceEnvironment().getLog().info(
           String.format("Request %s, Error %s\n", request.command, message));
     }
 
+    @Override
     public void requestFinished(Request request) {
-      spaceEnvironment.getLog().info(String.format("Request %s finished\n", request.command));
+      getSpaceEnvironment().getLog().info(String.format("Request %s finished\n", request.command));
     }
   }
 
+  /**
+   * A speech player for Festival.
+   *
+   * @author Keith M. Hughes
+   */
   private class FestivalSpeechSynthesisPlayer implements SpeechSynthesisPlayer {
 
     @Override
@@ -297,9 +289,11 @@ public class FestivalSpeechSynthesisService implements SpeechSynthesisService {
       String textCommand = String.format("(SayText \"%s\")", text);
 
       Request r = session.request(textCommand, requestHandler);
-      if (sync)
-        while (!r.isFinished())
+      if (sync) {
+        while (!r.isFinished()) {
           r.waitForUpdate();
+        }
+      }
     }
 
   }

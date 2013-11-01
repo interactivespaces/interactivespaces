@@ -18,232 +18,195 @@ package interactivespaces.controller.internal.osgi;
 
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
+import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
+import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
+import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
+import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.ControllerDataBundleManager;
-import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
+import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
-import interactivespaces.controller.client.node.internal.osgi.OsgiActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.internal.osgi.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
+import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
 import org.ros.osgi.common.RosEnvironment;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
- * An OSGi activator for an Interactive Spaces controller
+ * An OSGi activator for an Interactive Spaces space controller.
  *
  * @author Keith M. Hughes
  */
-public class OsgiControllerActivator implements BundleActivator {
+public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
-	/**
-	 * OSGi service tracker for the interactive spaces environment.
-	 */
-	private MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
-	private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
-	private MyServiceTracker<RosEnvironment> rosEnvironmentTracker;
-	private MyServiceTracker<ExpressionEvaluatorFactory> expressionEvaluatorFactoryTracker;
+  /**
+   * OSGi service tracker for the interactive spaces control.
+   */
+  private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
 
-	private BundleContext bundleContext;
-	private SimpleActivityStorageManager activityStorageManager;
-	private FileLocalSpaceControllerRepository controllerRepository;
-	private SimpleActivityInstallationManager activityInstallationManager;
-	private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
-	private StandardSpaceController spaceController;
-	private OsgiControllerShell controllerShell;
+  /**
+   * OSGi service tracker for the ROS environment.
+   */
+  private MyServiceTracker<RosEnvironment> rosEnvironmentTracker;
 
-	/**
-	 * Object to give lock for putting this bundle's services together.
-	 */
-	private Object serviceLock = new Object();
-	private ServiceRegistration controllerActivityFactoryServiceRegistration;
+  /**
+   * OSGi service tracker for the expression evaluator factory.
+   */
+  private MyServiceTracker<ExpressionEvaluatorFactory> expressionEvaluatorFactoryTracker;
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		this.bundleContext = context;
+  /**
+   * The storage manager for activities.
+   */
+  private SimpleActivityStorageManager activityStorageManager;
 
-		interactiveSpacesEnvironmentTracker = newMyServiceTracker(context,
-				InteractiveSpacesEnvironment.class.getName());
+  /**
+   * The controller repository.
+   */
+  private FileLocalSpaceControllerRepository controllerRepository;
 
-		interactiveSpacesSystemControlTracker = newMyServiceTracker(context,
-				InteractiveSpacesSystemControl.class.getName());
+  /**
+   * The activity installation manager.
+   */
+  private SimpleActivityInstallationManager activityInstallationManager;
 
-		rosEnvironmentTracker = newMyServiceTracker(context,
-				RosEnvironment.class.getName());
+  /**
+   * The controller side of an activity installation manager.
+   */
+  private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
 
-		expressionEvaluatorFactoryTracker = newMyServiceTracker(context,
-				ExpressionEvaluatorFactory.class.getName());
-		expressionEvaluatorFactoryTracker.open();
-		interactiveSpacesEnvironmentTracker.open();
-		rosEnvironmentTracker.open();
-		interactiveSpacesSystemControlTracker.open();
-	}
+  /**
+   * The actual space controller itself.
+   */
+  private StandardSpaceController spaceController;
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		interactiveSpacesEnvironmentTracker.close();
-		interactiveSpacesSystemControlTracker.close();
-		rosEnvironmentTracker.close();
-		expressionEvaluatorFactoryTracker.close();
+  /**
+   * The OSGi shell for the controller.
+   */
+  private OsgiControllerShell controllerShell;
 
-		if (controllerActivityFactoryServiceRegistration != null) {
-			controllerActivityFactoryServiceRegistration.unregister();
-			controllerActivityFactoryServiceRegistration = null;
-		}
+  @Override
+  public void onStart() {
+    interactiveSpacesSystemControlTracker =
+        newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
 
-		if (controllerShell != null) {
-			controllerShell.deactivate();
-			controllerShell = null;
-		}
+    rosEnvironmentTracker = newMyServiceTracker(RosEnvironment.class.getName());
 
-		if (spaceController != null) {
-			spaceController.shutdown();
-			spaceController = null;
-		}
+    expressionEvaluatorFactoryTracker =
+        newMyServiceTracker(ExpressionEvaluatorFactory.class.getName());
+  }
 
-		if (activityInstallationManager != null) {
-			activityInstallationManager.shutdown();
-			activityInstallationManager = null;
-		}
+  @Override
+  public void onStop() {
+    if (controllerShell != null) {
+      controllerShell.deactivate();
+      controllerShell = null;
+    }
 
-		if (controllerActivityInstaller != null) {
-			controllerActivityInstaller.shutdown();
-			controllerActivityInstaller = null;
-		}
+    if (spaceController != null) {
+      spaceController.shutdown();
+      spaceController = null;
+    }
 
-		if (activityStorageManager != null) {
-			activityStorageManager.shutdown();
-			activityStorageManager = null;
-		}
+    if (activityInstallationManager != null) {
+      activityInstallationManager.shutdown();
+      activityInstallationManager = null;
+    }
 
-		if (controllerRepository != null) {
-			controllerRepository.shutdown();
-			controllerRepository = null;
-		}
+    if (controllerActivityInstaller != null) {
+      controllerActivityInstaller.shutdown();
+      controllerActivityInstaller = null;
+    }
 
-	}
+    if (activityStorageManager != null) {
+      activityStorageManager.shutdown();
+      activityStorageManager = null;
+    }
 
-	private void gotAnotherReference() {
-		synchronized (serviceLock) {
-			InteractiveSpacesEnvironment spaceEnvironment = interactiveSpacesEnvironmentTracker
-					.getMyService();
-			InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker
-					.getMyService();
-			RosEnvironment rosEnvironment = rosEnvironmentTracker
-					.getMyService();
-			ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker
-					.getMyService();
+    if (controllerRepository != null) {
+      controllerRepository.shutdown();
+      controllerRepository = null;
+    }
 
-			if (spaceEnvironment != null && spaceSystemControl != null
-					&& rosEnvironment != null && rosEnvironmentTracker != null
-					&& expressionEvaluatorFactory != null) {
-				activityStorageManager = new SimpleActivityStorageManager(
-						spaceEnvironment);
-				activityStorageManager.startup();
+  }
 
-				controllerRepository = new FileLocalSpaceControllerRepository(
-						activityStorageManager, spaceEnvironment);
-				controllerRepository.startup();
+  @Override
+  protected void allRequiredServicesAvailable() {
+    InteractiveSpacesEnvironment spaceEnvironment =
+        getInteractiveSpacesEnvironmentTracker().getMyService();
+    InteractiveSpacesSystemControl spaceSystemControl =
+        interactiveSpacesSystemControlTracker.getMyService();
+    RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
+    ExpressionEvaluatorFactory expressionEvaluatorFactory =
+        expressionEvaluatorFactoryTracker.getMyService();
 
-				PropertyFileLiveActivityConfigurationManager activityConfigurationManager = new PropertyFileLiveActivityConfigurationManager(
-						expressionEvaluatorFactory, spaceEnvironment);
+    activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
+    activityStorageManager.startup();
 
-				activityInstallationManager = new SimpleActivityInstallationManager(
-						controllerRepository, activityStorageManager,
-						spaceEnvironment);
-				activityInstallationManager.startup();
+    controllerRepository =
+        new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
+    controllerRepository.startup();
 
-				OsgiActiveControllerActivityFactory controllerActivityFactory = new OsgiActiveControllerActivityFactory(
-						bundleContext);
+    PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
+        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory,
+            spaceEnvironment);
 
-				controllerActivityFactoryServiceRegistration = bundleContext
-						.registerService(
-								ActiveControllerActivityFactory.class.getName(),
-								controllerActivityFactory, null);
+    activityInstallationManager =
+        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager,
+            spaceEnvironment);
+    activityInstallationManager.startup();
 
-				controllerActivityInstaller = new SimpleSpaceControllerActivityInstallationManager(
-						activityInstallationManager, spaceEnvironment);
-				controllerActivityInstaller.startup();
+    SimpleActiveControllerActivityFactory controllerActivityFactory =
+        new SimpleActiveControllerActivityFactory();
+    controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
+    controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
+    controllerActivityFactory
+        .registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
 
-				SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(
-						spaceEnvironment);
+    controllerActivityFactory
+        .registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
+            getBundleContext()));
 
-				InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory = new InteractiveSpacesEnvironmentActivityLogFactory(
-						spaceEnvironment);
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
+        controllerActivityFactory);
 
-				RosSpaceControllerCommunicator spaceControllerCommunicator = new RosSpaceControllerCommunicator(
-						controllerActivityInstaller, rosEnvironment,
-						spaceEnvironment);
+    controllerActivityInstaller =
+        new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager,
+            spaceEnvironment);
+    controllerActivityInstaller.startup();
 
-        ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
+    SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory =
+        new SimpleNativeActivityRunnerFactory(spaceEnvironment);
 
-        spaceController = new StandardSpaceController(
-            activityInstallationManager, controllerRepository,
-            controllerActivityFactory, nativeActivityRunnerFactory,
-            activityConfigurationManager, activityStorageManager,
-            activityLogFactory, spaceControllerCommunicator,
-            new FileSystemSpaceControllerInfoPersister(),
-            spaceSystemControl, spaceEnvironment, dataBundleManager);
-        spaceController.startup();
+    InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory =
+        new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
 
-				controllerShell = new OsgiControllerShell(spaceController,
-						spaceSystemControl, controllerRepository, bundleContext);
-				controllerShell.startup();
-			}
-		}
-	}
+    RosSpaceControllerCommunicator spaceControllerCommunicator =
+        new RosSpaceControllerCommunicator(controllerActivityInstaller, rosEnvironment,
+            spaceEnvironment);
 
-	/**
-	 * Create a new service tracker.
-	 *
-	 * @param context
-	 *            the bundle context
-	 * @param serviceName
-	 *            name of the service class
-	 *
-	 * @return the service tracker
-	 */
-	<T> MyServiceTracker<T> newMyServiceTracker(BundleContext context,
-			String serviceName) {
-		return new MyServiceTracker<T>(context, serviceName);
-	}
+    ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
 
-	private final class MyServiceTracker<T> extends ServiceTracker {
-		private AtomicReference<T> serviceReference = new AtomicReference<T>();
+    spaceController =
+        new StandardSpaceController(activityInstallationManager, controllerRepository,
+            controllerActivityFactory, nativeActivityRunnerFactory, activityConfigurationManager,
+            activityStorageManager, activityLogFactory, spaceControllerCommunicator,
+            new FileSystemSpaceControllerInfoPersister(), spaceSystemControl, spaceEnvironment,
+            dataBundleManager);
+    spaceController.startup();
 
-		public MyServiceTracker(BundleContext context, String serviceName) {
-			super(context, serviceName, null);
-		}
-
-		@Override
-		public Object addingService(ServiceReference reference) {
-			@SuppressWarnings("unchecked")
-			T service = (T) super.addingService(reference);
-
-			if (serviceReference.compareAndSet(null, service)) {
-				gotAnotherReference();
-			}
-
-			return service;
-		}
-
-		public T getMyService() {
-			return serviceReference.get();
-		}
-	}
+    controllerShell =
+        new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository,
+            getBundleContext());
+    controllerShell.startup();
+  }
 }

@@ -16,11 +16,9 @@
 
 package interactivespaces.service.scheduler.internal.quartz;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.scheduler.SchedulerService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
 import org.quartz.CronScheduleBuilder;
@@ -48,7 +46,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class QuartzSchedulerService implements SchedulerService {
+public class QuartzSchedulerService extends BaseSupportedService implements SchedulerService {
 
   /**
    * JobMap property for the runnable which will run.
@@ -74,24 +72,6 @@ public class QuartzSchedulerService implements SchedulerService {
    * The quartz scheduler.
    */
   private Scheduler scheduler;
-
-  /**
-   * Spaces environment the scheduler is running in.
-   *
-   * <p>
-   * TODO(keith): Make it so the thread pool is separate.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
 
   @Override
   public String getName() {
@@ -135,14 +115,14 @@ public class QuartzSchedulerService implements SchedulerService {
       JobDetail detail =
           JobBuilder.newJob(SimpleSchedulerJob.class).withIdentity(jobName, groupName).build();
       detail.getJobDataMap().put(JOB_MAP_PROPERTY_RUNNABLE, runnable);
-      detail.getJobDataMap().put(JOB_MAP_PROPERTY_LOGGER, spaceEnvironment.getLog());
+      detail.getJobDataMap().put(JOB_MAP_PROPERTY_LOGGER, getSpaceEnvironment().getLog());
 
       Trigger trigger =
           TriggerBuilder.newTrigger().withIdentity(TriggerKey.triggerKey(jobName, groupName))
               .startAt(when).build();
       scheduler.scheduleJob(detail, trigger);
 
-      spaceEnvironment.getLog().info(
+      getSpaceEnvironment().getLog().info(
           String.format("Scheduled job %s:%s for %s\n", groupName, jobName, new SimpleDateFormat(
               "MM/dd/yyyy@HH:mm:ss").format(when)));
     } catch (SchedulerException e) {
@@ -159,7 +139,7 @@ public class QuartzSchedulerService implements SchedulerService {
               .build();
       JobDataMap jobDataMap = detail.getJobDataMap();
       jobDataMap.put(JOB_MAP_PROPERTY_SCRIPT_ID, id);
-      jobDataMap.put(JOB_MAP_PROPERTY_LOGGER, spaceEnvironment.getLog());
+      jobDataMap.put(JOB_MAP_PROPERTY_LOGGER, getSpaceEnvironment().getLog());
 
       CronTrigger trigger =
           TriggerBuilder.newTrigger().withIdentity(TriggerKey.triggerKey(jobName, groupName))
@@ -170,11 +150,6 @@ public class QuartzSchedulerService implements SchedulerService {
       throw new InteractiveSpacesException(String.format("Unable to schedule job %s:%s", groupName,
           jobName), e);
     }
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 
   /**

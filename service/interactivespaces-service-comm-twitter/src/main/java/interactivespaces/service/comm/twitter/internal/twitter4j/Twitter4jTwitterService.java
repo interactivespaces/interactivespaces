@@ -16,28 +16,21 @@
 
 package interactivespaces.service.comm.twitter.internal.twitter4j;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.twitter.TwitterConnection;
 import interactivespaces.service.comm.twitter.TwitterService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link TwitterService} using Twitter4j.
  *
  * @author Keith M. Hughes
  */
-public class Twitter4jTwitterService implements TwitterService {
-
-  /**
-   * Space environment for this service.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+public class Twitter4jTwitterService extends BaseSupportedService implements TwitterService {
 
   /**
    * All twitter connections currently live.
@@ -45,29 +38,16 @@ public class Twitter4jTwitterService implements TwitterService {
   private List<TwitterConnection> connections = Lists.newArrayList();
 
   /**
-   * The metadata for the service.
+   * Construct a new twitter service.
    */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
   public Twitter4jTwitterService() {
     connections = Lists.newArrayList();
     connections = Collections.synchronizedList(connections);
   }
 
   @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
-
-  @Override
   public String getName() {
     return TwitterService.SERVICE_NAME;
-  }
-
-  @Override
-  public void startup() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -87,10 +67,5 @@ public class Twitter4jTwitterService implements TwitterService {
     connections.add(connection);
 
     return connection;
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

@@ -17,20 +17,21 @@
 package interactivespaces.service.alert.notifier.mail.internal;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.alert.AlertNotifier;
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.service.mail.common.ComposableMailMessage;
 import interactivespaces.service.mail.common.SimpleMailMessage;
 import interactivespaces.service.mail.sender.MailSenderService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
  * A basic implementation of an {@link AlertService}.
  *
  * @author Keith M. Hughes
  */
-public class BasicMailAlertNotifier implements AlertNotifier {
+public class BasicMailAlertNotifier extends BaseSupportedService implements AlertNotifier {
 
   /**
    * Configuration property prefix for all mail alert notifier properties.
@@ -58,25 +59,36 @@ public class BasicMailAlertNotifier implements AlertNotifier {
       CONFIGURATION_PREFIX_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL + "subject";
 
   /**
+   * The name of the service.
+   */
+  public static final String NAME = "alert.notifier.email";
+
+  /**
    * Service for alerting.
    */
-  private AlertService alertService;
+  private final AlertService alertService;
 
   /**
    * Service for sending mail.
    */
-  private MailSenderService mailSenderService;
+  private final MailSenderService mailSenderService;
 
   /**
-   * Interactive Spaces environment for scripting engine.
+   * Construct a new mail alert notifier.
+   *
+   * @param alertService
+   *          the alert service to attach to
+   * @param mailSenderService
+   *          the mail sender service to use
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  public BasicMailAlertNotifier(AlertService alertService, MailSenderService mailSenderService,
-      InteractiveSpacesEnvironment spaceEnvironment) {
+  public BasicMailAlertNotifier(AlertService alertService, MailSenderService mailSenderService) {
     this.alertService = alertService;
     this.mailSenderService = mailSenderService;
-    this.spaceEnvironment = spaceEnvironment;
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 
   @Override
@@ -91,7 +103,7 @@ public class BasicMailAlertNotifier implements AlertNotifier {
 
   @Override
   public void notify(String alertType, String id, String message) {
-    Configuration config = spaceEnvironment.getSystemConfiguration();
+    Configuration config = getSpaceEnvironment().getSystemConfiguration();
 
     ComposableMailMessage mail = new SimpleMailMessage();
 
@@ -182,7 +194,7 @@ public class BasicMailAlertNotifier implements AlertNotifier {
     }
 
     if (value == null || value.trim().isEmpty()) {
-      throw new InteractiveSpacesException(String.format(
+      throw new SimpleInteractiveSpacesException(String.format(
           "No configuration parameter %s set for alert type %s", configParameter, alertType));
     }
 

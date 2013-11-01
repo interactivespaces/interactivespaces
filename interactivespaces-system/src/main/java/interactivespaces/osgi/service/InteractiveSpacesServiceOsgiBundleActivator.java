@@ -16,12 +16,15 @@
 
 package interactivespaces.osgi.service;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.service.Service;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SupportedService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -29,14 +32,11 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import com.google.common.collect.Lists;
 
 /**
  * A base class for creating OSGi BundleActivator subclasses for Interactive
- * Spaces services.
+ * Spaces services and other OSGi bundles from Interactive Spaces.
  *
  * @author Keith M. Hughes
  */
@@ -45,17 +45,17 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   /**
    * All OSGi service registrations from this bundle.
    */
-  private List<ServiceRegistration> osgiServiceRegistrations = Lists.newArrayList();
+  private final List<ServiceRegistration> osgiServiceRegistrations = Lists.newArrayList();
 
   /**
    * All services registered by this bundle.
    */
-  private List<Service> registeredServices = Lists.newArrayList();
+  private final List<Service> registeredServices = Lists.newArrayList();
 
   /**
    * OSGi service tracker for the interactive spaces environment.
    */
-  protected MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
+  private MyServiceTracker<InteractiveSpacesEnvironment> interactiveSpacesEnvironmentTracker;
 
   /**
    * OSGi bundle context for this bundle.
@@ -65,13 +65,13 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   /**
    * All service trackers we have.
    */
-  private Map<String, MyServiceTracker<?>> serviceTrackers =
+  private final Map<String, MyServiceTracker<?>> serviceTrackers =
       new HashMap<String, MyServiceTracker<?>>();
 
   /**
    * Object to give lock for putting this bundle's services together.
    */
-  private Object serviceLock = new Object();
+  private final Object serviceLock = new Object();
 
   @Override
   public void start(BundleContext context) throws Exception {
@@ -157,6 +157,18 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   }
 
   /**
+   * Register a generic OSGi framework service.
+   *
+   * @param name
+   *          name for the OSGi service
+   * @param service
+   *          the service to be registered
+   */
+  protected void registerOsgiFrameworkService(String name, Object service) {
+    osgiServiceRegistrations.add(bundleContext.registerService(name, service, null));
+  }
+
+  /**
    * Got another reference from a dependency.
    */
   protected void gotAnotherReference() {
@@ -199,6 +211,8 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    *
    * @param serviceName
    *          name of the service class
+   * @param <T>
+   *          class being tracked by the service tracker
    *
    * @return the service tracker
    */
@@ -211,13 +225,46 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   }
 
   /**
+   * Get the bundle context for the bundle.
+   *
+   * @return the bundle context
+   */
+  public BundleContext getBundleContext() {
+    return bundleContext;
+  }
+
+  /**
+   * Get the service tracker for the Interactive Spaces environment.
+   *
+   * @return the service tracker
+   */
+  public MyServiceTracker<InteractiveSpacesEnvironment> getInteractiveSpacesEnvironmentTracker() {
+    return interactiveSpacesEnvironmentTracker;
+  }
+
+  /**
    * An OSGi service tracking class.
+   *
+   * @param <T>
+   *          the class of the service being tracked
    *
    * @author Keith M. Hughes
    */
   public final class MyServiceTracker<T> extends ServiceTracker {
-    private AtomicReference<T> serviceReference = new AtomicReference<T>();
 
+    /**
+     * The reference for the service object being waited for.
+     */
+    private final AtomicReference<T> serviceReference = new AtomicReference<T>();
+
+    /**
+     * Construct a service tracker.
+     *
+     * @param context
+     *          bundle context the tracker is running under
+     * @param serviceName
+     *          the name of the service
+     */
     public MyServiceTracker(BundleContext context, String serviceName) {
       super(context, serviceName, null);
     }
