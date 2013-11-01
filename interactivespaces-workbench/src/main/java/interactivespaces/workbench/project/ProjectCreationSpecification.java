@@ -14,13 +14,11 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectTemplate;
 
 import java.util.List;
 
@@ -133,8 +131,8 @@ public class ProjectCreationSpecification {
   /**
    * Add a new source directory to the spec.
    *
-   * @param parameter
-   *          the new configuration parameter to add
+   * @param sourceDirectory
+   *          the new source directory
    */
   public void addSourceDirectory(String sourceDirectory) {
     sourceDirectories.add(sourceDirectory);

@@ -18,6 +18,7 @@ package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import java.io.File;
 import java.util.List;
@@ -81,12 +82,21 @@ public class Project {
   private List<ProjectDependency> dependencies = Lists.newArrayList();
 
   /**
-   * The resources the project requires.
+   * The resources the project requires. A null value indicates that no resources have been
+   * specified for the project (which is slightly different than saying an empty set of
+   * resources have been specified, which would be indicated by the empty list).
    */
-  private List<ProjectResource> resources = Lists.newArrayList();
+  private List<ProjectConstituent> resources;
 
   /**
-   * The resources the project requires.
+   * The sources the project requires. A null value indicates that no sources have been
+   * specified for the project (which is slightly different than saying an empty set of
+   * sources have been specified, which would be indicated by the empty list).
+   */
+  private List<ProjectConstituent> sources;
+
+  /**
+   * The deployments the project requires.
    */
   private List<ProjectDeployment> deployments = Lists.newArrayList();
 
@@ -94,6 +104,11 @@ public class Project {
    * The meta data for this project.
    */
   private Map<String, Object> metadata = Maps.newHashMap();
+
+  /**
+   * Attributes for this project.
+   */
+  private Map<String, String> attributes = Maps.newHashMap();
 
   /**
    * Get the type of the project.
@@ -267,22 +282,51 @@ public class Project {
   }
 
   /**
-   * Add a resource to the project.
+   * Add resources to the project.
    *
-   * @param resource
-   *          the resource to add
+   * @param addResources
+   *          the resources to add
    */
-  public void addResource(ProjectResource resource) {
-    resources.add(resource);
+  public void addResources(List<ProjectConstituent> addResources) {
+    if (addResources != null) {
+      if (resources == null) {
+        resources = Lists.newArrayList();
+      }
+      resources.addAll(addResources);
+    }
   }
 
   /**
    * Get a list of all resources the project has.
    *
-   * @return a new copy of the resources
+   * @return a new copy of the resources list or {@code null} if no resources have been specified.
    */
-  public List<ProjectResource> getResources() {
-    return Lists.newArrayList(resources);
+  public List<ProjectConstituent> getResources() {
+    return resources == null ? null : Lists.newArrayList(resources);
+  }
+
+  /**
+   * Add sources to the project.
+   *
+   * @param addSources
+   *          the resources to add
+   */
+  public void addSources(List<ProjectConstituent> addSources) {
+    if (addSources != null) {
+      if (sources == null) {
+        sources = Lists.newArrayList();
+      }
+      sources.addAll(addSources);
+    }
+  }
+
+  /**
+   * Get a list of all sources the project has.
+   *
+   * @return a new copy of the sources list or {@code null} if no sources have been specified
+   */
+  public List<ProjectConstituent> getSources() {
+    return sources == null ? null : Lists.newArrayList(sources);
   }
 
   /**
@@ -305,5 +349,29 @@ public class Project {
    */
   public Map<String, Object> getMetadata() {
     return metadata;
+  }
+
+  /**
+   * Add an attribute to this project.
+   *
+   * @param key
+   *          attribute name
+   * @param value
+   *          attribute value
+   */
+  public void addAttribute(String key, String value) {
+    attributes.put(key, value);
+  }
+
+  /**
+   * Get an attribute from this project.
+   *
+   * @param key
+   *          attribute key
+   *
+   * @return attribute value or {@code null} if no value
+   */
+  public String getAttribute(String key) {
+    return attributes.get(key);
   }
 }

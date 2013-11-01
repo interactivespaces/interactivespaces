@@ -17,13 +17,14 @@
 package interactivespaces.workbench.project.activity.packager;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
-import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
+import interactivespaces.workbench.project.builder.BaseProjectBuilder;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -47,18 +48,29 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    */
   private static final String PROJECT_BUILD_FILE_EXTENSION = "zip";
 
+  /**
+   * Default buffer size to use for copying.
+   */
+  private static final int DEFAULT_BUFFER_SIZE = 1024;
+
+  /**
+   * File support instance for file operations.
+   */
+  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
+
   @Override
   public void packageActivityProject(Project project, ProjectBuildContext context) {
     // Create a buffer for reading the files
-    byte[] buf = new byte[1024];
+    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
 
     ZipOutputStream out = null;
     try {
       // Create the ZIP file
-      out = new ZipOutputStream(new FileOutputStream(getBuildDestinationFile(project)));
+      File buildDestinationFile = getBuildDestinationFile(project);
+      File activityFolder = new File(context.getBuildDirectory(), BaseProjectBuilder.BUILD_STAGING_DIRECTORY);
 
-      writeDistributionFile(new File(context.getBuildDirectory(),
-          BaseActivityProjectBuilder.ACTIVITY_BUILD_DIRECTORY_STAGING), buf, out, "");
+      out = new ZipOutputStream(new FileOutputStream(buildDestinationFile));
+      writeDistributionFile(activityFolder, buf, out, "");
 
       // addArtifacts(context, buf, out);
 
@@ -87,11 +99,11 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @param out
    *          the distribution file stream being written to
    *
-   * @throws FileNotFoundException
    * @throws IOException
+   *           error writing artifact to output file
    */
   private void addArtifacts(ProjectBuildContext context, byte[] buf, ZipOutputStream out)
-      throws FileNotFoundException, IOException {
+      throws IOException {
     for (File artifact : context.getArtifactsToAdd()) {
       writeZipEntry(buf, out, "", artifact);
     }
@@ -108,7 +120,9 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    *          the stream where components are being written
    * @param parentPath
    *          path up to this point
+   *
    * @throws IOException
+   *           error writing artifact to output file
    */
   private void writeDistributionFile(File activityFolder, byte[] buf,
       ZipOutputStream packageOutputStream, String parentPath) throws IOException {
@@ -133,11 +147,11 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @param file
    *          the file to be written into the package
    *
-   * @throws FileNotFoundException
    * @throws IOException
+   *           problem writing zip entry
    */
   protected void writeZipEntry(byte[] buf, ZipOutputStream packageOutputStream, String parentPath,
-      File file) throws FileNotFoundException, IOException {
+      File file) throws IOException {
     FileInputStream in = new FileInputStream(file);
 
     // Add ZIP entry to output stream.
@@ -168,12 +182,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
   private File getBuildDestinationFile(Project project) {
     File buildFolder = new File(project.getBaseDirectory(), BUILD_DIRECTORY);
 
-    if (!buildFolder.exists()) {
-      if (!buildFolder.mkdirs()) {
-        throw new InteractiveSpacesException(String.format("Cannot create folder %s",
-            buildFolder.getAbsolutePath()));
-      }
-    }
+    FILE_SUPPORT.directoryExists(buildFolder);
 
     return new File(buildFolder, project.getIdentifyingName() + "-" + project.getVersion() + "."
         + PROJECT_BUILD_FILE_EXTENSION);

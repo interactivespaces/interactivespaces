@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.packager;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
  * Package up activies.

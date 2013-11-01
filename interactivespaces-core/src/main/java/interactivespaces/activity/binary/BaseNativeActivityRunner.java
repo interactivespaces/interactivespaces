@@ -52,7 +52,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   /**
    * File support instance to use for this activity runner;
    */
-  private static FileSupport fileSupport = new FileSupportImpl();
+  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
 
   /**
    * Configuration map for this native activity.
@@ -262,13 +262,13 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   private void logProcessResultStreams() {
     try {
       InputStream inputStream = process.getInputStream();
-      String inputString = fileSupport.readAvailableToString(inputStream);
+      String inputString = FILE_SUPPORT.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
         spaceEnvironment.getLog().info(inputString);
       }
 
       InputStream errorStream = process.getErrorStream();
-      String errorString = fileSupport.readAvailableToString(errorStream);
+      String errorString = FILE_SUPPORT.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
         spaceEnvironment.getLog().error(errorString);
       }

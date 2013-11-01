@@ -20,7 +20,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 
 import java.io.File;
 import java.util.Map;

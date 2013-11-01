@@ -18,9 +18,8 @@ package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
 
 import java.io.File;
 

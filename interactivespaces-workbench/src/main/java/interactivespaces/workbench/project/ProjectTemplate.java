@@ -18,7 +18,6 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public interface ProjectTemplate {
   /**
    * Get the display name for the template.
    *
-   * @return
+   * @return display name for the template
    */
   String getDisplayName();
 

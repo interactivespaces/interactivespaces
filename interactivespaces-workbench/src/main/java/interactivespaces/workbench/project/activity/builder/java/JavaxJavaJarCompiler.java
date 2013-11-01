@@ -25,7 +25,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
@@ -85,7 +85,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   @Override
   public boolean build(File jarDestinationFile, File compilationFolder,
-      JavaProjectExtensions extensions, ProjectBuildContext context) throws Exception {
+      JavaProjectExtensions extensions, ProjectBuildContext context) {
     List<File> classpath = Lists.newArrayList(context.getWorkbench().getControllerClasspath());
     try {
       if (compile(context.getProject(), compilationFolder, context, extensions, classpath)) {

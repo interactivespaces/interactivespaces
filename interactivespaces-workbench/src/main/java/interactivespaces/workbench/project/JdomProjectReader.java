@@ -16,11 +16,19 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
+import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+
+import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -38,6 +46,27 @@ import java.util.Map;
  */
 public class JdomProjectReader implements ProjectReader {
 
+  /**
+   * Map of resource types to resource builders.
+   */
+  private static final Map<String, ProjectConstituent.Builder> PROJECT_CONSTITUENT_BUILDER_MAP =
+      ImmutableMap.of(
+          ProjectResourceConstituent.PROJECT_TYPE, new ProjectResourceConstituent.Builder(),
+          ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE, new ProjectResourceConstituent.Builder(),
+          ProjectAssemblyConstituent.PROJECT_TYPE, new ProjectAssemblyConstituent.Builder(),
+          ProjectBundleConstituent.PROJECT_TYPE, new ProjectBundleConstituent.Builder()
+      );
+
+  /**
+   * Project definition file element name for resources.
+   */
+  private static final String PROJECT_RESOURCES_ELEMENT_NAME = "resources";
+
+  /**
+   * Project definition file element name for sources.
+   */
+  private static final String PROJECT_SOURCES_ELEMENT_NAME = "sources";
+
   @Override
   public Project readDescription(File projectFile) {
     FileInputStream inputStream = null;
@@ -54,11 +83,24 @@ public class JdomProjectReader implements ProjectReader {
 
       List<String> errors = Lists.newArrayList();
 
+      getProjectAttributes(project, rootElement, errors);
       getMainData(project, rootElement, errors);
       getMetadata(project, rootElement, errors);
       getDependencies(project, rootElement, errors);
-      getResources(project, rootElement, errors);
+      project.addResources(getConstituents(
+          rootElement.getChild(PROJECT_RESOURCES_ELEMENT_NAME), errors));
+      project.addSources(getConstituents(
+          rootElement.getChild(PROJECT_SOURCES_ELEMENT_NAME), errors));
       getDeployments(project, rootElement, errors);
+
+      if (!errors.isEmpty()) {
+        StringBuilder errorBuilder = new StringBuilder();
+        errorBuilder.append("Errors found during build:\n");
+        for (String error : errors) {
+          errorBuilder.append(error).append("\n");
+        }
+        throw new SimpleInteractiveSpacesException(errorBuilder.toString());
+      }
 
       return project;
     } catch (Exception e) {
@@ -83,7 +125,7 @@ public class JdomProjectReader implements ProjectReader {
    * @return the project type
    */
   private String getProjectType(Element rootElement) {
-    return rootElement.getAttributeValue("type");
+    return getRequiredAttributeValue(rootElement, "type");
   }
 
   /**
@@ -97,20 +139,112 @@ public class JdomProjectReader implements ProjectReader {
    *          any errors found in the metadata
    */
   private void getMainData(Project project, Element rootElement, List<String> errors) {
-    String name = rootElement.getChildText("name");
-    project.setName(new String(name.trim()));
+    String name = getChildTextTrimmed(rootElement, "name");
+    project.setName(name);
 
-    String description = rootElement.getChildText("description");
-    project.setDescription(new String(description.trim()));
+    String description = getChildTextTrimmed(rootElement, "description");
+    project.setDescription(description);
 
-    String identifyingName = rootElement.getChildText("identifyingName");
-    project.setIdentifyingName(new String(identifyingName.trim()));
+    String identifyingName = getChildTextTrimmed(rootElement, "identifyingName");
+    project.setIdentifyingName(identifyingName);
 
-    String version = rootElement.getChildText("version");
-    project.setVersion(new String(version.trim()));
+    String version = getChildTextTrimmed(rootElement, "version");
+    project.setVersion(version);
 
-    String builder = rootElement.getAttributeValue("builder");
+    String builder = getAttributeValue(rootElement, "builder", null);
     project.setBuilderType(builder);
+  }
+
+  /**
+   * Get any attributes attached to the project.
+   *
+   * @param project
+   *          the project description whose data is being read
+   * @param rootElement
+   *          root element of the XML DOM containing the project data
+   * @param errors
+   *          any errors found in the metadata
+   */
+  private void getProjectAttributes(Project project, Element rootElement, List<String> errors) {
+    @SuppressWarnings("unchecked")
+    List<Attribute> attributes = rootElement.getAttributes();
+    for (Attribute attribute : attributes) {
+      project.addAttribute(attribute.getName(), attribute.getValue());
+    }
+  }
+
+  /**
+   * Return the trimmed text of a child element.
+   *
+   * @param element
+   *          container element
+   * @param key
+   *          variable key
+   *
+   * @return trimmed element text
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if the child element is not provided
+   */
+  private String getChildTextTrimmed(Element element, String key)
+      throws SimpleInteractiveSpacesException {
+    try {
+      return element.getChildText(key).trim();
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Looking for text of child: " + key, e);
+    }
+  }
+
+  /**
+   * Return a required element attribute.
+   *
+   * @param element
+   *          container element
+   * @param key
+   *          attribute key
+   *
+   * @return attribute value
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if the element attribute is not provided
+   */
+  private String getRequiredAttributeValue(Element element, String key)
+      throws SimpleInteractiveSpacesException {
+    String value = getAttributeValue(element, key);
+    if (value == null) {
+      throw new SimpleInteractiveSpacesException("Missing required attribute " + key);
+    }
+    return value;
+  }
+
+  /**
+   * Return a given element attribute, using the default value if not found.
+   *
+   * @param element
+   *          container element
+   * @param key
+   *          attribute key
+   * @param fallback
+   *          default attribute value
+   *
+   * @return attribute value
+   */
+  private String getAttributeValue(Element element, String key, String fallback) {
+    return element.getAttributeValue(key, fallback);
+  }
+
+  /**
+   * Return a given element attribute.
+   *
+   * @param element
+   *          container element
+   * @param key
+   *          attribute key
+   *
+   * @return attribute value, or {@code null} if not found.
+   */
+  private String getAttributeValue(Element element, String key) {
+    return getAttributeValue(element, key, null);
   }
 
   /**
@@ -132,7 +266,7 @@ public class JdomProjectReader implements ProjectReader {
 
       Map<String, Object> metadata = Maps.newHashMap();
       for (Element itemElement : itemElements) {
-        String name = itemElement.getAttributeValue("name");
+        String name = getRequiredAttributeValue(itemElement, "name");
         String value = itemElement.getTextNormalize();
         metadata.put(name, value);
       }
@@ -176,13 +310,13 @@ public class JdomProjectReader implements ProjectReader {
    * @return the dependency found in the element
    */
   private ProjectDependency getDependency(Element dependencyElement, List<String> errors) {
-    String name = dependencyElement.getAttributeValue("name");
+    String name = getAttributeValue(dependencyElement, "name");
     if (name == null) {
       errors.add("Dependency has no name");
     }
 
-    String minimumVersion = dependencyElement.getAttributeValue("minimumVersion");
-    String maximumVersion = dependencyElement.getAttributeValue("maximumVersion");
+    String minimumVersion = getAttributeValue(dependencyElement, "minimumVersion");
+    String maximumVersion = getAttributeValue(dependencyElement, "maximumVersion");
 
     if (minimumVersion != null) {
       if (maximumVersion == null) {
@@ -195,7 +329,7 @@ public class JdomProjectReader implements ProjectReader {
       errors.add("Dependency has no version constraints");
     }
 
-    String requiredString = dependencyElement.getAttributeValue("required", "true");
+    String requiredString = getAttributeValue(dependencyElement, "required", "true");
 
     ProjectDependency dependency = new ProjectDependency();
 
@@ -208,82 +342,36 @@ public class JdomProjectReader implements ProjectReader {
   }
 
   /**
-   * Get the resources from the document.
+   * Add the constituents from the document.
    *
-   * @param project
-   *          the project description whose data is being read
-   * @param rootElement
+   * @param containerElement
    *          root element of the XML DOM containing the project data
    * @param errors
    *          any errors found in the metadata
    */
-  private void getResources(Project project, Element rootElement, List<String> errors) {
-    Element resourcesElement = rootElement.getChild("resources");
+  private List<ProjectConstituent> getConstituents(Element containerElement, List<String> errors) {
+    if (containerElement == null) {
+      return null;
+    }
 
-    if (resourcesElement != null) {
-      @SuppressWarnings("unchecked")
-      List<Element> resourceElements = resourcesElement.getChildren("resource");
+    List<ProjectConstituent> constituents = Lists.newArrayList();
+    @SuppressWarnings("unchecked")
+    List<Element> childElements = containerElement.getChildren();
 
-      for (Element resourceElement : resourceElements) {
-        ProjectResource resource = getResource(resourceElement, errors);
-        if (resource != null) {
-          project.addResource(resource);
+    for (Element childElement : childElements) {
+      String type = childElement.getName();
+      ProjectConstituent.Builder builder = PROJECT_CONSTITUENT_BUILDER_MAP.get(type);
+      if (builder == null) {
+        errors.add(String.format("Unknown resource type '%s'", type));
+      } else {
+        ProjectConstituent constituent = builder.buildConstituentFromElement(childElement, errors);
+        if (constituent != null) {
+          constituents.add(constituent);
         }
       }
     }
-  }
 
-  /**
-   * Get an project dependency from the dependency element.
-   *
-   * @param resourceElement
-   *          the element containing the data
-   * @param errors
-   *          any errors found in the metadata
-   *
-   * @return the dependency found in the element
-   */
-  private ProjectResource getResource(Element resourceElement, List<String> errors) {
-    boolean addedErrors = false;
-
-    String sourceDir = resourceElement.getAttributeValue("sourceDirectory");
-    String sourceFile = resourceElement.getAttributeValue("sourceFile");
-    String destDir = resourceElement.getAttributeValue("destinationDirectory");
-    String destFile = resourceElement.getAttributeValue("destinationFile");
-
-    if (destFile == null && destDir == null) {
-      destDir = ".";
-    }
-
-    if (sourceFile == null && sourceDir == null) {
-      addedErrors = true;
-      errors.add("Resource has no source");
-    }
-    if (sourceDir != null) {
-      if (sourceFile != null) {
-        addedErrors = true;
-        errors.add("Resource has both a source file and directory");
-      }
-      if (destFile != null) {
-        addedErrors = true;
-        errors.add("Resource has a source directory and a destination file");
-      }
-    }
-    // TODO(keith): Enumerate all possible errors
-
-    if (addedErrors) {
-      return null;
-    } else {
-
-      ProjectResource resource = new ProjectResource();
-
-      resource.setDestinationDirectory(destDir);
-      resource.setSourceDirectory(sourceDir);
-      resource.setDestinationFile(destFile);
-      resource.setSourceFile(sourceFile);
-
-      return resource;
-    }
+    return constituents;
   }
 
   /**
@@ -323,9 +411,9 @@ public class JdomProjectReader implements ProjectReader {
    * @return the deployment found in the element
    */
   private ProjectDeployment getDeployment(Element deploymentElement, List<String> errors) {
-    String type = deploymentElement.getAttributeValue("type");
-    String method = deploymentElement.getAttributeValue("method");
-    String location = deploymentElement.getAttributeValue("location");
+    String type = getRequiredAttributeValue(deploymentElement, "type");
+    String method = getAttributeValue(deploymentElement, "method");
+    String location = getAttributeValue(deploymentElement, "location");
 
     // TODO(keith): Enumerate all possible errors
 

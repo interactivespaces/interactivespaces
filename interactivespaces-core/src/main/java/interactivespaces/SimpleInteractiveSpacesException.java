@@ -23,11 +23,41 @@ package interactivespaces;
  */
 public class SimpleInteractiveSpacesException extends InteractiveSpacesException {
 
+  /**
+   * Create a simple exception using the given message.
+   *
+   * @param message
+   *          message for exception
+   */
   public SimpleInteractiveSpacesException(String message) {
     super(message);
   }
 
+  /**
+   * Create a simple exception with message and cause.
+   *
+   * @param message
+   *          message for exception
+   * @param cause
+   *          underlying cause of exception
+   */
   public SimpleInteractiveSpacesException(String message, Throwable cause) {
     super(message, cause);
+  }
+
+  /**
+   * Return a compounded message for this simple exception, including all the messages
+   * from the cause stack.
+   *
+   * @return compound exception message, separated by newlines
+   */
+  public String getCompoundMessage() {
+    StringBuilder message = new StringBuilder();
+    Throwable cause = getCause();
+    while (cause != null) {
+      message.append(cause.getMessage()).append("\n");
+      cause = cause.getCause();
+    }
+    return message.append(getMessage()).toString();
   }
 }

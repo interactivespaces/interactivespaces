@@ -101,8 +101,9 @@ the License.
                                     </filterchain>
 								</copy>
                                 <copy todir="${staging.dir}/examples">
-                                    <fileset dir="${basedir}/../../examples/activity">
+                                    <fileset dir="${basedir}/../../examples">
                                         <include name="**/interactivespaces.example.activity.*/**" />
+                                        <include name="**/interactivespaces.example.library.*/**" />
                                         <exclude name="**/bin/**" />
                                     </fileset>
                                 </copy>

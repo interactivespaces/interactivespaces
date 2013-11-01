@@ -19,14 +19,11 @@ package interactivespaces.workbench.project.activity.builder;
 import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectResource;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.BaseProjectBuilder;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 import java.util.Map;
@@ -37,58 +34,24 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class BaseActivityProjectBuilder implements ProjectBuilder {
-
-  private static final String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
-  /**
-   * Subdirectory of build folder which contains the staged activity.
-   */
-  public static final String ACTIVITY_BUILD_DIRECTORY_STAGING = "staging";
+public class BaseActivityProjectBuilder extends BaseProjectBuilder {
 
   @Override
   public boolean build(Project project, ProjectBuildContext context) {
-    try {
-      File stagingDirectory =
-          new File(context.getBuildDirectory(), ACTIVITY_BUILD_DIRECTORY_STAGING);
-      makeDirectory(stagingDirectory);
+    File stagingDirectory =
+        new File(context.getBuildDirectory(), BUILD_STAGING_DIRECTORY);
+    Files.directoryExists(stagingDirectory);
 
-      if (onBuild(project, context, stagingDirectory)) {
+    if (onBuild(project, context, stagingDirectory)) {
 
-        copyActivityResources(project, stagingDirectory);
-        copyActivityXml(project, stagingDirectory, context);
-        copyResources(project, stagingDirectory, context);
+      copyActivityResources(project, stagingDirectory);
+      copyActivityXml(project, stagingDirectory, context);
+      processResources(project, stagingDirectory, context);
 
-        return true;
-      } else {
-        return false;
-      }
-    } catch (SimpleInteractiveSpacesException e) {
-      System.out.format("Error while building project: %s\n", e.getMessage());
-
-      return false;
-    } catch (InteractiveSpacesException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-
+      return true;
+    } else {
       return false;
     }
-  }
-
-  /**
-   * Build has begun. Do any specific parts of the build.
-   *
-   * @param project
-   *          the project
-   * @param context
-   *          the build context
-   * @param stagingDirectory
-   *          the staging directory where build artifacts go
-   *
-   * @return {@code true} if build part was successful
-   */
-  public boolean onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
-    // Default is nothing
-    return true;
   }
 
   /**
@@ -134,85 +97,6 @@ public class BaseActivityProjectBuilder implements ProjectBuilder {
 
       context.getWorkbench().getTemplater()
           .writeTemplate(templateData, activityXmlDest, "activity/activity.xml.ftl");
-    }
-  }
-
-  /**
-   * Copy the needed resources for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  private void copyResources(Project project, File stagingDirectory, ProjectBuildContext context) {
-    SimpleConfiguration workbenchConfig = context.getWorkbench().getWorkbenchConfig();
-    SimpleConfiguration resourceConfig = SimpleConfiguration.newConfiguration();
-    resourceConfig.setParent(workbenchConfig);
-
-    resourceConfig.setValue(CONFIGURATION_PROPERTY_PROJECT_HOME, project.getBaseDirectory()
-        .getAbsolutePath());
-
-    for (ProjectResource resource : project.getResources()) {
-      copyResource(resource, project, stagingDirectory, context, resourceConfig);
-    }
-  }
-
-  /**
-   * Copy the needed resource for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   * @param resourceConfig
-   *          configuration specifically for the resource copying
-   */
-  private void copyResource(ProjectResource resource, Project project, File stagingDirectory,
-      ProjectBuildContext context, Configuration resourceConfig) {
-    if (resource.getDestinationDirectory() != null) {
-      File destDir =
-          new File(stagingDirectory, resourceConfig.evaluate(resource.getDestinationDirectory()));
-      makeDirectory(destDir);
-
-      if (resource.getSourceDirectory() != null) {
-        String evaluate = resourceConfig.evaluate(resource.getSourceDirectory());
-
-        File srcDir = new File(evaluate);
-        Files.copyDirectory(srcDir, destDir, true);
-      } else {
-        // There is a file to be copied.
-        File srcFile =
-            new File(resourceConfig.evaluate(resource.getSourceFile()));
-        Files.copyFile(srcFile, new File(destDir, srcFile.getName()));
-      }
-    } else {
-      // Have a dest file
-      // There is a file to be copied.
-      File destFile =
-          new File(stagingDirectory, resourceConfig.evaluate(resource.getDestinationFile()));
-      File srcFile =
-          new File(resourceConfig.evaluate(resource.getSourceFile()));
-      Files.copyFile(srcFile, destFile);
-    }
-  }
-
-  /**
-   * Make sure a required directory exists. If it doesn't, create it.
-   *
-   * @param directory
-   *          the directory to create
-   */
-  public void makeDirectory(File directory) {
-    if (!directory.exists()) {
-      if (!directory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format("Cannot create directory %s",
-            directory.getAbsolutePath()));
-      }
     }
   }
 

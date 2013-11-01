@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,43 +14,38 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project.assembly;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 
-import java.io.File;
 import java.util.Map;
 
 /**
- * A project creator for Python projects.
+ * A basic template for assemblies.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class AssemblyProjectTemplate extends BaseProjectTemplate {
 
-  public GenericPythonActivityProjectTemplate() {
-    super("Generic Simple Python Project");
+  /**
+   * Create a basic resource project template.
+   */
+  public AssemblyProjectTemplate() {
+    super("Assembly Project Template");
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
+  public void onTemplateSetup(ProjectCreationSpecification spec,
       Map<String, Object> fullTemplateData) {
-    activityProject.setActivityType("script");
-
-    spec.setExecutable("SimplePythonActivity.py");
-    spec.addExtraConfigurationParameter("space.activity.log.level",
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
   }
 
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec,
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
-    templater.writeTemplate(fullTemplateData, new File(getActivityResourceDirectory(spec),
-        "SimplePythonActivity.py"), "activity/generic/python/simple/SimplePythonActivity.py.ftl");
   }
+
 }

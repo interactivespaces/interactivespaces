@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project type="assembly" packFormat="zip" >
+  <name>Example JS Web Bundle</name>
+  <description>
+    Example assembly combining multiple items together in a bundle
+    suitable for easy web deployment.
+  </description>
+
+  <identifyingName>js.web.assembly</identifyingName>
+  <version>1.0.0</version>
+
+  <sources>
+    <bundle destinationFile="jsbundle.js">
+      <source sourceFile="src/js/header.js"/>
+      <source sourceFile="src/js/content.js"/>
+    </bundle>
+
+    <source destinationFile="main.css" sourceFile="src/css/main.css" />
+  </sources>
+</project>

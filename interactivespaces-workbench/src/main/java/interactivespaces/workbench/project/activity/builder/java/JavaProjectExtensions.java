@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 import java.util.List;

@@ -17,21 +17,20 @@
 package interactivespaces.workbench.project.library;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
-import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
+import interactivespaces.workbench.project.builder.BaseProjectBuilder;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.java.JavaJarCompiler;
 import interactivespaces.workbench.project.activity.builder.java.JavaxJavaJarCompiler;
 
 import java.io.File;
 
 /**
- * A Java library project builder
+ * A Java library project builder.
  *
  * @author Keith M. Hughes
  */
-public class JavaLibraryProjectBuilder implements ProjectBuilder {
+public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
 
   /**
    * File extension to give the build artifact
@@ -45,22 +44,12 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
 
   @Override
   public boolean build(Project project, ProjectBuildContext context) {
-    try {
-      File buildDirectory = context.getBuildDirectory();
-      File compilationFolder = getOutputDirectory(buildDirectory);
-      File jarDestinationFile = getBuildDestinationFile(project, buildDirectory);
+    File buildDirectory = context.getBuildDirectory();
+    File compilationFolder = getOutputDirectory(buildDirectory);
+    File jarDestinationFile =
+        getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
 
-      return compiler.build(jarDestinationFile, compilationFolder, null, context);
-    } catch (SimpleInteractiveSpacesException e) {
-      System.out.format("Error while building project: %s\n", e.getMessage());
-
-      return false;
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-
-      return false;
-    }
+    return compiler.build(jarDestinationFile, compilationFolder, null, context);
   }
 
   /**
@@ -81,24 +70,6 @@ public class JavaLibraryProjectBuilder implements ProjectBuilder {
     }
 
     return outputDirectory;
-  }
-
-  /**
-   * Get the build destination file.
-   *
-   * <p>
-   * Any subdirectories needed will be created.
-   *
-   * @param project
-   *          the project being built
-   * @param buildDirectory
-   *          where the artifact will be built
-   *
-   * @return the file where the build should be written
-   */
-  private File getBuildDestinationFile(Project project, File buildDirectory) {
-    return new File(buildDirectory, project.getIdentifyingName() + "-" + project.getVersion() + "."
-        + JAR_FILE_EXTENSION);
   }
 
 }

@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.BufferedReader;
 import java.io.File;

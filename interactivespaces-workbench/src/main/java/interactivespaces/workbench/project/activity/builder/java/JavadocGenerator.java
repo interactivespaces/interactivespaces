@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
  * A generator for Javadoc.

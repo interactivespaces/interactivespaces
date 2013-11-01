@@ -29,13 +29,13 @@ import interactivespaces.domain.support.DomainValidationResult.DomainValidationR
 import interactivespaces.domain.support.Validator;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.activity.builder.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.activity.builder.java.JavadocGenerator;
@@ -235,26 +235,19 @@ public class InteractiveSpacesWorkbench {
       builder = new BaseActivityProjectBuilder();
     }
 
-    if (builder.build(project, context)) {
-      if (Project.PROJECT_TYPE_ACTIVITY.equals(project.getType())) {
-        try {
+    try {
+      if (builder.build(project, context)) {
+        if (Project.PROJECT_TYPE_ACTIVITY.equals(project.getType())) {
           activityProjectPackager.packageActivityProject(project, context);
-        } catch (SimpleInteractiveSpacesException e) {
-          System.out.format("Error while building project: %s\n", e.getMessage());
-
-          return false;
-        } catch (Exception e) {
-          e.printStackTrace();
-
-          return false;
         }
-
+        return true;
       }
-
-      return true;
-    } else {
-      return false;
+    } catch (SimpleInteractiveSpacesException e) {
+      System.out.format("Error while building project: %s\n", e.getCompoundMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+    return false;
   }
 
   /**

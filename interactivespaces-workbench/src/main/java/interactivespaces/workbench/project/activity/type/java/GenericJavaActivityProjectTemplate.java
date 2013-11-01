@@ -21,7 +21,7 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.creator.BaseActivityProjectTemplate;
 
 import java.io.File;

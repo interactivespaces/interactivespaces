@@ -14,11 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project.builder;
 
 import com.google.common.collect.Lists;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 
@@ -36,6 +37,11 @@ public class ProjectBuildContext {
    * Where things are being built.
    */
   private static final String BUILD_DIRECTORY = "build";
+
+  /**
+   * Static file support instance.
+   */
+  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
 
   /**
    * The project being built.
@@ -57,23 +63,27 @@ public class ProjectBuildContext {
    */
   private File buildDirectory;
 
+  /**
+   * Construct a new build context.
+   *
+   * @param project
+   *          project object
+   * @param workbench
+   *          workbench instance
+   */
   public ProjectBuildContext(Project project, InteractiveSpacesWorkbench workbench) {
     this.project = project;
     this.workbench = workbench;
 
     buildDirectory = new File(project.getBaseDirectory(), BUILD_DIRECTORY);
-    if (!buildDirectory.exists()) {
-      if (!buildDirectory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format(
-            "Cannot create activity build directory %s", buildDirectory));
-      }
-    }
+    FILE_SUPPORT.directoryExists(buildDirectory);
   }
 
   /**
    * Add a new artifact to go in the file.
    *
    * @param artifact
+   *          artifact to add to context
    */
   public void addArtifact(File artifact) {
     artifactsToAdd.add(artifact);
@@ -89,7 +99,7 @@ public class ProjectBuildContext {
   }
 
   /**
-   * Get the project being built
+   * Get the project being built.
    *
    * @return the project being built
    */

@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
 
 import java.io.File;
 import java.util.List;
@@ -113,7 +112,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    * @throws InteractiveSpacesException
    *           could not create directory
    */
-  public void makeDirectory(File directory) {
+  public void makeDirectory(File directory) throws InteractiveSpacesException {
     if (!directory.mkdirs()) {
       throw new InteractiveSpacesException(String.format("Cannot create directory %s",
           directory.getAbsolutePath()));

@@ -16,8 +16,6 @@
 
 package interactivespaces.util.io;
 
-import interactivespaces.InteractiveSpacesException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,13 +27,19 @@ import java.io.OutputStream;
  * @author Keith M. Hughes
  * @deprecated Replaced with FileSupport interface.
  */
-public class Files {
+public final class Files {
 
   /**
    * Static instance of the object variant of this class. This is an
    * intermediate transition until this entire class can be removed.
    */
-  private final static FileSupportImpl FILE_SUPPORT_INSTANCE = new FileSupportImpl();
+  private static final FileSupportImpl FILE_SUPPORT_INSTANCE = new FileSupportImpl();
+
+  /**
+   * Private constructor because it's a static utility class.
+   */
+  private Files() {
+  }
 
   /**
    * Place the contents of a directory into a zip file.
@@ -45,7 +49,7 @@ public class Files {
    * @param basePath
    *          the source content directory
    */
-  static public void zip(File target, File basePath) {
+  public static void zip(File target, File basePath) {
     FILE_SUPPORT_INSTANCE.zip(target, basePath);
   }
 
@@ -57,7 +61,7 @@ public class Files {
    * @param baseLocation
    *          where the contents will be written
    */
-  static public void unzip(File source, File baseLocation) {
+  public static void unzip(File source, File baseLocation) {
     FILE_SUPPORT_INSTANCE.unzip(source, baseLocation);
   }
 
@@ -76,7 +80,7 @@ public class Files {
    * @param destDir
    *          the destination directory
    */
-  static public final void cleanDuplicateDirectory(File srcDir, File destDir) {
+  public static void cleanDuplicateDirectory(File srcDir, File destDir) {
     FILE_SUPPORT_INSTANCE.cleanDuplicateDirectory(srcDir, destDir);
   }
 
@@ -94,7 +98,7 @@ public class Files {
    *          {@code true} if should overwrite files if already in the
    *          destination folder
    */
-  static public void copyDirectory(File sourceDir, File destDir, boolean overwrite) {
+  public static void copyDirectory(File sourceDir, File destDir, boolean overwrite) {
     FILE_SUPPORT_INSTANCE.copyDirectory(sourceDir, destDir, overwrite);
   }
 
@@ -109,7 +113,7 @@ public class Files {
    * @param destination
    *          the destination file to copy to
    */
-  static public void copyFile(File source, File destination) {
+  public static void copyFile(File source, File destination) {
     FILE_SUPPORT_INSTANCE.copyFile(source, destination);
   }
 
@@ -124,9 +128,9 @@ public class Files {
    * @param file
    *          the file where the input stream's contents will be copied
    *
-   * @throws IOException
+   * @throws IOException io problem with operation
    */
-  static public void copyInputStream(InputStream in, File file) throws IOException {
+  public static void copyInputStream(InputStream in, File file) throws IOException {
     FILE_SUPPORT_INSTANCE.copyInputStream(in, file);
   }
 
@@ -141,9 +145,9 @@ public class Files {
    * @param out
    *          the output stream
    *
-   * @throws IOException
+   * @throws IOException io problem with operation
    */
-  static public void copyInputStream(InputStream in, OutputStream out) throws IOException {
+  public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
     FILE_SUPPORT_INSTANCE.copyInputStream(in, out);
   }
 
@@ -157,9 +161,9 @@ public class Files {
    * @param closeOnCompletion
    *          {@code true} if the streams should be closed when the copy finishes.
    *
-   * @throws IOException
+   * @throws IOException io problem with operation
    */
-  static public void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException {
+  public static void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException {
     FILE_SUPPORT_INSTANCE.copyStream(in, out, closeOnCompletion);
   }
 
@@ -172,9 +176,9 @@ public class Files {
    *
    * @return a string containing the contents
    *
-   * @throws IOException
+   * @throws IOException io problem with operation
    */
-  static public String inputStreamAsString(InputStream in) throws IOException {
+  public static String inputStreamAsString(InputStream in) throws IOException {
     return FILE_SUPPORT_INSTANCE.inputStreamAsString(in);
   }
 
@@ -190,7 +194,7 @@ public class Files {
    * @param file
    *          the file to be deleted
    */
-  static public void delete(File file) {
+  public static void delete(File file) {
     FILE_SUPPORT_INSTANCE.delete(file);
   }
 
@@ -203,7 +207,7 @@ public class Files {
    * @param file
    *          the directory to be deleted
    */
-  static public void deleteDirectoryContents(File file) {
+  public static void deleteDirectoryContents(File file) {
     FILE_SUPPORT_INSTANCE.deleteDirectoryContents(file);
   }
 
@@ -215,7 +219,7 @@ public class Files {
    *
    * @return the contents of the file
    */
-  static public String readFile(File file) {
+  public static String readFile(File file) {
     return FILE_SUPPORT_INSTANCE.readFile(file);
   }
 
@@ -230,7 +234,7 @@ public class Files {
    * @param contents
    *          the contents to be written into the file
    */
-  static public void writeFile(File file, String contents) {
+  public static void writeFile(File file, String contents) {
     FILE_SUPPORT_INSTANCE.writeFile(file, contents);
   }
 
@@ -239,9 +243,6 @@ public class Files {
    *
    * @param dir
    *          the directory that should exist
-   *
-   * @throws InteractiveSpacesException
-   *           if there is a file at the location and it is not a directory
    */
   public static void directoryExists(File dir) {
     FILE_SUPPORT_INSTANCE.directoryExists(dir);

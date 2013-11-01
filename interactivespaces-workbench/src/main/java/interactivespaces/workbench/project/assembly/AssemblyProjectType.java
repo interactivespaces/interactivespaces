@@ -14,48 +14,44 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type.java;
-
-import com.google.common.collect.Lists;
+package interactivespaces.workbench.project.assembly;
 
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 
 /**
- * A Simple Java activity project type.
+ * A project type for assembly projects.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public class JavaActivityProjectType implements ProjectType {
+public class AssemblyProjectType implements ProjectType {
 
   /**
-   * Name for the builder.
+   * Name for the type.
    */
-  public static final String NAME = "java";
+  public static final String NAME = "assembly";
 
   @Override
   public boolean isProperType(Project project) {
-    return "activity".equals(project.getType()) && NAME.equals(project.getBuilderType());
+    return NAME.equals(project.getType());
   }
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new JavaActivityProjectBuilder();
+    return new AssemblyProjectBuilder();
   }
 
   @Override
   public ProjectTemplate newProjectTemplate() {
-    return new GenericJavaActivityProjectTemplate();
+    return new AssemblyProjectTemplate();
   }
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList("src/main/java",
-        "src/main/resources"));
+    return new NonJavaEclipseIdeProjectCreatorSpecification();
   }
 }

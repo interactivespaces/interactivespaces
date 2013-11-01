@@ -19,7 +19,7 @@ package interactivespaces.workbench.project.library;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.java.JavaProject;
 
 import java.util.Map;

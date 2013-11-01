@@ -132,7 +132,8 @@ public class FileSupportImpl implements FileSupport {
 
       zipFile.close();
     } catch (IOException ioe) {
-      throw new InteractiveSpacesException("Error while unzipping file", ioe);
+      throw new SimpleInteractiveSpacesException(String.format("Error while unzipping file %s",
+          source.getAbsolutePath()), ioe);
     } finally {
       // ZipFile does not implement Closeable, so can't use utility function.
       if (zipFile != null) {

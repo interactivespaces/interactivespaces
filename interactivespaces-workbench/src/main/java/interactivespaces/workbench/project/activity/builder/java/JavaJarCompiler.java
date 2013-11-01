@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 
@@ -30,12 +30,12 @@ public interface JavaJarCompiler {
   /**
    * Folder where classes will be built.
    */
-  public static final String CLASSES_DIRECTORY = "classes";
+  String CLASSES_DIRECTORY = "classes";
 
   /**
    * Where the Java source files will be located.
    */
-  public static final String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
+  String JAVA_SOURCE_SUBDIRECTORY = "src/main/java";
 
   /**
    * Compile Java classes and build a proper JAR file.
@@ -52,5 +52,5 @@ public interface JavaJarCompiler {
    * @return {@code true} if the compilation was successful
    */
   boolean build(File jarDestinationFile, File compilationFolder, JavaProjectExtensions extensions,
-      ProjectBuildContext context) throws Exception;
+      ProjectBuildContext context);
 }

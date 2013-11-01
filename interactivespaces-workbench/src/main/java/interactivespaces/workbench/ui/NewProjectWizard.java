@@ -18,8 +18,7 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
-import interactivespaces.workbench.ui.wizard.Wizard;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 

@@ -14,13 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder;
+package interactivespaces.workbench.project.builder;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
 
 /**
- * A builder for activities.
+ * A builder for Interactive Spaces projects.
  *
  * @author Keith M. Hughes
  */

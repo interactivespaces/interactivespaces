@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity.creator;
 
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 
 import java.util.List;
 

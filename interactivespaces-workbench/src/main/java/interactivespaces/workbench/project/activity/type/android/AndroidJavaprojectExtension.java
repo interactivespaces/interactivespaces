@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.java.JavaProjectExtensions;
 import interactivespaces.workbench.util.NativeCommandsExecutor;
 
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A java activity extension for Android
+ * A java activity extension for Android.
  *
  * @author Keith M. Hughes
  */

@@ -79,6 +79,11 @@ public class WebServerActivityComponent extends BaseActivityComponent {
   public static final String WEB_SERVER_DEFAULT_HOST = "localhost";
 
   /**
+   * Default page to use when none specified in configuration.
+   */
+  public static final String DEFAULT_INITIAL_PAGE = "index.html";
+
+  /**
    * URL for the web activity.
    */
   private String webContentUrl;
@@ -164,8 +169,8 @@ public class WebServerActivityComponent extends BaseActivityComponent {
     webContentPath = "/" + activity.getName();
     webContentUrl = "http://" + webServerHost + ":" + webServer.getPort() + webContentPath;
 
-    webInitialPage = webContentUrl + "/"
-        + configuration.getPropertyString(WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE);
+    webInitialPage = webContentUrl + "/" + configuration.getPropertyString(
+        WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE, DEFAULT_INITIAL_PAGE);
 
     String contentLocation = configuration.getPropertyString(CONFIGURATION_WEBAPP_CONTENT_LOCATION);
     if (contentLocation != null) {

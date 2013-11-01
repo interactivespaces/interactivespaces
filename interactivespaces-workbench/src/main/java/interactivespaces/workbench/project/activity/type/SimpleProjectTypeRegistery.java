@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.type.android.AndroidActivityProjectType;
 import interactivespaces.workbench.project.activity.type.java.JavaActivityProjectType;
+import interactivespaces.workbench.project.assembly.AssemblyProjectType;
 import interactivespaces.workbench.project.library.LibraryProjectType;
 
 import java.util.List;
@@ -35,12 +36,16 @@ public class SimpleProjectTypeRegistery implements ProjectTypeRegistry {
   /**
    * The mapping of names to project types.
    */
-  List<ProjectType> types = Lists.newArrayList();
+  private List<ProjectType> types = Lists.newArrayList();
 
+  /**
+   * Create a basic registery for project types.
+   */
   public SimpleProjectTypeRegistery() {
     registerProjectType(new JavaActivityProjectType());
     registerProjectType(new AndroidActivityProjectType());
     registerProjectType(new LibraryProjectType());
+    registerProjectType(new AssemblyProjectType());
   }
 
   @Override

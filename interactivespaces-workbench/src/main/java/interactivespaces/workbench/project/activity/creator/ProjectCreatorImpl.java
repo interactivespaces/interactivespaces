@@ -22,9 +22,10 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
+import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
 import interactivespaces.workbench.project.library.LibraryProjectTemplate;
 
 import java.util.Collections;
@@ -59,6 +60,12 @@ public class ProjectCreatorImpl implements ProjectCreator {
    */
   private InteractiveSpacesWorkbench workbench;
 
+  /**
+   * Create a basic instance.
+   *
+   * @param workbench containing workbench
+   * @param templater templater to use
+   */
   public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
     this.workbench = workbench;
     this.templater = templater;
@@ -106,10 +113,14 @@ public class ProjectCreatorImpl implements ProjectCreator {
     ProjectTemplate template = spec.getTemplate();
     if (template == null) {
       String projectType = spec.getProject().getType();
+
+      // TODO(khughes): Put all project types in constants somewhere.
       if ("activity".equals(projectType)) {
         template = getActivityProjectTemplateByLanguage(spec.getLanguage());
       } else if ("library".equals(projectType)) {
         template = new LibraryProjectTemplate();
+      } else if ("resource".equals(projectType)) {
+        template = new AssemblyProjectTemplate();
       }
     }
 
