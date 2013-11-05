@@ -51,6 +51,7 @@ import interactivespaces.util.uuid.UuidGenerator;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.logging.Log;
 
 import java.util.ArrayList;
@@ -429,12 +430,14 @@ public class StandardSpaceController extends BaseSpaceController implements
     }
   }
 
+  @Override
   public void startupAllActivities() {
     for (ActiveControllerActivity app : getAllActiveActivities()) {
       attemptActivityStartup(app);
     }
   }
 
+  @Override
   public void shutdownAllActivities() {
     getSpaceEnvironment().getLog().info("Shutting down all activities");
 
@@ -443,6 +446,7 @@ public class StandardSpaceController extends BaseSpaceController implements
     }
   }
 
+  @Override
   public void captureControllerDataBundle(final String bundleUri) {
     getSpaceEnvironment().getLog().info("Capture controller data bundle");
     getSpaceEnvironment().getExecutorService().submit(new Runnable() {
@@ -472,6 +476,7 @@ public class StandardSpaceController extends BaseSpaceController implements
     }
   }
 
+  @Override
   public void restoreControllerDataBundle(final String bundleUri) {
     getSpaceEnvironment().getLog().info("Restore controller data bundle");
     getSpaceEnvironment().getExecutorService().submit(new Runnable() {
@@ -500,6 +505,7 @@ public class StandardSpaceController extends BaseSpaceController implements
     }
   }
 
+  @Override
   public void startupActivity(String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Starting up activity %s", uuid));
 
@@ -523,39 +529,51 @@ public class StandardSpaceController extends BaseSpaceController implements
         publishActivityStatus(uuid, status);
       }
     } catch (Exception e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during startup of live activity %s", uuid), e);
       ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
     }
   }
 
+  @Override
   public void shutdownActivity(final String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Shutting down activity %s", uuid));
 
-    ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
-    if (activity != null) {
-      attemptActivityShutdown(activity);
-    } else {
-      // The activity hasn't been active. Make sure it really exists then
-      // send that it is ready.
-      InstalledLiveActivity ia = controllerRepository.getInstalledLiveActivityByUuid(uuid);
-      if (ia != null) {
-        publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+    try {
+      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+      if (activity != null) {
+        attemptActivityShutdown(activity);
       } else {
-        // TODO(keith): Tell master the controller doesn't exist.
-        getSpaceEnvironment().getLog().warn(
-            String.format("Activity %s does not exist on controller", uuid));
+        // The activity hasn't been active. Make sure it really exists then
+        // send that it is ready.
+        InstalledLiveActivity ia = controllerRepository.getInstalledLiveActivityByUuid(uuid);
+        if (ia != null) {
+          publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+        } else {
+          // TODO(keith): Tell master the controller doesn't exist.
+          getSpaceEnvironment().getLog().warn(
+              String.format("Activity %s does not exist on controller", uuid));
 
-        ActivityStatus status =
-            new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
-        publishActivityStatus(uuid, status);
+          ActivityStatus status =
+              new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+          publishActivityStatus(uuid, status);
+        }
       }
+    } catch (Exception e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during shutdown of live activity %s", uuid), e);
+
+      ActivityStatus status = new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, e.getMessage());
+      publishActivityStatus(uuid, status);
     }
   }
 
+  @Override
   public void statusActivity(String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Getting status of activity %s", uuid));
 
-    final ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+   ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
     if (activity != null) {
       final ActivityStatus activityStatus = activity.getActivityStatus();
       getSpaceEnvironment().getLog().info(
@@ -579,35 +597,53 @@ public class StandardSpaceController extends BaseSpaceController implements
     }
   }
 
+  @Override
   public void activateActivity(String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Activating activity %s", uuid));
 
     // Can create since can immediately request activate
-    ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
-    if (activity != null) {
-      attemptActivityActivate(activity);
-    } else {
-      getSpaceEnvironment().getLog().warn(
-          String.format("Activity %s does not exist on controller", uuid));
+    try {
+      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+      if (activity != null) {
+        attemptActivityActivate(activity);
+      } else {
+        getSpaceEnvironment().getLog().warn(
+            String.format("Activity %s does not exist on controller", uuid));
 
-      ActivityStatus status =
-          new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+        ActivityStatus status =
+            new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+        publishActivityStatus(uuid, status);
+      }
+    } catch (Exception e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during activation of live activity %s", uuid), e);
+
+      ActivityStatus status = new ActivityStatus(ActivityState.ACTIVATE_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
     }
   }
 
+  @Override
   public void deactivateActivity(String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Deactivating activity %s", uuid));
 
-    ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
-    if (activity != null) {
-      attemptActivityDeactivate(activity);
-    } else {
-      getSpaceEnvironment().getLog().warn(
-          String.format("Activity %s does not exist on controller", uuid));
+    try {
+      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+      if (activity != null) {
+        attemptActivityDeactivate(activity);
+      } else {
+        getSpaceEnvironment().getLog().warn(
+            String.format("Activity %s does not exist on controller", uuid));
 
-      ActivityStatus status =
-          new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+        ActivityStatus status =
+            new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+        publishActivityStatus(uuid, status);
+      }
+    } catch (Exception e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during deactivation of live activity %s", uuid), e);
+
+      ActivityStatus status = new ActivityStatus(ActivityState.DEACTIVATE_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
     }
   }
@@ -906,8 +942,8 @@ public class StandardSpaceController extends BaseSpaceController implements
     activityStateTransitioners.addTransitioner(
         uuid,
         new ActivityStateTransitioner(activity, ActivityStateTransitioner.transitions(
-            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE), getSpaceEnvironment()
-            .getLog()));
+            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE),
+            getSpaceEnvironment().getLog()));
 
     // TODO(keith): Android hates garbage collection. This may need an
     // object pool.
@@ -1065,8 +1101,8 @@ public class StandardSpaceController extends BaseSpaceController implements
    * Potentially start up any controller control points.
    */
   private void startupControllerControl() {
-    boolean startupFileControl = getSpaceEnvironment().getSystemConfiguration().
-        getRequiredPropertyBoolean(
+    boolean startupFileControl =
+        getSpaceEnvironment().getSystemConfiguration().getRequiredPropertyBoolean(
             InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE);
     if (startupFileControl) {
       fileControl = new SpaceControllerFileControl(this, spaceSystemControl, getSpaceEnvironment());

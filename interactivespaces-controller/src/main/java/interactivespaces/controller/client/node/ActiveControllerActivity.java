@@ -186,13 +186,15 @@ public class ActiveControllerActivity implements ActivityControl {
   @Override
   public void shutdown() {
     // Can call shutdown multiple times.
+    controller.getSpaceEnvironment().getLog().info("Shuttinf down before lock");
     if (obtainInstanceLock(InstanceLockState.SHUTDOWN)) {
+      controller.getSpaceEnvironment().getLog().info("Shuttinf down from lock");
       try {
         if (instance != null) {
           instance.shutdown();
 
           // Sample the status after a complete shutdown.
-          getActivityStatus();
+          getActivityStatusUnprotected();
 
           instance = null;
         }
@@ -257,13 +259,7 @@ public class ActiveControllerActivity implements ActivityControl {
   public ActivityStatus getActivityStatus() {
     if (obtainInstanceLock(InstanceLockState.STATUS)) {
       try {
-        if (instance != null) {
-          instance.checkActivityState();
-
-          cachedActivityStatus = instance.getActivityStatus();
-        }
-
-        return cachedActivityStatus;
+        return getActivityStatusUnprotected();
       } finally {
         releaseInstanceLock();
       }
@@ -271,6 +267,16 @@ public class ActiveControllerActivity implements ActivityControl {
       throw new SimpleInteractiveSpacesException(
           "Could not get activity status because could not get instance lock");
     }
+  }
+
+  private ActivityStatus getActivityStatusUnprotected() {
+    if (instance != null) {
+      instance.checkActivityState();
+
+      cachedActivityStatus = instance.getActivityStatus();
+    }
+
+    return cachedActivityStatus;
   }
 
   /**
