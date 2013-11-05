@@ -41,6 +41,7 @@ import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.time.TimeProvider;
 import interactivespaces.util.io.FileSupport;
 
 import org.apache.commons.logging.Log;
@@ -63,6 +64,7 @@ public class StandardSpaceControllerTest {
 
   private ScheduledExecutorService executorService;
 
+  private TimeProvider timeProvider;
   private ActivityInstallationManager activityInstallationManager;
   private LocalSpaceControllerRepository controllerRepository;
   private ActiveControllerActivityFactory activeControllerActivityFactory;
@@ -105,11 +107,14 @@ public class StandardSpaceControllerTest {
 
     systemFilesystem = mock(InteractiveSpacesFilesystem.class);
 
+    timeProvider = mock(TimeProvider.class);
+
     spaceEnvironment = mock(InteractiveSpacesEnvironment.class);
     when(spaceEnvironment.getLog()).thenReturn(log);
     when(spaceEnvironment.getSystemConfiguration()).thenReturn(systemConfiguration);
     when(spaceEnvironment.getExecutorService()).thenReturn(executorService);
     when(spaceEnvironment.getFilesystem()).thenReturn(systemFilesystem);
+    when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
     serviceRegistry = mock(ServiceRegistry.class);
     when(spaceEnvironment.getServiceRegistry()).thenReturn(serviceRegistry);
@@ -282,7 +287,7 @@ public class StandardSpaceControllerTest {
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
     ActiveControllerActivity active =
-        new ActiveControllerActivity(installedActivity, null, null, null, null);
+        new ActiveControllerActivity(installedActivity, null, null, null, controller);
     controller.addActiveActivity(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
@@ -313,7 +318,7 @@ public class StandardSpaceControllerTest {
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
     ActiveControllerActivity active =
-        new ActiveControllerActivity(installedActivity, null, null, null, null);
+        new ActiveControllerActivity(installedActivity, null, null, null, controller);
     controller.addActiveActivity(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 

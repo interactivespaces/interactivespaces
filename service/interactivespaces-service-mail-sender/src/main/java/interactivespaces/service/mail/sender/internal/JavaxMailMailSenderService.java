@@ -17,6 +17,7 @@
 package interactivespaces.service.mail.sender.internal;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.mail.common.MailMessage;
 import interactivespaces.service.mail.sender.MailSenderService;
@@ -37,19 +38,22 @@ import javax.mail.internet.MimeMessage;
 public class JavaxMailMailSenderService extends BaseSupportedService implements MailSenderService {
 
   /**
-   * The default SMTP port.
+   * Configuration property for SMTP host interactive spaces should use. >>>>>>>
+   * master
    */
-  private static final String SMTP_PORT_DEFAULT = "25";
+  public static final String MAIL_TRANSPORT_SMTP = "smtp";
 
   /**
-   * Configuration property for SMTP host interactive spaces should use.
+   * The javax.mail property for setting the host for the remote
+   * SMTP server.
    */
-  public static final String CONFIGURATION_MAIL_SMTP_HOST = "interactivespaces.mail.smtp.host";
+  public static final String PROPERTY_MAIL_SMTP_HOST = "mail.smtp.host";
 
   /**
-   * Configuration property for SMTP host port interactive spaces should use.
+   * The javax.mail property for setting the port for the remote
+   * SMTP server.
    */
-  public static final String CONFIGURATION_MAIL_SMTP_PORT = "interactivespaces.mail.smtp.port";
+  public static final String PROPERTY_MAIL_SMTP_PORT = "mail.smtp.port";
 
   /**
    * The Javamail mailerSession for sending messages.
@@ -69,13 +73,12 @@ public class JavaxMailMailSenderService extends BaseSupportedService implements 
 
     // Setup mail server
     String smtpHost =
-        getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_HOST);
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(
+            CONFIGURATION_MAIL_SMTP_HOST);
     if (smtpHost != null) {
-      props.put("mail.smtp.host", smtpHost);
-      props.put(
-          "mail.smtp.port",
-          getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_MAIL_SMTP_PORT,
-              SMTP_PORT_DEFAULT));
+      props.put(PROPERTY_MAIL_SMTP_HOST, smtpHost);
+      props.put(PROPERTY_MAIL_SMTP_PORT, getSpaceEnvironment().getSystemConfiguration()
+          .getPropertyString(CONFIGURATION_MAIL_SMTP_PORT, CONFIGURATION_DEFAULT_MAIL_SMTP_PORT));
 
       mailerSession = Session.getDefaultInstance(props, null);
     } else {
@@ -86,7 +89,7 @@ public class JavaxMailMailSenderService extends BaseSupportedService implements 
   @Override
   public void sendMailMessage(MailMessage message) {
     if (mailerSession == null) {
-      throw new InteractiveSpacesException("Mail service not configured");
+      throw new SimpleInteractiveSpacesException("Mail service not configured");
     }
 
     // Define message
@@ -110,7 +113,7 @@ public class JavaxMailMailSenderService extends BaseSupportedService implements 
       msg.setText(message.getBody());
 
       // Send message
-      Transport transport = mailerSession.getTransport("smtp");
+      Transport transport = mailerSession.getTransport(MAIL_TRANSPORT_SMTP);
       transport.connect();
       transport.sendMessage(msg, msg.getAllRecipients());
       transport.close();

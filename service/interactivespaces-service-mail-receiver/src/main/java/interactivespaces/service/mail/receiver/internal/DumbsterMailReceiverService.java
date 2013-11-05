@@ -52,12 +52,11 @@ public class DumbsterMailReceiverService extends BaseSupportedService implements
   public void startup() {
     getSpaceEnvironment().getLog().info("Starting mail server");
 
-    server = SmtpServerFactory.startServer(9999);
+    server =
+        SmtpServerFactory.startServer(getSpaceEnvironment().getSystemConfiguration().getPropertyInteger(
+            CONFIGURATION_MAIL_SMTP_PORT, CONFIGURATION_DEFAULT_MAIL_SMTP_PORT));
     server.setThreaded(true);
     server.setMailStore(mailStore);
-
-    // Eventually will go away
-    mailStore.addListener(this);
   }
 
   @Override
@@ -73,6 +72,11 @@ public class DumbsterMailReceiverService extends BaseSupportedService implements
   @Override
   public void addListener(MailReceiverListener listener) {
     mailStore.addListener(listener);
+  }
+
+  @Override
+  public void removeListener(MailReceiverListener listener) {
+    mailStore.removeListener(listener);
   }
 
   @Override

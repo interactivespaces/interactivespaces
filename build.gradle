@@ -80,6 +80,9 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
+    sourceCompatibility = "1.6"
+    targetCompatibility = "1.6"
+
     if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'
     }

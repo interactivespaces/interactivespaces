@@ -35,12 +35,12 @@ public class CallbackMailStore implements MailStore {
   /**
    * List of all messages.
    */
-  private List<MailMessage> messages = new CopyOnWriteArrayList<MailMessage>();
+  private final List<MailMessage> messages = new CopyOnWriteArrayList<MailMessage>();
 
   /**
    * List of all messages.
    */
-  private List<MailReceiverListener> listeners = new CopyOnWriteArrayList<MailReceiverListener>();
+  private final List<MailReceiverListener> listeners = new CopyOnWriteArrayList<MailReceiverListener>();
 
   @Override
   public void addMessage(MailMessage message) {
@@ -82,5 +82,18 @@ public class CallbackMailStore implements MailStore {
    */
   public void addListener(MailReceiverListener listener) {
     listeners.add(listener);
+  }
+
+  /**
+   * Remove a listener from the service.
+   *
+   * <p>
+   * This method does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  public void removeListener(MailReceiverListener listener) {
+    listeners.remove(listener);
   }
 }

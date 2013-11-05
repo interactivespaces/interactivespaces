@@ -29,10 +29,25 @@ public interface MailSenderService extends SupportedService {
   /**
    * The name of the service.
    */
-  public static final String SERVICE_NAME = "email.sender";
+  String SERVICE_NAME = "mail.sender";
 
   /**
-   * Send a mail message
+   * Configuration property for SMTP host interactive spaces should use.
+   */
+  String CONFIGURATION_MAIL_SMTP_HOST = "interactivespaces.service.mail.sender.smtp.host";
+
+  /**
+   * Configuration property for SMTP host port interactive spaces should use.
+   */
+  String CONFIGURATION_MAIL_SMTP_PORT = "interactivespaces.service.mail.sender.smtp.port";
+
+  /**
+   * The default value for the {@link #CONFIGURATION_MAIL_SMTP_PORT} parameter.
+   */
+  String CONFIGURATION_DEFAULT_MAIL_SMTP_PORT = "25";
+
+  /**
+   * Send a mail message.
    *
    * @param message
    *          the message to send

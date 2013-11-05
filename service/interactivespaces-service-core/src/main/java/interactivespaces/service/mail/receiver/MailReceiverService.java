@@ -19,7 +19,7 @@ package interactivespaces.service.mail.receiver;
 import interactivespaces.service.SupportedService;
 
 /**
- * Execute scripts in Interactive Spaces.
+ * An Interactive Spaces service for receiving email.
  *
  * @author Keith M. Hughes
  */
@@ -28,7 +28,17 @@ public interface MailReceiverService extends SupportedService {
   /**
    * The name of the service.
    */
-  public static final String SERVICE_NAME = "email.receiver";
+  String SERVICE_NAME = "mail.receiver";
+
+  /**
+   * Configuration property for SMTP host port interactive spaces should use.
+   */
+  String CONFIGURATION_MAIL_SMTP_PORT = "interactivespaces.service.mail.receiver.smtp.port";
+
+  /**
+   * The default value for the {@link #CONFIGURATION_MAIL_SMTP_PORT} parameter.
+   */
+  int CONFIGURATION_DEFAULT_MAIL_SMTP_PORT = 9999;
 
   /**
    * Add a listener to the service.
@@ -37,4 +47,15 @@ public interface MailReceiverService extends SupportedService {
    *          the listener to add
    */
   void addListener(MailReceiverListener listener);
+
+  /**
+   * Remove a listener from the service.
+   *
+   * <p>
+   * This method does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeListener(MailReceiverListener listener);
 }

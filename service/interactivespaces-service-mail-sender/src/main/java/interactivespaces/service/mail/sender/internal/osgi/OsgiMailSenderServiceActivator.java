@@ -29,10 +29,9 @@ public class OsgiMailSenderServiceActivator extends InteractiveSpacesServiceOsgi
 
   @Override
   protected void allRequiredServicesAvailable() {
-      JavaxMailMailSenderService mailSenderService = new JavaxMailMailSenderService();
+    JavaxMailMailSenderService mailSenderService = new JavaxMailMailSenderService();
 
-      registerNewInteractiveSpacesService(mailSenderService);
-
-      registerOsgiService(MailSenderService.class.getName(), mailSenderService);
+    registerNewInteractiveSpacesService(mailSenderService);
+    registerOsgiService(MailSenderService.class.getName(), mailSenderService);
   }
 }
