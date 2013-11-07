@@ -18,10 +18,11 @@ package interactivespaces.workbench;
 
 import interactivespaces.InteractiveSpacesException;
 
+import com.google.common.io.Closeables;
+
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,7 +31,7 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
- * A templater using Freemarker
+ * A templater using Freemarker.
  *
  * @author Keith M. Hughes
  */
@@ -57,7 +58,7 @@ public class FreemarkerTemplater {
   }
 
   /**
-   * Write out the template
+   * Write out the template.
    *
    * @param data
    *          data for the template
@@ -65,21 +66,20 @@ public class FreemarkerTemplater {
    *          file where the template will be written
    * @param template
    *          which template to use
-   *
-   * @throws IOException
-   * @throws TemplateException
    */
   public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
+    Writer out = null;
     try {
       Template temp = freemarkerConfig.getTemplate(template);
 
-      Writer out = new FileWriter(outputFile);
+      out = new FileWriter(outputFile);
       temp.process(data, out);
-      out.flush();
+      out.close();
     } catch (Exception e) {
       throw new InteractiveSpacesException(String.format("Could not instantiate template %s at %s",
           template, outputFile), e);
+    } finally {
+      Closeables.closeQuietly(out);
     }
   }
-
 }

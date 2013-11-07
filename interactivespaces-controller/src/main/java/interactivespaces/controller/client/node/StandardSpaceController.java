@@ -233,7 +233,7 @@ public class StandardSpaceController extends BaseSpaceController implements
   /**
    * Support for file operations.
    */
-  private FileSupport fileSupport = new FileSupportImpl();
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Create a new StandardSpaceController.

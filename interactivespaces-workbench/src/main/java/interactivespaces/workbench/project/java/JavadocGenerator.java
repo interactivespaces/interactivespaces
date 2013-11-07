@@ -16,16 +16,21 @@
 
 package interactivespaces.workbench.project.java;
 
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
 /**
- * Useful constants and methods for working with Java projects.
+ * A generator for Javadoc.
  *
  * @author Keith M. Hughes
  */
-public class JavaProject {
+public interface JavadocGenerator {
 
   /**
-   * Source location for the Java source files
+   * Generate the Javadoc.
+   *
+   * @param context
+   *          the project context
    */
-  public static final String SOURCE_MAIN_JAVA = "src/main/java";
+  void generate(ProjectBuildContext context);
 
 }

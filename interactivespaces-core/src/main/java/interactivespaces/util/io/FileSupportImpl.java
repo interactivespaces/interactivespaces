@@ -16,6 +16,8 @@
 
 package interactivespaces.util.io;
 
+import static com.google.common.io.Closeables.closeQuietly;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
@@ -33,14 +35,20 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.google.common.io.Closeables.closeQuietly;
-
 /**
  * Various useful file routines.
+ *
+ * <p>
+ * This class maintains no state.
  *
  * @author Keith M. Hughes
  */
 public class FileSupportImpl implements FileSupport {
+
+  /**
+   * An instance everyone can use if they chose.
+   */
+  public static final FileSupport INSTANCE = new FileSupportImpl();
 
   /**
    * Default buffer size for copy operations.
@@ -111,7 +119,7 @@ public class FileSupportImpl implements FileSupport {
 
       Enumeration<? extends ZipEntry> entries = zipFile.entries();
       while (entries.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) entries.nextElement();
+        ZipEntry entry = entries.nextElement();
 
         if (entry.isDirectory()) {
           File newDir = new File(baseLocation, entry.getName());

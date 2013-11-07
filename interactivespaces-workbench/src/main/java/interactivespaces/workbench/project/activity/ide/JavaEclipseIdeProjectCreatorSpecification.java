@@ -16,17 +16,15 @@
 
 package interactivespaces.workbench.project.activity.ide;
 
+import interactivespaces.workbench.FreemarkerTemplater;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.java.JavaProjectExtension;
+import interactivespaces.workbench.project.java.JavaProjectType;
+
 import com.google.common.collect.Lists;
 
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.builder.java.JavaProjectExtensions;
-
-import freemarker.template.TemplateException;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -49,13 +47,20 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
    */
   private static final String FILENAME_CLASSPATH_FILE = ".classpath";
 
+  /**
+   * The value for the Java builder in Eclipse.
+   */
   private static final String ECLIPSE_BUILDER_JAVA = "org.eclipse.jdt.core.javabuilder";
+
+  /**
+   * The value for the Java nature for an eclpse project.
+   */
   private static final String ECLIPSE_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
 
   /**
    * List of sources for the project.
    */
-  private List<String> sources;
+  private final List<String> sources;
 
   /**
    * The Java activity extensions.
@@ -63,10 +68,13 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
    * <p>
    * Can be {@code null}.
    */
-  private JavaProjectExtensions extensions;
+  private final JavaProjectExtension extensions;
 
   /**
    * Construct a specification with {@code null} extensions.
+   *
+   * @param sources
+   *          the source directories
    */
   public JavaEclipseIdeProjectCreatorSpecification(List<String> sources) {
     this(sources, null);
@@ -81,25 +89,25 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
    *          the extensions to use (can be {@code null})
    */
   public JavaEclipseIdeProjectCreatorSpecification(List<String> sources,
-      JavaProjectExtensions extensions) {
+      JavaProjectExtension extensions) {
     this.sources = sources;
     this.extensions = extensions;
   }
 
   @Override
-  public void addSpecificationData(Project project, Map<String, Object> freemarkerContext) {
+  public void addSpecificationData(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext) {
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_NATURES, Lists.newArrayList(ECLIPSE_NATURE_JAVA));
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_BUILDER, ECLIPSE_BUILDER_JAVA);
   }
 
   @Override
-  public void writeAdditionalFiles(Project project, Map<String, Object> freemarkerContext,
-      FreemarkerTemplater templater, InteractiveSpacesWorkbench workbench) throws IOException,
-      TemplateException {
-    List<File> projectLibs = Lists.newArrayList(workbench.getControllerClasspath());
-    if (extensions != null) {
-      extensions.addToClasspath(projectLibs, workbench);
-    }
+  public void writeAdditionalFiles(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception {
+    JavaProjectType projectType = context.getProjectType();
+
+    List<File> projectLibs = Lists.newArrayList();
+    projectType.getProjectClasspath(projectLibs, extensions, context.getWorkbench());
 
     freemarkerContext.put("srcs", sources);
     freemarkerContext.put("libs", projectLibs);

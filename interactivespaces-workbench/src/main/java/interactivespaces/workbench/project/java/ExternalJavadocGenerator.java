@@ -14,13 +14,14 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
-
-import com.google.common.collect.Lists;
+package interactivespaces.workbench.project.java;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,9 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A javadoc generator that uses an external javadoc compiler.
+ * A Javadoc generator that uses an external Javadoc compiler.
  *
  * @author Keith M. Hughes
  */
@@ -42,14 +44,15 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
     Files.directoryExists(docBuildFolder);
     Files.deleteDirectoryContents(docBuildFolder);
 
-    File classesFolder = new File(context.getBuildDirectory(), JavaJarCompiler.CLASSES_DIRECTORY);
+    File classesFolder =
+        new File(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     if (!classesFolder.exists() || !classesFolder.isDirectory()) {
       throw new SimpleInteractiveSpacesException(String.format(
           "Java class files folder %s does not exist", classesFolder.getAbsolutePath()));
     }
 
     File sourcesFolder =
-        new File(context.getProject().getBaseDirectory(), JavaJarCompiler.JAVA_SOURCE_SUBDIRECTORY);
+        new File(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
     if (!sourcesFolder.exists() || !sourcesFolder.isDirectory()) {
       throw new SimpleInteractiveSpacesException(String.format(
           "Java source files folder %s does not exist", classesFolder.getAbsolutePath()));
@@ -72,9 +75,9 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
     try {
       Process process = Runtime.getRuntime().exec(command.toArray(new String[0]));
 
-      waitForEnd(process);
+      waitForEnd(process, context);
     } catch (IOException e) {
-      e.printStackTrace();
+      context.getWorkbench().logError("Error while creating project", e);
     }
   }
 
@@ -86,7 +89,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    * @param command
    *          the Javadoc command being built, this is the subpackages argument
    */
-  private void getRootSubpackages(File classesFolder, ArrayList<String> command) {
+  private void getRootSubpackages(File classesFolder, List<String> command) {
     File[] packageDirs = classesFolder.listFiles();
     if (packageDirs != null) {
       for (File f : packageDirs) {
@@ -102,20 +105,21 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    *
    * @param process
    *          the Javadoc process
+   * @param context
+   *          the build context
    */
-  private void waitForEnd(Process process) {
+  private void waitForEnd(Process process, ProjectBuildContext context) {
     try {
       int exitValue = process.waitFor();
       if (exitValue != 0) {
         StringBuilder result = new StringBuilder();
-        getStreamContents(result, process.getErrorStream());
+        getStreamContents(result, process.getErrorStream(), context);
 
         System.out.println("Javadoc build process failed");
         System.out.println(result.toString());
       }
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      context.getWorkbench().logError("Error while creating project", e);
     }
   }
 
@@ -127,22 +131,18 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    * @param stream
    *          the stream to read the contents from
    */
-  private void getStreamContents(StringBuilder result, InputStream stream) {
+  private void getStreamContents(StringBuilder result, InputStream stream,
+      ProjectBuildContext context) {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
     String line = null;
     try {
       while ((line = reader.readLine()) != null) {
         result.append(line);
       }
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (Exception e) {
+      context.getWorkbench().logError("Error while creating project", e);
     } finally {
-      try {
-        reader.close();
-      } catch (Exception e) {
-        // Don't care
-      }
+      Closeables.closeQuietly(reader);
     }
   }
 }

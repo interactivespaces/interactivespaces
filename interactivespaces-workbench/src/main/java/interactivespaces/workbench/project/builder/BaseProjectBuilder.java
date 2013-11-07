@@ -16,13 +16,13 @@
 
 package interactivespaces.workbench.project.builder;
 
-import java.io.File;
-import java.util.List;
-
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * A base builder class for common project types.
@@ -30,16 +30,6 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
  * @author peringknife@google.com (Trevor Pering)
  */
 public abstract class BaseProjectBuilder implements ProjectBuilder {
-
-  /**
-   * Configuration property defining the project home directory.
-   */
-  public static final String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
-
-  /**
-   * Subdirectory of build folder which contains the staged activity.
-   */
-  public static final String BUILD_STAGING_DIRECTORY = "staging";
 
   /**
    * Build has begun. Do any specific parts of the build.

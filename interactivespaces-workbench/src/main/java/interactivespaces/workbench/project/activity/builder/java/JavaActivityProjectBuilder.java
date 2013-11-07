@@ -16,10 +16,17 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.java.JavaJarCompiler;
+import interactivespaces.workbench.project.java.JavaProjectExtension;
+import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
+import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.test.JunitTestRunner;
 
 import java.io.File;
 
@@ -38,12 +45,17 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   /**
    * The extensions for this builder.
    */
-  private JavaProjectExtensions extensions;
+  private final JavaProjectExtension extensions;
 
   /**
    * The compiler for Java JARs
    */
-  private JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+  private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+
+  /**
+   * File support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a builder with no extensions.
@@ -58,7 +70,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @param extensions
    *          the extensions to use, can be {@code null}
    */
-  public JavaActivityProjectBuilder(JavaProjectExtensions extensions) {
+  public JavaActivityProjectBuilder(JavaProjectExtension extensions) {
     this.extensions = extensions;
   }
 
@@ -69,13 +81,32 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
       File compilationFolder = getOutputDirectory(buildDirectory);
       File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory);
 
-      return compiler.build(jarDestinationFile, compilationFolder, extensions, context);
+      if (compiler.buildJar(jarDestinationFile, compilationFolder, extensions, context)) {
+        return runTests(jarDestinationFile, context);
+      }
+
+      return false;
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      context.getWorkbench().logError("Error while building java activity project", e);
 
       return false;
     }
+  }
+
+  /**
+   * Run any tests for the project.
+   *
+   * @param jarDestinationFile
+   *          the destination file for the built project
+   * @param context
+   *          the project build context
+   *
+   * @return {@code true} if all tests succeeded
+   */
+  private boolean runTests(File jarDestinationFile, ProjectBuildContext context) {
+    JunitTestRunner runner = new JunitTestRunner();
+
+    return runner.runTests(jarDestinationFile, extensions, context);
   }
 
   /**
@@ -87,13 +118,9 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @return the output directory for building
    */
   private File getOutputDirectory(File buildDirectory) {
-    File outputDirectory = new File(buildDirectory, JavaJarCompiler.CLASSES_DIRECTORY);
-    if (!outputDirectory.exists()) {
-      if (!outputDirectory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format(
-            "Cannot create Java compiler output directory %s", outputDirectory));
-      }
-    }
+    File outputDirectory =
+        new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;
   }

@@ -16,16 +16,16 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
 import org.jdom.Element;
 
 import java.io.File;
 import java.util.List;
-
-import interactivespaces.configuration.Configuration;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
  * An assembly resource for a {@link interactivespaces.workbench.project.Project}.
@@ -52,7 +52,7 @@ public class ProjectAssemblyConstituent extends BaseProjectConstituent {
   /**
    * File support instance for file operations.
    */
-  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
+  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   /**
    * A file to be copied.
@@ -81,6 +81,7 @@ public class ProjectAssemblyConstituent extends BaseProjectConstituent {
      *
      * @return the dependency found in the element
      */
+    @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, List<String> errors) {
       int errorsStartSize = errors.size();
 

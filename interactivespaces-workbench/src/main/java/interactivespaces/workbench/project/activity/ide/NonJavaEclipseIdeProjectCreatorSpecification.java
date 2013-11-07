@@ -16,15 +16,12 @@
 
 package interactivespaces.workbench.project.activity.ide;
 
+import interactivespaces.workbench.FreemarkerTemplater;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
 import com.google.common.collect.Lists;
 
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
-
-import freemarker.template.TemplateException;
-
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -41,16 +38,16 @@ public class NonJavaEclipseIdeProjectCreatorSpecification implements
       "org.eclipse.wst.common.project.facet.core.nature";
 
   @Override
-  public void addSpecificationData(Project project, Map<String, Object> freemarkerContext) {
+  public void addSpecificationData(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext) {
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_NATURES,
         Lists.newArrayList(ECLIPSE_NATURE_NON_JAVA));
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_BUILDER, ECLIPSE_BUILDER_NON_JAVA);
   }
 
   @Override
-  public void writeAdditionalFiles(Project project, Map<String, Object> freemarkerContext,
-      FreemarkerTemplater templater, InteractiveSpacesWorkbench workbench) throws IOException,
-      TemplateException {
+  public void writeAdditionalFiles(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception {
     // Nothing to do
   }
 }

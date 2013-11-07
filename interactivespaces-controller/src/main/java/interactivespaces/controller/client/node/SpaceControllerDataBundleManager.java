@@ -16,7 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.common.ResourceRepositoryUploadChannel;
 import interactivespaces.controller.SpaceController;
@@ -25,11 +24,14 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 import interactivespaces.util.web.HttpContentCopier;
 
+import com.google.common.collect.Maps;
+
 import java.io.File;
 import java.util.Map;
 
 /**
- * Controller-side manager for copying data bundles between master and controller.
+ * Controller-side manager for copying data bundles between master and
+ * controller.
  *
  * @author Trevor Pering
  */
@@ -54,19 +56,18 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
    * Create an instance using a default content copier.
    */
   public SpaceControllerDataBundleManager() {
-    this(new HttpClientHttpContentCopier(), new FileSupportImpl());
+    this(new HttpClientHttpContentCopier(), FileSupportImpl.INSTANCE);
   }
 
   /**
    * Create an instance using the supplied content copier and file zipper.
    *
    * @param contentCopier
-   *            the content copier to use fot his manager
+   *          the content copier to use fot his manager
    * @param fileSupport
-   *            interface for file support utilities
+   *          interface for file support utilities
    */
-  public SpaceControllerDataBundleManager(HttpContentCopier contentCopier,
-      FileSupport fileSupport) {
+  public SpaceControllerDataBundleManager(HttpContentCopier contentCopier, FileSupport fileSupport) {
     this.contentCopier = contentCopier;
     this.fileSupport = fileSupport;
   }
@@ -117,8 +118,8 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
       fileSupport.zip(dataBundle, contentDirectory);
     } catch (Exception e) {
       dataBundle.delete();
-      throw new InteractiveSpacesException("While zipping " +
-          contentDirectory.getAbsolutePath(), e);
+      throw new InteractiveSpacesException(String.format("Error while zipping data bundle %s",
+          contentDirectory.getAbsolutePath()), e);
     }
     return dataBundle;
   }
@@ -127,14 +128,15 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
    * Extract the given data bundle file for this controller.
    *
    * @param dataBundle
-   *           data bundle file to extract
+   *          data bundle file to extract
    */
   private void extractDataBundle(File dataBundle) {
     File incomingContentDirectory = generateDataBundleTempFile();
     File outgoingContentDirectory = generateDataBundleTempFile();
     File dataContentDirectory = getControllerDataContentDirectory();
 
-    // This function executes in three stages, with three separate try/catch blocks in an
+    // This function executes in three stages, with three separate try/catch
+    // blocks in an
     // attempt to cleanly handle error conditions depending on when they happen.
 
     try {
@@ -152,15 +154,15 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
         outgoingContentDirectory.renameTo(dataContentDirectory);
       }
       fileSupport.delete(incomingContentDirectory);
-      throw new InteractiveSpacesException("Renaming content directories for " +
-              dataContentDirectory.getAbsolutePath(), e);
+      throw new InteractiveSpacesException(
+          "Renaming content directories for " + dataContentDirectory.getAbsolutePath(), e);
     }
 
     try {
       fileSupport.delete(outgoingContentDirectory);
     } catch (Exception e) {
-      throw new InteractiveSpacesException("Deleting old content directory " +
-          outgoingContentDirectory.getAbsolutePath(), e);
+      throw new InteractiveSpacesException("Deleting old content directory "
+          + outgoingContentDirectory.getAbsolutePath(), e);
     }
   }
 
@@ -172,8 +174,7 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
   /**
    * Get the assigned controller UUID.
    *
-   * @return
-   *    uuid of the associated controller
+   * @return uuid of the associated controller
    */
   private String getControllerUuid() {
     return spaceController.getControllerInfo().getUuid();
@@ -182,16 +183,14 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
   /**
    * Get a temporary file location, guaranteed not to exist.
    *
-   * @return
-   *           temp file for this bundle
+   * @return temp file for this bundle
    */
   private File generateDataBundleTempFile() {
     File tempFile;
     do {
       String filename = String.format("temp-%x", Math.round(Math.random() * Integer.MAX_VALUE));
-      tempFile = new File(
-          spaceController.getSpaceEnvironment().getFilesystem().getTempDirectory("dataBundle"),
-          filename);
+      tempFile =
+          new File(spaceController.getSpaceEnvironment().getFilesystem().getTempDirectory("dataBundle"), filename);
     } while (tempFile.exists());
     return tempFile;
   }

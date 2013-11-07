@@ -26,6 +26,16 @@ import interactivespaces.workbench.project.Project;
 public interface ProjectBuilder {
 
   /**
+   * Configuration property defining the project home directory.
+   */
+  String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
+
+  /**
+   * Subdirectory of build folder which contains the staged activity.
+   */
+  String BUILD_STAGING_DIRECTORY = "staging";
+
+  /**
    * Build the given project.
    *
    * @param project

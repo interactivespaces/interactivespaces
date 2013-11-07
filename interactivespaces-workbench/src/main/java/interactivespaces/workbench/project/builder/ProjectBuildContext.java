@@ -16,12 +16,13 @@
 
 package interactivespaces.workbench.project.builder;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.type.ProjectType;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
@@ -41,37 +42,46 @@ public class ProjectBuildContext {
   /**
    * Static file support instance.
    */
-  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
+  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   /**
    * The project being built.
    */
-  private Project project;
+  private final Project project;
 
   /**
    * The workbench the project is being built under.
    */
-  private InteractiveSpacesWorkbench workbench;
+  private final InteractiveSpacesWorkbench workbench;
 
   /**
    * Files to add to the project.
    */
-  private List<File> artifactsToAdd = Lists.newArrayList();
+  private final List<File> artifactsToAdd = Lists.newArrayList();
 
   /**
    * The directory where the project will be built.
    */
-  private File buildDirectory;
+  private final File buildDirectory;
+
+  /**
+   * The project type of the project.
+   */
+  private final ProjectType projectType;
 
   /**
    * Construct a new build context.
    *
+   * @param projectType
+   *          the type of the project
    * @param project
    *          project object
    * @param workbench
    *          workbench instance
    */
-  public ProjectBuildContext(Project project, InteractiveSpacesWorkbench workbench) {
+  public ProjectBuildContext(ProjectType projectType, Project project,
+      InteractiveSpacesWorkbench workbench) {
+    this.projectType = projectType;
     this.project = project;
     this.workbench = workbench;
 
@@ -123,5 +133,18 @@ public class ProjectBuildContext {
    */
   public File getBuildDirectory() {
     return buildDirectory;
+  }
+
+  /**
+   * Get the project type for the build.
+   *
+   * @param <T>
+   *          the actual project type
+   *
+   * @return the project type
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends ProjectType> T getProjectType() {
+    return (T) projectType;
   }
 }

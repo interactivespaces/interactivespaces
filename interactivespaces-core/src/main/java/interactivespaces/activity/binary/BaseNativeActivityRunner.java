@@ -16,9 +16,6 @@
 
 package interactivespaces.activity.binary;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -26,6 +23,9 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategyInstance;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 
 import org.apache.commons.logging.Log;
 
@@ -52,7 +52,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   /**
    * File support instance to use for this activity runner;
    */
-  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
+  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   /**
    * Configuration map for this native activity.
@@ -67,7 +67,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   /**
    * Lock for working with processes.
    */
-  private Lock processLock = new ReentrantLock(true);
+  private final Lock processLock = new ReentrantLock(true);
 
   /**
    * When a restart began.
@@ -100,12 +100,12 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   /**
    * The space environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * Logger for the runner.
    */
-  private Log log;
+  private final Log log;
 
   /**
    * The commands to be handed to exec.

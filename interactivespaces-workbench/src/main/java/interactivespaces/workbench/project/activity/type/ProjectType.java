@@ -18,8 +18,8 @@ package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
 
 /**
  * An activity project type.
@@ -30,6 +30,11 @@ import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator
  * @author Keith M. Hughes
  */
 public interface ProjectType {
+
+  /**
+   * Source location for the resource source files.
+   */
+  String SOURCE_MAIN_RESOURCES = "src/main/resources";
 
   /**
    * Can this project type handle the given project?

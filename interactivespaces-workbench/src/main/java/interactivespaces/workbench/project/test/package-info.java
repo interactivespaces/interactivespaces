@@ -14,30 +14,10 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
-
-import java.io.File;
-import java.util.List;
-
 /**
- * Create an OSGi bundle from a source.
+ * This package contains classes for running unit tests as part of Interactive Spaces projects.
  *
  * @author Keith M. Hughes
  */
-public interface OsgiBundleCreator {
+package interactivespaces.workbench.project.test;
 
-  /**
-   * Create a bundle from a given source.
-   *
-   * @param source
-   *          file for the source jar
-   * @param output
-   *          where the file should be written
-   * @param classpath
-   *          the classpath for the bundle
-   *
-   * @throws Exception
-   *           something bad happened
-   */
-  void createBundle(File source, File output, List<File> classpath) throws Exception;
-}

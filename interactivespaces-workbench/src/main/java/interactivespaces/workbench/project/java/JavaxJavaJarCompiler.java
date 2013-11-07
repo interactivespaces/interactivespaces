@@ -14,18 +14,17 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
+package interactivespaces.workbench.project.java;
+
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
-
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectDependency;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
@@ -44,12 +43,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipOutputStream;
 
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
-
 /**
  * A {@link JavaJarCompiler} using the system Java compiler.
  *
@@ -63,32 +56,34 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   public static final String BUNDLE_NAME_VERSION_SEPARATOR = "-";
 
   /**
-   * The default version of Java that items are compiled for.
-   */
-  public static final String JAVA_VERSION_DEFAULT = "1.6";
-
-  /**
-   * configuration property for adding options to the JavaC compiler.
-   */
-  public static final String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
-      "interactivespaces.workbench.builder.java.compileflags";
-
-  /**
    * Size of IO buffers in bytes.
    */
   public static final int IO_BUFFER_SIZE = 1024;
 
   /**
-   * The version of Java being compiled for.
+   * The java compiler to use for the project.
    */
-  private String javaVersion = JAVA_VERSION_DEFAULT;
+  private final ProjectJavaCompiler projectCompiler = new JavaxProjectJavaCompiler();
 
   @Override
-  public boolean build(File jarDestinationFile, File compilationFolder,
-      JavaProjectExtensions extensions, ProjectBuildContext context) {
-    List<File> classpath = Lists.newArrayList(context.getWorkbench().getControllerClasspath());
+  public boolean buildJar(File jarDestinationFile, File compilationFolder,
+      JavaProjectExtension extensions, ProjectBuildContext context) {
     try {
-      if (compile(context.getProject(), compilationFolder, context, extensions, classpath)) {
+      JavaProjectType projectType = context.getProjectType();
+
+      List<File> classpath = Lists.newArrayList();
+      projectType.getRuntimeClasspath(classpath, extensions, context.getWorkbench());
+
+      List<File> compilationFiles =
+          projectCompiler.getCompilationFiles(new File(context.getProject().getBaseDirectory(),
+              JavaProjectType.SOURCE_MAIN_JAVA));
+      if (compilationFiles.isEmpty()) {
+        throw new SimpleInteractiveSpacesException("No Java source files for Java project");
+      }
+
+      List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
+
+      if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
         createJarFile(context.getProject(), jarDestinationFile, compilationFolder, classpath);
 
         if (extensions != null) {
@@ -101,129 +96,10 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       } else {
         return false;
       }
-    } catch (SimpleInteractiveSpacesException e) {
-      System.err.println(e.getMessage());
-      return false;
     } catch (Exception e) {
-      e.printStackTrace();
+      context.getWorkbench().logError("Error while creating project", e);
+
       return false;
-    }
-  }
-
-  /**
-   * Compile the project.
-   *
-   * @param project
-   *          the project being compiled
-   * @param compilationBuildDirectory
-   *          the build folder for compilation artifacts
-   * @param context
-   *          the project build context
-   *
-   * @return {@code true} if the compilation was successful
-   *
-   * @throws IOException
-   */
-  private boolean compile(Project project, File compilationBuildDirectory,
-      ProjectBuildContext context, JavaProjectExtensions extensions, List<File> classpath)
-          throws IOException {
-    InteractiveSpacesWorkbench workbench = context.getWorkbench();
-    if (extensions != null) {
-      extensions.addToClasspath(classpath, workbench);
-    }
-
-    List<File> compilationFiles = getCompilationFiles(project);
-    if (compilationFiles.isEmpty()) {
-      throw new SimpleInteractiveSpacesException("No Java source files for Java project");
-    }
-
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-    fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
-    fileManager.setLocation(StandardLocation.CLASS_OUTPUT,
-        Lists.newArrayList(compilationBuildDirectory));
-
-    Iterable<? extends JavaFileObject> compilationUnits1 =
-        fileManager.getJavaFileObjectsFromFiles(compilationFiles);
-
-    List<String> compilerOptions = getCompilerOptions(context);
-
-    Boolean success =
-        compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1).call();
-
-    fileManager.close();
-
-    return success;
-  }
-
-  /**
-   * Get all compiler options to be used.
-   *
-   * @param context
-   *          the build context
-   *
-   * @return the complete compiler options
-   */
-  private List<String> getCompilerOptions(ProjectBuildContext context) {
-    List<String> options = Lists.newArrayList();
-    options.add("-source");
-    options.add(javaVersion);
-    options.add("-target");
-    options.add(javaVersion);
-
-    String extraOptions =
-        context.getWorkbench().getWorkbenchConfig()
-        .getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
-    if (extraOptions != null) {
-      String[] optionComponents = extraOptions.split("\\s+");
-      for (String optionComponent : optionComponents) {
-        options.add(optionComponent);
-      }
-    }
-    return options;
-  }
-
-  /**
-   * get a list of files to compile.
-   *
-   * @param project
-   *          the project being built
-   *
-   * @return a list of all Java files to be handed to the Java compiler
-   */
-  private List<File> getCompilationFiles(Project project) {
-    List<File> files = Lists.newArrayList();
-
-    File baseSourceDirectory = new File(project.getBaseDirectory(), JAVA_SOURCE_SUBDIRECTORY);
-    scanDirectory(baseSourceDirectory, files);
-
-    return files;
-  }
-
-  /**
-   * Scan the given directory for files to add.
-   *
-   * <p>
-   * This method will recurse into subdirectories.
-   *
-   * @param directory
-   *          the directory to scan
-   * @param files
-   *          collection to add found files in
-   */
-  private void scanDirectory(File directory, List<File> files) {
-    File[] directoryListing = directory.listFiles();
-    if (directoryListing != null) {
-      for (File file : directoryListing) {
-        // Check for hidden directories, we don't want those.
-        if (!file.getName().startsWith(".")) {
-          if (file.isDirectory()) {
-            scanDirectory(file, files);
-          } else {
-            files.add(file);
-          }
-        }
-      }
     }
   }
 

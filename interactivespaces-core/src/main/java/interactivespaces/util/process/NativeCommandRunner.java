@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.util;
+package interactivespaces.util.process;
 
 import interactivespaces.InteractiveSpacesException;
 

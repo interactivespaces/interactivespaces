@@ -56,7 +56,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
   /**
    * File support instance for file operations.
    */
-  private static final FileSupport FILE_SUPPORT = new FileSupportImpl();
+  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   @Override
   public void packageActivityProject(Project project, ProjectBuildContext context) {

@@ -16,12 +16,15 @@
 
 package interactivespaces.workbench.project.library;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import interactivespaces.workbench.project.activity.builder.java.JavaJarCompiler;
-import interactivespaces.workbench.project.activity.builder.java.JavaxJavaJarCompiler;
+import interactivespaces.workbench.project.java.JavaJarCompiler;
+import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
+import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.test.JunitTestRunner;
 
 import java.io.File;
 
@@ -40,20 +43,44 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
   /**
    * The compiler for Java JARs
    */
-  private JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+  private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+
+  /**
+   * File support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public boolean build(Project project, ProjectBuildContext context) {
     File buildDirectory = context.getBuildDirectory();
     File compilationFolder = getOutputDirectory(buildDirectory);
-    File jarDestinationFile =
-        getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
+    File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
 
-    return compiler.build(jarDestinationFile, compilationFolder, null, context);
+    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, context)) {
+      return runTests(jarDestinationFile, context);
+    }
+
+    return false;
   }
 
   /**
-   * Create the output directory for the activity compilation
+   * Run any tests for the project.
+   *
+   * @param jarDestinationFile
+   *          the destination file for the built project
+   * @param context
+   *          the project build context
+   *
+   * @return {@code true} if all tests succeeded
+   */
+  private boolean runTests(File jarDestinationFile, ProjectBuildContext context) {
+    JunitTestRunner runner = new JunitTestRunner();
+
+    return runner.runTests(jarDestinationFile, null, context);
+  }
+
+  /**
+   * Create the output directory for the library compilation
    *
    * @param buildDirectory
    *          the root of the build folder
@@ -61,13 +88,9 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
    * @return the output directory for building
    */
   private File getOutputDirectory(File buildDirectory) {
-    File outputDirectory = new File(buildDirectory, "classes");
-    if (!outputDirectory.exists()) {
-      if (!outputDirectory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format(
-            "Cannot create Java compiler output directory %s", outputDirectory));
-      }
-    }
+    File outputDirectory =
+        new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;
   }

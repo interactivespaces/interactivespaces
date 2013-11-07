@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
+package interactivespaces.workbench.project.java;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public interface JavaProjectExtensions {
+public interface JavaProjectExtension {
 
   /**
    * Add new items to the classpath.

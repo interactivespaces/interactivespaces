@@ -16,22 +16,23 @@
 
 package interactivespaces.workbench.project.activity.type.android;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.java.JavaProjectType;
+
+import com.google.common.collect.Lists;
 
 /**
  * An Android activity project type.
  *
  * @author Keith M. Hughes
  */
-public class AndroidActivityProjectType implements ProjectType {
+public class AndroidActivityProjectType extends JavaProjectType {
 
   /**
    * Name for the type.
@@ -41,7 +42,7 @@ public class AndroidActivityProjectType implements ProjectType {
   /**
    * The extension for android projects.
    */
-  private AndroidJavaprojectExtension extension = new AndroidJavaprojectExtension();
+  private final AndroidJavaProjectExtension extension = new AndroidJavaProjectExtension();
 
   @Override
   public boolean isProperType(Project project) {
@@ -60,7 +61,8 @@ public class AndroidActivityProjectType implements ProjectType {
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList("src/main/java",
-        "src/main/resources"), extension);
+    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(
+        JavaProjectType.SOURCE_MAIN_JAVA, JavaProjectType.SOURCE_MAIN_TESTS,
+        ProjectType.SOURCE_MAIN_RESOURCES), extension);
   }
 }

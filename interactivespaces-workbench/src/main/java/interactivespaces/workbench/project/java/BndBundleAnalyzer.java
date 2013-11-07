@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
+package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
 

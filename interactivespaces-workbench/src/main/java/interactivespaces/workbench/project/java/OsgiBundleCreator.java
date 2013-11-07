@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,32 +14,30 @@
  * the License.
  */
 
-package interactivespaces.workbench.util;
+package interactivespaces.workbench.project.java;
 
+import java.io.File;
 import java.util.List;
 
 /**
- * Execute a series of commands, stopping if any fail.
+ * Create an OSGi bundle from a source.
  *
  * @author Keith M. Hughes
  */
-public class NativeCommandsExecutor {
+public interface OsgiBundleCreator {
 
   /**
-   * Execute the set of native commands.
+   * Create a bundle from a given source.
    *
-   * @param commands
-   *          a list of commands to run
+   * @param source
+   *          file for the source jar
+   * @param output
+   *          where the file should be written
+   * @param classpath
+   *          the classpath for the bundle
+   *
+   * @throws Exception
+   *           something bad happened
    */
-  public void executeCommands(List<List<String>> commands) {
-    for (List<String> command : commands) {
-      NativeCommandRunner runner = new NativeCommandRunner();
-      runner.execute(command);
-
-      if (!runner.isSuccess()) {
-        System.out.format("Command failed: %s\n", command);
-        break;
-      }
-    }
-  }
+  void createBundle(File source, File output, List<File> classpath) throws Exception;
 }

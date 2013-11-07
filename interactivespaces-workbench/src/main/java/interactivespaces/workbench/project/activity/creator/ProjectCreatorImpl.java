@@ -16,17 +16,17 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
 import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
 import interactivespaces.workbench.project.library.LibraryProjectTemplate;
+
+import com.google.common.collect.Lists;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,22 +43,22 @@ public class ProjectCreatorImpl implements ProjectCreator {
   /**
    * The list of activities to be handed to clients.
    */
-  private List<ProjectTemplate> activityProjectTemplates;
+  private final List<ProjectTemplate> activityProjectTemplates;
 
   /**
    * The list of activities to be used internally.
    */
-  private List<ProjectTemplate> activityProjectTemplatesInternal;
+  private final List<ProjectTemplate> activityProjectTemplatesInternal;
 
   /**
    * Templater to use
    */
-  private FreemarkerTemplater templater;
+  private final FreemarkerTemplater templater;
 
   /**
    * The workbench used by the creator.
    */
-  private InteractiveSpacesWorkbench workbench;
+  private final InteractiveSpacesWorkbench workbench;
 
   /**
    * Create a basic instance.
@@ -95,8 +95,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
       writeProjectTemplate(spec, templateData);
 
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      workbench.logError("Error while creating project", e);
     }
   }
 

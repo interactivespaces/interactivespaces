@@ -16,9 +16,6 @@
 
 package interactivespaces.workbench;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -27,19 +24,15 @@ import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
+import interactivespaces.system.BasicInteractiveSpacesFilesystem;
+import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.builder.java.BndOsgiBundleCreator;
-import interactivespaces.workbench.project.activity.builder.java.ExternalJavadocGenerator;
-import interactivespaces.workbench.project.activity.builder.java.JavadocGenerator;
-import interactivespaces.workbench.project.activity.builder.java.OsgiBundleCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
@@ -50,8 +43,17 @@ import interactivespaces.workbench.project.activity.packager.ActivityProjectPack
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
+import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
+import interactivespaces.workbench.project.java.JavadocGenerator;
+import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -59,7 +61,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -147,52 +148,53 @@ public class InteractiveSpacesWorkbench {
   /**
    * Properties for the workbench.
    */
-  private Map<String, String> workbenchConfig;
+  private final Map<String, String> workbenchConfig;
 
   /**
    * Configuration for the workbench.
    */
-  private SimpleConfiguration workbenchSimpleConfig;
+  private final SimpleConfiguration workbenchSimpleConfig;
 
   /**
    * The activity project manager for file operations.
    */
-  private ActivityProjectManager projectManager = new BasicActivityProjectManager();
+  private final ActivityProjectManager projectManager = new BasicActivityProjectManager();
 
   /**
    * The creator for new projects.
    */
-  private ProjectCreator activityProjectCreator;
+  private final ProjectCreator activityProjectCreator;
 
   /**
    * A packager for activities.
    */
-  private ActivityProjectPackager activityProjectPackager;
+  private final ActivityProjectPackager activityProjectPackager;
 
   /**
    * The registry of activity project types.
    */
-  private ProjectTypeRegistry projectTypeRegistry;
+  private final ProjectTypeRegistry projectTypeRegistry;
 
   /**
    * The IDE project creator.
    */
-  private EclipseIdeProjectCreator ideProjectCreator;
+  private final EclipseIdeProjectCreator ideProjectCreator;
 
   /**
    * The templater to use.
    */
-  private FreemarkerTemplater templater;
+  private final FreemarkerTemplater templater;
 
   /**
-   * Base directory the workbench is installed in.
+   * File system for the workbench.
    */
-  private File workbenchBaseDir = new File(".").getAbsoluteFile();
+  private final InteractiveSpacesFilesystem workbenchFileSystem =
+      new BasicInteractiveSpacesFilesystem(new File(".").getAbsoluteFile());
 
   /**
    * The user interface factory to be used by the workbench.
    */
-  private UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
+  private final UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
 
   /**
    * Construct a workbench.
@@ -224,8 +226,6 @@ public class InteractiveSpacesWorkbench {
    * @return {@code true} if properly built project
    */
   public boolean buildProject(Project project) {
-    ProjectBuildContext context = new ProjectBuildContext(project, this);
-
     // If no type, there is nothing special to do for building.
     ProjectType type = projectTypeRegistry.getProjectType(project);
     ProjectBuilder builder = null;
@@ -235,6 +235,8 @@ public class InteractiveSpacesWorkbench {
       builder = new BaseActivityProjectBuilder();
     }
 
+    ProjectBuildContext context = new ProjectBuildContext(type, project, this);
+
     try {
       if (builder.build(project, context)) {
         if (Project.PROJECT_TYPE_ACTIVITY.equals(project.getType())) {
@@ -242,11 +244,10 @@ public class InteractiveSpacesWorkbench {
         }
         return true;
       }
-    } catch (SimpleInteractiveSpacesException e) {
-      System.out.format("Error while building project: %s\n", e.getCompoundMessage());
     } catch (Exception e) {
-      e.printStackTrace();
+      logError("Error while creating project", e);
     }
+
     return false;
   }
 
@@ -259,7 +260,7 @@ public class InteractiveSpacesWorkbench {
    * @return {@code true} if the project was cleaned properly
    */
   public boolean cleanActivityProject(Project project) {
-    ProjectBuildContext context = new ProjectBuildContext(project, this);
+    ProjectBuildContext context = new ProjectBuildContext(null, project, this);
 
     File buildDirectory = context.getBuildDirectory();
 
@@ -290,7 +291,8 @@ public class InteractiveSpacesWorkbench {
       spec = new NonJavaEclipseIdeProjectCreatorSpecification();
     }
 
-    return ideProjectCreator.createProject(project, spec, this);
+    ProjectBuildContext context = new ProjectBuildContext(type, project, this);
+    return ideProjectCreator.createProject(project, context, spec);
   }
 
   /**
@@ -317,8 +319,7 @@ public class InteractiveSpacesWorkbench {
 
       return true;
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logError("Error while creating project", e);
 
       return false;
     }
@@ -352,8 +353,7 @@ public class InteractiveSpacesWorkbench {
     try {
       osgiBundleCreator.createBundle(new File(file), null, null);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logError("Error while creating project", e);
     }
   }
 
@@ -413,13 +413,13 @@ public class InteractiveSpacesWorkbench {
     File[] extensionFiles =
         new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
             InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
-    .listFiles(new FilenameFilter() {
+            .listFiles(new FilenameFilter() {
 
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.endsWith(EXTENSION_FILE_EXTENSION);
-      }
-    });
+              @Override
+              public boolean accept(File dir, String name) {
+                return name.endsWith(EXTENSION_FILE_EXTENSION);
+              }
+            });
 
     if (extensionFiles != null) {
       for (File extensionFile : extensionFiles) {
@@ -438,14 +438,14 @@ public class InteractiveSpacesWorkbench {
    */
   public void addAlternateControllerExtensionsClasspath(List<File> files, String alternate) {
     File[] alternateFiles =
-        new File(new File(workbenchBaseDir, "alternate"), alternate)
-    .listFiles(new FilenameFilter() {
+        new File(new File(workbenchFileSystem.getInstallDirectory(), "alternate"), alternate)
+            .listFiles(new FilenameFilter() {
 
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.endsWith(FILENAME_JAR_EXTENSION);
-      }
-    });
+              @Override
+              public boolean accept(File dir, String name) {
+                return name.endsWith(FILENAME_JAR_EXTENSION);
+              }
+            });
 
     if (alternateFiles != null) {
       for (File alternateFile : alternateFiles) {
@@ -479,13 +479,9 @@ public class InteractiveSpacesWorkbench {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logError("Error while creating project", e);
     } finally {
-      try {
-        Closeables.close(reader, false);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      Closeables.closeQuietly(reader);
     }
   }
 
@@ -720,7 +716,7 @@ public class InteractiveSpacesWorkbench {
     // TODO(keith): Make work for other project types
     if ("library".equals(project.getType()) || "java".equals(project.getBuilderType())) {
       JavadocGenerator generator = new ExternalJavadocGenerator();
-      ProjectBuildContext context = new ProjectBuildContext(project, this);
+      ProjectBuildContext context = new ProjectBuildContext(null, project, this);
 
       generator.generate(context);
 
@@ -766,5 +762,32 @@ public class InteractiveSpacesWorkbench {
    */
   public FreemarkerTemplater getTemplater() {
     return templater;
+  }
+
+  /**
+   * Get all files in the bootstrap folder.
+   *
+   * @return all files in bootstrap folder.
+   */
+  public List<File> getBootstrapFiles() {
+    return Lists.newArrayList(workbenchFileSystem.getBootstrapDirectory().listFiles());
+  }
+
+  /**
+   * Log an error.
+   *
+   * @param message
+   *          any message for the error
+   * @param e
+   *          the exception
+   */
+  public void logError(String message, Exception e) {
+    System.err.println(message);
+
+    if (e instanceof SimpleInteractiveSpacesException) {
+      System.err.println(((SimpleInteractiveSpacesException) e).getCompoundMessage());
+    } else {
+      e.printStackTrace(System.err);
+    }
   }
 }

@@ -16,22 +16,23 @@
 
 package interactivespaces.workbench.project.activity.type.java;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.java.JavaProjectType;
+
+import com.google.common.collect.Lists;
 
 /**
  * A Simple Java activity project type.
  *
  * @author Keith M. Hughes
  */
-public class JavaActivityProjectType implements ProjectType {
+public class JavaActivityProjectType extends JavaProjectType {
 
   /**
    * Name for the builder.
@@ -55,7 +56,8 @@ public class JavaActivityProjectType implements ProjectType {
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList("src/main/java",
-        "src/main/resources"));
+    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(
+        JavaProjectType.SOURCE_MAIN_JAVA, JavaProjectType.SOURCE_MAIN_TESTS,
+        ProjectType.SOURCE_MAIN_RESOURCES));
   }
 }

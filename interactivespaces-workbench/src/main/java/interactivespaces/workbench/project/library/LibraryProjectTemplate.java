@@ -20,7 +20,7 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.java.JavaProject;
+import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.util.Map;
 
@@ -31,6 +31,9 @@ import java.util.Map;
  */
 public class LibraryProjectTemplate extends BaseProjectTemplate {
 
+  /**
+   * Construct a new template.
+   */
   public LibraryProjectTemplate() {
     super("Library Project Template");
   }
@@ -38,7 +41,7 @@ public class LibraryProjectTemplate extends BaseProjectTemplate {
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec,
       Map<String, Object> fullTemplateData) {
-    addSourceDirectory(JavaProject.SOURCE_MAIN_JAVA);
+    addSourceDirectory(JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
   @Override
@@ -46,5 +49,4 @@ public class LibraryProjectTemplate extends BaseProjectTemplate {
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
   }
-
 }

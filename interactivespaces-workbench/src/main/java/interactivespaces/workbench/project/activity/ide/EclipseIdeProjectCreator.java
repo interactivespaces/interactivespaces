@@ -17,19 +17,12 @@
 package interactivespaces.workbench.project.activity.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import com.google.common.collect.Maps;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,17 +32,27 @@ import java.util.Map;
  */
 public class EclipseIdeProjectCreator {
 
+  /**
+   * Where the template for the Eclipse project file is.
+   */
   private static final String TEMPLATE_FILEPATH_ECLIPSE_PROJECT = "ide/eclipse/project.ftl";
 
+  /**
+   * What the Eclpse project file will be called.
+   */
   private static final String FILENAME_PROJECT_FILE = ".project";
-
-  private static final JarFileFilter JAR_FILE_FILTER = new JarFileFilter();
 
   /**
    * The Templater.
    */
-  private FreemarkerTemplater templater;
+  private final FreemarkerTemplater templater;
 
+  /**
+   * Construct a new project creator.
+   *
+   * @param templater
+   *          the templater to use
+   */
   public EclipseIdeProjectCreator(FreemarkerTemplater templater) {
     this.templater = templater;
   }
@@ -60,26 +63,29 @@ public class EclipseIdeProjectCreator {
    * @param project
    *          project creating the IDE version for param spec the specification
    *          giving details about the IDE build
-   * @param workbench
-   *          workbench being run under
+   * @param context
+   *          the build context
+   * @param spec
+   *          the specification for the IDE project
+   *
+   * @return {@code true} if successful
    */
-  public boolean createProject(Project project, EclipseIdeProjectCreatorSpecification spec,
-      InteractiveSpacesWorkbench workbench) {
+  public boolean createProject(Project project, ProjectBuildContext context,
+      EclipseIdeProjectCreatorSpecification spec) {
     try {
       // Create the freemarkerContext hash
-      Map<String, Object> freemarkerContext = new HashMap<String, Object>();
+      Map<String, Object> freemarkerContext = Maps.newHashMap();
       freemarkerContext.put("project", project);
 
-      spec.addSpecificationData(project, freemarkerContext);
+      spec.addSpecificationData(project, context, freemarkerContext);
 
       writeProjectFile(project, freemarkerContext);
 
-      spec.writeAdditionalFiles(project, freemarkerContext, templater, workbench);
+      spec.writeAdditionalFiles(project, context, freemarkerContext, templater);
 
       return true;
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      context.getWorkbench().logError("Error while creating eclipse project", e);
 
       return false;
     }
@@ -89,51 +95,16 @@ public class EclipseIdeProjectCreator {
    * Write the project file.
    *
    * @param freemarkerConfig
+   *          the Freemarker configuration
    * @param freemarkerContext
-   * @throws IOException
-   * @throws TemplateException
+   *          the Freemarker context
+   *
+   * @throws Exception
+   *           something bad happened
    */
   private void writeProjectFile(Project project, Map<String, Object> freemarkerContext)
-      throws IOException, TemplateException {
+      throws Exception {
     templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(),
         FILENAME_PROJECT_FILE), TEMPLATE_FILEPATH_ECLIPSE_PROJECT);
-  }
-
-  /**
-   * Write a a template out.
-   *
-   * @param config
-   *          the freemarker template configuration
-   * @param freemarkerContext
-   *          the data for the templates
-   * @param template
-   *          location of the template
-   * @param outputFile
-   *          the output file
-   *
-   * @throws IOException
-   * @throws TemplateException
-   */
-  protected void writeTemplate(Configuration config, Map<String, Object> freemarkerContext,
-      String template, File outputFile) throws IOException, TemplateException {
-    Template temp = config.getTemplate(template);
-
-    Writer out = new FileWriter(outputFile);
-    temp.process(freemarkerContext, out);
-    out.flush();
-  }
-
-  /**
-   * File filter that only takes JAR files.
-   *
-   * @author Keith M. Hughes
-   */
-  private static class JarFileFilter implements FileFilter {
-
-    @Override
-    public boolean accept(File pathname) {
-      return pathname.getName().endsWith(".jar");
-    }
-
   }
 }

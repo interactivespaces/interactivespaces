@@ -14,23 +14,33 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.builder.java;
+package interactivespaces.workbench.project.java;
 
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
+import java.io.File;
+
 /**
- * A generator for Javadoc.
+ * A compiler which creates Java jars from a series of source directories.
  *
  * @author Keith M. Hughes
  */
-public interface JavadocGenerator {
+public interface JavaJarCompiler {
 
   /**
-   * Generate the Javadoc.
+   * Compile Java classes and build a proper JAR file.
    *
+   * @param jarDestinationFile
+   *          the JAR file to be created
+   * @param compilationFolder
+   *          the folder where the classes should be compiled into
+   * @param extensions
+   *          any extensions for the build
    * @param context
-   *          the project context
+   *          the context for building a project
+   *
+   * @return {@code true} if the compilation was successful
    */
-  void generate(ProjectBuildContext context);
-
+  boolean buildJar(File jarDestinationFile, File compilationFolder,
+      JavaProjectExtension extensions, ProjectBuildContext context);
 }

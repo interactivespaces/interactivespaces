@@ -17,12 +17,9 @@
 package interactivespaces.workbench.project.activity.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
-import freemarker.template.TemplateException;
-
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -35,37 +32,41 @@ public interface EclipseIdeProjectCreatorSpecification {
   /**
    * The Eclipse project file field name for project builders.
    */
-  public static final String ECLIPSE_PROJECT_FIELD_BUILDER = "builder";
+  String ECLIPSE_PROJECT_FIELD_BUILDER = "builder";
 
   /**
    * The Eclipse project file field name for project natures.
    */
-  public static final String ECLIPSE_PROJECT_FIELD_NATURES = "natures";
+  String ECLIPSE_PROJECT_FIELD_NATURES = "natures";
 
   /**
    * Add further IDE generation context needed for the activity project.
    *
    * @param project
-   *          the project
+   *          the project being built
+   * @param context
+   *          the project build context
    * @param freemarkerContext
    *          the context containing freemarker data
    */
-  void addSpecificationData(Project project, Map<String, Object> freemarkerContext);
+  void addSpecificationData(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext);
 
   /**
    * Write any additional files.
    *
    * @param project
    *          the project being built
+   * @param context
+   *          the project build context
    * @param freemarkerContext
    *          the context of objects to be given to freemarker
    * @param templater
    *          the freemarker templater
    *
-   * @throws IOException
-   * @throws TemplateException
+   * @throws Exception
+   *           something bad happened
    */
-  void writeAdditionalFiles(Project project, Map<String, Object> freemarkerContext,
-      FreemarkerTemplater templater, InteractiveSpacesWorkbench workbench) throws IOException,
-      TemplateException;
+  void writeAdditionalFiles(Project project, ProjectBuildContext context,
+      Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception;
 }
