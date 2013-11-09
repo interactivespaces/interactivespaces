@@ -118,9 +118,11 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
       fileSupport.zip(dataBundle, contentDirectory);
     } catch (Exception e) {
       dataBundle.delete();
+
       throw new InteractiveSpacesException(String.format("Error while zipping data bundle %s",
           contentDirectory.getAbsolutePath()), e);
     }
+
     return dataBundle;
   }
 

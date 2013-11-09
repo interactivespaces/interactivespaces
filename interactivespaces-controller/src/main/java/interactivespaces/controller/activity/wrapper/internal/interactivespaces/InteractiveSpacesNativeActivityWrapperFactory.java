@@ -21,6 +21,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
+import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.util.data.resource.MessageDigestResourceSignature;
 import interactivespaces.util.data.resource.ResourceSignature;
@@ -32,18 +33,24 @@ import org.osgi.framework.BundleContext;
  *
  * @author Keith M. Hughes
  */
-public class InteractiveSpacesNativeActivityWrapperFactory implements ActivityWrapperFactory {
+public class InteractiveSpacesNativeActivityWrapperFactory extends BaseActivityWrapperFactory {
 
   /**
    * The bundle loader to use for loading live activities.
    */
-  private LiveActivityBundleLoader bundleLoader;
+  private final LiveActivityBundleLoader bundleLoader;
 
   /**
    * The bundle comparer.
    */
-  private ResourceSignature bundleComparer;
+  private final ResourceSignature bundleComparer;
 
+  /**
+   * Construct a new IS native activity wrapper factory.
+   *
+   * @param bundleContext
+   *          the OSGi bundle context for the factory
+   */
   public InteractiveSpacesNativeActivityWrapperFactory(BundleContext bundleContext) {
     this.bundleComparer = new MessageDigestResourceSignature();
     this.bundleLoader = new SimpleLiveActivityBundleLoader(bundleContext, bundleComparer);
@@ -55,10 +62,8 @@ public class InteractiveSpacesNativeActivityWrapperFactory implements ActivityWr
   }
 
   @Override
-  public ActivityWrapper
-      newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-          Configuration configuration, SpaceController controller) {
-    return new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem,
-        configuration, bundleLoader);
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
+      Configuration configuration, SpaceController controller) {
+    return new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem, configuration, bundleLoader);
   }
 }

@@ -21,6 +21,7 @@ import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
+import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
@@ -47,9 +48,8 @@ public interface ActiveControllerActivityFactory {
    *
    * @return A runner for the activity.
    */
-  ActiveControllerActivity createActiveLiveActivity(String activityType,
-      InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, SpaceController controller);
+  ActiveControllerActivity createActiveLiveActivity(String activityType, InstalledLiveActivity liapp,
+      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller);
 
   /**
    * Create an appropriate runner.
@@ -70,9 +70,8 @@ public interface ActiveControllerActivityFactory {
    *
    * @return A runner for the activity.
    */
-  ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp,
-      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      SpaceController controller);
+  ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      LiveActivityConfiguration configuration, SpaceController controller);
 
   /**
    * Get the activity type of the activity.

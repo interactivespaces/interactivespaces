@@ -21,10 +21,7 @@ import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SupportedService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import com.google.common.collect.Lists;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -32,7 +29,10 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A base class for creating OSGi BundleActivator subclasses for Interactive
@@ -204,6 +204,15 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
     }
 
     registeredServices.add(service);
+  }
+
+  /**
+   * Get the version of the bundle.
+   *
+   * @return the bundle version
+   */
+  protected String getBundleVersion() {
+    return bundleContext.getBundle().getVersion().toString();
   }
 
   /**

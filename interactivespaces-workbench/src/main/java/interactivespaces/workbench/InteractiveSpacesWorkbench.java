@@ -20,10 +20,10 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
-import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
+import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.util.io.Files;
@@ -624,7 +624,7 @@ public class InteractiveSpacesWorkbench {
     if (console != null) {
       String identifyingName =
           getValue("Identifying name", new ActivityIdentifyingNameValidator(), console);
-      String version = getValue("Version", new ActivityVersionValidator(), console);
+      String version = getValue("Version", new VersionValidator(), console);
       String name = console.readLine("Name: ");
       String description = console.readLine("Description: ");
 

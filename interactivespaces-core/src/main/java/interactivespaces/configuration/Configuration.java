@@ -28,6 +28,11 @@ import java.util.Set;
 public interface Configuration {
 
   /**
+   * Separator between component names for a configuration property name.
+   */
+  String CONFIGURATION_NAME_SEPARATOR = ".";
+
+  /**
    * True if the configuration contains the property, false otherwise.
    *
    * @param property

@@ -21,6 +21,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
+import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 /**
@@ -28,7 +29,7 @@ import interactivespaces.controller.domain.InstalledLiveActivity;
  *
  * @author Keith M. Hughes
  */
-public class TopicBridgeActivityWrapperFactory implements ActivityWrapperFactory {
+public class TopicBridgeActivityWrapperFactory extends BaseActivityWrapperFactory {
 
   @Override
   public String getActivityType() {
@@ -36,10 +37,8 @@ public class TopicBridgeActivityWrapperFactory implements ActivityWrapperFactory
   }
 
   @Override
-  public ActivityWrapper
-      newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-          Configuration configuration, SpaceController controller) {
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      Configuration configuration, SpaceController controller) {
     return new TopicBridgeActivityWrapper();
   }
-
 }

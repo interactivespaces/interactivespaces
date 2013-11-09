@@ -16,11 +16,10 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
-import interactivespaces.domain.support.ActivityVersionValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.resource.VersionValidator;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
 import interactivespaces.workbench.ui.validation.ValidationMessageType;
@@ -39,32 +38,36 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * A panel to allow editing of Activity Descriptions.
+ * A panel to allow editing of activity Descriptions.
  *
  * @author Keith M. Hughes
- * @since Sep 25, 2012
  */
 public class ActivityDescriptionPanel extends JPanel {
 
   /**
+   * Number of rows in a description box.
+   */
+  public static final int DESCRIPTION_BOX_ROWS = 4;
+
+  /**
    * Input control for the name of the project.
    */
-  private JTextField projectNameInput;
+  private final JTextField projectNameInput;
 
   /**
    * Input control for the description of the project.
    */
-  private JTextArea projectDescriptionInput;
+  private final JTextArea projectDescriptionInput;
 
   /**
    * Input control for the identifying name of the project.
    */
-  private JTextField projectIdentifyingNameInput;
+  private final JTextField projectIdentifyingNameInput;
 
   /**
    * Input control for the version of the project.
    */
-  private JTextField projectVersionInput;
+  private final JTextField projectVersionInput;
 
   /**
    * The activity description being editted or created.
@@ -76,24 +79,24 @@ public class ActivityDescriptionPanel extends JPanel {
    */
   private ValidationMessageDisplay validationMessageDisplay;
 
-  private ActivityIdentifyingNameValidator identifyingNameValidator;
+  private final ActivityIdentifyingNameValidator identifyingNameValidator;
 
-  private ActivityVersionValidator versionValidator;
+  private final VersionValidator versionValidator;
 
   /**
-   * Creates a fresh {@link ActivityDescription} to back the panel.
+   * Construct a fresh descriptiuon panel with a newly created project.
    */
   public ActivityDescriptionPanel() {
     this(new Project());
   }
 
   /**
-   * Uses the supplied {@link ActivityDescription}
+   * Construct a description panel.
    *
    * @param project
-   *          the activity description to back the panel
+   *          the project to back the panel
    */
-  public ActivityDescriptionPanel(Project activityDescription) {
+  public ActivityDescriptionPanel(Project project) {
     setLayout(new GridBagLayout());
 
     KeyListener verifyingKeyListener = new KeyListener() {
@@ -140,7 +143,7 @@ public class ActivityDescriptionPanel extends JPanel {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridx = 1;
     projectDescriptionInput = new JTextArea();
-    projectDescriptionInput.setRows(4);
+    projectDescriptionInput.setRows(DESCRIPTION_BOX_ROWS);
     JScrollPane scrollPane = new JScrollPane(projectDescriptionInput);
 
     add(scrollPane, gbc);
@@ -170,10 +173,10 @@ public class ActivityDescriptionPanel extends JPanel {
     projectVersionInput.addKeyListener(verifyingKeyListener);
     add(projectVersionInput, gbc);
 
-    setProject(activityDescription);
+    setProject(project);
 
     identifyingNameValidator = new ActivityIdentifyingNameValidator();
-    versionValidator = new ActivityVersionValidator();
+    versionValidator = new VersionValidator();
   }
 
   /**
@@ -228,7 +231,7 @@ public class ActivityDescriptionPanel extends JPanel {
   }
 
   /**
-   * Check the validation of this panel
+   * Check the validation of this panel.
    *
    * @return the result of the validation check
    */
@@ -236,16 +239,14 @@ public class ActivityDescriptionPanel extends JPanel {
     String projectName = projectNameInput.getText().trim();
     int sizeName = projectName.length();
     if (sizeName == 0) {
-      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
-          "A project name is required.");
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR, "A project name is required.");
       return ValidationResult.ERRORS;
     }
 
     String identifyingName = projectIdentifyingNameInput.getText().trim();
     DomainValidationResult validationResult = identifyingNameValidator.validate(identifyingName);
     if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
-      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
-          validationResult.getDescription());
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR, validationResult.getDescription());
 
       return ValidationResult.ERRORS;
     }
@@ -253,8 +254,7 @@ public class ActivityDescriptionPanel extends JPanel {
     String version = projectVersionInput.getText().trim();
     validationResult = versionValidator.validate(version);
     if (validationResult.getResultType() == DomainValidationResultType.ERRORS) {
-      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR,
-          validationResult.getDescription());
+      validationMessageDisplay.showValidationMessage(ValidationMessageType.ERROR, validationResult.getDescription());
 
       return ValidationResult.ERRORS;
     }

@@ -20,6 +20,7 @@ import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.resource.Version;
 
 import java.io.File;
 
@@ -30,6 +31,33 @@ import java.io.File;
  * @author Keith M. Hughes
  */
 public abstract class BaseActivityWrapperFactory implements ActivityWrapperFactory {
+
+  /**
+   * Version of the factory.
+   */
+  private final Version version;
+
+  /**
+   * Construct a factory with a null version.
+   */
+  public BaseActivityWrapperFactory() {
+    this(null);
+  }
+
+  /**
+   * Construct a factory.
+   *
+   * @param version
+   *          the version supported by the factory
+   */
+  public BaseActivityWrapperFactory(Version version) {
+    this.version = version;
+  }
+
+  @Override
+  public Version getVersion() {
+    return version;
+  }
 
   /**
    * Get the activity's executable file.
@@ -43,11 +71,10 @@ public abstract class BaseActivityWrapperFactory implements ActivityWrapperFacto
    *
    * @return file containing the executable
    */
-  public File getActivityExecutable(InstalledLiveActivity liapp,
-      ActivityFilesystem activityFilesystem, Configuration configuration) {
+  public File getActivityExecutable(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      Configuration configuration) {
     return new File(activityFilesystem.getInstallDirectory(),
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
+        configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
   }
 
   /**
@@ -65,11 +92,10 @@ public abstract class BaseActivityWrapperFactory implements ActivityWrapperFacto
    *
    * @return File containing the executable.
    */
-  public File getActivityExecutable(InstalledLiveActivity liapp,
-      ActivityFilesystem activityFilesystem, Configuration configuration, String extension) {
+  public File getActivityExecutable(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      Configuration configuration, String extension) {
     return new File(activityFilesystem.getInstallDirectory(),
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)
-            + "." + extension);
+        configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE) + "."
+            + extension);
   }
 }

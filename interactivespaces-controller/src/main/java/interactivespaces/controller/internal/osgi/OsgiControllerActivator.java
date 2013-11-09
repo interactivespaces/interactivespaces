@@ -29,8 +29,8 @@ import interactivespaces.controller.client.node.SimpleActivityInstallationManage
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
+import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
-import interactivespaces.controller.client.node.internal.osgi.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;

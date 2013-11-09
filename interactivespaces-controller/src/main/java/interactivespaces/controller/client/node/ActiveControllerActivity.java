@@ -43,8 +43,7 @@ public class ActiveControllerActivity implements ActivityControl {
   /**
    * Initial status for an activity
    */
-  private static final ActivityStatus INITIAL_ACTIVITY_STATUS = new ActivityStatus(
-      ActivityState.READY, "");
+  private static final ActivityStatus INITIAL_ACTIVITY_STATUS = new ActivityStatus(ActivityState.READY, "");
 
   /**
    * The amount of time to wait for the instance lock in milliseconds.
@@ -121,9 +120,8 @@ public class ActiveControllerActivity implements ActivityControl {
    * @param controller
    *          the controller the activity is running under
    */
-  public ActiveControllerActivity(InstalledLiveActivity installedActivity,
-      ActivityWrapper activityWrapper, ActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, SpaceController controller) {
+  public ActiveControllerActivity(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
+      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;
@@ -170,8 +168,8 @@ public class ActiveControllerActivity implements ActivityControl {
         if (instance == null) {
           configuration.load();
           instance = activityWrapper.newInstance();
-          controller.initializeActivityInstance(installedActivity, activityFilesystem, instance,
-              configuration, activityWrapper.newExecutionContext());
+          controller.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
+              activityWrapper.newExecutionContext());
           instance.startup();
         } else {
           throw new SimpleInteractiveSpacesException(String.format(
@@ -264,8 +262,7 @@ public class ActiveControllerActivity implements ActivityControl {
         releaseInstanceLock();
       }
     } else {
-      throw new SimpleInteractiveSpacesException(
-          "Could not get activity status because could not get instance lock");
+      throw new SimpleInteractiveSpacesException("Could not get activity status because could not get instance lock");
     }
   }
 
@@ -328,9 +325,8 @@ public class ActiveControllerActivity implements ActivityControl {
             .getLog()
             .warn(
                 String.format("A wait on the activity instance lock for %s has been blocked for"
-                    + " %d milliseconds as the instance is in %s", uuid, (controller
-                    .getSpaceEnvironment().getTimeProvider().getCurrentTime() - time),
-                    instanceLockState));
+                    + " %d milliseconds as the instance is in %s", uuid, (controller.getSpaceEnvironment()
+                    .getTimeProvider().getCurrentTime() - time), instanceLockState));
       }
 
       // Check if the current thread has entered more than once.
@@ -384,6 +380,16 @@ public class ActiveControllerActivity implements ActivityControl {
   @VisibleForTesting
   void setCachedActivityStatus(ActivityStatus cachedActivityStatus) {
     this.cachedActivityStatus = cachedActivityStatus;
+  }
+
+  /**
+   * Get the activity wrapper for this instance.
+   *
+   * @return the activity wrapper
+   */
+  @VisibleForTesting
+  public ActivityWrapper getActivityWrapper() {
+    return activityWrapper;
   }
 
   private enum InstanceLockState {

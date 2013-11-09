@@ -14,24 +14,18 @@
  * the License.
  */
 
-package interactivespaces.domain.support;
+package interactivespaces.resource;
 
+import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
-
-import java.util.regex.Pattern;
+import interactivespaces.domain.support.Validator;
 
 /**
- * A validator for activity versions
+ * A validator for versions.
  *
  * @author Keith M. Hughes
  */
-public class ActivityVersionValidator implements Validator {
-
-  /**
-   * Pattern for the identifying name.
-   */
-  public static final Pattern PATTERN = Pattern
-      .compile("[0-9]+(\\.[0-9]+){2}(-[a-zA-Z0-9][a-zA-Z0-9_]*)?");
+public class VersionValidator implements Validator {
 
   @Override
   public DomainValidationResult validate(String candidate) {
@@ -41,11 +35,9 @@ public class ActivityVersionValidator implements Validator {
       return new DomainValidationResult(DomainValidationResultType.ERRORS, "A version is required.");
     }
 
-    if (!PATTERN.matcher(candidate).matches()) {
+    if (!Version.isLegalSyntax(candidate)) {
       return new DomainValidationResult(DomainValidationResultType.ERRORS,
-          "A version must be of the form a.b.c\n" + "where each section is a series of digits.\n"
-              + "It can also be of the form a.b.c-d where d starts with\n"
-              + "a letter or digit, and is followed by letters, digits,\n" + "or underscores.");
+          Version.VERSION_FORMAT_DESCRIPTION);
     }
 
     return new DomainValidationResult(DomainValidationResultType.OK, null);

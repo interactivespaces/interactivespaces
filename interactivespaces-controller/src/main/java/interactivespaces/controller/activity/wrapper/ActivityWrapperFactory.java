@@ -20,13 +20,14 @@ import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.resource.VersionedResource;
 
 /**
  * A factory for {@link ActivityWrapper} instances of a specific activity type.
  *
  * @author Keith M. Hughes
  */
-public interface ActivityWrapperFactory {
+public interface ActivityWrapperFactory extends VersionedResource {
 
   /**
    * Get the activity type supported by this factory.
@@ -36,21 +37,20 @@ public interface ActivityWrapperFactory {
   String getActivityType();
 
   /**
-   * Create an OSGi activity runner.
+   * Create an activity wrapper.
    *
    * @param liveActivity
-   *          the live to be run.
+   *          the live to be run
    * @param activityFilesystem
    *          the filesystem for the activity
    * @param configuration
    *          configuration for the activity
    * @param controller
-   *          controller running the activity.
+   *          controller running the activity
    *
-   * @return
+   * @return a new activity wrapper
    */
-  ActivityWrapper
-      newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-          Configuration configuration, SpaceController controller);
+  ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
+      Configuration configuration, SpaceController controller);
 
 }
