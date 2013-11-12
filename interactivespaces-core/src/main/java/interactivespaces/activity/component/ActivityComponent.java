@@ -42,14 +42,20 @@ public interface ActivityComponent {
   List<String> getDependencies();
 
   /**
+   * Set the context for the component.
+   *
+   * @param componentContext
+   *          the context the component is running in
+   */
+  void setComponentContext(ActivityComponentContext componentContext);
+
+  /**
    * Start up the component.
    *
    * @param configuration
    *          the configuration containing parameters for the web server
-   * @param componentContext
-   *          the context the component is running in
    */
-  void configureComponent(Configuration configuration, ActivityComponentContext componentContext);
+  void configureComponent(Configuration configuration);
 
   /**
    * Start up the component.

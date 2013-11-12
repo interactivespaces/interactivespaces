@@ -140,6 +140,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
+    components.setLog(getLog());
+
     componentContext =
         new ActivityComponentContext(this, components, getController()
             .getActivityComponentFactory());

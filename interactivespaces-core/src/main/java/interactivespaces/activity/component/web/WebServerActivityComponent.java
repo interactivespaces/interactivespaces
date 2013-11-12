@@ -144,9 +144,8 @@ public class WebServerActivityComponent extends BaseActivityComponent {
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
-    super.configureComponent(configuration, componentContext);
+  public void configureComponent(Configuration configuration) {
+    super.configureComponent(configuration);
 
     Activity activity = getComponentContext().getActivity();
 

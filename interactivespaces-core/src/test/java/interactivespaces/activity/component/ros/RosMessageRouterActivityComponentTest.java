@@ -72,7 +72,8 @@ public class RosMessageRouterActivityComponentTest {
     configuration.setValue("space.activity.routes.inputs", "foo");
     configuration.setValue("space.activity.route.input.foo", "bar");
 
-    component.configureComponent(configuration, activityComponentContext);
+    component.setComponentContext(activityComponentContext);
+    component.configureComponent(configuration);
 
     Mockito.when(activityComponentContext.canHandlerRun()).thenReturn(true);
 
@@ -94,7 +95,8 @@ public class RosMessageRouterActivityComponentTest {
     configuration.setValue("space.activity.routes.inputs", "foo");
     configuration.setValue("space.activity.route.input.foo", "bar");
 
-    component.configureComponent(configuration, activityComponentContext);
+    component.setComponentContext(activityComponentContext);
+    component.configureComponent(configuration);
 
     Mockito.when(activityComponentContext.canHandlerRun()).thenReturn(true);
 
@@ -119,7 +121,8 @@ public class RosMessageRouterActivityComponentTest {
     configuration.setValue("space.activity.routes.inputs", "foo");
     configuration.setValue("space.activity.route.input.foo", "bar");
 
-    component.configureComponent(configuration, activityComponentContext);
+    component.setComponentContext(activityComponentContext);
+    component.configureComponent(configuration);
 
     Mockito.when(activityComponentContext.canHandlerRun()).thenReturn(false);
 
