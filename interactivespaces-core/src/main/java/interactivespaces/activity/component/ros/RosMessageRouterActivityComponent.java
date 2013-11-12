@@ -19,7 +19,6 @@ package interactivespaces.activity.component.ros;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
 import interactivespaces.configuration.Configuration;
@@ -128,9 +127,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
-    super.configureComponent(configuration, componentContext);
+  public void configureComponent(Configuration configuration) {
+    super.configureComponent(configuration);
 
     rosActivityComponent =
         componentContext.getActivityComponent(RosActivityComponent.COMPONENT_NAME);

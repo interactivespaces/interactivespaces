@@ -17,7 +17,6 @@
 package interactivespaces.activity.component.ros;
 
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
@@ -69,9 +68,8 @@ public class RosActivityComponent extends BaseActivityComponent {
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
-    super.configureComponent(configuration, componentContext);
+  public void configureComponent(Configuration configuration) {
+    super.configureComponent(configuration);
 
     rosEnvironment =
         componentContext.getActivity().getSpaceEnvironment().getValue("environment.ros");

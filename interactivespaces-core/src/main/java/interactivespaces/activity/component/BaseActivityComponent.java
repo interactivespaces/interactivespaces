@@ -38,7 +38,7 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   /**
    * Component context this component is running under.
    */
-  private ActivityComponentContext componentContext;
+  protected ActivityComponentContext componentContext;
 
   @Override
   public List<String> getDependencies() {
@@ -57,8 +57,12 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
+  public void setComponentContext(ActivityComponentContext componentContext) {
     this.componentContext = componentContext;
+  }
+
+  @Override
+  public void configureComponent(Configuration configuration) {
+    // Default is to do nothing.
   }
 }

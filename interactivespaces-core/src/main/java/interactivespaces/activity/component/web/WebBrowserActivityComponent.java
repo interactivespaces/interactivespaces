@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.binary.NativeBrowserRunner;
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
@@ -124,9 +123,8 @@ public class WebBrowserActivityComponent extends BaseActivityComponent {
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
-    super.configureComponent(configuration, componentContext);
+  public void configureComponent(Configuration configuration) {
+    super.configureComponent(configuration);
 
     WebServerActivityComponent webServer =
         componentContext.getActivityComponent(WebServerActivityComponent.COMPONENT_NAME);

@@ -92,6 +92,7 @@ public class ActivityComponentCollection {
     DependencyResolver<ActivityComponent> resolver = new DependencyResolver<ActivityComponent>();
 
     for (ActivityComponent component : components) {
+      component.setComponentContext(componentContext);
       resolver.addNode(component.getName(), component);
       resolver.addNodeDependencies(component.getName(), component.getDependencies());
     }
@@ -104,7 +105,7 @@ public class ActivityComponentCollection {
       // Only the component which had it as a dependency knows if it
       // is required or not.
       if (component != null) {
-        component.configureComponent(configuration, componentContext);
+        component.configureComponent(configuration);
         newOrder.add(component);
       }
     }
@@ -131,7 +132,11 @@ public class ActivityComponentCollection {
     } catch (Exception e) {
       // Every component that was actually started up should be shut down.
       for (ActivityComponent component : startedComponents) {
-        component.shutdownComponent();
+        try {
+          component.shutdownComponent();
+        } catch (Throwable t) {
+          handleComponentError(component, "Error shutting down after startup failure", t);
+        }
       }
 
       throw e;
@@ -151,8 +156,7 @@ public class ActivityComponentCollection {
         component.shutdownComponent();
       } catch (Exception e) {
         properlyShutDown = false;
-        component.getComponentContext().getActivity().getLog()
-            .error("Error during activity component shutdown", e);
+        handleComponentError(component, "Error during activity component shutdown", e);
       }
     }
 
@@ -189,13 +193,7 @@ public class ActivityComponentCollection {
       if (!component.isComponentRunning()) {
         allAreRunning = false;
 
-        component
-            .getComponentContext()
-            .getActivity()
-            .getLog()
-            .error(
-                String.format("Activity component %s not running when expected",
-                    component.getName()));
+        handleComponentError(component, "Activity component not running when expected", null);
       }
     }
 
@@ -251,5 +249,22 @@ public class ActivityComponentCollection {
    */
   public void setLog(Log log) {
     this.log = log;
+  }
+
+  /**
+   * Handle a component error for the given throwable. Makes sure the log object from the component
+   * is valid, otherwise use the global log.
+   *
+   * @param component
+   *          component with error
+   * @param message
+   *          error message
+   * @param t
+   *          cause of the error/exception
+   */
+  private void handleComponentError(ActivityComponent component, String message, Throwable t) {
+    Log targetLog = component.getComponentContext().getActivity().getLog();
+    String componentName = component.getName();
+    targetLog.error(String.format("%s (%s)", message, componentName), t);
   }
 }

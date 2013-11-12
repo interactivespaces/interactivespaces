@@ -129,8 +129,8 @@ public class BaseActivityTest {
     activityInOrder.verify(activity).onActivityStartup();
     activityInOrder.verify(activity).onActivityPostStartup();
 
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component).configureComponent(configuration);
     componentInOrder.verify(component).startupComponent();
 
     assertEquals(ActivityState.RUNNING, activity.getActivityStatus().getState());
@@ -240,8 +240,8 @@ public class BaseActivityTest {
     Mockito
         .doThrow(e)
         .when(component)
-        .configureComponent((Configuration) Mockito.anyObject(),
-            (ActivityComponentContext) Mockito.anyObject());
+        .configureComponent((Configuration) Mockito.anyObject()
+        );
 
     activity.startup();
 
@@ -252,8 +252,8 @@ public class BaseActivityTest {
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
 
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component).configureComponent(configuration);
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
   }
@@ -275,8 +275,8 @@ public class BaseActivityTest {
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
 
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component).configureComponent(configuration);
     componentInOrder.verify(component).startupComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
@@ -304,12 +304,15 @@ public class BaseActivityTest {
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
 
-    componentInOrder.verify(component2).configureComponent(configuration,
-        activity.getActivityComponentContext());
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component2).setComponentContext(activity.getActivityComponentContext());
+
+    componentInOrder.verify(component2).configureComponent(configuration);
+    componentInOrder.verify(component).configureComponent(configuration);
+
     componentInOrder.verify(component2).startupComponent();
     componentInOrder.verify(component).startupComponent();
+
     componentInOrder.verify(component2).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
@@ -332,8 +335,8 @@ public class BaseActivityTest {
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
 
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component).configureComponent(configuration);
     componentInOrder.verify(component).startupComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
@@ -354,8 +357,8 @@ public class BaseActivityTest {
     activityInOrder.verify(activity).onActivityStartup();
     activityInOrder.verify(activity).onActivityPostStartup();
 
-    componentInOrder.verify(component).configureComponent(configuration,
-        activity.getActivityComponentContext());
+    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
+    componentInOrder.verify(component).configureComponent(configuration);
     componentInOrder.verify(component).startupComponent();
 
     assertEquals(ActivityState.RUNNING, activity.getActivityStatus().getState());
@@ -519,9 +522,8 @@ public class BaseActivityTest {
     }
 
     @Override
-    public void configureComponent(Configuration configuration,
-        ActivityComponentContext componentContext) {
-      super.configureComponent(configuration, componentContext);
+    public void configureComponent(Configuration configuration) {
+      super.configureComponent(configuration);
     }
 
     @Override

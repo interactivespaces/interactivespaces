@@ -170,7 +170,9 @@ public abstract class ActivitySupport implements Activity {
   }
 
   /**
-   * Get the execution context
+   * Get the execution context.
+   *
+   * @return activity execution context
    */
   protected ActivityExecutionContext getExecutionContext() {
     return context;
@@ -207,7 +209,7 @@ public abstract class ActivitySupport implements Activity {
   /**
    * Set the activity state.
    *
-   * @param activityStatus
+   * @param state
    *          the new activity status
    */
   protected void setActivityStatus(ActivityState state) {
@@ -220,7 +222,7 @@ public abstract class ActivitySupport implements Activity {
    * <p>
    * The exception field will be {@code null}.
    *
-   * @param status
+   * @param state
    *          new status of the activity.
    * @param description
    *          new description of the activity, can be {@code null}.
@@ -232,7 +234,7 @@ public abstract class ActivitySupport implements Activity {
   /**
    * Set the activity state.
    *
-   * @param status
+   * @param state
    *          new status of the activity
    * @param description
    *          new description of the activity. can be {@code null}
@@ -252,8 +254,8 @@ public abstract class ActivitySupport implements Activity {
    *          the exception
    */
   protected void logException(String message, Throwable e) {
-    if (SimpleInteractiveSpacesException.class.isAssignableFrom(e.getClass())) {
-      getLog().error(message);
+    if (e instanceof SimpleInteractiveSpacesException) {
+      getLog().error(message + ": " + ((SimpleInteractiveSpacesException) e).getCompoundMessage());
     } else {
       getLog().error(message, e);
     }

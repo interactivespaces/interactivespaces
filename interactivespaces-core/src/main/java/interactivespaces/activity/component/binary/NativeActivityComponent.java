@@ -23,7 +23,6 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
@@ -101,9 +100,8 @@ public class NativeActivityComponent extends BaseActivityComponent {
   }
 
   @Override
-  public void configureComponent(Configuration configuration,
-      ActivityComponentContext componentContext) {
-    super.configureComponent(configuration, componentContext);
+  public void configureComponent(Configuration configuration) {
+    super.configureComponent(configuration);
 
     Activity activity = componentContext.getActivity();
     SpaceController controller = activity.getController();
