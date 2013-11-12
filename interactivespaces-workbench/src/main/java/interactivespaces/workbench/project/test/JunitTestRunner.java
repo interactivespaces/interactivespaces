@@ -25,7 +25,6 @@ import interactivespaces.workbench.project.java.JavaxProjectJavaCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -140,81 +139,77 @@ public class JunitTestRunner {
           new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
       boolean allSuceeded;
 
-      try {
-        JUnitCore junit = new JUnitCore();
-        junit.addListener(new RunListener() {
+      JUnitCore junit = new JUnitCore();
+      junit.addListener(new RunListener() {
 
-          @Override
-          public void testRunStarted(Description description) throws Exception {
-            System.out.println("Starting JUnit tests");
-          }
-
-          @Override
-          public void testRunFinished(Result result) throws Exception {
-            System.out.println("Finished JUnit tests.");
-          }
-
-          @Override
-          public void testStarted(Description description) throws Exception {
-            System.out.format("Starting test %s \n", description.getDisplayName());
-          }
-
-          @Override
-          public void testFailure(Failure failure) throws Exception {
-            System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
-          }
-
-          @Override
-          public void testAssumptionFailure(Failure failure) {
-            System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
-          }
-
-          @Override
-          public void testFinished(Description description) throws Exception {
-            System.out.format("Finished test %s \n", description.getDisplayName());
-          }
-
-          @Override
-          public void testIgnored(Description description) throws Exception {
-            System.out.format("Ignoring test %s\n", description.getDisplayName());
-          }
-
-          /**
-           * Trim stack trace to stop before everything about the fact that Java
-           * reflection called the test method.
-           *
-           * @param failure
-           *          the JUnit failure
-           *
-           * @return the trimmed stack trace
-           */
-          private String trimStackTrace(Failure failure) {
-            String trace = failure.getTrace();
-            String testclass = failure.getDescription().getClassName();
-            int lastIndexOf = trace.lastIndexOf(testclass);
-            int endOfLine = trace.indexOf("\n", lastIndexOf);
-
-            return trace.substring(0, endOfLine);
-          }
-        });
-
-        allSuceeded = true;
-        for (JunitTestClassVisitor testClass : testClasses) {
-          try {
-            Class<?> clazz = classloader.loadClass(testClass.getClassName().replaceAll("\\/", "."));
-            Result result = junit.run(clazz);
-
-            System.out.format("Ran %d tests in %d milliseconds\n\tFailed: %d, Ignored: %d\n", result.getRunCount(),
-                result.getRunTime(), result.getFailureCount(), result.getIgnoreCount());
-
-            allSuceeded &= result.wasSuccessful();
-          } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
+        @Override
+        public void testRunStarted(Description description) throws Exception {
+          System.out.println("Starting JUnit tests");
         }
-      } finally {
-        Closeables.closeQuietly(classloader);
+
+        @Override
+        public void testRunFinished(Result result) throws Exception {
+          System.out.println("Finished JUnit tests.");
+        }
+
+        @Override
+        public void testStarted(Description description) throws Exception {
+          System.out.format("Starting test %s \n", description.getDisplayName());
+        }
+
+        @Override
+        public void testFailure(Failure failure) throws Exception {
+          System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
+        }
+
+        @Override
+        public void testAssumptionFailure(Failure failure) {
+          System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
+        }
+
+        @Override
+        public void testFinished(Description description) throws Exception {
+          System.out.format("Finished test %s \n", description.getDisplayName());
+        }
+
+        @Override
+        public void testIgnored(Description description) throws Exception {
+          System.out.format("Ignoring test %s\n", description.getDisplayName());
+        }
+
+        /**
+         * Trim stack trace to stop before everything about the fact that Java
+         * reflection called the test method.
+         *
+         * @param failure
+         *          the JUnit failure
+         *
+         * @return the trimmed stack trace
+         */
+        private String trimStackTrace(Failure failure) {
+          String trace = failure.getTrace();
+          String testclass = failure.getDescription().getClassName();
+          int lastIndexOf = trace.lastIndexOf(testclass);
+          int endOfLine = trace.indexOf("\n", lastIndexOf);
+
+          return trace.substring(0, endOfLine);
+        }
+      });
+
+      allSuceeded = true;
+      for (JunitTestClassVisitor testClass : testClasses) {
+        try {
+          Class<?> clazz = classloader.loadClass(testClass.getClassName().replaceAll("\\/", "."));
+          Result result = junit.run(clazz);
+
+          System.out.format("Ran %d tests in %d milliseconds\n\tFailed: %d, Ignored: %d\n", result.getRunCount(),
+              result.getRunTime(), result.getFailureCount(), result.getIgnoreCount());
+
+          allSuceeded &= result.wasSuccessful();
+        } catch (ClassNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
 
       return allSuceeded;
