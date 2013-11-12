@@ -18,7 +18,6 @@ package interactivespaces.activity.component.ros;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
 import interactivespaces.configuration.Configuration;
@@ -195,18 +194,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
           String inputTopicNames =
               configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX
                   + inputName);
-          final String channelName = inputName;
-          RosSubscribers<T> subscribers =
-              new RosSubscribers<T>(getComponentContext().getActivity().getLog());
-          inputs.put(inputName, subscribers);
-
-          subscribers.addSubscribers(rosActivityComponent.getNode(), rosMessageType,
-              inputTopicNames, new MessageListener<T>() {
-                @Override
-                public void onNewMessage(T message) {
-                  handleNewMessage(channelName, message);
-                }
-              });
+          registerInputChannelTopic(inputName, inputTopicNames);
         }
       }
     }
@@ -234,21 +222,65 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
             }
           }
 
-          RosPublishers<T> publishers =
-              new RosPublishers<T>(getComponentContext().getActivity().getLog());
-          outputs.put(outputName, publishers);
-
-          // Only matters that we get one. They are all for the same
-          // message type, so will take the last one.
-          messageFactory = publishers;
-
-          publishers.addPublishers(rosActivityComponent.getNode(), rosMessageType,
-              outputTopicNames, latch);
+          registerOutputChannelTopic(outputName, outputTopicNames, latch);
         }
       }
     }
 
     running = true;
+  }
+
+  /**
+   * Register a new channel output topic route.
+   *
+   * @param outputName
+   *          channel name
+   * @param topicNames
+   *          output topic names
+   * @param latch
+   *          should output be latched
+   */
+  public synchronized void registerOutputChannelTopic(String outputName,
+      String topicNames, boolean latch) {
+    if (outputs.containsKey(outputName)) {
+      throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
+    }
+    RosPublishers<T> publishers =
+        new RosPublishers<T>(getComponentContext().getActivity().getLog());
+    outputs.put(outputName, publishers);
+
+    // Only matters that we get one. They are all for the same
+    // message type, so will take the last one.
+    messageFactory = publishers;
+
+    publishers.addPublishers(rosActivityComponent.getNode(), rosMessageType,
+        topicNames, latch);
+  }
+
+  /**
+   * Register a new input topic channel.
+   *
+   * @param inputName
+   *          input channel name
+   * @param topicNames
+   *          input topic names
+   */
+  public synchronized void registerInputChannelTopic(final String inputName, String topicNames) {
+    if (inputs.containsKey(inputName)) {
+      throw new SimpleInteractiveSpacesException("Input channel already registered: " + inputName);
+    }
+
+    RosSubscribers<T> subscribers =
+        new RosSubscribers<T>(getComponentContext().getActivity().getLog());
+    inputs.put(inputName, subscribers);
+
+    subscribers.addSubscribers(rosActivityComponent.getNode(), rosMessageType,
+        topicNames, new MessageListener<T>() {
+          @Override
+          public void onNewMessage(T message) {
+            handleNewMessage(inputName, message);
+          }
+        });
   }
 
   @Override
@@ -260,6 +292,18 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 
     long timeStart = System.currentTimeMillis();
 
+    clearAllChannelTopics();
+
+    if (log.isInfoEnabled()) {
+      log.info(String.format("ROS message router activity component shut down in %d msecs",
+          System.currentTimeMillis() - timeStart));
+    }
+  }
+
+  /**
+   * Shutdown and clear all the input/output message topics.
+   */
+  public synchronized void clearAllChannelTopics() {
     for (RosSubscribers<T> input : inputs.values()) {
       input.shutdown();
     }
@@ -269,11 +313,6 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       output.shutdown();
     }
     outputs.clear();
-
-    if (log.isInfoEnabled()) {
-      log.info(String.format("ROS message router activity component shut down in %d msecs",
-          System.currentTimeMillis() - timeStart));
-    }
   }
 
   @Override
