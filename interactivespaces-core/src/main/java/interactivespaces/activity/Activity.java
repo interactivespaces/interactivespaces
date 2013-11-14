@@ -35,24 +35,25 @@ public interface Activity extends ActivityControl {
   /**
    * The configuration property which gives the name of the activity.
    */
-  public static final String CONFIGURATION_PROPERTY_ACTIVITY_NAME = "space.activity.name";
+  String CONFIGURATION_PROPERTY_ACTIVITY_NAME = "space.activity.name";
 
   /**
    * The configuration property which gives the log level of the activity.
    */
-  public static final String CONFIGURATION_PROPERTY_LOG_LEVEL = "space.activity.log.level";
+  String CONFIGURATION_PROPERTY_LOG_LEVEL = "space.activity.log.level";
 
   /**
    * Get the Interactive Spaces environment the activity is running under.
    *
-   * @return
+   * @return space environment for this activity
    */
   InteractiveSpacesEnvironment getSpaceEnvironment();
 
   /**
    * Set the Interactive Spaces environment the activity is running under.
    *
-   * @return
+   * @param spaceEnvironment
+   *          space environment for this activity
    */
   void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment);
 
@@ -84,6 +85,7 @@ public interface Activity extends ActivityControl {
    * Set the controller needed for this activity.
    *
    * @param controller
+   *          controller for this activity
    */
   void setController(SpaceController controller);
 
@@ -121,6 +123,7 @@ public interface Activity extends ActivityControl {
    * Set the log the activity should use.
    *
    * @param log
+   *          logger to use
    */
   void setLog(Log log);
 
@@ -182,8 +185,16 @@ public interface Activity extends ActivityControl {
    * Set the activity execution context for the activity.
    *
    * @param context
+   *          execution context to use
    */
   void setExecutionContext(ActivityExecutionContext context);
+
+  /**
+   * Get the execution context.
+   *
+   * @return activity execution context
+   */
+  ActivityExecutionContext getExecutionContext();
 
   /**
    * Add a new activity listener to the activity.

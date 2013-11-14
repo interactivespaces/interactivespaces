@@ -33,11 +33,12 @@ import java.util.Map;
  * {@link #addActivityComponent(ActivityComponent)} or
  * {@link #addActivityComponent(String...)}</li>
  * <li>{@link #onActivityStartup()} is called after all components have been
- * configured.</li> </li>
+ * configured.</li>
+ * </ul>
  *
  * @author Keith M. Hughes
  */
-public interface SupportedActivity {
+public interface SupportedActivity extends Activity {
 
   /**
    * Called during the setup of the activity.
@@ -147,6 +148,8 @@ public interface SupportedActivity {
    *
    * @param component
    *          the component to add
+   * @param <T>
+   *          specific activity component type
    *
    * @return the component just added
    */
@@ -157,6 +160,10 @@ public interface SupportedActivity {
    *
    * @param componentType
    *          the type of the component to add
+   * @param <T>
+   *          specific activity component type
+   *
+   * @return created activity component
    */
   <T extends ActivityComponent> T addActivityComponent(String componentType);
 
@@ -167,4 +174,16 @@ public interface SupportedActivity {
    *          the types of the components to add
    */
   void addActivityComponents(String... componentTypes);
+
+  /**
+   * Handle an error from an activity component.
+   *
+   * @param component
+   *          the source component
+   * @param message
+   *          error message
+   * @param t
+   *          triggering source of error or {@code null}
+   */
+  void onActivityComponentError(ActivityComponent component, String message, Throwable t);
 }

@@ -140,12 +140,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String inputName : inputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          getComponentContext()
-              .getActivity()
-              .getLog()
-              .error(
-                  String.format("Input route %s missing topic configuration %s", inputName,
-                      propertyName));
+          handleError(String.format("Input route %s missing topic configuration %s", inputName, propertyName), null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing input route=")
               .append(inputName).append(":").append(propertyName);
         }
@@ -158,12 +153,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String outputName : outputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          getComponentContext()
-              .getActivity()
-              .getLog()
-              .error(
-                  String.format("Output route %s missing topic configuration %s", outputName,
-                      propertyName));
+          handleError(String.format("Output route %s missing topic configuration %s", outputName, propertyName), null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing output route=")
               .append(outputName).append(":").append(propertyName);
         }
@@ -362,11 +352,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
             handlerInvocationId, System.currentTimeMillis() - start));
       }
     } catch (Throwable e) {
-      getComponentContext()
-          .getActivity()
-          .getLog()
-          .error(
-              String.format("Error after receiving routing message for channel %s", channelName), e);
+      handleError(String.format("Error after receiving routing message for channel %s", channelName), e);
     } finally {
       getComponentContext().exitHandler();
     }
@@ -383,20 +369,13 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
           output.publishMessage(message);
 
         } else {
-          getComponentContext()
-              .getActivity()
-              .getLog()
-              .error(
-                  String.format("Unknown route output channel %s. Message dropped.",
-                      outputChannelName));
+          handleError(String.format("Unknown route output channel %s. Message dropped.", outputChannelName), null);
         }
       } else {
-        getComponentContext().getActivity().getLog()
-            .error("Route output channel has no name. Message dropped.");
+        handleError("Route output channel has no name. Message dropped.", null);
       }
     } catch (Throwable e) {
-      getComponentContext().getActivity().getLog()
-          .error(String.format("Error writing message on channel %s", outputChannelName), e);
+      handleError(String.format("Error writing message on channel %s", outputChannelName), e);
     } finally {
       getComponentContext().exitHandler();
     }

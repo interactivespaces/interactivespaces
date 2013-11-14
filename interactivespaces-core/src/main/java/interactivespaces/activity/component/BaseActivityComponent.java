@@ -16,6 +16,9 @@
 
 package interactivespaces.activity.component;
 
+import interactivespaces.activity.SupportedActivity;
+import interactivespaces.activity.execution.ActivityExecutionContext;
+import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.configuration.Configuration;
 
 import java.util.Collections;
@@ -64,5 +67,29 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   @Override
   public void configureComponent(Configuration configuration) {
     // Default is to do nothing.
+  }
+
+  /**
+   * Handle an error for this component. Includes basic logging, and then passing off to the
+   * activity for any activity-specific processing.
+   *
+   * @param message
+   *          error message text
+   * @param t
+   *          triggering throwable or {@code null}
+   */
+  public void handleError(String message, Throwable t) {
+    String compositeMessage = String.format("Component %s: %s", getName(), message);
+
+    SupportedActivity activity = getComponentContext().getActivity();
+    activity.getLog().error(compositeMessage, t);
+
+    ActivityExecutionContext executionContext = activity.getExecutionContext();
+    ActivityMethodInvocation invocation = executionContext.enterMethod();
+    try {
+      activity.onActivityComponentError(this, compositeMessage, t);
+    } finally {
+      executionContext.exitMethod(invocation);
+    }
   }
 }

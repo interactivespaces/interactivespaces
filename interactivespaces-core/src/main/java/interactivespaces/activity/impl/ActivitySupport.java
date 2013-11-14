@@ -169,12 +169,8 @@ public abstract class ActivitySupport implements Activity {
     this.context = context;
   }
 
-  /**
-   * Get the execution context.
-   *
-   * @return activity execution context
-   */
-  protected ActivityExecutionContext getExecutionContext() {
+  @Override
+  public ActivityExecutionContext getExecutionContext() {
     return context;
   }
 

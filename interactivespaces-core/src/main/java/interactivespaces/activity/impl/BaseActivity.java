@@ -703,6 +703,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   @Override
+  public void onActivityComponentError(ActivityComponent component, String message, Throwable t) {
+    // Default is to do nothing. Basic logging is handled elsewhere.
+  }
+
+  @Override
   public boolean onActivityCheckState() {
     // Default is all is OK.
     return true;

@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component;
 
-import interactivespaces.activity.Activity;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import java.util.concurrent.CountDownLatch;
@@ -39,7 +39,7 @@ public class ActivityComponentContext {
   /**
    * The activity the components are running for.
    */
-  private Activity activity;
+  private SupportedActivity activity;
 
   /**
    * All components running in the current context.
@@ -74,7 +74,7 @@ public class ActivityComponentContext {
    * @param componentFactory
    *          the factory for any new components that will be needed
    */
-  public ActivityComponentContext(Activity activity, ActivityComponentCollection components,
+  public ActivityComponentContext(SupportedActivity activity, ActivityComponentCollection components,
       ActivityComponentFactory componentFactory) {
     this.activity = activity;
     this.components = components;
@@ -86,6 +86,8 @@ public class ActivityComponentContext {
    *
    * @param name
    *          name of the component
+   * @param <T>
+   *          type of activity component
    *
    * @return the component with the given name.
    */
@@ -94,32 +96,32 @@ public class ActivityComponentContext {
   }
 
   /**
-   * Get the activity which is running the components
+   * Get the activity which is running the components.
    *
    * @return the activity
    */
-  public Activity getActivity() {
+  public SupportedActivity getActivity() {
     return activity;
   }
 
   /**
    * Get the component factory for this context.
    *
-   * @return
+   * @return factor for creating activity components
    */
   public ActivityComponentFactory getComponentFactory() {
     return componentFactory;
   }
 
   /**
-   * Begin the setup phase
+   * Begin the setup phase.
    */
   public void beginStartupPhase() {
     // Nothing required at the moment
   }
 
   /**
-   * End the setup phase
+   * End the setup phase.
    *
    * @param success
    *          {@code true} if the setup was successful

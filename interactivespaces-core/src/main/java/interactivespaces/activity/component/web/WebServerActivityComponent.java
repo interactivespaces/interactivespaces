@@ -391,7 +391,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
    */
   private void setWebServerWebSocketHandlerFactory() {
     webServer.setWebSocketHandlerFactory(webSocketUriPrefix,
-        new MyWebServerWebSocketHandlerFactory(webSocketHandlerFactory, getComponentContext()));
+        new MyWebServerWebSocketHandlerFactory(webSocketHandlerFactory, this));
   }
 
   /**
@@ -517,26 +517,26 @@ public class WebServerActivityComponent extends BaseActivityComponent {
     /**
      * The component context this factory is part of.
      */
-    private ActivityComponentContext activityComponentContext;
+    private WebServerActivityComponent activityComponent;
 
     /**
      * Create a simple web socket handler factory.
      *
      * @param delegate
-     *            creator factory delegate
-     * @param activityComponentContext
-     *            context for created socket handlers
+     *          creator factory delegate
+     * @param activityComponent
+     *          hosting component
      */
     public MyWebServerWebSocketHandlerFactory(WebServerWebSocketHandlerFactory delegate,
-        ActivityComponentContext activityComponentContext) {
+        WebServerActivityComponent activityComponent) {
       this.delegate = delegate;
-      this.activityComponentContext = activityComponentContext;
+      this.activityComponent = activityComponent;
     }
 
     @Override
     public WebServerWebSocketHandler newWebSocketHandler(WebSocketConnection proxy) {
       WebServerWebSocketHandler handlerDelegate = delegate.newWebSocketHandler(proxy);
-      return new MyWebServerWebSocketHandler(handlerDelegate, activityComponentContext);
+      return new MyWebServerWebSocketHandler(handlerDelegate, activityComponent);
     }
   }
 
@@ -554,9 +554,9 @@ public class WebServerActivityComponent extends BaseActivityComponent {
     private WebServerWebSocketHandler delegate;
 
     /**
-     * The component context this handler is part of.
+     * The component this handler is for.
      */
-    private ActivityComponentContext activityComponentContext;
+    private WebServerActivityComponent activityComponent;
 
     /**
      * Is the handler connected to the remote endpoint?
@@ -567,17 +567,18 @@ public class WebServerActivityComponent extends BaseActivityComponent {
      *
      * @param delegate
      *          the handler that all methods will be delegated to
-     * @param activityComponentContext
-     *          the context in charge of the component
+     * @param activityComponent
+     *          the component being handled
      */
     public MyWebServerWebSocketHandler(WebServerWebSocketHandler delegate,
-        ActivityComponentContext activityComponentContext) {
+        WebServerActivityComponent activityComponent) {
       this.delegate = delegate;
-      this.activityComponentContext = activityComponentContext;
+      this.activityComponent = activityComponent;
     }
 
     @Override
     public void onConnect() {
+      ActivityComponentContext activityComponentContext = activityComponent.getComponentContext();
       if (!activityComponentContext.canHandlerRun()) {
         return;
       }
@@ -587,8 +588,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
         delegate.onConnect();
       } catch (Throwable e) {
-        activityComponentContext.getActivity().getLog()
-            .error("Error during web socket connection", e);
+        activityComponent.handleError("Error during web socket connection", e);
       } finally {
         connected.set(true);
 
@@ -598,6 +598,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
     @Override
     public void onClose() {
+      ActivityComponentContext activityComponentContext = activityComponent.getComponentContext();
       if (!activityComponentContext.canHandlerRun()) {
         return;
       }
@@ -607,7 +608,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
         delegate.onClose();
       } catch (Throwable e) {
-        activityComponentContext.getActivity().getLog().error("Error during web socket close", e);
+        activityComponent.handleError("Error during web socket close", e);
       } finally {
         activityComponentContext.exitHandler();
       }
@@ -615,6 +616,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
     @Override
     public void onReceive(final Object data) {
+      ActivityComponentContext activityComponentContext = activityComponent.getComponentContext();
       if (!activityComponentContext.canHandlerRun()) {
         return;
       }
@@ -624,8 +626,7 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
         delegate.onReceive(data);
       } catch (Throwable e) {
-        activityComponentContext.getActivity().getLog()
-            .error("Error during web socket data receive", e);
+        activityComponent.handleError("Error during web socket data receive", e);
       } finally {
         activityComponentContext.exitHandler();
       }
@@ -633,13 +634,13 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
     @Override
     public void sendJson(final Object data) {
+      ActivityComponentContext activityComponentContext = activityComponent.getComponentContext();
       try {
         activityComponentContext.enterHandler();
 
         delegate.sendJson(data);
       } catch (Throwable e) {
-        activityComponentContext.getActivity().getLog()
-            .error("Error during web socket JSON sending", e);
+        activityComponent.handleError("Error during web socket JSON sending", e);
       } finally {
         activityComponentContext.exitHandler();
       }
@@ -647,13 +648,13 @@ public class WebServerActivityComponent extends BaseActivityComponent {
 
     @Override
     public void sendString(final String data) {
+      ActivityComponentContext activityComponentContext = activityComponent.getComponentContext();
       try {
         activityComponentContext.enterHandler();
 
         delegate.sendString(data);
       } catch (Throwable e) {
-        activityComponentContext.getActivity().getLog()
-            .error("Error during web socket string sending", e);
+        activityComponent.handleError("Error during web socket string sending", e);
       } finally {
         activityComponentContext.exitHandler();
       }
