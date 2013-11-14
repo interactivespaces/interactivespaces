@@ -16,27 +16,19 @@
 
 package interactivespaces.configuration;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * Storage manager for the Interactive Spaces system configuration.
  *
  * @author Keith M. Hughes
  */
-public interface SystemConfigurationStorageManager {
-
-  /**
-   * Start the storage manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the storage manager down.
-   */
-  void shutdown();
+public interface SystemConfigurationStorageManager extends ManagedResource {
 
   /**
    * Get the system configuration.
    *
-   * @return
+   * @return the system configuration
    */
   Configuration getSystemConfiguration();
 }

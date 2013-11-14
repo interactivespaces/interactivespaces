@@ -16,6 +16,9 @@
 
 package interactivespaces.controller.activity.installation;
 
+import interactivespaces.resource.Version;
+import interactivespaces.util.resource.ManagedResource;
+
 import java.util.Date;
 
 /**
@@ -23,17 +26,7 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public interface ActivityInstallationManager {
-
-  /**
-   * Start the manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the manager down.
-   */
-  void shutdown();
+public interface ActivityInstallationManager extends ManagedResource {
 
   /**
    * Copy a packed activity to the controller.
@@ -57,7 +50,7 @@ public interface ActivityInstallationManager {
    *
    * @return the timestamp from when the activity was installed
    */
-  Date installActivity(String uuid, String activityIdentifyingName, String version);
+  Date installActivity(String uuid, String activityIdentifyingName, Version version);
 
   /**
    * Delete the packed activity from file system.
@@ -66,7 +59,7 @@ public interface ActivityInstallationManager {
    * Does nothing if there is no activity with the given UUID.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
    */
   void removePackedActivity(String uuid);
 
@@ -84,7 +77,7 @@ public interface ActivityInstallationManager {
    * Add in a new activity installation listener.
    *
    * @param listener
-   *          The new listener.
+   *          the new listener
    */
   void addActivityInstallationListener(ActivityInstallationListener listener);
 
@@ -95,7 +88,7 @@ public interface ActivityInstallationManager {
    * Does nothing if the listener wasn't there.
    *
    * @param listener
-   *          The listener.
+   *          the listener
    */
   void removeActivityInstallationListener(ActivityInstallationListener listener);
 
@@ -105,6 +98,20 @@ public interface ActivityInstallationManager {
    * @author Keith M. Hughes
    */
   public enum RemoveActivityResult {
-    SUCCESS, FAILURE, DOESNT_EXIST
+
+    /**
+     * Removal was successful.
+     */
+    SUCCESS,
+
+    /**
+     * Removal failed.
+     */
+    FAILURE,
+
+    /**
+     * The activity didn't exist to remove.
+     */
+    DOESNT_EXIST
   }
 }

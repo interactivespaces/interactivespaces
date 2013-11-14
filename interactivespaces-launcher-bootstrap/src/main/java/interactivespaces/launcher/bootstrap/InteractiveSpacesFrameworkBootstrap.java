@@ -191,7 +191,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     initialBundles = new ArrayList<File>();
 
     getBootstrapBundleJars(new File(baseInstallFolder,
-        ContainerFilesystemLayout.FOLDER_BUNDLE_BOOTSTRAP));
+        ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
 
     // If no bundle JAR files are in the directory, then exit.
     if (initialBundles.isEmpty()) {
@@ -235,14 +235,14 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void loadStartupFolder() throws Exception {
     File startupFolder =
-        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_BUNDLE_STARTUP);
+        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP);
     if (startupFolder.exists()) {
       if (startupFolder.isFile()) {
-        throw new Exception(String.format("Startup folder %s is a file not a folder.",
+        throw new Exception(String.format("User bootstrap folder %s is a file not a folder.",
             startupFolder.getAbsolutePath()));
       }
     } else if (!startupFolder.mkdirs()) {
-      throw new Exception(String.format("Cannot create startup folder %s.",
+      throw new Exception(String.format("Cannot create user bootstrap folder %s.",
           startupFolder.getAbsolutePath()));
     }
 
@@ -275,10 +275,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     configurationProvider = new FileConfigurationProvider(baseInstallFolder);
     configurationProvider.load();
 
-    Set<File> startupBundles = new HashSet<File>();
-    startupBundles.addAll(initialBundles);
-
-    containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, startupBundles, true);
+    containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
   }
 
   /**
@@ -304,7 +301,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   protected void startBundles(List<File> jars) throws BundleException {
     for (File bundleFile : jars) {
-      String bundleUri = bundleFile.toURI().toString();
+      String bundleUri = bundleFile.getAbsoluteFile().toURI().toString();
 
       Bundle b = rootBundleContext.installBundle(bundleUri);
 
@@ -451,7 +448,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     });
 
     for (File f : files) {
-      initialBundles.add(f);
+      initialBundles.add(f.getAbsoluteFile());
     }
   }
 

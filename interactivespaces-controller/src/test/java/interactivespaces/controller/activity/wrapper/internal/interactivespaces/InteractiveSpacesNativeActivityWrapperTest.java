@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
@@ -29,11 +30,12 @@ import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
-
-import java.io.File;
+import interactivespaces.resource.Version;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
 
 /**
  * Unit tests for the {@link InteractiveSpacesNativeActivityWrapper}.
@@ -63,9 +65,7 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     configuration = mock(Configuration.class);
     bundleLoader = mock(LiveActivityBundleLoader.class);
 
-    wrapper =
-        new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem, configuration,
-            bundleLoader);
+    wrapper = new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem, configuration, bundleLoader);
   }
 
   /**
@@ -78,32 +78,29 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     File executableFile1 = new File(activityInstallFolder, executable1);
 
     String bundleName = "foop";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
 
     liveActivity.setIdentifyingName(bundleName);
     liveActivity.setVersion(bundleVersion);
 
     String className = "Activity1";
 
-    when(
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE))
-        .thenReturn(executable1);
+    when(configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)).thenReturn(
+        executable1);
     when(
         configuration
             .getRequiredPropertyString(InteractiveSpacesNativeActivityWrapper.CONFIGURATION_APPLICATION_JAVA_CLASS))
         .thenReturn(className);
 
     Class expectedActivityClass = Activity1.class;
-    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className))
-        .thenReturn(expectedActivityClass);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className)).thenReturn(
+        expectedActivityClass);
 
     Activity activity = wrapper.newInstance();
 
     assertEquals(expectedActivityClass, activity.getClass());
 
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion,
-        className);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion, className);
   }
 
   /**
@@ -116,25 +113,23 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     File executableFile1 = new File(activityInstallFolder, executable1);
 
     String bundleName = "foop";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
 
     liveActivity.setIdentifyingName(bundleName);
     liveActivity.setVersion(bundleVersion);
 
     String className = "Activity1";
 
-    when(
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE))
-        .thenReturn(executable1);
+    when(configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)).thenReturn(
+        executable1);
     when(
         configuration
             .getRequiredPropertyString(InteractiveSpacesNativeActivityWrapper.CONFIGURATION_APPLICATION_JAVA_CLASS))
         .thenReturn(className);
 
     Class expectedActivityClass = Activity1.class;
-    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className))
-        .thenReturn(expectedActivityClass);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className)).thenReturn(
+        expectedActivityClass);
 
     Activity activity1 = wrapper.newInstance();
     Activity activity2 = wrapper.newInstance();
@@ -143,8 +138,7 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     assertEquals(expectedActivityClass, activity2.getClass());
     assertNotSame(activity1, activity2);
 
-    verify(bundleLoader, times(2)).getBundleClass(executableFile1, bundleName, bundleVersion,
-        className);
+    verify(bundleLoader, times(2)).getBundleClass(executableFile1, bundleName, bundleVersion, className);
   }
 
   /**
@@ -160,17 +154,15 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     File executableFile2 = new File(activityInstallFolder, executable2);
 
     String bundleName = "foop";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
 
     liveActivity.setIdentifyingName(bundleName);
     liveActivity.setVersion(bundleVersion);
 
     String className = "Activity1";
 
-    when(
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE))
-        .thenReturn(executable1).thenReturn(executable2);
+    when(configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)).thenReturn(
+        executable1).thenReturn(executable2);
     when(
         configuration
             .getRequiredPropertyString(InteractiveSpacesNativeActivityWrapper.CONFIGURATION_APPLICATION_JAVA_CLASS))
@@ -178,10 +170,10 @@ public class InteractiveSpacesNativeActivityWrapperTest {
 
     Class expectedActivityClass1 = Activity1.class;
     Class expectedActivityClass2 = Activity2.class;
-    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className))
-        .thenReturn(expectedActivityClass1);
-    when(bundleLoader.getBundleClass(executableFile2, bundleName, bundleVersion, className))
-        .thenReturn(expectedActivityClass2);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className)).thenReturn(
+        expectedActivityClass1);
+    when(bundleLoader.getBundleClass(executableFile2, bundleName, bundleVersion, className)).thenReturn(
+        expectedActivityClass2);
 
     Activity activity1 = wrapper.newInstance();
     Activity activity2 = wrapper.newInstance();
@@ -190,10 +182,8 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     assertEquals(expectedActivityClass2, activity2.getClass());
     assertNotSame(activity1, activity2);
 
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion,
-        className);
-    verify(bundleLoader, times(1)).getBundleClass(executableFile2, bundleName, bundleVersion,
-        className);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion, className);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile2, bundleName, bundleVersion, className);
   }
 
   /**
@@ -206,7 +196,7 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     File executableFile1 = new File(activityInstallFolder, executable1);
 
     String bundleName = "foop";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
 
     liveActivity.setIdentifyingName(bundleName);
     liveActivity.setVersion(bundleVersion);
@@ -214,10 +204,8 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     String className1 = "Activity1";
     String className2 = "Activity2";
 
-    when(
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE))
-        .thenReturn(executable1);
+    when(configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)).thenReturn(
+        executable1);
     when(
         configuration
             .getRequiredPropertyString(InteractiveSpacesNativeActivityWrapper.CONFIGURATION_APPLICATION_JAVA_CLASS))
@@ -225,10 +213,10 @@ public class InteractiveSpacesNativeActivityWrapperTest {
 
     Class expectedActivityClass1 = Activity1.class;
     Class expectedActivityClass2 = Activity2.class;
-    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className1))
-        .thenReturn(expectedActivityClass1);
-    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className2))
-        .thenReturn(expectedActivityClass2);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className1)).thenReturn(
+        expectedActivityClass1);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName, bundleVersion, className2)).thenReturn(
+        expectedActivityClass2);
 
     Activity activity1 = wrapper.newInstance();
     Activity activity2 = wrapper.newInstance();
@@ -237,10 +225,8 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     assertEquals(expectedActivityClass2, activity2.getClass());
     assertNotSame(activity1, activity2);
 
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion,
-        className1);
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion,
-        className2);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion, className1);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName, bundleVersion, className2);
   }
 
   /**
@@ -253,16 +239,15 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     File executableFile1 = new File(activityInstallFolder, executable1);
 
     String bundleName1 = "foop";
-    String bundleVersion1 = "1.0.0";
+    Version bundleVersion1 = new Version(1, 0, 0);
+
     String bundleName2 = "doop";
-    String bundleVersion2 = "2.0.0";
+    Version bundleVersion2 = new Version(2, 0, 0);
 
     String className = "Activity1";
 
-    when(
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE))
-        .thenReturn(executable1);
+    when(configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE)).thenReturn(
+        executable1);
     when(
         configuration
             .getRequiredPropertyString(InteractiveSpacesNativeActivityWrapper.CONFIGURATION_APPLICATION_JAVA_CLASS))
@@ -270,10 +255,10 @@ public class InteractiveSpacesNativeActivityWrapperTest {
 
     Class expectedActivityClass1 = Activity1.class;
     Class expectedActivityClass2 = Activity2.class;
-    when(bundleLoader.getBundleClass(executableFile1, bundleName1, bundleVersion1, className))
-        .thenReturn(expectedActivityClass1);
-    when(bundleLoader.getBundleClass(executableFile1, bundleName2, bundleVersion2, className))
-        .thenReturn(expectedActivityClass2);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName1, bundleVersion1, className)).thenReturn(
+        expectedActivityClass1);
+    when(bundleLoader.getBundleClass(executableFile1, bundleName2, bundleVersion2, className)).thenReturn(
+        expectedActivityClass2);
 
     liveActivity.setIdentifyingName(bundleName1);
     liveActivity.setVersion(bundleVersion1);
@@ -287,10 +272,8 @@ public class InteractiveSpacesNativeActivityWrapperTest {
     assertEquals(expectedActivityClass2, activity2.getClass());
     assertNotSame(activity1, activity2);
 
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName1, bundleVersion1,
-        className);
-    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName2, bundleVersion2,
-        className);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName1, bundleVersion1, className);
+    verify(bundleLoader, times(1)).getBundleClass(executableFile1, bundleName2, bundleVersion2, className);
   }
 
   public static class Activity1 extends BaseActivity {

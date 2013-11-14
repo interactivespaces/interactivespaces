@@ -18,6 +18,7 @@ package interactivespaces.system;
 
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 
@@ -26,7 +27,7 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesystem {
+public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesystem, ManagedResource {
 
   /**
    * The container subdirectory for data.
@@ -160,19 +161,18 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
     return tmpDir;
   }
 
-  /**
-   * Start up the file system.
-   *
-   * <p>
-   * This will check if various directories are in fact directories, ones which
-   * need to be writable will be checked that they are writeable, etc.
-   */
+  @Override
   public void startup() {
     checkReadableDirectory(bootstrapDirectory, DIRECTORY_BOOTSTRAP);
     checkReadableDirectory(logsDirectory, DIRECTORY_LOGS);
     checkReadableDirectory(libraryDirectory, DIRECTORY_LIB);
     checkWriteableDirectory(dataDirectory, DIRECTORY_DATA);
     checkWriteableDirectory(tempDirectory, DIRECTORY_TMP);
+  }
+
+  @Override
+  public void shutdown() {
+    // Nothing to do
   }
 
   /**

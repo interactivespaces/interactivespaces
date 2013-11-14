@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.client.node;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.activity.installation.ActivityInstallationListener;
@@ -24,8 +24,10 @@ import interactivespaces.controller.activity.installation.ActivityInstallationMa
 import interactivespaces.controller.domain.ActivityInstallationStatus;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 import interactivespaces.util.web.HttpContentCopier;
 
@@ -53,13 +55,12 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
   /**
    * The default folder for staging activity installs.
    */
-  private static final String CONTROLLER_APPLICATIONS_STAGING_DEFAULT =
-      "controller/activities/staging";
+  private static final String CONTROLLER_APPLICATIONS_STAGING_DEFAULT = "controller/activities/staging";
 
   /**
    * Mapping from UUID to the temporary file for an install.
    */
-  private Map<String, File> uuidToTemporary = new HashMap<String, File>();
+  private final Map<String, File> uuidToTemporary = new HashMap<String, File>();
 
   /**
    * Base directory where files will be staged as they are copied in.
@@ -69,29 +70,43 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
   /**
    * Copies files from the remote location.
    */
-  private HttpContentCopier remoteCopier = new HttpClientHttpContentCopier();
+  private final HttpContentCopier remoteCopier = new HttpClientHttpContentCopier();
 
   /**
    * The Interactive Spaces environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * Local repository of controller information.
    */
-  private LocalSpaceControllerRepository controllerRepository;
+  private final LocalSpaceControllerRepository controllerRepository;
 
   /**
    * The storage manager for activities.
    */
-  private ActivityStorageManager activityStorageManager;
+  private final ActivityStorageManager activityStorageManager;
 
   /**
    * The listeners for this installer.
    */
-  private List<ActivityInstallationListener> listeners =
-      new ArrayList<ActivityInstallationListener>();
+  private final List<ActivityInstallationListener> listeners = new ArrayList<ActivityInstallationListener>();
 
+  /**
+   * File support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct an activity installation manager.
+   *
+   * @param controllerRepository
+   *          the controller repository
+   * @param activityStorageManager
+   *          the activity storage manager
+   * @param spaceEnvironment
+   *          the space environment
+   */
   public SimpleActivityInstallationManager(LocalSpaceControllerRepository controllerRepository,
       ActivityStorageManager activityStorageManager, InteractiveSpacesEnvironment spaceEnvironment) {
     this.controllerRepository = controllerRepository;
@@ -105,10 +120,8 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
 
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     stagingBaseDirectory =
-        new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
-            systemConfiguration.getPropertyString(
-                CONTROLLER_APPLICATION_STAGING_DIRECTORY_PROPERTY,
-                CONTROLLER_APPLICATIONS_STAGING_DEFAULT));
+        new File(spaceEnvironment.getFilesystem().getInstallDirectory(), systemConfiguration.getPropertyString(
+            CONTROLLER_APPLICATION_STAGING_DIRECTORY_PROPERTY, CONTROLLER_APPLICATIONS_STAGING_DEFAULT));
   }
 
   @Override
@@ -123,8 +136,9 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
     File stagedLocation = null;
     synchronized (uuidToTemporary) {
       stagedLocation = uuidToTemporary.get(uuid);
-      if (stagedLocation != null)
-        throw new InteractiveSpacesException("UUID already being copied: " + uuid);
+      if (stagedLocation != null) {
+        throw new SimpleInteractiveSpacesException("Activity with UUID already being copied: " + uuid);
+      }
 
       stagedLocation = new File(stagingBaseDirectory, fileName);
       uuidToTemporary.put(uuid, stagedLocation);
@@ -134,27 +148,27 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
   }
 
   @Override
-  public Date installActivity(String uuid, String activityIdentifyingName, String version) {
+  public Date installActivity(String uuid, String activityIdentifyingName, Version version) {
     File stagedLocation = null;
     synchronized (uuidToTemporary) {
       stagedLocation = uuidToTemporary.get(uuid);
-      if (stagedLocation == null)
-        throw new InteractiveSpacesException("No staged file with given UUID: " + uuid);
+      if (stagedLocation == null) {
+        throw new SimpleInteractiveSpacesException("No staged activity file with given UUID: " + uuid);
+      }
     }
 
     ActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
 
     File installDirectory = activityFilesystem.getInstallDirectory();
-    Files.deleteDirectoryContents(installDirectory);
-    Files.unzip(stagedLocation, installDirectory);
+    fileSupport.deleteDirectoryContents(installDirectory);
+    fileSupport.unzip(stagedLocation, installDirectory);
 
     Date installedDate =
         persistInstallation(uuid, activityIdentifyingName, version,
             activityStorageManager.getBaseActivityLocation(uuid));
 
     spaceEnvironment.getLog().info(
-        String.format("Activity %s version %s installed with uuid %s", activityIdentifyingName,
-            version, uuid));
+        String.format("Activity %s version %s installed with uuid %s", activityIdentifyingName, version, uuid));
 
     notifyInstalledActivity(uuid);
 
@@ -173,8 +187,7 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
    * @param baseInstallationLocation
    *          the root folder of the installation
    */
-  private Date persistInstallation(String uuid, String identifyingName, String version,
-      File baseInstallationLocation) {
+  private Date persistInstallation(String uuid, String identifyingName, Version version, File baseInstallationLocation) {
     // Make sure the app is only stored once.
     InstalledLiveActivity activity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
     if (activity == null) {

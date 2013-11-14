@@ -16,13 +16,14 @@
 
 package interactivespaces.controller.client.node;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
@@ -44,8 +45,7 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
   /**
    * The default folder for installing activities.
    */
-  private static final String CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT =
-      "controller/activities/installed";
+  private static final String CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT = "controller/activities/installed";
 
   /**
    * Base directory where activities are stored.
@@ -55,8 +55,19 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
   /**
    * The Interactive Spaces environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct an activity storage manager.
+   *
+   * @param spaceEnvironment
+   *          the space environment
+   */
   public SimpleActivityStorageManager(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
@@ -65,10 +76,8 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
   public void startup() {
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     activityBaseDirectory =
-        new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
-            systemConfiguration.getPropertyString(
-                CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY_PROPERTY,
-                CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT));
+        new File(spaceEnvironment.getFilesystem().getInstallDirectory(), systemConfiguration.getPropertyString(
+            CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY_PROPERTY, CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT));
   }
 
   @Override
@@ -100,26 +109,14 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
   public ActivityFilesystem getActivityFilesystem(String uuid) {
     File baseLocation = getBaseActivityLocation(uuid);
 
-    if (!baseLocation.isDirectory()) {
-      if (!baseLocation.exists()) {
-        if (!baseLocation.mkdirs()) {
-          throw new InteractiveSpacesException("Cannot create base activity directory: "
-              + baseLocation);
-        }
-      } else {
-        throw new InteractiveSpacesException("Activity base location is a file: " + baseLocation);
-      }
-    }
+    fileSupport.directoryExists(baseLocation, "Creating activity base location");
 
     ActivityFilesystem activityFilesystem = new SimpleActivityFilesystem(baseLocation);
-    createFilesystemComponent(activityFilesystem.getInstallDirectory(),
-        "Cannot create activity installation directory %s");
-    createFilesystemComponent(activityFilesystem.getLogDirectory(),
-        "Cannot create activity log directory %s");
+    createFilesystemComponent(activityFilesystem.getInstallDirectory(), "Create activity installation directory");
+    createFilesystemComponent(activityFilesystem.getLogDirectory(), "Creating activity log directory");
     createFilesystemComponent(activityFilesystem.getPermanentDataDirectory(),
-        "Cannot create activity permanent data directory %s");
-    createFilesystemComponent(activityFilesystem.getTempDataDirectory(),
-        "Cannot create activity temporary data directory %s");
+        "Creating activity permanent data directory");
+    createFilesystemComponent(activityFilesystem.getTempDataDirectory(), "Creating activity temporary data directory");
 
     return activityFilesystem;
   }
@@ -129,18 +126,14 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
    *
    * @param component
    *          the component to create
-   * @param errorMessage
-   *          the error message if unable to create the component
+   * @param message
+   *          the message saying what component is being created
    *
    * @throws InteractiveSpacesException
    *           if cannot create the component.
    */
-  private void createFilesystemComponent(File component, String errorMessage) {
-    if (!component.exists()) {
-      if (!component.mkdir()) {
-        throw new InteractiveSpacesException(String.format(errorMessage, component));
-      }
-    }
+  private void createFilesystemComponent(File component, String message) {
+    fileSupport.directoryExists(component, message);
   }
 
   @Override
@@ -148,7 +141,7 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
     File baseLocation = getBaseActivityLocation(uuid);
 
     if (baseLocation.exists()) {
-      Files.delete(baseLocation);
+      fileSupport.delete(baseLocation);
     }
   }
 
@@ -175,7 +168,7 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
     if (baseLocation.exists()) {
       File tmpDirectory = new File(baseLocation, dataDirectory);
       if (tmpDirectory.exists()) {
-        Files.deleteDirectoryContents(tmpDirectory);
+        fileSupport.deleteDirectoryContents(tmpDirectory);
       }
     }
   }

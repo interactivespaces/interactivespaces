@@ -18,11 +18,11 @@ package interactivespaces.util.resource;
 
 import interactivespaces.InteractiveSpacesException;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 
-import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * A collection of {@link ManagedResource} instances.
@@ -41,13 +41,19 @@ public class ManagedResources {
   /**
    * The managed resources.
    */
-  private List<ManagedResource> resources = Lists.newArrayList();
+  private final List<ManagedResource> resources = Lists.newArrayList();
 
   /**
    * Logger for the managed resources.
    */
-  private Log log;
+  private final Log log;
 
+  /**
+   * Construct a new managed resource collection.
+   *
+   * @param log
+   *          the log for the collection
+   */
   public ManagedResources(Log log) {
     this.log = log;
   }
@@ -112,6 +118,18 @@ public class ManagedResources {
   }
 
   /**
+   * Shut down all resources and clear from the collection.
+   *
+   * <p>
+   * This will make a best attempt. A shutdown will be attempted on all
+   * resources, even if some throw an exception.
+   */
+  public void shutdownResourcesAndClear() {
+    shutdownResources();
+    clear();
+  }
+
+  /**
    * Shut down the specified resoures.
    *
    * @param resources
@@ -128,5 +146,4 @@ public class ManagedResources {
       }
     }
   }
-
 }

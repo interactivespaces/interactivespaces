@@ -16,22 +16,14 @@
 
 package interactivespaces.controller.client.node;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * The controller-side installation manager.
  *
  * @author Keith M. Hughes
  */
-public interface SpaceControllerActivityInstallationManager {
-
-  /**
-   * Start up the controller-side installer.
-   */
-  void startup();
-
-  /**
-   * Shutdown the controller-side installer.
-   */
-  void shutdown();
+public interface SpaceControllerActivityInstallationManager extends ManagedResource {
 
   /**
    * Handle a deployment request and return a deployment status.
@@ -41,8 +33,7 @@ public interface SpaceControllerActivityInstallationManager {
    *
    * @return the status for the deployment
    */
-  SpaceControllerLiveActivityDeployStatus handleDeploymentRequest(
-      SpaceControllerLiveActivityDeployRequest request);
+  SpaceControllerLiveActivityDeployStatus handleDeploymentRequest(SpaceControllerLiveActivityDeployRequest request);
 
   /**
    * Handle a delete request and return a delete status.
@@ -52,6 +43,5 @@ public interface SpaceControllerActivityInstallationManager {
    *
    * @return the status for the deletion
    */
-  SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(
-      SpaceControllerLiveActivityDeleteRequest request);
+  SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request);
 }

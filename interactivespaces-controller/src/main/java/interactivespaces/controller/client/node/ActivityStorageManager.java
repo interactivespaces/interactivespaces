@@ -17,6 +17,7 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 import java.util.List;
@@ -26,17 +27,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public interface ActivityStorageManager {
-
-  /**
-   * Start the storage manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the storage manager down.
-   */
-  void shutdown();
+public interface ActivityStorageManager extends ManagedResource {
 
   /**
    * Get the UUIDs of all installed live activities.

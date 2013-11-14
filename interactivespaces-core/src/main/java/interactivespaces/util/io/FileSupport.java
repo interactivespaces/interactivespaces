@@ -26,8 +26,8 @@ import java.io.OutputStream;
 /**
  * Various useful file routines.
  *
- * TODO(peringknife): All the explicit IOExceptions in this class/interface should be converted
- *   to be unchecked IS exception of some sort.
+ * TODO(peringknife): All the explicit IOExceptions in this class/interface
+ * should be converted to be unchecked IS exception of some sort.
  *
  * @author Trevor Pering
  */
@@ -139,7 +139,8 @@ public interface FileSupport {
    * @param out
    *          the output stream
    * @param closeOnCompletion
-   *          {@code true} if the streams should be closed when the copy finishes.
+   *          {@code true} if the streams should be closed when the copy
+   *          finishes.
    *
    * @throws IOException
    *           io problem with operation
@@ -166,7 +167,8 @@ public interface FileSupport {
    * @param in
    *          the input stream to read
    *
-   * @return a string containing the contents, or {@code null} if input is {@code null}
+   * @return a string containing the contents, or {@code null} if input is
+   *         {@code null}
    *
    * @throws IOException
    *           io problem with operation
@@ -231,4 +233,17 @@ public interface FileSupport {
    *           if the result is not the existence of a valid directory
    */
   void directoryExists(File dir) throws SimpleInteractiveSpacesException;
+
+  /**
+   * Make sure a directory exists. If not, it will be created.
+   *
+   * @param dir
+   *          the directory that should exist
+   * @param message
+   *          the message to use if the directory cannot be made
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if the result is not the existence of a valid directory
+   */
+  void directoryExists(File dir, String message) throws SimpleInteractiveSpacesException;
 }

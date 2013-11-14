@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
+import interactivespaces.resource.Version;
+
 import java.io.File;
 
 /**
@@ -45,5 +47,5 @@ public interface LiveActivityBundleLoader {
    * @return the class from the bundle
    */
   Class<?>
-      getBundleClass(File bundleFile, String bundleName, String bundleVersion, String className);
+      getBundleClass(File bundleFile, String bundleName, Version bundleVersion, String className);
 }

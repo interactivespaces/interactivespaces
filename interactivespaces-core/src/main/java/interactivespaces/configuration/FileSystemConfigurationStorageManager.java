@@ -132,16 +132,15 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
    * @return
    */
   private File[] getConfigFiles() {
-    File configurationFolder =
-        new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
+    File configurationFolder = new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
     if (configurationFolder.exists()) {
       if (!configurationFolder.isDirectory()) {
         throw new InteractiveSpacesException(String.format(
             "Interactive Spaces configuration folder %s is not a directory", configurationFolder));
       }
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "Interactive Spaces configuration folder %s does not exist", configurationFolder));
+      throw new InteractiveSpacesException(String.format("Interactive Spaces configuration folder %s does not exist",
+          configurationFolder));
     }
 
     File[] configFiles = configurationFolder.listFiles(new FilenameFilter() {
@@ -154,8 +153,8 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
 
     if (configFiles.length == 0) {
       throw new InteractiveSpacesException(String.format(
-          "Interactive Spaces configuration folder %s contains no files ending with %s",
-          configurationFolder, CONFIGURATION_FILE_EXTENSION));
+          "Interactive Spaces configuration folder %s contains no files ending with %s", configurationFolder,
+          CONFIGURATION_FILE_EXTENSION));
     }
 
     return configFiles;
@@ -181,8 +180,7 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
    * @param interactiveSpacesFilesystem
    *          the interactiveSpacesFilesystem to set
    */
-  public void
-      setInteractiveSpacesFilesystem(InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
+  public void setInteractiveSpacesFilesystem(InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
     this.interactiveSpacesFilesystem = interactiveSpacesFilesystem;
   }
 }

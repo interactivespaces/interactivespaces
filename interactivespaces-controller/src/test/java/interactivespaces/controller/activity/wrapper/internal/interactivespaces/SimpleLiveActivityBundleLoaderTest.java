@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import interactivespaces.activity.Activity;
+import interactivespaces.resource.Version;
 import interactivespaces.util.data.resource.ResourceSignature;
 
 import org.junit.Before;
@@ -62,7 +63,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri = bundleFile.toURI().toString();
 
     String bundleName = "foo";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
     String className = "Foop";
 
     Bundle bundle = mock(Bundle.class);
@@ -88,7 +89,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri1 = bundleFile1.toURI().toString();
 
     String bundleName1 = "foo";
-    String bundleVersion1 = "1.0.0";
+    Version bundleVersion1 = new Version(1, 0, 0);
     String className1 = "Foop";
 
     Bundle bundle1 = mock(Bundle.class);
@@ -101,7 +102,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri2 = bundleFile2.toURI().toString();
 
     String bundleName2 = "komquat";
-    String bundleVersion2 = "1.0.0";
+    Version bundleVersion2 = new Version(1, 0, 0);
     String className2 = "Komquat";
 
     Bundle bundle2 = mock(Bundle.class);
@@ -129,7 +130,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri = bundleFile.toURI().toString();
 
     String bundleName = "foo";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
     String className = "Foop";
 
     Bundle bundle = mock(Bundle.class);
@@ -164,7 +165,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri = bundleFile.toURI().toString();
 
     String bundleName = "foo";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
     String className = "Foop";
 
     Bundle bundle1 = mock(Bundle.class);
@@ -206,7 +207,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     String bundleFileUri2 = bundleFile2.toURI().toString();
 
     String bundleName = "foo";
-    String bundleVersion = "1.0.0";
+    Version bundleVersion = new Version(1, 0, 0);
     String className = "Foop";
 
     Bundle bundle1 = mock(Bundle.class);

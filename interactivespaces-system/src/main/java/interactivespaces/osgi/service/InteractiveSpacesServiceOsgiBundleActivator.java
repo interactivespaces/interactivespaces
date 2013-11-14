@@ -20,6 +20,8 @@ import interactivespaces.service.Service;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SupportedService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.resource.ManagedResource;
+import interactivespaces.util.resource.ManagedResources;
 
 import com.google.common.collect.Lists;
 
@@ -63,10 +65,14 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   private BundleContext bundleContext;
 
   /**
+   * A collection of managed resources.
+   */
+  private ManagedResources managedResources;
+
+  /**
    * All service trackers we have.
    */
-  private final Map<String, MyServiceTracker<?>> serviceTrackers =
-      new HashMap<String, MyServiceTracker<?>>();
+  private final Map<String, MyServiceTracker<?>> serviceTrackers = new HashMap<String, MyServiceTracker<?>>();
 
   /**
    * Object to give lock for putting this bundle's services together.
@@ -77,8 +83,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   public void start(BundleContext context) throws Exception {
     this.bundleContext = context;
 
-    interactiveSpacesEnvironmentTracker =
-        newMyServiceTracker(InteractiveSpacesEnvironment.class.getName());
+    interactiveSpacesEnvironmentTracker = newMyServiceTracker(InteractiveSpacesEnvironment.class.getName());
 
     // Get the registrations from the subclass.
     onStart();
@@ -103,6 +108,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
 
     unregisterOsgiServices();
     unregisterInteractiveSpacesServices();
+    managedResources.shutdownResourcesAndClear();
 
     // Close all the trackers.
     for (MyServiceTracker<?> tracker : serviceTrackers.values()) {
@@ -132,8 +138,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * Unregister and shutdown all services registered with interactive spaces.
    */
   private void unregisterInteractiveSpacesServices() {
-    ServiceRegistry serviceRegistry =
-        interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry();
+    ServiceRegistry serviceRegistry = interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry();
     for (Service service : registeredServices) {
       serviceRegistry.unregisterService(service);
 
@@ -180,7 +185,11 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
         }
       }
 
+      managedResources = new ManagedResources(interactiveSpacesEnvironmentTracker.getMyService().getLog());
+
       allRequiredServicesAvailable();
+
+      managedResources.startupResources();
     }
   }
 
@@ -196,14 +205,23 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    *          the service to be registered
    */
   protected void registerNewInteractiveSpacesService(Service service) {
-    interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry()
-        .registerService(service);
+    interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry().registerService(service);
 
     if (SupportedService.class.isAssignableFrom(service.getClass())) {
       ((SupportedService) service).startup();
     }
 
     registeredServices.add(service);
+  }
+
+  /**
+   * Add in a managed resource.
+   *
+   * @param resource
+   *          the managed resource to add
+   */
+  protected void addManagedResource(ManagedResource resource) {
+    managedResources.addResource(resource);
   }
 
   /**

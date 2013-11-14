@@ -19,6 +19,7 @@ package interactivespaces.controller.domain;
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.MinimalLiveActivity;
+import interactivespaces.resource.Version;
 
 import java.util.Date;
 
@@ -57,7 +58,7 @@ public interface InstalledLiveActivity extends MinimalLiveActivity {
    *
    * @return the activity version
    */
-  String getVersion();
+  Version getVersion();
 
   /**
    * Set the version of the activity.
@@ -65,7 +66,7 @@ public interface InstalledLiveActivity extends MinimalLiveActivity {
    * @param version
    *          the activity version
    */
-  void setVersion(String version);
+  void setVersion(Version version);
 
   /**
    * Get the date the activity was last deployed.

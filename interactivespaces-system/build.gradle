@@ -16,11 +16,11 @@
 dependencies {
   compile project(':rosjava_osgi_node')
   compile project(':interactivespaces-core')
-  
+
   provided project(':interactivespaces-bootstrap-core')
 
   provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
-    
+
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -29,12 +29,17 @@ jar {
   manifest {
     version = version
     symbolicName = 'interactivespaces.system'
-	
-    instruction 'Bundle-Activator', 
-		'interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.system.bootstrap.osgi.GeneralInteractiveSpacesSupportActivator'
+
+    instruction 'Export-Package',
+        '!interactivespaces.system.bootstrap.osgi.*',
+        '!interactivespaces.system.internal.osgi.*',
+        'interactivespaces.*'
 
     instruction 'Private-Package',
-		'interactivespaces.system.bootstrap.osgi.*', 
-		'interactivespaces.system.internal.osgi.*'
+        'interactivespaces.system.bootstrap.osgi.*',
+        'interactivespaces.system.internal.osgi.*'
   }
 }

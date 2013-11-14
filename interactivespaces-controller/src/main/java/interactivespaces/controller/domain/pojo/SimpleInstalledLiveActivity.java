@@ -20,6 +20,7 @@ import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.domain.ActivityInstallationStatus;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.resource.Version;
 
 import java.util.Date;
 
@@ -43,7 +44,7 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   /**
    * Version of the activity.
    */
-  private String version;
+  private Version version;
 
   /**
    * Date the activity was last uploaded.
@@ -70,9 +71,18 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
    */
   private ActivityControllerStartupType controllerStartupType = ActivityControllerStartupType.READY;
 
+  /**
+   * Construct a blank live activity.
+   */
   public SimpleInstalledLiveActivity() {
   }
 
+  /**
+   * Copy construct a live activity.
+   *
+   * @param src
+   *          the activity to make a copy of
+   */
   public SimpleInstalledLiveActivity(InstalledLiveActivity src) {
     uuid = src.getUuid();
     identifyingName = src.getIdentifyingName();
@@ -105,12 +115,12 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   }
 
   @Override
-  public String getVersion() {
+  public Version getVersion() {
     return version;
   }
 
   @Override
-  public void setVersion(String version) {
+  public void setVersion(Version version) {
     this.version = version;
   }
 

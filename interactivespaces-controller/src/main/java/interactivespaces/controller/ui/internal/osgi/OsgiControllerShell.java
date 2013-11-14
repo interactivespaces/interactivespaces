@@ -19,6 +19,7 @@ package interactivespaces.controller.ui.internal.osgi;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.util.resource.ManagedResource;
 
 import org.osgi.framework.BundleContext;
 
@@ -27,30 +28,41 @@ import org.osgi.framework.BundleContext;
  *
  * @author Keith M. Hughes
  */
-public class OsgiControllerShell {
+public class OsgiControllerShell implements ManagedResource {
 
   /**
    * Repository for controller items.
    */
-  private LocalSpaceControllerRepository controllerRepository;
+  private final LocalSpaceControllerRepository controllerRepository;
 
   /**
    * Bundle context for hooking into the shell system.
    */
-  private BundleContext bundleContext;
+  private final BundleContext bundleContext;
 
   /**
    * The {@link SpaceController} to be controlled.
    */
-  private SpaceController spaceController;
+  private final SpaceController spaceController;
 
   /**
    * Control of the Interactive Spaces system.
    */
-  private InteractiveSpacesSystemControl spaceSystemControl;
+  private final InteractiveSpacesSystemControl spaceSystemControl;
 
-  public OsgiControllerShell(SpaceController spaceController,
-      InteractiveSpacesSystemControl spaceSystemControl,
+  /**
+   * Construct a controller shell.
+   *
+   * @param spaceController
+   *          the space controller this is the shell for
+   * @param spaceSystemControl
+   *          system control of the controller
+   * @param controllerRepository
+   *          the controller repository
+   * @param bundleContext
+   *          the bundle context the shell runs under
+   */
+  public OsgiControllerShell(SpaceController spaceController, InteractiveSpacesSystemControl spaceSystemControl,
       LocalSpaceControllerRepository controllerRepository, BundleContext bundleContext) {
     this.spaceController = spaceController;
     this.spaceSystemControl = spaceSystemControl;
@@ -58,6 +70,7 @@ public class OsgiControllerShell {
     this.bundleContext = bundleContext;
   }
 
+  @Override
   public void startup() {
     // Dictionary<String, Object> dict = new Hashtable<String, Object>();
     // dict.put(CommandProcessor.COMMAND_SCOPE, "interactivespaces");
@@ -67,7 +80,8 @@ public class OsgiControllerShell {
     // bundleContext.registerService(getClass().getName(), this, dict);
   }
 
-  public void deactivate() {
+  @Override
+  public void shutdown() {
   }
 
   // /**

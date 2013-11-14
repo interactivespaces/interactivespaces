@@ -16,22 +16,14 @@
 
 package interactivespaces.time;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * Get the time.
  *
  * @author Keith M. Hughes
  */
-public interface TimeProvider {
-
-  /**
-   * Start up the time provider.
-   */
-  void startup();
-
-  /**
-   * Shut down the time provider.
-   */
-  void shutdown();
+public interface TimeProvider extends ManagedResource {
 
   /**
    * Get the current time.

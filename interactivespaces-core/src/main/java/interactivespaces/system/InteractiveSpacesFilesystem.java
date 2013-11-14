@@ -54,17 +54,18 @@ public interface InteractiveSpacesFilesystem {
    */
   File getTempDirectory();
 
-/**
-	 * Get a temp directory relative to {@link #getTempDirectory()).
-	 *
-	 * <p>
-	 * If the directory doesn't exist, it will be created. If it does exist, it will be checked if it is writeable.
-	 *
-	 * @param subdir
-	 * 		the relative portion of the filename
-	 *
-	 * @return the requested subdirectory in the temp directory
-	 */
+  /**
+   * Get a temp directory relative to {@link #getTempDirectory()}.
+   *
+   * <p>
+   * If the directory doesn't exist, it will be created. If it does exist, it
+   * will be checked if it is writeable.
+   *
+   * @param subdir
+   *          the relative portion of the filename
+   *
+   * @return the requested subdirectory in the temp directory
+   */
   File getTempDirectory(String subdir);
 
   /**
@@ -75,16 +76,18 @@ public interface InteractiveSpacesFilesystem {
    */
   File getLibraryDirectory();
 
-/**
-	 * Get a library directory relative to {@link #getLibraryDirectory()).
-	 *
-	 * <p>
-	 * If the directory doesn't exist, it will be created. If it does exist, it will be checked if it is readable.
-	 *
-	 * @param subdir
-	 * 		the relative portion of the filename
-	 * @return
-	 */
+  /**
+   * Get a library directory relative to {@link #getLibraryDirectory()}.
+   *
+   * <p>
+   * If the directory doesn't exist, it will be created. If it does exist, it
+   * will be checked if it is readable.
+   *
+   * @param subdir
+   *          the relative portion of the filename
+   *
+   * @return the subdir of the library directory
+   */
   File getLibraryDirectory(String subdir);
 
   /**
@@ -95,16 +98,17 @@ public interface InteractiveSpacesFilesystem {
    */
   File getDataDirectory();
 
-/**
-	 * Get a directory relative to {@link #getDataDirectory()).
-	 *
-	 * <p>
-	 * If the directory doesn't exist, it will be created. If it does exist, it will be checked if it is writeable.
-	 *
-	 * @param subdir
-	 * 		the relative portion of the filename
-	 *
-	 * @return the requested subdirectory in the data directory
-	 */
+  /**
+   * Get a directory relative to {@link #getDataDirectory()}.
+   *
+   * <p>
+   * If the directory doesn't exist, it will be created. If it does exist, it
+   * will be checked if it is writeable.
+   *
+   * @param subdir
+   *          the relative portion of the filename
+   *
+   * @return the requested subdirectory in the data directory
+   */
   File getDataDirectory(String subdir);
 }

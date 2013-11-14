@@ -17,6 +17,7 @@ dependencies {
   compile project(':rosjava_osgi_master')
 
   compile project(':interactivespaces-core')
+  compile project(':interactivespaces-system')
   compile project(':interactivespaces-database')
   compile project(':service:interactivespaces-service-alert')
   compile project(':service:interactivespaces-service-script')

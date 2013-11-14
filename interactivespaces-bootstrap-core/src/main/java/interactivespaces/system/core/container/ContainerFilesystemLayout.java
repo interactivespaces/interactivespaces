@@ -32,10 +32,15 @@ public class ContainerFilesystemLayout {
   /**
    * Subdirectory which will contain the bootstrap bundles.
    */
-  public static final String FOLDER_BUNDLE_BOOTSTRAP = "bootstrap";
+  public static final String FOLDER_SYSTEM_BOOTSTRAP = "bootstrap";
+
+  /**
+   * Subdirectory which will contain the InteractiveSpaces configs.
+   */
+  public static final String FOLDER_CONFIG_INTERACTIVESPACES = "config/interactivespaces";
 
   /**
    * Subdirectory which will contain additional bundles for bootstrap.
    */
-  public static final String FOLDER_BUNDLE_STARTUP = "startup";
+  public static final String FOLDER_USER_BOOTSTRAP = "startup";
 }

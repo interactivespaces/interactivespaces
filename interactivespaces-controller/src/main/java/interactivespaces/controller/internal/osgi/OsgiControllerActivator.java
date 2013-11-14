@@ -39,6 +39,7 @@ import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.system.resources.ContainerResourceManager;
 
 import org.ros.osgi.common.RosEnvironment;
 
@@ -85,6 +86,16 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
 
   /**
+   * OSGi service tracker for the container resource manager.
+   */
+  private MyServiceTracker<ContainerResourceManager> containerResourceManagerTracker;
+
+  /**
+   * The container resource manager.
+   */
+  private ContainerResourceManager containerResourceManager;
+
+  /**
    * The actual space controller itself.
    */
   private StandardSpaceController spaceController;
@@ -96,93 +107,49 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
   @Override
   public void onStart() {
-    interactiveSpacesSystemControlTracker =
-        newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
+    interactiveSpacesSystemControlTracker = newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
 
     rosEnvironmentTracker = newMyServiceTracker(RosEnvironment.class.getName());
 
-    expressionEvaluatorFactoryTracker =
-        newMyServiceTracker(ExpressionEvaluatorFactory.class.getName());
-  }
+    expressionEvaluatorFactoryTracker = newMyServiceTracker(ExpressionEvaluatorFactory.class.getName());
 
-  @Override
-  public void onStop() {
-    if (controllerShell != null) {
-      controllerShell.deactivate();
-      controllerShell = null;
-    }
-
-    if (spaceController != null) {
-      spaceController.shutdown();
-      spaceController = null;
-    }
-
-    if (activityInstallationManager != null) {
-      activityInstallationManager.shutdown();
-      activityInstallationManager = null;
-    }
-
-    if (controllerActivityInstaller != null) {
-      controllerActivityInstaller.shutdown();
-      controllerActivityInstaller = null;
-    }
-
-    if (activityStorageManager != null) {
-      activityStorageManager.shutdown();
-      activityStorageManager = null;
-    }
-
-    if (controllerRepository != null) {
-      controllerRepository.shutdown();
-      controllerRepository = null;
-    }
-
+    containerResourceManagerTracker = newMyServiceTracker(ContainerResourceManager.class.getName());
   }
 
   @Override
   protected void allRequiredServicesAvailable() {
-    InteractiveSpacesEnvironment spaceEnvironment =
-        getInteractiveSpacesEnvironmentTracker().getMyService();
-    InteractiveSpacesSystemControl spaceSystemControl =
-        interactiveSpacesSystemControlTracker.getMyService();
+    InteractiveSpacesEnvironment spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
+    InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
-    ExpressionEvaluatorFactory expressionEvaluatorFactory =
-        expressionEvaluatorFactoryTracker.getMyService();
+    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+    containerResourceManager = containerResourceManagerTracker.getMyService();
 
     activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
-    activityStorageManager.startup();
+    addManagedResource(activityStorageManager);
 
-    controllerRepository =
-        new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
-    controllerRepository.startup();
+    controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
+    addManagedResource(controllerRepository);
 
     PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
-        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory,
-            spaceEnvironment);
+        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
     activityInstallationManager =
-        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager,
-            spaceEnvironment);
-    activityInstallationManager.startup();
+        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
+    addManagedResource(activityInstallationManager);
 
-    SimpleActiveControllerActivityFactory controllerActivityFactory =
-        new SimpleActiveControllerActivityFactory();
+    SimpleActiveControllerActivityFactory controllerActivityFactory = new SimpleActiveControllerActivityFactory();
     controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
     controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
-    controllerActivityFactory
-        .registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
+    controllerActivityFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
 
-    controllerActivityFactory
-        .registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
-            getBundleContext()));
+    controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
+        getBundleContext()));
 
-    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
-        controllerActivityFactory);
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
 
     controllerActivityInstaller =
-        new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager,
-            spaceEnvironment);
-    controllerActivityInstaller.startup();
+        new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
+    addManagedResource(controllerActivityInstaller);
 
     SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory =
         new SimpleNativeActivityRunnerFactory(spaceEnvironment);
@@ -191,22 +158,19 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
 
     RosSpaceControllerCommunicator spaceControllerCommunicator =
-        new RosSpaceControllerCommunicator(controllerActivityInstaller, rosEnvironment,
-            spaceEnvironment);
+        new RosSpaceControllerCommunicator(controllerActivityInstaller, rosEnvironment, spaceEnvironment);
 
     ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
 
     spaceController =
-        new StandardSpaceController(activityInstallationManager, controllerRepository,
-            controllerActivityFactory, nativeActivityRunnerFactory, activityConfigurationManager,
-            activityStorageManager, activityLogFactory, spaceControllerCommunicator,
-            new FileSystemSpaceControllerInfoPersister(), spaceSystemControl, spaceEnvironment,
-            dataBundleManager);
-    spaceController.startup();
+        new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
+            nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
+            spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
+            spaceEnvironment, dataBundleManager);
+    addManagedResource(spaceController);
 
     controllerShell =
-        new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository,
-            getBundleContext());
-    controllerShell.startup();
+        new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
+    addManagedResource(controllerShell);
   }
 }

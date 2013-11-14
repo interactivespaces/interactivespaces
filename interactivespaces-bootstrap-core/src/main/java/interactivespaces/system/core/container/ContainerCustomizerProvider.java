@@ -16,10 +16,8 @@
 
 package interactivespaces.system.core.container;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A container customizer.
@@ -56,11 +54,4 @@ public interface ContainerCustomizerProvider {
    * @return {@code true} if the container is file controllable
    */
   boolean isFileControllable();
-
-  /**
-   * Get the bundles available to the OSGi container as it started up.
-   *
-   * @return
-   */
-  Set<File> getStartupBundles();
 }

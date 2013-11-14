@@ -17,6 +17,7 @@
 package interactivespaces.controller.repository;
 
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.util.List;
 
@@ -25,20 +26,12 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public interface LocalSpaceControllerRepository {
-
-  /**
-   * Start the repository up.
-   */
-  void startup();
-
-  /**
-   * Shut the repository down.
-   */
-  void shutdown();
+public interface LocalSpaceControllerRepository extends ManagedResource {
 
   /**
    * Get a new instance of a locally installed activity.
+   *
+   * @return a new installed activity
    */
   InstalledLiveActivity newInstalledLiveActivity();
 
@@ -77,5 +70,4 @@ public interface LocalSpaceControllerRepository {
    *          the activity to delete
    */
   void deleteInstalledLiveActivity(InstalledLiveActivity activity);
-
 }

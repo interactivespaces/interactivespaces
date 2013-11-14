@@ -16,9 +16,6 @@
 
 package interactivespaces.controller.repository.internal.file;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.client.node.ActivityStorageManager;
@@ -26,8 +23,13 @@ import interactivespaces.controller.domain.ActivityInstallationStatus;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.Date;
@@ -49,25 +51,73 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   public static final String DATAFILE_NAME = "activity.data";
 
   /**
+   * Line number in the activity data file giving the identifying name of the
+   * activity.
+   */
+  public static final int LOCATION_IDENTIFYING_NAME = 0;
+
+  /**
+   * Line number in the activity data file giving the version of the activity.
+   */
+  public static final int LOCATION_VERSION = 1;
+
+  /**
+   * Line number in the activity data file giving the last deployed date of the
+   * activity.
+   */
+  public static final int LOCATION_LAST_DEPLOYED_DATE = 2;
+
+  /**
+   * Line number in the activity data file giving the last activity state of the
+   * activity.
+   */
+  public static final int LOCATION_LAST_ACTIVITY_STATE = 3;
+
+  /**
+   * Line number in the activity data file giving the installation status of the
+   * activity.
+   */
+  public static final int LOCATION_INSTALLATION_STATUS = 4;
+
+  /**
+   * Line number in the activity data file giving the startup type of the
+   * activity.
+   */
+  public static final int LOCATION_STARTUP_TYPE = 5;
+
+  /**
    * The storage manager for activities.
    */
-  private ActivityStorageManager activityStorageManager;
+  private final ActivityStorageManager activityStorageManager;
 
   /**
    * A map of all activities by their UUID.
    */
-  private Map<String, SimpleInstalledLiveActivity> activitiesByUuid = Maps.newHashMap();
+  private final Map<String, SimpleInstalledLiveActivity> activitiesByUuid = Maps.newHashMap();
 
   /**
    * The space environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * The lock for protecting reads and writes.
    */
-  private ReadWriteLock lock = new ReentrantReadWriteLock();
+  private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct a space controller repository.
+   *
+   * @param activityStorageManager
+   *          storage manager for activities
+   * @param spaceEnvironment
+   *          the space environment
+   */
   public FileLocalSpaceControllerRepository(ActivityStorageManager activityStorageManager,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.activityStorageManager = activityStorageManager;
@@ -153,8 +203,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
         getActivityDataFile(uuid).delete();
       } else {
         spaceEnvironment.getLog().warn(
-            String.format("Attempt to delete installed activity %s which is doesn't seem to exist",
-                activitiesByUuid));
+            String.format("Attempt to delete installed activity %s which is doesn't seem to exist", activitiesByUuid));
       }
     } finally {
       lock.writeLock().unlock();
@@ -174,23 +223,21 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
     if (datafile.isFile()) {
       SimpleInstalledLiveActivity activity = new SimpleInstalledLiveActivity();
 
-      String contents = Files.readFile(datafile);
+      String contents = fileSupport.readFile(datafile);
       String[] lines = contents.split("\\n");
 
       activity.setUuid(uuid);
-      activity.setBaseInstallationLocation(activityStorageManager.getBaseActivityLocation(uuid)
-          .getAbsolutePath());
-      activity.setIdentifyingName(lines[0]);
-      activity.setVersion(lines[1]);
-      activity.setLastDeployedDate(new Date(Long.parseLong(lines[2])));
-      activity.setLastActivityState(ActivityState.valueOf(lines[3]));
-      activity.setInstallationStatus(ActivityInstallationStatus.valueOf(lines[4]));
-      activity.setControllerStartupType(ActivityControllerStartupType.valueOf(lines[5]));
+      activity.setBaseInstallationLocation(activityStorageManager.getBaseActivityLocation(uuid).getAbsolutePath());
+      activity.setIdentifyingName(lines[LOCATION_IDENTIFYING_NAME]);
+      activity.setVersion(Version.parseVersion(lines[LOCATION_VERSION]));
+      activity.setLastDeployedDate(new Date(Long.parseLong(lines[LOCATION_LAST_DEPLOYED_DATE])));
+      activity.setLastActivityState(ActivityState.valueOf(lines[LOCATION_LAST_ACTIVITY_STATE]));
+      activity.setInstallationStatus(ActivityInstallationStatus.valueOf(lines[LOCATION_INSTALLATION_STATUS]));
+      activity.setControllerStartupType(ActivityControllerStartupType.valueOf(lines[LOCATION_STARTUP_TYPE]));
 
       return activity;
     } else {
-      spaceEnvironment.getLog().warn(
-          String.format("Found activity folder with UUID %s. No data file", uuid));
+      spaceEnvironment.getLog().warn(String.format("Found activity folder with UUID %s. No data file", uuid));
       return null;
     }
   }
@@ -203,14 +250,14 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
    */
   private void writeDataFile(InstalledLiveActivity activity) {
     StringBuilder contents = new StringBuilder();
-    contents.append(activity.getIdentifyingName()).append("\n").append(activity.getVersion())
-        .append("\n").append(activity.getLastDeployedDate().getTime()).append("\n")
+    contents.append(activity.getIdentifyingName()).append("\n").append(activity.getVersion()).append("\n")
+        .append(activity.getLastDeployedDate().getTime()).append("\n")
         .append(activity.getLastActivityState().toString()).append("\n")
         .append(activity.getInstallationStatus().toString()).append("\n")
         .append(activity.getControllerStartupType().toString());
 
     File dataFile = getActivityDataFile(activity.getUuid());
-    Files.writeFile(dataFile, contents.toString());
+    fileSupport.writeFile(dataFile, contents.toString());
   }
 
   /**

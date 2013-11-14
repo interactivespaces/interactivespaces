@@ -35,21 +35,27 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public class SimpleSpaceControllerActivityInstallationManager implements
-    SpaceControllerActivityInstallationManager {
+public class SimpleSpaceControllerActivityInstallationManager implements SpaceControllerActivityInstallationManager {
 
   /**
    * The Spaces environment being used.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * Manages deployment of activities.
    */
-  private ActivityInstallationManager activityInstallationManager;
+  private final ActivityInstallationManager activityInstallationManager;
 
-  public SimpleSpaceControllerActivityInstallationManager(
-      ActivityInstallationManager activityInstallationManager,
+  /**
+   * Construct a controller activity installation manager.
+   *
+   * @param activityInstallationManager
+   *          the installation manager for an activity
+   * @param spaceEnvironment
+   *          the space environment to run under
+   */
+  public SimpleSpaceControllerActivityInstallationManager(ActivityInstallationManager activityInstallationManager,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.activityInstallationManager = activityInstallationManager;
     this.spaceEnvironment = spaceEnvironment;
@@ -82,8 +88,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements
 
       status = SpaceControllerLiveActivityDeployStatus.STATUS_FAILURE_UNPACK;
       installedDate =
-          activityInstallationManager.installActivity(uuid, request.getIdentifyingName(),
-              request.getVersion());
+          activityInstallationManager.installActivity(uuid, request.getIdentifyingName(), request.getVersion());
 
       status = SpaceControllerLiveActivityDeployStatus.STATUS_SUCCESS;
     } catch (Exception e) {
@@ -110,9 +115,8 @@ public class SimpleSpaceControllerActivityInstallationManager implements
    *          date to mark it if successful
    * @return an appropriately filled out deployment status
    */
-  private SpaceControllerLiveActivityDeployStatus createDeployResult(
-      SpaceControllerLiveActivityDeployRequest request, int status, boolean success,
-      Date installedDate) {
+  private SpaceControllerLiveActivityDeployStatus createDeployResult(SpaceControllerLiveActivityDeployRequest request,
+      int status, boolean success, Date installedDate) {
 
     long timeDeployed = 0;
     if (installedDate != null) {
@@ -123,15 +127,13 @@ public class SimpleSpaceControllerActivityInstallationManager implements
   }
 
   @Override
-  public SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(
-      SpaceControllerLiveActivityDeleteRequest request) {
+  public SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
     RemoveActivityResult result = RemoveActivityResult.FAILURE;
 
     try {
       result = activityInstallationManager.removeActivity(request.getUuid());
     } catch (Exception e) {
-      spaceEnvironment.getLog().error(
-          String.format("Could not delete live activity %s", request.getUuid()), e);
+      spaceEnvironment.getLog().error(String.format("Could not delete live activity %s", request.getUuid()), e);
     }
 
     return createDeleteResponse(request, result);
@@ -147,8 +149,8 @@ public class SimpleSpaceControllerActivityInstallationManager implements
    *
    * @return the response to be sent back
    */
-  public SpaceControllerLiveActivityDeleteStatus createDeleteResponse(
-      SpaceControllerLiveActivityDeleteRequest request, RemoveActivityResult result) {
+  public SpaceControllerLiveActivityDeleteStatus createDeleteResponse(SpaceControllerLiveActivityDeleteRequest request,
+      RemoveActivityResult result) {
     int status;
     switch (result) {
       case SUCCESS:
@@ -163,7 +165,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements
         status = LiveActivityDeleteStatus.STATUS_FAILURE;
     }
 
-    return new SpaceControllerLiveActivityDeleteStatus(request.getUuid(), status, spaceEnvironment
-        .getTimeProvider().getCurrentTime());
+    return new SpaceControllerLiveActivityDeleteStatus(request.getUuid(), status, spaceEnvironment.getTimeProvider()
+        .getCurrentTime());
   }
 }

@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.client.node;
 
+import interactivespaces.resource.Version;
+
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -30,30 +32,42 @@ public class SpaceControllerLiveActivityDeployRequest {
   /**
    * UUID for the live activity.
    */
-  private String uuid;
+  private final String uuid;
 
   /**
    * URI for the activity source.
    */
-  private String activitySourceUri;
+  private final String activitySourceUri;
 
   /**
    * Identifying name of the live activity.
    */
-  private String identifyingName;
+  private final String identifyingName;
 
   /**
    * Version of the live activity.
    */
-  private String version;
+  private final Version version;
 
   /**
    * The dependencies for this deployment.
    */
-  private Set<SpaceControllerContainerDependency> dependencies = Sets.newHashSet();
+  private final Set<SpaceControllerContainerDependency> dependencies = Sets.newHashSet();
 
-  public SpaceControllerLiveActivityDeployRequest(String uuid, String activitySourceUri,
-      String identifyingName, String version) {
+  /**
+   * Construct a deployment request.
+   *
+   * @param uuid
+   *          UUID of the activity
+   * @param activitySourceUri
+   *          URI of where to get the activity
+   * @param identifyingName
+   *          the identifying name of the activity
+   * @param version
+   *          the version of the activity
+   */
+  public SpaceControllerLiveActivityDeployRequest(String uuid, String activitySourceUri, String identifyingName,
+      Version version) {
     this.uuid = uuid;
     this.activitySourceUri = activitySourceUri;
     this.identifyingName = identifyingName;
@@ -82,9 +96,11 @@ public class SpaceControllerLiveActivityDeployRequest {
   }
 
   /**
+   * Get the version.
+   *
    * @return the version
    */
-  public String getVersion() {
+  public Version getVersion() {
     return version;
   }
 

@@ -24,6 +24,7 @@ import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
  * A controller for Interactive Spaces activities.
@@ -35,7 +36,7 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
  *
  * @author Keith M. Hughes
  */
-public interface SpaceController {
+public interface SpaceController extends ManagedResource {
 
   /**
    * Environment value giving the controller's
@@ -58,19 +59,6 @@ public interface SpaceController {
    */
   String CONFIGURATION_CONTROLLER_DESCRIPTION =
       "interactivespaces.controller.description";
-
-  /**
-   * Start up the controller.
-   */
-  void startup();
-
-  /**
-   * Shut the controller down.
-   *
-   * <p>
-   * This will shut down all apps in the controller as well.
-   */
-  void shutdown();
 
   /**
    * Get a factory for native activities runners.

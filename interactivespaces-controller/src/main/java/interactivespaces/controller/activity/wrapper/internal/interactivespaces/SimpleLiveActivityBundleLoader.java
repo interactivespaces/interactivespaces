@@ -16,10 +16,12 @@
 
 package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.resource.NamedVersionedResource;
+import interactivespaces.resource.Version;
 import interactivespaces.util.data.resource.ResourceSignature;
+
+import com.google.common.collect.Maps;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -37,28 +39,35 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
   /**
    * The OSGi bundle context used to load bundles.
    */
-  private BundleContext loadingBundleContext;
+  private final BundleContext loadingBundleContext;
 
   /**
-   * Compare two bundle with each other
+   * Compare two bundle with each other.
    */
-  private ResourceSignature bundleSignature;
+  private final ResourceSignature bundleSignature;
 
   /**
    * The bundles currently loaded by the loader, indexed by the bundle IS
    */
-  private Map<BundleId, LiveActivityBundle> loadedBundles = Maps.newHashMap();
+  private final Map<NamedVersionedResource, LiveActivityBundle> loadedBundles = Maps.newHashMap();
 
-  public SimpleLiveActivityBundleLoader(BundleContext loadingBundleContext,
-      ResourceSignature bundleSignature) {
+  /**
+   * Construct a bundle loader.
+   *
+   * @param loadingBundleContext
+   *          the OSGi bundle context used for loading
+   * @param bundleSignature
+   *          the bundle signature
+   */
+  public SimpleLiveActivityBundleLoader(BundleContext loadingBundleContext, ResourceSignature bundleSignature) {
     this.loadingBundleContext = loadingBundleContext;
     this.bundleSignature = bundleSignature;
   }
 
   @Override
-  public synchronized Class<?> getBundleClass(File bundleFile, String bundleName,
-      String bundleVersion, String className) {
-    BundleId bundleId = new BundleId(bundleName, bundleVersion);
+  public synchronized Class<?> getBundleClass(File bundleFile, String bundleName, Version bundleVersion,
+      String className) {
+    NamedVersionedResource bundleId = new NamedVersionedResource(bundleName, bundleVersion);
 
     LiveActivityBundle labundle = loadedBundles.get(bundleId);
     if (labundle == null) {
@@ -71,8 +80,7 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
     try {
       return bundle.loadClass(className);
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not load class %s from bundle",
-          className));
+      throw new InteractiveSpacesException(String.format("Could not load class %s from bundle", className));
     }
   }
 
@@ -83,47 +91,5 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
    */
   int getNumberEntries() {
     return loadedBundles.size();
-  }
-
-  public static class BundleId {
-
-    /**
-     * The name of the bundle, the symbolic name in OSGi parlance.
-     */
-    private String name;
-
-    /**
-     * The version of the bundle.
-     */
-    private String version;
-
-    public BundleId(String name, String version) {
-      this.name = name;
-      this.version = version;
-    }
-
-    @Override
-    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + name.hashCode();
-      result = prime * result + version.hashCode();
-
-      return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
-      BundleId other = (BundleId) obj;
-      if (!name.equals(other.name))
-        return false;
-      return version.equals(other.version);
-    }
   }
 }

@@ -16,16 +16,13 @@
 
 package interactivespaces.system.core.container;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * A very basic {@link ContainerCustomizerProvider}
+ * A very basic {@link ContainerCustomizerProvider}.
  *
  * @author Keith M. Hughes
  */
@@ -34,29 +31,24 @@ public class SimpleContainerCustomizerProvider implements ContainerCustomizerPro
   /**
    * The command line arguments from container startup.
    */
-  private List<String> commandLineArguments;
+  private final List<String> commandLineArguments;
 
   /**
    * The services from the container.
    */
-  private Map<String, Object> services = new HashMap<String, Object>();
+  private final Map<String, Object> services = new HashMap<String, Object>();
 
   /**
-   * @code true} if the container is controllable from files
+   * {@code true} if the container is controllable from files.
    */
-  private boolean fileControllable;
-
-  /**
-   * The startup bundles the container started with.
-   */
-  private Set<File> startupBundles;
+  private final boolean fileControllable;
 
   /**
    * Create a customizer which has no command line arguments and is not file
    * controllable.
    */
   public SimpleContainerCustomizerProvider() {
-    this(new ArrayList<String>(), new HashSet<File>(), false);
+    this(new ArrayList<String>(), false);
   }
 
   /**
@@ -64,15 +56,11 @@ public class SimpleContainerCustomizerProvider implements ContainerCustomizerPro
    *
    * @param commandLineArguments
    *          the command line arguments to use
-   * @param startupBundles
-   *          the bundles the OSGi container started with
    * @param fileControllable
    *          {@code true} if the container is file controllable
    */
-  public SimpleContainerCustomizerProvider(List<String> commandLineArguments,
-      Set<File> startupBundles, boolean fileControllable) {
+  public SimpleContainerCustomizerProvider(List<String> commandLineArguments, boolean fileControllable) {
     this.commandLineArguments = commandLineArguments;
-    this.startupBundles = startupBundles;
     this.fileControllable = fileControllable;
   }
 
@@ -102,10 +90,5 @@ public class SimpleContainerCustomizerProvider implements ContainerCustomizerPro
   @Override
   public boolean isFileControllable() {
     return fileControllable;
-  }
-
-  @Override
-  public Set<File> getStartupBundles() {
-    return startupBundles;
   }
 }

@@ -51,6 +51,11 @@ public class FileSupportImpl implements FileSupport {
   public static final FileSupport INSTANCE = new FileSupportImpl();
 
   /**
+   * File path separator for ZIP files.
+   */
+  public static final String ZIP_PATH_SEPARATOR = "/";
+
+  /**
    * Default buffer size for copy operations.
    */
   private static final int COPY_DEFAULT_BUFFER_SIZE = 4096;
@@ -58,8 +63,7 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public void zip(File target, File basePath) {
     if (target.exists()) {
-      throw new SimpleInteractiveSpacesException(
-          "Cowardly refusing to overwrite existing output file " + target);
+      throw new SimpleInteractiveSpacesException("Cowardly refusing to overwrite existing output file " + target);
     }
     ZipOutputStream zipOutputStream = null;
     try {
@@ -76,12 +80,14 @@ public class FileSupportImpl implements FileSupport {
 
   /**
    * Internal helper function to recursively copy contents into a zip file.
+   *
    * @param zipOutputStream
    *          output stream in which to copy the contents
    * @param basePath
    *          base path for the content copy
    * @param relPath
-   *          relative path (to {@code basePath}), that will be included in the zip file
+   *          relative path (to {@code basePath}), that will be included in the
+   *          zip file
    * @throws java.io.IOException
    */
   private void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath) throws IOException {
@@ -94,7 +100,8 @@ public class FileSupportImpl implements FileSupport {
         copyStream(fileStream, zipOutputStream, false);
         fileStream.close();
       } else if (target.isDirectory()) {
-        String dirPath = relPath.getPath() + File.separator; // Zip requires trailing / for directory.
+        // Zip requires trailing / for directory.
+        String dirPath = relPath.getPath() + ZIP_PATH_SEPARATOR;
         zipOutputStream.putNextEntry(new ZipEntry(dirPath));
         File[] dirFiles = target.listFiles();
         if (dirFiles != null) {
@@ -133,8 +140,7 @@ public class FileSupportImpl implements FileSupport {
             throw new SimpleInteractiveSpacesException("Could not create directory: " + parentFile);
           }
 
-          copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(
-              new FileOutputStream(file)));
+          copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
         }
       }
 
@@ -167,8 +173,7 @@ public class FileSupportImpl implements FileSupport {
 
     File[] sourceFiles = sourceDir.listFiles();
     if (sourceFiles == null) {
-      throw new SimpleInteractiveSpacesException(
-          "Missing source directory " + sourceDir.getAbsolutePath());
+      throw new SimpleInteractiveSpacesException("Missing source directory " + sourceDir.getAbsolutePath());
     }
 
     for (File src : sourceFiles) {
@@ -192,8 +197,8 @@ public class FileSupportImpl implements FileSupport {
     try {
       destination.createNewFile();
     } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Could not create new file %s",
-          destination.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(
+          String.format("Could not create new file %s", destination.getAbsolutePath()), e);
     }
 
     FileChannel in = null;
@@ -204,16 +209,16 @@ public class FileSupportImpl implements FileSupport {
       out = new FileOutputStream(destination).getChannel();
       out.transferFrom(in, 0, in.size());
     } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Could not copy file %s to %s",
-          source.getAbsoluteFile(), destination.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Could not copy file %s to %s", source.getAbsoluteFile(),
+          destination.getAbsolutePath()), e);
     } finally {
       try {
         if (out != null) {
           try {
             out.close();
           } catch (IOException e) {
-            throw new InteractiveSpacesException(String.format("Could not close file %s",
-                destination.getAbsolutePath()), e);
+            throw new InteractiveSpacesException(
+                String.format("Could not close file %s", destination.getAbsolutePath()), e);
           }
         }
       } finally {
@@ -332,8 +337,7 @@ public class FileSupportImpl implements FileSupport {
       writer.append(contents);
       writer.flush();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Unable to write contents out to file %s",
-          file), e);
+      throw new InteractiveSpacesException(String.format("Unable to write contents out to file %s", file), e);
     } finally {
       if (writer != null) {
         try {
@@ -346,17 +350,28 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
-  public void directoryExists(File dir) {
+  public void directoryExists(File dir, String message) {
     if (dir.exists()) {
       if (!dir.isDirectory()) {
-        throw new SimpleInteractiveSpacesException(String.format("%s is not a directory",
-            dir.getAbsolutePath()));
+        String emessage =
+            message != null ? String.format("%s: %s is not a directory", message, dir.getAbsolutePath()) : String
+                .format("%s is not a directory", dir.getAbsolutePath());
+
+        throw new SimpleInteractiveSpacesException(emessage);
       }
     } else {
       if (!dir.mkdirs()) {
-        throw new SimpleInteractiveSpacesException(String.format("Could not create directory %s",
-            dir.getAbsolutePath()));
+        String emessage =
+            message != null ? String.format("%s: Could not create directory %s", dir.getAbsolutePath()) : String
+                .format("Could not create directory %s", dir.getAbsolutePath());
+
+        throw new SimpleInteractiveSpacesException(emessage);
       }
     }
+  }
+
+  @Override
+  public void directoryExists(File dir) {
+    directoryExists(dir, null);
   }
 }
