@@ -19,6 +19,7 @@ package interactivespaces.workbench.ui;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionValidator;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
@@ -203,9 +204,9 @@ public class ActivityDescriptionPanel extends JPanel {
       projectIdentifyingNameInput.setText(identifyingName);
     }
 
-    String version = project.getVersion();
+    Version version = project.getVersion();
     if (version != null) {
-      projectVersionInput.setText(version);
+      projectVersionInput.setText(version.toString());
     }
   }
 
@@ -216,7 +217,7 @@ public class ActivityDescriptionPanel extends JPanel {
     project.setName(projectNameInput.getText());
     project.setDescription(projectDescriptionInput.getText());
     project.setIdentifyingName(projectIdentifyingNameInput.getText());
-    project.setVersion(projectVersionInput.getText());
+    project.setVersion(Version.parseVersion(projectVersionInput.getText()));
   }
 
   /**

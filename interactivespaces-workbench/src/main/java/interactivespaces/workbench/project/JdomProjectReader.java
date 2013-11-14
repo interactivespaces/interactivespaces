@@ -16,17 +16,18 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
-
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.resource.Version;
+import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -47,15 +48,20 @@ import java.util.Map;
 public class JdomProjectReader implements ProjectReader {
 
   /**
+   * The default version range for projects which do not specify a version
+   * range.
+   */
+  public static final VersionRange INTERACTIVESPACES_VERSION_RANGE_DEFAULT = new VersionRange(new Version(1, 0, 0),
+      new Version(2, 0, 0), false);
+
+  /**
    * Map of resource types to resource builders.
    */
-  private static final Map<String, ProjectConstituent.Builder> PROJECT_CONSTITUENT_BUILDER_MAP =
-      ImmutableMap.of(
-          ProjectResourceConstituent.PROJECT_TYPE, new ProjectResourceConstituent.Builder(),
-          ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE, new ProjectResourceConstituent.Builder(),
-          ProjectAssemblyConstituent.PROJECT_TYPE, new ProjectAssemblyConstituent.Builder(),
-          ProjectBundleConstituent.PROJECT_TYPE, new ProjectBundleConstituent.Builder()
-      );
+  private static final Map<String, ProjectConstituent.Builder> PROJECT_CONSTITUENT_BUILDER_MAP = ImmutableMap.of(
+      ProjectResourceConstituent.PROJECT_TYPE, new ProjectResourceConstituent.Builder(),
+      ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE, new ProjectResourceConstituent.Builder(),
+      ProjectAssemblyConstituent.PROJECT_TYPE, new ProjectAssemblyConstituent.Builder(),
+      ProjectBundleConstituent.PROJECT_TYPE, new ProjectBundleConstituent.Builder());
 
   /**
    * Project definition file element name for resources.
@@ -87,10 +93,8 @@ public class JdomProjectReader implements ProjectReader {
       getMainData(project, rootElement, errors);
       getMetadata(project, rootElement, errors);
       getDependencies(project, rootElement, errors);
-      project.addResources(getConstituents(
-          rootElement.getChild(PROJECT_RESOURCES_ELEMENT_NAME), errors));
-      project.addSources(getConstituents(
-          rootElement.getChild(PROJECT_SOURCES_ELEMENT_NAME), errors));
+      project.addResources(getConstituents(rootElement.getChild(PROJECT_RESOURCES_ELEMENT_NAME), errors));
+      project.addSources(getConstituents(rootElement.getChild(PROJECT_SOURCES_ELEMENT_NAME), errors));
       getDeployments(project, rootElement, errors);
 
       if (!errors.isEmpty()) {
@@ -149,10 +153,30 @@ public class JdomProjectReader implements ProjectReader {
     project.setIdentifyingName(identifyingName);
 
     String version = getChildTextTrimmed(rootElement, "version");
-    project.setVersion(version);
+    project.setVersion(Version.parseVersion(version));
 
     String builder = getAttributeValue(rootElement, "builder", null);
     project.setBuilderType(builder);
+
+    String interactiveSpacesVersionMinimum = getAttributeValue(rootElement, "interactiveSpacesVersionMinimum", null);
+    String interactiveSpacesVersionMaximum = getAttributeValue(rootElement, "interactiveSpacesVersionMaximum", null);
+
+    VersionRange interactiveSpacesVersionRange = null;
+    if (interactiveSpacesVersionMinimum != null) {
+      if (interactiveSpacesVersionMaximum != null) {
+        interactiveSpacesVersionRange =
+            new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum),
+                Version.parseVersion(interactiveSpacesVersionMaximum), false);
+      } else {
+        interactiveSpacesVersionRange =
+            new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum));
+      }
+    } else {
+      System.out.println("WARNING: Did not specify a range of needed Interactive Spaces versions. Setting default to "
+          + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
+      interactiveSpacesVersionRange = INTERACTIVESPACES_VERSION_RANGE_DEFAULT;
+    }
+    project.setInteractiveSpacesVersionRange(interactiveSpacesVersionRange);
   }
 
   /**
@@ -186,8 +210,7 @@ public class JdomProjectReader implements ProjectReader {
    * @throws SimpleInteractiveSpacesException
    *           if the child element is not provided
    */
-  private String getChildTextTrimmed(Element element, String key)
-      throws SimpleInteractiveSpacesException {
+  private String getChildTextTrimmed(Element element, String key) throws SimpleInteractiveSpacesException {
     try {
       return element.getChildText(key).trim();
     } catch (Exception e) {
@@ -208,8 +231,7 @@ public class JdomProjectReader implements ProjectReader {
    * @throws SimpleInteractiveSpacesException
    *           if the element attribute is not provided
    */
-  private String getRequiredAttributeValue(Element element, String key)
-      throws SimpleInteractiveSpacesException {
+  private String getRequiredAttributeValue(Element element, String key) throws SimpleInteractiveSpacesException {
     String value = getAttributeValue(element, key);
     if (value == null) {
       throw new SimpleInteractiveSpacesException("Missing required attribute " + key);

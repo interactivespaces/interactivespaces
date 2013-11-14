@@ -20,6 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.domain.support.ActivityDescriptionReader;
 import interactivespaces.domain.support.JdomActivityDescriptionReader;
+import interactivespaces.resource.Version;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
@@ -101,7 +102,7 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
       project.setDescription(activity.getDescription());
       project.setBuilderType(activity.getBuilderType());
       project.setIdentifyingName(activity.getIdentifyingName());
-      project.setVersion(activity.getVersion());
+      project.setVersion(Version.parseVersion(activity.getVersion()));
       project.setType("activity");
 
       return project;

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<activity <#if project.builderType?has_content>builder="${project.builderType}"</#if>>
+<activity interactiveSpacesVersion="${project.interactiveSpacesVersionRange}">
     <name>${project.name}</name>
     <description>
 ${project.description}

@@ -18,6 +18,7 @@ package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.resource.Version;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -161,12 +162,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
       analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, project.getIdentifyingName());
 
-      String version = project.getVersion();
-      int pos = version.indexOf(BUNDLE_NAME_VERSION_SEPARATOR);
-      if (pos != -1) {
-        version = version.substring(0, pos);
-      }
-      analyzer.setProperty(Constants.BUNDLE_VERSION, version);
+      Version version = project.getVersion();
+      analyzer.setProperty(Constants.BUNDLE_VERSION, version.toString());
 
       // This will make sure all packages from the activity will export and will
       // all be given the bundle version.

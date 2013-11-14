@@ -23,6 +23,7 @@ import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.Validator;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
@@ -630,7 +631,7 @@ public class InteractiveSpacesWorkbench {
 
       Project project = new Project();
       project.setIdentifyingName(identifyingName);
-      project.setVersion(version);
+      project.setVersion(Version.parseVersion(version));
       project.setName(name);
       project.setDescription(description);
 

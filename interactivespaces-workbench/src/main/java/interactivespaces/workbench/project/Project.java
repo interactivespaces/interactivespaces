@@ -16,9 +16,12 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.resource.Version;
+import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import java.io.File;
 import java.util.List;
@@ -74,31 +77,38 @@ public class Project {
   /**
    * Version of the project.
    */
-  private String version;
+  private Version version;
+
+  /**
+   * The version range for interactive spaces for the project.
+   */
+  private VersionRange interactiveSpacesVersion;
 
   /**
    * The dependencies the project has.
    */
-  private List<ProjectDependency> dependencies = Lists.newArrayList();
+  private final List<ProjectDependency> dependencies = Lists.newArrayList();
 
   /**
-   * The resources the project requires. A null value indicates that no resources have been
-   * specified for the project (which is slightly different than saying an empty set of
-   * resources have been specified, which would be indicated by the empty list).
+   * The resources the project requires. A null value indicates that no
+   * resources have been specified for the project (which is slightly different
+   * than saying an empty set of resources have been specified, which would be
+   * indicated by the empty list).
    */
   private List<ProjectConstituent> resources;
 
   /**
-   * The sources the project requires. A null value indicates that no sources have been
-   * specified for the project (which is slightly different than saying an empty set of
-   * sources have been specified, which would be indicated by the empty list).
+   * The sources the project requires. A null value indicates that no sources
+   * have been specified for the project (which is slightly different than
+   * saying an empty set of sources have been specified, which would be
+   * indicated by the empty list).
    */
   private List<ProjectConstituent> sources;
 
   /**
    * The deployments the project requires.
    */
-  private List<ProjectDeployment> deployments = Lists.newArrayList();
+  private final List<ProjectDeployment> deployments = Lists.newArrayList();
 
   /**
    * The meta data for this project.
@@ -108,7 +118,7 @@ public class Project {
   /**
    * Attributes for this project.
    */
-  private Map<String, String> attributes = Maps.newHashMap();
+  private final Map<String, String> attributes = Maps.newHashMap();
 
   /**
    * Get the type of the project.
@@ -229,7 +239,7 @@ public class Project {
    *
    * @return The version
    */
-  public String getVersion() {
+  public Version getVersion() {
     return version;
   }
 
@@ -239,8 +249,28 @@ public class Project {
    * @param version
    *          the version
    */
-  public void setVersion(String version) {
+  public void setVersion(Version version) {
     this.version = version;
+  }
+
+  /**
+   * Get the range of Interactive Spaces versions that this project requires.
+   *
+   * @return the range of Interactive Spaces versions that this project requires
+   */
+  public VersionRange getInteractiveSpacesVersionRange() {
+    return interactiveSpacesVersion;
+  }
+
+  /**
+   * Set the range of Interactive Spaces versions that this project requires.
+   *
+   * @param interactiveSpacesVersionRange
+   *          the range of Interactive Spaces versions that this project
+   *          requires
+   */
+  public void setInteractiveSpacesVersionRange(VersionRange interactiveSpacesVersionRange) {
+    this.interactiveSpacesVersion = interactiveSpacesVersionRange;
   }
 
   /**
@@ -299,7 +329,8 @@ public class Project {
   /**
    * Get a list of all resources the project has.
    *
-   * @return a new copy of the resources list or {@code null} if no resources have been specified.
+   * @return a new copy of the resources list or {@code null} if no resources
+   *         have been specified.
    */
   public List<ProjectConstituent> getResources() {
     return resources == null ? null : Lists.newArrayList(resources);
@@ -323,7 +354,8 @@ public class Project {
   /**
    * Get a list of all sources the project has.
    *
-   * @return a new copy of the sources list or {@code null} if no sources have been specified
+   * @return a new copy of the sources list or {@code null} if no sources have
+   *         been specified
    */
   public List<ProjectConstituent> getSources() {
     return sources == null ? null : Lists.newArrayList(sources);
