@@ -36,9 +36,11 @@ assembleComponents << {
 
 clean << {
   def dir = new File(project.projectDir, "libs")
-  dir.eachFile {
-    if (!it.name.contains("felix.framework")) {
-      it.delete()
+  if (dir.exists()) {
+    dir.eachFile {
+      if (!it.name.contains("felix.framework")) {
+        it.delete()
+      }
     }
   }
 }
