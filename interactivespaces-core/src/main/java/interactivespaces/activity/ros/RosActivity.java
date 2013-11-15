@@ -17,6 +17,7 @@
 package interactivespaces.activity.ros;
 
 import interactivespaces.activity.Activity;
+import interactivespaces.activity.SupportedActivity;
 
 import org.ros.node.ConnectedNode;
 import org.ros.osgi.common.RosEnvironment;
@@ -26,7 +27,7 @@ import org.ros.osgi.common.RosEnvironment;
  *
  * @author Keith M. Hughes
  */
-public interface RosActivity extends Activity {
+public interface RosActivity extends SupportedActivity {
 
   /**
    * Get the current ROS Environment being used by this activity.

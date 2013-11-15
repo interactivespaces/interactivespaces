@@ -17,6 +17,7 @@
 package interactivespaces.activity.component.ros;
 
 import interactivespaces.activity.component.ActivityComponentContext;
+import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.ros.RosActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -46,6 +47,8 @@ public class RosMessageRouterActivityComponentTest {
 
   private Log log;
 
+  private ActivityExecutionContext executionContext;
+
   @Before
   public void setup() {
     messageListener = Mockito.mock(RoutableInputMessageListener.class);
@@ -53,8 +56,12 @@ public class RosMessageRouterActivityComponentTest {
     activityComponentContext = Mockito.mock(ActivityComponentContext.class);
     activityComponentContextInOrder = Mockito.inOrder(activityComponentContext);
 
+
     activity = Mockito.mock(RosActivity.class);
     Mockito.when(activityComponentContext.getActivity()).thenReturn(activity);
+
+    executionContext = Mockito.mock(ActivityExecutionContext.class);
+    Mockito.when(activity.getExecutionContext()).thenReturn(executionContext);
 
     log = Mockito.mock(Log.class);
     Mockito.when(activity.getLog()).thenReturn(log);

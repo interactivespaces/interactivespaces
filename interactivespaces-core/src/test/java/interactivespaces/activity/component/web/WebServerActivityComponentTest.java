@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component.web;
 
-import interactivespaces.activity.Activity;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.service.web.server.WebServerWebSocketHandler;
 
@@ -33,11 +33,12 @@ import org.mockito.Mockito;
  */
 public class WebServerActivityComponentTest {
 
+  private WebServerActivityComponent activityComponent;
   private WebServerWebSocketHandler delegate;
   private ActivityComponentContext activityComponentContext;
   private WebServerActivityComponent.MyWebServerWebSocketHandler handler;
   private InOrder activityComponentContextInOrder;
-  private Activity activity;
+  private SupportedActivity activity;
   private Log log;
 
   @Before
@@ -45,15 +46,16 @@ public class WebServerActivityComponentTest {
     delegate = Mockito.mock(WebServerWebSocketHandler.class);
     activityComponentContext = Mockito.mock(ActivityComponentContext.class);
 
-    activity = Mockito.mock(Activity.class);
+    activityComponent = Mockito.mock(WebServerActivityComponent.class);
+    Mockito.when(activityComponent.getComponentContext()).thenReturn(activityComponentContext);
+
+    activity = Mockito.mock(SupportedActivity.class);
     Mockito.when(activityComponentContext.getActivity()).thenReturn(activity);
 
     log = Mockito.mock(Log.class);
     Mockito.when(activity.getLog()).thenReturn(log);
 
-    handler =
-        new WebServerActivityComponent.MyWebServerWebSocketHandler(delegate,
-            activityComponentContext);
+    handler = new WebServerActivityComponent.MyWebServerWebSocketHandler(delegate, activityComponent);
 
     activityComponentContextInOrder = Mockito.inOrder(activityComponentContext);
   }
@@ -90,7 +92,7 @@ public class WebServerActivityComponentTest {
     activityComponentContextInOrder.verify(activityComponentContext).enterHandler();
     activityComponentContextInOrder.verify(activityComponentContext).exitHandler();
 
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(activityComponent, Mockito.times(1)).handleError(Mockito.anyString(), Mockito.eq(e));
   }
 
   /**
@@ -141,7 +143,7 @@ public class WebServerActivityComponentTest {
     activityComponentContextInOrder.verify(activityComponentContext).enterHandler();
     activityComponentContextInOrder.verify(activityComponentContext).exitHandler();
 
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(activityComponent, Mockito.times(1)).handleError(Mockito.anyString(), Mockito.eq(e));
   }
 
   /**
@@ -196,7 +198,7 @@ public class WebServerActivityComponentTest {
     activityComponentContextInOrder.verify(activityComponentContext).enterHandler();
     activityComponentContextInOrder.verify(activityComponentContext).exitHandler();
 
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(activityComponent, Mockito.times(1)).handleError(Mockito.anyString(), Mockito.eq(e));
   }
 
   /**
@@ -253,7 +255,7 @@ public class WebServerActivityComponentTest {
     activityComponentContextInOrder.verify(activityComponentContext).enterHandler();
     activityComponentContextInOrder.verify(activityComponentContext).exitHandler();
 
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(activityComponent, Mockito.times(1)).handleError(Mockito.anyString(), Mockito.eq(e));
   }
 
   /**
@@ -292,6 +294,6 @@ public class WebServerActivityComponentTest {
     activityComponentContextInOrder.verify(activityComponentContext).enterHandler();
     activityComponentContextInOrder.verify(activityComponentContext).exitHandler();
 
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(activityComponent, Mockito.times(1)).handleError(Mockito.anyString(), Mockito.eq(e));
   }
 }

@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component;
 
-import interactivespaces.activity.Activity;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActivityComponentContextTest {
 
-  private Activity activity;
+  private SupportedActivity activity;
 
   private ActivityComponentCollection components;
 
@@ -55,7 +55,7 @@ public class ActivityComponentContextTest {
   public void setup() {
     executor = Executors.newFixedThreadPool(10);
 
-    activity = Mockito.mock(Activity.class);
+    activity = Mockito.mock(SupportedActivity.class);
 
     log = Mockito.mock(Log.class);
     Mockito.when(activity.getLog()).thenReturn(log);
