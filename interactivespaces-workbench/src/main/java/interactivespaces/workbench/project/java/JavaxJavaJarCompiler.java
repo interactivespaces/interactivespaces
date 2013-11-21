@@ -22,6 +22,7 @@ import interactivespaces.resource.Version;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -75,9 +76,16 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       List<File> classpath = Lists.newArrayList();
       projectType.getRuntimeClasspath(classpath, extensions, context.getWorkbench());
 
+      Project project = context.getProject();
       List<File> compilationFiles =
-          projectCompiler.getCompilationFiles(new File(context.getProject().getBaseDirectory(),
-              JavaProjectType.SOURCE_MAIN_JAVA));
+          projectCompiler.getCompilationFiles(new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA));
+
+      for (ProjectConstituent constituent : project.getSources()) {
+        List<File> additionalSources = projectCompiler.getCompilationFiles(
+            new File(project.getBaseDirectory(), constituent.getSourceDirectory()));
+        compilationFiles.addAll(additionalSources);
+      }
+
       if (compilationFiles.isEmpty()) {
         throw new SimpleInteractiveSpacesException("No Java source files for Java project");
       }
@@ -85,7 +93,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
       if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
-        createJarFile(context.getProject(), jarDestinationFile, compilationFolder, classpath);
+        createJarFile(project, jarDestinationFile, compilationFolder, classpath);
 
         if (extensions != null) {
           extensions.postProcessJar(context, jarDestinationFile);
@@ -253,7 +261,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   /**
    * Write out the contents of the folder to the distribution file.
    *
-   * @param activityFolder
+   * @param directory
    *          folder being written to the build
    * @param buf
    *          a buffer for caching info

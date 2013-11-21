@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>Simple Hello World Shared Base-Class Activity Example in Java</name>
+    <description>
+A very simple Java-based activity which just logs at INFO level its
+callback messages. Uses a shared source file specified in the project description.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.hello.shared</identifyingName>
+    <version>1.0.0</version>
+
+    <sources>
+      <source sourceDirectory="../common/java" />
+    </sources>
+
+    <resources>
+      <resource sourceFile="src/main/resources/resource.txt" />
+    </resources>
+
+</project>

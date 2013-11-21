@@ -137,4 +137,9 @@ public class ProjectBundleConstituent extends BaseProjectConstituent {
       closeQuietly(outputStream);
     }
   }
+
+  @Override
+  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
+    throw new SimpleInteractiveSpacesException("Source directory not supported for Bundle constituents");
+  }
 }

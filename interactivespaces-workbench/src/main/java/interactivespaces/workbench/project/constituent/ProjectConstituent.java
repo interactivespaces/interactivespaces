@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import org.jdom.Element;
@@ -84,4 +85,14 @@ public interface ProjectConstituent {
    */
   void processConstituent(Project project, File stagingDirectory,
       ProjectBuildContext context, Configuration constituentConfig);
+
+  /**
+   * Return the source directory for this constituent.
+   *
+   * @return source directory
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if constituent type does not provide a source directory
+   */
+  String getSourceDirectory() throws SimpleInteractiveSpacesException;
 }

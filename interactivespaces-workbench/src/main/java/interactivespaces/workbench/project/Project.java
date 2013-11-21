@@ -95,7 +95,7 @@ public class Project {
    * than saying an empty set of resources have been specified, which would be
    * indicated by the empty list).
    */
-  private List<ProjectConstituent> resources;
+  private final List<ProjectConstituent> resources = Lists.newArrayList();
 
   /**
    * The sources the project requires. A null value indicates that no sources
@@ -103,7 +103,7 @@ public class Project {
    * saying an empty set of sources have been specified, which would be
    * indicated by the empty list).
    */
-  private List<ProjectConstituent> sources;
+  private final List<ProjectConstituent> sources = Lists.newArrayList();
 
   /**
    * The deployments the project requires.
@@ -319,9 +319,6 @@ public class Project {
    */
   public void addResources(List<ProjectConstituent> addResources) {
     if (addResources != null) {
-      if (resources == null) {
-        resources = Lists.newArrayList();
-      }
       resources.addAll(addResources);
     }
   }
@@ -329,11 +326,10 @@ public class Project {
   /**
    * Get a list of all resources the project has.
    *
-   * @return a new copy of the resources list or {@code null} if no resources
-   *         have been specified.
+   * @return a new copy of the resources list
    */
   public List<ProjectConstituent> getResources() {
-    return resources == null ? null : Lists.newArrayList(resources);
+    return Lists.newArrayList(resources);
   }
 
   /**
@@ -344,9 +340,6 @@ public class Project {
    */
   public void addSources(List<ProjectConstituent> addSources) {
     if (addSources != null) {
-      if (sources == null) {
-        sources = Lists.newArrayList();
-      }
       sources.addAll(addSources);
     }
   }
@@ -354,11 +347,10 @@ public class Project {
   /**
    * Get a list of all sources the project has.
    *
-   * @return a new copy of the sources list or {@code null} if no sources have
-   *         been specified
+   * @return a new copy of the sources list
    */
   public List<ProjectConstituent> getSources() {
-    return sources == null ? null : Lists.newArrayList(sources);
+    return Lists.newArrayList(sources);
   }
 
   /**

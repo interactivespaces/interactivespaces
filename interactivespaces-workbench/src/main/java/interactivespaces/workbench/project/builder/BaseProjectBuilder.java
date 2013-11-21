@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.builder;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
@@ -60,9 +59,6 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    */
   protected void processResources(Project project, File stagingDirectory,
       ProjectBuildContext context) {
-    if (project.getSources() != null) {
-      throw new SimpleInteractiveSpacesException("Project type does not allow sources section");
-    }
     processConstituents(project, project.getResources(), stagingDirectory, context);
   }
 
@@ -78,9 +74,6 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    */
   protected void processSources(Project project, File stagingDirectory,
       ProjectBuildContext context) {
-    if (project.getResources() != null) {
-      throw new SimpleInteractiveSpacesException("Project type does not allow resources section");
-    }
     processConstituents(project, project.getSources(), stagingDirectory, context);
   }
 

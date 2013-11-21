@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -118,5 +119,10 @@ public class ProjectAssemblyConstituent extends BaseProjectConstituent {
     File outputDirectory = getProjectTarget(stagingDirectory, config, destinationDirectory);
     FILE_SUPPORT.directoryExists(outputDirectory);
     FILE_SUPPORT.unzip(sourceZipFile, outputDirectory);
+  }
+
+  @Override
+  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
+    throw new SimpleInteractiveSpacesException("Source directory not supported for Assembly constituents");
   }
 }
