@@ -17,7 +17,7 @@
 package interactivespaces.activity.component;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -28,8 +28,7 @@ import org.apache.commons.logging.Log;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 
 /**
  * A collection of {@link ActivityComponent} instances.
@@ -44,12 +43,12 @@ public class ActivityComponentCollection {
   /**
    * All components in the activity.
    */
-  private final List<ActivityComponent> components = new CopyOnWriteArrayList<ActivityComponent>();
+  private final List<ActivityComponent> configuredComponents = Lists.newArrayList();
 
   /**
    * Set of component names in the activity.
    */
-  private final Set<String> componentNames = Sets.newHashSet();
+  private final Map<String, ActivityComponent> addedComponents = Maps.newHashMap();
 
   /**
    * The log for the collection.
@@ -70,13 +69,9 @@ public class ActivityComponentCollection {
     // the system since activity components are generally considered to be singletons. Therefore,
     // help aid development by detecting the case of multiple components and throwing an error.
     String componentName = component.getName();
-    if (componentNames.contains(componentName)) {
-      throw new SimpleInteractiveSpacesException(
-          "Multiple activity components added for name " + componentName);
+    if (addedComponents.put(componentName, component) != null) {
+      throw new SimpleInteractiveSpacesException("Multiple activity components added for name " + componentName);
     }
-    componentNames.add(componentName);
-
-    components.add(component);
   }
 
   /**
@@ -89,10 +84,15 @@ public class ActivityComponentCollection {
    */
   public void configureComponents(Configuration configuration,
       ActivityComponentContext componentContext) {
+    if (!configuredComponents.isEmpty()) {
+      throw new InteractiveSpacesException("Attempt to configure already configured components");
+    }
+
     DependencyResolver<ActivityComponent> resolver = new DependencyResolver<ActivityComponent>();
 
-    for (ActivityComponent component : components) {
+    for (ActivityComponent component : addedComponents.values()) {
       component.setComponentContext(componentContext);
+      configuredComponents.add(component);
       resolver.addNode(component.getName(), component);
       resolver.addNodeDependencies(component.getName(), component.getDependencies());
     }
@@ -109,9 +109,6 @@ public class ActivityComponentCollection {
         newOrder.add(component);
       }
     }
-
-    components.clear();
-    components.addAll(newOrder);
   }
 
   /**
@@ -122,7 +119,7 @@ public class ActivityComponentCollection {
   public void startupComponents() throws Exception {
     List<ActivityComponent> startedComponents = Lists.newArrayList();
     try {
-      for (ActivityComponent component : components) {
+      for (ActivityComponent component : configuredComponents) {
         component.getComponentContext().getActivity().getLog()
             .info("Starting component " + component.getName());
 
@@ -151,7 +148,7 @@ public class ActivityComponentCollection {
   public boolean shutdownComponents() {
     boolean properlyShutDown = true;
 
-    for (ActivityComponent component : components) {
+    for (ActivityComponent component : configuredComponents) {
       try {
         component.shutdownComponent();
       } catch (Exception e) {
@@ -167,7 +164,8 @@ public class ActivityComponentCollection {
    * Clear all components from the container.
    */
   public void clear() {
-    components.clear();
+    addedComponents.clear();
+    configuredComponents.clear();
   }
 
   /**
@@ -189,7 +187,7 @@ public class ActivityComponentCollection {
   public boolean areAllComponentsRunning() {
     // Will stop if any of the components have stopped.
     boolean allAreRunning = true;
-    for (ActivityComponent component : components) {
+    for (ActivityComponent component : configuredComponents) {
       if (!component.isComponentRunning()) {
         allAreRunning = false;
 
@@ -208,39 +206,42 @@ public class ActivityComponentCollection {
    * @param <T>
    *          specific type of activity component
    *
-   * @return the component with the given name.
+   * @return the component with the given name or {@code null} if not present.
    */
   @SuppressWarnings("unchecked")
   public <T extends ActivityComponent> T getActivityComponent(String name) {
-    // Assuming there will not be a lot of components in the collection.
-    for (ActivityComponent component : components) {
-      if (component.getName().equals(name)) {
-        return (T) component;
-      }
+    return (T) addedComponents.get(name);
+  }
+
+  /**
+   * Get an activity component from the collection.
+   *
+   * @param name
+   *          name of the component
+   * @param <T>
+   *          type of activity component
+   *
+   * @return the component with the given name
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if named component is not present
+   */
+  public <T extends ActivityComponent> T getRequiredActivityComponent(String name)
+      throws SimpleInteractiveSpacesException {
+    T component = getActivityComponent(name);
+    if (component == null) {
+      throw new SimpleInteractiveSpacesException("Could not find component " + name);
     }
-
-    throw new InteractiveSpacesException(String.format("No activity component with name %s", name));
+    return component;
   }
 
   /**
-   * Return a list of all the current components.
+   * Return a list of all the configured components.
    *
-   * @return list of all components
+   * @return list of all configured components
    */
-  public Collection<ActivityComponent> getComponents() {
-    return Lists.newArrayList(components);
-  }
-
-  /**
-   * Get status messages on all components.
-   *
-   * @return status message for all components
-   */
-  public List<String> getComponentStatuses() {
-    // TODO(keith): Create. Probably will need special class with all
-    // components.
-
-    return null;
+  public Collection<ActivityComponent> getConfiguredComponents() {
+    return Lists.newArrayList(configuredComponents);
   }
 
   /**

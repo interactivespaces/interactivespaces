@@ -24,13 +24,12 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.ros.message.MessageListener;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -55,8 +54,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   /**
    * Dependencies for the component.
    */
-  public static final List<String> COMPONENT_DEPENDENCIES = Collections.unmodifiableList(Lists
-      .newArrayList(RosActivityComponent.COMPONENT_NAME));
+  public static final List<String> COMPONENT_DEPENDENCIES =
+      ImmutableList.of(RosActivityComponent.COMPONENT_NAME);
 
   /**
    * The ROS activity component this component requires.
@@ -130,7 +129,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     super.configureComponent(configuration);
 
     rosActivityComponent =
-        componentContext.getActivityComponent(RosActivityComponent.COMPONENT_NAME);
+        componentContext.getRequiredActivityComponent(RosActivityComponent.COMPONENT_NAME);
 
     StringBuilder routeErrors = new StringBuilder();
 

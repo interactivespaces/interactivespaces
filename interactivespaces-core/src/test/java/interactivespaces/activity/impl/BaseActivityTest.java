@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import interactivespaces.activity.Activity;
@@ -55,6 +56,10 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class BaseActivityTest {
 
+  private static final long CURRENT_MOCK_TIME = 1000L;
+
+  private static final int SAMPLE_TIME = 500;
+
   private BaseActivity activity;
 
   private ScheduledExecutorService executorService;
@@ -74,8 +79,9 @@ public class BaseActivityTest {
 
   private List<ActivityComponent> componentsToAdd;
 
-  private boolean activityStarted;
-
+  /**
+   * Setup for all tests.
+   */
   @Before
   public void setup() {
     componentsToAdd = Lists.newArrayList();
@@ -86,7 +92,7 @@ public class BaseActivityTest {
         Mockito.mock(InteractiveSpacesEnvironment.class);
     TimeProvider timeProvider = Mockito.mock(TimeProvider.class);
     Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
-    Mockito.when(timeProvider.getCurrentTime()).thenReturn(1000L);
+    Mockito.when(timeProvider.getCurrentTime()).thenReturn(CURRENT_MOCK_TIME);
     Mockito.when(spaceEnvironment.getExecutorService()).thenReturn(executorService);
 
     log = Mockito.mock(Log.class);
@@ -108,11 +114,11 @@ public class BaseActivityTest {
     activity.setLog(log);
 
     activityInOrder = Mockito.inOrder(activity);
-
-    // In general th activity will be started
-    activityStarted = true;
   }
 
+  /**
+   * Cleanup at the end of all tests.
+   */
   @After
   public void cleanup() {
     executorService.shutdown();
@@ -182,7 +188,7 @@ public class BaseActivityTest {
 
     ActivityComponentContext activityComponentContext = activity.getActivityComponentContext();
     assertFalse(activityComponentContext.areHandlersAllowed());
-    assertTrue(activityComponentContext.waitOnNoProcessingHandlings(500, 1000));
+    assertTrue(activityComponentContext.waitOnNoProcessingHandlings(SAMPLE_TIME, SAMPLE_TIME * 2));
   }
 
   /**
@@ -289,11 +295,14 @@ public class BaseActivityTest {
   @Test
   public void testBrokenComponentStartupWithComponentShutdown() {
     ActivityComponent component2 = Mockito.spy(new MyBaseActivityComponent("component2"));
+    List<String> dependencies = ImmutableList.of(component.getName());
+    Mockito.when(component2.getDependencies()).thenReturn(dependencies);
+
     componentInOrder = Mockito.inOrder(component, component2);
     componentsToAdd.add(component2);
 
     Exception e = new RuntimeException();
-    Mockito.doThrow(e).when(component).startupComponent();
+    Mockito.doThrow(e).when(component2).startupComponent();
 
     activity.startup();
 
@@ -304,16 +313,17 @@ public class BaseActivityTest {
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
 
-    componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
-    componentInOrder.verify(component2).setComponentContext(activity.getActivityComponentContext());
+    Mockito.verify(component).setComponentContext(activity.getActivityComponentContext());
+    Mockito.verify(component2).setComponentContext(activity.getActivityComponentContext());
 
-    componentInOrder.verify(component2).configureComponent(configuration);
     componentInOrder.verify(component).configureComponent(configuration);
+    componentInOrder.verify(component2).configureComponent(configuration);
 
-    componentInOrder.verify(component2).startupComponent();
     componentInOrder.verify(component).startupComponent();
+    componentInOrder.verify(component2).startupComponent();
 
-    componentInOrder.verify(component2).shutdownComponent();
+    Mockito.verify(component).shutdownComponent();
+    Mockito.verify(component2, Mockito.never()).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
   }
@@ -483,7 +493,6 @@ public class BaseActivityTest {
    */
   @Test
   public void testStatusListener() {
-    activityStarted = false;
     ActivityListener listener = Mockito.mock(ActivityListener.class);
 
     ActivityStatus oldStatus = activity.getActivityStatus();

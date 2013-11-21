@@ -16,12 +16,13 @@
 
 package interactivespaces.activity.component;
 
+import com.google.common.collect.ImmutableList;
+
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.configuration.Configuration;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,9 +35,7 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   /**
    * A list of no dependencies.
    */
-  @SuppressWarnings("unchecked")
-  private static final List<String> NO_DEPENDENCIES = Collections
-      .unmodifiableList(Collections.EMPTY_LIST);
+  private static final List<String> NO_DEPENDENCIES = ImmutableList.of();
 
   /**
    * Component context this component is running under.

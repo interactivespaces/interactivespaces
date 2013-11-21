@@ -16,6 +16,7 @@
 
 package interactivespaces.activity.impl;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ActivityComponent;
@@ -88,6 +89,24 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    */
   public <T extends ActivityComponent> T getComponent(String componentName) {
     return components.getActivityComponent(componentName);
+  }
+
+  /**
+   * Get one of the components for the activity.
+   *
+   * @param componentName
+   *          the name of the component
+   * @param <T>
+   *            type of activity component retrieved
+   *
+   * @return the component with the given name
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if named component is not present
+   */
+  public <T extends ActivityComponent> T getRequiredComponent(String componentName)
+      throws SimpleInteractiveSpacesException {
+    return components.getRequiredActivityComponent(componentName);
   }
 
   /**
@@ -281,7 +300,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    */
   protected String getActivityStatusDetailComposite(String baseDetail) {
     StringBuilder detailString = new StringBuilder(baseDetail);
-    for (ActivityComponent component : components.getComponents()) {
+    for (ActivityComponent component : components.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
         detailString.append(" ").append(detail);

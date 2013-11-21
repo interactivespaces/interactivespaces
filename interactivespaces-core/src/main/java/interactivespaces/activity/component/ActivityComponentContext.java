@@ -16,6 +16,7 @@
 
 package interactivespaces.activity.component;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
@@ -89,19 +90,41 @@ public class ActivityComponentContext {
    * @param <T>
    *          type of activity component
    *
-   * @return the component with the given name.
+   * @return the component with the given name or {@code null} if not present
    */
   public <T extends ActivityComponent> T getActivityComponent(String name) {
     return components.getActivityComponent(name);
   }
 
   /**
+   * Get an activity component from the collection.
+   *
+   * @param name
+   *          name of the component
+   * @param <T>
+   *          type of activity component
+   *
+   * @return the component with the given name
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if named component is not present
+   */
+  public <T extends ActivityComponent> T getRequiredActivityComponent(String name)
+      throws SimpleInteractiveSpacesException {
+    return components.getRequiredActivityComponent(name);
+  }
+
+  /**
    * Get the activity which is running the components.
+   *
+   * @param <T>
+   *          type of activity
    *
    * @return the activity
    */
-  public SupportedActivity getActivity() {
-    return activity;
+  @SuppressWarnings("unchecked")
+  public <T extends SupportedActivity> T getActivity() {
+    return (T) activity;
   }
 
   /**
