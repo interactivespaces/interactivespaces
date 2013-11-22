@@ -16,13 +16,13 @@
 
 package interactivespaces.example.activity.arduino.analog;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.util.concurrency.CancellableLoop;
 import interactivespaces.util.resource.ManagedResourceWithTask;
+
+import com.google.common.collect.Maps;
 
 import java.util.Map;
 
@@ -52,94 +52,99 @@ import java.util.Map;
  */
 public class AnalogSerialReadActivity extends BaseRoutableRosActivity {
 
-	/**
-	 * The name of the config property for obtaining the serial port.
-	 */
-	public static final String CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT = "space.hardware.serial.port";
+  /**
+   * The name of the config property for obtaining the serial port.
+   */
+  public static final String CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT = "space.hardware.serial.port";
 
-	/**
-	 * Size of the message, in bytes, we want from the arduino.
-	 */
-	private static final int MESSAGE_LENGTH = 2;
+  /**
+   * Size of the message, in bytes, we want from the arduino.
+   */
+  private static final int MESSAGE_LENGTH = 4;
 
-	/**
-	 * The source for serial communication endpoints.
-	 */
-	private SerialCommunicationEndpointService communicationEndpointService;
+  /**
+   * The source for serial communication endpoints.
+   */
+  private SerialCommunicationEndpointService communicationEndpointService;
 
-	/**
-	 * The communication endpoint for the arduino.
-	 */
-	private SerialCommunicationEndpoint arduinoEndpoint;
+  /**
+   * The communication endpoint for the arduino.
+   */
+  private SerialCommunicationEndpoint arduinoEndpoint;
 
-	@Override
-	public void onActivitySetup() {
-		communicationEndpointService = getSpaceEnvironment()
-				.getServiceRegistry().getRequiredService(
-						SerialCommunicationEndpointService.SERVICE_NAME);
-		getLog().info(
-				String.format("Serial ports available: %s",
-						communicationEndpointService.getSerialPorts()));
+  @Override
+  public void onActivitySetup() {
+    communicationEndpointService =
+        getSpaceEnvironment().getServiceRegistry().getRequiredService(SerialCommunicationEndpointService.SERVICE_NAME);
+    getLog().info(String.format("Serial ports available: %s", communicationEndpointService.getSerialPorts()));
 
-		String portName = getConfiguration().getRequiredPropertyString(
-				CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT);
+    String portName = getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_HARDWARE_SERIAL_PORT);
 
-		arduinoEndpoint = communicationEndpointService
-				.newSerialEndpoint(portName);
+    arduinoEndpoint = communicationEndpointService.newSerialEndpoint(portName);
 
-		addManagedResource(new ManagedResourceWithTask(arduinoEndpoint,
-				new CancellableLoop() {
-					byte[] buffer = new byte[MESSAGE_LENGTH];
+    addManagedResource(new ManagedResourceWithTask(arduinoEndpoint, new SerialReadTask(), getSpaceEnvironment()));
+  }
 
-					@Override
-					protected void loop() throws InterruptedException {
-						readStream(buffer);
-					}
+  /**
+   * Attempt to read the serial data from the arduino.
+   *
+   * @param serialMessageBuffer
+   *          the buffer for reading serial data into
+   */
+  private void readStream(byte[] serialMessageBuffer) {
+    if (arduinoEndpoint.available() >= MESSAGE_LENGTH) {
+      arduinoEndpoint.read(serialMessageBuffer);
 
-					@Override
-					protected void handleException(Exception e) {
-						getLog().error("Exception while reading serial port", e);
-					}
-				}, getSpaceEnvironment()));
-	}
+      if (isActivated()) {
+        // Data sent as big-endian.
+        int val1 = ((serialMessageBuffer[0] & 0xff) << 8) | (serialMessageBuffer[1] & 0xff);
+        int val2 = ((serialMessageBuffer[2] & 0xff) << 8) | (serialMessageBuffer[3] & 0xff);
 
-	/**
-	 * Attempt to read the serial data from the arduino.
-	 *
-	 * @param buffer
-	 *            the buffer for storing bytes read
-	 */
-	private void readStream(byte[] buffer) {
-		if (arduinoEndpoint.available() >= MESSAGE_LENGTH) {
-			arduinoEndpoint.read(buffer);
+        sendAnalogMessage(val1, val2);
+      }
+    }
+  }
 
-			// If activated, process the bytes. But they must be read
-			// regardless.
-			if (isActivated()) {
-				int val = ((buffer[0] & 0xff) << 8) | (buffer[1] & 0xff);
+  /**
+   * Send an analog message.
+   *
+   * @param value1
+   *          value of the analog message 1
+   * @param value2
+   *          value of the analog message 2
+   */
+  private void sendAnalogMessage(int value1, int value2) {
+    // Production code should probably have this as a debug rather
+    // and an info, then have logging at ERROR.
+    //
+    // For now will write logs of data to log since an example.
+    getLog().info(String.format("Analog values are %d and %d\n", value1, value2));
 
-				// The new value from the Arduino is known. Tell the trigger
-				// that the value has changed,
-				sendAnalogMessage(val);
-			}
-		}
-	}
+    Map<String, Object> message = Maps.newHashMap();
+    message.put("analog", value1);
+    message.put("analog2", value2);
+    sendOutputJson("signal", message);
+  }
 
-	/**
-	 * Send an analog message.
-	 *
-	 * @param value
-	 * 		value of the analog message
-	 */
-	private void sendAnalogMessage(int value) {
-		// Production code should probably have this as a debug rather
-		// and an info, then have logging at ERROR.
-		//
-		// For now will write logs of data to log since an example.
-		getLog().info(String.format("Analog value is %d\n", value));
+  /**
+   * The task for doing reads from the serial connection.
+   *
+   * @author Keith M. Hughes
+   */
+  private class SerialReadTask extends CancellableLoop {
+    /**
+     * Buffer for serial messages.
+     */
+    private final byte[] serialMessageBuffer = new byte[MESSAGE_LENGTH];
 
-		Map<String, Object> message = Maps.newHashMap();
-		message.put("analog", value);
-		sendOutputJson("signal", message);
-	}
+    @Override
+    protected void loop() throws InterruptedException {
+      readStream(serialMessageBuffer);
+    }
+
+    @Override
+    protected void handleException(Exception e) {
+      getLog().error("Exception while reading serial port", e);
+    }
+  }
 }
