@@ -92,13 +92,11 @@ public class ActivityComponentCollection {
 
     for (ActivityComponent component : addedComponents.values()) {
       component.setComponentContext(componentContext);
-      configuredComponents.add(component);
       resolver.addNode(component.getName(), component);
       resolver.addNodeDependencies(component.getName(), component.getDependencies());
     }
 
     resolver.resolve();
-    List<ActivityComponent> newOrder = Lists.newArrayList();
     for (ActivityComponent component : resolver.getOrdering()) {
       // There will be null components if addNode() was never called.
       // This means the component wasn't added but was a dependency.
@@ -106,7 +104,7 @@ public class ActivityComponentCollection {
       // is required or not.
       if (component != null) {
         component.configureComponent(configuration);
-        newOrder.add(component);
+        configuredComponents.add(component);
       }
     }
   }
