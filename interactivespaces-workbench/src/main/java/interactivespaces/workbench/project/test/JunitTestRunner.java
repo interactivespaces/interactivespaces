@@ -80,8 +80,8 @@ public class JunitTestRunner {
     try {
       JavaProjectType projectType = context.getProjectType();
       List<File> classpath = Lists.newArrayList();
-      projectType.getProjectClasspath(classpath, extensions, context.getWorkbench());
       classpath.add(jarDestinationFile);
+      projectType.getProjectClasspath(classpath, extensions, context.getWorkbench());
 
       File compilationFolder = new File(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_TESTS);
       fileSupport.directoryExists(compilationFolder);
