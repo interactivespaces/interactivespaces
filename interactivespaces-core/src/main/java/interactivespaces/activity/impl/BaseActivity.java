@@ -24,6 +24,7 @@ import interactivespaces.activity.component.ActivityComponentCollection;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.hardware.driver.Driver;
 import interactivespaces.util.concurrency.ManagedCommands;
 import interactivespaces.util.io.Files;
@@ -768,15 +769,22 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       StringBuilder logBuilder = new StringBuilder();
       getLog().info("Logging activity configuration to " + logFile);
-      Map<String, String> configMap = getConfiguration().getCollapsedMap();
+      Configuration configuration = getConfiguration();
+      Map<String, String> configMap = configuration.getCollapsedMap();
       TreeMap<String, String> sortedMap = new TreeMap<String, String>(configMap);
       for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
-        logBuilder.append(String.format("%s=%s\n", entry.getKey(), entry.getValue()));
+        String value;
+        try {
+          value = configuration.evaluate(entry.getValue());
+        } catch (Exception e) {
+          value = e.toString();
+        }
+        logBuilder.append(String.format("%s=%s\n", entry.getKey(), value));
       }
       File configLog = new File(getActivityFilesystem().getLogDirectory(), logFile);
       Files.writeFile(configLog, logBuilder.toString());
     } catch (Exception e) {
-      getLog().error("While logging activity configuration", e);
+      logException("While logging activity configuration", e);
     }
   }
 }

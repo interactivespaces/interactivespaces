@@ -135,6 +135,11 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
   }
 
   @Override
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return temporary.getExpressionEvaluator();
+  }
+
+  @Override
   public String getPropertyString(String property) {
     return temporary.getPropertyString(property);
   }

@@ -15,6 +15,7 @@
 package interactivespaces.configuration;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.evaluation.ExpressionEvaluator;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,12 @@ public class ReadOnlyConfiguration implements Configuration {
    */
   private Configuration wrapped;
 
+  /**
+   * Create a read-only configuration wrapping a mutable configuration.
+   *
+   * @param wrapped
+   *          configuration to make read-only
+   */
   public ReadOnlyConfiguration(Configuration wrapped) {
     this.wrapped = wrapped;
   }
@@ -109,6 +116,11 @@ public class ReadOnlyConfiguration implements Configuration {
   @Override
   public String evaluate(String expression) {
     return wrapped.evaluate(expression);
+  }
+
+  @Override
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return wrapped.getExpressionEvaluator();
   }
 
   @Override

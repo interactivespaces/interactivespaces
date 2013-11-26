@@ -104,6 +104,10 @@ public abstract class BaseSpaceController implements SpaceController {
   public void initializeActivityInstance(MinimalLiveActivity activity,
       ActivityFilesystem activityFilesystem, Activity instance, Configuration configuration,
       ActivityExecutionContext executionContext) {
+
+    // Set log first to enable logging of any configuration/startup errors.
+    instance.setLog(getActivityLog(activity, configuration));
+
     String uuid = activity.getUuid();
     instance.setController(this);
     instance.setUuid(uuid);
@@ -111,7 +115,6 @@ public abstract class BaseSpaceController implements SpaceController {
     instance.setConfiguration(configuration);
     instance.setActivityFilesystem(activityFilesystem);
     instance.setSpaceEnvironment(spaceEnvironment);
-    instance.setLog(getActivityLog(activity, configuration));
     instance.setExecutionContext(executionContext);
 
     initializeActivityConfiguration(configuration, activityFilesystem);
