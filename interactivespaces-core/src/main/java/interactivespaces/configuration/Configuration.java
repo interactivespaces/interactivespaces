@@ -15,6 +15,7 @@
 package interactivespaces.configuration;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.evaluation.ExpressionEvaluator;
 
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,13 @@ public interface Configuration {
   String evaluate(String expression);
 
   /**
+   * Return the expression evaluator used by this configuration.
+   *
+   * @return this configurations expression evaluator
+   */
+  ExpressionEvaluator getExpressionEvaluator();
+
+  /**
    * Get the value of the property as a string.
    *
    * <p>
@@ -81,8 +89,6 @@ public interface Configuration {
    *
    * @param property
    *          name of the property.
-   * @param defaultValue
-   *          Default value.
    * @return Use the default value if the property isn't found.
    */
   String getRequiredPropertyString(String property);
@@ -109,7 +115,7 @@ public interface Configuration {
    * @throws InteractiveSpacesException
    *           if the property does not exist
    */
-  Integer getRequiredPropertyInteger(String property);
+  Integer getRequiredPropertyInteger(String property) throws InteractiveSpacesException;
 
   /**
    * Get the value of the property as a long.
@@ -134,7 +140,7 @@ public interface Configuration {
    * @throws InteractiveSpacesException
    *           if the property does not exist
    */
-  Long getRequiredPropertyLong(String property);
+  Long getRequiredPropertyLong(String property) throws InteractiveSpacesException;
 
   /**
    * Get the value of the property as a double.
@@ -158,7 +164,7 @@ public interface Configuration {
    * @throws InteractiveSpacesException
    *           if the property does not exist
    */
-  Double getRequiredPropertyDouble(String property);
+  Double getRequiredPropertyDouble(String property) throws InteractiveSpacesException;
 
   /**
    * Get the value of the property as a boolean.
@@ -182,7 +188,7 @@ public interface Configuration {
    * @throws InteractiveSpacesException
    *           if the property does not exist
    */
-  Boolean getRequiredPropertyBoolean(String property);
+  Boolean getRequiredPropertyBoolean(String property) throws InteractiveSpacesException;
 
   /**
    * Get the value of the property as a list of strings seperated using the
@@ -288,7 +294,7 @@ public interface Configuration {
    * Entries in children configs will properly shadow the same keys in the
    * parents.
    *
-   * @return
+   * @return collapsed map of all entries for this configuration
    */
   Map<String, String> getCollapsedMap();
 

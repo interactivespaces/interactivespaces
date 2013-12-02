@@ -55,6 +55,11 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
   }
 
   @Override
+  public ExpressionEvaluator getExpressionEvaluator() {
+    return expressionEvaluator;
+  }
+
+  @Override
   public void setParent(Configuration parent) {
     this.parent = parent;
   }
@@ -214,7 +219,11 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
     String value = null;
 
     Configuration current = this;
-    while (current != null && ((value = current.findValueLocally(property)) == null)) {
+    while (current != null) {
+      value = current.findValueLocally(property);
+      if (value != null) {
+        break;
+      }
       current = current.getParent();
     }
 

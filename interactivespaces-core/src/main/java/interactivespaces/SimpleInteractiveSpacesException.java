@@ -55,7 +55,17 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
     StringBuilder message = new StringBuilder();
     Throwable cause = getCause();
     while (cause != null) {
-      message.append(cause.getMessage()).append("\n");
+      String causeMessage = cause.getMessage();
+      if (causeMessage != null) {
+        message.append(causeMessage);
+      } else {
+        message.append(cause.getClass().getName());
+        StackTraceElement[] stackTraceElements = cause.getStackTrace();
+        if (stackTraceElements != null && stackTraceElements.length > 0) {
+          message.append(" @").append(stackTraceElements[0]);
+        }
+      }
+      message.append("\n");
       cause = cause.getCause();
     }
     return message.append(getMessage()).toString();
