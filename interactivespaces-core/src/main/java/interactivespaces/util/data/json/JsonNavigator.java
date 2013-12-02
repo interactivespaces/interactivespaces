@@ -16,6 +16,8 @@
 
 package interactivespaces.util.data.json;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -96,10 +98,9 @@ public class JsonNavigator {
    * @param root
    *          the root object, must be a map
    */
-  @SuppressWarnings("unchecked")
   public JsonNavigator(Object root) {
     if (root instanceof Map) {
-      this.root = (Map<String, Object>) root;
+      this.root = checkedValue(root, "constructor");
       currentType = JsonType.OBJECT;
       currentObject = this.root;
     } else {
@@ -233,8 +234,7 @@ public class JsonNavigator {
    */
   public <T> T getItem(String name) {
     if (currentType == JsonType.OBJECT) {
-      @SuppressWarnings("unchecked")
-      T value = (T) currentObject.get(name);
+      T value = checkedValue(currentObject.get(name), name);
 
       return value;
     } else {
@@ -353,8 +353,7 @@ public class JsonNavigator {
    */
   public <T> T getItem(int pos) throws JsonInteractiveSpacesException {
     if (currentType == JsonType.ARRAY) {
-      @SuppressWarnings("unchecked")
-      T value = (T) currentArray.get(pos);
+      T value = checkedValue(currentArray.get(pos), "array[%s]", pos);
 
       return value;
     } else {
@@ -419,19 +418,18 @@ public class JsonNavigator {
    *
    * @return this navigator object
    */
-  @SuppressWarnings("unchecked")
   public JsonNavigator down(String name) {
     if (currentType == JsonType.OBJECT) {
       Object value = currentObject.get(name);
 
       if (value instanceof Map) {
         nav.push(currentObject);
-        currentObject = (Map<String, Object>) value;
+        currentObject = checkedValue(value, name);
 
         // Type already a MAP
       } else if (value instanceof List) {
         nav.push(currentObject);
-        currentArray = (List<Object>) value;
+        currentArray = checkedValue(value, name);
         currentType = JsonType.ARRAY;
         currentArraySize = currentArray.size();
         currentArrayPosition = 0;
@@ -461,19 +459,18 @@ public class JsonNavigator {
    * @throws JsonInteractiveSpacesException
    *           not an array
    */
-  @SuppressWarnings("unchecked")
   public JsonNavigator down(int pos) throws JsonInteractiveSpacesException {
     if (currentType == JsonType.ARRAY) {
       Object value = currentArray.get(pos);
 
       if (value instanceof Map) {
         nav.push(currentArray);
-        currentObject = (Map<String, Object>) value;
+        currentObject = checkedValue(value, "down[%s]", pos);
 
         currentType = JsonType.OBJECT;
       } else if (value instanceof List) {
         nav.push(currentArray);
-        currentArray = (List<Object>) value;
+        currentArray = checkedValue(value, "down[%s]", pos);
         // Already an array
         currentArraySize = currentArray.size();
         currentArrayPosition = 0;
@@ -494,18 +491,17 @@ public class JsonNavigator {
    *
    * @return this navigator object
    */
-  @SuppressWarnings("unchecked")
   public JsonNavigator up() {
     if (!nav.isEmpty()) {
       Object value = nav.pop();
 
       if (value instanceof Map) {
-        currentObject = (Map<String, Object>) value;
+        currentObject = checkedValue(value, "parent object");
         currentArray = null;
 
         currentType = JsonType.OBJECT;
       } else if (value instanceof List) {
-        currentArray = (List<Object>) value;
+        currentArray = checkedValue(value, "parent object");
         currentObject = null;
 
         currentType = JsonType.ARRAY;
@@ -528,7 +524,6 @@ public class JsonNavigator {
    *
    * @return the final object
    */
-  @SuppressWarnings("unchecked")
   Object traversePath(String path) {
     Object curObject = null;
 
@@ -554,7 +549,8 @@ public class JsonNavigator {
           if (element.endsWith("]")) {
             int index = Integer.parseInt(element.substring(1, element.length() - 1));
 
-            curObject = ((List<Object>) curObject).get(index);
+            List<Object> objectList = checkedValue(curObject, path);
+            curObject = objectList.get(index);
           } else {
             throw new JsonInteractiveSpacesException(String.format(
                 "Path element %s does not end in a ]", element));
@@ -567,7 +563,8 @@ public class JsonNavigator {
       } else {
         // Have a result name
         if (curObject instanceof Map) {
-          curObject = ((Map<String, Object>) curObject).get(element);
+          Map<String, Object> objectMap = checkedValue(curObject, path);
+          curObject = objectMap.get(element);
         } else if (curObject instanceof List) {
           throw new JsonInteractiveSpacesException("Attempt to use an name index in an array");
         } else if (i < elements.length) {
@@ -582,5 +579,51 @@ public class JsonNavigator {
   @Override
   public String toString() {
     return "JsonNavigator [root=" + root + "]";
+  }
+
+  /**
+   * Cast the value to the appropriate type, providing a reasonable error.
+   *
+   * @param value
+   *          value to cast
+   * @param name
+   *          name of property
+   * @param <T>
+   *          intended type
+   *
+   * @return value cast to intended type
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if there was a typecast or other error
+   */
+  private <T> T checkedValue(Object value, String name) {
+    return checkedValue(value, name, 0);
+  }
+
+  /**
+   * Cast the value to the appropriate type, providing a reasonable error.
+   *
+   * @param value
+   *          value to cast
+   * @param format
+   *          string format for error reporting
+   * @param index
+   *          index to be applied to the format
+   * @param <T>
+   *          intended type
+   *
+   * @return value cast to intended type
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if there was a typecast or other error
+   */
+  @SuppressWarnings("unchecked")
+  private <T> T checkedValue(Object value, String format, int index) {
+    try {
+      return (T) value;
+    } catch (Exception e) {
+      String message = String.format(format, index);
+      throw new SimpleInteractiveSpacesException(message, e);
+    }
   }
 }
