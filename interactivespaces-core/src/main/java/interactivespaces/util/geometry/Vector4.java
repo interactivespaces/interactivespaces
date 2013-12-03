@@ -16,6 +16,8 @@
 
 package interactivespaces.util.geometry;
 
+import interactivespaces.util.math.MathUtils;
+
 /**
  * A 4 component vector.
  *
@@ -25,6 +27,55 @@ package interactivespaces.util.geometry;
  * @author Keith M. Hughes
  */
 public class Vector4 {
+
+  /**
+   * Intepolate along the line between {@code v0} and {@code v1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code v0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code v1}.</li>
+   * </ul>
+   *
+   * @param v1
+   *          the origin point
+   * @param v2
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   * @param answer
+   *          where to place the answer
+   *
+   * @return the answer
+   */
+  public static Vector4 interpolate(Vector4 v1, Vector4 v2, double amount, Vector4 answer) {
+    answer.v0 = (v2.v0 - v1.v0) * amount + v1.v0;
+    answer.v1 = (v2.v1 - v1.v1) * amount + v1.v1;
+    answer.v2 = (v2.v2 - v1.v2) * amount + v1.v2;
+    answer.v3 = (v2.v3 - v1.v3) * amount + v1.v3;
+
+    return answer;
+  }
+
+  /**
+   * Intepolate along the line between {@code v0} and {@code v1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code v0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code v1}.</li>
+   * </ul>
+   *
+   * @param v1
+   *          the origin point
+   * @param v2
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   *
+   * @return a new vector containing the answer
+   */
+  public static Vector4 interpolate(Vector4 v1, Vector4 v2, double amount) {
+    return interpolate(v1, v2, amount, new Vector4());
+  }
 
   /**
    * First component of the vector.
@@ -91,98 +142,6 @@ public class Vector4 {
    */
   public Vector4(Vector3 v) {
     this(v.v0, v.v1, v.v2, 1.0);
-  }
-
-  /**
-   * Get the X coordinate of the vector.
-   *
-   * @return the X coordinate
-   */
-  public double getX() {
-    return v0;
-  }
-
-  /**
-   * Set the X coordinate of the vector.
-   *
-   * @param x
-   *          the X coordinate
-   *
-   * @return this vector
-   */
-  public Vector4 setX(double x) {
-    v0 = x;
-
-    return this;
-  }
-
-  /**
-   * Get the Y coordinate of the vector.
-   *
-   * @return the Y coordinate
-   */
-  public double getY() {
-    return v1;
-  }
-
-  /**
-   * Set the Y coordinate of the vector.
-   *
-   * @param y
-   *          the Y coordinate
-   *
-   * @return this vector
-   */
-  public Vector4 setY(double y) {
-    v1 = y;
-
-    return this;
-  }
-
-  /**
-   * Get the Z coordinate of the vector.
-   *
-   * @return the Z coordinate
-   */
-  public double getZ() {
-    return v2;
-  }
-
-  /**
-   * Set the Z coordinate of the vector.
-   *
-   * @param z
-   *          the Z coordinate
-   *
-   * @return this vector
-   */
-  public Vector4 setZ(double z) {
-    v2 = z;
-
-    return this;
-  }
-
-  /**
-   * Get the W coordinate of the vector.
-   *
-   * @return the W coordinate
-   */
-  public double getW() {
-    return v3;
-  }
-
-  /**
-   * Set the W coordinate of the vector.
-   *
-   * @param w
-   *          the W coordinate
-   *
-   * @return this vector
-   */
-  public Vector4 setW(double w) {
-    v3 = w;
-
-    return this;
   }
 
   /**
@@ -334,5 +293,21 @@ public class Vector4 {
     v3 = tv3;
 
     return this;
+  }
+
+  /**
+   * Is this vectors equal to the other within some tolerance factor?.
+   *
+   * @param v
+   *          the second vector
+   * @param tolerance
+   *          the tolerance for equality
+   *
+   * @return {@code true} if each component is equal to the corresponding
+   *         component within the tolerance factor
+   */
+  public boolean equal(Vector4 v, double tolerance) {
+    return MathUtils.equals(v0, v.v0, tolerance) && MathUtils.equals(v1, v.v1, tolerance)
+        && MathUtils.equals(v2, v.v2, tolerance) && MathUtils.equals(v3, v.v3, tolerance);
   }
 }

@@ -16,12 +16,238 @@
 
 package interactivespaces.util.geometry;
 
+import interactivespaces.util.math.MathUtils;
+
+import java.util.Collection;
+
 /**
  * A 2D vector.
  *
  * @author Keith M. Hughes
  */
 public class Vector2 {
+
+  /**
+   * Linearly interpolate along the line between {@code vector0} and {@code vector1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code  vector0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code  vector1}.</li>
+   * </ul>
+   *
+   * @param vector0
+   *          the origin point
+   * @param vector1
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   * @param answer
+   *          where to place the answer
+   *
+   * @return the answer
+   */
+  public static Vector2 linearInterpolate(Vector2 vector0, Vector2 vector1, double amount, Vector2 answer) {
+    answer.v0 = MathUtils.linearInterpolate(vector0.v0, vector1.v0, amount);
+    answer.v1 = MathUtils.linearInterpolate(vector0.v1, vector1.v1, amount);
+
+    return answer;
+  }
+
+  /**
+   * Linearly interpolate along the line between {@code  vector0} and {@code vector1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code vector0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code vector1}.</li>
+   * </ul>
+   *
+   * @param vector0
+   *          the origin point
+   * @param vector1
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   *
+   * @return a new vector containing the answer
+   */
+  public static Vector2 linearInterpolate(Vector2 vector0, Vector2 vector1, double amount) {
+    return linearInterpolate(vector0, vector1, amount, new Vector2());
+  }
+
+  /**
+   * Calculate the center point of a collection of vectors.
+   *
+   * <p>
+   * This is calculated as the average of each component.
+   *
+   * @param vectors
+   *          the collection of vectors
+   * @param answer
+   *          the vector in which to place the answer
+   *
+   * @return the answer
+   */
+  public static Vector2 calculateVectorsCenter(Collection<Vector2> vectors, Vector2 answer) {
+    double sumV0 = 0.0;
+    double sumV1 = 0.0;
+
+    for (Vector2 vector : vectors) {
+      sumV0 += vector.v0;
+      sumV1 += vector.v1;
+    }
+
+    answer.set(sumV0 / vectors.size(), sumV1 / vectors.size());
+
+    return answer;
+  }
+
+  /**
+   * Find the point on the line nearest to the given point.
+   *
+   * @param linePoint0
+   *          one of the points on the line
+   * @param linePoint1
+   *          the other point on the line
+   * @param point
+   *          the given point
+   *
+   * @return the answer in a newly created vector
+   */
+  public static Vector2 nearestPointOnLine(Vector2 linePoint0, Vector2 linePoint1, Vector2 point) {
+    return nearestPointOnLine(linePoint0, linePoint1, point, new Vector2());
+  }
+
+  /**
+   * Find the point on the line nearest to the given point.
+   *
+   * @param linePoint0
+   *          one of the points on the line
+   * @param linePoint1
+   *          the other point on the line
+   * @param point
+   *          the given point
+   * @param answer
+   *          where the answer will be stored
+   *
+   * @return the answer
+   *
+   * @throws ArithmeticException
+   *           the line points are the same, so no line is determined
+   */
+  public static Vector2 nearestPointOnLine(Vector2 linePoint0, Vector2 linePoint1, Vector2 point, Vector2 answer)
+      throws ArithmeticException {
+    // The algorithm here is simple. We want the intersection of the line
+    // perpendicular to the original line which contains the target point of
+    // interest. This intersection will be the point on the line closest to the
+    // target point.
+
+    // Take the two line points and figure out the
+    // equation of the form a x + b y + c = 0.
+    // This is done by taking the two line points, putting them in homogenuous
+    // coordinates (x, y, 1) and taking their cross product.
+
+    double dx = linePoint1.v0 - linePoint0.v0;
+    double dy = linePoint1.v1 - linePoint0.v1;
+
+    if (dx == 0.0 && dy == 0.0) {
+      throw new ArithmeticException("Line points are the same");
+    }
+
+    // a = -dy
+    // b = dx
+    double c = linePoint0.v0 * linePoint1.v1 - linePoint0.v1 * linePoint1.v0;
+
+    // Now we need a line that is perpendicular to the above line.
+    // This line will be -b x + a y + cp = 0, or
+    // dx x + dy y + cp = 0.
+    double cp = -dx * point.v0 - dy * point.v1;
+
+    // If we have two lines of the form a x + b y + c = 0, we can treat them
+    // as 3 vectors (a,b,c). If we take their cross product, we will have their
+    // intersection point.
+    // The point on the line closest will be the intersection of the original
+    // line with the perpendicular
+    // After the cross product we will have
+    double w = -dx * dx - dy * dy;
+
+    answer.v0 = (dx * cp - dy * c) / w;
+    answer.v1 = (dx * c + dy * cp) / w;
+
+    return answer;
+  }
+
+  /**
+   * Find the point on the line nearest to the given point.
+   *
+   * @param line0Point0
+   *          one of the points on the first line
+   * @param line0Point1
+   *          the other point on the first line
+   * @param line1Point0
+   *          one of the points on the second line
+   * @param line1Point1
+   *          the other point on the second line
+   *
+   * @return the answer in a newly created vector
+   *
+   * @throws ArithmeticException
+   *           the lines don't intersect
+   */
+  public static Vector2 intersectLines(Vector2 line0Point0, Vector2 line0Point1, Vector2 line1Point0,
+      Vector2 line1Point1) {
+    return intersectLines(line0Point0, line0Point1, line1Point0, line1Point1, new Vector2());
+  }
+
+  /**
+   * Find the point on the line nearest to the given point.
+   *
+   * @param line0Point0
+   *          one of the points on the first line
+   * @param line0Point1
+   *          the other point on the first line
+   * @param line1Point0
+   *          one of the points on the second line
+   * @param line1Point1
+   *          the other point on the second line
+   * @param answer
+   *          where the answer will be stored
+   *
+   * @return the answer
+   *
+   * @throws ArithmeticException
+   *           the lines don't intersect
+   */
+  public static Vector2 intersectLines(Vector2 line0Point0, Vector2 line0Point1, Vector2 line1Point0,
+      Vector2 line1Point1, Vector2 answer) throws ArithmeticException {
+    // The algorithm here is simple. Calculate the lines in the form
+    // a x + b y + c = 0 for both lines.
+    // Treat this then as a 3 vector (a,b,c).
+    // Take the cross product of these two vectors.
+    // The result is the intersection point in homogeneous coordinates.
+
+    // Take the two line points and figure out the
+    // equation of the form a x + b y + c = 0.
+    // This is done by taking the two line points, putting them in homogenuous
+    // coordinates (x, y, 1) and taking their cross product.
+
+    double a0 = line0Point0.v1 - line0Point1.v1;
+    double b0 = line0Point1.v0 - line0Point0.v0;
+    double c0 = line0Point0.v0 * line0Point1.v1 - line0Point0.v1 * line0Point1.v0;
+
+    double a1 = line1Point0.v1 - line1Point1.v1;
+    double b1 = line1Point1.v0 - line1Point0.v0;
+    double c1 = line1Point0.v0 * line1Point1.v1 - line1Point0.v1 * line1Point1.v0;
+
+    double w = a0 * b1 - a1 * b0;
+    if (w == 0) {
+      throw new ArithmeticException("The lines are parallel");
+    }
+
+    answer.v0 = (b0 * c1 - b1 * c0) / w;
+    answer.v1 = (a1 * c0 - a0 * c1) / w;
+
+    return answer;
+  }
 
   /**
    * The first component of the vector.
@@ -62,52 +288,6 @@ public class Vector2 {
   public Vector2(Vector2 v) {
     this.v0 = v.v0;
     this.v1 = v.v1;
-  }
-
-  /**
-   * Get the X coordinate of the vector.
-   *
-   * @return the X coordinate
-   */
-  public double getX() {
-    return v0;
-  }
-
-  /**
-   * Set the X coordinate of the vector.
-   *
-   * @param x
-   *          the X coordinate
-   *
-   * @return this vector
-   */
-  public Vector2 setX(double x) {
-    v0 = x;
-
-    return this;
-  }
-
-  /**
-   * Get the Y coordinate of the vector.
-   *
-   * @return the Y coordinate
-   */
-  public double getY() {
-    return v1;
-  }
-
-  /**
-   * Set the Y coordinate of the vector.
-   *
-   * @param y
-   *          the Y coordinate
-   *
-   * @return this vector
-   */
-  public Vector2 setY(double y) {
-    v1 = y;
-
-    return this;
   }
 
   /**
@@ -299,6 +479,37 @@ public class Vector2 {
   }
 
   /**
+   * Get a vector which has every component multiplied by a factor.
+   *
+   * @param factor0
+   *          the factor for the first component
+   * @param factor1
+   *          the factor for the second component
+   *
+   * @return a new vector with components that are scaled
+   */
+  public Vector2 scale(double factor0, double factor1) {
+    return new Vector2(this).scaleSelf(factor0, factor1);
+  }
+
+  /**
+   * Get a vector which has every component multiplied by a factor.
+   *
+   * @param factor0
+   *          the factor for the first component
+   * @param factor1
+   *          the factor for the second component
+   *
+   * @return this vector with components that are scaled
+   */
+  public Vector2 scaleSelf(double factor0, double factor1) {
+    v0 *= factor0;
+    v1 *= factor1;
+
+    return this;
+  }
+
+  /**
    * Divide all components of the current vector by a factor.
    *
    * @param factor
@@ -420,6 +631,39 @@ public class Vector2 {
   }
 
   /**
+   * Multiply the current vector by the matrix.
+   *
+   * @param m
+   *          the matrix to multiply by
+   *
+   * @return a new vector whose components are result of the multiplication
+   */
+  public Vector2 multiply(Matrix3 m) {
+    return new Vector2(this).multiplySelf(m);
+  }
+
+  /**
+   * Multiple the current vector in homogeneous space, setting the current
+   * vector to the result.
+   *
+   * @param m
+   *          the vector to multiply by
+   *
+   * @return this vector whose components are result of the multiplication
+   */
+  public Vector2 multiplySelf(Matrix3 m) {
+    double tv0 = v0 * m.matrix[0][0] + v1 * m.matrix[0][1] + m.matrix[0][2];
+    double tv1 = v0 * m.matrix[1][0] + v1 * m.matrix[1][1] + m.matrix[1][2];
+
+    double w = v0 * m.matrix[2][0] + v1 * m.matrix[2][1] + m.matrix[2][2];
+
+    v0 = tv0 / w;
+    v1 = tv1 / w;
+
+    return this;
+  }
+
+  /**
    * Is this vector equal to the other?
    *
    * @param v
@@ -433,18 +677,51 @@ public class Vector2 {
   }
 
   /**
-   * Is this vectors equal to the other within some fuzz factor?.
+   * Is this vectors equal to the other within some tolerance?
    *
    * @param v
    *          the second vector
-   * @param fuzz
-   *          the fuzz factor
+   * @param tolerance
+   *          the tolerance for equality
    *
    * @return {@code true} if each component is equal to the corresponding
-   *         component within the fuzz factor
+   *         component within the tolerance factor
    */
-  public boolean equal(Vector2 v, double fuzz) {
-    return Math.abs(v0 - v.v0) < fuzz && Math.abs(v1 - v.v1) < fuzz;
+  public boolean equal(Vector2 v, double tolerance) {
+    return MathUtils.equals(v0, v.v0, tolerance) && MathUtils.equals(v1, v.v1, tolerance);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(v0);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(v1);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Vector2 other = (Vector2) obj;
+    if (Double.doubleToLongBits(v0) != Double.doubleToLongBits(other.v0)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(v1) != Double.doubleToLongBits(other.v1)) {
+      return false;
+    }
+    return true;
   }
 
   @Override

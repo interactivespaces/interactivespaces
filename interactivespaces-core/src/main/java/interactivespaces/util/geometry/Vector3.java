@@ -16,6 +16,8 @@
 
 package interactivespaces.util.geometry;
 
+import interactivespaces.util.math.MathUtils;
+
 /**
  * A 3D vector.
  *
@@ -48,6 +50,54 @@ public class Vector3 {
    */
   public static Vector3 newZAxis() {
     return new Vector3(0.0f, 0.0f, 1.0f);
+  }
+
+  /**
+   * Intepolate along the line between {@code v0} and {@code v1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code v0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code v1}.</li>
+   * </ul>
+   *
+   * @param v1
+   *          the origin point
+   * @param v2
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   * @param answer
+   *          where to place the answer
+   *
+   * @return the answer
+   */
+  public static Vector3 interpolate(Vector3 v1, Vector3 v2, double amount, Vector3 answer) {
+    answer.v0 = (v2.v0 - v1.v0) * amount + v1.v0;
+    answer.v1 = (v2.v1 - v1.v1) * amount + v1.v1;
+    answer.v2 = (v2.v2 - v1.v2) * amount + v1.v2;
+
+    return answer;
+  }
+
+  /**
+   * Intepolate along the line between {@code v0} and {@code v1}.
+   *
+   * <ul>
+   * <li>If {@code amount} is {@code 0}, the value will be {@code v0}.</li>
+   * <li>If {@code amount} is {@code 1}, the value will be {@code v1}.</li>
+   * </ul>
+   *
+   * @param v1
+   *          the origin point
+   * @param v2
+   *          the direction point
+   * @param amount
+   *          the percentage between the origin and the direction
+   *
+   * @return a new vector containing the answer
+   */
+  public static Vector3 interpolate(Vector3 v1, Vector3 v2, double amount) {
+    return interpolate(v1, v2, amount, new Vector3());
   }
 
   /**
@@ -111,75 +161,6 @@ public class Vector3 {
     this.v0 = v.v0;
     this.v1 = v.v1;
     this.v2 = v.v2;
-  }
-
-  /**
-   * Get the X coordinate of the vector.
-   *
-   * @return the X coordinate
-   */
-  public double getX() {
-    return v0;
-  }
-
-  /**
-   * Set the X coordinate of the vector.
-   *
-   * @param x
-   *          the X coordinate
-   *
-   * @return this vector
-   */
-  public Vector3 setX(double x) {
-    v0 = x;
-
-    return this;
-  }
-
-  /**
-   * Get the Y coordinate of the vector.
-   *
-   * @return the Y coordinate
-   */
-  public double getY() {
-    return v1;
-  }
-
-  /**
-   * Set the Y coordinate of the vector.
-   *
-   * @param y
-   *          the Y coordinate
-   *
-   * @return this vector
-   */
-  public Vector3 setY(double y) {
-    v1 = y;
-
-    return this;
-  }
-
-  /**
-   * Get the Z coordinate of the vector.
-   *
-   * @return the Z coordinate
-   */
-  public double getZ() {
-    return v2;
-  }
-
-  /**
-   * Set the Z coordinate of the vector.
-   *
-   * @param z
-   *          the Z coordinate
-   *
-   * @return this vector
-   */
-  public Vector3 setZ(double z) {
-    v2 = z;
-
-    return this;
   }
 
   /**
@@ -501,6 +482,50 @@ public class Vector3 {
   }
 
   /**
+   * Calculate the dot product between this vector and the supplied vector.
+   *
+   * @param v
+   *          the supplied vector
+   *
+   * @return the dot product
+   */
+  public double dot(Vector3 v) {
+    return v0 * v.v0 + v1 * v.v1 + v2 * v.v2;
+  }
+
+  /**
+   * Calculate the cross product of this vector with the supplied vector.
+   *
+   * @param v
+   *          the supplied vector
+   *
+   * @return a new vector with components are the result of the cross product
+   */
+  public Vector3 cross(Vector3 v) {
+    return new Vector3(this).crossSelf(v);
+  }
+
+  /**
+   * Calculate the cross product of this vector with the supplied vector.
+   *
+   * @param v
+   *          the supplied vector
+   *
+   * @return this vector with components are the result of the cross product
+   */
+  public Vector3 crossSelf(Vector3 v) {
+    double tv0 = v1 * v.v2 - v2 * v.v1;
+    double tv1 = v2 * v.v0 - v0 * v.v2;
+    double tv2 = v0 * v.v1 - v1 * v.v0;
+
+    v0 = tv0;
+    v1 = tv1;
+    v2 = tv2;
+
+    return this;
+  }
+
+  /**
    * Calculate the square of the Euclidean distance between this vector and the
    * other using all 3 coordinates.
    *
@@ -573,18 +598,19 @@ public class Vector3 {
   }
 
   /**
-   * Is this vectors equal to the other within some fuzz factor?.
+   * Is this vectors equal to the other within some tolerance factor?.
    *
    * @param v
    *          the second vector
-   * @param fuzz
-   *          the fuzz factor
+   * @param tolerance
+   *          the tolerance for equality
    *
    * @return {@code true} if each component is equal to the corresponding
-   *         component within the fuzz factor
+   *         component within the tolerance factor
    */
-  public boolean equal(Vector3 v, double fuzz) {
-    return Math.abs(v0 - v.v0) < fuzz && Math.abs(v1 - v.v1) < fuzz && Math.abs(v2 - v.v2) < fuzz;
+  public boolean equal(Vector3 v, double tolerance) {
+    return MathUtils.equals(v0, v.v0, tolerance) && MathUtils.equals(v1, v.v1, tolerance)
+        && MathUtils.equals(v2, v.v2, tolerance);
   }
 
   @Override

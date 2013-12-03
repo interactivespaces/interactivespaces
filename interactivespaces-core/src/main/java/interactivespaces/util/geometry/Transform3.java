@@ -16,6 +16,8 @@
 
 package interactivespaces.util.geometry;
 
+import java.util.List;
+
 /**
  * A 3D transform.
  *
@@ -55,6 +57,50 @@ public class Transform3 {
     transform = new Matrix4().identity();
 
     temp = new Matrix4();
+  }
+
+  /**
+   * Transform the given vector according to the current transform.
+   *
+   * @param v
+   *        the given vector
+   *
+   * @return a newly constructed vector transformed
+   */
+  public Vector3 transform(Vector3 v) {
+    return v.multiply(transform);
+  }
+
+  /**
+   * Transform the given vector according to the current transform.
+   *
+   * @param v
+   *        the given vector
+   *
+   * @return the given vector with its coordinates transformed
+   */
+  public Vector3 transformSelf(Vector3 v) {
+    return v.multiplySelf(transform);
+  }
+
+  /**
+   * Transform the given list of vectors according to the current transform.
+   *
+   * <p>
+   * The original list of the original vectors is returned with just a new set
+   * of coordinates in the vectors.
+   *
+   * @param vectors
+   *          the given vectors
+   *
+   * @return this transform
+   */
+  public Transform3 transformSelf(List<Vector3> vectors) {
+    for (Vector3 v : vectors) {
+      transformSelf(v);
+    }
+
+    return this;
   }
 
   /**
@@ -161,7 +207,7 @@ public class Transform3 {
    * @return this transform
    */
   public Transform3 scale(Vector3 s) {
-    return scale(s.getX(), s.getY(), s.getZ());
+    return scale(s.getV0(), s.getV1(), s.getV2());
   }
 
   /**
@@ -175,7 +221,7 @@ public class Transform3 {
    * @return this transform
    */
   public Transform3 translate(Vector3 v, double scale) {
-    return translate(scale * v.getX(), scale * v.getY(), scale * v.getZ());
+    return translate(scale * v.getV0(), scale * v.getV1(), scale * v.getV2());
   }
 
   /**
@@ -187,7 +233,7 @@ public class Transform3 {
    * @return this transform
    */
   public Transform3 translate(Vector3 v) {
-    return translate(v.getX(), v.getY(), v.getZ());
+    return translate(v.getV0(), v.getV1(), v.getV2());
   }
 
   /**

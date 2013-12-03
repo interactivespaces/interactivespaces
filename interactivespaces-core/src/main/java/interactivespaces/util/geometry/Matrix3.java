@@ -36,6 +36,18 @@ public class Matrix3 {
   }
 
   /**
+   * Construct a matrix identical to the given matrix.
+   *
+   * @param m
+   *          the given matrix
+   */
+  public Matrix3(Matrix3 m) {
+    this();
+
+    set(m);
+  }
+
+  /**
    * Construct a matrix from the individual components.
    *
    * @param e00
@@ -57,8 +69,8 @@ public class Matrix3 {
    * @param e22
    *          value for [2][2]
    */
-  public Matrix3(double e00, double e01, double e02, double e10, double e11, double e12,
-      double e20, double e21, double e22) {
+  public Matrix3(double e00, double e01, double e02, double e10, double e11, double e12, double e20, double e21,
+      double e22) {
     this();
 
     matrix[0][0] = e00;
@@ -81,6 +93,25 @@ public class Matrix3 {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         matrix[i][j] = (i == j) ? 1.0 : 0.0;
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * Make the current matrix contain the exact same values as the supplied
+   * matrix.
+   *
+   * @param m
+   *          the matrix we are setting the current matrix to
+   *
+   * @return this matrix
+   */
+  public Matrix3 set(Matrix3 m) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        matrix[i][j] = m.matrix[i][j];
       }
     }
 
@@ -113,5 +144,68 @@ public class Matrix3 {
     matrix[2][2] = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
 
     return this;
+  }
+
+  /**
+   * Set a specific element of the matrix.
+   *
+   * @param row
+   *          the element's row
+   * @param col
+   *          the element's column
+   * @param value
+   *          the new value for the element
+   *
+   * @return this matrix
+   */
+  public Matrix3 setEntry(int row, int col, double value) {
+    matrix[row][col] = value;
+
+    return this;
+  }
+
+  /**
+   * Multiply the current matrix by the given matrix.
+   *
+   * @param m
+   *          the matrix being multiplied by
+   *
+   * @return a new matrix given the result of the multiplication
+   */
+  public Matrix3 multiply(Matrix3 m) {
+    return new Matrix3(this).multiplySelf(m);
+  }
+
+  /**
+   * Multiply the current matrix by the given matrix and set the current matrix
+   * to have the results.
+   *
+   * @param m
+   *          the matrix being multiplied by
+   *
+   * @return the current matrix
+   */
+  public Matrix3 multiplySelf(Matrix3 m) {
+    double[][] result = new double[3][3];
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        result[i][j] = matrix[i][0] * m.matrix[0][j] + matrix[i][1] * m.matrix[1][j] + matrix[i][2] * m.matrix[2][j];
+      }
+    }
+
+    matrix = result;
+
+    return this;
+  }
+
+  /**
+   * Calculate the determinant of the matrix.
+   *
+   * @return the determinant of the matrix
+   */
+  public double determinant() {
+    return matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) - matrix[0][1]
+        * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) + matrix[0][2]
+        * (matrix[1][0] * matrix[2][1] - matrix[1][1] * matrix[2][0]);
   }
 }
