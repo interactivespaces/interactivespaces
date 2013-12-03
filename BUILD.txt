@@ -42,3 +42,9 @@ Install ROS on your computer. Install from www.ros.org. I usually install the
 desktop full version, though there may be a smaller version that will work.
 
 Place your interactivespaces repository on the ROS package path.
+
+The Interactive Spaces documentation is built with the Python documentation 
+system Sphinx. It uses Latex for building the PDF documentation. On Linux, make
+sure you install texlive, textlive-latex-extra, and texlive-fonts-*. You also
+need pygments.
+

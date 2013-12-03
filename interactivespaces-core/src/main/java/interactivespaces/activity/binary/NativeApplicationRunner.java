@@ -18,6 +18,7 @@ package interactivespaces.activity.binary;
 
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.Restartable;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.util.Map;
 
@@ -30,18 +31,18 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public interface NativeApplicationRunner extends Restartable {
+public interface NativeApplicationRunner extends ManagedResource, Restartable {
 
   /**
    * The name of the property which gives the fully qualified name for the
    * application.
    */
-  public static final String ACTIVITYNAME = "activity";
+  String ACTIVITYNAME = "activity";
 
   /**
    * A set of flags for the application.
    */
-  public static final String FLAGS = "flags";
+  String FLAGS = "flags";
 
   /**
    * Configure the launcher.
@@ -50,16 +51,6 @@ public interface NativeApplicationRunner extends Restartable {
    *          The configuration.
    */
   void configure(Map<String, Object> config);
-
-  /**
-   * Start the app up.
-   */
-  void startup();
-
-  /**
-   * Shut the app down.
-   */
-  void shutdown();
 
   /**
    * Is the native app still running?
