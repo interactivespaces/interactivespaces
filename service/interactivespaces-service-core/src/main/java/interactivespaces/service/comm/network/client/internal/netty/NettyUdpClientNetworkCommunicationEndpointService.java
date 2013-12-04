@@ -17,6 +17,7 @@
 package interactivespaces.service.comm.network.client.internal.netty;
 
 import interactivespaces.service.BaseSupportedService;
+import interactivespaces.service.comm.network.client.UdpBroadcastClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointService;
 
@@ -30,8 +31,8 @@ import java.nio.ByteOrder;
  *
  * @author Keith M. Hughes
  */
-public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSupportedService
-    implements UdpClientNetworkCommunicationEndpointService {
+public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSupportedService implements
+    UdpClientNetworkCommunicationEndpointService {
 
   @Override
   public String getName() {
@@ -45,7 +46,12 @@ public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public UdpClientNetworkCommunicationEndpoint newClient(ByteOrder byteOrder, Log log) {
-    return new NettyUdpClientNetworkCommunicationEndpoint(byteOrder, getSpaceEnvironment()
-        .getExecutorService(), log);
+    return new NettyUdpClientNetworkCommunicationEndpoint(byteOrder, getSpaceEnvironment().getExecutorService(), log);
+  }
+
+  @Override
+  public UdpBroadcastClientNetworkCommunicationEndpoint newBroadcastClient(int port, Log log) {
+    return new NettyUdpBroadcastClientNetworkCommunicationEndpoint(port, getSpaceEnvironment().getExecutorService(),
+        log);
   }
 }

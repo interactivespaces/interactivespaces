@@ -82,7 +82,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   /**
    * The strategy for restarting.
    */
-  private RestartStrategy restartStrategy;
+  private volatile RestartStrategy restartStrategy;
 
   /**
    * The strategy instance being used to restart.
@@ -185,10 +185,8 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
       ProcessBuilder builder = new ProcessBuilder(commands);
       builder.directory(executableFolder);
 
-      spaceEnvironment.getLog()
-          .info(
-              String.format("Starting up native code in folder %s",
-                  executableFolder.getAbsolutePath()));
+      spaceEnvironment.getLog().info(
+          String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
 
       return builder.start();
     } catch (Exception e) {
@@ -256,8 +254,8 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   }
 
   /**
-   * Handle the process result streams for this process, copying the results
-   * to the appropriate info or error logs.
+   * Handle the process result streams for this process, copying the results to
+   * the appropriate info or error logs.
    */
   private void logProcessResultStreams() {
     try {
@@ -285,11 +283,13 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   private boolean startRestarter() {
     process = null;
 
-    if (restartStrategy != null) {
+    // make sure we only sample the restart strategy once in a threadsafe way
+    RestartStrategy rs = restartStrategy;
+    if (rs != null) {
       spaceEnvironment.getLog().error("Activity stopped running, attempting restart");
 
       restartBegin = spaceEnvironment.getTimeProvider().getCurrentTime();
-      restarter = restartStrategy.newInstance(this);
+      restarter = rs.newInstance(this);
 
       return true;
     } else {
@@ -313,8 +313,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
         long restartDuration = spaceEnvironment.getTimeProvider().getCurrentTime() - restartBegin;
 
         if (restartDuration > restartDurationMaximum) {
-          spaceEnvironment.getLog().error(
-              "Activity would not restart. Maximum duration time passed.");
+          spaceEnvironment.getLog().error("Activity would not restart. Maximum duration time passed.");
           restarter.quit();
           restartComplete(false);
 

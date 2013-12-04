@@ -32,13 +32,13 @@ public interface UdpClientNetworkCommunicationEndpointService extends SupportedS
   /**
    * Name for the service.
    */
-  public static final String NAME = "comm.network.udp.client";
+  String NAME = "comm.network.udp.client";
 
   /**
    * Create a new UDP client endpoint.
    *
    * <p>
-   * Packets will be big-endian
+   * Packets will be big-endian.
    *
    * @param log
    *          the logger to use
@@ -58,4 +58,16 @@ public interface UdpClientNetworkCommunicationEndpointService extends SupportedS
    * @return the communication endpoint
    */
   UdpClientNetworkCommunicationEndpoint newClient(ByteOrder byteOrder, Log log);
+
+  /**
+   * Create a new UDP broadcast client endpoint.
+   *
+   * @param port
+   *          the port to use
+   * @param log
+   *          the logger to use
+   *
+   * @return the communication endpoint
+   */
+  UdpBroadcastClientNetworkCommunicationEndpoint newBroadcastClient(int port, Log log);
 }

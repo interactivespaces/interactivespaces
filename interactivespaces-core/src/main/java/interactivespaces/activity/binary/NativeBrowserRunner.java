@@ -21,8 +21,9 @@ import interactivespaces.activity.ActivitySystemConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.process.restart.LimitedRetryRestartStrategy;
 
+import com.google.common.collect.Maps;
+
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,15 +34,39 @@ import java.util.Map;
 public class NativeBrowserRunner {
 
   /**
+   * The number of times the restart strategy will attempt a restart before
+   * giving up.
+   */
+  public static final int RESTART_STRATEGY_NUMBER_RETRIES = 4;
+
+  /**
+   * How long the browser must be running before restart is considered
+   * successful in milliseconds.
+   */
+  public static final int RESTART_STRATEGY_SUCCESS_TIME = 4000;
+
+  /**
+   * How often the restart will sample to see if restart has happened, in
+   * milliseconds.
+   */
+  public static final int RESTART_STRATEGY_SAMPLE_TIME = 1000;
+
+  /**
    * Activity this browser is running under.
    */
-  private Activity activity;
+  private final Activity activity;
 
   /**
    * Launcher for the browser.
    */
-  public NativeActivityRunner browserRunner;
+  private NativeActivityRunner browserRunner;
 
+  /**
+   * Construct a new browser runner.
+   *
+   * @param activity
+   *          the activity the browser is running
+   */
   public NativeBrowserRunner(Activity activity) {
     this.activity = activity;
   }
@@ -58,27 +83,34 @@ public class NativeBrowserRunner {
    */
   public void startup(String initialUrl, boolean debug) {
     browserRunner =
-        activity.getController().getNativeActivityRunnerFactory()
-            .newPlatformNativeActivityRunner(activity.getLog());
+        activity.getController().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
 
     Configuration configuration = activity.getConfiguration();
 
-    Map<String, Object> appConfig = new HashMap<String, Object>();
+    Map<String, Object> appConfig = Maps.newHashMap();
     appConfig.put(NativeActivityRunner.ACTIVITYNAME,
         ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
 
     String commandFlags =
-        MessageFormat.format(
-            ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
+        MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
             initialUrl);
 
     appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
 
     browserRunner.configure(appConfig);
-    browserRunner.setRestartStrategy(new LimitedRetryRestartStrategy(4, 1000, 4000, activity
-        .getSpaceEnvironment()));
+    browserRunner.setRestartStrategy(getDefaultRestartStrategy());
 
     browserRunner.startup();
+  }
+
+  /**
+   * Get the default restart strategy for the browser.
+   *
+   * @return the restart strategy for the browser
+   */
+  public LimitedRetryRestartStrategy getDefaultRestartStrategy() {
+    return new LimitedRetryRestartStrategy(RESTART_STRATEGY_NUMBER_RETRIES, RESTART_STRATEGY_SAMPLE_TIME,
+        RESTART_STRATEGY_SUCCESS_TIME, activity.getSpaceEnvironment());
   }
 
   /**
@@ -105,4 +137,12 @@ public class NativeBrowserRunner {
     }
   }
 
+  /**
+   * Get the native activity runner for the browser.
+   *
+   * @return the native activity runner for the browser
+   */
+  public NativeActivityRunner getBrowserRunner() {
+    return browserRunner;
+  }
 }

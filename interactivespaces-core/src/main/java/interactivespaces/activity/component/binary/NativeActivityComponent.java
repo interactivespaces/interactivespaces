@@ -16,8 +16,6 @@
 
 package interactivespaces.activity.component.binary;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
@@ -27,6 +25,8 @@ import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
 import interactivespaces.controller.SpaceController;
+
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,12 +48,11 @@ public class NativeActivityComponent extends BaseActivityComponent {
    * Configuration property giving the location of the application executable
    * relative to the application installation directory.
    */
-  public static final String CONFIGURATION_ACTIVITY_EXECUTABLE =
-      "space.activity.component.native.executable";
+  public static final String CONFIGURATION_ACTIVITY_EXECUTABLE = "space.activity.component.native.executable";
 
   /**
    * Configuration property giving the flags that a native application would use
-   * to launch
+   * to launch.
    */
   public static final String CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS =
       "space.activity.component.native.executable.flags";
@@ -87,7 +86,9 @@ public class NativeActivityComponent extends BaseActivityComponent {
    * flags.
    *
    * @param executablePathProperty
+   *          config property name for the executable path
    * @param executableFlagsProperty
+   *          config property prefix for the executable flags
    */
   public NativeActivityComponent(String executablePathProperty, String executableFlagsProperty) {
     this.executablePathProperty = executablePathProperty;
@@ -110,8 +111,7 @@ public class NativeActivityComponent extends BaseActivityComponent {
             .getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
     Map<String, Object> appConfig = Maps.newHashMap();
-    String activityPath =
-        configuration.getRequiredPropertyString(executablePathProperty + "." + os);
+    String activityPath = configuration.getRequiredPropertyString(executablePathProperty + "." + os);
 
     File activityFile = new File(activityPath);
     if (activityFile.isAbsolute()) {
@@ -128,25 +128,21 @@ public class NativeActivityComponent extends BaseActivityComponent {
             activityFile.setExecutable(true);
           }
         } else {
-          throw new InteractiveSpacesException(String.format(
-              "The native executable %s does not exist", activityPath));
+          throw new InteractiveSpacesException(String.format("The native executable %s does not exist", activityPath));
         }
       } else {
-        throw new InteractiveSpacesException(String.format(
-            "The native executable %s is not local to the activity", activityPath));
+        throw new InteractiveSpacesException(String.format("The native executable %s is not local to the activity",
+            activityPath));
       }
     }
 
     appConfig.put(NativeActivityRunner.ACTIVITYNAME, activityFile.getAbsolutePath());
 
-    String commandFlags =
-        configuration.getRequiredPropertyString(executableFlagsProperty + "." + os);
+    String commandFlags = configuration.getRequiredPropertyString(executableFlagsProperty + "." + os);
 
     appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
 
-    nativeActivity =
-        controller.getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(
-            activity.getLog());
+    nativeActivity = controller.getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
     nativeActivity.configure(appConfig);
   }
 
@@ -181,8 +177,7 @@ public class NativeActivityComponent extends BaseActivityComponent {
    * @return {@code true} if the file is local to the application install
    *         directory.
    */
-  private boolean isLocalToActivityInstallDirectory(ActivityFilesystem activityFilesystem,
-      File applicationFile) {
+  private boolean isLocalToActivityInstallDirectory(ActivityFilesystem activityFilesystem, File applicationFile) {
 
     try {
       String applicationInstallationDirectory =
@@ -206,5 +201,14 @@ public class NativeActivityComponent extends BaseActivityComponent {
     // TODO(keith): Put a real check in here. May want a file containing
     // allowed applications.
     return true;
+  }
+
+  /**
+   * Get the native activity runner for the component.
+   *
+   * @return the native activity runner for the component
+   */
+  public NativeActivityRunner getNativeActivityRunner() {
+    return nativeActivity;
   }
 }
