@@ -31,7 +31,7 @@ public interface WebServerWebSocketHandlerFactory {
    * @param connection
    *          connection for communication with remote server
    *
-   * @return A ready to use web socket handler.
+   * @return a ready to use web socket handler
    */
   WebServerWebSocketHandler newWebSocketHandler(WebSocketConnection connection);
 }

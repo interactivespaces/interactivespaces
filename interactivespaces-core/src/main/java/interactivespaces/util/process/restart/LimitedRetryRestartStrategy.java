@@ -27,42 +27,42 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class LimitedRetryRestartStrategy implements RestartStrategy {
+public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
 
   /**
    * The number of retries to attempt.
    */
-  private int numberRetries;
+  private final int numberRetries;
 
   /**
    * The delay between samples, in milliseconds.
    */
-  private long sampleDelay;
+  private final long sampleDelay;
 
   /**
    * The time after something starts for it to be considered a successful
    * restart, in milliseconds.
    */
-  private long timeDurationSuccessfulRestart;
+  private final long timeDurationSuccessfulRestart;
 
   /**
    * The space environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * @param numberRetries
    *          the total number of retries which can be attempted
    * @param sampleDelay
-   *          the time between samples for restart detection in milliseconds
+   *          the time between samples for restart detection, in milliseconds
    * @param timeDurationSuccessfulRestart
    *          the time the item needs to be running before restart is considered
-   *          a success
+   *          a success, in milliseconds
    * @param spaceEnvironment
    *          the space environment to pick up services from
    */
-  public LimitedRetryRestartStrategy(int numberRetries, long sampleDelay,
-      long timeDurationSuccessfulRestart, InteractiveSpacesEnvironment spaceEnvironment) {
+  public LimitedRetryRestartStrategy(int numberRetries, long sampleDelay, long timeDurationSuccessfulRestart,
+      InteractiveSpacesEnvironment spaceEnvironment) {
     this.numberRetries = numberRetries;
     this.sampleDelay = sampleDelay;
     this.timeDurationSuccessfulRestart = timeDurationSuccessfulRestart;
@@ -71,10 +71,9 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
 
   @Override
   public RestartStrategyInstance newInstance(Restartable restartable) {
-    LimitedTryRestartStrategyInstance instance =
-        new LimitedTryRestartStrategyInstance(restartable, numberRetries, sampleDelay,
-            timeDurationSuccessfulRestart, spaceEnvironment.getTimeProvider(),
-            spaceEnvironment.getExecutorService());
+    LimitedRetryRestartStrategyInstance instance =
+        new LimitedRetryRestartStrategyInstance(restartable, numberRetries, sampleDelay, timeDurationSuccessfulRestart,
+            spaceEnvironment.getTimeProvider(), spaceEnvironment.getExecutorService());
     instance.startRestartAttempts();
 
     return instance;
@@ -86,12 +85,7 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
    *
    * @author Keith M. Hughes
    */
-  public static class LimitedTryRestartStrategyInstance implements RestartStrategyInstance {
-
-    /**
-     * The object being restarted.
-     */
-    private Restartable restartable;
+  public class LimitedRetryRestartStrategyInstance extends BaseRestartStrategyInstance {
 
     /**
      * The number of retries left.
@@ -106,12 +100,12 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
     /**
      * The time provider.
      */
-    private TimeProvider timeProvider;
+    private final TimeProvider timeProvider;
 
     /**
      * The executor service to give threads.
      */
-    private ScheduledExecutorService executorService;
+    private final ScheduledExecutorService executorService;
 
     /**
      * Start it off as running.
@@ -121,13 +115,13 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
     /**
      * The delay between samples, in milliseconds.
      */
-    private long sampleDelay;
+    private final long sampleDelay;
 
     /**
      * The time after something starts for it to be considered a successful
      * restart, in milliseconds.
      */
-    private long timeDurationSuccessfulRestart;
+    private final long timeDurationSuccessfulRestart;
 
     /**
      * @param restartable
@@ -135,19 +129,18 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
      * @param numberRetries
      *          the total number of retries which can be attempted
      * @param sampleDelay
-     *          the time between samples for restart detection in milliseconds
+     *          the time between samples for restart detection, in milliseconds
      * @param timeDurationSuccessfulRestart
      *          the time the item needs to be running before restart is
-     *          considered a success
+     *          considered a success, in milliseconds
      * @param timeProvider
      *          the provider for time
      * @param executorService
      *          the thread pool to use
      */
-    public LimitedTryRestartStrategyInstance(Restartable restartable, int numberRetries,
-        long sampleDelay, long timeDurationSuccessfulRestart, TimeProvider timeProvider,
-        ScheduledExecutorService executorService) {
-      this.restartable = restartable;
+    public LimitedRetryRestartStrategyInstance(Restartable restartable, int numberRetries, long sampleDelay,
+        long timeDurationSuccessfulRestart, TimeProvider timeProvider, ScheduledExecutorService executorService) {
+      super(restartable, LimitedRetryRestartStrategy.this);
       this.numberRetriesLeft = numberRetries;
       this.sampleDelay = sampleDelay;
       this.timeDurationSuccessfulRestart = timeDurationSuccessfulRestart;
@@ -168,38 +161,57 @@ public class LimitedRetryRestartStrategy implements RestartStrategy {
             InteractiveSpacesUtilities.delay(getCurrentSampleDelay());
             repeatedRestartAttempt();
           }
-
         }
       });
     }
 
     /**
+     * Attempt a restart.
+     */
+    private void attemptRestart() {
+      if (sendRestartAttempt(getRestartable())) {
+
+        numberRetriesLeft--;
+        lastAttemptTime = timeProvider.getCurrentTime();
+        getRestartable().attemptRestart();
+      } else {
+        restartHasEnded(false);
+      }
+    }
+
+    /**
      * Attempt to do another restart, but only if necessary.
      */
-    public void repeatedRestartAttempt() {
-      if (restartable.isRestarted()) {
+    private void repeatedRestartAttempt() {
+      if (getRestartable().isRestarted()) {
         long currentUptimeDuration = timeProvider.getCurrentTime() - lastAttemptTime;
         if (currentUptimeDuration > timeDurationSuccessfulRestart) {
-          running = false;
-          restartable.restartComplete(true);
+          restartHasEnded(true);
         }
       } else {
         if (numberRetriesLeft > 0) {
           attemptRestart();
         } else {
-          running = false;
-          restartable.restartComplete(false);
+          restartHasEnded(false);
         }
       }
     }
 
     /**
-     * Attempt a restart.
+     * The restart has ended for some reason.
+     *
+     * @param success
+     *          {@code true} if the restart was successful
      */
-    public void attemptRestart() {
-      numberRetriesLeft--;
-      lastAttemptTime = timeProvider.getCurrentTime();
-      restartable.attemptRestart();
+    private void restartHasEnded(boolean success) {
+      running = false;
+      getRestartable().restartComplete(success);
+
+      if (success) {
+        sendRestartSuccess(getRestartable());
+      } else {
+        sendRestartFailure(getRestartable());
+      }
     }
 
     @Override

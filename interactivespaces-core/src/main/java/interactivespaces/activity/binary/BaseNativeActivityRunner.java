@@ -392,6 +392,11 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   }
 
   @Override
+  public RestartStrategy getRestartStrategy() {
+    return restartStrategy;
+  }
+
+  @Override
   public void setRestartDurationMaximum(long restartDurationMaximum) {
     this.restartDurationMaximum = restartDurationMaximum;
   }

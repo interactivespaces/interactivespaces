@@ -34,4 +34,18 @@ public interface RestartStrategyInstance {
    * @return {@code true} if the restart is being attempted
    */
   boolean isRestarting();
+
+  /**
+   * Get the strategy from the instance.
+   *
+   * @return the strategy
+   */
+  RestartStrategy getStrategy();
+
+  /**
+   * Get the restartable from the instance.
+   *
+   * @return the restartable
+   */
+  Restartable getRestartable();
 }

@@ -32,4 +32,23 @@ public interface RestartStrategy {
    * @return a restart instance which is already working
    */
   RestartStrategyInstance newInstance(Restartable restartable);
+
+  /**
+   * Add a new listener to the restart strategy.
+   *
+   * @param listener
+   *          the new listener
+   */
+  void addRestartStrategyListener(RestartStrategyListener listener);
+
+  /**
+   * Remove a listener from the restart strategy.
+   *
+   * <p>
+   * This method does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeRestartStrategyListener(RestartStrategyListener listener);
 }

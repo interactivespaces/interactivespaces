@@ -32,17 +32,7 @@ public interface WebServer extends ManagedResource {
    * The default for the web socket URI prefix. Does not include the forward
    * slash.
    */
-  public static final String WEBSOCKET_URI_PREFIX_DEFAULT = "websocket";
-
-  /**
-   * Start the server running.
-   */
-  void startup();
-
-  /**
-   * Shut the server down.
-   */
-  void shutdown();
+  String WEBSOCKET_URI_PREFIX_DEFAULT = "websocket";
 
   /**
    * Add in a new static content handler to the server.
@@ -52,9 +42,9 @@ public interface WebServer extends ManagedResource {
    * map value will be {@code null}.
    *
    * @param uriPrefix
-   *          URI prefix for the content.
+   *          URI prefix for the content
    * @param baseDir
-   *          The base directory for the content.
+   *          the base directory for the content
    */
   void addStaticContentHandler(String uriPrefix, File baseDir);
 
@@ -73,15 +63,14 @@ public interface WebServer extends ManagedResource {
    *          extra content headers to add to every response, can be
    *          {@code null}
    */
-  void addStaticContentHandler(String uriPrefix, File baseDir,
-      Map<String, String> extraHttpContentHeaders);
+  void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders);
 
   /**
    * Add in a new dynamic content handler to the server.
    *
    * <p>
    * See
-   * {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)} ,
+   * {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)},
    * the content header map value will be {@code null}.
    *
    * @param uriPrefix
@@ -91,8 +80,7 @@ public interface WebServer extends ManagedResource {
    * @param handler
    *          dynamic request handler
    */
-      void
-      addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler);
+  void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler);
 
   /**
    * Add in a new dynamic content handler to the server.
@@ -111,8 +99,8 @@ public interface WebServer extends ManagedResource {
    *          extra HTTP content headers to add to all responses to the handler,
    *          can be {@code null}
    */
-  void addDynamicContentHandler(String uriPrefix, boolean usePath,
-      HttpDynamicRequestHandler handler, Map<String, String> extraHttpContentHeaders);
+  void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler,
+      Map<String, String> extraHttpContentHeaders);
 
   /**
    * Set the factory for creating web socket handlers.
@@ -123,8 +111,7 @@ public interface WebServer extends ManagedResource {
    *          the factory to use (can be {@code null} if don't want to handle
    *          web socket calls)
    */
-  void setWebSocketHandlerFactory(String webSocketUriPrefix,
-      WebServerWebSocketHandlerFactory webSocketHandlerFactory);
+  void setWebSocketHandlerFactory(String webSocketUriPrefix, WebServerWebSocketHandlerFactory webSocketHandlerFactory);
 
   /**
    * Set the listener for file uploads.
@@ -176,6 +163,7 @@ public interface WebServer extends ManagedResource {
    * auth provider to null should disable authorization checking on a server.
    *
    * @param authProvider
+   *          the authentication provider
    */
   void setAuthProvider(HttpAuthProvider authProvider);
 
@@ -184,7 +172,7 @@ public interface WebServer extends ManagedResource {
    * used if the auth provider is set.
    *
    * @param accessManager
+   *          the access manager
    */
   void setAccessManager(WebResourceAccessManager accessManager);
-
 }

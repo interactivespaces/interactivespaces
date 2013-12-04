@@ -21,12 +21,12 @@ package interactivespaces.util.process.restart;
  *
  * @author Keith M. Hughes
  */
-public class NoRestartRestartStrategy implements RestartStrategy {
+public class NoRestartRestartStrategy extends BaseRestartStrategy {
 
   @Override
   public RestartStrategyInstance newInstance(Restartable restartable) {
     NoRestartRestartStrategyInstance instance = new NoRestartRestartStrategyInstance(restartable);
-    instance.attemptRestart();
+    instance.startRestartAttempts();
 
     return instance;
   }
@@ -36,18 +36,24 @@ public class NoRestartRestartStrategy implements RestartStrategy {
    *
    * @author Keith M. Hughes
    */
-  private static class NoRestartRestartStrategyInstance implements RestartStrategyInstance {
-    private Restartable restartable;
+  private class NoRestartRestartStrategyInstance extends BaseRestartStrategyInstance {
 
+    /**
+     * Construct a new instance.
+     *
+     * @param restartable
+     *          the object being restarted
+     */
     public NoRestartRestartStrategyInstance(Restartable restartable) {
-      this.restartable = restartable;
+      super(restartable, NoRestartRestartStrategy.this);
     }
 
     /**
      * Attempt the restart.
      */
-    public void attemptRestart() {
-      restartable.restartComplete(false);
+    public void startRestartAttempts() {
+      sendRestartFailure(getRestartable());
+      getRestartable().restartComplete(false);
     }
 
     @Override

@@ -29,10 +29,11 @@ public interface Restartable {
   void attemptRestart();
 
   /**
-   * Has the Restartable restarted?
+   * Has the {@link Restartable} restarted?
    *
    * <p>
    * This will be sampled several times by the restarter to make sure that the
+   * restart truly has been successful.
    *
    * @return {@code true} if restarted
    */

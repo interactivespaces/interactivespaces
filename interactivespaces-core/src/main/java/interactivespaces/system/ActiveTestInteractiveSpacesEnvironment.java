@@ -16,14 +16,14 @@
 
 package interactivespaces.system;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.time.SettableTimeProvider;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Jdk14Logger;
@@ -90,7 +90,7 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
   /**
    * Simple value map.
    */
-  private Map<String, Object> values = Maps.newHashMap();
+  private final Map<String, Object> values = Maps.newHashMap();
 
   @Override
   public Configuration getSystemConfiguration() {
@@ -161,5 +161,35 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
    */
   public void shutdown() {
     executorService.shutdown();
+  }
+
+  /**
+   * Set the file system to use.
+   *
+   * @param filesystem
+   *          the file system to use
+   */
+  public void setFilesystem(InteractiveSpacesFilesystem filesystem) {
+    this.filesystem = filesystem;
+  }
+
+  /**
+   * Set the logger to use.
+   *
+   * @param log
+   *          the logger to use
+   */
+  public void setLog(Log log) {
+    this.log = log;
+  }
+
+  /**
+   * Set the time provider to use if the default isn't appropriate.
+   *
+   * @param timeProvider
+   *          the new time provider
+   */
+  public void setTimeProvider(TimeProvider timeProvider) {
+    this.timeProvider = timeProvider;
   }
 }

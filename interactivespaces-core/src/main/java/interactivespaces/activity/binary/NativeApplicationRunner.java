@@ -68,6 +68,13 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
   void setRestartStrategy(RestartStrategy restartStrategy);
 
   /**
+   * Get the restart strategy for the runner.
+   *
+   * @return the strategy to be used
+   */
+  RestartStrategy getRestartStrategy();
+
+  /**
    * Set how long to attempt a restart.
    *
    * @param restartDurationMaximum
