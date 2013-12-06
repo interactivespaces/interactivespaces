@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.builder;
 
-import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
@@ -94,15 +93,9 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
     if (constituents == null) {
       return;
     }
-    SimpleConfiguration workbenchConfig = context.getWorkbench().getWorkbenchConfig();
-    SimpleConfiguration resourceConfig = SimpleConfiguration.newConfiguration();
-    resourceConfig.setParent(workbenchConfig);
-
-    resourceConfig.setValue(CONFIGURATION_PROPERTY_PROJECT_HOME, project.getBaseDirectory()
-        .getAbsolutePath());
 
     for (ProjectConstituent constituent : constituents) {
-      constituent.processConstituent(project, stagingDirectory, context, resourceConfig);
+      constituent.processConstituent(project, stagingDirectory, context);
     }
   }
 

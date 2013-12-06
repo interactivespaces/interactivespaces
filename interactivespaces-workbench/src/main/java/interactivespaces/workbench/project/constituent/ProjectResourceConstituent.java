@@ -21,7 +21,6 @@ import org.jdom.Element;
 import java.io.File;
 import java.util.List;
 
-import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -31,7 +30,7 @@ import interactivespaces.workbench.project.builder.ProjectBuildContext;
  *
  * @author Keith M. Hughes
  */
-public class ProjectResourceConstituent extends BaseProjectConstituent {
+public class ProjectResourceConstituent implements ProjectConstituent {
 
   /**
    * Element type for a resource.
@@ -188,26 +187,25 @@ public class ProjectResourceConstituent extends BaseProjectConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory,
-      ProjectBuildContext context, Configuration resourceConfig) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
     File baseDirectory = project.getBaseDirectory();
     if (getDestinationDirectory() != null) {
-      File destDir = getProjectTarget(stagingDirectory, resourceConfig, getDestinationDirectory());
+      File destDir = context.getProjectTarget(stagingDirectory, getDestinationDirectory());
       Files.directoryExists(destDir);
 
       if (getSourceDirectory() != null) {
-        File srcDir = getProjectTarget(baseDirectory, resourceConfig, getSourceDirectory());
+        File srcDir = context.getProjectTarget(baseDirectory, getSourceDirectory());
         Files.copyDirectory(srcDir, destDir, true);
       } else {
         // There is a file to be copied.
-        File srcFile = getProjectTarget(baseDirectory, resourceConfig, getSourceFile());
+        File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
         Files.copyFile(srcFile, new File(destDir, srcFile.getName()));
       }
     } else {
       // Have a dest file
       // There is a file to be copied.
-      File destFile = getProjectTarget(stagingDirectory, resourceConfig, getDestinationFile());
-      File srcFile = getProjectTarget(baseDirectory, resourceConfig, getSourceFile());
+      File destFile = context.getProjectTarget(stagingDirectory, getDestinationFile());
+      File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
       Files.directoryExists(destFile.getParentFile());
       Files.copyFile(srcFile, destFile);
     }

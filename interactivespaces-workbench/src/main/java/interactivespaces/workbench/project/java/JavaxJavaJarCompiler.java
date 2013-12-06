@@ -77,13 +77,19 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       projectType.getRuntimeClasspath(classpath, extensions, context.getWorkbench());
 
       Project project = context.getProject();
-      List<File> compilationFiles =
-          projectCompiler.getCompilationFiles(new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA));
+      File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+      List<File> compilationFiles = projectCompiler.getCompilationFiles(mainSourceDirectory);
+      if (!project.getSources().isEmpty()) {
+        System.out.format("Found %d files for main source directory %s\n",
+            compilationFiles.size(), mainSourceDirectory.getAbsolutePath());
+      }
 
       for (ProjectConstituent constituent : project.getSources()) {
-        List<File> additionalSources = projectCompiler.getCompilationFiles(
-            new File(project.getBaseDirectory(), constituent.getSourceDirectory()));
+        File addedSource = context.getProjectTarget(project.getBaseDirectory(), constituent.getSourceDirectory());
+        List<File> additionalSources = projectCompiler.getCompilationFiles(addedSource);
         compilationFiles.addAll(additionalSources);
+        System.out.format("Found %d files in added source directory %s\n",
+            additionalSources.size(), addedSource.getAbsolutePath());
       }
 
       if (compilationFiles.isEmpty()) {
@@ -121,9 +127,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the file where the jar file is going
    * @param compilationFolder
    *          folder that the Java class files were compiled into
+   * @param classpath
+   *          class-path to use for jar manifest file
    */
   private void createJarFile(Project project, File jarDestinationFile, File compilationFolder,
-      List<File> classpath) throws Exception {
+      List<File> classpath) {
     // Create a buffer for reading the files
     byte[] buf = new byte[IO_BUFFER_SIZE];
 
@@ -146,12 +154,14 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   }
 
   /**
-   * Create a manifest for the object
+   * Create a manifest for the object.
    *
    * @param project
    *          the project being created
    * @param compilationFolder
    *          folder where the Java files were compiled to
+   * @param classpath
+   *          class-path to use for jar manifest file
    *
    * @return the manifest
    */
@@ -269,11 +279,17 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the stream where the jar is being written
    * @param parentPath
    *          path up to this point
-   * @throws IOException
+   *
+   * @throws IOException for io access errors
    */
   private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream,
       String parentPath) throws IOException {
-    for (File file : directory.listFiles()) {
+    File[] files = directory.listFiles();
+    if (files == null || files.length == 0) {
+      System.err.println("WARNING: No source files found in " + directory.getAbsolutePath());
+      return;
+    }
+    for (File file : files) {
       if (file.isDirectory()) {
         writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/");
       } else {

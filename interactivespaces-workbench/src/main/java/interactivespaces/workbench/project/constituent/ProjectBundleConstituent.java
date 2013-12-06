@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -40,7 +39,7 @@ import interactivespaces.workbench.project.builder.ProjectBuildContext;
  *
  * @author Trevor Pering
  */
-public class ProjectBundleConstituent extends BaseProjectConstituent {
+public class ProjectBundleConstituent implements ProjectConstituent {
 
   /**
    * Project type for a bundle resource.
@@ -104,19 +103,18 @@ public class ProjectBundleConstituent extends BaseProjectConstituent {
   private List<String> sourcePaths = Lists.newArrayList();
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory,
-      ProjectBuildContext context, Configuration resourceConfig) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
     OutputStream outputStream = null;
     InputStream inputStream = null;
 
     try {
       File baseDirectory = project.getBaseDirectory();
-      File outputFile = getProjectTarget(stagingDirectory, resourceConfig, outputPath);
+      File outputFile = context.getProjectTarget(stagingDirectory, outputPath);
       Files.directoryExists(outputFile.getParentFile());
       outputStream = new FileOutputStream(outputFile);
 
       for (String sourcePath : sourcePaths) {
-        File sourceFile = getProjectTarget(baseDirectory, resourceConfig, sourcePath);
+        File sourceFile = context.getProjectTarget(baseDirectory, sourcePath);
         if (!sourceFile.exists()) {
           throw new SimpleInteractiveSpacesException(
               "Source file does not exist " + sourceFile.getAbsolutePath());

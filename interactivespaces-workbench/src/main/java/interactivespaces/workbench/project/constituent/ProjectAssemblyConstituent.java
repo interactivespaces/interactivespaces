@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project.constituent;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
@@ -33,7 +32,7 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class ProjectAssemblyConstituent extends BaseProjectConstituent {
+public class ProjectAssemblyConstituent implements ProjectConstituent {
 
   /**
    * Project type for an assembly resource.
@@ -112,11 +111,10 @@ public class ProjectAssemblyConstituent extends BaseProjectConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory,
-      ProjectBuildContext context, Configuration config) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
     File baseDirectory = project.getBaseDirectory();
-    File sourceZipFile = getProjectTarget(baseDirectory, config, sourceFile);
-    File outputDirectory = getProjectTarget(stagingDirectory, config, destinationDirectory);
+    File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
+    File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
     FILE_SUPPORT.directoryExists(outputDirectory);
     FILE_SUPPORT.unzip(sourceZipFile, outputDirectory);
   }

@@ -24,8 +24,6 @@ import org.jdom.Element;
 import java.io.File;
 import java.util.List;
 
-import interactivespaces.configuration.Configuration;
-
 /**
  * Interface for project constituents.
  *
@@ -79,12 +77,9 @@ public interface ProjectConstituent {
    * @param stagingDirectory
    *          where the items will be copied
    * @param context
-   *          context for the build
-   * @param constituentConfig
-   *          configuration to use for parameters
+ *          context for the build
    */
-  void processConstituent(Project project, File stagingDirectory,
-      ProjectBuildContext context, Configuration constituentConfig);
+  void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
 
   /**
    * Return the source directory for this constituent.

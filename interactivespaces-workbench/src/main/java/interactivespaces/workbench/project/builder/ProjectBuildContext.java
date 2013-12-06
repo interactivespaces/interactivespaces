@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.builder;
 
+import interactivespaces.configuration.Configuration;
+import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -146,5 +148,39 @@ public class ProjectBuildContext {
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
     return (T) projectType;
+  }
+
+  /**
+   * Return a configuration that provides necessary values for building this project.
+   *
+   * @return configuration for this project build
+   */
+  public Configuration getProjectConfiguration() {
+    SimpleConfiguration workbenchConfig = getWorkbench().getWorkbenchConfig();
+    SimpleConfiguration resourceConfig = SimpleConfiguration.newConfiguration();
+    resourceConfig.setParent(workbenchConfig);
+    resourceConfig.setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_HOME,
+        project.getBaseDirectory().getAbsolutePath());
+    return resourceConfig;
+  }
+
+  /**
+   * Return the appropriate file path depending on evaluate and default root directory.
+   *
+   *
+   * @param rootDirectory
+   *          root directory to use in case of default
+   * @param target
+   *          target path desired
+   *
+   * @return appropriate file to use
+   */
+  public File getProjectTarget(File rootDirectory, String target) {
+    String targetPath = getProjectConfiguration().evaluate(target);
+    File targetFile = new File(targetPath);
+    if (targetFile.isAbsolute()) {
+      return targetFile;
+    }
+    return new File(rootDirectory, targetPath);
   }
 }
