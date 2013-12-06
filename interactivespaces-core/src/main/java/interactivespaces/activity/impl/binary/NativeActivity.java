@@ -17,7 +17,7 @@
 package interactivespaces.activity.impl.binary;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.binary.NativeActivityComponent;
+import interactivespaces.activity.component.binary.BasicNativeActivityComponent;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.activity.impl.BaseActivity;
 
@@ -31,7 +31,7 @@ public class NativeActivity extends BaseActivity {
 
   @Override
   public void commonActivitySetup() {
-    addActivityComponent(new NativeActivityComponent(
+    addActivityComponent(new BasicNativeActivityComponent(
         ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE,
         ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS));
   }

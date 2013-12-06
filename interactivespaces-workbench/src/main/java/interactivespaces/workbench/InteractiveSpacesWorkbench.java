@@ -62,6 +62,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -137,8 +138,7 @@ public class InteractiveSpacesWorkbench {
    * Configuration property giving the location of the controller the workbench
    * is using.
    */
-  public static final String CONFIGURATION_CONTROLLER_BASEDIR =
-      "interactivespaces.controller.basedir";
+  public static final String CONFIGURATION_CONTROLLER_BASEDIR = "interactivespaces.controller.basedir";
 
   /**
    * Configuration property giving the location of the master the workbench is
@@ -189,8 +189,8 @@ public class InteractiveSpacesWorkbench {
   /**
    * File system for the workbench.
    */
-  private final InteractiveSpacesFilesystem workbenchFileSystem =
-      new BasicInteractiveSpacesFilesystem(new File(".").getAbsoluteFile());
+  private final InteractiveSpacesFilesystem workbenchFileSystem = new BasicInteractiveSpacesFilesystem(
+      new File(".").getAbsoluteFile());
 
   /**
    * The user interface factory to be used by the workbench.
@@ -311,8 +311,7 @@ public class InteractiveSpacesWorkbench {
     try {
       for (ProjectDeployment deployment : project.getDeployments()) {
         if (type.equals(deployment.getType())) {
-          File deploymentLocation =
-              new File(workbenchSimpleConfig.evaluate(deployment.getLocation()));
+          File deploymentLocation = new File(workbenchSimpleConfig.evaluate(deployment.getLocation()));
           System.out.format("Deploying to %s\n", deploymentLocation.getAbsolutePath());
           copyBuildArtifacts(project, deploymentLocation);
         }
@@ -327,13 +326,12 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void copyBuildArtifacts(Project project, File destination) {
-    File[] artifacts =
-        new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
-          @Override
-          public boolean accept(File pathname) {
-            return pathname.isFile();
-          }
-        });
+    File[] artifacts = new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        return pathname.isFile();
+      }
+    });
     if (artifacts != null) {
       for (File artifact : artifacts) {
         Files.copyFile(artifact, new File(destination, artifact.getName()));
@@ -380,15 +378,13 @@ public class InteractiveSpacesWorkbench {
 
     File controllerDirectory = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File javaSystemDirectory =
-        new File(controllerDirectory,
-            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
+        new File(controllerDirectory, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
     if (!javaSystemDirectory.isDirectory()) {
       throw new SimpleInteractiveSpacesException(String.format(
-          "Controller directory %s configured by %s does not appear to be valid.",
-          controllerDirectory, CONFIGURATION_CONTROLLER_BASEDIR));
+          "Controller directory %s configured by %s does not appear to be valid.", controllerDirectory,
+          CONFIGURATION_CONTROLLER_BASEDIR));
     }
-    classpath.add(new File(javaSystemDirectory,
-        "com.springsource.org.apache.commons.logging-1.1.1.jar"));
+    classpath.add(new File(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
 
     addControllerExtensionsClasspath(classpath);
 
@@ -623,8 +619,7 @@ public class InteractiveSpacesWorkbench {
     Console console = System.console();
 
     if (console != null) {
-      String identifyingName =
-          getValue("Identifying name", new ActivityIdentifyingNameValidator(), console);
+      String identifyingName = getValue("Identifying name", new ActivityIdentifyingNameValidator(), console);
       String version = getValue("Version", new VersionValidator(), console);
       String name = console.readLine("Name: ");
       String description = console.readLine("Description: ");
@@ -691,12 +686,10 @@ public class InteractiveSpacesWorkbench {
         System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = cleanActivityProject(project);
       } else if (COMMAND_DOCS.equals(command)) {
-        System.out.format("Building Docs for project %s\n", project.getBaseDirectory()
-            .getAbsolutePath());
+        System.out.format("Building Docs for project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = generateDocs(project);
       } else if (COMMAND_IDE.equals(command)) {
-        System.out.format("Building project IDE project %s\n", project.getBaseDirectory()
-            .getAbsolutePath());
+        System.out.format("Building project IDE project %s\n", project.getBaseDirectory().getAbsolutePath());
         noErrors = generateIdeActivityProject(project, commands.remove(0));
       } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
@@ -723,8 +716,7 @@ public class InteractiveSpacesWorkbench {
 
       return true;
     } else {
-      System.err.format("Project located at %s is not a java project\n", project.getBaseDirectory()
-          .getAbsolutePath());
+      System.err.format("Project located at %s is not a java project\n", project.getBaseDirectory().getAbsolutePath());
 
       return false;
     }
@@ -766,12 +758,23 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Get all files in the bootstrap folder.
+   * Get all files in the bootstrap folders, both system and user.
    *
    * @return all files in bootstrap folder.
    */
-  public List<File> getBootstrapFiles() {
-    return Lists.newArrayList(workbenchFileSystem.getBootstrapDirectory().listFiles());
+  public List<File> getAllBootstrapFiles() {
+    ArrayList<File> files = Lists.newArrayList(workbenchFileSystem.getSystemBootstrapDirectory().listFiles());
+    File userBootstrap = workbenchFileSystem.getUserBootstrapDirectory();
+    if (userBootstrap.exists() && userBootstrap.isDirectory()) {
+      File[] startupFiles = userBootstrap.listFiles();
+      if (startupFiles != null) {
+        for (File file : startupFiles) {
+          files.add(file);
+        }
+      }
+    }
+
+    return files;
   }
 
   /**

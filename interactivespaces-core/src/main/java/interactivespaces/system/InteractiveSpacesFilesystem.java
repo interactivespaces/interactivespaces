@@ -37,7 +37,14 @@ public interface InteractiveSpacesFilesystem {
    *
    * @return the bootstrap directory
    */
-  File getBootstrapDirectory();
+  File getSystemBootstrapDirectory();
+
+  /**
+   * Get the user library bootstrap directory for Interactive Spaces.
+   *
+   * @return the bootstrap directory
+   */
+  File getUserBootstrapDirectory();
 
   /**
    * Get the system log directory for Interactive Spaces.

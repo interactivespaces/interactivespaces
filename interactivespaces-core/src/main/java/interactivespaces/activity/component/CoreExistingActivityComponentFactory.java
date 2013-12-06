@@ -16,6 +16,7 @@
 
 package interactivespaces.activity.component;
 
+import interactivespaces.activity.component.binary.BasicNativeActivityComponent;
 import interactivespaces.activity.component.binary.NativeActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
@@ -30,8 +31,11 @@ import interactivespaces.activity.component.web.WebServerActivityComponent;
  */
 public class CoreExistingActivityComponentFactory extends SimpleActivityComponentFactory {
 
+  /**
+   * Construct the factory.
+   */
   public CoreExistingActivityComponentFactory() {
-    register(NativeActivityComponent.COMPONENT_NAME, NativeActivityComponent.class);
+    register(NativeActivityComponent.COMPONENT_NAME, BasicNativeActivityComponent.class);
     register(RosActivityComponent.COMPONENT_NAME, RosActivityComponent.class);
     register(RosMessageRouterActivityComponent.COMPONENT_NAME,
         RosMessageRouterActivityComponent.class);

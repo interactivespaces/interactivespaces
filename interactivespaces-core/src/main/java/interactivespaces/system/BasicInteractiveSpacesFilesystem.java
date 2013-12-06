@@ -16,7 +16,6 @@
 
 package interactivespaces.system;
 
-
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.resource.ManagedResource;
 
@@ -40,9 +39,14 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
   public static final String DIRECTORY_LIB = "lib";
 
   /**
-   * The container subdirectory for bootstrap.
+   * The container subdirectory for core bootstrap.
    */
-  public static final String DIRECTORY_BOOTSTRAP = "bootstrap";
+  public static final String DIRECTORY_SYSTEM_BOOTSTRAP = "bootstrap";
+
+  /**
+   * The container subdirectory for user library bootstrap.
+   */
+  public static final String DIRECTORY_USER_BOOTSTRAP = "startup";
 
   /**
    * The container subdirectory for logs.
@@ -76,9 +80,14 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
   private final File libraryDirectory;
 
   /**
-   * Where the bootstrap is.
+   * Where the system bootstrap is.
    */
-  private final File bootstrapDirectory;
+  private final File systemBootstrapDirectory;
+
+  /**
+   * Where the user library bootstrap is.
+   */
+  private final File userBootstrapDirectory;
 
   /**
    * Where the system logs are kept.
@@ -100,11 +109,12 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
       baseInstallDirectory = baseInstallDirectory.getParentFile();
     }
 
-    tempDirectory = new File(baseInstallDirectory, DIRECTORY_TMP);
     logsDirectory = new File(baseInstallDirectory, DIRECTORY_LOGS);
-    bootstrapDirectory = new File(baseInstallDirectory, DIRECTORY_BOOTSTRAP);
+    systemBootstrapDirectory = new File(baseInstallDirectory, DIRECTORY_SYSTEM_BOOTSTRAP);
+    userBootstrapDirectory = new File(baseInstallDirectory, DIRECTORY_USER_BOOTSTRAP);
     libraryDirectory = new File(baseInstallDirectory, DIRECTORY_LIB);
     dataDirectory = new File(baseInstallDirectory, DIRECTORY_DATA);
+    tempDirectory = new File(baseInstallDirectory, DIRECTORY_TMP);
   }
 
   @Override
@@ -113,8 +123,13 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
   }
 
   @Override
-  public File getBootstrapDirectory() {
-    return bootstrapDirectory;
+  public File getSystemBootstrapDirectory() {
+    return systemBootstrapDirectory;
+  }
+
+  @Override
+  public File getUserBootstrapDirectory() {
+    return userBootstrapDirectory;
   }
 
   @Override
@@ -163,7 +178,8 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
 
   @Override
   public void startup() {
-    checkReadableDirectory(bootstrapDirectory, DIRECTORY_BOOTSTRAP);
+    checkWriteableDirectory(systemBootstrapDirectory, DIRECTORY_SYSTEM_BOOTSTRAP);
+    checkWriteableDirectory(userBootstrapDirectory, DIRECTORY_USER_BOOTSTRAP);
     checkReadableDirectory(logsDirectory, DIRECTORY_LOGS);
     checkReadableDirectory(libraryDirectory, DIRECTORY_LIB);
     checkWriteableDirectory(dataDirectory, DIRECTORY_DATA);
@@ -188,21 +204,21 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
     if (dir.exists()) {
       if (dir.isDirectory()) {
         if (!dir.canWrite()) {
-          throw new SimpleInteractiveSpacesException(String.format(
-              "The %s directory %s is not writeable", type, dir.getAbsolutePath()));
+          throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not writeable", type,
+              dir.getAbsolutePath()));
         }
         if (!dir.canRead()) {
-          throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not readable",
-              type, dir.getAbsolutePath()));
+          throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not readable", type,
+              dir.getAbsolutePath()));
         }
       } else {
-        throw new SimpleInteractiveSpacesException(String.format(
-            "The %s directory %s is not a directory", type, dir.getAbsolutePath()));
+        throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not a directory", type,
+            dir.getAbsolutePath()));
       }
     } else {
       if (!dir.mkdirs()) {
-        throw new SimpleInteractiveSpacesException(String.format("Unable to create the %s directory %s",
-            type, dir.getAbsolutePath()));
+        throw new SimpleInteractiveSpacesException(String.format("Unable to create the %s directory %s", type,
+            dir.getAbsolutePath()));
       }
     }
   }
@@ -220,16 +236,16 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
     if (dir.exists()) {
       if (dir.isDirectory()) {
         if (!dir.canRead()) {
-          throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not readable",
-              type, dir.getAbsolutePath()));
+          throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not readable", type,
+              dir.getAbsolutePath()));
         }
       } else {
-        throw new SimpleInteractiveSpacesException(String.format(
-            "The %s directory %s is not a directory", type, dir.getAbsolutePath()));
+        throw new SimpleInteractiveSpacesException(String.format("The %s directory %s is not a directory", type,
+            dir.getAbsolutePath()));
       }
     } else {
-      throw new SimpleInteractiveSpacesException(String.format("The %s directory %s does not exist",
-          type, dir.getAbsolutePath()));
+      throw new SimpleInteractiveSpacesException(String.format("The %s directory %s does not exist", type,
+          dir.getAbsolutePath()));
     }
   }
 }

@@ -38,69 +38,114 @@ import java.util.Properties;
 public class PythonActivityScriptFactory implements ActivityScriptFactory {
 
   /**
+   * Python property for the list of packages directories where the interpreter
+   * will find packages.
+   */
+  public static final String PYTHON_PROPERTY_PACKAGES_DIRECTORIES = "python.packages.directories";
+
+  /**
+   * Python property for the Python path.
+   */
+  public static final String PYTHON_PROPERTY_PYTHON_PATH = "python.path";
+
+  /**
+   * Name of the cache directory for the python classes.
+   */
+  public static final String PYTHON_CACHE_DIRECTORY = "python";
+
+  /**
+   * Name of the directory in the container lib folder for Python packages.
+   */
+  public static final String CONTAINER_LIB_PYTHON = "python";
+
+  /**
+   * Name of the directory in the container site specific folder for Python
+   * packages.
+   */
+  public static final String CONTAINER_LIB_PYTHON_SITE = "site";
+
+  /**
+   * Name of the directory for the Python system libraries in the python lib
+   * folder.
+   */
+  public static final String CONTAINER_LIB_PYTHON_SYSTEM = "PyLib";
+
+  /**
+   * Name of the directory for the Python libraries that supply IS-specific
+   * Python code.
+   */
+  public static final String CONTAINER_LIB_PYTHON_CONTAINER = "release";
+
+  /**
+   * Separator for python paths.
+   */
+  public static final char PYTHON_PATH_SEPARATOR = ':';
+
+  /**
    * The Interactive Spaces environment we are running under.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * Construct the factory.
+   *
+   * @param spaceEnvironment
+   *          the space environment for the factory
+   */
   public PythonActivityScriptFactory(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
   public void initialize() {
-    File pythonCachedir = spaceEnvironment.getFilesystem().getTempDirectory("python");
-    File bootstrapDir = spaceEnvironment.getFilesystem().getBootstrapDirectory();
+    File pythonCachedir = spaceEnvironment.getFilesystem().getTempDirectory(PYTHON_CACHE_DIRECTORY);
+    File bootstrapDir = spaceEnvironment.getFilesystem().getSystemBootstrapDirectory();
 
-    Properties props = new Properties(System.getProperties());
+    Properties properties = new Properties(System.getProperties());
+    properties.setProperty(PySystemState.PYTHON_CACHEDIR, pythonCachedir.getAbsolutePath());
+    properties.setProperty(PYTHON_PROPERTY_PACKAGES_DIRECTORIES, bootstrapDir.getAbsolutePath());
 
-    props.setProperty("python.cachedir", pythonCachedir.getAbsolutePath());
-    props.setProperty("python.packages.directories", bootstrapDir.getAbsolutePath());
+    addSystemPythonPath(properties);
 
-    addSystemPythonPath(props);
-
-    PySystemState.initialize(props, null, null, PythonActivityScriptFactory.class.getClassLoader());
-    // PythonInterpreter.initialize(System.getProperties(), props,
-    // new String[0]);
-
-    // PySystemState state = new PySystemState();
-
-    // interp = new PythonInterpreter(/* null, state */);
+    PySystemState.initialize(properties, null, null, PythonActivityScriptFactory.class.getClassLoader());
   }
 
   /**
-   * @param props
+   * Add in the python paths from the system.
+   *
+   * @param properties
+   *          the properties for the python interpreter
    */
-  protected void addSystemPythonPath(Properties props) {
+  protected void addSystemPythonPath(Properties properties) {
     // Get all readable dirs in Interactive Spaces system python library
-    File systemPythonLibDirectory = spaceEnvironment.getFilesystem().getLibraryDirectory("python");
+    File systemPythonLibDirectory = spaceEnvironment.getFilesystem().getLibraryDirectory(CONTAINER_LIB_PYTHON);
 
     if (systemPythonLibDirectory.exists() && systemPythonLibDirectory.canRead()) {
       StringBuilder pythonPath = new StringBuilder();
 
-      File siteLibraries = new File(systemPythonLibDirectory, "site");
+      File siteLibraries = new File(systemPythonLibDirectory, CONTAINER_LIB_PYTHON_SITE);
       File[] contents = siteLibraries.listFiles();
       if (contents != null) {
         for (File siteLibrary : contents) {
           if (siteLibrary.isDirectory() && siteLibrary.canRead()) {
-            pythonPath.append(siteLibrary.getAbsolutePath()).append(':');
+            pythonPath.append(siteLibrary.getAbsolutePath()).append(PYTHON_PATH_SEPARATOR);
           }
         }
       }
 
-      String pylibPath = new File(systemPythonLibDirectory, "PyLib").getAbsolutePath();
-      pythonPath.append(new File(systemPythonLibDirectory, "release").getAbsolutePath())
-          .append(':').append(pylibPath);
+      String pylibPath = new File(systemPythonLibDirectory, CONTAINER_LIB_PYTHON_SYSTEM).getAbsolutePath();
+      pythonPath.append(new File(systemPythonLibDirectory, CONTAINER_LIB_PYTHON_CONTAINER).getAbsolutePath())
+          .append(PYTHON_PATH_SEPARATOR).append(pylibPath);
 
       PySystemState.prefix = Py.newString(pylibPath);
 
-      props.setProperty("python.path", pythonPath.toString());
+      properties.setProperty(PYTHON_PROPERTY_PYTHON_PATH, pythonPath.toString());
     }
   }
 
   @Override
   public ActivityScriptWrapper getActivity(String objectName, ScriptSource scriptSource,
       ActivityFilesystem activityFilesystem, Configuration configuration) {
-    return new PythonActivityScriptWrapper(objectName, scriptSource, activityFilesystem,
-        configuration);
+    return new PythonActivityScriptWrapper(objectName, scriptSource, activityFilesystem, configuration);
   }
 }

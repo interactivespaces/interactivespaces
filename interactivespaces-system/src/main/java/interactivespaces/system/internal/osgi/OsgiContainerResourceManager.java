@@ -113,8 +113,9 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
 
       // Only add if in a monitored area.
       if (resourceLocation != null) {
-        ContainerResource resource = new ContainerResource(bundle.getSymbolicName(), new Version(version.getMajor(), version
-            .getMinor(), version.getMicro(), version.getQualifier()), resourceLocation);
+        ContainerResource resource =
+            new ContainerResource(bundle.getSymbolicName(), new Version(version.getMajor(), version.getMinor(),
+                version.getMicro(), version.getQualifier()), resourceLocation);
         resources.add(resource);
       }
     }
@@ -127,7 +128,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
     File resourceDestination = null;
     switch (location) {
       case SYSTEM_BOOTSTRAP:
-        resourceDestination = filesystem.getBootstrapDirectory();
+        resourceDestination = filesystem.getSystemBootstrapDirectory();
         break;
 
       case CONFIG:
