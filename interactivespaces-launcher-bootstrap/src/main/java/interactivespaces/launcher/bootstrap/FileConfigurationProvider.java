@@ -45,6 +45,21 @@ public class FileConfigurationProvider implements ConfigurationProvider {
   private static final String CONFIGURATION_FILES_EXTENSION = ".conf";
 
   /**
+   * Environment variable that indicates the home install directory for interactive spaces.
+   */
+  private static final String INTERACTIVESPACES_HOME_ENVIRONMENT_KEY = "INTERACTIVESPACES_HOME";
+
+  /**
+   * Default directory for the home directory relative to install of this component.
+   */
+  private static final String INTERACTIVESPACES_HOME_DEFAULT_DIR = "..";
+
+  /**
+   * Configuration key for interactive spaces home directory.
+   */
+  private static final String INTERACTIVESPACES_HOME_CONFIG_KEY = "interactivespaces.home";
+
+  /**
    * The initial configuration
    */
   private File baseInstallFolder;
@@ -54,6 +69,12 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    */
   private Map<String, String> currentConfiguration;
 
+  /**
+   * Create a new provider.
+   *
+   * @param baseInstallFolder
+   *          base install folder for this component
+   */
   public FileConfigurationProvider(File baseInstallFolder) {
     this.baseInstallFolder = baseInstallFolder;
   }
@@ -68,6 +89,12 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    */
   public void load() {
     currentConfiguration = new HashMap<String, String>();
+
+    // Calculate the proper home directory for this install of interactive spaces.
+    String isHomeEnvPath = System.getenv(INTERACTIVESPACES_HOME_ENVIRONMENT_KEY);
+    File isHomeDir = isHomeEnvPath != null ? new File(isHomeEnvPath)
+        : new File(baseInstallFolder, INTERACTIVESPACES_HOME_DEFAULT_DIR);
+    currentConfiguration.put(INTERACTIVESPACES_HOME_CONFIG_KEY, isHomeDir.getAbsolutePath());
 
     // Look in the specified bundle directory to create a list
     // of all JAR files to install.
