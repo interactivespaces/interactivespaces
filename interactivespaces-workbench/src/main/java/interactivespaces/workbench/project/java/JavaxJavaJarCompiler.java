@@ -149,7 +149,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
           jarDestinationFile.getAbsolutePath()), e);
     } finally {
-      Closeables.close(out, true);
+      Closeables.closeQuietly(out);
     }
   }
 
