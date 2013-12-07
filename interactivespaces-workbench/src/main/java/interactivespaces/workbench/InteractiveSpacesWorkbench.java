@@ -138,6 +138,12 @@ public class InteractiveSpacesWorkbench {
    * Configuration property giving the location of the controller the workbench
    * is using.
    */
+  public static final String CONFIGURATION_INTERACTIVESPACES_HOME = "interactivespaces.home";
+
+  /**
+   * Configuration property giving the location of the controller the workbench
+   * is using.
+   */
   public static final String CONFIGURATION_CONTROLLER_BASEDIR = "interactivespaces.controller.basedir";
 
   /**
@@ -325,6 +331,14 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
+  /**
+   * Copy the necessary build artifacts for the proejct.
+   *
+   * @param project
+   *          project sourcing the build artifacts
+   * @param destination
+   *          destination directory for the artifacts
+   */
   private void copyBuildArtifacts(Project project, File destination) {
     File[] artifacts = new File(project.getBaseDirectory(), COMMAND_BUILD).listFiles(new FileFilter() {
       @Override
@@ -376,7 +390,7 @@ public class InteractiveSpacesWorkbench {
       }
     }
 
-    File controllerDirectory = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
+    File controllerDirectory = getControllerDirectory();
     File javaSystemDirectory =
         new File(controllerDirectory, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
     if (!javaSystemDirectory.isDirectory()) {
@@ -392,12 +406,25 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
+   * @return controller directory supporting this workbench
+   */
+  private File getControllerDirectory() {
+    String controllerPath = workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR);
+    File controllerDirectory = new File(controllerPath);
+    if (controllerDirectory.isAbsolute()) {
+      return controllerDirectory;
+    }
+    File homeDir = new File(workbenchConfig.get(CONFIGURATION_INTERACTIVESPACES_HOME));
+    return new File(homeDir, controllerPath);
+  }
+
+  /**
    * Get the bootstrap directory for the controller.
    *
    * @return the bootstrap directory for the controller
    */
   private File getControllerBootstrapDir() {
-    return new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)), "bootstrap");
+    return new File(getControllerDirectory(), "bootstrap");
   }
 
   /**
@@ -408,7 +435,7 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
+        new File(getControllerDirectory(),
             InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
             .listFiles(new FilenameFilter() {
 
@@ -527,7 +554,7 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Walk over a set of folders looking for project files to build
+   * Walk over a set of folders looking for project files to build.
    *
    * @param baseDir
    *          base file to start looking for projects in
@@ -552,13 +579,14 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Walk over a set of folders looking for project files to build
+   * Walk over a set of folders looking for project files to build.
    *
    * @param baseDir
-   *          base folder which may be a project folder or may contain project
-   *          folders
+   *          base folder which may be a project folder or may contain project folders
    * @param commands
    *          commands to run on all project files
+   * @param filter
+   *          file filter to identify which files in the tree to execute on
    */
   private void doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
     if (projectManager.isProjectFolder(baseDir)) {
