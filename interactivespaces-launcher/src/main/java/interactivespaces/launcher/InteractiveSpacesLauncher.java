@@ -83,16 +83,17 @@ public class InteractiveSpacesLauncher {
   }
 
   /**
-   * Launch Interactive Spaces
+   * Launch Interactive Spaces.
+   *
+   * @param args
+   *          the arhguments from the command line
    */
   public void launch(String[] args) {
     if (writePid()) {
       createClassLoader();
       boostrap(args);
     } else {
-      System.err.format(
-          "InteractiveSpaces component already running. Lock found on %s\n",
-          pidFile.getAbsolutePath());
+      System.err.format("InteractiveSpaces component already running. Lock found on %s\n", pidFile.getAbsolutePath());
     }
   }
 
@@ -154,8 +155,10 @@ public class InteractiveSpacesLauncher {
         return name.endsWith(EXTENSION_FILE_EXTENSION);
       }
     });
-    if (extensionFiles == null)
+
+    if (extensionFiles == null) {
       return;
+    }
 
     for (File extensionFile : extensionFiles) {
       processExtensionFile(urls, extensionFile);
@@ -183,7 +186,8 @@ public class InteractiveSpacesLauncher {
         if (!line.isEmpty()) {
           int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
           if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-            urls.add(new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)).toURI().toURL());
+            File path = new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH));
+            urls.add(path.toURI().toURL());
           }
         }
       }
@@ -207,8 +211,7 @@ public class InteractiveSpacesLauncher {
   private void boostrap(String[] args) {
     try {
       Class<?> bootstrapClass =
-          classLoader
-              .loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");
+          classLoader.loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");
 
       Object bootstrapInstance = bootstrapClass.newInstance();
 

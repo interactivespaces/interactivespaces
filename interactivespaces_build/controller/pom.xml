@@ -76,57 +76,6 @@
         </configuration>
       </plugin>
 
-      <!-- copy other checked resource into staging area, expected by install.xml -->
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>create-staging-area</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <tasks>
-                <copy todir="${staging.dir}">
-                  <fileset file="${basedir}/../../LICENSE.txt" />
-                  <fileset file="${basedir}/../../LICENSE.thirdparties.txt" />
-                  <fileset file="${basedir}/../../NOTICE.txt" />
-                </copy>
-                <copy todir="${staging.dir}">
-                  <fileset dir="${basedir}/../template-common" />
-                  <filterchain>
-                    <replacetokens>
-                      <token key="INTERACTIVESPACES_VERSION"
-                        value="${project.version}" />
-                    </replacetokens>
-                  </filterchain>
-                </copy>
-                <copy todir="${staging.dir}">
-                  <fileset dir="${basedir}/../common" />
-                </copy>
-                <copy todir="${staging.dir}">
-                  <fileset dir="${basedir}/template" />
-                </copy>
-                <copy todir="${staging.dir}">
-                  <fileset dir="${basedir}/src/izpack" />
-                </copy>
-                <copy todir="${staging.dir}/lib/python/release">
-                  <fileset
-                    dir="${basedir}/../../interactivespaces_lib/src/main/python/release/common" />
-                  <fileset
-                    dir="${basedir}/../../interactivespaces_lib/src/main/python/release/controller" />
-                </copy>
-                <copy todir="${staging.dir}/lib/python/PyLib">
-                  <fileset dir="${jython.home}/Lib" />
-                </copy>
-              </tasks>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- prepare dependencies so that izpack jar tag to pickup at compile 
         time -->
       <plugin>
@@ -716,6 +665,16 @@
                   <overWrite>true</overWrite>
                 </artifactItem>
 
+                <!-- Video and image processing -->
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-service-image-vision</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${staging.dir}/extras/opencv</outputDirectory>
+                  </artifactItem>
+                
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>

@@ -82,9 +82,8 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * External packages loaded from the Interactive Spaces system folder.
    */
-  public static final String[] PACKAGES_SYSTEM_EXTERNAL =
-      new String[] { "org.apache.commons.logging; version=1.1.1",
-          "org.apache.commons.logging.impl; version=1.1.1" };
+  public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] { "org.apache.commons.logging; version=1.1.1",
+      "org.apache.commons.logging.impl; version=1.1.1" };
 
   /**
    * Packages loaded from the Interactive Spaces system folder that are part of
@@ -98,22 +97,6 @@ public class InteractiveSpacesFrameworkBootstrap {
    * The Jar Manifest property that gives the Interactive Spaces version.
    */
   public static final String MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION = "Bundle-Version";
-
-  /**
-   * The file extension used for files which give container extensions.
-   */
-  public static final String EXTENSION_FILE_EXTENSION = ".ext";
-
-  /**
-   * The keyword header for a package line on an extensions file.
-   */
-  public static final String EXTENSION_FILE_PACKAGE_KEYWORD = "package:";
-
-  /**
-   * The length of the keyword header for a package line on an extensions file.
-   */
-  public static final int EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH = EXTENSION_FILE_PACKAGE_KEYWORD
-      .length();
 
   /**
    * The folder where Interactive Spaces will cache OSGi plugins.
@@ -190,8 +173,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     initialBundles = new ArrayList<File>();
 
-    getBootstrapBundleJars(new File(baseInstallFolder,
-        ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
+    getBootstrapBundleJars(new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
 
     // If no bundle JAR files are in the directory, then exit.
     if (initialBundles.isEmpty()) {
@@ -234,16 +216,14 @@ public class InteractiveSpacesFrameworkBootstrap {
    *           could not create the startup folder or load it
    */
   private void loadStartupFolder() throws Exception {
-    File startupFolder =
-        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP);
+    File startupFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP);
     if (startupFolder.exists()) {
       if (startupFolder.isFile()) {
         throw new Exception(String.format("User bootstrap folder %s is a file not a folder.",
             startupFolder.getAbsolutePath()));
       }
     } else if (!startupFolder.mkdirs()) {
-      throw new Exception(String.format("Cannot create user bootstrap folder %s.",
-          startupFolder.getAbsolutePath()));
+      throw new Exception(String.format("Cannot create user bootstrap folder %s.", startupFolder.getAbsolutePath()));
     }
 
     getBootstrapBundleJars(startupFolder);
@@ -256,8 +236,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
-        loggingProvider.getLog().error(
-            String.format("Caught uncaught exception from thread %s", t), e);
+        loggingProvider.getLog().error(String.format("Caught uncaught exception from thread %s", t), e);
       }
     });
   }
@@ -283,10 +262,8 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   public void registerCoreServices() {
     rootBundleContext.registerService(LoggingProvider.class.getName(), loggingProvider, null);
-    rootBundleContext.registerService(ConfigurationProvider.class.getName(), configurationProvider,
-        null);
-    rootBundleContext.registerService(ContainerCustomizerProvider.class.getName(),
-        containerCustomizerProvider, null);
+    rootBundleContext.registerService(ConfigurationProvider.class.getName(), configurationProvider, null);
+    rootBundleContext.registerService(ContainerCustomizerProvider.class.getName(), containerCustomizerProvider, null);
   }
 
   /**
@@ -347,8 +324,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     try {
       bundle.start();
     } catch (Exception e) {
-      loggingProvider.getLog().error(
-          String.format("Error while starting bundle %s", bundle.getLocation()), e);
+      loggingProvider.getLog().error(String.format("Error while starting bundle %s", bundle.getLocation()), e);
     }
   }
 
@@ -377,7 +353,14 @@ public class InteractiveSpacesFrameworkBootstrap {
       extraPackages.add(pckage);
     }
 
-    addControllerExtensionsClasspath(extraPackages, loadclasses);
+    File systemFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM);
+
+    ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
+    extensionsReader.processExtensionFiles(systemFolder);
+
+    extraPackages.addAll(extensionsReader.getPackages());
+
+    loadLibraries(extensionsReader.getLoadlibraries());
 
     StringBuilder packages = new StringBuilder();
     String separator = "";
@@ -388,8 +371,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
 
-    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR,
-        baseInstallFolder.getAbsolutePath());
+    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR, baseInstallFolder.getAbsolutePath());
 
     m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION, getInteractiveSpacesVersion());
 
@@ -407,6 +389,19 @@ public class InteractiveSpacesFrameworkBootstrap {
       if (StartLevel.class.isAssignableFrom(service.getClass())) {
         startLevelService = (StartLevel) service;
       }
+    }
+  }
+
+  /**
+   * Load a collection of libraries
+   *
+   * @param libraries
+   *          the libraries to load
+   */
+  private void loadLibraries(List<String> libraries) {
+    for (String library : libraries) {
+      loggingProvider.getLog().info(String.format("Loading library %s", library));
+      System.loadLibrary(library);
     }
   }
 
@@ -544,85 +539,12 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Add all extension classpath entries that the controller specifies.
-   *
-   * @param packages
-   *          the list of packages to store the packages in
-   * @param loadclasses
-   *          The list of classes to have the classloader preload.
-   */
-  private void addControllerExtensionsClasspath(List<String> packages, List<String> loadclasses) {
-    File[] extensionFiles =
-        new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM)
-            .listFiles(new FilenameFilter() {
-
-              @Override
-              public boolean accept(File dir, String name) {
-                return name.endsWith(EXTENSION_FILE_EXTENSION);
-              }
-            });
-    if (extensionFiles == null) {
-      return;
-    }
-
-    for (File extensionFile : extensionFiles) {
-      processExtensionFile(packages, loadclasses, extensionFile);
-    }
-
-  }
-
-  /**
-   * process an extension file.
-   *
-   * @param packages
-   *          the collection of packages described in the extension files
-   *
-   * @param extensionFile
-   *          the extension file to process
-   */
-  private void processExtensionFile(List<String> packages, List<String> loadclasses,
-      File extensionFile) {
-    BufferedReader reader = null;
-    try {
-      reader = new BufferedReader(new FileReader(extensionFile));
-
-      String line;
-      while ((line = reader.readLine()) != null) {
-        line = line.trim();
-        if (!line.isEmpty()) {
-          int pos = line.indexOf(EXTENSION_FILE_PACKAGE_KEYWORD);
-          if (pos == 0 && line.length() > EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH) {
-            packages.add(line.substring(EXTENSION_FILE_PACKAGE_KEYWORD_LENGTH));
-          }
-
-          pos = line.indexOf("loadclass:");
-          if (pos == 0 && line.length() > "loadclass:".length()) {
-            loadclasses.add(line.substring("loadclass:".length()));
-          }
-        }
-      }
-    } catch (Exception e) {
-      loggingProvider.getLog().error(
-          String.format("Error while processing extensions file %s", extensionFile), e);
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          // Don't care.
-        }
-      }
-    }
-  }
-
-  /**
    * Get the Interactive Spaces version from the JAR manifest.
    *
    * @return The interactive spaces version
    */
   private String getInteractiveSpacesVersion() {
-    String classContainer =
-        getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+    String classContainer = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
 
     InputStream in = null;
     try {

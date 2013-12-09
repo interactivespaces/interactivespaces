@@ -17,6 +17,9 @@ from http://sourceforge.net/projects/javax-usb/
 usb4java
 from http://kayahr.github.io/usb4java/
 
+OpenCV
+from http://opencv.org
+
 Create a file in the root folder of the Interactive Spaces project called
 gradle.properties.
 
@@ -31,6 +34,7 @@ bluecove.home = /home/you/software/bluecove/bluecove-2.1.0.jar
 jython.home = /home/you/software/jython/jython2.5.2
 jsr80.home = /home/you/software/jsr80/jsr80-1.0.0.jar
 usb4java.home = /home/you/software/usb4java/usb4java-1.0.0.jar
+opencv.home = /home/you/software/opencv/release
 
 The Android controller is built for a given minimum version of Android.
 The following example shows building the Android controller for Ice Cream

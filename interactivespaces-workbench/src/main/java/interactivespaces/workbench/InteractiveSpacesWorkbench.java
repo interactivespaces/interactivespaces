@@ -407,9 +407,9 @@ public class InteractiveSpacesWorkbench {
    *          the list of files to add to.
    */
   private void addControllerExtensionsClasspath(List<File> files) {
+    File controllerBaseDir = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File[] extensionFiles =
-        new File(new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR)),
-            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
+        new File(controllerBaseDir, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
             .listFiles(new FilenameFilter() {
 
               @Override
@@ -420,7 +420,7 @@ public class InteractiveSpacesWorkbench {
 
     if (extensionFiles != null) {
       for (File extensionFile : extensionFiles) {
-        processExtensionFile(files, extensionFile);
+        processExtensionFile(files, extensionFile, controllerBaseDir);
       }
     }
   }
@@ -456,11 +456,12 @@ public class InteractiveSpacesWorkbench {
    *
    * @param files
    *          the collection of jars described in the extension files
-   *
    * @param extensionFile
    *          the extension file to process
+   * @param controllerBaseDir
+   *          base directory of the controller
    */
-  private void processExtensionFile(List<File> files, File extensionFile) {
+  private void processExtensionFile(List<File> files, File extensionFile, File controllerBaseDir) {
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(new FileReader(extensionFile));
@@ -471,7 +472,14 @@ public class InteractiveSpacesWorkbench {
         if (!line.isEmpty()) {
           int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
           if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-            files.add(new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH)));
+            String classpathAddition = line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH);
+
+            // Want to be able to have files relative to the controller
+            File classpathFile = new File(classpathAddition);
+            if (!classpathFile.isAbsolute()) {
+              classpathFile = new File(controllerBaseDir, classpathAddition);
+            }
+            files.add(classpathFile);
           }
         }
       }

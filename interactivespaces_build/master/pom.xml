@@ -76,7 +76,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- copy other checked resource into staging area, expected by install.xml -->
+			<!-- copy other checked resource into staging area, expected by install.xml
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
@@ -126,7 +126,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+ -->
 			<!-- prepare dependencies so that izpack jar tag to pickup at compile
 				time -->
 			<plugin>

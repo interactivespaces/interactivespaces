@@ -1,0 +1,14 @@
+path:extras/opencv/jars/opencv-247.jar
+loadlibrary:opencv_java247
+package:org.opencv
+package:org.opencv.core
+package:org.opencv.highgui
+package:org.opencv.video
+package:org.opencv.utils
+package:org.opencv.photo
+package:org.opencv.objectdetect
+package:org.opencv.ml
+package:org.opencv.imgproc
+package:org.opencv.features2d
+package:org.opencv.contrib
+package:org.opencv.calib3d

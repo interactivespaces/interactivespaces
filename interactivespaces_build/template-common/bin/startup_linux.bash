@@ -9,6 +9,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # Get to the directory above the bin directory.
 cd $DIR/..
 
+EXTRAARGS=
 # Read user configuration file, if present.
 RCFILE=$HOME/.interactivespaces.rc
 if [ -f $RCFILE ]; then
@@ -16,11 +17,17 @@ if [ -f $RCFILE ]; then
   source $RCFILE
 fi
 
+CONTAINERARGS=./lib/system/java/container.args
+if [ -f $CONTAINERARGS ]; then
+  CONTAINERARGS_CONTENTS=`cat ${CONTAINERARGS}`
+  EXTRAARGS="${EXTRAARGS} ${CONTAINERARGS_CONTENTS}"
+fi
+
 # Start up Interactive Spaces
 if [ $# == 0 ] || [ $1 == "foreground" ]; then
-  java -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
+  java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
 fi
 
 if [ "$1" == "background" ]; then
-  nohup java -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar --noshell &>/dev/null &
+  nohup java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar --noshell &>/dev/null &
 fi

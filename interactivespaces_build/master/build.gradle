@@ -13,8 +13,47 @@
  * the License.
  */
 
-task assembleContainers(type: Exec) {
-  commandLine "mvn", "clean", "install", "-DinteractiveSpacesVersion=${version}"
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task cleanContainer(type: Exec) {
+  commandLine "rm", "-fR", new File(project.projectDir, "target").absolutePath
+}
+
+task copyCore(type:Copy) {
+  from rootProject.file('LICENSE.txt')
+  from rootProject.file('LICENSE.thirdparties.txt')
+  from rootProject.file('NOTICE.txt')
+  from parent.file('template-common')
+  from parent.file('common')
+  from project.file('template')
+  from project.file('src/izpack')
+  into 'target/staging'
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
+}
+
+task copyPythonCore(type:Copy) {
+  from "${project.getProperty('jython.home')}/Lib"
+  into 'target/staging/lib/python/PyLib'
+}
+
+task copyPythonRelease(type:Copy) {
+  from rootProject.file('interactivespaces_lib/src/main/python/release/common')
+  from rootProject.file('interactivespaces_lib/src/main/python/release/master')
+  into 'target/staging/lib/python/release'
+}
+
+task copyNeededComponents(dependsOn: [
+  copyCore,
+  copyPythonCore,
+  copyPythonRelease,
+  cleanContainer
+])
+
+task assembleContainers(type: Exec, dependsOn: [
+  copyNeededComponents,
+  cleanContainer
+]) {
+  commandLine "mvn", "install", "-DinteractiveSpacesVersion=${version}"
 }
 
 task installDev(type: Exec, dependsOn: [assembleContainers]) {
