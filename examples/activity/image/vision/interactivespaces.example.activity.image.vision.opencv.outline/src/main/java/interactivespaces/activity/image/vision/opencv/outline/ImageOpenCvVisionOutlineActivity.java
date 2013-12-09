@@ -95,7 +95,6 @@ public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements Vi
 
   @Override
   public void onNewVideoFrame(Mat frame) {
-    getLog().info("Got frame");
     Mat processed = new Mat(frame.size(), CvType.CV_8UC3);
     edgeify(frame, processed);
 
