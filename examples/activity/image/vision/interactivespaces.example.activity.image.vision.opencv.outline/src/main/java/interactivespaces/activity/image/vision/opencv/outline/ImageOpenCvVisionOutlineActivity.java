@@ -88,11 +88,14 @@ public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements Vi
     frame.setVisible(true);
     addManagedResource(new JFrameManagedResource(frame));
 
-    getManagedCommands().submit(new OpenCvVideoLoop(CAMERA_ID, getLog()));
+    OpenCvVideoLoop videoLoop = new OpenCvVideoLoop(CAMERA_ID, getLog());
+    videoLoop.addListener(this);
+    getManagedCommands().submit(videoLoop);
   }
 
   @Override
   public void onNewVideoFrame(Mat frame) {
+    getLog().info("Got frame");
     Mat processed = new Mat(frame.size(), CvType.CV_8UC3);
     edgeify(frame, processed);
 
