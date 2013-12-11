@@ -436,7 +436,6 @@ public class InteractiveSpacesWorkbench {
    *          the list of files to add to.
    */
   private void addControllerExtensionsClasspath(List<File> files) {
-    File controllerBaseDir = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File[] extensionFiles =
         new File(getControllerDirectory(),
             InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
@@ -450,7 +449,7 @@ public class InteractiveSpacesWorkbench {
 
     if (extensionFiles != null) {
       for (File extensionFile : extensionFiles) {
-        processExtensionFile(files, extensionFile, controllerBaseDir);
+        processExtensionFile(files, extensionFile, getControllerDirectory());
       }
     }
   }
