@@ -27,6 +27,7 @@ import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
+import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
@@ -62,7 +63,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -378,17 +378,8 @@ public class InteractiveSpacesWorkbench {
   public List<File> getControllerClasspath() {
     List<File> classpath = Lists.newArrayList();
 
-    File[] files = getControllerBootstrapDir().listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.getName().endsWith(FILENAME_JAR_EXTENSION);
-      }
-    });
-    if (files != null) {
-      for (File file : files) {
-        classpath.add(file);
-      }
-    }
+    addClasspathFiles(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP), classpath);
+    addClasspathFiles(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP), classpath);
 
     File controllerDirectory = getControllerDirectory();
     File javaSystemDirectory =
@@ -406,6 +397,26 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
+   * Add all JAR files from the given directory to the classdpath.
+   *
+   * @param directory
+   * @param classpath
+   */
+  private void addClasspathFiles(File directory, List<File> classpath) {
+    File[] files = directory.listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        return pathname.getName().endsWith(FILENAME_JAR_EXTENSION);
+      }
+    });
+    if (files != null) {
+      for (File file : files) {
+        classpath.add(file);
+      }
+    }
+  }
+
+  /**
    * @return controller directory supporting this workbench
    */
   private File getControllerDirectory() {
@@ -419,15 +430,6 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Get the bootstrap directory for the controller.
-   *
-   * @return the bootstrap directory for the controller
-   */
-  private File getControllerBootstrapDir() {
-    return new File(getControllerDirectory(), "bootstrap");
-  }
-
-  /**
    * Add all extension classpath entries that the controller specifies.
    *
    * @param files
@@ -436,12 +438,8 @@ public class InteractiveSpacesWorkbench {
   private void addControllerExtensionsClasspath(List<File> files) {
     File controllerBaseDir = new File(workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR));
     File[] extensionFiles =
-<<<<<<< HEAD
-        new File(controllerBaseDir, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
-=======
         new File(getControllerDirectory(),
             InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
->>>>>>> master
             .listFiles(new FilenameFilter() {
 
               @Override
@@ -800,20 +798,17 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Get all files in the bootstrap folders, both system and user.
+   * Get all files in the workbench bootstrap folders, both system and user.
    *
    * @return all files in bootstrap folder.
    */
-  public List<File> getAllBootstrapFiles() {
-    ArrayList<File> files = Lists.newArrayList(workbenchFileSystem.getSystemBootstrapDirectory().listFiles());
+  public List<File> getAllWorkbenchBootstrapFiles() {
+    List<File> files = Lists.newArrayList();
+
+    addClasspathFiles(workbenchFileSystem.getSystemBootstrapDirectory(), files);
     File userBootstrap = workbenchFileSystem.getUserBootstrapDirectory();
     if (userBootstrap.exists() && userBootstrap.isDirectory()) {
-      File[] startupFiles = userBootstrap.listFiles();
-      if (startupFiles != null) {
-        for (File file : startupFiles) {
-          files.add(file);
-        }
-      }
+      addClasspathFiles(userBootstrap, files);
     }
 
     return files;

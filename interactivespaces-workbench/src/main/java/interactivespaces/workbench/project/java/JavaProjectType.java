@@ -75,7 +75,7 @@ public abstract class JavaProjectType implements ProjectType {
       InteractiveSpacesWorkbench workbench) {
     getRuntimeClasspath(classpath, extension, workbench);
 
-    for (File file : workbench.getAllBootstrapFiles()) {
+    for (File file : workbench.getAllWorkbenchBootstrapFiles()) {
       if (file.getName().contains("junit-4")) {
         classpath.add(file);
       }
