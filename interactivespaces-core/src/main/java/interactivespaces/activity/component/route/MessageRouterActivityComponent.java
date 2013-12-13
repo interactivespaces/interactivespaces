@@ -16,6 +16,8 @@
 
 package interactivespaces.activity.component.route;
 
+import interactivespaces.activity.component.ActivityComponent;
+
 /**
  * An activity component which supports route messaging.
  *
@@ -24,7 +26,7 @@ package interactivespaces.activity.component.route;
  *
  * @author Keith M. Hughes
  */
-public interface MessageRouterActivityComponent<T> {
+public interface MessageRouterActivityComponent<T> extends ActivityComponent {
 
   /**
    * Separator for configuration values which allow multiple values.
