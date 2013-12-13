@@ -279,7 +279,7 @@ public class BaseActivityTest {
     Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
 
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(log, Mockito.atLeast(1)).error(Mockito.anyString(), Mockito.eq(e));
 
     componentInOrder.verify(component).setComponentContext(activity.getActivityComponentContext());
     componentInOrder.verify(component).configureComponent(configuration);
@@ -311,7 +311,7 @@ public class BaseActivityTest {
     Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
 
     assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
-    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+    Mockito.verify(log, Mockito.atLeast(1)).error(Mockito.anyString(), Mockito.eq(e));
 
     Mockito.verify(component).setComponentContext(activity.getActivityComponentContext());
     Mockito.verify(component2).setComponentContext(activity.getActivityComponentContext());

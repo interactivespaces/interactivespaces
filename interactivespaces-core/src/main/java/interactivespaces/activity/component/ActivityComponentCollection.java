@@ -116,8 +116,10 @@ public class ActivityComponentCollection {
    */
   public void startupComponents() throws Exception {
     List<ActivityComponent> startedComponents = Lists.newArrayList();
+    ActivityComponent currentComponent = null;
     try {
       for (ActivityComponent component : configuredComponents) {
+        currentComponent = component;
         component.getComponentContext().getActivity().getLog()
             .info("Starting component " + component.getName());
 
@@ -125,6 +127,8 @@ public class ActivityComponentCollection {
         startedComponents.add(component);
       }
     } catch (Exception e) {
+      handleComponentError(currentComponent, "Error starting component", e);
+
       // Every component that was actually started up should be shut down.
       for (ActivityComponent component : startedComponents) {
         try {
