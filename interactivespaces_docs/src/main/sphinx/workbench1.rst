@@ -267,6 +267,40 @@ Which would copy the file ``artifact`` from the subfolder ``native/build`` in yo
 folder. ``native/build`` might be the folder that your C build places the final library or
 executable that it builds.
 
+.. _workbench1-resource-assemblies:
+
+Resource Assemblies
+^^^^^^^^^^^^^^^^^^^
+
+In addition to copied resources, it's possible to include an ``assembly``, which is a single bundle file
+that's extracted into a collection of files. See :ref:`workbench1-assembly-projects` for documentation
+on how assembly projects are created. To use a resource assembly, specify an ``<assembly>`` tag as in the
+example below.
+
+::
+
+  <resources>
+    <assembly packFormat="zip" sourceFile="${project.home}/javascript.bundle-1.0.0.zip" />
+  </resources>
+
+
+Additional Sources
+^^^^^^^^^^^^^^^^^^
+
+Using the ``sources`` directive in a project, it's possible to include additional directories into the project
+build source path. For example, this can be used to create a shared source java file that contains constants used
+across a number of different activities. The additional sources are passed to the underlying project builder,
+which will typically process them in the same manner as source files in the activity home directory itself.
+
+Note that is is also possible to use :ref:`workbench1-library-projects` to create shared activity functionality.
+
+::
+
+  <sources>
+    <source sourceDirectory="${project.home}/../shared/src/main/java" />
+  </sources>
+
+
 .. _workbench1-import-deploy-label:
 
 Quick Importing or Deploying Your Projects
@@ -347,6 +381,8 @@ Here is an example of a complete Activity project file with resource and deploym
 Other Project Types
 ===================
 
+.. _workbench1-library-projects:
+
 Library Projects
 ----------------
 
@@ -388,6 +424,33 @@ Service Projects
 
 Resource Projects
 -----------------
+
+.. _workbench1-assembly-projects:
+
+Assembly Projects
+-----------------
+
+Assembly projects create a bundle file (typically as a compressed ``zip`` file) that consists of several constituent files.
+The resulting bundles can then be included using an ``assembly`` resource directive
+(see :ref:`workbench1-resource-assemblies`). The project snippet below will create an assembly
+named ``javascript.bundle-1.0.0.zip`` that can then be included elsewhere.
+
+::
+
+    <project type="assembly" packFormat="zip" >
+      <identifyingName>javascript.bundle</identifyingName>
+      <version>1.0.0</version>
+      <sources>
+        <source sourceFile="src/main/css/base_admin.css" />
+        <bundle destinationFile="webapp/js/bundle.js">
+          <source sourceFile="src/main/js/external/jquery/core/jquery-1.9.1.min.js"/>
+          <source sourceFile="src/main/js/base_admin.js" />
+        </bundle>
+      </sources>
+    </project>
+
+Internal to the bundle, there is a ``base_admin.css`` file as well as a bundle file ``bundle.js``, which
+contains two individual source files concatenated together.
 
 Other Workbench Operations
 ==========================
