@@ -56,8 +56,7 @@ public class JavaActivityProjectType extends JavaProjectType {
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(
-        JavaProjectType.SOURCE_MAIN_JAVA, JavaProjectType.SOURCE_MAIN_TESTS,
-        ProjectType.SOURCE_MAIN_RESOURCES));
+    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(JavaProjectType.SOURCE_MAIN_JAVA,
+        ProjectType.SOURCE_MAIN_RESOURCES), Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS));
   }
 }

@@ -25,15 +25,22 @@ import com.google.common.collect.Lists;
 import java.util.Map;
 
 /**
- * Specification for non-java projects.
+ * IDE specification for non-java projects.
  *
  * @author Keith M. Hughes
  */
 public class NonJavaEclipseIdeProjectCreatorSpecification implements
     EclipseIdeProjectCreatorSpecification {
 
+  /**
+   * The Eclipse builder for non-Java only projects.
+   */
   private static final String ECLIPSE_BUILDER_NON_JAVA =
       "org.eclipse.wst.common.project.facet.core.builder";
+
+  /**
+   * The Eclipse project nature for text only projects.
+   */
   private static final String ECLIPSE_NATURE_NON_JAVA =
       "org.eclipse.wst.common.project.facet.core.nature";
 

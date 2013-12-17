@@ -33,14 +33,22 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JavaEclipseIdeProjectCreatorSpecification implements
-    EclipseIdeProjectCreatorSpecification {
+public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProjectCreatorSpecification {
+
+  /**
+   * Freemarker context variable for libraries which are part of the project.
+   */
+  private static final String FREEMARKER_CONTEXT_LIBS = "libs";
+
+  /**
+   * Freemarker context variable for sources which are part of the project.
+   */
+  private static final String FREEMARKER_CONTEXT_SOURCES = "srcs";
 
   /**
    * The location of the eclipse classpath template file.
    */
-  private static final String TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH =
-      "ide/eclipse/java-classpath.ftl";
+  private static final String TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH = "ide/eclipse/java-classpath.ftl";
 
   /**
    * The name of the Eclipse classpath file.
@@ -53,14 +61,19 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
   private static final String ECLIPSE_BUILDER_JAVA = "org.eclipse.jdt.core.javabuilder";
 
   /**
-   * The value for the Java nature for an eclpse project.
+   * The value for the Java nature for an Eclipse project.
    */
   private static final String ECLIPSE_NATURE_JAVA = "org.eclipse.jdt.core.javanature";
 
   /**
-   * List of sources for the project.
+   * List of required sources for the project.
    */
-  private final List<String> sources;
+  private final List<String> sourcesRequired;
+
+  /**
+   * List of optional sources for the project.
+   */
+  private final List<String> sourcesOptional;
 
   /**
    * The Java activity extensions.
@@ -73,46 +86,72 @@ public class JavaEclipseIdeProjectCreatorSpecification implements
   /**
    * Construct a specification with {@code null} extensions.
    *
-   * @param sources
-   *          the source directories
+   * @param sourcesRequired
+   *          the required source directories
+   * @param sourcesOptional
+   *          optional resources for the project
    */
-  public JavaEclipseIdeProjectCreatorSpecification(List<String> sources) {
-    this(sources, null);
+  public JavaEclipseIdeProjectCreatorSpecification(List<String> sourcesRequired, List<String> sourcesOptional) {
+    this(sourcesRequired, sourcesOptional, null);
   }
 
   /**
    * Construct a specification with extensions.
    *
-   * @param sources
+   * @param sourcesRequired
    *          list of source directories for the project
+   * @param sourcesOptional
+   *          optional resources for the project
    * @param extensions
-   *          the extensions to use (can be {@code null})
+   *          the extensions to use, can be {@code null}
    */
-  public JavaEclipseIdeProjectCreatorSpecification(List<String> sources,
+  public JavaEclipseIdeProjectCreatorSpecification(List<String> sourcesRequired, List<String> sourcesOptional,
       JavaProjectExtension extensions) {
-    this.sources = sources;
+    this.sourcesRequired = sourcesRequired;
+    this.sourcesOptional = sourcesOptional;
     this.extensions = extensions;
   }
 
   @Override
-  public void addSpecificationData(Project project, ProjectBuildContext context,
-      Map<String, Object> freemarkerContext) {
+  public void addSpecificationData(Project project, ProjectBuildContext context, Map<String, Object> freemarkerContext) {
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_NATURES, Lists.newArrayList(ECLIPSE_NATURE_JAVA));
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_BUILDER, ECLIPSE_BUILDER_JAVA);
   }
 
   @Override
-  public void writeAdditionalFiles(Project project, ProjectBuildContext context,
-      Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception {
+  public void writeAdditionalFiles(Project project, ProjectBuildContext context, Map<String, Object> freemarkerContext,
+      FreemarkerTemplater templater) throws Exception {
     JavaProjectType projectType = context.getProjectType();
 
     List<File> projectLibs = Lists.newArrayList();
     projectType.getProjectClasspath(projectLibs, extensions, context.getWorkbench());
 
-    freemarkerContext.put("srcs", sources);
-    freemarkerContext.put("libs", projectLibs);
+    List<String> sources = Lists.newArrayList(sourcesRequired);
+    addNecessaryOptionalSources(project, sources);
+    freemarkerContext.put(FREEMARKER_CONTEXT_SOURCES, sources);
+    freemarkerContext.put(FREEMARKER_CONTEXT_LIBS, projectLibs);
 
-    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(),
-        FILENAME_CLASSPATH_FILE), TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH);
+    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(), FILENAME_CLASSPATH_FILE),
+        TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH);
+  }
+
+  /**
+   * Add any needed optional sources.
+   *
+   * <p>
+   * These are added by checking to see if the source folder exists.
+   *
+   * @param project
+   *          the project being checked
+   * @param sources
+   *          the sources list which will be added
+   */
+  private void addNecessaryOptionalSources(Project project, List<String> sources) {
+    for (String sourceOptional : sourcesOptional) {
+      File location = new File(project.getBaseDirectory(), sourceOptional);
+      if (location.exists()) {
+        sources.add(sourceOptional);
+      }
+    }
   }
 }
