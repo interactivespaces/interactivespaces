@@ -169,7 +169,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     // TODO(keith): Better command line processing
     needShell = !args.contains(ARGS_NOSHELL);
 
-    baseInstallFolder = new File(".");
+    baseInstallFolder = new File(".").getAbsoluteFile().getParentFile();
 
     initialBundles = new ArrayList<File>();
 
