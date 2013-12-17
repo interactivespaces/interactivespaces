@@ -652,14 +652,7 @@
                 <!--Interactive Spaces web services -->
                 <artifactItem>
                   <groupId>com.google.zxing</groupId>
-                  <artifactId>interactivespaces.com.google.zxing.core</artifactId>
-                  <version>2.1</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.google.zxing</groupId>
-                  <artifactId>interactivespaces.com.google.zxing.javase</artifactId>
+                  <artifactId>interactivespaces.com.google.zxing.all</artifactId>
                   <version>2.1</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>

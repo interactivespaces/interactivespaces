@@ -17,8 +17,7 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'com.google.zxing:interactivespaces.com.google.zxing.core:2.1'
-  compile 'com.google.zxing:interactivespaces.com.google.zxing.javase:2.1'
+  compile 'com.google.zxing:interactivespaces.com.google.zxing.all:2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
