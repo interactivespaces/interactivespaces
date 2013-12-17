@@ -27,6 +27,3 @@ string locationUri
 
 # A signature (e.g. message digest) of the resource
 string signature
-
-# metadata for the resource
-KeyValuePair[] metadata

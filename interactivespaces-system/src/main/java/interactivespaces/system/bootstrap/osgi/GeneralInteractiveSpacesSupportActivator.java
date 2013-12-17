@@ -162,7 +162,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   private static final String UNKNOWN_HOST_ADDRESS = "unknown";
 
   /**
-   * Update period for
+   * Update period for NTP.
    */
   private static final long NTP_UPDATE_PERIOD_SECONDS = 10L;
 
@@ -197,10 +197,10 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   }
 
   /**
-   * Create any additonal resources needed by the container.
+   * Create any additional resources needed by the container.
    */
   private void createAdditionalResources() {
-    containerResourceManager = new OsgiContainerResourceManager(bundleContext, filesystem);
+    containerResourceManager = new OsgiContainerResourceManager(bundleContext, filesystem, spaceEnvironment.getLog());
     containerResourceManager.startup();
     managedResources.addResource(containerResourceManager);
   }
@@ -223,6 +223,9 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    * and so will be immediately available. They will never go away since they
    * are only destroyed when bundle 0 goes, which means the entire container is
    * being shut down.
+   *
+   * @throws Exception
+   *           something bad happened
    */
   private void getCoreServices() throws Exception {
     ServiceReference loggingProviderServiceReference =
@@ -267,8 +270,6 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   /**
    * Set up the {@link InteractiveSpacesEnvironment} everyone should use.
    *
-   * @param containerProperties
-   *          properties for the base container
    * @param baseInstallDir
    *          the base directory where Interactive Spaces is installed
    */
@@ -429,6 +430,8 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    *
    * @param context
    *          bundle context to use
+   * @param containerProperties
+   *          properties for the container
    */
   private void setupSystemConfiguration(BundleContext context, Map<String, String> containerProperties) {
     expressionEvaluatorFactory = new SimpleExpressionEvaluatorFactory();

@@ -17,9 +17,9 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
-import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 /**
  * A support implementation of {@link SpaceControllerListener} which provides
@@ -50,7 +50,7 @@ public abstract class SpaceControllerListenerSupport implements SpaceControllerL
   }
 
   @Override
-  public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result, long timestamp) {
+  public void onLiveActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp) {
     // Default is do nothing.
   }
 

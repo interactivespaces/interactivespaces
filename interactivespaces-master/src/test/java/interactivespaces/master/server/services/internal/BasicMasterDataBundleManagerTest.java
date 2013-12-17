@@ -1,10 +1,22 @@
-// Copyright 2013 Google Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 package interactivespaces.master.server.services.internal;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -12,9 +24,18 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.common.ResourceRepositoryUploadChannel;
+import interactivespaces.master.server.services.ActiveSpaceController;
+import interactivespaces.resource.Version;
+import interactivespaces.resource.repository.ResourceRepositoryServer;
+import interactivespaces.util.data.resource.CopyableResource;
+import interactivespaces.util.data.resource.CopyableResourceListener;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -23,13 +44,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.common.ResourceRepositoryUploadChannel;
-import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.resource.repository.ResourceRepositoryServer;
-import interactivespaces.util.data.resource.CopyableResource;
-import interactivespaces.util.data.resource.CopyableResourceListener;
 
 /**
  * @author peringknife@google.com (Trevor Pering)
@@ -59,12 +73,12 @@ public class BasicMasterDataBundleManagerTest {
   // Various test constants.
   static final String TEST_RESOURCE_CATEGORY = "data";
   static final String TEST_UUID = "1bd6a9762679cba97d6b";
-  static final String TEST_RESOURCE_VERSION = "noversion";
+  static final Version TEST_RESOURCE_VERSION = BasicMasterDataBundleManager.DATA_BUNDLE_STATIC_VERSION;
   static final String TEST_URI_SEPARATOR = "-";
-  static final String TEST_OUTPUT_CONTENTS = "Qjwhqekjwh ekqjwhekqjweh q\n" +
-      "WJQHD kqjhd qwDHOuwhqdouwh qWhodwq wqjdhwkqjdhqwk djhqKWJDhkqwjd\n";
-  static final String TEST_RESOURCE = combineArgs(new Object[] {
-      TEST_RESOURCE_CATEGORY, TEST_UUID, TEST_RESOURCE_VERSION } );
+  static final String TEST_OUTPUT_CONTENTS = "Qjwhqekjwh ekqjwhekqjweh q\n"
+      + "WJQHD kqjhd qwDHOuwhqdouwh qWhodwq wqjdhwkqjdhqwk djhqKWJDhkqwjd\n";
+  static final String TEST_RESOURCE = combineArgs(new Object[] { TEST_RESOURCE_CATEGORY, TEST_UUID,
+      TEST_RESOURCE_VERSION });
 
   /**
    * Container class for all the test variables.
@@ -93,7 +107,7 @@ public class BasicMasterDataBundleManagerTest {
       public String answer(InvocationOnMock invocation) throws Exception {
         return combineArgs(invocation.getArguments());
       }
-    }).when(resourceRepositoryServer).getResourceUri(anyString(), anyString(), anyString());
+    }).when(resourceRepositoryServer).getResourceUri(anyString(), anyString(), Matchers.any(Version.class));
 
     doAnswer(new Answer<OutputStream>() {
       @Override
@@ -103,8 +117,7 @@ public class BasicMasterDataBundleManagerTest {
         testResults.outputUri = combineArgs(invocation.getArguments());
         return testResults.testOutputStream;
       }
-    }).when(resourceRepositoryServer).createResourceOutputStream(anyString(), anyString(),
-        anyString());
+    }).when(resourceRepositoryServer).createResourceOutputStream(anyString(), anyString(), Matchers.any(Version.class));
 
     doAnswer(new Answer<Void>() {
       @Override
@@ -113,8 +126,8 @@ public class BasicMasterDataBundleManagerTest {
         testResults.resourceListener = (CopyableResourceListener) invocation.getArguments()[1];
         return null;
       }
-    }).when(resourceRepositoryServer).registerResourceUploadListener(
-        any(ResourceRepositoryUploadChannel.class), any(CopyableResourceListener.class));
+    }).when(resourceRepositoryServer).registerResourceUploadListener(any(ResourceRepositoryUploadChannel.class),
+        any(CopyableResourceListener.class));
 
     masterDataBundleManager = new TestBasicMasterDataBundleManager();
     masterDataBundleManager.setRepositoryServer(resourceRepositoryServer);
@@ -156,9 +169,12 @@ public class BasicMasterDataBundleManagerTest {
   }
 
   class TestCopyableResource implements CopyableResource {
+    @Override
     public boolean moveTo(File destination) {
       throw new IllegalStateException("Should not be calling moveTo");
     }
+
+    @Override
     public boolean copyTo(OutputStream destination) {
       try {
         testResults.testOutputStream.write(TEST_OUTPUT_CONTENTS.getBytes());
@@ -171,14 +187,12 @@ public class BasicMasterDataBundleManagerTest {
 
   class TestBasicMasterDataBundleManager extends BasicMasterDataBundleManager {
     @Override
-    protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller,
-        String destinationUri) {
+    protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller, String destinationUri) {
       testResults.destinationUri = destinationUri;
     }
 
     @Override
-    protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller,
-        String sourceUri) {
+    protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller, String sourceUri) {
       testResults.sourceUri = sourceUri;
     }
   }

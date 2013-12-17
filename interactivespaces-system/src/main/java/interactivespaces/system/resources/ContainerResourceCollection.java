@@ -25,13 +25,7 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class ContainerResourceCollection {
-
-  /**
-   * A collection of named versioned resources.
-   */
-  private final NamedVersionedResourceCollection<ContainerResource> resources = NamedVersionedResourceCollection
-      .newNamedVersionedResourceCollection();
+public class ContainerResourceCollection extends NamedVersionedResourceCollection<ContainerResource> {
 
   /**
    * Construct a resource collection.
@@ -41,7 +35,7 @@ public class ContainerResourceCollection {
    */
   public ContainerResourceCollection(Set<ContainerResource> resources) {
     for (ContainerResource resource : resources) {
-      this.resources.addResource(resource.getName(), resource.getVersion(), resource);
+      this.addResource(resource.getName(), resource.getVersion(), resource);
     }
   }
 }

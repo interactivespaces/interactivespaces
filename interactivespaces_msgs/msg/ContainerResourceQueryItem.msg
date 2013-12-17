@@ -14,24 +14,17 @@
 # the License.
 ##
 
-# a resource for the Interactive Spaces Container.
+# A resource query for an Interactive Spaces Container.
+# The query askes if the particular resource is available in the required location.
 
-# name of the resource
+# Name of the resource.
 string name
 
-# minimum and maximum version of the resource
-string minimumVersion
-string maximumVersion
+# Minimum and maximum version of the resource.
+string versionRange
 
 # Is the resource required?
 bool required
 
-int32 location
-int32 LOCATION_BOOTSTRAP = 0
-int32 LOCATION_NONCORE = 1
-int32 LOCATION_LIB_SYSTEM = 2
-int32 LOCATION_CONFIG = 3
-int32 LOCATION_ROOT = 4
-
-# Resources available which fit the version range and name
-LocatableResourceDescription[] resources
+# Location in the container for the resource.
+ContainerResourceLocation location

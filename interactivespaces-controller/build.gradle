@@ -18,6 +18,7 @@ dependencies {
 
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
+  compile project(':interactivespaces-master-controller')
   
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
   

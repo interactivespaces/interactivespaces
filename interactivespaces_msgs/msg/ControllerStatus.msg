@@ -23,11 +23,23 @@ int32 STATUS_HEARTBEAT = 0
 int32 STATUS_SHUTDOWN = 1
 int32 STATUS_RESTARTED = 2
 int32 STATUS_INSTALL = 3
+
+# The payload contains a full status for the controller.
 int32 STATUS_FULL = 4
+
+# The payload contains a response for an activity install.
 int32 STATUS_ACTIVITY_INSTALL = 5
+
+# The payload contains a response for an activity deletion.
 int32 STATUS_ACTIVITY_DELETE = 6
 int32 STATUS_DATA_RESTORE = 7
 int32 STATUS_DATA_CAPTURE = 8
+
+# The payload contains a response for a container resource query.
+int32 STATUS_CONTAINER_RESOURCE_QUERY = 9
+
+# The payload contains a response for a container resource commit.
+int32 STATUS_CONTAINER_RESOURCE_COMMIT = 10
 
 # A string identifier giving more detail of the status
 string statusCode
@@ -35,8 +47,7 @@ string statusCode
 # More detail about the status, e.g. a stack trace
 string statusDetail
 
-# Any additonal data for the message
+# Any additional data for the message
 string data_type
 byte[] data
-
 

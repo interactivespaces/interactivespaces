@@ -17,8 +17,11 @@
 package interactivespaces.resource.repository;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.resource.NamedVersionedResource;
+import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.Version;
+import interactivespaces.util.resource.ManagedResource;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -27,23 +30,22 @@ import java.io.OutputStream;
  *
  * @author Keith M. Hughes
  */
-public interface ResourceRepositoryStorageManager {
-
-  public static final String RESOURCE_CATEGORY_GENERIC = "resource";
-
-  public static final String RESOURCE_CATEGORY_ACTIVITY = "activity";
-
-  public static final String RESOURCE_CATEGORY_DATA = "data";
+public interface ResourceRepositoryStorageManager extends ManagedResource {
 
   /**
-   * Start the storage manager up.
+   * Resource category for bundle resources.
    */
-  void startup();
+  String RESOURCE_CATEGORY_CONTAINER_BUNDLE = "bundle";
 
   /**
-   * Shut the storage manager down.
+   * Resource category for activities.
    */
-  void shutdown();
+  String RESOURCE_CATEGORY_ACTIVITY = "activity";
+
+  /**
+   * Resource category for data.
+   */
+  String RESOURCE_CATEGORY_DATA = "data";
 
   /**
    * Get the name the resource has in the repository.
@@ -57,7 +59,7 @@ public interface ResourceRepositoryStorageManager {
    *
    * @return the fully qualified name of the resource
    */
-  String getRepositoryResourceName(String category, String name, String version);
+  String getRepositoryResourceName(String category, String name, Version version);
 
   /**
    * Does the repository contain a resource?
@@ -71,7 +73,7 @@ public interface ResourceRepositoryStorageManager {
    *
    * @return {@code true} if the repository contains the resource
    */
-  boolean containsResource(String category, String name, String version);
+  boolean containsResource(String category, String name, Version version);
 
   /**
    * Stage a resource.
@@ -109,7 +111,8 @@ public interface ResourceRepositoryStorageManager {
    *           if the stage handle is invalid or the activity contains no
    *           description file
    */
-  InputStream getStagedResourceDescription(String descriptorFileName, String stageHandle);
+  InputStream getStagedResourceDescription(String descriptorFileName, String stageHandle)
+      throws InteractiveSpacesException;
 
   /**
    * Add a resource to the repository.
@@ -123,7 +126,7 @@ public interface ResourceRepositoryStorageManager {
    * @param stageHandle
    *          the staging handle for the resource
    */
-  void commitResource(String category, String name, String version, String stageHandle);
+  void commitResource(String category, String name, Version version, String stageHandle);
 
   /**
    * Get a stream for a given resource.
@@ -141,7 +144,7 @@ public interface ResourceRepositoryStorageManager {
    * @return the input stream for the resource, or {@code null} if no such
    *         resource
    */
-  InputStream getResourceStream(String category, String name, String version);
+  InputStream getResourceStream(String category, String name, Version version);
 
   /**
    * Create an output stream for writing a new resource into the repository.
@@ -155,5 +158,15 @@ public interface ResourceRepositoryStorageManager {
    *
    * @return stream to use for writing the resource
    */
-  OutputStream newResourceOutputStream(String category, String name, String version);
+  OutputStream newResourceOutputStream(String category, String name, Version version);
+
+  /**
+   * Get all the resources available in a give category.
+   *
+   * @param category
+   *          the category
+   *
+   * @return all resources in the given category
+   */
+  NamedVersionedResourceCollection<NamedVersionedResource> getAllResources(String category);
 }

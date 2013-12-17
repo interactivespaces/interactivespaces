@@ -16,8 +16,10 @@
 
 package interactivespaces.resource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -145,5 +147,20 @@ public class NamedVersionedResourceCollection<T> {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Get a list of all resources in the collection.
+   *
+   * @return a newly constructed list of all resources
+   */
+  public List<T> getAllResources() {
+    List<T> all = Lists.newArrayList();
+
+    for (VersionedResourceCollection<T> resourceCollection : resources.values()) {
+      all.addAll(resourceCollection.getAllResources());
+    }
+
+    return all;
   }
 }

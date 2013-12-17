@@ -51,6 +51,14 @@ int32 OPERATION_CAPTURE_DATA = 9
 # Payload will be a ControllerDataRequest message.
 int32 OPERATION_RESTORE_DATA = 10
 
+# Query whether a set of resources are on the controller.
+# Payload will be a ContainerResourceQueryRequest
+int32 OPERATION_RESOURCE_QUERY = 11
+
+# Commit a set of resources to the controller.
+# Payload will be a ContainerResourceQueryRequest
+int32 OPERATION_RESOURCE_COMMIT = 12
+
 # Any payload needed by the request.
 byte[] payload
 

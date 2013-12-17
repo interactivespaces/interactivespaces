@@ -17,9 +17,9 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
-import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,7 +34,7 @@ public class SpaceControllerListenerHelper {
   /**
    * Listeners registered with helper.
    */
-  private List<SpaceControllerListener> listeners =
+  private final List<SpaceControllerListener> listeners =
       new CopyOnWriteArrayList<SpaceControllerListener>();
 
   /**
@@ -123,7 +123,7 @@ public class SpaceControllerListenerHelper {
    * @param timestamp
    *          timestamp of the deployment
    */
-  public void signalActivityInstall(String uuid, LiveActivityInstallResult result, long timestamp) {
+  public void signalActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp) {
     for (SpaceControllerListener listener : listeners) {
       listener.onLiveActivityInstall(uuid, result, timestamp);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,28 +14,34 @@
  * the License.
  */
 
-package interactivespaces.master.server.services;
+package interactivespaces.controller.client.master.internal;
 
 /**
- * Handles deployment of activities to controllers.
+ * Status of a master deployment request.
  *
  * @author Keith M. Hughes
  */
-public interface ActivityDeploymentManager {
+public enum MasterActivityDeploymentRequestStatus {
 
   /**
-   * Delete the live activity to its controller.
-   *
-   * @param liveActivity
-   *          the activity to deploy
+   * Querying for dependencies.
    */
-  void deployLiveActivity(ActiveLiveActivity liveActivity);
+  QUERYING_DEPENDENCIES,
 
   /**
-   * Delete the live activity from its controller.
-   *
-   * @param liveActivity
-   *          the activity to delete
+   * Attempting to satisfy dependencies.
    */
-  void deleteLiveActivity(ActiveLiveActivity liveActivity);
+  SATISFYING_DEPENDENCIES,
+
+  /**
+   * Deploying the activity.
+   */
+  DEPLOYING_ACTIVITY,
+
+  /**
+   * Deploying the activity is complete, though not clear if successful or not
+   * successful.
+   */
+  DEPLOYMENT_COMPLETE
+
 }

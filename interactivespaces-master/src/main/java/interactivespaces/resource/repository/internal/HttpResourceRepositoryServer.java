@@ -18,10 +18,16 @@ package interactivespaces.resource.repository.internal;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.common.ResourceRepositoryUploadChannel;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.service.web.HttpResponseCode;
-import interactivespaces.service.web.server.*;
+import interactivespaces.service.web.server.HttpDynamicRequestHandler;
+import interactivespaces.service.web.server.HttpFileUpload;
+import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.HttpRequest;
+import interactivespaces.service.web.server.HttpResponse;
+import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.data.resource.CopyableResourceListener;
@@ -55,8 +61,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
    * The internal name given to the web server being used for the activity
    * repository.
    */
-  private static final String ACTIVITY_REPOSITORY_SERVER_NAME =
-      "interactivespaces_activity_repository";
+  private static final String ACTIVITY_REPOSITORY_SERVER_NAME = "interactivespaces_activity_repository";
 
   /**
    * Parameter key for the UUID field.
@@ -81,7 +86,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   /**
    * Path prefix for the repository URL.
    */
-  private String repositoryUrlPathPrefix = "interactivespaces/resource/artifact";
+  private final String repositoryUrlPathPrefix = "interactivespaces/resource/artifact";
 
   /**
    * The Interactive Spaces environment.
@@ -96,19 +101,17 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   /**
    * Map for linking resource upload channels to content listeners.
    */
-  private Map<String, CopyableResourceListener> resourceUploadListenerMap =
+  private final Map<String, CopyableResourceListener> resourceUploadListenerMap =
       new HashMap<String, CopyableResourceListener>();
 
   @Override
   public void startup() {
     repositoryPort =
         spaceEnvironment.getSystemConfiguration().getPropertyInteger(
-            CONFIGURATION_PROPERTY_ACTIVITY_RESPOSITORY_SERVER_PORT,
-            ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT);
+            CONFIGURATION_PROPERTY_ACTIVITY_RESPOSITORY_SERVER_PORT, ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT);
     repositoryServer =
-        new NettyWebServer(ACTIVITY_REPOSITORY_SERVER_NAME, repositoryPort,
-            spaceEnvironment.getExecutorService(), spaceEnvironment.getExecutorService(),
-            spaceEnvironment.getLog());
+        new NettyWebServer(ACTIVITY_REPOSITORY_SERVER_NAME, repositoryPort, spaceEnvironment.getExecutorService(),
+            spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
 
     String webappPath = "/" + repositoryUrlPathPrefix;
 
@@ -131,8 +134,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
     repositoryBaseUrl =
         "http://"
             + spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
-                InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME) + ":"
-            + repositoryServer.getPort() + webappPath;
+                InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME) + ":" + repositoryServer.getPort() + webappPath;
 
     spaceEnvironment.getLog().info(
         String.format("HTTP Resource Repository started with base URL %s", repositoryBaseUrl));
@@ -144,14 +146,14 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   }
 
   @Override
-  public String getResourceUri(String category, String name, String version) {
+  public String getResourceUri(String category, String name, Version version) {
     // TODO(keith): Get this from something fancier which we can store resources
     // in, get their meta-data, etc.
     return repositoryBaseUrl + "/" + category + "/" + name + "/" + version;
   }
 
   @Override
-  public OutputStream createResourceOutputStream(String category, String name, String version) {
+  public OutputStream createResourceOutputStream(String category, String name, Version version) {
     return repositoryStorageManager.newResourceOutputStream(category, name, version);
   }
 
@@ -164,39 +166,34 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
    *          the response
    */
   private void handleResourceRequest(HttpRequest request, HttpResponse response) {
-    spaceEnvironment.getLog().info(
-        String.format("Got resource repository request %s", request.getUri()));
+    spaceEnvironment.getLog().info(String.format("Got resource repository request %s", request.getUri()));
 
     String[] pathComponents = request.getUri().getPath().split("\\/");
     String category = pathComponents[pathComponents.length - 3];
     String name = pathComponents[pathComponents.length - 2];
-    String version = pathComponents[pathComponents.length - 1];
+    Version version = Version.parseVersion(pathComponents[pathComponents.length - 1]);
 
     spaceEnvironment.getLog().info(
-        String.format("Got resource repository request for resource %s:%s of category %s", name,
-            version, category));
+        String.format("Got resource repository request for resource %s:%s of category %s", name, version, category));
 
-    InputStream resourceStream =
-        repositoryStorageManager.getResourceStream(category, name, version);
+    InputStream resourceStream = repositoryStorageManager.getResourceStream(category, name, version);
     if (resourceStream != null) {
       response.setResponseCode(HttpResponseCode.OK);
       try {
         Files.copyInputStream(resourceStream, response.getOutputStream());
       } catch (IOException e) {
         spaceEnvironment.getLog().error(
-            String.format("Error while writing resource %s:%s of category %s", name, version,
-                category));
+            String.format("Error while writing resource %s:%s of category %s", name, version, category));
       }
     } else {
-      spaceEnvironment.getLog().warn(
-          String.format("No such resource %s:%s of category %s", name, version, category));
+      spaceEnvironment.getLog().warn(String.format("No such resource %s:%s of category %s", name, version, category));
       response.setResponseCode(HttpResponseCode.NOT_FOUND);
     }
   }
 
   @Override
-  public void registerResourceUploadListener(ResourceRepositoryUploadChannel channel,
-      CopyableResourceListener listener) {
+  public void
+      registerResourceUploadListener(ResourceRepositoryUploadChannel channel, CopyableResourceListener listener) {
     resourceUploadListenerMap.put(channel.getChannelId(), listener);
   }
 
@@ -205,6 +202,12 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
     resourceUploadListenerMap.remove(channel.getChannelId());
   }
 
+  /**
+   * Handle a resource upload.
+   *
+   * @param resourceUpload
+   *          the upload
+   */
   private void handleResourceUpload(HttpFileUpload resourceUpload) {
     String name = resourceUpload.getFormName();
     String uuid = resourceUpload.getParameters().get(UUID_PARAMETER_KEY);
@@ -227,8 +230,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
    * @param repositoryStorageManager
    *          the repositoryStorageManager to set
    */
-  public void
-      setRepositoryStorageManager(ResourceRepositoryStorageManager repositoryStorageManager) {
+  public void setRepositoryStorageManager(ResourceRepositoryStorageManager repositoryStorageManager) {
     this.repositoryStorageManager = repositoryStorageManager;
   }
 }

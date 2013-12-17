@@ -16,10 +16,9 @@
 
 package interactivespaces.master.server.ui.internal;
 
-import com.google.common.collect.Maps;
-
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.controller.SpaceControllerState;
@@ -32,7 +31,6 @@ import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
-import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MasterWebsocketManager;
 import interactivespaces.master.server.ui.UiActivityManager;
@@ -41,6 +39,8 @@ import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Maps;
 
 import java.util.Date;
 import java.util.Map;
@@ -54,23 +54,47 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterWebsocketManager implements MasterWebsocketManager,
-    MultipleConnectionWebSocketHandler, RemoteSpaceControllerClientListener {
+public class BasicMasterWebsocketManager implements MasterWebsocketManager, MultipleConnectionWebSocketHandler,
+    RemoteSpaceControllerClientListener {
 
+  /**
+   * Status parameter name for the status time in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME = "statusTime";
 
+  /**
+   * Status parameter name for the status in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS = "status";
 
+  /**
+   * Status parameter name for the detailed status in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_DETAIL = "statusDetail";
 
+  /**
+   * Status parameter name for the ID of the entity in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_ID = "id";
 
+  /**
+   * Status parameter name for the UUID of the entity in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_UUID = "uuid";
 
-  public static final String WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY = "liveactivity";
-
+  /**
+   * Status parameter name for the type of the entity in the master websocket connection.
+   */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_TYPE = "type";
 
+  /**
+   * Status parameter value if the entity type is a live activity.
+   */
+  public static final String WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY = "liveactivity";
+
+  /**
+   * The prefix for using an extension.
+   */
   public static final String WEBSOCKET_COMMAND_EXTENSION_PREFIX = "/extension/";
 
   /**
@@ -125,12 +149,9 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
             MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT,
             MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT);
 
-    webServer =
-        new NettyWebServer("master", port, spaceEnvironment.getExecutorService(),
-            spaceEnvironment.getLog());
+    webServer = new NettyWebServer("master", port, spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
 
-    webSocketFactory =
-        new MultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
+    webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
 
     webServer.setWebSocketHandlerFactory("", webSocketFactory);
 
@@ -150,7 +171,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
   }
 
   @Override
-  public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result) {
+  public void onLiveActivityDeployment(String uuid, LiveActivityDeploymentResponse result) {
     // Don't care
   }
 
@@ -165,25 +186,19 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
     if (liveActivity != null) {
       Map<String, Object> data = Maps.newHashMap();
 
-      data.put(WEBSOCKET_STATUS_PARAMETER_NAME_TYPE,
-          WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY);
+      data.put(WEBSOCKET_STATUS_PARAMETER_NAME_TYPE, WEBSOCKET_STATUS_PARAMETER_VALUE_TYPE_LIVE_ACTIVITY);
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_UUID, uuid);
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_ID, liveActivity.getId());
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS, state.getDescription());
       data.put(WEBSOCKET_STATUS_PARAMETER_NAME_DETAIL, detail);
 
-      data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment
-          .getTimeProvider().getCurrentTime()));
+      data.put(WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment.getTimeProvider()
+          .getCurrentTime()));
 
       webSocketFactory.sendJson(data);
     } else {
-      spaceEnvironment
-          .getLog()
-          .warn(
-              String
-                  .format(
-                      "Recived status update in web socket master client for unknown live activity UUID %s",
-                      uuid));
+      spaceEnvironment.getLog().warn(
+          String.format("Recived status update in web socket master client for unknown live activity UUID %s", uuid));
     }
   }
 
@@ -226,8 +241,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
   @SuppressWarnings("unchecked")
   public void handleWebSocketReceive(String connectionId, Object data) {
     spaceEnvironment.getLog().info(
-        String.format("Data from web socket connection %s. Fool thinks we're listening",
-            connectionId));
+        String.format("Data from web socket connection %s. Fool thinks we're listening", connectionId));
 
     Map<String, Object> callerArgs = (Map<String, Object>) data;
     Map<String, Object> calleeArgs = (Map<String, Object>) callerArgs.get("args");
@@ -277,9 +291,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityView(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -302,9 +313,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityDeploy(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -324,9 +332,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityConfigure(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -346,9 +351,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityGetConfiguration(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -366,20 +368,15 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivitySetConfiguration(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
     Map<String, String> config = getRequiredMapArg(args, "config");
     try {
 
-      uiActivityManager.configureLiveActivity(id, (Map<String, String>) config);
+      uiActivityManager.configureLiveActivity(id, config);
 
       return JsonSupport.getSimpleSuccessJsonResponse();
-      // return JsonSupport
-      // .getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     } catch (EntityNotFoundInteractiveSpacesException e) {
       return getNoSuchLiveActivityResult();
     }
@@ -392,17 +389,12 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivitySetMetadata(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
     Map<String, Object> metadata = getRequiredMapArg(args, "metadata");
 
     return uiActivityManager.updateLiveActivityMetadata(id, metadata);
-    // return JsonSupport
-    // .getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
   }
 
   /**
@@ -412,9 +404,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityStartup(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -434,9 +423,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityActivate(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -456,9 +442,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityDeactivate(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -478,9 +461,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityShutdown(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -500,9 +480,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityStatus(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -528,9 +505,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityDelete(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -550,9 +524,6 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          args from the websocket call
    *
    * @return call response for the request
-   *
-   * @throws InteractiveSpacesException
-   *           if no ID, ID is not a live activity, or some other issue
    */
   private Map<String, Object> liveActivityRemoteDelete(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
@@ -571,8 +542,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    * @return the JSON result
    */
   private Map<String, Object> getNoSuchLiveActivityResult() {
-    return JsonSupport
-        .getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+    return JsonSupport.getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
   }
 
   /**
@@ -585,15 +555,15 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *
    * @return the value of the arg
    *
-   * @throws InteractiveSpacesException
+   * @throws SimpleInteractiveSpacesException
    *           if there is no value for the requested arg
    */
-  private String getRequiredStringArg(Map<String, Object> args, String argName) {
+  private String getRequiredStringArg(Map<String, Object> args, String argName) throws SimpleInteractiveSpacesException {
     String value = (String) args.get(argName);
     if (value != null) {
       return value;
     } else {
-      throw new InteractiveSpacesException("Unknown argument " + argName);
+      throw new SimpleInteractiveSpacesException("Unknown argument " + argName);
     }
   }
 
@@ -604,13 +574,18 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
    *          the args map
    * @param argName
    *          the argument
+   * @param <K>
+   *          type for keys in the map
+   * @param <V>
+   *          type for values in the map
    *
    * @return the value of the arg
    *
-   * @throws InteractiveSpacesException
+   * @throws SimpleInteractiveSpacesException
    *           if there is no value for the requested arg
    */
-  private <K, V> Map<K, V> getRequiredMapArg(Map<String, Object> args, String argName) {
+  private <K, V> Map<K, V> getRequiredMapArg(Map<String, Object> args, String argName)
+      throws SimpleInteractiveSpacesException {
     Object value = args.get(argName);
     if (value != null) {
       if (Map.class.isAssignableFrom(value.getClass())) {
@@ -618,10 +593,10 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager,
         Map<K, V> value2 = (Map<K, V>) value;
         return value2;
       } else {
-        throw new InteractiveSpacesException("Argument not map " + argName);
+        throw new SimpleInteractiveSpacesException("Argument not map " + argName);
       }
     } else {
-      throw new InteractiveSpacesException("Unknown argument " + argName);
+      throw new SimpleInteractiveSpacesException("Unknown argument " + argName);
     }
   }
 

@@ -18,17 +18,17 @@ package interactivespaces.master.server.services.internal;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import interactivespaces.activity.ActivityState;
+import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.master.server.services.ActiveLiveActivity;
-import interactivespaces.master.server.services.ActivityDeploymentManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 
   private SpaceControllerListener controllerListener;
 
-  private ActivityDeploymentManager activityDeploymentManager;
+  private RemoteActivityDeploymentManager remoteActivityDeploymentManager;
 
   private Log log;
 
@@ -69,11 +69,11 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
 
     Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
 
-    activityDeploymentManager = Mockito.mock(ActivityDeploymentManager.class);
+    remoteActivityDeploymentManager = Mockito.mock(RemoteActivityDeploymentManager.class);
 
     activeControllerManager = new BasicActiveControllerManager();
 
-    activeControllerManager.setActivityDeploymentManager(activityDeploymentManager);
+    activeControllerManager.setRemoteActivityDeploymentManager(remoteActivityDeploymentManager);
 
     remoteControllerClient = Mockito.mock(RemoteControllerClient.class);
     activeControllerManager.setRemoteControllerClient(remoteControllerClient);
@@ -226,7 +226,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeLiveActivity, false, 0, false, 0, ActivityState.UNKNOWN,
         ActivityState.DEPLOY_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivity);
   }
 
@@ -243,7 +243,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeLiveActivity, false, 0, false, 0, ActivityState.UNKNOWN,
         ActivityState.DELETE_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deleteLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deleteLiveActivity(
         activeLiveActivity);
   }
 
@@ -332,9 +332,9 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeActivities.get(1), false, 0, false, 0, ActivityState.UNKNOWN,
         ActivityState.DEPLOY_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeActivities.get(0));
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeActivities.get(1));
   }
 
@@ -347,7 +347,7 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     List<ActiveLiveActivity> activeActivities = activeLiveActivities(liveActivities);
     LiveActivityGroup group1 = liveActivityGroup(liveActivities);
 
-    Mockito.doThrow(new RuntimeException()).when(activityDeploymentManager)
+    Mockito.doThrow(new RuntimeException()).when(remoteActivityDeploymentManager)
         .deployLiveActivity(activeActivities.get(0));
 
     activeControllerManager.deployLiveActivityGroup(group1);
@@ -357,9 +357,9 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeActivities.get(1), false, 0, false, 0, ActivityState.UNKNOWN,
         ActivityState.DEPLOY_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeActivities.get(0));
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeActivities.get(1));
   }
 
@@ -587,14 +587,14 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeLiveActivities2.get(1), false, 0, false, 0,
         ActivityState.UNKNOWN, ActivityState.DEPLOY_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivities1.get(1));
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivities2.get(0));
 
     // This one was in two subtrees. Make sure deployed twice since two
     // calls.
-    Mockito.verify(activityDeploymentManager, Mockito.times(2)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(2)).deployLiveActivity(
         activeLiveActivities1.get(0));
   }
 
@@ -630,13 +630,13 @@ public class ActiveControllerManagerTest extends BaseSpaceTest {
     assertActiveActivityState(activeLiveActivities2.get(1), false, 0, false, 0,
         ActivityState.UNKNOWN, ActivityState.DEPLOY_ATTEMPT);
 
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivities1.get(1));
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivities2.get(0));
 
     // This one was in two subtrees. Make sure deployed once since tracking.
-    Mockito.verify(activityDeploymentManager, Mockito.times(1)).deployLiveActivity(
+    Mockito.verify(remoteActivityDeploymentManager, Mockito.times(1)).deployLiveActivity(
         activeLiveActivities1.get(0));
   }
 

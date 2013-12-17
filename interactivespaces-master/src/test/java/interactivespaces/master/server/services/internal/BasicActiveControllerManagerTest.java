@@ -19,6 +19,8 @@ package interactivespaces.master.server.services.internal;
 import static org.junit.Assert.assertEquals;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
@@ -82,7 +84,8 @@ public class BasicActiveControllerManagerTest {
   @Test
   public void testActivityInstallSuccess() {
     String activityUuid = "activity";
-    LiveActivityInstallResult result = LiveActivityInstallResult.SUCCESS;
+    LiveActivityDeploymentResponse result =
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_SUCCESS, timestamp);
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -96,7 +99,7 @@ public class BasicActiveControllerManagerTest {
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
-    controllerManager.onLiveActivityInstall(activityUuid, result);
+    controllerManager.onLiveActivityDeployment(activityUuid, result);
 
     Mockito.verify(listener).onLiveActivityInstall(activityUuid, result, timestamp);
     assertEquals(null, active.getRuntimeState());
@@ -109,7 +112,8 @@ public class BasicActiveControllerManagerTest {
   @Test
   public void testActivityInstallFailure() {
     String activityUuid = "activity";
-    LiveActivityInstallResult result = LiveActivityInstallResult.FAIL;
+    LiveActivityDeploymentResponse result =
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_FAILURE_COPY, timestamp);
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -123,7 +127,7 @@ public class BasicActiveControllerManagerTest {
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
-    controllerManager.onLiveActivityInstall(activityUuid, result);
+    controllerManager.onLiveActivityDeployment(activityUuid, result);
 
     Mockito.verify(listener).onLiveActivityInstall(activityUuid, result, timestamp);
     assertEquals(null, active.getRuntimeState());

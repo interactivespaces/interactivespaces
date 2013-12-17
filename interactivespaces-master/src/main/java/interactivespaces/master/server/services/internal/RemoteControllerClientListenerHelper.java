@@ -16,12 +16,13 @@
 
 package interactivespaces.master.server.services.internal;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
+
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 
@@ -41,13 +42,19 @@ public class RemoteControllerClientListenerHelper {
   /**
    * Listeners registered with helper.
    */
-  private List<RemoteSpaceControllerClientListener> listeners = Lists.newCopyOnWriteArrayList();
+  private final List<RemoteSpaceControllerClientListener> listeners = Lists.newCopyOnWriteArrayList();
 
   /**
    * Logger for this helper.
    */
-  private Log log;
+  private final Log log;
 
+  /**
+   * Construct a helper.
+   *
+   * @param log
+   *          the logger to use
+   */
   public RemoteControllerClientListenerHelper(Log log) {
     this.log = log;
   }
@@ -56,7 +63,7 @@ public class RemoteControllerClientListenerHelper {
    * Add in a new event listener.
    *
    * @param listener
-   *          The new listener.
+   *          the new listener
    */
   public void addListener(RemoteSpaceControllerClientListener listener) {
     listeners.add(listener);
@@ -69,7 +76,7 @@ public class RemoteControllerClientListenerHelper {
    * Does nothing if the listener wasn't registered.
    *
    * @param listener
-   *          The listener to remove.
+   *          the listener to remove
    */
   public void removeListener(RemoteSpaceControllerClientListener listener) {
     listeners.remove(listener);
@@ -104,7 +111,6 @@ public class RemoteControllerClientListenerHelper {
    *
    * @param uuid
    *          uuid of the controller
-   *
    * @param timestamp
    *          timestamp of the heartbeat
    */
@@ -139,11 +145,11 @@ public class RemoteControllerClientListenerHelper {
    * @param uuid
    *          UUID of the activity.
    * @param result
-   *          the result of the install
+   *          the result of the deployment
    */
-  public void signalActivityInstall(String uuid, LiveActivityInstallResult result) {
+  public void signalActivityDeployStatus(String uuid, LiveActivityDeploymentResponse result) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityInstall(uuid, result);
+      listener.onLiveActivityDeployment(uuid, result);
     }
   }
 
@@ -171,8 +177,7 @@ public class RemoteControllerClientListenerHelper {
    * @param newRuntimeStateDetail
    *          detail about the new runtime state, can be {@code null}
    */
-  public void signalActivityStateChange(String uuid, ActivityState newRuntimeState,
-      String newRuntimeStateDetail) {
+  public void signalActivityStateChange(String uuid, ActivityState newRuntimeState, String newRuntimeStateDetail) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
       listener.onLiveActivityStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
     }

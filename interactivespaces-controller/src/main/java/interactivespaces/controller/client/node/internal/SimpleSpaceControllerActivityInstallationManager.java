@@ -16,13 +16,14 @@
 
 package interactivespaces.controller.client.node.internal;
 
+import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteRequest;
 import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeleteStatus;
-import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployRequest;
-import interactivespaces.controller.client.node.SpaceControllerLiveActivityDeployStatus;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import interactivespaces_msgs.LiveActivityDeleteStatus;
@@ -70,27 +71,25 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
   }
 
   @Override
-  public SpaceControllerLiveActivityDeployStatus handleDeploymentRequest(
-      SpaceControllerLiveActivityDeployRequest request) {
+  public LiveActivityDeploymentResponse handleDeploymentRequest(ActivityDeploymentRequest request) {
     String activityUri = request.getActivitySourceUri();
     String uuid = request.getUuid();
 
     // This will be usually set to the current possible error status.
-
-    int status = -1;
+    ActivityDeployStatus status = null;
     boolean success = true;
 
     Date installedDate = null;
 
     try {
-      status = SpaceControllerLiveActivityDeployStatus.STATUS_FAILURE_COPY;
+      status = ActivityDeployStatus.STATUS_FAILURE_COPY;
       activityInstallationManager.copyActivity(uuid, activityUri);
 
-      status = SpaceControllerLiveActivityDeployStatus.STATUS_FAILURE_UNPACK;
+      status = ActivityDeployStatus.STATUS_FAILURE_UNPACK;
       installedDate =
           activityInstallationManager.installActivity(uuid, request.getIdentifyingName(), request.getVersion());
 
-      status = SpaceControllerLiveActivityDeployStatus.STATUS_SUCCESS;
+      status = ActivityDeployStatus.STATUS_SUCCESS;
     } catch (Exception e) {
       spaceEnvironment.getLog().error(String.format("Could not install live activity %s", uuid), e);
 
@@ -103,7 +102,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
   }
 
   /**
-   * Create the status for the deployment
+   * Create the status for the deployment.
    *
    * @param request
    *          the deployment request
@@ -115,15 +114,15 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    *          date to mark it if successful
    * @return an appropriately filled out deployment status
    */
-  private SpaceControllerLiveActivityDeployStatus createDeployResult(SpaceControllerLiveActivityDeployRequest request,
-      int status, boolean success, Date installedDate) {
+  private LiveActivityDeploymentResponse createDeployResult(ActivityDeploymentRequest request,
+      ActivityDeployStatus status, boolean success, Date installedDate) {
 
     long timeDeployed = 0;
     if (installedDate != null) {
       timeDeployed = installedDate.getTime();
     }
 
-    return new SpaceControllerLiveActivityDeployStatus(request.getUuid(), status, timeDeployed);
+    return new LiveActivityDeploymentResponse(request.getTransactionId(), request.getUuid(), status, timeDeployed);
   }
 
   @Override

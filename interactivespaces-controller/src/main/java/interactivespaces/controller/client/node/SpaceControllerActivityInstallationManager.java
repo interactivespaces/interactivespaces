@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.client.node;
 
+import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
@@ -33,7 +35,7 @@ public interface SpaceControllerActivityInstallationManager extends ManagedResou
    *
    * @return the status for the deployment
    */
-  SpaceControllerLiveActivityDeployStatus handleDeploymentRequest(SpaceControllerLiveActivityDeployRequest request);
+  LiveActivityDeploymentResponse handleDeploymentRequest(ActivityDeploymentRequest request);
 
   /**
    * Handle a delete request and return a delete status.

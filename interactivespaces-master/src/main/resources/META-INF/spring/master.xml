@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version
-	2.0 (the "License"); you may not use this file except in compliance with
-	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-	Unless required by applicable law or agreed to in writing, software distributed
-	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for
-	the specific language governing permissions and limitations under the License. -->
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
+  2.0 (the "License"); you may not use this file except in compliance with 
+  the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+  Unless required by applicable law or agreed to in writing, software distributed 
+  under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+  OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+  the specific language governing permissions and limitations under the License. -->
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.springframework.org/schema/beans"
-	xsi:schemaLocation="
+  xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:p="http://www.springframework.org/schema/p"
+  xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.springframework.org/schema/beans"
+  xsi:schemaLocation="
   http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans.xsd
   http://www.springframework.org/schema/osgi
@@ -19,531 +19,543 @@
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<bean id="interactivespaces.uuid.generator" class="interactivespaces.util.uuid.JavaUuidGenerator"
-		destroy-method="shutdown" init-method="startup" />
+  <bean id="interactivespaces.uuid.generator" class="interactivespaces.util.uuid.JavaUuidGenerator"
+    destroy-method="shutdown" init-method="startup" />
 
-	<!-- OpenJPA -->
+  <!-- OpenJPA -->
 
-	<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
+  <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    destroy-method="close">
 
-		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
+    <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
 
-		<property name="url" value="jdbc:derby:database/interactivespaces" />
+    <property name="url" value="jdbc:derby:database/interactivespaces" />
 
-		<property name="username" value="sa" />
+    <property name="username" value="sa" />
 
-		<property name="password" value="" />
-	</bean>
+    <property name="password" value="" />
+  </bean>
 
-	<bean id="myEmf"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-		p:persistenceUnitName="InteractiveSpaces">
+  <bean id="myEmf"
+    class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+    p:persistenceUnitName="InteractiveSpaces">
 
-		<property name="dataSource" ref="myDataSource" />
+    <property name="dataSource" ref="myDataSource" />
 
-		<property name="jpaVendorAdapter">
+    <property name="jpaVendorAdapter">
 
-			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter" />
-		</property>
-	</bean>
+      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter" />
+    </property>
+  </bean>
 
-	<bean id="interactivespaces.presistence.database.template" class="org.springframework.orm.jpa.JpaTemplate">
+  <bean id="interactivespaces.presistence.database.template" class="org.springframework.orm.jpa.JpaTemplate">
 
-		<property name="entityManagerFactory" ref="myEmf" />
-	</bean>
+    <property name="entityManagerFactory" ref="myEmf" />
+  </bean>
 
-	<bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+  <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 
-		<property name="entityManagerFactory" ref="myEmf" />
-	</bean>
+    <property name="entityManagerFactory" ref="myEmf" />
+  </bean>
 
-	<bean id="txProxyTemplate" abstract="true"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+  <bean id="txProxyTemplate" abstract="true"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 
-		<property name="transactionManager" ref="txManager" />
+    <property name="transactionManager" ref="txManager" />
 
-		<property name="transactionAttributes">
+    <property name="transactionAttributes">
 
-			<props>
+      <props>
 
-				<prop key="get*">
-					PROPAGATION_REQUIRED,readOnly
-				</prop>
+        <prop key="get*">
+          PROPAGATION_REQUIRED,readOnly
+        </prop>
 
-				<prop key="set*">
-					PROPAGATION_SUPPORTS
-				</prop>
+        <prop key="set*">
+          PROPAGATION_SUPPORTS
+        </prop>
 
-				<prop key="*">
-					PROPAGATION_REQUIRED
-				</prop>
-			</props>
-		</property>
-	</bean>
+        <prop key="*">
+          PROPAGATION_REQUIRED
+        </prop>
+      </props>
+    </property>
+  </bean>
 
-	<bean id="interactivespaces.repository.controller" parent="txProxyTemplate">
+  <bean id="interactivespaces.repository.controller" parent="txProxyTemplate">
 
-		<property name="target">
+    <property name="target">
 
-			<bean
-				class="interactivespaces.master.server.services.internal.jpa.JpaControllerRepository">
+      <bean
+        class="interactivespaces.master.server.services.internal.jpa.JpaControllerRepository">
 
-				<property name="activityRepository" ref="interactivespaces.repository.activity" />
+        <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-				<property name="template"
-					ref="interactivespaces.presistence.database.template" />
+        <property name="template"
+          ref="interactivespaces.presistence.database.template" />
 
-				<property name="uuidGenerator" ref="interactivespaces.uuid.generator" />
-			</bean>
-		</property>
-	</bean>
+        <property name="uuidGenerator" ref="interactivespaces.uuid.generator" />
+      </bean>
+    </property>
+  </bean>
 
-	<bean id="interactivespaces.repository.activity" parent="txProxyTemplate">
+  <bean id="interactivespaces.repository.activity" parent="txProxyTemplate">
 
-		<property name="target">
+    <property name="target">
 
-			<bean
-				class="interactivespaces.master.server.services.internal.jpa.JpaActivityRepository">
+      <bean
+        class="interactivespaces.master.server.services.internal.jpa.JpaActivityRepository">
 
-				<property name="template"
-					ref="interactivespaces.presistence.database.template" />
+        <property name="template"
+          ref="interactivespaces.presistence.database.template" />
 
-				<property name="uuidGenerator" ref="interactivespaces.uuid.generator" />
-			</bean>
-		</property>
-	</bean>
+        <property name="uuidGenerator" ref="interactivespaces.uuid.generator" />
+      </bean>
+    </property>
+  </bean>
 
-	<bean id="interactivespaces.repository.automation" parent="txProxyTemplate">
+  <bean id="interactivespaces.repository.automation" parent="txProxyTemplate">
 
-		<property name="target">
+    <property name="target">
 
-			<bean
-				class="interactivespaces.master.server.services.internal.jpa.JpaAutomationRepository">
+      <bean
+        class="interactivespaces.master.server.services.internal.jpa.JpaAutomationRepository">
 
-				<property name="template"
-					ref="interactivespaces.presistence.database.template" />
-			</bean>
-		</property>
-	</bean>
+        <property name="template"
+          ref="interactivespaces.presistence.database.template" />
+      </bean>
+    </property>
+  </bean>
 
-	<bean id="interactivespaces.master.logger" factory-bean="interactivespaces.environment"
-		factory-method="getLog" />
+  <bean id="interactivespaces.master.logger" factory-bean="interactivespaces.environment"
+    factory-method="getLog" />
 
-	<bean id="interactivespaces.master.ros.context"
-		class="interactivespaces.master.server.services.internal.ros.MasterRosContext"
-		destroy-method="shutdown" init-method="startup">
+  <bean id="interactivespaces.master.ros.context"
+    class="interactivespaces.master.server.services.internal.ros.MasterRosContext"
+    destroy-method="shutdown" init-method="startup">
 
-		<property name="rosEnvironment" ref="ros.environment" />
+    <property name="rosEnvironment" ref="ros.environment" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
-	</bean>
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
 
-	<bean id="interactivespaces.controller.remote.client"
-		class="interactivespaces.master.server.services.internal.ros.RosRemoteControllerClient"
-		destroy-method="shutdown" init-method="startup">
+  <bean id="interactivespaces.controller.remote.client"
+    class="interactivespaces.master.server.services.internal.ros.RosRemoteControllerClient"
+    destroy-method="shutdown" init-method="startup">
 
-		<property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+    <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
 
-        <property name="masterDataBundleManager" ref="interactivespaces.master.ros.databundlemanager" />
+    <property name="masterDataBundleManager"
+      ref="interactivespaces.master.ros.databundlemanager" />
 
-        <property name="log" ref="interactivespaces.master.logger" />
-	</bean>
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
 
-    <bean id="interactivespaces.master.ros.databundlemanager"
-        class="interactivespaces.master.server.services.internal.ros.RosMasterDataBundleManager"
+  <bean id="interactivespaces.master.ros.databundlemanager"
+    class="interactivespaces.master.server.services.internal.ros.RosMasterDataBundleManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="rosRemoteControllerClient" ref="interactivespaces.controller.remote.client" />
+
+    <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+
+    <property name="repositoryServer"
+      ref="interactivespaces.resource.repository.server" />
+
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
+
+  <bean id="interactivespaces.master.networkinfo.client"
+    class="interactivespaces.network.client.internal.ros.RosNetworkInformationClient"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
+
+  <bean id="interactivespaces.master.server"
+    class="interactivespaces.master.server.remote.master.internal.ros.RosRemoteMasterServer"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
+
+  <bean id="interactivespaces.resource.repository.storage"
+    class="interactivespaces.resource.repository.internal.FileSystemResourceRepositoryStorageManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.resource.deployment.manager"
+    class="interactivespaces.master.server.services.internal.BasicContainerResourceDeploymentManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="resourceRepositoryStorageManager"
+      ref="interactivespaces.resource.repository.storage" />
+    <property name="repositoryServer"
+      ref="interactivespaces.resource.repository.server" />
+    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.resource.repository.manager"
+    class="interactivespaces.resource.repository.internal.SimpleActivityRepositoryManager">
+
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+    <property name="repositoryStorageManager"
+      ref="interactivespaces.resource.repository.storage" />
+  </bean>
+
+  <bean id="interactivespaces.resource.repository.server"
+    class="interactivespaces.resource.repository.internal.HttpResourceRepositoryServer"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="repositoryStorageManager"
+      ref="interactivespaces.resource.repository.storage" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.activity.deployer.remote"
+    class="interactivespaces.controller.client.master.internal.BasicRemoteActivityDeploymentManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="containerResourceDeploymentManager"
+      ref="interactivespaces.resource.deployment.manager" />
+    <property name="repositoryServer"
+      ref="interactivespaces.resource.repository.server" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.controller.active"
+    class="interactivespaces.master.server.services.internal.BasicActiveControllerManager">
+
+    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+
+    <property name="remoteActivityDeploymentManager" ref="interactivespaces.activity.deployer.remote" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.space.active"
+    class="interactivespaces.master.server.services.internal.BasicActiveSpaceManager">
+
+    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+  </bean>
+
+  <bean id="interactivespaces.master.space.alert"
+    class="interactivespaces.master.server.services.internal.BasicMasterAlertManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+
+    <property name="alertService" ref="interactivespaces.service.alert" />
+
+    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.support"
+    class="interactivespaces.master.server.services.internal.BasicMasterSupportManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+
+    <property name="automationRepository" ref="interactivespaces.repository.automation" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.automation"
+    class="interactivespaces.master.server.services.internal.BasicAutomationManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+
+    <property name="schedulerService" ref="interactivespaces.service.scheduler" />
+
+    <property name="scriptService" ref="interactivespaces.service.script" />
+
+    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+
+    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+
+    <property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
+  </bean>
+
+  <bean id="interactivespaces.master.extension"
+    class="interactivespaces.master.server.services.internal.BasicExtensionManager"
+    destroy-method="shutdown" init-method="startup">
+
+    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+
+    <property name="schedulerService" ref="interactivespaces.service.scheduler" />
+
+    <property name="scriptService" ref="interactivespaces.service.script" />
+
+    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+
+    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+
+    <property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
+
+    <property name="automationManager" ref="interactivespaces.master.automation" />
+  </bean>
+
+  <bean id="interactivespaces.master.activity.ui" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.ui.internal.BasicUiActivityManager"
         destroy-method="shutdown" init-method="startup">
 
-        <property name="rosRemoteControllerClient" ref="interactivespaces.controller.remote.client" />
+        <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-        <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+        <property name="activityRepositoryManager"
+          ref="interactivespaces.resource.repository.manager" />
 
-        <property name="repositoryServer" ref="interactivespaces.resource.repository.server" />
+        <property name="activeControllerManager"
+          ref="interactivespaces.master.controller.active" />
+
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="interactivespaces.master.controller.ui" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.ui.internal.BasicUiControllerManager">
+
+        <property name="controllerRepository"
+          ref="interactivespaces.repository.controller" />
+
+        <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+        <property name="activeControllerManager"
+          ref="interactivespaces.master.controller.active" />
+
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="interactivespaces.master.space.ui" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.ui.internal.BasicUiSpaceManager">
+
+        <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+        <property name="activeSpaceManager" ref="interactivespaces.master.space.active" />
+
+        <property name="activeControllerManager"
+          ref="interactivespaces.master.controller.active" />
+
+        <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="interactivespaces.master.automation.ui" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.ui.internal.BasicUiAutomationManager">
+
+        <property name="automationRepository"
+          ref="interactivespaces.repository.automation" />
+
+        <property name="automationManager" ref="interactivespaces.master.automation" />
+
+        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="interactivespaces.master.support.ui" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.ui.internal.BasicUiMasterSupportManager">
+
+        <property name="masterSupportManager" ref="interactivespaces.master.support" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="interactivespaces.master.server.bridge" parent="txProxyTemplate">
+
+    <property name="target">
+
+      <bean
+        class="interactivespaces.master.server.services.internal.RemoteMasterServerBridge"
+        destroy-method="shutdown" init-method="startup">
+
+        <property name="controllerRepository"
+          ref="interactivespaces.repository.controller" />
+
+        <property name="activeControllerManager"
+          ref="interactivespaces.master.controller.active" />
+
+        <property name="remoteMasterServer" ref="interactivespaces.master.server" />
 
         <property name="log" ref="interactivespaces.master.logger" />
-    </bean>
+      </bean>
+    </property>
+  </bean>
 
-    <bean id="interactivespaces.master.networkinfo.client"
-		class="interactivespaces.network.client.internal.ros.RosNetworkInformationClient"
-		destroy-method="shutdown" init-method="startup">
+  <bean id="interactivespaces.master.websocket"
+    class="interactivespaces.master.server.ui.internal.BasicMasterWebsocketManager"
+    destroy-method="shutdown" init-method="startup">
 
-		<property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
-	</bean>
+    <property name="extensionManager" ref="interactivespaces.master.extension" />
 
-	<bean id="interactivespaces.master.server"
-		class="interactivespaces.master.server.remote.master.internal.ros.RosRemoteMasterServer"
-		destroy-method="shutdown" init-method="startup">
+    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
 
-		<property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
-	</bean>
+    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
 
-	<bean id="interactivespaces.resource.repository.storage"
-		class="interactivespaces.resource.repository.internal.FileSystemResourceRepositoryStorageManager"
-		destroy-method="shutdown" init-method="startup">
+    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+  </bean>
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-	</bean>
+  <context:component-scan base-package="interactivespaces" />
 
-	<bean id="interactivespaces.resource.repository.manager"
-		class="interactivespaces.resource.repository.internal.SimpleActivityRepositoryManager">
+  <bean id="interactivespaces.master.shell"
+    class="interactivespaces.master.server.ui.internal.osgi.OsgiMasterShell"
+    destroy-method="deactivate" init-method="activate">
 
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
+    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
 
-		<property name="repositoryStorageManager"
-			ref="interactivespaces.resource.repository.storage" />
-	</bean>
+    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
 
-	<bean id="interactivespaces.resource.repository.server"
-		class="interactivespaces.resource.repository.internal.HttpResourceRepositoryServer"
-		destroy-method="shutdown" init-method="startup">
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
+    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
 
-		<property name="repositoryStorageManager"
-			ref="interactivespaces.resource.repository.storage" />
-	</bean>
+    <property name="scriptService" ref="interactivespaces.service.script" />
 
-	<bean id="interactivespaces.activity.deployment.manager"
-		class="interactivespaces.master.server.services.internal.ros.RosActivityDeploymentManager">
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
-		<property name="activityDeployer" ref="interactivespaces.activity.deployer.remote" />
+    <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
 
-		<property name="rosDeploymentManager" ref="ros.deployment.manager" />
-	</bean>
+    <property name="bundleContext" ref="bundleContext" />
+  </bean>
 
-	<bean id="interactivespaces.activity.deployer.remote"
-		class="interactivespaces.controller.client.master.internal.RosRemoteActivityInstallationManager"
-		destroy-method="shutdown" init-method="startup">
+  <bean id="interactivespaces.master.control.file"
+    class="interactivespaces.master.server.control.MasterFileControl"
+    destroy-method="shutdown" init-method="startup">
 
-		<property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
-		<property name="repositoryServer" ref="interactivespaces.resource.repository.server" />
+    <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
 
-		<property name="log" ref="interactivespaces.master.logger" />
-	</bean>
+    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
 
-	<bean id="interactivespaces.master.controller.active"
-		class="interactivespaces.master.server.services.internal.BasicActiveControllerManager">
+    <property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
 
-		<property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
+  </bean>
 
-		<property name="activityDeploymentManager"
-			ref="interactivespaces.activity.deployment.manager" />
+  <osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
+    ref="interactivespaces.master.activity.ui" />
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-	</bean>
+  <osgi:service interface="interactivespaces.master.server.ui.UiControllerManager"
+    ref="interactivespaces.master.controller.ui" />
 
-	<bean id="interactivespaces.master.space.active"
-		class="interactivespaces.master.server.services.internal.BasicActiveSpaceManager">
+  <osgi:service interface="interactivespaces.master.server.ui.UiSpaceManager"
+    ref="interactivespaces.master.space.ui" />
 
-		<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-	</bean>
+  <osgi:service interface="interactivespaces.master.server.ui.UiAutomationManager"
+    ref="interactivespaces.master.automation.ui" />
 
-	<bean id="interactivespaces.master.space.alert"
-		class="interactivespaces.master.server.services.internal.BasicMasterAlertManager"
-		destroy-method="shutdown" init-method="startup">
+  <osgi:service
+    interface="interactivespaces.master.server.ui.UiMasterSupportManager"
+    ref="interactivespaces.master.support.ui" />
 
-		<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+  <osgi:service
+    interface="interactivespaces.master.server.services.ActiveSpaceManager"
+    ref="interactivespaces.master.space.active" />
 
-		<property name="alertService" ref="interactivespaces.service.alert" />
+  <osgi:service
+    interface="interactivespaces.master.server.services.ActiveControllerManager"
+    ref="interactivespaces.master.controller.active" />
 
-		<property name="controllerRepository" ref="interactivespaces.repository.controller" />
+  <osgi:service
+    interface="interactivespaces.master.server.services.AutomationManager"
+    ref="interactivespaces.master.automation" />
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-	</bean>
+  <osgi:service
+    interface="interactivespaces.master.server.services.ExtensionManager"
+    ref="interactivespaces.master.extension" />
 
-	<bean id="interactivespaces.master.support"
-		class="interactivespaces.master.server.services.internal.BasicMasterSupportManager"
-		destroy-method="shutdown" init-method="startup">
+  <osgi:service
+    interface="interactivespaces.master.server.services.ControllerRepository"
+    ref="interactivespaces.repository.controller" />
 
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
+  <osgi:service
+    interface="interactivespaces.master.server.services.ActivityRepository"
+    ref="interactivespaces.repository.activity" />
 
-		<property name="controllerRepository" ref="interactivespaces.repository.controller" />
+  <osgi:service
+    interface="interactivespaces.master.server.services.AutomationRepository"
+    ref="interactivespaces.repository.automation" />
 
-		<property name="automationRepository" ref="interactivespaces.repository.automation" />
+  <osgi:service
+    interface="interactivespaces.network.client.NetworkInformationClient"
+    ref="interactivespaces.master.networkinfo.client" />
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-	</bean>
+  <osgi:reference id="interactivespaces.service.script"
+    availability="mandatory" interface="interactivespaces.service.script.ScriptService" />
 
-	<bean id="interactivespaces.master.automation"
-		class="interactivespaces.master.server.services.internal.BasicAutomationManager"
-		destroy-method="shutdown" init-method="startup">
+  <osgi:reference id="interactivespaces.service.scheduler"
+    availability="mandatory" interface="interactivespaces.service.scheduler.SchedulerService" />
 
-		<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+  <osgi:reference id="interactivespaces.service.alert"
+    availability="mandatory" interface="interactivespaces.service.alert.AlertService" />
 
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
+  <osgi:reference id="ros.environment" availability="mandatory"
+    interface="org.ros.osgi.common.RosEnvironment" />
 
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
+  <osgi:reference id="interactivespaces.environment"
+    availability="mandatory" interface="interactivespaces.system.InteractiveSpacesEnvironment" />
 
-		<property name="controllerRepository" ref="interactivespaces.repository.controller" />
-
-		<property name="schedulerService" ref="interactivespaces.service.scheduler" />
-
-		<property name="scriptService" ref="interactivespaces.service.script" />
-
-		<property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
-
-		<property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
-	</bean>
-
-	<bean id="interactivespaces.master.extension"
-		class="interactivespaces.master.server.services.internal.BasicExtensionManager"
-		destroy-method="shutdown" init-method="startup">
-
-		<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-		<property name="controllerRepository" ref="interactivespaces.repository.controller" />
-
-		<property name="schedulerService" ref="interactivespaces.service.scheduler" />
-
-		<property name="scriptService" ref="interactivespaces.service.script" />
-
-		<property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
-
-		<property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
-
-		<property name="automationManager" ref="interactivespaces.master.automation" />
-	</bean>
-
-	<bean id="interactivespaces.master.activity.ui" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.ui.internal.BasicUiActivityManager"
-				destroy-method="shutdown" init-method="startup">
-
-				<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-				<property name="activityRepositoryManager"
-					ref="interactivespaces.resource.repository.manager" />
-
-				<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-
-				<property name="spaceEnvironment" ref="interactivespaces.environment" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.controller.ui" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.ui.internal.BasicUiControllerManager">
-
-				<property name="controllerRepository" ref="interactivespaces.repository.controller" />
-
-				<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-				<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-
-				<property name="spaceEnvironment" ref="interactivespaces.environment" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.space.ui" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.ui.internal.BasicUiSpaceManager">
-
-				<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-				<property name="activeSpaceManager" ref="interactivespaces.master.space.active" />
-
-				<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-
-				<property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-				<property name="spaceEnvironment" ref="interactivespaces.environment" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.automation.ui" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.ui.internal.BasicUiAutomationManager">
-
-				<property name="automationRepository" ref="interactivespaces.repository.automation" />
-
-				<property name="automationManager" ref="interactivespaces.master.automation" />
-
-				<property name="spaceEnvironment" ref="interactivespaces.environment" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.support.ui" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.ui.internal.BasicUiMasterSupportManager">
-
-				<property name="masterSupportManager" ref="interactivespaces.master.support" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.server.bridge" parent="txProxyTemplate">
-
-		<property name="target">
-
-			<bean
-				class="interactivespaces.master.server.services.internal.RemoteMasterServerBridge"
-				destroy-method="shutdown" init-method="startup">
-
-				<property name="controllerRepository" ref="interactivespaces.repository.controller" />
-
-				<property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-
-				<property name="remoteMasterServer" ref="interactivespaces.master.server" />
-
-				<property name="log" ref="interactivespaces.master.logger" />
-			</bean>
-		</property>
-	</bean>
-
-	<bean id="interactivespaces.master.websocket"
-		class="interactivespaces.master.server.ui.internal.BasicMasterWebsocketManager"
-		destroy-method="shutdown" init-method="startup">
-
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-
-		<property name="extensionManager" ref="interactivespaces.master.extension" />
-
-		<property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
-
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-		<property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
-	</bean>
-
-	<context:component-scan base-package="interactivespaces" />
-
-	<bean id="interactivespaces.master.shell"
-		class="interactivespaces.master.server.ui.internal.osgi.OsgiMasterShell"
-		destroy-method="deactivate" init-method="activate">
-
-		<property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
-
-		<property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-		<property name="controllerRepository" ref="interactivespaces.repository.controller" />
-
-		<property name="scriptService" ref="interactivespaces.service.script" />
-
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-
-		<property name="spaceSystemControl" ref="interactivespaces.systemctl" />
-
-		<property name="bundleContext" ref="bundleContext" />
-	</bean>
-
-	<bean id="interactivespaces.master.control.file"
-		class="interactivespaces.master.server.control.MasterFileControl"
-		destroy-method="shutdown" init-method="startup">
-
-		<property name="spaceEnvironment" ref="interactivespaces.environment" />
-
-		<property name="spaceSystemControl" ref="interactivespaces.systemctl" />
-
-		<property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
-
-		<property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
-
-		<property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
-	</bean>
-
-	<osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
-		ref="interactivespaces.master.activity.ui" />
-
-	<osgi:service interface="interactivespaces.master.server.ui.UiControllerManager"
-		ref="interactivespaces.master.controller.ui" />
-
-	<osgi:service interface="interactivespaces.master.server.ui.UiSpaceManager"
-		ref="interactivespaces.master.space.ui" />
-
-	<osgi:service interface="interactivespaces.master.server.ui.UiAutomationManager"
-		ref="interactivespaces.master.automation.ui" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.ui.UiMasterSupportManager"
-		ref="interactivespaces.master.support.ui" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.ActiveSpaceManager"
-		ref="interactivespaces.master.space.active" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.ActiveControllerManager"
-		ref="interactivespaces.master.controller.active" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.AutomationManager"
-		ref="interactivespaces.master.automation" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.ExtensionManager"
-		ref="interactivespaces.master.extension" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.ControllerRepository"
-		ref="interactivespaces.repository.controller" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.ActivityRepository"
-		ref="interactivespaces.repository.activity" />
-
-	<osgi:service
-		interface="interactivespaces.master.server.services.AutomationRepository"
-		ref="interactivespaces.repository.automation" />
-
-	<osgi:service
-		interface="interactivespaces.network.client.NetworkInformationClient"
-		ref="interactivespaces.master.networkinfo.client" />
-
-	<osgi:reference id="interactivespaces.service.script"
-		availability="mandatory" interface="interactivespaces.service.script.ScriptService" />
-
-	<osgi:reference id="interactivespaces.service.scheduler"
-		availability="mandatory" interface="interactivespaces.service.scheduler.SchedulerService" />
-
-	<osgi:reference id="interactivespaces.service.alert"
-		availability="mandatory" interface="interactivespaces.service.alert.AlertService" />
-
-	<osgi:reference id="ros.deployment.manager"
-		availability="optional" interface="org.ros.osgi.deployment.master.DeploymentServer" />
-
-	<osgi:reference id="ros.environment" availability="mandatory"
-		interface="org.ros.osgi.common.RosEnvironment" />
-
-	<osgi:reference id="interactivespaces.environment"
-		availability="mandatory" interface="interactivespaces.system.InteractiveSpacesEnvironment" />
-
-	<osgi:reference id="interactivespaces.systemctl"
-		availability="mandatory" interface="interactivespaces.system.InteractiveSpacesSystemControl" />
+  <osgi:reference id="interactivespaces.systemctl"
+    availability="mandatory"
+    interface="interactivespaces.system.InteractiveSpacesSystemControl" />
 
 </beans>

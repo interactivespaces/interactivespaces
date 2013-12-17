@@ -117,6 +117,10 @@ public class VersionRange {
   /**
    * Construct a range with a minimum and maximum.
    *
+   * <p>
+   * The range will be marked inclusive if {@code minimum} equals
+   * {@code maximum}, since exclusive could never be satisfied.
+   *
    * @param minimum
    *          the minimum
    * @param maximum
@@ -125,8 +129,10 @@ public class VersionRange {
    *          {@code true} if should be inclusive
    */
   public VersionRange(Version minimum, Version maximum, boolean inclusive) {
-    if (minimum.equals(maximum) && !inclusive) {
-      throw new SimpleInteractiveSpacesException("Versions are equal by range is not inclusive");
+    if (minimum.equals(maximum)) {
+      this.minimum = minimum;
+      this.maximum = maximum;
+      inclusive = true;
     } else if (maximum.lessThan(minimum)) {
       this.minimum = maximum;
       this.maximum = minimum;

@@ -576,6 +576,13 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-master-controller</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
 
                 <artifactItem>
                   <groupId>org.slf4j</groupId>
@@ -673,8 +680,8 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/extras/opencv</outputDirectory>
-                  </artifactItem>
-                
+                </artifactItem>
+
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>

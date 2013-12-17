@@ -16,8 +16,6 @@
 
 package interactivespaces.resource.repository.internal;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
@@ -26,8 +24,11 @@ import interactivespaces.domain.support.ActivityDescriptionReader;
 import interactivespaces.domain.support.ActivityUtils;
 import interactivespaces.domain.support.JdomActivityDescriptionReader;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
+
+import com.google.common.collect.Lists;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -39,7 +40,6 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class SimpleActivityRepositoryManager implements ActivityRepositoryManager {
-  private static final String RESOURCE_CATEGORY_ACTIVITY = "activity";
 
   /**
    * Repository for activities.
@@ -60,9 +60,10 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
       ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
       ActivityDescription activityDescription = reader.readDescription(activityDescriptionStream);
 
-      repositoryStorageManager.commitResource(
-          ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
-          activityDescription.getIdentifyingName(), activityDescription.getVersion(), stageHandle);
+      repositoryStorageManager
+          .commitResource(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
+              activityDescription.getIdentifyingName(), Version.parseVersion(activityDescription.getVersion()),
+              stageHandle);
 
       // TODO(keith): Might want to edit what it gives to the import so
       // this may need to move.
@@ -125,8 +126,7 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
    * @param repositoryStorageManager
    *          the repositoryStorageManager to set
    */
-  public void
-      setRepositoryStorageManager(ResourceRepositoryStorageManager repositoryStorageManager) {
+  public void setRepositoryStorageManager(ResourceRepositoryStorageManager repositoryStorageManager) {
     this.repositoryStorageManager = repositoryStorageManager;
   }
 

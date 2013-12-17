@@ -16,6 +16,9 @@
 
 # goal definition for deploying a live activity
 
+# Transaction ID for the deployment
+string transaction_id
+
 # UUID of the live activity
 string uuid
 
@@ -27,6 +30,3 @@ string version
 
 # Where to get the live activity
 string activity_source_uri
-
-# Any container dependencies needed by the activity
-InteractiveSpacesContainerResource[] container_dependencies

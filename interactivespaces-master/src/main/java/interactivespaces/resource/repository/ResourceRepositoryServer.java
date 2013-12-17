@@ -16,9 +16,10 @@
 
 package interactivespaces.resource.repository;
 
-
 import interactivespaces.common.ResourceRepositoryUploadChannel;
+import interactivespaces.resource.Version;
 import interactivespaces.util.data.resource.CopyableResourceListener;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.io.OutputStream;
 
@@ -27,17 +28,7 @@ import java.io.OutputStream;
  *
  * @author Keith M. Hughes
  */
-public interface ResourceRepositoryServer {
-
-  /**
-   * Start the server up.
-   */
-  void startup();
-
-  /**
-   * Shut the server down.
-   */
-  void shutdown();
+public interface ResourceRepositoryServer extends ManagedResource {
 
   /**
    * Get a full URI for the given resource.
@@ -51,10 +42,11 @@ public interface ResourceRepositoryServer {
    *
    * @return full URI for the resource with this server.
    */
-  String getResourceUri(String category, String name, String version);
+  String getResourceUri(String category, String name, Version version);
 
   /**
    * Create an output stream for writing a new resource into the repository.
+   *
    * @param category
    *          category of the resource
    * @param name
@@ -64,18 +56,26 @@ public interface ResourceRepositoryServer {
    *
    * @return stream to use for writing the resource
    */
-  OutputStream createResourceOutputStream(String category, String name, String version);
+  OutputStream createResourceOutputStream(String category, String name, Version version);
 
   /**
    * Register an upload listener for the given key.
+   *
+   * @param channel
+   *          the channel to add the listener for
    * @param listener
-   *          Listener to use when an indicated resource is uploaded.
+   *          listener to use when an indicated resource is uploaded
    */
-  void registerResourceUploadListener(ResourceRepositoryUploadChannel channel,
-      CopyableResourceListener listener);
+  void registerResourceUploadListener(ResourceRepositoryUploadChannel channel, CopyableResourceListener listener);
 
   /**
-   * Remove the upload listener for the given key.
+   * Remove the upload listener for the given channel.
+   *
+   * <p>
+   * Does nothing if the channel was never registered.
+   *
+   * @param channel
+   *          the channel whose listener should be removed
    */
   void removeResourceUploadListener(ResourceRepositoryUploadChannel channel);
 }

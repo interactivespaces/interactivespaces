@@ -16,9 +16,8 @@
 
 package interactivespaces.master.server.ui.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -33,12 +32,14 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerSupport;
-import interactivespaces.master.server.services.internal.LiveActivityInstallResult;
 import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.server.ui.MetadataJsonSupport;
 import interactivespaces.master.server.ui.UiActivityManager;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -68,6 +69,9 @@ public class BasicUiActivityManager implements UiActivityManager {
    */
   private ActiveControllerManager activeControllerManager;
 
+  /**
+   * Listener for space controller events.
+   */
   private SpaceControllerListener controllerListener;
 
   /**
@@ -79,9 +83,8 @@ public class BasicUiActivityManager implements UiActivityManager {
   public void startup() {
     controllerListener = new SpaceControllerListenerSupport() {
       @Override
-      public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result,
-          long timestamp) {
-        if (result == LiveActivityInstallResult.SUCCESS) {
+      public void onLiveActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp) {
+        if (result.getStatus() == ActivityDeployStatus.STATUS_SUCCESS) {
           updateLiveActivityDeploymentTime(uuid, timestamp);
         }
       }
@@ -109,8 +112,7 @@ public class BasicUiActivityManager implements UiActivityManager {
     if (activity != null) {
       activityRepository.deleteActivity(activity);
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Activity with ID %s not found", id));
+      throw new EntityNotFoundInteractiveSpacesException(String.format("Activity with ID %s not found", id));
     }
   }
 
@@ -126,15 +128,13 @@ public class BasicUiActivityManager implements UiActivityManager {
 
       if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         activity.setMetadata(replacement);
       } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
@@ -144,8 +144,7 @@ public class BasicUiActivityManager implements UiActivityManager {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications =
-            (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
@@ -171,8 +170,7 @@ public class BasicUiActivityManager implements UiActivityManager {
     if (liveActivity != null) {
       activityRepository.deleteLiveActivity(liveActivity);
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
+      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
     }
   }
 
@@ -191,8 +189,7 @@ public class BasicUiActivityManager implements UiActivityManager {
 
       return map;
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
+      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
     }
   }
 
@@ -204,8 +201,7 @@ public class BasicUiActivityManager implements UiActivityManager {
         activityRepository.saveLiveActivity(liveActivity);
       }
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity with ID %s not found", id));
+      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
     }
   }
 
@@ -226,8 +222,9 @@ public class BasicUiActivityManager implements UiActivityManager {
     } else {
       // No configuration. If nothing in submission, nothing has changed.
       // Otherwise add everything.
-      if (map.isEmpty())
+      if (map.isEmpty()) {
         return false;
+      }
 
       createLiveActivityNewConfiguration(liveactivity, map);
 
@@ -243,7 +240,8 @@ public class BasicUiActivityManager implements UiActivityManager {
    * @param configuration
    *          the configuration which may be changed
    *
-   * @return {@code true} if there were any parameters changed in the configuration
+   * @return {@code true} if there were any parameters changed in the
+   *         configuration
    */
   private boolean mergeParameters(Map<String, String> map, ActivityConfiguration configuration) {
     boolean changed = false;
@@ -261,8 +259,7 @@ public class BasicUiActivityManager implements UiActivityManager {
 
     // Now everything in the submitted map will be check. if the name exists
     // in the old configuration, we will try and change the value. if the
-    // name
-    // doesn't exist, add it.
+    // name doesn't exist, add it.
     for (Entry<String, String> entry : map.entrySet()) {
       ConfigurationParameter parameter = existingMap.get(entry.getKey());
       if (parameter != null) {
@@ -295,8 +292,7 @@ public class BasicUiActivityManager implements UiActivityManager {
    * @param map
    *          the new configuration
    */
-  private void
-      createLiveActivityNewConfiguration(LiveActivity liveactivity, Map<String, String> map) {
+  private void createLiveActivityNewConfiguration(LiveActivity liveactivity, Map<String, String> map) {
     ActivityConfiguration configuration;
     configuration = activityRepository.newActivityConfiguration();
     liveactivity.setConfiguration(configuration);
@@ -311,8 +307,7 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public Map<String, Object> updateLiveActivityMetadata(String id,
-      Map<String, Object> metadataCommand) {
+  public Map<String, Object> updateLiveActivityMetadata(String id, Map<String, Object> metadataCommand) {
     try {
       LiveActivity activity = activityRepository.getLiveActivityById(id);
       if (activity == null) {
@@ -323,15 +318,13 @@ public class BasicUiActivityManager implements UiActivityManager {
 
       if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         activity.setMetadata(replacement);
       } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
@@ -341,8 +334,7 @@ public class BasicUiActivityManager implements UiActivityManager {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications =
-            (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
@@ -368,8 +360,7 @@ public class BasicUiActivityManager implements UiActivityManager {
     if (group != null) {
       activityRepository.deleteLiveActivityGroup(group);
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Live Activity Group with ID %s not found", id));
+      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity Group with ID %s not found", id));
     }
   }
 
@@ -446,8 +437,7 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public Map<String, Object> updateLiveActivityGroupMetadata(String id,
-      Map<String, Object> metadataCommand) {
+  public Map<String, Object> updateLiveActivityGroupMetadata(String id, Map<String, Object> metadataCommand) {
     try {
       LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
       if (group == null) {
@@ -458,15 +448,13 @@ public class BasicUiActivityManager implements UiActivityManager {
 
       if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         group.setMetadata(replacement);
       } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = group.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications =
-            (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
@@ -476,8 +464,7 @@ public class BasicUiActivityManager implements UiActivityManager {
         Map<String, Object> metadata = group.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications =
-            (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }

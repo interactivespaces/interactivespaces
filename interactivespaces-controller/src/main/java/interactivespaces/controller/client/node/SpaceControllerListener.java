@@ -33,7 +33,9 @@ public interface SpaceControllerListener {
    * An activity was deployed.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
+   * @param status
+   *          status of the deploy
    */
   void activityDeploy(String uuid, ControllerActivityDeployStatus status);
 
@@ -41,7 +43,9 @@ public interface SpaceControllerListener {
    * An activity started up.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
+   * @param status
+   *          status of the start
    */
   void activityStart(String uuid, ControllerActivityStartStatus status);
 
@@ -49,7 +53,7 @@ public interface SpaceControllerListener {
    * An activity shut down.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
    * @param status
    *          status of the shutdown
    */
@@ -59,7 +63,9 @@ public interface SpaceControllerListener {
    * An activity activated.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
+   * @param status
+   *          status of the activation
    */
   void activityActivate(String uuid, ControllerActivityActivateStatus status);
 
@@ -68,6 +74,8 @@ public interface SpaceControllerListener {
    *
    * @param uuid
    *          UUID of the activity.
+   * @param status
+   *          status of the deactivation
    */
   void activityDeactivate(String uuid, ControllerActivityDeactivateStatus status);
 }

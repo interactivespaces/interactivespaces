@@ -16,6 +16,9 @@
 
 package interactivespaces.resource;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -131,5 +134,14 @@ public class VersionedResourceCollection<T> {
    */
   public T removeResource(Version version) {
     return resources.remove(version);
+  }
+
+  /**
+   * Get a list of all resources, ordered by version number.
+   *
+   * @return a newly constructed list
+   */
+  public List<T> getAllResources() {
+    return Lists.newArrayList(resources.values());
   }
 }

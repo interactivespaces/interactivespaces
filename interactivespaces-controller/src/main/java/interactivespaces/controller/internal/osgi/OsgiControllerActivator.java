@@ -34,6 +34,7 @@ import interactivespaces.controller.client.node.internal.SimpleSpaceControllerAc
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
+import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
@@ -101,6 +102,11 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private StandardSpaceController spaceController;
 
   /**
+   * The container resource deployment manager.
+   */
+  private ControllerContainerResourceDeploymentManager containerResourceDeploymentManager;
+
+  /**
    * The OSGi shell for the controller.
    */
   private OsgiControllerShell controllerShell;
@@ -122,7 +128,12 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
     ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+
     containerResourceManager = containerResourceManagerTracker.getMyService();
+
+    containerResourceDeploymentManager =
+        new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
+    addManagedResource(containerResourceDeploymentManager);
 
     activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
     addManagedResource(activityStorageManager);
@@ -158,7 +169,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
 
     RosSpaceControllerCommunicator spaceControllerCommunicator =
-        new RosSpaceControllerCommunicator(controllerActivityInstaller, rosEnvironment, spaceEnvironment);
+        new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
+            rosEnvironment, spaceEnvironment);
 
     ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
 

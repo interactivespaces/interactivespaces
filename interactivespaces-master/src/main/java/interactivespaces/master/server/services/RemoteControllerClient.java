@@ -16,30 +16,23 @@
 
 package interactivespaces.master.server.services;
 
+import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
+import interactivespaces.util.resource.ManagedResource;
 
-import interactivespaces_msgs.InteractiveSpacesContainerResource;
 import interactivespaces_msgs.LiveActivityDeleteRequest;
-import interactivespaces_msgs.LiveActivityDeployRequest;
 
 /**
  * A client for speaking to a remote controller.
  *
  * @author Keith M. Hughes
  */
-public interface RemoteControllerClient {
+public interface RemoteControllerClient extends ManagedResource {
 
-  /**
-   * Start up the client.
-   */
-  void startup();
-
-  /**
-   * Shut the client down.
-   */
-  void shutdown();
-
-  /**
+/**
    * Connect to the given controller.
    *
    * <p>
@@ -150,16 +143,27 @@ public interface RemoteControllerClient {
    * @param request
    *          the deployment request
    */
-  // TODO(keith): make this not depend on the ROS message or the live
-  // activity, just a spec.
-  void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeployRequest request);
+  void deployActivity(ActiveLiveActivity liveActivity, ActivityDeploymentRequest request);
 
   /**
-   * Create a new deploy request.
+   * Query a controller about a resource deployment.
    *
-   * @return a new deploy request
+   * @param controller
+   *          the controller to be queried
+   * @param query
+   *          the query
    */
-  LiveActivityDeployRequest newLiveActivityDeployRequest();
+  void queryResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentQueryRequest query);
+
+  /**
+   * Commit a resource deployment to a controller.
+   *
+   * @param controller
+   *          the controller to be queried
+   * @param request
+   *          the commit request
+   */
+  void commitResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentCommitRequest request);
 
   /**
    * Delete a live activity from its controller.
@@ -179,13 +183,6 @@ public interface RemoteControllerClient {
    * @return a new delete request
    */
   LiveActivityDeleteRequest newLiveActivityDeleteRequest();
-
-  /**
-   * Create a new delete request.
-   *
-   * @return a new delete request
-   */
-  InteractiveSpacesContainerResource newInteractiveSpacesContainerResource();
 
   /**
    * Fully configure an activity on its controller.
@@ -276,4 +273,15 @@ public interface RemoteControllerClient {
    * @return the helper which handles the listeners
    */
   RemoteControllerClientListenerHelper getRemoteControllerClientListeners();
+
+  /**
+   * Register a remote activity deployment manager with the remote controller.
+   *
+   * @param remoteActivityDeploymentManager
+   *          the deployment manager
+   *
+   * @return the helper for the manager to use
+   */
+  RemoteControllerClientListenerHelper registerRemoteActivityDeploymentManager(
+      RemoteActivityDeploymentManager remoteActivityDeploymentManager);
 }

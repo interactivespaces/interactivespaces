@@ -32,11 +32,12 @@ import interactivespaces.util.resource.ManagedResource;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 
+import org.apache.commons.logging.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import java.io.File;
-import java.io.InputStream;
+import java.net.URI;
 import java.util.Set;
 
 /**
@@ -70,6 +71,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   private final InteractiveSpacesFilesystem filesystem;
 
   /**
+   * Logger for this manager.
+   */
+  private final Log log;
+
+  /**
    * The file support to be used.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -81,10 +87,13 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    *          the OSGi bundle context
    * @param filesystem
    *          the Interactive Spaces container filesystem
+   * @param log
+   *          the log to use
    */
-  public OsgiContainerResourceManager(BundleContext bundleContext, InteractiveSpacesFilesystem filesystem) {
+  public OsgiContainerResourceManager(BundleContext bundleContext, InteractiveSpacesFilesystem filesystem, Log log) {
     this.bundleContext = bundleContext;
     this.filesystem = filesystem;
+    this.log = log;
   }
 
   @Override
@@ -124,8 +133,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   }
 
   @Override
-  public void addResource(ContainerResourceLocation location, String name, InputStream resourceStream) {
+  public void addResource(ContainerResource resource, File resourceFile) {
+    log.info(String.format("Adding container resource %s from file %s", resource, resourceFile.getAbsolutePath()));
+
     File resourceDestination = null;
+    ContainerResourceLocation location = resource.getLocation();
     switch (location) {
       case SYSTEM_BOOTSTRAP:
         resourceDestination = filesystem.getSystemBootstrapDirectory();
@@ -154,14 +166,42 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         throw new SimpleInteractiveSpacesException(String.format("Unsupported container location %s", location));
     }
 
-    resourceDestination = new File(resourceDestination, name);
-
+    Version version = resource.getVersion();
+    resourceDestination = new File(resourceDestination, resource.getName() + "-" + version + ".jar");
+    String resourceDestinationUri = resourceDestination.toURI().toString();
     try {
-      fileSupport.copyInputStream(resourceStream, resourceDestination);
+      fileSupport.copyFile(resourceFile, resourceDestination);
 
       // now add to the live container if necessary
       if (location.isImmediateLoad()) {
-        bundleContext.installBundle(resourceDestination.toURI().toString());
+        Bundle installedBundle = null;
+        org.osgi.framework.Version osgiVersion =
+            new org.osgi.framework.Version(version.getMajor(), version.getMinor(), version.getMicro(),
+                version.getQualifier());
+        for (Bundle bundle : bundleContext.getBundles()) {
+          if (bundle.getSymbolicName().equals(resource.getName()) && bundle.getVersion().equals(osgiVersion)) {
+            installedBundle = bundle;
+          }
+        }
+
+        if (installedBundle != null) {
+          if (installedBundle.getLocation().endsWith(resourceDestinationUri)) {
+            log.info(String.format("Resource %s already was loaded. Updating.", resource));
+            installedBundle.update();
+          } else {
+            log.info(String.format(
+                "Resource %s already was loaded with another name. Uninstalling old and loading new.", resource));
+            installedBundle.uninstall();
+            new File(new URI(installedBundle.getLocation())).delete();
+            installedBundle = bundleContext.installBundle(resourceDestinationUri);
+          }
+
+        } else {
+          log.info(String.format("New Resource %s being loaded into the container", resource));
+          installedBundle = bundleContext.installBundle(resourceDestinationUri);
+        }
+
+        installedBundle.start();
       }
     } catch (Exception e) {
       throw new InteractiveSpacesException("Could not install new resource", e);

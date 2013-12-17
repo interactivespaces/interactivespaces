@@ -14,13 +14,26 @@
  * the License.
  */
 
-package interactivespaces.master.server.services.internal;
+package interactivespaces.resource;
 
 /**
- * Result of a live activity installation
+ * A dependency for a resource.
  *
  * @author Keith M. Hughes
  */
-public enum LiveActivityInstallResult {
-  SUCCESS, FAIL
+public interface ResourceDependency {
+
+  /**
+   * Get the name of the dependency.
+   *
+   * @return the name of the dependency
+   */
+  String getName();
+
+  /**
+   * Get the version range of the dependency.
+   *
+   * @return version range of the dependency
+   */
+  VersionRange getVersionRange();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,14 +14,13 @@
  * the License.
  */
 
-package interactivespaces.controller.client.master;
+package interactivespaces.activity.deployment;
 
 /**
- * Status for a remote activity install
+ * Status for a remote activity delete.
  *
  * @author Keith M. Hughes
  */
-public enum RemoteActivityInstallStatus {
-  // TODO(keith): Get some text strings in here.
-  SUCCESS, FAIL;
+public class ActivityDeleteStatus {
+  // TODO(keith): Fill this class in to remove passing the ROS message around.
 }

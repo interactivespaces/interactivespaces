@@ -14,7 +14,10 @@
 # the License.
 ##
 
-# result of a deployment of a live activity
+# The result of a deployment of a live activity.
+
+# Transaction ID for the deployment
+string transaction_id
 
 # UUID of the live activity
 string uuid

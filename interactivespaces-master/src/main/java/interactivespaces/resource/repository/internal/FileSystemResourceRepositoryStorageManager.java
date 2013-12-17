@@ -16,15 +16,20 @@
 
 package interactivespaces.resource.repository.internal;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.resource.NamedVersionedResource;
+import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+
+import com.google.common.collect.Maps;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -51,7 +59,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    *
    * <p>
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
-   * but will require changing all masters
+   * but will require changing all masters.
    */
   public static final String CONFIGURATION_REPOSITORY_ACTIVITY_LOCATION =
       "interactivespaces.repository.activities.location";
@@ -62,7 +70,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    * <p>
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
    * but will require changing all masters. This one will just be
-   * interactivespaces.repository.staging.location
+   * interactivespaces.repository.staging.location.
    */
   public static final String CONFIGURATION_REPOSITORY_STAGING_LOCATION =
       "interactivespaces.repository.activities.staging.location";
@@ -72,33 +80,30 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    *
    * <p>
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
-   * but will require changing all masters
+   * but will require changing all masters.
    */
-  public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION =
-      "repository/interactivespaces/activities";
+  public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION = "repository/interactivespaces/activities";
 
   /**
-   * Configuration property for the location of the activities repository.
+   * Configuration property for the location of the resource bundles repository.
    *
    * <p>
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
-   * but will require changing all masters
+   * but will require changing all masters.
    */
-  public static final String CONFIGURATION_REPOSITORY_RESOURCE_LOCATION =
-      "interactivespaces.repository.resource.location";
+  public static final String CONFIGURATION_REPOSITORY_BUNDLE_RESOURCE_LOCATION =
+      "interactivespaces.repository.resources.bundles.location";
 
   /**
    * Default value for the location of the data repository.
    */
-  public static final String DEFAULT_REPOSITORY_DATA_LOCATION =
-      "repository/interactivespaces/data";
-
+  public static final String DEFAULT_REPOSITORY_DATA_LOCATION = "repository/interactivespaces/data";
 
   /**
    * Default value for the location of the resources repository.
    */
-  public static final String DEFAULT_REPOSITORY_RESOURCE_LOCATION =
-      "repository/interactivespaces/resource";
+  public static final String DEFAULT_REPOSITORY_BUNDLE_RESOURCE_LOCATION =
+      "repository/interactivespaces/resources/bundles";
 
   /**
    * Extension placed on activity archives for transmission.
@@ -106,12 +111,12 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   public static final String RESOURCE_ARCHIVE_EXTENSION = "zip";
 
   /**
-   * The filename prefix for a staged resource
+   * The filename prefix for a staged resource.
    */
   private static final String STAGED_RESOURCE_FILENAME_PREFIX = "resource-";
 
   /**
-   * The filename suffix for a staged resource
+   * The filename suffix for a staged resource.
    */
   private static final String STAGED_RESOURCE_FILENAME_SUFFIX = ".zip";
 
@@ -143,17 +148,22 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   /**
    * Path to the generic resource repository in the file system.
    */
-  private String resourceRepositoryPath;
+  private String bundleResourceRepositoryPath;
 
   /**
    * Map of staging handles to staging files.
    */
-  private Map<String, File> stagingFiles = Maps.newConcurrentMap();
+  private final Map<String, File> stagingFiles = Maps.newConcurrentMap();
 
   /**
    * The Interactive Spaces environment.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public void startup() {
@@ -163,8 +173,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
 
     stagingDirectory =
         new File(baseInstallDir,
-            systemConfiguration
-                .getRequiredPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION));
+            systemConfiguration.getRequiredPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION));
     ensureWriteableDirectory("staging", stagingDirectory);
 
     // TODO(keith): Check repository base same way as above.
@@ -179,11 +188,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     dataRepositoryBaseLocation = new File(baseInstallDir, dataRepositoryPath);
     ensureWriteableDirectory("data", dataRepositoryBaseLocation);
 
-    resourceRepositoryPath =
-        systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_RESOURCE_LOCATION,
-            DEFAULT_REPOSITORY_RESOURCE_LOCATION);
-    resourceRepositoryBaseLocation = new File(baseInstallDir, resourceRepositoryPath);
-    ensureWriteableDirectory("generic resource", resourceRepositoryBaseLocation);
+    bundleResourceRepositoryPath =
+        systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_BUNDLE_RESOURCE_LOCATION,
+            DEFAULT_REPOSITORY_BUNDLE_RESOURCE_LOCATION);
+    resourceRepositoryBaseLocation = new File(baseInstallDir, bundleResourceRepositoryPath);
+    ensureWriteableDirectory("bundle resource", resourceRepositoryBaseLocation);
   }
 
   /**
@@ -197,19 +206,16 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   private void ensureWriteableDirectory(String type, File directory) {
     if (directory.exists()) {
       if (!directory.isDirectory()) {
-        throw new InteractiveSpacesException(String.format(
-            "Resource repository %s directory %s is not a directory", type,
-            directory.getAbsolutePath()));
+        throw new InteractiveSpacesException(String.format("Resource repository %s directory %s is not a directory",
+            type, directory.getAbsolutePath()));
       } else if (!directory.canWrite()) {
-        throw new InteractiveSpacesException(String.format(
-            "Resource repository %s directory %s is not writable", type,
+        throw new InteractiveSpacesException(String.format("Resource repository %s directory %s is not writable", type,
             directory.getAbsolutePath()));
       }
     } else {
       if (!directory.mkdirs()) {
-        throw new InteractiveSpacesException(String.format(
-            "Could not create activity repository %s directory %s", type,
-            directory.getAbsolutePath()));
+        throw new InteractiveSpacesException(String.format("Could not create activity repository %s directory %s",
+            type, directory.getAbsolutePath()));
       }
     }
   }
@@ -220,32 +226,30 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public boolean containsResource(String category, String name, String version) {
+  public boolean containsResource(String category, String name, Version version) {
     return getRepositoryFile(category, name, version).exists();
   }
 
   @Override
-  public String getRepositoryResourceName(String category, String name, String version) {
+  public String getRepositoryResourceName(String category, String name, Version version) {
     // TODO(keith): Fix, cheesy
     String suffix = RESOURCE_ARCHIVE_EXTENSION;
-    if (category.equals(RESOURCE_CATEGORY_GENERIC)) {
+    if (category.equals(RESOURCE_CATEGORY_CONTAINER_BUNDLE)) {
       suffix = "jar";
     }
 
-    return name + "-" + version + "." + suffix;
+    return name + "-" + version.toString() + "." + suffix;
   }
 
   @Override
   public String stageResource(InputStream resourceStream) {
     try {
       File stagedFile =
-          File.createTempFile(STAGED_RESOURCE_FILENAME_PREFIX, STAGED_RESOURCE_FILENAME_SUFFIX,
-              stagingDirectory);
-      Files.copyInputStream(resourceStream, stagedFile);
+          File.createTempFile(STAGED_RESOURCE_FILENAME_PREFIX, STAGED_RESOURCE_FILENAME_SUFFIX, stagingDirectory);
+      fileSupport.copyInputStream(resourceStream, stagedFile);
 
       // +2 to get beyond path separator.
-      String handle =
-          stagedFile.getAbsolutePath().substring(stagingDirectory.getAbsolutePath().length() + 1);
+      String handle = stagedFile.getAbsolutePath().substring(stagingDirectory.getAbsolutePath().length() + 1);
       stagingFiles.put(handle, stagedFile);
 
       return handle;
@@ -272,32 +276,31 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
 
         return new MyZipInputStream(zip, zip.getInputStream(entry));
       } catch (Exception e) {
-        throw new InteractiveSpacesException(String.format(
-            "Cannot get resource description from staged resource %s", stageHandle), e);
+        throw new InteractiveSpacesException(String.format("Cannot get resource description from staged resource %s",
+            stageHandle), e);
       }
     } else {
-      throw new InteractiveSpacesException(String.format("%s is not a valid staging handle",
-          stageHandle));
+      throw new InteractiveSpacesException(String.format("%s is not a valid staging handle", stageHandle));
     }
   }
 
   @Override
-  public void commitResource(String category, String name, String version, String stageHandle) {
+  public void commitResource(String category, String name, Version version, String stageHandle) {
     File stagingFile = stagingFiles.get(stageHandle);
     try {
       if (stagingFile != null) {
-        Files.copyFile(stagingFile, getRepositoryFile(category, name, version));
+        fileSupport.copyFile(stagingFile, getRepositoryFile(category, name, version));
       } else {
         throw new InteractiveSpacesException("Unknown staging handle " + stageHandle);
       }
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not copy staging handle %s to %s",
-          stageHandle, stagingFile.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Could not copy staging handle %s to %s", stageHandle,
+          stagingFile.getAbsolutePath()), e);
     }
   }
 
   @Override
-  public InputStream getResourceStream(String category, String name, String version) {
+  public InputStream getResourceStream(String category, String name, Version version) {
     File resourceFile = getRepositoryFile(category, name, version);
     try {
       return new FileInputStream(resourceFile);
@@ -307,13 +310,55 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public OutputStream newResourceOutputStream(String category, String name, String version) {
+  public NamedVersionedResourceCollection<NamedVersionedResource> getAllResources(String category) {
+    NamedVersionedResourceCollection<NamedVersionedResource> resources =
+        NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
+
+    File[] files = getBaseLocation(category).listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        return pathname.getName().endsWith(".jar");
+      }
+    });
+
+    if (files != null) {
+      for (File file : files) {
+        JarFile jarFile = null;
+        try {
+          jarFile = new JarFile(file);
+          Manifest manifest = jarFile.getManifest();
+          Attributes attributes = manifest.getMainAttributes();
+          String name = attributes.getValue("Bundle-SymbolicName");
+          String version = attributes.getValue("Bundle-Version");
+          NamedVersionedResource resource = new NamedVersionedResource(name, Version.parseVersion(version));
+
+          resources.addResource(resource.getName(), resource.getVersion(), resource);
+        } catch (IOException e) {
+          spaceEnvironment.getLog().error(
+              String.format("Could not open resource file jar manifest for %s", file.getAbsolutePath()), e);
+        } finally {
+          // For some reason Closeables does not work with JarFile despite it
+          // claiming it is Closeable in the Javadoc.
+          if (jarFile != null) {
+            try {
+              jarFile.close();
+            } catch (IOException e) {
+              // Don't care.
+            }
+          }
+        }
+      }
+    }
+    return resources;
+  }
+
+  @Override
+  public OutputStream newResourceOutputStream(String category, String name, Version version) {
     File resourceFile = getRepositoryFile(category, name, version);
     try {
       return new FileOutputStream(resourceFile);
     } catch (FileNotFoundException e) {
-      throw new InteractiveSpacesException(
-          "Could not create resource output stream " + resourceFile.getPath(), e);
+      throw new InteractiveSpacesException("Could not create resource output stream " + resourceFile.getPath(), e);
     }
   }
 
@@ -329,19 +374,37 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    *
    * @return the file which contains the resource
    */
-  private File getRepositoryFile(String category, String name, String version) {
+  private File getRepositoryFile(String category, String name, Version version) {
+    File baseLocation = getBaseLocation(category);
+
+    return new File(baseLocation, getRepositoryResourceName(category, name, version));
+  }
+
+  /**
+   * Get the base location for files from a give category.
+   *
+   * @param category
+   *          the category
+   *
+   * @return the base location
+   */
+  private File getBaseLocation(String category) {
     // TODO(keith): Fix, cheesy
     File baseLocation = resourceRepositoryBaseLocation;
     if (RESOURCE_CATEGORY_ACTIVITY.equals(category)) {
       baseLocation = activityRepositoryBaseLocation;
     } else if (RESOURCE_CATEGORY_DATA.equals(category)) {
       baseLocation = dataRepositoryBaseLocation;
+    } else if (RESOURCE_CATEGORY_CONTAINER_BUNDLE.equals(category)) {
+      baseLocation = resourceRepositoryBaseLocation;
     }
 
-    return new File(baseLocation, getRepositoryResourceName(category, name, version));
+    return baseLocation;
   }
 
   /**
+   * Set the space environment to use.
+   *
    * @param spaceEnvironment
    *          the spaceEnvironment to set
    */
@@ -360,13 +423,21 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     /**
      * The zip file which gave the entry.
      */
-    private ZipFile zip;
+    private final ZipFile zip;
 
     /**
      * Input stream from the zip entry being read.
      */
-    private InputStream inputStream;
+    private final InputStream inputStream;
 
+    /**
+     * Construct a zip file input stream.
+     *
+     * @param zip
+     *          the zip file the stream is for
+     * @param inputStream
+     *          the input stream from the zip
+     */
     public MyZipInputStream(ZipFile zip, InputStream inputStream) {
       this.zip = zip;
       this.inputStream = inputStream;
@@ -432,7 +503,5 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     public String toString() {
       return inputStream.toString();
     }
-
   }
-
 }

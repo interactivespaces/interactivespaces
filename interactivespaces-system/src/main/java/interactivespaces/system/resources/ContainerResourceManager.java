@@ -16,7 +16,8 @@
 
 package interactivespaces.system.resources;
 
-import java.io.InputStream;
+import java.io.File;
+
 
 /**
  * A manager for controlling container resources.
@@ -40,12 +41,10 @@ public interface ContainerResourceManager {
   /**
    * Add a resource to the container.
    *
-   * @param location
-   *          where the resource will go in the container
-   * @param name
-   *          a name for the resource
-   * @param resourceStream
-   *          stream containing the resource
+   * @param resource
+   *          the full information about the new resource
+   * @param resourceFile
+   *          file containing the resource
    */
-  void addResource(ContainerResourceLocation location, String name, InputStream resourceStream);
+  void addResource(ContainerResource resource, File resourceFile);
 }

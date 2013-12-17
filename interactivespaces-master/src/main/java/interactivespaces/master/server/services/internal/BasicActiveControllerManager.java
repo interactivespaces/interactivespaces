@@ -17,7 +17,9 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
@@ -26,7 +28,6 @@ import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ActivityDeploymentManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.SpaceControllerListener;
@@ -65,8 +66,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
    * Active live activities mapped by the ID of the controller which contains
    * the live activity.
    */
-  private final Multimap<String, ActiveLiveActivity> activeActivitiesByController = HashMultimap
-      .create();
+  private final Multimap<String, ActiveLiveActivity> activeActivitiesByController = HashMultimap.create();
 
   /**
    * All active activity groups keyed by their activity group's ID.
@@ -76,8 +76,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   /**
    * Listeners for events in the manager.
    */
-  private final SpaceControllerListenerHelper controllerListeners =
-      new SpaceControllerListenerHelper();
+  private final SpaceControllerListenerHelper controllerListeners = new SpaceControllerListenerHelper();
 
   /**
    * The client for interacting with a controller remotely.
@@ -87,7 +86,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   /**
    * Manager for handling activity deployments.
    */
-  private ActivityDeploymentManager activityDeploymentManager;
+  private RemoteActivityDeploymentManager remoteActivityDeploymentManager;
 
   /**
    * The spaces environment being run under.
@@ -96,8 +95,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void connectController(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Connecting to controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Connecting to controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     acontroller.setState(SpaceControllerState.CONNECT_ATTEMPT);
@@ -106,8 +104,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void disconnectController(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Disconnecting from controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Disconnecting from controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     remoteControllerClient.disconnect(acontroller);
@@ -121,8 +118,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void statusController(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Requesting status from controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Requesting status from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -133,8 +129,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void forceStatusController(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Forcing status request from controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Forcing status request from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -144,8 +139,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void cleanControllerTempData(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting controller temp data clean from controller %s",
-            controller.getHostId()));
+        String.format("Requesting controller temp data clean from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -155,8 +149,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void cleanControllerPermanentData(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting controller permanent data clean from controller %s",
-            controller.getHostId()));
+        String.format("Requesting controller permanent data clean from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -166,8 +159,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void cleanControllerActivitiesTempData(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting all activity temp data clean from controller %s",
-            controller.getHostId()));
+        String.format("Requesting all activity temp data clean from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -177,8 +169,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void cleanControllerActivitiesPermanentData(SpaceController controller) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting all activities permanent data clean from controller %s",
-            controller.getHostId()));
+        String.format("Requesting all activities permanent data clean from controller %s", controller.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -187,8 +178,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void captureControllerDataBundle(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Capturing data bundle for controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Capturing data bundle for controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     acontroller.setDataBundleState(DataBundleState.CAPTURE_REQUESTED);
@@ -197,8 +187,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void restoreControllerDataBundle(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Restoring data bundle for controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Restoring data bundle for controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     acontroller.setDataBundleState(DataBundleState.RESTORE_REQUESTED);
@@ -207,23 +196,21 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void shutdownController(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Shutting down controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Shutting down controller %s", controller.getHostId()));
 
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
     remoteControllerClient.requestShutdown(acontroller);
 
     // TODO(keith): Yuck!
-    remoteControllerClient.getRemoteControllerClientListeners().signalSpaceControllerStatusChange(
-        controller.getUuid(), SpaceControllerState.UNKNOWN);
+    remoteControllerClient.getRemoteControllerClientListeners().signalSpaceControllerStatusChange(controller.getUuid(),
+        SpaceControllerState.UNKNOWN);
 
     cleanLiveActivityStateModels(controller);
   }
 
   @Override
   public void shutdownAllActivities(SpaceController controller) {
-    spaceEnvironment.getLog().info(
-        String.format("Shutting down all apps on controller %s", controller.getHostId()));
+    spaceEnvironment.getLog().info(String.format("Shutting down all apps on controller %s", controller.getHostId()));
 
     // The async results will signal all active apps.
     ActiveSpaceController acontroller = getActiveSpaceController(controller);
@@ -233,15 +220,14 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   }
 
   /**
-   * Clear all active live activity state models for the given controller
+   * Clear all active live activity state models for the given controller.
    *
    * @param controller
    *          the controller which has the activities
    */
   private void cleanLiveActivityStateModels(SpaceController controller) {
     synchronized (activeActivitiesByController) {
-      for (ActiveLiveActivity activeLiveActivity : activeActivitiesByController.get(controller
-          .getId())) {
+      for (ActiveLiveActivity activeLiveActivity : activeActivitiesByController.get(controller.getId())) {
         activeLiveActivity.clearRunningStateModel();
       }
     }
@@ -254,18 +240,24 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
 
   @Override
   public void deployActiveActivity(ActiveLiveActivity activeLiveActivity) {
-    if (spaceEnvironment.getLog().isInfoEnabled()) {
-      LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
-      spaceEnvironment.getLog().info(
-          String.format("Deploying live activity %s to controller %s", liveActivity.getUuid(),
-              liveActivity.getController().getHostId()));
-    }
+    LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
+    try {
+      if (spaceEnvironment.getLog().isInfoEnabled()) {
+        spaceEnvironment.getLog().info(
+            String.format("Deploying live activity %s to controller %s", liveActivity.getUuid(), liveActivity
+                .getController().getHostId()));
+      }
 
-    synchronized (activeLiveActivity) {
-      activeLiveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
-    }
+      synchronized (activeLiveActivity) {
+        activeLiveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
+      }
 
-    activityDeploymentManager.deployLiveActivity(activeLiveActivity);
+      remoteActivityDeploymentManager.deployLiveActivity(activeLiveActivity);
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error(
+          String.format("could not deploy live activity %s to controller %s", liveActivity.getUuid(), liveActivity
+              .getController().getHostId()), e);
+    }
   }
 
   @Override
@@ -278,15 +270,15 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
     if (spaceEnvironment.getLog().isInfoEnabled()) {
       LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
       spaceEnvironment.getLog().info(
-          String.format("Deleting live activity %s from controller %s", liveActivity.getUuid(),
-              liveActivity.getController().getHostId()));
+          String.format("Deleting live activity %s from controller %s", liveActivity.getUuid(), liveActivity
+              .getController().getHostId()));
     }
 
     synchronized (activeLiveActivity) {
       activeLiveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
     }
 
-    activityDeploymentManager.deleteLiveActivity(activeLiveActivity);
+    remoteActivityDeploymentManager.deleteLiveActivity(activeLiveActivity);
   }
 
   @Override
@@ -325,8 +317,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void activateActiveActivity(ActiveLiveActivity liveActivity) {
     spaceEnvironment.getLog().info(
-        String
-            .format("Requesting activity %s activation", liveActivity.getLiveActivity().getUuid()));
+        String.format("Requesting activity %s activation", liveActivity.getLiveActivity().getUuid()));
 
     liveActivity.activate();
   }
@@ -339,8 +330,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void deactivateActiveActivity(ActiveLiveActivity liveActivity) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting activity %s deactivation", liveActivity.getLiveActivity()
-            .getUuid()));
+        String.format("Requesting activity %s deactivation", liveActivity.getLiveActivity().getUuid()));
 
     liveActivity.deactivate();
   }
@@ -366,8 +356,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void statusActiveLiveActivity(ActiveLiveActivity activeLiveActivity) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting activity %s status", activeLiveActivity.getLiveActivity()
-            .getUuid()));
+        String.format("Requesting activity %s status", activeLiveActivity.getLiveActivity().getUuid()));
 
     activeLiveActivity.status();
   }
@@ -416,18 +405,15 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   public void deployActiveLiveActivityGroupChecked(ActiveLiveActivityGroup activeActivityGroup,
       Set<ActiveLiveActivity> deployedLiveActivities) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting activity group %s deployment", activeActivityGroup
-            .getActivityGroup().getId()));
+        String.format("Requesting activity group %s deployment", activeActivityGroup.getActivityGroup().getId()));
 
     for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
       LiveActivity activity = groupActivity.getActivity();
       try {
-        attemptDeployActiveActivityFromGroup(getActiveLiveActivity(activity),
-            deployedLiveActivities);
+        attemptDeployActiveActivityFromGroup(getActiveLiveActivity(activity), deployedLiveActivities);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while deploying live activity %s as part of live activity group %s",
+            String.format("Error while deploying live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -471,18 +457,15 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   public void configureActiveLiveActivityGroupChecked(ActiveLiveActivityGroup activeActivityGroup,
       Set<ActiveLiveActivity> configuredLiveActivities) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting activity group %s configure", activeActivityGroup
-            .getActivityGroup().getId()));
+        String.format("Requesting activity group %s configure", activeActivityGroup.getActivityGroup().getId()));
 
     for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
       LiveActivity activity = groupActivity.getActivity();
       try {
-        attemptConfigureActiveActivityFromGroup(getActiveLiveActivity(activity),
-            configuredLiveActivities);
+        attemptConfigureActiveActivityFromGroup(getActiveLiveActivity(activity), configuredLiveActivities);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while configuring live activity %s as part of live activity group %s",
+            String.format("Error while configuring live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -526,18 +509,15 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
-        spaceEnvironment.getLog()
-            .info(
-                String.format("Starting up live activity %s from group %s", activity.getUuid(),
-                    groupId));
+        spaceEnvironment.getLog().info(
+            String.format("Starting up live activity %s from group %s", activity.getUuid(), groupId));
       }
 
       try {
         getActiveLiveActivity(activity).startupFromLiveActivityGroup(activeActivityGroup);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while starting up live activity %s as part of live activity group %s",
+            String.format("Error while starting up live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -551,25 +531,21 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void activateActiveActivityGroup(ActiveLiveActivityGroup activeActivityGroup) {
     String groupId = activeActivityGroup.getActivityGroup().getId();
-    spaceEnvironment.getLog().info(
-        String.format("requesting activity group %s activation", groupId));
+    spaceEnvironment.getLog().info(String.format("requesting activity group %s activation", groupId));
 
     for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
-        spaceEnvironment.getLog()
-            .info(
-                String.format("Activating live activity %s from group %s", activity.getUuid(),
-                    groupId));
+        spaceEnvironment.getLog().info(
+            String.format("Activating live activity %s from group %s", activity.getUuid(), groupId));
       }
 
       try {
         getActiveLiveActivity(activity).activateFromLiveActivityGroup(activeActivityGroup);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while activating live activity %s as part of live activity group %s",
+            String.format("Error while activating live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -583,24 +559,21 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   @Override
   public void deactivateActiveActivityGroup(ActiveLiveActivityGroup activeActivityGroup) {
     String groupId = activeActivityGroup.getActivityGroup().getId();
-    spaceEnvironment.getLog().info(
-        String.format("Requesting activity group %s deactivation", groupId));
+    spaceEnvironment.getLog().info(String.format("Requesting activity group %s deactivation", groupId));
 
     for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
         spaceEnvironment.getLog().info(
-            String.format("Deactivating live activity %s from group %s", activity.getUuid(),
-                groupId));
+            String.format("Deactivating live activity %s from group %s", activity.getUuid(), groupId));
       }
 
       try {
         getActiveLiveActivity(activity).deactivateFromLiveActivityGroup(activeActivityGroup);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while deactivating live activity %s as part of live activity group %s",
+            String.format("Error while deactivating live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -628,8 +601,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
         getActiveLiveActivity(activity).shutdownFromLiveActivityGroup(activeActivityGroup);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
-            String.format(
-                "Error while shutting down live activity %s as part of live activity group %s",
+            String.format("Error while shutting down live activity %s as part of live activity group %s",
                 activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
@@ -642,8 +614,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       ActiveSpaceController activeController = activeSpaceControllers.get(uuid);
       if (activeController == null) {
         // Active controller doesn't exist yet.
-        activeController =
-            new ActiveSpaceController(controller, spaceEnvironment.getTimeProvider());
+        activeController = new ActiveSpaceController(controller, spaceEnvironment.getTimeProvider());
         activeSpaceControllers.put(controller.getUuid(), activeController);
       } else {
         activeController.updateController(controller);
@@ -690,8 +661,8 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
         // Active activity doesn't exist yet.
         SpaceController controller = activity.getController();
         active =
-            new ActiveLiveActivity(getActiveSpaceController(controller), activity,
-                remoteControllerClient, spaceEnvironment.getTimeProvider());
+            new ActiveLiveActivity(getActiveSpaceController(controller), activity, remoteControllerClient,
+                spaceEnvironment.getTimeProvider());
         activeActivities.put(activity.getUuid(), active);
         activeActivitiesByController.put(controller.getId(), active);
       } else {
@@ -763,14 +734,13 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       controller.setState(SpaceControllerState.RUNNING);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got heartbeat from %s (%s)", controller.getController().getName(),
-                controller.getController().getUuid()));
+            String.format("Got heartbeat from %s (%s)", controller.getController().getName(), controller
+                .getController().getUuid()));
       }
 
       controllerListeners.signalSpaceControllerHeartbeat(uuid, timestamp);
     } else {
-      spaceEnvironment.getLog().warn(
-          String.format("Heartbeat from unknown controller with UUID %s", uuid));
+      spaceEnvironment.getLog().warn(String.format("Heartbeat from unknown controller with UUID %s", uuid));
     }
   }
 
@@ -781,39 +751,36 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       controller.setState(state);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got space controller status update %s (%s) to %s", controller
-                .getController().getName(), controller.getController().getUuid(), state));
+            String.format("Got space controller status update %s (%s) to %s", controller.getController().getName(),
+                controller.getController().getUuid(), state));
       }
 
       controllerListeners.signalSpaceControllerStatusChange(uuid, state);
     } else {
-      spaceEnvironment.getLog().warn(
-          String.format("Status change for unknown controller with UUID %s", uuid));
+      spaceEnvironment.getLog().warn(String.format("Status change for unknown controller with UUID %s", uuid));
     }
   }
 
   @Override
-  public void onLiveActivityInstall(String uuid, LiveActivityInstallResult result) {
+  public void onLiveActivityDeployment(String uuid, LiveActivityDeploymentResponse result) {
     ActiveLiveActivity active = getActiveActivityByUuid(uuid);
     if (active != null) {
-      switch (result) {
-        case SUCCESS:
-          // If not running, should update the status as there may be an
-          // error or something that is currently being shown.
-          active.setDeployState(ActivityState.READY);
+      if (result.getStatus().isSuccess()) {
 
-          spaceEnvironment.getLog().info(
-              String.format("Live activity %s deployed successfully", uuid));
+        // If not running, should update the status as there may be an
+        // error or something that is currently being shown.
+        active.setDeployState(ActivityState.READY);
 
-          break;
-        case FAIL:
-          active.setDeployState(ActivityState.DEPLOY_FAILURE);
+        spaceEnvironment.getLog().info(String.format("Live activity %s deployed successfully", uuid));
 
-          spaceEnvironment.getLog().info(String.format("Live activity %s deployment failed", uuid));
+      } else {
+        active.setDeployState(ActivityState.DEPLOY_FAILURE);
+
+        spaceEnvironment.getLog()
+            .info(String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
       }
 
-      controllerListeners.signalActivityInstall(uuid, result, spaceEnvironment.getTimeProvider()
-          .getCurrentTime());
+      controllerListeners.signalActivityInstall(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -831,8 +798,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
           active.setRuntimeState(ActivityState.UNKNOWN, null);
           active.getLiveActivity().setLastDeployDate(null);
 
-          spaceEnvironment.getLog().info(
-              String.format("Live activity %s deleted successfully", uuid));
+          spaceEnvironment.getLog().info(String.format("Live activity %s deleted successfully", uuid));
 
           break;
 
@@ -841,9 +807,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
           active.setRuntimeState(ActivityState.DOESNT_EXIST, null);
 
           spaceEnvironment.getLog().info(
-              String.format(
-                  "Live activity %s deletion attempt failed because it isn't on the controller",
-                  uuid));
+              String.format("Live activity %s deletion attempt failed because it isn't on the controller", uuid));
 
           break;
 
@@ -851,8 +815,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
           spaceEnvironment.getLog().info(String.format("Live activity %s delete failed", uuid));
       }
 
-      controllerListeners.signalActivityDelete(uuid, result, spaceEnvironment.getTimeProvider()
-          .getCurrentTime());
+      controllerListeners.signalActivityDelete(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -886,8 +849,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
       controller.setDataBundleState(state);
     } else {
       spaceEnvironment.getLog().warn(
-          String.format("Data bundle state change update from unknown controller with UUID %s",
-              uuid));
+          String.format("Data bundle state change update from unknown controller with UUID %s", uuid));
     }
   }
 
@@ -898,8 +860,7 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
    *          UUID of the unknown activity
    */
   private void logUnknownLiveActivity(String uuid) {
-    spaceEnvironment.getLog().warn(
-        String.format("Got activity status update for unknown activity %s", uuid));
+    spaceEnvironment.getLog().warn(String.format("Got activity status update for unknown activity %s", uuid));
   }
 
   @Override
@@ -923,11 +884,11 @@ public class BasicActiveControllerManager implements InternalActiveControllerMan
   }
 
   /**
-   * @param activityDeploymentManager
-   *          the activityDeploymentManager to set
+   * @param remoteActivityDeploymentManager
+   *          the remote activity deployment manager to use
    */
-  public void setActivityDeploymentManager(ActivityDeploymentManager activityDeploymentManager) {
-    this.activityDeploymentManager = activityDeploymentManager;
+  public void setRemoteActivityDeploymentManager(RemoteActivityDeploymentManager remoteActivityDeploymentManager) {
+    this.remoteActivityDeploymentManager = remoteActivityDeploymentManager;
   }
 
   /**
