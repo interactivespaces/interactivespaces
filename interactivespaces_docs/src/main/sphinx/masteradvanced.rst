@@ -398,7 +398,7 @@ The only alert mechanism available out of the box is an email-based one.
 The alert mechanism will send an email containing information about the alert
 to a group of email addresses.
 
-The email alert mechasigm is configured through the file `config/mail.conf`.
+The email alert mechanism is configured through the file `config/mail.conf`.
 A sample file is given below.
 
 ::

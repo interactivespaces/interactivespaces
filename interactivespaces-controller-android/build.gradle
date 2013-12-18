@@ -23,8 +23,6 @@ dependencies {
 }
 
 assembleComponents << {
-  println "Got it"
-
   def proc1 = "zip -d libs/org.apache.servicemix.bundles.jdom-1.1_4.jar OSGI-INF/bundle.info".execute()
   proc1.err.eachLine {line -> println 'ERROR: ' + line}
   proc1.waitFor()

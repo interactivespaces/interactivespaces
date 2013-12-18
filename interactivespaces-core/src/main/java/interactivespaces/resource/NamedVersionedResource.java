@@ -16,7 +16,6 @@
 
 package interactivespaces.resource;
 
-
 /**
  * An ID for a named and versioned resource.
  *

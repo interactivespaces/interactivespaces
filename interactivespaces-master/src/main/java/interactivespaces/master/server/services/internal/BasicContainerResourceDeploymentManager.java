@@ -24,6 +24,7 @@ import interactivespaces.master.server.services.ContainerResourceDeploymentManag
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.ResourceDependency;
 import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
@@ -82,7 +83,7 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
   public Set<NamedVersionedResource> satisfyDependencies(Set<ResourceDependency> dependencies) {
     Set<NamedVersionedResource> results = Sets.newHashSet();
 
-    NamedVersionedResourceCollection<NamedVersionedResource> allResources =
+    NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> allResources =
         resourceRepositoryStorageManager
             .getAllResources(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE);
     for (ResourceDependency dependency : dependencies) {

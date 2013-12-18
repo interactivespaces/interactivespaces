@@ -38,9 +38,9 @@ allprojects {
     // as an intermediate version. An intermediate version must never
     // be pushed to production.
     //
-    // Final versions should set the intermediate designation to null.
+    // Final versions should set the qualifier to null.
     interactiveSpacesVersion = '1.5.4'
-    interactiveSpacesVersionIntermediateDesignation = 'SNAPSHOT'
+    interactiveSpacesVersionQualifier = null // 'SNAPHOT'
 
     nonjavaProjects = [ 
       'interactivespaces_docs', 
@@ -64,8 +64,8 @@ allprojects {
       androidSdkJar = "$androidPlatformHome/android.jar"
     }
 
-    osgiVersion = interactiveSpacesVersionIntermediateDesignation ? 
-        interactiveSpacesVersion + "." + interactiveSpacesVersionIntermediateDesignation :
+    osgiVersion = interactiveSpacesVersionQualifier ? 
+        interactiveSpacesVersion + "." + interactiveSpacesVersionQualifier :
         interactiveSpacesVersion
   }
 

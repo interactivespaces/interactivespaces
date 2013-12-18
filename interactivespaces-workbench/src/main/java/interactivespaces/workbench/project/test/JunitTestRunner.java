@@ -81,7 +81,7 @@ public class JunitTestRunner {
       JavaProjectType projectType = context.getProjectType();
       List<File> classpath = Lists.newArrayList();
       classpath.add(jarDestinationFile);
-      projectType.getProjectClasspath(classpath, extensions, context.getWorkbench());
+      projectType.getProjectClasspath(context, classpath, extensions, context.getWorkbench());
 
       File compilationFolder = new File(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_TESTS);
       fileSupport.directoryExists(compilationFolder);
@@ -111,6 +111,10 @@ public class JunitTestRunner {
    *          the jar that was built
    * @param projectType
    *          the project type
+   * @param extension
+   *          the extension, if any, for the project
+   * @param context
+   *          the build context
    *
    * @return {@code true} if all tests passed
    */
@@ -123,7 +127,7 @@ public class JunitTestRunner {
     List<File> classpath = Lists.newArrayList();
     classpath.add(jarDestinationFile);
     classpath.add(compilationFolder);
-    projectType.getRuntimeClasspath(classpath, extension, context.getWorkbench());
+    projectType.getRuntimeClasspath(context, classpath, extension, context.getWorkbench());
 
     List<URL> urls = Lists.newArrayList();
     for (File classpathElement : classpath) {

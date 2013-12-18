@@ -18,9 +18,11 @@ package interactivespaces.resource.repository.internal;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.Version;
+import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
+import interactivespaces.resource.analysis.ResourceAnalyzer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -29,7 +31,6 @@ import interactivespaces.util.io.FileSupportImpl;
 import com.google.common.collect.Maps;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,9 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -156,6 +154,11 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   private final Map<String, File> stagingFiles = Maps.newConcurrentMap();
 
   /**
+   * Analyzer for bundles.
+   */
+  private ResourceAnalyzer resourceAnalyzer;
+
+  /**
    * The Interactive Spaces environment.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
@@ -167,6 +170,8 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
 
   @Override
   public void startup() {
+    resourceAnalyzer = new OsgiResourceAnalyzer(spaceEnvironment.getLog());
+
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
 
     File baseInstallDir = spaceEnvironment.getFilesystem().getInstallDirectory();
@@ -310,46 +315,8 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public NamedVersionedResourceCollection<NamedVersionedResource> getAllResources(String category) {
-    NamedVersionedResourceCollection<NamedVersionedResource> resources =
-        NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
-
-    File[] files = getBaseLocation(category).listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File pathname) {
-        return pathname.getName().endsWith(".jar");
-      }
-    });
-
-    if (files != null) {
-      for (File file : files) {
-        JarFile jarFile = null;
-        try {
-          jarFile = new JarFile(file);
-          Manifest manifest = jarFile.getManifest();
-          Attributes attributes = manifest.getMainAttributes();
-          String name = attributes.getValue("Bundle-SymbolicName");
-          String version = attributes.getValue("Bundle-Version");
-          NamedVersionedResource resource = new NamedVersionedResource(name, Version.parseVersion(version));
-
-          resources.addResource(resource.getName(), resource.getVersion(), resource);
-        } catch (IOException e) {
-          spaceEnvironment.getLog().error(
-              String.format("Could not open resource file jar manifest for %s", file.getAbsolutePath()), e);
-        } finally {
-          // For some reason Closeables does not work with JarFile despite it
-          // claiming it is Closeable in the Javadoc.
-          if (jarFile != null) {
-            try {
-              jarFile.close();
-            } catch (IOException e) {
-              // Don't care.
-            }
-          }
-        }
-      }
-    }
-    return resources;
+  public NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getAllResources(String category) {
+    return resourceAnalyzer.getResourceCollection(getBaseLocation(category));
   }
 
   @Override

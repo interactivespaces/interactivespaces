@@ -16,8 +16,15 @@
 
 package interactivespaces.workbench.project.java;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.NamedVersionedResourceWithData;
+import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
+import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 import java.util.List;
@@ -42,6 +49,8 @@ public abstract class JavaProjectType implements ProjectType {
   /**
    * Get a classpath that would be used at runtime for the project.
    *
+   * @param context
+   *          the project build context
    * @param classpath
    *          the classpath list to add to
    * @param extension
@@ -49,12 +58,44 @@ public abstract class JavaProjectType implements ProjectType {
    * @param workbench
    *          the workbench
    */
-  public void getRuntimeClasspath(List<File> classpath, JavaProjectExtension extension,
+  public void getRuntimeClasspath(ProjectBuildContext context, List<File> classpath, JavaProjectExtension extension,
       InteractiveSpacesWorkbench workbench) {
-    classpath.addAll(workbench.getControllerClasspath());
+    classpath.addAll(workbench.getControllerSystemBootstrapClasspath());
+
+    addDependenciesFromUserBootstrap(context, classpath, workbench);
 
     if (extension != null) {
       extension.addToClasspath(classpath, workbench);
+    }
+  }
+
+  /**
+   * Add dependencies to the classpath if they are found in the user bootstrap
+   * folder of the controller.
+   *
+   * @param context
+   *          the project build context
+   * @param classpath
+   *          the classpath list
+   * @param workbench
+   *          the workbench
+   */
+  private void addDependenciesFromUserBootstrap(ProjectBuildContext context, List<File> classpath,
+      InteractiveSpacesWorkbench workbench) {
+    NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> startupResources =
+        new OsgiResourceAnalyzer(workbench.getLog()).getResourceCollection(new File(workbench.getControllerDirectory(),
+            ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
+    for (ProjectDependency dependency : context.getProject().getDependencies()) {
+      NamedVersionedResourceWithData<String> dependencyProvider =
+          startupResources.getResource(dependency.getName(), dependency.getVersionRange());
+      if (dependencyProvider != null) {
+        classpath.add(new File(dependencyProvider.getData()));
+      } else {
+        // TODO(keith): Collect all missing and put into a single exception.
+        throw new SimpleInteractiveSpacesException(
+            String.format("Project has listed dependency that isn't available %s:%s", dependency.getName(),
+                dependency.getVersionRange()));
+      }
     }
   }
 
@@ -64,6 +105,8 @@ public abstract class JavaProjectType implements ProjectType {
    * <p>
    * This includes runtime classes.
    *
+   * @param context
+   *          the project build context
    * @param classpath
    *          the classpath to add to
    * @param extension
@@ -71,9 +114,9 @@ public abstract class JavaProjectType implements ProjectType {
    * @param workbench
    *          the workbench
    */
-  public void getProjectClasspath(List<File> classpath, JavaProjectExtension extension,
+  public void getProjectClasspath(ProjectBuildContext context, List<File> classpath, JavaProjectExtension extension,
       InteractiveSpacesWorkbench workbench) {
-    getRuntimeClasspath(classpath, extension, workbench);
+    getRuntimeClasspath(context, classpath, extension, workbench);
 
     for (File file : workbench.getAllWorkbenchBootstrapFiles()) {
       if (file.getName().contains("junit-4")) {
@@ -81,5 +124,4 @@ public abstract class JavaProjectType implements ProjectType {
       }
     }
   }
-
 }

@@ -17,8 +17,8 @@
 package interactivespaces.resource.repository;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.NamedVersionedResourceCollection;
+import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.Version;
 import interactivespaces.util.resource.ManagedResource;
 
@@ -168,5 +168,5 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    *
    * @return all resources in the given category
    */
-  NamedVersionedResourceCollection<NamedVersionedResource> getAllResources(String category);
+  NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getAllResources(String category);
 }

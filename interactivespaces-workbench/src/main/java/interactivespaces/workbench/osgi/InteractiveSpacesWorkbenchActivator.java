@@ -90,22 +90,25 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    * and so will be immediately available. They will never go away since they
    * are only destroyed when bundle 0 goes, which means the entire container is
    * being shut down.
+   *
+   * @param context
+   *          the bundle context the workbench is running under
+   *
+   * @throws Exception
+   *           something bad happened
    */
   private void getCoreServices(BundleContext context) throws Exception {
-    ServiceReference loggingProviderServiceReference =
-        context.getServiceReference(LoggingProvider.class.getName());
+    ServiceReference loggingProviderServiceReference = context.getServiceReference(LoggingProvider.class.getName());
     loggingProvider = (LoggingProvider) context.getService(loggingProviderServiceReference);
 
     ServiceReference configurationProviderServiceReference =
         context.getServiceReference(ConfigurationProvider.class.getName());
-    configurationProvider =
-        (ConfigurationProvider) context.getService(configurationProviderServiceReference);
+    configurationProvider = (ConfigurationProvider) context.getService(configurationProviderServiceReference);
 
     ServiceReference containerCustomizerProviderServiceReference =
         context.getServiceReference(ContainerCustomizerProvider.class.getName());
     containerCustomizerProvider =
-        (ContainerCustomizerProvider) context
-            .getService(containerCustomizerProviderServiceReference);
+        (ContainerCustomizerProvider) context.getService(containerCustomizerProviderServiceReference);
   }
 
   /**
@@ -113,7 +116,7 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    */
   public void run() {
     final InteractiveSpacesWorkbench workbench =
-        new InteractiveSpacesWorkbench(configurationProvider.getInitialConfiguration());
+        new InteractiveSpacesWorkbench(configurationProvider.getInitialConfiguration(), loggingProvider.getLog());
 
     final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
     if (!commandLineArguments.isEmpty()) {

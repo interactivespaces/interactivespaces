@@ -124,7 +124,7 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
     JavaProjectType projectType = context.getProjectType();
 
     List<File> projectLibs = Lists.newArrayList();
-    projectType.getProjectClasspath(projectLibs, extensions, context.getWorkbench());
+    projectType.getProjectClasspath(context, projectLibs, extensions, context.getWorkbench());
 
     List<String> sources = Lists.newArrayList(sourcesRequired);
     addNecessaryOptionalSources(project, sources);

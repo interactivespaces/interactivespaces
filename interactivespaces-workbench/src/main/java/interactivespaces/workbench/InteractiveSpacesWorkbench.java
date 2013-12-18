@@ -28,7 +28,8 @@ import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -56,6 +57,8 @@ import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactor
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
+
+import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -195,8 +198,8 @@ public class InteractiveSpacesWorkbench {
   /**
    * File system for the workbench.
    */
-  private final InteractiveSpacesFilesystem workbenchFileSystem = new BasicInteractiveSpacesFilesystem(
-      new File(".").getAbsoluteFile());
+  private final InteractiveSpacesFilesystem workbenchFileSystem = new BasicInteractiveSpacesFilesystem(new File(".")
+      .getAbsoluteFile().getParentFile());
 
   /**
    * The user interface factory to be used by the workbench.
@@ -204,13 +207,27 @@ public class InteractiveSpacesWorkbench {
   private final UserInterfaceFactory userInterfaceFactory = new PlainSwingUserInterfaceFactory();
 
   /**
+   * File support for file operations.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Logger for the workbench.
+   */
+  private final Log log;
+
+  /**
    * Construct a workbench.
    *
    * @param workbenchConfig
    *          the configuration for the workbench
+   * @param log
+   *          the logger to use
    */
-  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig) {
+  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, Log log) {
     this.workbenchConfig = workbenchConfig;
+    this.log = log;
+
     workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
 
     workbenchSimpleConfig.setValues(workbenchConfig);
@@ -272,7 +289,7 @@ public class InteractiveSpacesWorkbench {
     File buildDirectory = context.getBuildDirectory();
 
     if (buildDirectory.exists()) {
-      Files.deleteDirectoryContents(buildDirectory);
+      fileSupport.deleteDirectoryContents(buildDirectory);
     }
 
     return true;
@@ -348,7 +365,7 @@ public class InteractiveSpacesWorkbench {
     });
     if (artifacts != null) {
       for (File artifact : artifacts) {
-        Files.copyFile(artifact, new File(destination, artifact.getName()));
+        fileSupport.copyFile(artifact, new File(destination, artifact.getName()));
       }
     }
   }
@@ -371,15 +388,14 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Get a list of all files on the controller's classpath.
+   * Get a list of all files on the controller's system bootstrap classpath.
    *
    * @return all files on the classpath
    */
-  public List<File> getControllerClasspath() {
+  public List<File> getControllerSystemBootstrapClasspath() {
     List<File> classpath = Lists.newArrayList();
 
     addClasspathFiles(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP), classpath);
-    addClasspathFiles(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP), classpath);
 
     File controllerDirectory = getControllerDirectory();
     File javaSystemDirectory =
@@ -400,7 +416,9 @@ public class InteractiveSpacesWorkbench {
    * Add all JAR files from the given directory to the classdpath.
    *
    * @param directory
+   *          the directory to get the classpath files from
    * @param classpath
+   *          the classpath to add the files to
    */
   private void addClasspathFiles(File directory, List<File> classpath) {
     File[] files = directory.listFiles(new FileFilter() {
@@ -417,9 +435,11 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * @return controller directory supporting this workbench
+   * Get the controller directory which is supporting this workbench.
+   *
+   * @return the controller directory
    */
-  private File getControllerDirectory() {
+  public File getControllerDirectory() {
     String controllerPath = workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR);
     File controllerDirectory = new File(controllerPath);
     if (controllerDirectory.isAbsolute()) {
@@ -825,9 +845,18 @@ public class InteractiveSpacesWorkbench {
     System.err.println(message);
 
     if (e instanceof SimpleInteractiveSpacesException) {
-      System.err.println(((SimpleInteractiveSpacesException) e).getCompoundMessage());
+      getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
     } else {
-      e.printStackTrace(System.err);
+      getLog().error(message, e);
     }
+  }
+
+  /**
+   * Get the workbench logger.
+   *
+   * @return the workbench logger
+   */
+  public Log getLog() {
+    return log;
   }
 }

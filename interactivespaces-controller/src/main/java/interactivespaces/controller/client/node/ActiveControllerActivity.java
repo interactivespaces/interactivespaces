@@ -184,9 +184,7 @@ public class ActiveControllerActivity implements ActivityControl {
   @Override
   public void shutdown() {
     // Can call shutdown multiple times.
-    controller.getSpaceEnvironment().getLog().info("Shuttinf down before lock");
     if (obtainInstanceLock(InstanceLockState.SHUTDOWN)) {
-      controller.getSpaceEnvironment().getLog().info("Shuttinf down from lock");
       try {
         if (instance != null) {
           instance.shutdown();

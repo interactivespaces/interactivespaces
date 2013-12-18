@@ -16,6 +16,9 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.resource.Version;
+import interactivespaces.resource.VersionRange;
+
 /**
  * A dependency for the project.
  *
@@ -31,12 +34,12 @@ public class ProjectDependency {
   /**
    * The minimum version necessary for the activity.
    */
-  private String minimumVersion;
+  private Version minimumVersion;
 
   /**
    * The maximum version necessary for the activity.
    */
-  private String maximumVersion;
+  private Version maximumVersion;
 
   /**
    * Is the dependency required?
@@ -70,7 +73,7 @@ public class ProjectDependency {
    *
    * @return the minimum version
    */
-  public String getMinimumVersion() {
+  public Version getMinimumVersion() {
     return minimumVersion;
   }
 
@@ -80,7 +83,7 @@ public class ProjectDependency {
    * @param minimumVersion
    *          the minimum version
    */
-  public void setMinimumVersion(String minimumVersion) {
+  public void setMinimumVersion(Version minimumVersion) {
     this.minimumVersion = minimumVersion;
   }
 
@@ -89,7 +92,7 @@ public class ProjectDependency {
    *
    * @return the maximum version
    */
-  public String getMaximumVersion() {
+  public Version getMaximumVersion() {
     return maximumVersion;
   }
 
@@ -99,9 +102,20 @@ public class ProjectDependency {
    * @param maximumVersion
    *          the maximum version
    */
-  public void setMaximumVersion(String maximumVersion) {
+  public void setMaximumVersion(Version maximumVersion) {
     this.maximumVersion = maximumVersion;
 
+  }
+
+  /**
+   * Get the version range for this dependency.
+   *
+   * @return the version range for this dependency
+   */
+  public VersionRange getVersionRange() {
+    // TODO(keith): Get rid of setting min and max when there is time to test
+    // everything. Also removing the OSGi method below can then go away.
+    return new VersionRange(minimumVersion, maximumVersion, false);
   }
 
   /**
@@ -148,7 +162,7 @@ public class ProjectDependency {
 
   @Override
   public String toString() {
-    return "ProjectDependency [name=" + name + ", minimumVersion=" + minimumVersion
-        + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
+    return "ProjectDependency [name=" + name + ", minimumVersion=" + minimumVersion + ", maximumVersion="
+        + maximumVersion + ", required=" + required + "]";
   }
 }

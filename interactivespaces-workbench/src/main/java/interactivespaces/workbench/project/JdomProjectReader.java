@@ -168,8 +168,7 @@ public class JdomProjectReader implements ProjectReader {
             new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum),
                 Version.parseVersion(interactiveSpacesVersionMaximum), false);
       } else {
-        interactiveSpacesVersionRange =
-            new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum));
+        interactiveSpacesVersionRange = new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum));
       }
     } else {
       System.out.println("WARNING: Did not specify a range of needed Interactive Spaces versions. Setting default to "
@@ -356,8 +355,8 @@ public class JdomProjectReader implements ProjectReader {
     ProjectDependency dependency = new ProjectDependency();
 
     dependency.setName(name);
-    dependency.setMinimumVersion(minimumVersion);
-    dependency.setMaximumVersion(maximumVersion);
+    dependency.setMinimumVersion(Version.parseVersion(minimumVersion));
+    dependency.setMaximumVersion(Version.parseVersion(maximumVersion));
     dependency.setRequired("true".equals(requiredString));
 
     return dependency;
@@ -370,6 +369,8 @@ public class JdomProjectReader implements ProjectReader {
    *          root element of the XML DOM containing the project data
    * @param errors
    *          any errors found in the metadata
+   *
+   * @return the constituents for the project
    */
   private List<ProjectConstituent> getConstituents(Element containerElement, List<String> errors) {
     if (containerElement == null) {

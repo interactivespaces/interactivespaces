@@ -74,7 +74,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       JavaProjectType projectType = context.getProjectType();
 
       List<File> classpath = Lists.newArrayList();
-      projectType.getRuntimeClasspath(classpath, extensions, context.getWorkbench());
+      projectType.getRuntimeClasspath(context, classpath, extensions, context.getWorkbench());
 
       Project project = context.getProject();
       File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
