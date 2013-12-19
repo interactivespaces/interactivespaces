@@ -77,6 +77,11 @@ import java.util.Map;
 public class InteractiveSpacesWorkbench {
 
   /**
+   * Configuration property defining the project home directory.
+   */
+  public static final String CONFIGURATION_PROPERTY_WORKBENCH_HOME = "workbench.home";
+
+  /**
    * Command to recursively walk over a set of directories looking for the IS
    * project folders.
    */
@@ -231,6 +236,8 @@ public class InteractiveSpacesWorkbench {
     workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
 
     workbenchSimpleConfig.setValues(workbenchConfig);
+    workbenchSimpleConfig.setValue(CONFIGURATION_PROPERTY_WORKBENCH_HOME, workbenchFileSystem.getInstallDirectory()
+        .getAbsolutePath());
 
     this.templater = new FreemarkerTemplater();
     templater.startup();
