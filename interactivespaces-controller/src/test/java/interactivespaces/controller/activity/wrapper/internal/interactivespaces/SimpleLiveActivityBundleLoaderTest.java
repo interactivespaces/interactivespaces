@@ -29,6 +29,7 @@ import interactivespaces.util.data.resource.ResourceSignature;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -70,7 +71,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     Class<?> expectedClass = Activity.class;
 
     when(bundleContext.installBundle(bundleFileUri)).thenReturn(bundle);
-    when(bundle.loadClass(className)).thenReturn(expectedClass);
+    Mockito.<Class<?>>when(bundle.loadClass(className)).thenReturn(expectedClass);
 
     assertEquals(0, loader.getNumberEntries());
 
@@ -96,7 +97,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     Class<?> expectedClass1 = Activity.class;
 
     when(bundleContext.installBundle(bundleFileUri1)).thenReturn(bundle1);
-    when(bundle1.loadClass(className1)).thenReturn(expectedClass1);
+    Mockito.<Class<?>>when(bundle1.loadClass(className1)).thenReturn(expectedClass1);
 
     File bundleFile2 = new File("komquat");
     String bundleFileUri2 = bundleFile2.toURI().toString();
@@ -109,7 +110,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     Class<?> expectedClass2 = Integer.class;
 
     when(bundleContext.installBundle(bundleFileUri2)).thenReturn(bundle2);
-    when(bundle2.loadClass(className2)).thenReturn(expectedClass2);
+    Mockito.<Class<?>>when(bundle2.loadClass(className2)).thenReturn(expectedClass2);
 
     assertEquals(0, loader.getNumberEntries());
 
@@ -139,7 +140,7 @@ public class SimpleLiveActivityBundleLoaderTest {
     when(bundleSignature.getBundleSignature(bundleFile)).thenReturn("foo");
 
     when(bundleContext.installBundle(bundleFileUri)).thenReturn(bundle);
-    when(bundle.loadClass(className)).thenReturn(expectedClass);
+    Mockito.<Class<?>>when(bundle.loadClass(className)).thenReturn(expectedClass);
 
     assertEquals(0, loader.getNumberEntries());
 
@@ -176,8 +177,8 @@ public class SimpleLiveActivityBundleLoaderTest {
     when(bundleSignature.getBundleSignature(bundleFile)).thenReturn("foo1").thenReturn("foo2");
 
     when(bundleContext.installBundle(bundleFileUri)).thenReturn(bundle1).thenReturn(bundle2);
-    when(bundle1.loadClass(className)).thenReturn(expectedClass1);
-    when(bundle2.loadClass(className)).thenReturn(expectedClass2);
+    Mockito.<Class<?>>when(bundle1.loadClass(className)).thenReturn(expectedClass1);
+    Mockito.<Class<?>>when(bundle2.loadClass(className)).thenReturn(expectedClass2);
 
     assertEquals(0, loader.getNumberEntries());
 
@@ -221,8 +222,8 @@ public class SimpleLiveActivityBundleLoaderTest {
     when(bundleContext.installBundle(bundleFileUri1)).thenReturn(bundle1);
     when(bundleContext.installBundle(bundleFileUri2)).thenReturn(bundle2);
 
-    when(bundle1.loadClass(className)).thenReturn(expectedClass1);
-    when(bundle2.loadClass(className)).thenReturn(expectedClass2);
+    Mockito.<Class<?>>when(bundle1.loadClass(className)).thenReturn(expectedClass1);
+    Mockito.<Class<?>>when(bundle2.loadClass(className)).thenReturn(expectedClass2);
 
     assertEquals(0, loader.getNumberEntries());
 
