@@ -134,7 +134,7 @@
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.framework</artifactId>
-                  <version>3.2.2</version>
+                  <version>4.2.1</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
@@ -192,7 +192,7 @@
                 <artifactItem>
                   <groupId>org.apache.felix</groupId>
                   <artifactId>org.apache.felix.gogo.command</artifactId>
-                  <version>0.10.0</version>
+                  <version>0.12.0</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
@@ -610,7 +610,14 @@
                 <artifactItem>
                   <groupId>org.apache.openjpa</groupId>
                   <artifactId>openjpa</artifactId>
-                  <version>2.2.0</version>
+                  <version>2.3.0</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.apache.xbean</groupId>
+                  <artifactId>xbean-asm4-shaded</artifactId>
+                  <version>3.14</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
@@ -626,6 +633,7 @@
                   <artifactId>geronimo-jta_1.1_spec</artifactId>
                   <version>1.1.1</version>
                   <type>jar</type>
+                  <outputDirectory>${staging.dir}/lib/system/java</outputDirectory>
                   <overWrite>true</overWrite>
                 </artifactItem>
                 <artifactItem>

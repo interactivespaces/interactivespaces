@@ -16,7 +16,7 @@
 dependencies {
   compile project(':interactivespaces-core')
 
-  compile 'org.apache.felix:org.apache.felix.framework:3.2.2'
+  compile 'org.apache.felix:org.apache.felix.framework:4.2.1'
   compile 'org.apache.derby:derby:10.8.2.2'
 
   testCompile 'junit:junit:4.8.2'

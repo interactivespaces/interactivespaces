@@ -27,10 +27,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.osgi.service.startlevel.StartLevel;
+import org.osgi.framework.startlevel.BundleStartLevel;
+import org.osgi.framework.startlevel.FrameworkStartLevel;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -83,7 +83,8 @@ public class InteractiveSpacesFrameworkBootstrap {
    * External packages loaded from the Interactive Spaces system folder.
    */
   public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] { "org.apache.commons.logging; version=1.1.1",
-      "org.apache.commons.logging.impl; version=1.1.1" };
+      "org.apache.commons.logging.impl; version=1.1.1", "javax.transaction; version=1.1.0",
+      "javax.transaction.xa; version=1.1.0", "javax.transaction", "javax.transaction.xa" };
 
   /**
    * Packages loaded from the Interactive Spaces system folder that are part of
@@ -145,7 +146,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   private SimpleContainerCustomizerProvider containerCustomizerProvider;
 
   /**
-   * The base install folder for Interactive Spaces
+   * The base install folder for Interactive Spaces.
    */
   private File baseInstallFolder;
 
@@ -153,11 +154,6 @@ public class InteractiveSpacesFrameworkBootstrap {
    * The OSGi bundle context for the OSGi framework bundle.
    */
   private BundleContext rootBundleContext;
-
-  /**
-   * The service for controlling the start levels of bundles.
-   */
-  private StartLevel startLevelService;
 
   /**
    * Boot the framework.
@@ -280,10 +276,10 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (File bundleFile : jars) {
       String bundleUri = bundleFile.getAbsoluteFile().toURI().toString();
 
-      Bundle b = rootBundleContext.installBundle(bundleUri);
+      Bundle bundle = rootBundleContext.installBundle(bundleUri);
 
       int startLevel = STARTUP_LEVEL_DEFAULT;
-      String symbolicName = b.getSymbolicName();
+      String symbolicName = bundle.getSymbolicName();
       if (symbolicName.equals("interactivespaces.master.webapp")) {
         startLevel = STARTUP_LEVEL_LAST;
       } else if (symbolicName.equals("interactivespaces.master")) {
@@ -291,10 +287,10 @@ public class InteractiveSpacesFrameworkBootstrap {
       }
 
       if (startLevel != 1) {
-        startLevelService.setBundleStartLevel(b, startLevel);
+        bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
       }
 
-      bundles.add(b);
+      bundles.add(bundle);
     }
 
     // Start all installed non-fragment bundles.
@@ -311,7 +307,7 @@ public class InteractiveSpacesFrameworkBootstrap {
       }
     }
 
-    startLevelService.setStartLevel(STARTUP_LEVEL_LAST);
+    framework.adapt(FrameworkStartLevel.class).setStartLevel(STARTUP_LEVEL_LAST);
   }
 
   /**
@@ -330,6 +326,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 
   /**
    * Create, configure, and start the OSGi framework instance.
+   *
+   * @param loadclasses
+   *          classes to load by the bootstrapper
    *
    * @throws Exception
    *           unable to create and/or start the framework
@@ -383,17 +382,10 @@ public class InteractiveSpacesFrameworkBootstrap {
     framework = getFrameworkFactory().newFramework(m);
     framework.start();
     rootBundleContext = framework.getBundleContext();
-
-    for (ServiceReference sr : framework.getServicesInUse()) {
-      Object service = rootBundleContext.getService(sr);
-      if (StartLevel.class.isAssignableFrom(service.getClass())) {
-        startLevelService = (StartLevel) service;
-      }
-    }
   }
 
   /**
-   * Load a collection of libraries
+   * Load a collection of libraries.
    *
    * @param libraries
    *          the libraries to load
@@ -428,7 +420,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * Get all jars from the bootstrap folder.
    *
-   * @param bootstrapFolder
+   * @param folder
    *          the folder containing the bootstrap bundles
    */
   private void getBootstrapBundleJars(File folder) {
@@ -517,8 +509,10 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         String line;
         while ((line = reader.readLine()) != null) {
-          builder.append(separator).append(line);
-          separator = ",";
+          if (!line.trim().isEmpty()) {
+            builder.append(separator).append(line);
+            separator = ",";
+          }
         }
 
         return builder.toString();

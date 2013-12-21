@@ -20,7 +20,7 @@ dependencies {
   compile files(project.getProperty("jsr80.home"))
   compile files(project.getProperty("usb4java.home"))
 
-  provided 'org.apache.felix:org.apache.felix.framework:3.2.2'
+  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

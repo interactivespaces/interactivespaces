@@ -24,7 +24,7 @@ dependencies {
   compile project(':service:interactivespaces-service-script')
   compile project(':service:interactivespaces-service-scheduler')
 
-  compile 'org.apache.openjpa:openjpa:2.2.0'
+  compile 'org.apache.openjpa:openjpa:2.3.0'
   compile 'javax.persistence:com.springsource.javax.persistence:2.0.0'
     
   compile 'org.springframework:spring-tx:3.1.1.RELEASE'
