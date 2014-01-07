@@ -200,6 +200,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         for (Bundle bundle : bundleContext.getBundles()) {
           if (bundle.getSymbolicName().equals(resource.getName()) && bundle.getVersion().equals(osgiVersion)) {
             installedBundle = bundle;
+            break;
           }
         }
 
@@ -277,7 +278,6 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
      * Start the updating of the bundle.
      */
     public void updateBundle() {
-      Throwable exception = null;
       try {
         bundle.update();
 
@@ -292,13 +292,9 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
           // Don't care
         }
       } catch (BundleException e) {
-        exception = e;
-
         endUpdate();
-      }
 
-      if (exception != null) {
-        throw new InteractiveSpacesException("Could not update resource", exception);
+        throw new InteractiveSpacesException("Could not update resource", e);
       }
     }
 
