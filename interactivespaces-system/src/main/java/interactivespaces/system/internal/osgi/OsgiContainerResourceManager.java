@@ -30,15 +30,24 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.wiring.FrameworkWiring;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A container resource manager using OSGi.
@@ -46,6 +55,11 @@ import java.util.Set;
  * @author Keith M. Hughes
  */
 public class OsgiContainerResourceManager implements ContainerResourceManager, ManagedResource {
+
+  /**
+   * Time to wait for a bundle update to take place. In milliseconds.
+   */
+  public static final int BUNDLE_UPDATER_TIMEOUT = 4000;
 
   /**
    * What to search for in an OSGi bundle location for being in the system
@@ -79,6 +93,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    * The file support to be used.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * A map from bundle IDs to bundle updaters.
+   */
+  private final Map<Long, BundleUpdater> bundleUpdaters = Maps.newConcurrentMap();
 
   /**
    * Construct a new resource manager.
@@ -187,21 +206,28 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         if (installedBundle != null) {
           if (installedBundle.getLocation().endsWith(resourceDestinationUri)) {
             log.info(String.format("Resource %s already was loaded. Updating.", resource));
-            installedBundle.update();
+            if (bundleUpdaters.get(installedBundle.getBundleId()) == null) {
+              BundleUpdater updater = new BundleUpdater(installedBundle);
+              bundleUpdaters.put(installedBundle.getBundleId(), updater);
+
+              updater.updateBundle();
+            }
           } else {
             log.info(String.format(
                 "Resource %s already was loaded with another name. Uninstalling old and loading new.", resource));
             installedBundle.uninstall();
             new File(new URI(installedBundle.getLocation())).delete();
             installedBundle = bundleContext.installBundle(resourceDestinationUri);
+
+            installedBundle.start();
           }
 
         } else {
           log.info(String.format("New Resource %s being loaded into the container", resource));
           installedBundle = bundleContext.installBundle(resourceDestinationUri);
-        }
 
-        installedBundle.start();
+          installedBundle.start();
+        }
       }
     } catch (Exception e) {
       throw new InteractiveSpacesException("Could not install new resource", e);
@@ -217,5 +243,77 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   @VisibleForTesting
   void setFileSupport(FileSupport fileSupport) {
     this.fileSupport = fileSupport;
+  }
+
+  /**
+   * An updater for bundle updates. This is for bundles which are already loaded
+   * and being used and that very bundle is being updated.
+   *
+   * @author Keith M. Hughes
+   */
+  public class BundleUpdater implements FrameworkListener {
+
+    /**
+     * The bundle being updated.
+     */
+    private final Bundle bundle;
+
+    /**
+     * A latch for declaring the update is done.
+     */
+    private final CountDownLatch doneUpdateLatch = new CountDownLatch(1);
+
+    /**
+     * Construct a new updater.
+     *
+     * @param bundle
+     *          the bundle to be updated
+     */
+    public BundleUpdater(Bundle bundle) {
+      this.bundle = bundle;
+    }
+
+    /**
+     * Start the updating of the bundle.
+     */
+    public void updateBundle() {
+      Throwable exception = null;
+      try {
+        bundle.update();
+
+        // The refresh happens in another thread.
+        bundleContext.getBundle(0).adapt(FrameworkWiring.class).refreshBundles(Lists.newArrayList(bundle), this);
+
+        try {
+          if (!doneUpdateLatch.await(BUNDLE_UPDATER_TIMEOUT, TimeUnit.MILLISECONDS)) {
+            throw new SimpleInteractiveSpacesException("Could not update bundle in time");
+          }
+        } catch (InterruptedException e) {
+          // Don't care
+        }
+      } catch (BundleException e) {
+        exception = e;
+
+        endUpdate();
+      }
+
+      if (exception != null) {
+        throw new InteractiveSpacesException("Could not update resource", exception);
+      }
+    }
+
+    @Override
+    public void frameworkEvent(FrameworkEvent event) {
+      endUpdate();
+    }
+
+    /**
+     * The update has ended, with or without an error.
+     */
+    private void endUpdate() {
+      bundleUpdaters.remove(bundle.getBundleId());
+
+      doneUpdateLatch.countDown();
+    }
   }
 }
