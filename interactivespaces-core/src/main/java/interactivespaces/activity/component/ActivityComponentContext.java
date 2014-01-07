@@ -16,10 +16,18 @@
 
 package interactivespaces.activity.component;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.util.InteractiveSpacesUtilities;
+import interactivespaces.util.graph.DependencyResolver;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,78 +48,47 @@ public class ActivityComponentContext {
   /**
    * The activity the components are running for.
    */
-  private SupportedActivity activity;
-
-  /**
-   * All components running in the current context.
-   */
-  private ActivityComponentCollection components;
+  private final SupportedActivity activity;
 
   /**
    * Factory for new components.
    */
-  private ActivityComponentFactory componentFactory;
+  private final ActivityComponentFactory componentFactory;
 
   /**
    * The latch that threads can wait on for startup completion.
    */
-  private CountDownLatch startupLatch = new CountDownLatch(1);
+  private final CountDownLatch startupLatch = new CountDownLatch(1);
 
   /**
    * {@code true} if handlers are allowed to run.
    */
-  private AtomicBoolean handlersAllowed = new AtomicBoolean();
+  private final AtomicBoolean handlersAllowed = new AtomicBoolean();
 
   /**
    * Keeps count of the number of handlers running.
    */
-  private AtomicInteger numberProcessingHandlers = new AtomicInteger();
+  private final AtomicInteger numberProcessingHandlers = new AtomicInteger();
+
+  /**
+   * All components in the activity.
+   */
+  private final List<ActivityComponent> configuredComponents = Lists.newArrayList();
+
+  /**
+   * Set of component names in the activity.
+   */
+  private final Map<String, ActivityComponent> addedComponents = Maps.newHashMap();
 
   /**
    * @param activity
    *          the activity which will use this context
-   * @param components
-   *          the component collection for this context
    * @param componentFactory
    *          the factory for any new components that will be needed
    */
-  public ActivityComponentContext(SupportedActivity activity, ActivityComponentCollection components,
-      ActivityComponentFactory componentFactory) {
+  public ActivityComponentContext(SupportedActivity activity, ActivityComponentFactory componentFactory) {
     this.activity = activity;
-    this.components = components;
     this.componentFactory = componentFactory;
-  }
-
-  /**
-   * Get an activity component from the collection.
-   *
-   * @param name
-   *          name of the component
-   * @param <T>
-   *          type of activity component
-   *
-   * @return the component with the given name or {@code null} if not present
-   */
-  public <T extends ActivityComponent> T getActivityComponent(String name) {
-    return components.getActivityComponent(name);
-  }
-
-  /**
-   * Get an activity component from the collection.
-   *
-   * @param name
-   *          name of the component
-   * @param <T>
-   *          type of activity component
-   *
-   * @return the component with the given name
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if named component is not present
-   */
-  public <T extends ActivityComponent> T getRequiredActivityComponent(String name)
-      throws SimpleInteractiveSpacesException {
-    return components.getRequiredActivityComponent(name);
   }
 
   /**
@@ -234,9 +211,10 @@ public class ActivityComponentContext {
       boolean succeed = startupLatch.await(STARTUP_LATCH_TIMEOUT, TimeUnit.MILLISECONDS);
 
       if (!succeed) {
-        getActivity().getLog().warn(
-            String.format("Event handler timed out after %d msecs waiting for activity startup",
-                STARTUP_LATCH_TIMEOUT));
+        getActivity().getLog()
+            .warn(
+                String.format("Event handler timed out after %d msecs waiting for activity startup",
+                    STARTUP_LATCH_TIMEOUT));
       }
       return succeed;
     } catch (InterruptedException e) {
@@ -255,5 +233,320 @@ public class ActivityComponentContext {
    */
   public boolean canHandlerRun() {
     return awaitStartup() && areHandlersAllowed();
+  }
+
+  /**
+   * Add a new component to the collection.
+   *
+   * @param component
+   *          the component to add
+   * @param <T>
+   *          the type of the component
+   *
+   * @return the component added
+   *
+   * @throws InteractiveSpacesException
+   *           component was already there
+   */
+  public <T extends ActivityComponent> T addComponent(T component) throws InteractiveSpacesException {
+    checkIfComponentAdded(component.getName());
+    addCheckedComponent(component);
+
+    return component;
+  }
+
+  /**
+   * Add a component which has been checked for whether it has been added or
+   * not.
+   *
+   * @param component
+   *          the component to add
+   */
+  private void addCheckedComponent(ActivityComponent component) {
+    component.setComponentContext(this);
+    addedComponents.put(component.getName(), component);
+  }
+
+  /**
+   * Add new components to the collection.
+   *
+   * @param components
+   *          the components to add
+   *
+   * @throws InteractiveSpacesException
+   *           component was already there
+   */
+  public void addComponents(ActivityComponent... components) throws InteractiveSpacesException {
+    for (ActivityComponent component : components) {
+      addComponent(component);
+    }
+  }
+
+  /**
+   * Add a new component to the activity.
+   *
+   * @param componentType
+   *          the type of the component to add
+   * @param <T>
+   *          specific activity component type
+   *
+   * @return created activity component
+   *
+   * @throws InteractiveSpacesException
+   *           component was already there
+   */
+  public <T extends ActivityComponent> T addComponent(String componentType) throws InteractiveSpacesException {
+    checkIfComponentAdded(componentType);
+
+    ActivityComponent component = componentFactory.newComponent(componentType);
+
+    addCheckedComponent(component);
+
+    @SuppressWarnings("unchecked")
+    T c = (T) component;
+    return c;
+  }
+
+  /**
+   * Add a set of new components to the activity.
+   *
+   * @param componentTypes
+   *          the types of the components to add
+   */
+  public void addComponents(String... componentTypes) {
+    for (String componentType : componentTypes) {
+      addComponent(componentType);
+    }
+  }
+
+  /**
+   * Check to see if a component has been added.
+   *
+   * @param componentName
+   *          name of the component
+   *
+   * @throws InteractiveSpacesException
+   *           the component was added already
+   */
+  private void checkIfComponentAdded(String componentName) throws InteractiveSpacesException {
+    // There's a subtle behavior here in the case where two activity components
+    // with the same name are dependencies of a single dependent node. In that
+    // case, only one of the dependencies needs to be resolved before the
+    // dependent node, which isn't the correct behavior in the strict sense of a
+    // dependency. This behavior isn't really supported by the system since
+    // activity components are generally considered to be singletons. Therefore,
+    // help aid development by detecting the case of multiple components and
+    // throwing an error.
+    if (addedComponents.containsKey(componentName)) {
+      throw new SimpleInteractiveSpacesException("Multiple activity components added for name " + componentName);
+    }
+  }
+
+  /**
+   * Do the initial startup of components.
+   *
+   * @throws Exception
+   *           an internal startup error
+   */
+  public void initialStartupComponents() throws Exception {
+    configureComponents();
+    startupComponents();
+  }
+
+  /**
+   * Configure all the components in the in the collection in dependency order.
+   */
+  private void configureComponents() {
+    if (!configuredComponents.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("Attempt to configure already configured components");
+    }
+
+    DependencyResolver<ActivityComponent> resolver = new DependencyResolver<ActivityComponent>();
+
+    for (ActivityComponent component : addedComponents.values()) {
+      resolver.addNode(component.getName(), component);
+      List<String> dependencies = component.getDependencies();
+      if (dependencies != null) {
+        resolver.addNodeDependencies(component.getName(), dependencies);
+      }
+    }
+
+    resolver.resolve();
+    for (ActivityComponent component : resolver.getOrdering()) {
+      // There will be null components if addNode() was never called.
+      // This means the component wasn't added but was a dependency.
+      // Only the component which had it as a dependency knows if it
+      // is required or not.
+      if (component != null) {
+        component.configureComponent(activity.getConfiguration());
+        configuredComponents.add(component);
+      }
+    }
+  }
+
+  /**
+   * Startup all components in the container.
+   *
+   * @throws Exception
+   *           on internal startup error
+   */
+  private void startupComponents() throws Exception {
+    List<ActivityComponent> startedComponents = Lists.newArrayList();
+    try {
+      for (ActivityComponent component : configuredComponents) {
+        startupComponent(component);
+        startedComponents.add(component);
+      }
+    } catch (Exception e) {
+      // Every component that was actually started up should be shut down.
+      for (ActivityComponent component : startedComponents) {
+        try {
+          component.shutdownComponent();
+        } catch (Throwable t) {
+          handleComponentError(component, "Error shutting down after startup failure", t);
+        }
+      }
+
+      throw e;
+    }
+  }
+
+  /**
+   * Start up a component.
+   *
+   * @param component
+   *          the component to start
+   *
+   * @throws Exception
+   *           something bad happened
+   */
+  private void startupComponent(ActivityComponent component) throws Exception {
+    try {
+      activity.getLog().info("Starting component " + component.getName());
+
+      component.startupComponent();
+    } catch (Exception e) {
+      handleComponentError(component, "Error starting component", e);
+
+      throw e;
+    }
+  }
+
+  /**
+   * Shutdown all components in the container.
+   *
+   * @return {@code true} if all components properly shut down.
+   */
+  public boolean shutdownComponents() {
+    boolean properlyShutDown = true;
+
+    for (ActivityComponent component : configuredComponents) {
+      try {
+        component.shutdownComponent();
+      } catch (Exception e) {
+        properlyShutDown = false;
+        handleComponentError(component, "Error during activity component shutdown", e);
+      }
+    }
+
+    return properlyShutDown;
+  }
+
+  /**
+   * Clear all components from the container.
+   */
+  public void clear() {
+    addedComponents.clear();
+    configuredComponents.clear();
+  }
+
+  /**
+   * Shutdown all components from the container and then clear them.
+   *
+   * @return {@code true} if all components properly shut down.
+   */
+  public boolean shutdownAndClear() {
+    boolean result = shutdownComponents();
+    clear();
+    return result;
+  }
+
+  /**
+   * Are all required components running?
+   *
+   * @return {@code true} if all required components are running.
+   */
+  public boolean areAllComponentsRunning() {
+    boolean areAllRunning = true;
+    for (ActivityComponent component : configuredComponents) {
+      if (!component.isComponentRunning()) {
+        areAllRunning = false;
+
+        handleComponentError(component, "Activity component not running when expected", null);
+      }
+    }
+
+    return areAllRunning;
+  }
+
+  /**
+   * Get an activity component from the collection.
+   *
+   * @param componentType
+   *          type of the component
+   * @param <T>
+   *          specific type of activity component
+   *
+   * @return the component with the given name or {@code null} if not present.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends ActivityComponent> T getActivityComponent(String componentType) {
+    return (T) addedComponents.get(componentType);
+  }
+
+  /**
+   * Get an activity component from the collection.
+   *
+   * @param componentType
+   *          type of the component
+   * @param <T>
+   *          type of activity component
+   *
+   * @return the component with the given name
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if named component is not present
+   */
+  public <T extends ActivityComponent> T getRequiredActivityComponent(String componentType)
+      throws SimpleInteractiveSpacesException {
+    T component = getActivityComponent(componentType);
+    if (component == null) {
+      throw new SimpleInteractiveSpacesException("Could not find component " + componentType);
+    }
+    return component;
+  }
+
+  /**
+   * Return all the configured components.
+   *
+   * @return all configured components
+   */
+  public Collection<ActivityComponent> getConfiguredComponents() {
+    return Lists.newArrayList(configuredComponents);
+  }
+
+  /**
+   * Handle a component error for the given throwable. Makes sure the log object
+   * from the component is valid, otherwise use the global log.
+   *
+   * @param component
+   *          component with error
+   * @param message
+   *          error message
+   * @param t
+   *          cause of the error/exception
+   */
+  private void handleComponentError(ActivityComponent component, String message, Throwable t) {
+    activity.getLog().error(String.format("%s (%s)", message, component.getName()), t);
   }
 }

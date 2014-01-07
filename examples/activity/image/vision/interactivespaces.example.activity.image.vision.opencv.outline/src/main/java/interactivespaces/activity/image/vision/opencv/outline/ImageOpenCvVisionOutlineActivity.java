@@ -37,6 +37,11 @@ import javax.swing.JFrame;
 public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements VideoFrameListener<Mat> {
 
   /**
+   * Configuration property for specifying which camera to use.
+   */
+  public static final String CONFIGURATION_NAME_CAMERA_ID = "camera.id";
+
+  /**
    * Width of the display frame.
    */
   public static final int FRAME_WIDTH = 400;
@@ -69,7 +74,7 @@ public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements Vi
   /**
    * ID of the camera to use.
    */
-  public static final int CAMERA_ID = 0;
+  public static final int CAMERA_ID_DEFAULT = 1;
 
   /**
    * The panel for writing the processed video into.
@@ -88,7 +93,9 @@ public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements Vi
     frame.setVisible(true);
     addManagedResource(new JFrameManagedResource(frame));
 
-    OpenCvVideoLoop videoLoop = new OpenCvVideoLoop(CAMERA_ID, getLog());
+    OpenCvVideoLoop videoLoop =
+        new OpenCvVideoLoop(getConfiguration().getPropertyInteger(CONFIGURATION_NAME_CAMERA_ID, CAMERA_ID_DEFAULT),
+            getLog());
     videoLoop.addListener(this);
     getManagedCommands().submit(videoLoop);
   }

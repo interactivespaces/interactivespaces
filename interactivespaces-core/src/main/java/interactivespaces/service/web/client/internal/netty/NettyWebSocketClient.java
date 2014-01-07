@@ -64,22 +64,22 @@ public class NettyWebSocketClient implements WebSocketClient {
   /**
    * The connection URI.
    */
-  private URI uri;
+  private final URI uri;
 
   /**
    * The handler for messages.
    */
-  private WebSocketHandler handler;
+  private final WebSocketHandler handler;
 
   /**
    * The threadpool to use for the connection.
    */
-  private Executor threadPool;
+  private final Executor threadPool;
 
   /**
    * Logger for the client.
    */
-  private Log log;
+  private final Log log;
 
   /**
    * The netty channel for writing web socket data.
@@ -91,6 +91,18 @@ public class NettyWebSocketClient implements WebSocketClient {
    */
   private ClientBootstrap bootstrap;
 
+  /**
+   * Construct a Netty websocket client.
+   *
+   * @param uri
+   *          URI for the websocket server connection
+   * @param handler
+   *          the handler for the client
+   * @param threadPool
+   *          the threadpool to use
+   * @param log
+   *          the log to use
+   */
   public NettyWebSocketClient(URI uri, WebSocketHandler handler, Executor threadPool, Log log) {
     this.uri = uri;
     this.handler = handler;
@@ -101,8 +113,8 @@ public class NettyWebSocketClient implements WebSocketClient {
   @Override
   public void startup() {
     bootstrap =
-        new ClientBootstrap(new NioClientSocketChannelFactory(new NioClientBossPool(threadPool, 1),
-            new NioWorkerPool(threadPool, Runtime.getRuntime().availableProcessors() * 2)));
+        new ClientBootstrap(new NioClientSocketChannelFactory(new NioClientBossPool(threadPool, 1), new NioWorkerPool(
+            threadPool, Runtime.getRuntime().availableProcessors() * 2)));
 
     try {
       // Make sure the client socket doesn't stick around too long.
@@ -114,16 +126,13 @@ public class NettyWebSocketClient implements WebSocketClient {
       }
 
       // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08
-      // or V00.
-      // If you change it to V00, ping is not supported and remember to
-      // change
-      // HttpResponseDecoder to WebSocketHttpResponseDecoder in the
-      // pipeline.
+      // or V00. If you change it to V00, ping is not supported and remember to
+      // change HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
       final WebSocketClientHandshaker handshaker =
-          new WebSocketClientHandshakerFactory().newHandshaker(uri, WebSocketVersion.V13, null,
-              false, null);
+          new WebSocketClientHandshakerFactory().newHandshaker(uri, WebSocketVersion.V13, null, false, null);
 
       bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        @Override
         public ChannelPipeline getPipeline() throws Exception {
           ChannelPipeline pipeline = Channels.pipeline();
 
@@ -168,8 +177,7 @@ public class NettyWebSocketClient implements WebSocketClient {
   @Override
   public void ping() {
     if (channel != null) {
-      channel.write(new PingWebSocketFrame(ChannelBuffers.copiedBuffer(new byte[] { 1, 2, 3, 4, 5,
-          6 })));
+      channel.write(new PingWebSocketFrame(ChannelBuffers.copiedBuffer(new byte[] { 1, 2, 3, 4, 5, 6 })));
     }
   }
 

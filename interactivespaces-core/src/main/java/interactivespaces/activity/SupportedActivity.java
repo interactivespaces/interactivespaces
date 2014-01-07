@@ -131,7 +131,7 @@ public interface SupportedActivity extends Activity {
    * whether or not the activity is doing what it is supposed to in its current
    * state.
    *
-   * @return {@code true} if the activity is fine, false otherwise.
+   * @return {@code true} if the activity is running correctly
    */
   boolean onActivityCheckState();
 
@@ -154,6 +154,14 @@ public interface SupportedActivity extends Activity {
    * @return the component just added
    */
   <T extends ActivityComponent> T addActivityComponent(T component);
+
+  /**
+   * Add new components to the activity.
+   *
+   * @param components
+   *          the components to add
+   */
+  void addActivityComponents(ActivityComponent... components);
 
   /**
    * Add a new component to the activity.

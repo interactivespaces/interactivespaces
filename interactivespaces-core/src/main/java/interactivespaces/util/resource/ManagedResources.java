@@ -31,9 +31,6 @@ import java.util.List;
  * The collection will start up and shut down the resources when it is started
  * up and shut down. Do not worry about these lifecycle events.
  *
- * <p>
- * This class is NOT thread-safe.
- *
  * @author Keith M. Hughes
  */
 public class ManagedResources {
@@ -47,6 +44,11 @@ public class ManagedResources {
    * Logger for the managed resources.
    */
   private final Log log;
+
+  /**
+   * {@code true} if the collection has been officially started.
+   */
+  private boolean started;
 
   /**
    * Construct a new managed resource collection.
@@ -64,7 +66,16 @@ public class ManagedResources {
    * @param resource
    *          the resource to add
    */
-  public void addResource(ManagedResource resource) {
+  public synchronized void addResource(ManagedResource resource) {
+    if (started) {
+      try {
+        // Will only add if starts up properly
+        resource.startup();
+      } catch (Exception e) {
+        throw new InteractiveSpacesException("Could not start up managed resource", e);
+      }
+    }
+
     resources.add(resource);
   }
 
@@ -75,7 +86,7 @@ public class ManagedResources {
    * The collection is cleared. No lifecycle methods are called on the
    * resources.
    */
-  public void clear() {
+  public synchronized void clear() {
     resources.clear();
   }
 
@@ -87,10 +98,11 @@ public class ManagedResources {
    * shut down.
    *
    * <p>
-   * Do not call {@link #shutdownResources(Log)} if an exception is thrown out
-   * of this method.
+   * Do not call {@link #shutdownResources()} or
+   * {@link #shutdownResourcesAndClear()} if an exception is thrown out of this
+   * method.
    */
-  public void startupResources() {
+  public synchronized void startupResources() {
     List<ManagedResource> startedResources = Lists.newArrayList();
 
     for (ManagedResource resource : resources) {
@@ -104,6 +116,8 @@ public class ManagedResources {
         throw new InteractiveSpacesException("Could not start up all managed resources", e);
       }
     }
+
+    started = true;
   }
 
   /**
@@ -113,7 +127,7 @@ public class ManagedResources {
    * This will make a best attempt. A shutdown will be attempted on all
    * resources, even if some throw an exception.
    */
-  public void shutdownResources() {
+  public synchronized void shutdownResources() {
     shutdownResources(resources);
   }
 
@@ -124,25 +138,23 @@ public class ManagedResources {
    * This will make a best attempt. A shutdown will be attempted on all
    * resources, even if some throw an exception.
    */
-  public void shutdownResourcesAndClear() {
+  public synchronized void shutdownResourcesAndClear() {
     shutdownResources();
     clear();
   }
 
   /**
-   * Shut down the specified resoures.
+   * Shut down the specified resources.
    *
    * @param resources
    *          some resources to shut down
-   * @param log
-   *          the log for exceptions and general reporting.
    */
   private void shutdownResources(List<ManagedResource> resources) {
     for (ManagedResource resource : resources) {
       try {
         resource.shutdown();
       } catch (Exception e) {
-        log.error("Could not shut down resoutrce", e);
+        log.error("Could not shut down resource", e);
       }
     }
   }

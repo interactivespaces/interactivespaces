@@ -16,18 +16,17 @@
 
 package interactivespaces.activity.impl;
 
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.ActivityComponentCollection;
 import interactivespaces.activity.component.ActivityComponentContext;
-import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.hardware.driver.Driver;
 import interactivespaces.util.concurrency.ManagedCommands;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
 import interactivespaces.util.resource.ManagedResources;
 
@@ -59,11 +58,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   private static final String ACTIVITY_STARTUP_CONFIG_LOG = "startup.conf";
 
   /**
-   * All components in the activity.
-   */
-  private ActivityComponentCollection components = new ActivityComponentCollection();
-
-  /**
    * Context all activity components will run under.
    */
   private ActivityComponentContext componentContext;
@@ -79,39 +73,48 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   private ManagedCommands managedCommands;
 
   /**
+   * File support for use with the activity.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Get one of the components for the activity.
    *
-   * @param componentName
-   *          the name of the component
+   * @param componentType
+   *          the type of the component
    * @param <T>
-   *            type of activity component retrieved
+   *          type of activity component retrieved
    *
    * @return the component with the given name, or {@code null} if none
    */
-  public <T extends ActivityComponent> T getComponent(String componentName) {
-    return components.getActivityComponent(componentName);
+  public <T extends ActivityComponent> T getComponent(String componentType) {
+    return componentContext.getActivityComponent(componentType);
   }
 
   /**
    * Get one of the components for the activity.
    *
-   * @param componentName
+   * @param componentType
    *          the name of the component
    * @param <T>
-   *            type of activity component retrieved
+   *          type of activity component retrieved
    *
    * @return the component with the given name
    *
-   * @throws SimpleInteractiveSpacesException
+   * @throws InteractiveSpacesException
    *           if named component is not present
    */
-  public <T extends ActivityComponent> T getRequiredComponent(String componentName)
-      throws SimpleInteractiveSpacesException {
-    return components.getRequiredActivityComponent(componentName);
+  public <T extends ActivityComponent> T getRequiredComponent(String componentType) throws InteractiveSpacesException {
+    return componentContext.getRequiredActivityComponent(componentType);
   }
 
   /**
    * Add a new managed resource to the activity.
+   *
+   * <p>
+   * Resources added in the setup phase will not be started until after setup is
+   * complete. Any resources added after setup is complete will be immediately
+   * started.
    *
    * @param resource
    *          the resource to add
@@ -160,11 +163,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
-    components.setLog(getLog());
-
-    componentContext =
-        new ActivityComponentContext(this, components, getController()
-            .getActivityComponentFactory());
+    componentContext = new ActivityComponentContext(this, getController().getActivityComponentFactory());
 
     managedResources = new ManagedResources(getLog());
 
@@ -178,8 +177,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       managedResources.startupResources();
 
-      components.configureComponents(getConfiguration(), componentContext);
-      components.startupComponents();
+      componentContext.initialStartupComponents();
 
       commonActivityStartup();
 
@@ -189,8 +187,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       if (getLog().isInfoEnabled()) {
         getLog().info(
-            String.format("Live activity %s running in %d milliseconds", getUuid(),
-                (getSpaceEnvironment().getTimeProvider().getCurrentTime() - beginStartTime)));
+            String.format("Live activity %s running in %d milliseconds", getUuid(), (getSpaceEnvironment()
+                .getTimeProvider().getCurrentTime() - beginStartTime)));
       }
 
       // Let everything start running before Post Startup
@@ -292,16 +290,17 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   /**
    * Get the active status detail for this activity. By default this is simply
-   * an 'active' indicator along with status details from any managed components.
+   * an 'active' indicator along with status details from any managed
+   * components.
    *
    * @param baseDetail
-   *            basic detail for this activity, sans components
+   *          basic detail for this activity, sans components
    *
    * @return status detail for this activity including components
    */
   protected String getActivityStatusDetailComposite(String baseDetail) {
     StringBuilder detailString = new StringBuilder(baseDetail);
-    for (ActivityComponent component : components.getConfiguredComponents()) {
+    for (ActivityComponent component : componentContext.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
         detailString.append(" ").append(detail);
@@ -338,6 +337,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Activate the activity.
    */
+  @Override
   public void onActivityActivate() {
     // Default is to do nothing.
   }
@@ -375,6 +375,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Deactivate the activity.
    */
+  @Override
   public void onActivityDeactivate() {
     // Default is to do nothing.
   }
@@ -451,7 +452,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     }
 
     try {
-      if (!components.shutdownAndClear()) {
+      if (!componentContext.shutdownAndClear()) {
         cleanShutdown = false;
       }
     } catch (Exception e) {
@@ -517,14 +518,13 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       return;
     }
 
-    boolean areAllComponentsRunning = components.areAllComponentsRunning();
+    boolean areAllComponentsRunning = componentContext.areAllComponentsRunning();
     boolean callOnCheckActivityState = callOnCheckActivityState();
     if (!areAllComponentsRunning || !callOnCheckActivityState) {
       // TODO(keith): Figure out if we can get an exception in here
       setActivityStatus(ActivityState.CRASHED, "Activity no longer running");
       getLog().error(
-          String.format(
-              "Activity marked as CRASHED, components stat %s, onCheckActivityState() %s",
+          String.format("Activity marked as CRASHED, components stat %s, onCheckActivityState() %s",
               areAllComponentsRunning, callOnCheckActivityState));
 
       try {
@@ -559,9 +559,9 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   /**
-   * Call {@link #onActivityCheckState()} properly
+   * Call {@link #onActivityCheckState()} properly.
    *
-   * @return
+   * @return {@code true} if the activity is running correctly
    */
   private boolean callOnCheckActivityState() {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
@@ -696,30 +696,22 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   @Override
   public <T extends ActivityComponent> T addActivityComponent(T component) {
-    components.addComponent(component);
+    return componentContext.addComponent(component);
+  }
 
-    return component;
+  @Override
+  public void addActivityComponents(ActivityComponent... components) {
+    componentContext.addComponents(components);
   }
 
   @Override
   public <T extends ActivityComponent> T addActivityComponent(String componentType) {
-    ActivityComponentFactory componentFactory = componentContext.getComponentFactory();
-
-    ActivityComponent component = componentFactory.newComponent(componentType);
-    components.addComponent(component);
-
-    @SuppressWarnings("unchecked")
-    T c = (T) component;
-    return c;
+    return componentContext.addComponent(componentType);
   }
 
   @Override
   public void addActivityComponents(String... componentTypes) {
-    ActivityComponentFactory componentFactory = componentContext.getComponentFactory();
-
-    for (String componentType : componentTypes) {
-      components.addComponent(componentFactory.newComponent(componentType));
-    }
+    componentContext.addComponents(componentTypes);
   }
 
   @Override
@@ -764,6 +756,9 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   /**
    * Log the activity configuration information to an activity config log file.
+   *
+   * @param logFile
+   *          file to write the log into
    */
   private void logConfiguration(String logFile) {
     try {
@@ -782,7 +777,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         logBuilder.append(String.format("%s=%s\n", entry.getKey(), value));
       }
       File configLog = new File(getActivityFilesystem().getLogDirectory(), logFile);
-      Files.writeFile(configLog, logBuilder.toString());
+      fileSupport.writeFile(configLog, logBuilder.toString());
     } catch (Exception e) {
       logException("While logging activity configuration", e);
     }

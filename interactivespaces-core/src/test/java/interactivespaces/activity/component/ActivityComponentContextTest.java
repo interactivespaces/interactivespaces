@@ -17,6 +17,7 @@
 package interactivespaces.activity.component;
 
 import interactivespaces.activity.SupportedActivity;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
 import org.apache.commons.logging.Log;
@@ -41,8 +42,6 @@ public class ActivityComponentContextTest {
 
   private SupportedActivity activity;
 
-  private ActivityComponentCollection components;
-
   private ActivityComponentFactory componentFactory;
 
   private ActivityComponentContext context;
@@ -51,19 +50,23 @@ public class ActivityComponentContextTest {
 
   private Log log;
 
+  private Configuration activityConfiguration;
+
   @Before
   public void setup() {
     executor = Executors.newFixedThreadPool(10);
 
     activity = Mockito.mock(SupportedActivity.class);
 
+    activityConfiguration = Mockito.mock(Configuration.class);
+    Mockito.when(activity.getConfiguration()).thenReturn(activityConfiguration);
+
     log = Mockito.mock(Log.class);
     Mockito.when(activity.getLog()).thenReturn(log);
 
-    components = Mockito.mock(ActivityComponentCollection.class);
     componentFactory = Mockito.mock(ActivityComponentFactory.class);
 
-    context = new ActivityComponentContext(activity, components, componentFactory);
+    context = new ActivityComponentContext(activity, componentFactory);
   }
 
   @After
@@ -221,5 +224,278 @@ public class ActivityComponentContextTest {
 
     // No handlers should have been allowed.
     Assert.assertEquals(0, countAllowedHandlers.get());
+  }
+
+  /**
+   * Add in a single component and have it start successfully.
+   */
+  @Test
+  public void addSingleComponentSuccess() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    context.addComponent(component1);
+
+    context.initialStartupComponents();
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1).startupComponent();
+  }
+
+  /**
+   * Add in a single component and have it fail on startup.
+   */
+  @Test
+  public void addSingleComponentFailStartup() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component1).startupComponent();
+
+    context.addComponent(component1);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1).startupComponent();
+  }
+
+  /**
+   * Add in a single component and have it fail on configuration.
+   */
+  @Test
+  public void addSingleComponentFailConfigure() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component1).configureComponent(activityConfiguration);
+
+    context.addComponent(component1);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1, Mockito.never()).startupComponent();
+  }
+
+  /**
+   * Add in multiple components and have them start successfully.
+   */
+  @Test
+  public void addMultipleComponentsSuccess() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("bar");
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    context.initialStartupComponents();
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1).startupComponent();
+
+    Mockito.verify(component2).configureComponent(activityConfiguration);
+    Mockito.verify(component2).startupComponent();
+  }
+
+  /**
+   * Add in multiple components and have the first fail on startup.
+   */
+  @Test
+  public void addMultipleComponentFailStartup1() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("banana");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component1).startupComponent();
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1).startupComponent();
+
+    Mockito.verify(component2).configureComponent(activityConfiguration);
+    Mockito.verify(component2, Mockito.never()).startupComponent();
+  }
+
+  /**
+   * Add in multiple components and have the second fail on startup.
+   */
+  @Test
+  public void addMultipleComponentFailStartup2() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("foo");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("banana");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component2).startupComponent();
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1).startupComponent();
+    Mockito.verify(component1).shutdownComponent();
+
+    Mockito.verify(component2).configureComponent(activityConfiguration);
+    Mockito.verify(component2).startupComponent();
+    Mockito.verify(component2, Mockito.never()).shutdownComponent();
+  }
+
+  /**
+   * Add in multiple components and have the first one fail on configuration.
+   */
+  @Test
+  public void addMultipleComponentFailConfigure1() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("blerg");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("garg");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component1).configureComponent(activityConfiguration);
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1, Mockito.never()).startupComponent();
+    Mockito.verify(component1, Mockito.never()).shutdownComponent();
+
+    Mockito.verify(component2, Mockito.never()).configureComponent(activityConfiguration);
+    Mockito.verify(component2, Mockito.never()).startupComponent();
+    Mockito.verify(component2, Mockito.never()).shutdownComponent();
+  }
+
+  /**
+   * Add in multiple components and have the second one fail on configuration.
+   */
+  @Test
+  public void addMultipleComponentFailConfigure2() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("blerg");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("garg");
+
+    Exception e = new RuntimeException();
+    Mockito.doThrow(e).when(component2).configureComponent(activityConfiguration);
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    try {
+      context.initialStartupComponents();
+
+      Assert.fail();
+    } catch (Exception e1) {
+      // Where we want to be
+    }
+
+    Mockito.verify(component1).configureComponent(activityConfiguration);
+    Mockito.verify(component1, Mockito.never()).startupComponent();
+    Mockito.verify(component1, Mockito.never()).shutdownComponent();
+
+    Mockito.verify(component2).configureComponent(activityConfiguration);
+    Mockito.verify(component2, Mockito.never()).startupComponent();
+    Mockito.verify(component2, Mockito.never()).shutdownComponent();
+  }
+
+  /**
+   * Add in multiple components and have all succeed on shutdown.
+   */
+  @Test
+  public void shutdownAllComponentsSuccess() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("blerg");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("garg");
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    context.initialStartupComponents();
+
+    Assert.assertTrue(context.shutdownAndClear());
+
+    Mockito.verify(component1).shutdownComponent();
+    Mockito.verify(component2).shutdownComponent();
+  }
+
+  /**
+   * Add in multiple components and have all fail on shutdown.
+   */
+  @Test
+  public void shutdownAllComponentsFailure() throws Exception {
+    ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component1.getName()).thenReturn("blerg");
+
+    ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
+    Mockito.when(component2.getName()).thenReturn("garg");
+
+    Exception e1 = new RuntimeException();
+    Mockito.doThrow(e1).when(component1).shutdownComponent();
+
+    Exception e2 = new RuntimeException();
+    Mockito.doThrow(e2).when(component2).shutdownComponent();
+
+    context.addComponent(component1);
+    context.addComponent(component2);
+
+    context.initialStartupComponents();
+
+    Assert.assertFalse(context.shutdownAndClear());
+
+    Mockito.verify(component1).shutdownComponent();
+    Mockito.verify(component2).shutdownComponent();
   }
 }
