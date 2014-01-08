@@ -265,6 +265,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
     private final CountDownLatch doneUpdateLatch = new CountDownLatch(1);
 
     /**
+     * An exception found during updating.
+     */
+    private Throwable throwable;
+
+    /**
      * Construct a new updater.
      *
      * @param bundle
@@ -292,14 +297,22 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
           // Don't care
         }
       } catch (BundleException e) {
-        endUpdate();
+        throwable = e;
 
-        throw new InteractiveSpacesException("Could not update resource", e);
+        endUpdate();
+      }
+
+      if (throwable != null) {
+        throw new InteractiveSpacesException("Could not update resource", throwable);
       }
     }
 
     @Override
     public void frameworkEvent(FrameworkEvent event) {
+      if (event.getType() == FrameworkEvent.ERROR) {
+        throwable = event.getThrowable();
+      }
+
       endUpdate();
     }
 
