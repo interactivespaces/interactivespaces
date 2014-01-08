@@ -17,14 +17,19 @@
 package interactivespaces.workbench.project.activity;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.support.ActivityDescription;
 import interactivespaces.domain.support.ActivityDescriptionReader;
 import interactivespaces.domain.support.JdomActivityDescriptionReader;
 import interactivespaces.resource.Version;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectReader;
+
+import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,30 +41,59 @@ import java.io.FileInputStream;
  */
 public class BasicActivityProjectManager implements ActivityProjectManager {
 
-  @Override
-  public boolean isProjectFolder(File baseDir) {
-    File projectFile = new File(baseDir, "project.xml");
-    if (projectFile.exists()) {
-      return true;
-    }
-    return new File(baseDir, "activity.xml").exists();
+  /**
+   * Name of a project file.
+   */
+  public static final String FILE_NAME_PROJECT = "project.xml";
+
+  /**
+   * Name of an activity file.
+   */
+  public static final String FILE_NAME_ACTIVITY = "activity.xml";
+
+  /**
+   * The workbench being used.
+   */
+  private final InteractiveSpacesWorkbench workbench;
+
+  /**
+   * File support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct the manager.
+   *
+   * @param workbench
+   *          the workbench to use
+   */
+  public BasicActivityProjectManager(InteractiveSpacesWorkbench workbench) {
+    this.workbench = workbench;
   }
 
   @Override
-  public Project readProject(File baseProjectDir) {
-    File projectFile = new File(baseProjectDir, "project.xml");
+  public boolean isProjectFolder(File baseDir) {
+    File projectFile = new File(baseDir, FILE_NAME_PROJECT);
     if (projectFile.exists()) {
-      return readProjectFile(projectFile);
+      return true;
+    }
+    return new File(baseDir, FILE_NAME_ACTIVITY).exists();
+  }
+
+  @Override
+  public Project readProject(File baseProjectDir, Log log) {
+    File projectFile = new File(baseProjectDir, FILE_NAME_PROJECT);
+    if (projectFile.exists()) {
+      return readProjectFile(projectFile, log);
     }
 
-    File activityFile = new File(baseProjectDir, "activity.xml");
+    File activityFile = new File(baseProjectDir, FILE_NAME_ACTIVITY);
     if (activityFile.exists()) {
       return convertActivity(activityFile);
     }
 
-    throw new InteractiveSpacesException(String.format(
-        "The folder %s does not contain any legal Interactive Spaces project files",
-        baseProjectDir.getAbsolutePath()));
+    throw new SimpleInteractiveSpacesException(String.format(
+        "The folder %s does not contain any legal Interactive Spaces project files", baseProjectDir.getAbsolutePath()));
   }
 
   /**
@@ -67,18 +101,28 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
    *
    * @param projectFile
    *          the project file
+   * @param log
+   *          logger for reading the file
    *
    * @return the project
    */
-  public Project readProjectFile(File projectFile) {
-    ProjectReader reader = new JdomProjectReader();
+  public Project readProjectFile(File projectFile, Log log) {
+    ProjectReader reader = new JdomProjectReader(log);
 
-    try {
-      return reader.readDescription(projectFile);
-    } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Cannot read project file %s",
-          projectFile.getAbsolutePath()), e);
-    }
+    Project project = reader.readProject(projectFile);
+    postProcessProject(project);
+
+    return project;
+  }
+
+  /**
+   * Do any post processing on the project.
+   *
+   * @param project
+   *          the project to be processed
+   */
+  private void postProcessProject(Project project) {
+    project.getConfiguration().setParent(workbench.getWorkbenchConfig());
   }
 
   /**
@@ -105,10 +149,12 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
       project.setVersion(Version.parseVersion(activity.getVersion()));
       project.setType("activity");
 
+      postProcessProject(project);
+
       return project;
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format(
-          "Cannot read activity description file %s", activityFile.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Cannot read activity description file %s",
+          activityFile.getAbsolutePath()), e);
     }
   }
 
@@ -120,14 +166,14 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
     File sourceFile = aproject.getActivityConfigFile();
     source.setPath(sourceFile.getAbsolutePath());
     source.setProject(project);
-    source.setContent(Files.readFile(sourceFile));
+    source.setContent(fileSupport.readFile(sourceFile));
 
     return source;
   }
 
   @Override
   public void saveSource(Source source) {
-    Files.writeFile(new File(source.getPath()), source.getContent());
+    fileSupport.writeFile(new File(source.getPath()), source.getContent());
   }
 
   /**
@@ -139,6 +185,6 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
    * @return the file for the project file
    */
   private File getActivityProjectFile(File baseDir) {
-    return new File(baseDir, "activity.xml");
+    return new File(baseDir, FILE_NAME_ACTIVITY);
   }
 }

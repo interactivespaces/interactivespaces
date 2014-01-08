@@ -19,10 +19,11 @@ package interactivespaces.workbench.project.constituent;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
+import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Interface for project constituents.
@@ -52,21 +53,37 @@ public interface ProjectConstituent {
   String DESTINATION_DIRECTORY_ATTRIBUTE = "destinationDirectory";
 
   /**
+   * Factory for project constituent builders.
+   *
+   * @author Keith M. Hughes
+   */
+  interface ProjectConstituentFactory {
+
+    /**
+     * Create a new builder.
+     *
+     * @param log
+     *          the logger to use
+     *
+     * @return the new builder
+     */
+    ProjectConstituentBuilder newBuilder(Log log);
+  }
+
+  /**
    * Builder interface for creating new constituent instances.
    */
-  interface Builder {
+  interface ProjectConstituentBuilder {
 
     /**
      * Get a new constituent of the appropriate type.
      *
      * @param constituentElement
      *          project file definition element
-     * @param errors
-     *          error accumulator
      *
-     * @return  new project object
+     * @return new project object or {@code null} if there were errors
      */
-    ProjectConstituent buildConstituentFromElement(Element constituentElement, List<String> errors);
+    ProjectConstituent buildConstituentFromElement(Element constituentElement);
   }
 
   /**
@@ -77,7 +94,7 @@ public interface ProjectConstituent {
    * @param stagingDirectory
    *          where the items will be copied
    * @param context
- *          context for the build
+   *          context for the build
    */
   void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
 

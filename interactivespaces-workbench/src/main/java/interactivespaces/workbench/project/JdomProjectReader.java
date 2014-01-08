@@ -18,6 +18,7 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
@@ -28,7 +29,9 @@ import interactivespaces.workbench.project.constituent.ProjectResourceConstituen
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 
+import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -36,7 +39,6 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -57,67 +59,205 @@ public class JdomProjectReader implements ProjectReader {
   /**
    * Map of resource types to resource builders.
    */
-  private static final Map<String, ProjectConstituent.Builder> PROJECT_CONSTITUENT_BUILDER_MAP = ImmutableMap.of(
-      ProjectResourceConstituent.PROJECT_TYPE, new ProjectResourceConstituent.Builder(),
-      ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE, new ProjectResourceConstituent.Builder(),
-      ProjectAssemblyConstituent.PROJECT_TYPE, new ProjectAssemblyConstituent.Builder(),
-      ProjectBundleConstituent.PROJECT_TYPE, new ProjectBundleConstituent.Builder());
+  private static final Map<String, ProjectConstituent.ProjectConstituentFactory> PROJECT_CONSTITUENT_FACTORY_MAP =
+      ImmutableMap.of(ProjectResourceConstituent.PROJECT_TYPE,
+          new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
+          ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE,
+          new ProjectResourceConstituent.ProjectResourceBuilderFactory(), ProjectAssemblyConstituent.PROJECT_TYPE,
+          new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(), ProjectBundleConstituent.PROJECT_TYPE,
+          new ProjectBundleConstituent.ProjectBundleConstituentFactory());
+
+  /**
+   * The name of the project.
+   */
+  private static final String PROJECT_ELEMENT_NAME_NAME = "name";
+
+  /**
+   * The description of the project.
+   */
+  private static final String PROJECT_ELEMENT_NAME_DESCRIPTION = "description";
+
+  /**
+   * The identifying name of the project.
+   */
+  private static final String PROJECT_ELEMENT_NAME_IDENTIFYING_NAME = "identifyingName";
+
+  /**
+   * The project attribute for the project type.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_TYPE = "type";
+
+  /**
+   * The project attribute for the project builder.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER = "builder";
+
+  /**
+   * The project attribute for the version of Interactive Spaces which is
+   * required.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION = "interactiveSpacesVersion";
+
+  /**
+   * The version of the project.
+   */
+  private static final String PROJECT_ELEMENT_NAME_VERSION = "version";
 
   /**
    * Project definition file element name for resources.
    */
-  private static final String PROJECT_RESOURCES_ELEMENT_NAME = "resources";
+  private static final String PROJECT_ELEMENT_RESOURCES_NAME = "resources";
 
   /**
    * Project definition file element name for sources.
    */
-  private static final String PROJECT_SOURCES_ELEMENT_NAME = "sources";
+  private static final String PROJECT_ELEMENT_NAME_SOURCES = "sources";
+
+  /**
+   * Project definition file element name for metadata.
+   */
+  private static final String PROJECT_ELEMENT_NAME_METADATA = "metadata";
+
+  /**
+   * Project definition file element name for metadata.
+   */
+  private static final String PROJECT_ELEMENT_NAME_METADATA_ITEM = "item";
+
+  /**
+   * Project definition file element name for metadata.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_METADATA_ITEM_NAME = "name";
+
+  /**
+   * Project definition file element name for dependencies.
+   */
+  private static final String PROJECT_ELEMENT_NAME_DEPENDENCIES = "dependencies";
+
+  /**
+   * Project definition file element name for a dependency item.
+   */
+  private static final String PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM = "dependency";
+
+  /**
+   * Project definition file attribute name for the name of a dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_NAME = "name";
+
+  /**
+   * Project definition file attribute name for the minimum version of a
+   * dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM = "minimumVersion";
+
+  /**
+   * Project definition file attribute name for the maximum version of a
+   * dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM = "maximumVersion";
+
+  /**
+   * Project definition file attribute name for whether a dependency is
+   * required.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED = "required";
+
+  /**
+   * Project definition file element name for deployments.
+   */
+  private static final String PROJECT_ELEMENT_NAME_DEPLOYMENTS = "deployments";
+
+  /**
+   * Project definition file element name for a deployment item.
+   */
+  private static final String PROJECT_ELEMENT_NAME_DEPLOYMENT_ITEM = "deployment";
+
+  /**
+   * Project definition file attribute name for the type of a deployment.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_TYPE = "type";
+
+  /**
+   * Project definition file attribute name for the method of a deployment.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_METHOD = "method";
+
+  /**
+   * Project definition file attribute name for the location for a deployment.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_LOCATION = "location";
+
+  /**
+   * Project definition file element name for configurations.
+   */
+  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION = "configuration";
+
+  /**
+   * Project definition file element name for a configuration item.
+   */
+  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM = "property";
+
+  /**
+   * Project definition file attribute name for the name of a configuration
+   * item.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
+
+  /**
+   * Log for errors.
+   */
+  private final Log log;
+
+  /**
+   * {@code true} if read was successful.
+   */
+  private boolean failure;
+
+  /**
+   * Construct a project reader.
+   *
+   * @param log
+   *          the logger to use
+   */
+  public JdomProjectReader(Log log) {
+    this.log = log;
+  }
 
   @Override
-  public Project readDescription(File projectFile) {
+  public Project readProject(File projectFile) {
+    Document doc = null;
     FileInputStream inputStream = null;
     try {
       inputStream = new FileInputStream(projectFile);
       SAXBuilder builder = new SAXBuilder();
-      Document doc = builder.build(inputStream);
-
-      Element rootElement = doc.getRootElement();
-
-      Project project = new Project();
-      project.setType(getProjectType(rootElement));
-      project.setBaseDirectory(projectFile.getParentFile());
-
-      List<String> errors = Lists.newArrayList();
-
-      getProjectAttributes(project, rootElement, errors);
-      getMainData(project, rootElement, errors);
-      getMetadata(project, rootElement, errors);
-      getDependencies(project, rootElement, errors);
-      project.addResources(getConstituents(rootElement.getChild(PROJECT_RESOURCES_ELEMENT_NAME), errors));
-      project.addSources(getConstituents(rootElement.getChild(PROJECT_SOURCES_ELEMENT_NAME), errors));
-      getDeployments(project, rootElement, errors);
-
-      if (!errors.isEmpty()) {
-        StringBuilder errorBuilder = new StringBuilder();
-        errorBuilder.append("Errors found during build:\n");
-        for (String error : errors) {
-          errorBuilder.append(error).append("\n");
-        }
-        throw new SimpleInteractiveSpacesException(errorBuilder.toString());
-      }
-
-      return project;
+      doc = builder.build(inputStream);
     } catch (Exception e) {
-      throw new InteractiveSpacesException("Unable to read project description", e);
+      throw new InteractiveSpacesException(String.format("Exception while processing project file %s",
+          projectFile.getAbsolutePath()), e);
     } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (IOException e) {
-          // Don't care
-        }
-      }
+      Closeables.closeQuietly(inputStream);
     }
+
+    Element rootElement = doc.getRootElement();
+
+    Project project = new Project();
+    project.setType(getProjectType(rootElement));
+    project.setBaseDirectory(projectFile.getParentFile());
+
+    getProjectAttributes(project, rootElement);
+    getMainData(project, rootElement);
+    getMetadata(project, rootElement);
+    getDependencies(project, rootElement);
+    getConfiguration(project, rootElement);
+    project.addResources(getConstituents(rootElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME)));
+    project.addSources(getConstituents(rootElement.getChild(PROJECT_ELEMENT_NAME_SOURCES)));
+    getDeployments(project, rootElement);
+
+    if (failure) {
+      throw new SimpleInteractiveSpacesException(String.format("Project file %s had errors",
+          projectFile.getAbsolutePath()));
+    }
+
+    return project;
   }
 
   /**
@@ -129,7 +269,7 @@ public class JdomProjectReader implements ProjectReader {
    * @return the project type
    */
   private String getProjectType(Element rootElement) {
-    return getRequiredAttributeValue(rootElement, "type");
+    return getRequiredAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_TYPE);
   }
 
   /**
@@ -139,39 +279,31 @@ public class JdomProjectReader implements ProjectReader {
    *          the project description whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    */
-  private void getMainData(Project project, Element rootElement, List<String> errors) {
-    String name = getChildTextTrimmed(rootElement, "name");
+  private void getMainData(Project project, Element rootElement) {
+    String name = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_NAME);
     project.setName(name);
 
-    String description = getChildTextTrimmed(rootElement, "description");
+    String description = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_DESCRIPTION);
     project.setDescription(description);
 
-    String identifyingName = getChildTextTrimmed(rootElement, "identifyingName");
+    String identifyingName = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_IDENTIFYING_NAME);
     project.setIdentifyingName(identifyingName);
 
-    String version = getChildTextTrimmed(rootElement, "version");
+    String version = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_VERSION);
     project.setVersion(Version.parseVersion(version));
 
-    String builder = getAttributeValue(rootElement, "builder", null);
+    String builder = getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, null);
     project.setBuilderType(builder);
 
-    String interactiveSpacesVersionMinimum = getAttributeValue(rootElement, "interactiveSpacesVersionMinimum", null);
-    String interactiveSpacesVersionMaximum = getAttributeValue(rootElement, "interactiveSpacesVersionMaximum", null);
+    String interactiveSpacesVersionRangeAttribute =
+        getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION, null);
 
     VersionRange interactiveSpacesVersionRange = null;
-    if (interactiveSpacesVersionMinimum != null) {
-      if (interactiveSpacesVersionMaximum != null) {
-        interactiveSpacesVersionRange =
-            new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum),
-                Version.parseVersion(interactiveSpacesVersionMaximum), false);
-      } else {
-        interactiveSpacesVersionRange = new VersionRange(Version.parseVersion(interactiveSpacesVersionMinimum));
-      }
+    if (interactiveSpacesVersionRangeAttribute != null) {
+      interactiveSpacesVersionRange = VersionRange.parseVersionRange(interactiveSpacesVersionRangeAttribute);
     } else {
-      System.out.println("WARNING: Did not specify a range of needed Interactive Spaces versions. Setting default to "
+      log.warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
           + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
       interactiveSpacesVersionRange = INTERACTIVESPACES_VERSION_RANGE_DEFAULT;
     }
@@ -185,10 +317,8 @@ public class JdomProjectReader implements ProjectReader {
    *          the project description whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    */
-  private void getProjectAttributes(Project project, Element rootElement, List<String> errors) {
+  private void getProjectAttributes(Project project, Element rootElement) {
     @SuppressWarnings("unchecked")
     List<Attribute> attributes = rootElement.getAttributes();
     for (Attribute attribute : attributes) {
@@ -225,15 +355,12 @@ public class JdomProjectReader implements ProjectReader {
    * @param key
    *          attribute key
    *
-   * @return attribute value
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if the element attribute is not provided
+   * @return attribute value or {@code null} if none found
    */
-  private String getRequiredAttributeValue(Element element, String key) throws SimpleInteractiveSpacesException {
+  private String getRequiredAttributeValue(Element element, String key) {
     String value = getAttributeValue(element, key);
     if (value == null) {
-      throw new SimpleInteractiveSpacesException("Missing required attribute " + key);
+      log.error("Missing required attribute " + key);
     }
     return value;
   }
@@ -275,24 +402,49 @@ public class JdomProjectReader implements ProjectReader {
    *          the project description whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    */
-  private void getMetadata(Project project, Element rootElement, List<String> errors) {
-    Element metadataElement = rootElement.getChild("metadata");
+  private void getMetadata(Project project, Element rootElement) {
+    Element metadataElement = rootElement.getChild(PROJECT_ELEMENT_NAME_METADATA);
 
     if (metadataElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> itemElements = metadataElement.getChildren("item");
+      List<Element> itemElements = metadataElement.getChildren(PROJECT_ELEMENT_NAME_METADATA_ITEM);
 
       Map<String, Object> metadata = Maps.newHashMap();
       for (Element itemElement : itemElements) {
-        String name = getRequiredAttributeValue(itemElement, "name");
+        String name = getRequiredAttributeValue(itemElement, PROJECT_ATTRIBUTE_NAME_METADATA_ITEM_NAME);
         String value = itemElement.getTextNormalize();
         metadata.put(name, value);
       }
 
       project.setMetadata(metadata);
+    }
+  }
+
+  /**
+   * Get the configuration from the document.
+   *
+   * @param project
+   *          the project description whose data is being read
+   * @param rootElement
+   *          root element of the XML DOM containing the project data
+   */
+  private void getConfiguration(Project project, Element rootElement) {
+    Element configurationElement = rootElement.getChild(PROJECT_ELEMENT_NAME_CONFIGURATION);
+
+    if (configurationElement != null) {
+      @SuppressWarnings("unchecked")
+      List<Element> propertyElements = configurationElement.getChildren(PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM);
+
+      Configuration configuration = project.getConfiguration();
+      for (Element propertyElement : propertyElements) {
+        String name = getRequiredAttributeValue(propertyElement, PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME);
+        if (name == null) {
+          continue;
+        }
+        String value = propertyElement.getTextNormalize();
+        configuration.setValue(name, value);
+      }
     }
   }
 
@@ -303,18 +455,16 @@ public class JdomProjectReader implements ProjectReader {
    *          the project description whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    */
-  private void getDependencies(Project project, Element rootElement, List<String> errors) {
-    Element dependenciesElement = rootElement.getChild("dependencies");
+  private void getDependencies(Project project, Element rootElement) {
+    Element dependenciesElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPENDENCIES);
 
     if (dependenciesElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> dependencyElements = dependenciesElement.getChildren("dependency");
+      List<Element> dependencyElements = dependenciesElement.getChildren(PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM);
 
       for (Element dependencyElement : dependencyElements) {
-        ProjectDependency dependency = getDependency(dependencyElement, errors);
+        ProjectDependency dependency = getDependency(dependencyElement);
         project.addDependency(dependency);
       }
     }
@@ -325,19 +475,19 @@ public class JdomProjectReader implements ProjectReader {
    *
    * @param dependencyElement
    *          the element containing the data
-   * @param errors
-   *          any errors found in the metadata
    *
    * @return the dependency found in the element
    */
-  private ProjectDependency getDependency(Element dependencyElement, List<String> errors) {
-    String name = getAttributeValue(dependencyElement, "name");
+  private ProjectDependency getDependency(Element dependencyElement) {
+    String name = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_NAME);
     if (name == null) {
-      errors.add("Dependency has no name");
+      addError("Dependency has no name");
     }
 
-    String minimumVersion = getAttributeValue(dependencyElement, "minimumVersion");
-    String maximumVersion = getAttributeValue(dependencyElement, "maximumVersion");
+    String minimumVersion =
+        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM);
+    String maximumVersion =
+        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM);
 
     if (minimumVersion != null) {
       if (maximumVersion == null) {
@@ -347,10 +497,11 @@ public class JdomProjectReader implements ProjectReader {
       // If here was no minimum version
       minimumVersion = maximumVersion;
     } else {
-      errors.add("Dependency has no version constraints");
+      addError("Dependency has no version constraints");
     }
 
-    String requiredString = getAttributeValue(dependencyElement, "required", "true");
+    String requiredString =
+        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED, "true");
 
     ProjectDependency dependency = new ProjectDependency();
 
@@ -367,12 +518,10 @@ public class JdomProjectReader implements ProjectReader {
    *
    * @param containerElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    *
    * @return the constituents for the project
    */
-  private List<ProjectConstituent> getConstituents(Element containerElement, List<String> errors) {
+  private List<ProjectConstituent> getConstituents(Element containerElement) {
     if (containerElement == null) {
       return null;
     }
@@ -383,11 +532,11 @@ public class JdomProjectReader implements ProjectReader {
 
     for (Element childElement : childElements) {
       String type = childElement.getName();
-      ProjectConstituent.Builder builder = PROJECT_CONSTITUENT_BUILDER_MAP.get(type);
-      if (builder == null) {
-        errors.add(String.format("Unknown resource type '%s'", type));
+      ProjectConstituent.ProjectConstituentFactory factory = PROJECT_CONSTITUENT_FACTORY_MAP.get(type);
+      if (factory == null) {
+        addError(String.format("Unknown resource type '%s'", type));
       } else {
-        ProjectConstituent constituent = builder.buildConstituentFromElement(childElement, errors);
+        ProjectConstituent constituent = factory.newBuilder(log).buildConstituentFromElement(childElement);
         if (constituent != null) {
           constituents.add(constituent);
         }
@@ -404,18 +553,16 @@ public class JdomProjectReader implements ProjectReader {
    *          the project description whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
-   * @param errors
-   *          any errors found in the metadata
    */
-  private void getDeployments(Project project, Element rootElement, List<String> errors) {
-    Element deploymentsElement = rootElement.getChild("deployments");
+  private void getDeployments(Project project, Element rootElement) {
+    Element deploymentsElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPLOYMENTS);
 
     if (deploymentsElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> deploymentElements = deploymentsElement.getChildren("deployment");
+      List<Element> deploymentElements = deploymentsElement.getChildren(PROJECT_ELEMENT_NAME_DEPLOYMENT_ITEM);
 
       for (Element deploymentElement : deploymentElements) {
-        ProjectDeployment deployment = getDeployment(deploymentElement, errors);
+        ProjectDeployment deployment = getDeployment(deploymentElement);
         if (deployment != null) {
           project.addDeployment(deployment);
         }
@@ -428,18 +575,27 @@ public class JdomProjectReader implements ProjectReader {
    *
    * @param deploymentElement
    *          the element containing the data
-   * @param errors
-   *          any errors found in the metadata
    *
    * @return the deployment found in the element
    */
-  private ProjectDeployment getDeployment(Element deploymentElement, List<String> errors) {
-    String type = getRequiredAttributeValue(deploymentElement, "type");
-    String method = getAttributeValue(deploymentElement, "method");
-    String location = getAttributeValue(deploymentElement, "location");
+  private ProjectDeployment getDeployment(Element deploymentElement) {
+    String type = getRequiredAttributeValue(deploymentElement, PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_TYPE);
+    String method = getAttributeValue(deploymentElement, PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_METHOD);
+    String location = getAttributeValue(deploymentElement, PROJECT_ATTRIBUTE_NAME_DEPLOYMENT_ITEM_LOCATION);
 
     // TODO(keith): Enumerate all possible errors
 
     return new ProjectDeployment(type, method, location);
+  }
+
+  /**
+   * An error has occurred.
+   *
+   * @param error
+   *          text of the error message
+   */
+  private void addError(String error) {
+    log.error(error);
+    failure = true;
   }
 }

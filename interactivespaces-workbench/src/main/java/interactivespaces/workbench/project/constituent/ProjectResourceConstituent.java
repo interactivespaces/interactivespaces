@@ -16,14 +16,14 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import org.jdom.Element;
-
-import java.io.File;
-import java.util.List;
-
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
+import org.apache.commons.logging.Log;
+import org.jdom.Element;
+
+import java.io.File;
 
 /**
  * A simple resource for a {@link interactivespaces.workbench.project.Project}.
@@ -69,66 +69,9 @@ public class ProjectResourceConstituent implements ProjectConstituent {
   private String destinationFile;
 
   /**
-   * Builder class for creating new resource instances.
-   */
-  public static class Builder implements ProjectConstituent.Builder {
-    /**
-     * Get an project dependency from the dependency element.
-     *
-     * @param resourceElement
-     *          the element containing the data
-     * @param errors
-     *          any errors found in the metadata
-     *
-     * @return the dependency found in the element
-     */
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement, List<String> errors) {
-      boolean addedErrors = false;
-
-      String sourceDir = resourceElement.getAttributeValue(SOURCE_DIRECTORY_ATTRIBUTE);
-      String sourceFile = resourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
-      String destDir = resourceElement.getAttributeValue(DESTINATION_DIRECTORY_ATTRIBUTE);
-      String destFile = resourceElement.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
-
-      if (destFile == null && destDir == null) {
-        destDir = ".";
-      }
-
-      if (sourceFile == null && sourceDir == null) {
-        addedErrors = true;
-        errors.add("Resource has no source");
-      }
-      if (sourceDir != null) {
-        if (sourceFile != null) {
-          addedErrors = true;
-          errors.add("Resource has both a source file and directory");
-        }
-        if (destFile != null) {
-          addedErrors = true;
-          errors.add("Resource has a source directory and a destination file");
-        }
-      }
-      // TODO(keith): Enumerate all possible errors
-
-      if (addedErrors) {
-        return null;
-      } else {
-
-        ProjectResourceConstituent resource = new ProjectResourceConstituent();
-
-        resource.setDestinationDirectory(destDir);
-        resource.setSourceDirectory(sourceDir);
-        resource.setDestinationFile(destFile);
-        resource.setSourceFile(sourceFile);
-
-        return resource;
-      }
-    }
-  }
-
-  /**
    * @return the sourceDirectory
    */
+  @Override
   public String getSourceDirectory() {
     return sourceDirectory;
   }
@@ -208,6 +151,73 @@ public class ProjectResourceConstituent implements ProjectConstituent {
       File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
       Files.directoryExists(destFile.getParentFile());
       Files.copyFile(srcFile, destFile);
+    }
+  }
+
+  /**
+   * Factory for building the constituent builder.
+   *
+   * @author Keith M. Hughes
+   */
+  public static class ProjectResourceBuilderFactory implements ProjectConstituentFactory {
+    @Override
+    public ProjectConstituentBuilder newBuilder(Log log) {
+     return new ProjectResourceBuilder(log);
+    }
+  }
+
+  /**
+   * Builder class for creating new resource instances.
+   */
+  private static class ProjectResourceBuilder extends BaseProjectConstituentBuilder {
+
+    /**
+     * Construct a new builder.
+     *
+     * @param log
+     *          logger for the builder
+     */
+    ProjectResourceBuilder(Log log) {
+      super(log);
+    }
+
+    @Override
+    public ProjectConstituent buildConstituentFromElement(Element resourceElement) {
+      String sourceDir = resourceElement.getAttributeValue(SOURCE_DIRECTORY_ATTRIBUTE);
+      String sourceFile = resourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
+      String destDir = resourceElement.getAttributeValue(DESTINATION_DIRECTORY_ATTRIBUTE);
+      String destFile = resourceElement.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
+
+      if (destFile == null && destDir == null) {
+        destDir = ".";
+      }
+
+      if (sourceFile == null && sourceDir == null) {
+        addError("Resource has no source");
+      }
+      if (sourceDir != null) {
+        if (sourceFile != null) {
+          addError("Resource has both a source file and directory");
+        }
+        if (destFile != null) {
+          addError("Resource has a source directory and a destination file");
+        }
+      }
+      // TODO(keith): Enumerate all possible errors
+
+      if (hasErrors()) {
+        return null;
+      } else {
+
+        ProjectResourceConstituent resource = new ProjectResourceConstituent();
+
+        resource.setDestinationDirectory(destDir);
+        resource.setSourceDirectory(sourceDir);
+        resource.setDestinationFile(destFile);
+        resource.setSourceFile(sourceFile);
+
+        return resource;
+      }
     }
   }
 }

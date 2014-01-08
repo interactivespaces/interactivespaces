@@ -173,7 +173,7 @@ public class InteractiveSpacesWorkbench {
   /**
    * The activity project manager for file operations.
    */
-  private final ActivityProjectManager projectManager = new BasicActivityProjectManager();
+  private final ActivityProjectManager projectManager = new BasicActivityProjectManager(this);
 
   /**
    * The creator for new projects.
@@ -586,7 +586,7 @@ public class InteractiveSpacesWorkbench {
    *          the commands to be done
    */
   public void doCommandsOnProject(File baseDir, List<String> commands) {
-    Project project = projectManager.readProject(baseDir);
+    Project project = projectManager.readProject(baseDir, log);
     doCommandsOnProject(project, commands);
   }
 

@@ -32,23 +32,19 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
   private final String javaVersion = JAVA_VERSION_DEFAULT;
 
   @Override
-  public boolean compile(File compilationBuildDirectory, List<File> classpath,
-      List<File> compilationFiles, List<String> compilerOptions) {
+  public boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
+      List<String> compilerOptions) {
 
     StandardJavaFileManager fileManager = null;
     try {
       JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
       fileManager = compiler.getStandardFileManager(null, null, null);
       fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
-      fileManager.setLocation(StandardLocation.CLASS_OUTPUT,
-          Lists.newArrayList(compilationBuildDirectory));
+      fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Lists.newArrayList(compilationBuildDirectory));
 
-      Iterable<? extends JavaFileObject> compilationUnits1 =
-          fileManager.getJavaFileObjectsFromFiles(compilationFiles);
+      Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(compilationFiles);
 
-      Boolean success =
-          compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1)
-              .call();
+      Boolean success = compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1).call();
 
       return success;
     } catch (IOException e) {
@@ -67,8 +63,7 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     options.add(javaVersion);
 
     String extraOptions =
-        context.getWorkbench().getWorkbenchConfig()
-            .getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
+        context.getProject().getConfiguration().getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
     if (extraOptions != null) {
       String[] optionComponents = extraOptions.split("\\s+");
       for (String optionComponent : optionComponents) {

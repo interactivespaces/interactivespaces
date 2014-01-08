@@ -18,6 +18,8 @@ package interactivespaces.workbench.project.activity;
 
 import interactivespaces.workbench.project.Project;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 
 /**
@@ -41,14 +43,21 @@ public interface ActivityProjectManager {
    * Load a new project.
    *
    * @param baseProjectDir
+   *          base directory for the project
+   * @param log
+   *          logger for reading the project
+   *
+   * @return the project
    */
-  Project readProject(File baseProjectDir);
+  Project readProject(File baseProjectDir, Log log);
 
   /**
    * Get a source for the activity configuration.
    *
    * @param project
-   * @return
+   *          the project
+   *
+   * @return source for the activity configuration
    */
   Source getActivityConfSource(Project project);
 

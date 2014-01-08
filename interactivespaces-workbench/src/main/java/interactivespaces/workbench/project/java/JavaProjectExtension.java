@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
@@ -34,10 +33,10 @@ public interface JavaProjectExtension {
    *
    * @param classpath
    *          the classpath so far
-   * @param workbench
-   *          the workbench being run under
+   * @param context
+   *            the project build context
    */
-  void addToClasspath(List<File> classpath, InteractiveSpacesWorkbench workbench);
+  void addToClasspath(List<File> classpath, ProjectBuildContext context);
 
   /**
    * Do any needed post-processing of a jar.

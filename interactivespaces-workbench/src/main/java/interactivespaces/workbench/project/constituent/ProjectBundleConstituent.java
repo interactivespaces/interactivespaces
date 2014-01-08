@@ -18,8 +18,14 @@ package interactivespaces.workbench.project.constituent;
 
 import static com.google.common.io.Closeables.closeQuietly;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.Files;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.builder.ProjectBuildContext;
+
 import com.google.common.collect.Lists;
 
+import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
@@ -28,11 +34,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.Files;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
  * A bundle resource for a {@link interactivespaces.workbench.project.Project}.
@@ -47,49 +48,6 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   public static final String PROJECT_TYPE = "bundle";
 
   /**
-   * Builder class for new bundle resources.
-   */
-  public static class Builder implements ProjectConstituent.Builder {
-    /**
-     * Get an project dependency from the dependency element.
-     *
-     * @param element
-     *          the element containing the data
-     * @param errors
-     *          any errors found in the metadata
-     *
-     * @return the dependency found in the element
-     */
-    public ProjectConstituent buildConstituentFromElement(Element element, List<String> errors) {
-      int errorsStartSize = errors.size();
-
-      ProjectBundleConstituent bundle = new ProjectBundleConstituent();
-
-      bundle.outputPath = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
-      if (bundle.outputPath == null) {
-        errors.add("Bundle has no outputFile");
-      }
-
-      @SuppressWarnings("unchecked")
-      List<Element> sourceElements = element.getChildren("source");
-      if (sourceElements == null || sourceElements.size() == 0) {
-        errors.add("No source elements specified");
-      } else {
-        for (Element sourceElement : sourceElements) {
-          String source = sourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
-          if (source == null) {
-            errors.add("Missing '" + SOURCE_FILE_ATTRIBUTE + "' attribute on source element");
-          } else {
-            bundle.sourcePaths.add(source);
-          }
-        }
-      }
-
-      return errors.size() != errorsStartSize ? null : bundle;
-    }
-  }
-
-  /**
    * The directory to which contents will be copied.
    *
    * <p>
@@ -100,7 +58,7 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   /**
    * List of source paths to assemble.
    */
-  private List<String> sourcePaths = Lists.newArrayList();
+  private final List<String> sourcePaths = Lists.newArrayList();
 
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
@@ -116,11 +74,9 @@ public class ProjectBundleConstituent implements ProjectConstituent {
       for (String sourcePath : sourcePaths) {
         File sourceFile = context.getProjectTarget(baseDirectory, sourcePath);
         if (!sourceFile.exists()) {
-          throw new SimpleInteractiveSpacesException(
-              "Source file does not exist " + sourceFile.getAbsolutePath());
+          throw new SimpleInteractiveSpacesException("Source file does not exist " + sourceFile.getAbsolutePath());
         } else if (sourceFile.isDirectory()) {
-          throw new SimpleInteractiveSpacesException(
-              "Source file is a directory " + sourceFile.getAbsolutePath());
+          throw new SimpleInteractiveSpacesException("Source file is a directory " + sourceFile.getAbsolutePath());
         }
         inputStream = new FileInputStream(sourceFile);
         Files.copyStream(inputStream, outputStream, false);
@@ -128,8 +84,7 @@ public class ProjectBundleConstituent implements ProjectConstituent {
       }
       outputStream.close();
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(
-          "While processing bundle resource " + outputPath, e);
+      throw new SimpleInteractiveSpacesException("While processing bundle resource " + outputPath, e);
     } finally {
       closeQuietly(inputStream);
       closeQuietly(outputStream);
@@ -139,5 +94,66 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   @Override
   public String getSourceDirectory() throws SimpleInteractiveSpacesException {
     throw new SimpleInteractiveSpacesException("Source directory not supported for Bundle constituents");
+  }
+
+  /**
+   * Factory for the constituent components.
+   */
+  public static class ProjectBundleConstituentFactory implements ProjectConstituentFactory {
+    @Override
+    public ProjectConstituentBuilder newBuilder(Log log) {
+      return new ProjectBundleConstituentBuilder(log);
+    }
+  }
+
+  /**
+   * Builder class for new bundle resources.
+   */
+  private static class ProjectBundleConstituentBuilder extends BaseProjectConstituentBuilder {
+
+    /**
+     * Construct the new builder.
+     *
+     * @param log
+     *          logger for the builder
+     */
+    ProjectBundleConstituentBuilder(Log log) {
+      super(log);
+    }
+
+    /**
+     * Get an project dependency from the dependency element.
+     *
+     * @param element
+     *          the element containing the data
+     *
+     * @return the dependency found in the element
+     */
+    @Override
+    public ProjectConstituent buildConstituentFromElement(Element element) {
+      ProjectBundleConstituent bundle = new ProjectBundleConstituent();
+
+      bundle.outputPath = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
+      if (bundle.outputPath == null) {
+        addError("Bundle has no outputFile");
+      }
+
+      @SuppressWarnings("unchecked")
+      List<Element> sourceElements = element.getChildren("source");
+      if (sourceElements == null || sourceElements.size() == 0) {
+        addError("No source elements specified");
+      } else {
+        for (Element sourceElement : sourceElements) {
+          String source = sourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
+          if (source == null) {
+            addError("Missing '" + SOURCE_FILE_ATTRIBUTE + "' attribute on source element");
+          } else {
+            bundle.sourcePaths.add(source);
+          }
+        }
+      }
+
+      return hasErrors() ? null : bundle;
+    }
   }
 }

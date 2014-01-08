@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.InteractiveSpacesException;
+
 import java.io.File;
 
 /**
@@ -33,6 +35,9 @@ public interface ProjectReader {
    *          the project file
    *
    * @return the description of the project
+   *
+   * @throws InteractiveSpacesException
+   *           an error happened during the project file processing
    */
-  Project readDescription(File projectFile);
+  Project readProject(File projectFile) throws InteractiveSpacesException;
 }

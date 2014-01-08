@@ -65,7 +65,7 @@ public abstract class JavaProjectType implements ProjectType {
     addDependenciesFromUserBootstrap(context, classpath, workbench);
 
     if (extension != null) {
-      extension.addToClasspath(classpath, workbench);
+      extension.addToClasspath(classpath, context);
     }
   }
 

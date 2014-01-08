@@ -17,9 +17,8 @@
 package interactivespaces.workbench.project.activity.type.android;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.configuration.SimpleConfiguration;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.util.process.NativeCommandsExecutor;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 
@@ -46,8 +45,8 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
   public static final String PROPERTY_ANDROID_PLATFORM = "android.platform";
 
   @Override
-  public void addToClasspath(List<File> classpath, InteractiveSpacesWorkbench workbench) {
-    SimpleConfiguration properties = workbench.getWorkbenchConfig();
+  public void addToClasspath(List<File> classpath, ProjectBuildContext context) {
+    Configuration properties = context.getProject().getConfiguration();
     String androidJar =
         properties.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/platforms/"
             + properties.getRequiredPropertyString(PROPERTY_ANDROID_PLATFORM) + "/android.jar";
@@ -60,15 +59,13 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
           androidJarFile.getAbsolutePath()));
     }
 
-    workbench.addAlternateControllerExtensionsClasspath(classpath, "android");
-
+    context.getWorkbench().addAlternateControllerExtensionsClasspath(classpath, "android");
   }
 
   @Override
   public void postProcessJar(ProjectBuildContext context, File jarFile) {
     String platformToolsDirectory =
-        context.getWorkbench().getWorkbenchConfig()
-            .getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)
+        context.getProject().getConfiguration().getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)
             + "/platform-tools/";
 
     List<String> dxCommand = Lists.newArrayList();

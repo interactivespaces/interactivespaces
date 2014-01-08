@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.configuration.Configuration;
+import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
@@ -119,6 +121,11 @@ public class Project {
    * Attributes for this project.
    */
   private final Map<String, String> attributes = Maps.newHashMap();
+
+  /**
+   * The configuration for this project.
+   */
+  private final Configuration configuration = SimpleConfiguration.newConfiguration();
 
   /**
    * Get the type of the project.
@@ -373,6 +380,15 @@ public class Project {
    */
   public Map<String, Object> getMetadata() {
     return metadata;
+  }
+
+  /**
+   * Get the configuration for the project.
+   *
+   * @return the project's configurations
+   */
+  public Configuration getConfiguration() {
+    return configuration;
   }
 
   /**

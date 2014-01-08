@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project.builder;
 
-import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -89,6 +87,8 @@ public class ProjectBuildContext {
 
     buildDirectory = new File(project.getBaseDirectory(), BUILD_DIRECTORY);
     FILE_SUPPORT.directoryExists(buildDirectory);
+
+    prepareProjectConfiguration();
   }
 
   /**
@@ -151,17 +151,11 @@ public class ProjectBuildContext {
   }
 
   /**
-   * Return a configuration that provides necessary values for building this project.
-   *
-   * @return configuration for this project build
+   * Add anything needed to the project configuration.
    */
-  public Configuration getProjectConfiguration() {
-    SimpleConfiguration workbenchConfig = getWorkbench().getWorkbenchConfig();
-    SimpleConfiguration resourceConfig = SimpleConfiguration.newConfiguration();
-    resourceConfig.setParent(workbenchConfig);
-    resourceConfig.setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_HOME,
+  private void prepareProjectConfiguration() {
+    project.getConfiguration().setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_HOME,
         project.getBaseDirectory().getAbsolutePath());
-    return resourceConfig;
   }
 
   /**
@@ -176,7 +170,7 @@ public class ProjectBuildContext {
    * @return appropriate file to use
    */
   public File getProjectTarget(File rootDirectory, String target) {
-    String targetPath = getProjectConfiguration().evaluate(target);
+    String targetPath = project.getConfiguration().evaluate(target);
     File targetFile = new File(targetPath);
     if (targetFile.isAbsolute()) {
       return targetFile;
