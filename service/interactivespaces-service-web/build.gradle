@@ -27,6 +27,9 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.web'
+
+    instruction 'Export-Package',
+        '*'
   }
 }
 
