@@ -14,20 +14,22 @@
  * the License.
  */
 
-package interactivespaces.service.image.vision.internal.osgi;
+package interactivespaces.service.image.gesture;
 
-import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
-import interactivespaces.service.image.gesture.leapmotion.LeapMotionGestureService;
+import java.util.Map;
 
 /**
- * An OSGI bundle activator for the alert service.
+ * A listener for gesture events from the gesture camera.
  *
  * @author Keith M. Hughes
  */
-public class ImageVisionServiceActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+public interface GestureListener {
 
-  @Override
-  protected void allRequiredServicesAvailable() {
-    registerNewInteractiveSpacesService(new LeapMotionGestureService());
-  }
+  /**
+   * A new set of gestures have come in.
+   *
+   * @param gestures
+   *          the gestures indexed by the gesture ID
+   */
+  void onGestures(Map<String, Gesture> gestures);
 }

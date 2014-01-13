@@ -71,12 +71,12 @@ public class JsonNavigator {
   private List<Object> currentArray;
 
   /**
-   * Current position in array if in an array
+   * Current position in array if in an array.
    */
   private int currentArrayPosition;
 
   /**
-   * Current size of array if in an array
+   * Current size of array if in an array.
    */
   private int currentArraySize;
 
@@ -139,8 +139,7 @@ public class JsonNavigator {
       String value = (String) currentObject.get(name);
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -157,8 +156,7 @@ public class JsonNavigator {
       Integer value = (Integer) currentObject.get(name);
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -181,12 +179,10 @@ public class JsonNavigator {
       } else if (value == null) {
         return null;
       } else {
-        throw new JsonInteractiveSpacesException(String.format("Object field %s is not numeric",
-            name));
+        throw new JsonInteractiveSpacesException(String.format("Object field %s is not numeric", name));
       }
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -203,8 +199,7 @@ public class JsonNavigator {
       Boolean value = (Boolean) currentObject.get(name);
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -238,8 +233,7 @@ public class JsonNavigator {
 
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -259,8 +253,7 @@ public class JsonNavigator {
       String value = (String) currentArray.get(pos);
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a array for position %d", pos));
     }
   }
 
@@ -280,8 +273,7 @@ public class JsonNavigator {
       Integer value = (Integer) currentArray.get(pos);
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a array for position %d", pos));
     }
   }
 
@@ -307,12 +299,10 @@ public class JsonNavigator {
       } else if (value == null) {
         return null;
       } else {
-        throw new JsonInteractiveSpacesException(
-            String.format("Array field %d is not numeric", pos));
+        throw new JsonInteractiveSpacesException(String.format("Array field %d is not numeric", pos));
       }
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a array for position %d", pos));
     }
   }
 
@@ -333,8 +323,7 @@ public class JsonNavigator {
 
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a array for position %d", pos));
     }
   }
 
@@ -357,8 +346,7 @@ public class JsonNavigator {
 
       return value;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a array for position %d", pos));
     }
   }
 
@@ -408,6 +396,23 @@ public class JsonNavigator {
   }
 
   /**
+   * Does the current object contain a property with the given name?
+   *
+   * @param name
+   *          the name of the property to check for
+   *
+   * @return {@code true} if the property exists
+   */
+  public boolean containsProperty(String name) {
+    if (currentType == JsonType.OBJECT) {
+      return currentObject.containsKey(name);
+    } else {
+      throw new JsonInteractiveSpacesException(String.format(
+          "Current level is not a object when checking for property name %s", name));
+    }
+  }
+
+  /**
    * Move into the object to the object at a given name.
    *
    * <p>
@@ -434,14 +439,13 @@ public class JsonNavigator {
         currentArraySize = currentArray.size();
         currentArrayPosition = 0;
       } else {
-        throw new JsonInteractiveSpacesException(String.format(
-            "The named item %s is neither an object or an array", name));
+        throw new JsonInteractiveSpacesException(String.format("The named item %s is neither an object or an array",
+            name));
       }
 
       return this;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not a object for name %s", name));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not a object for name %s", name));
     }
   }
 
@@ -475,14 +479,13 @@ public class JsonNavigator {
         currentArraySize = currentArray.size();
         currentArrayPosition = 0;
       } else {
-        throw new JsonInteractiveSpacesException(String.format(
-            "The posiiton %d is neither an object or an array", pos));
+        throw new JsonInteractiveSpacesException(
+            String.format("The posiiton %d is neither an object or an array", pos));
       }
 
       return this;
     } else {
-      throw new JsonInteractiveSpacesException(String.format(
-          "Current level is not an array for position %d", pos));
+      throw new JsonInteractiveSpacesException(String.format("Current level is not an array for position %d", pos));
     }
   }
 
@@ -552,8 +555,7 @@ public class JsonNavigator {
             List<Object> objectList = checkedValue(curObject, path);
             curObject = objectList.get(index);
           } else {
-            throw new JsonInteractiveSpacesException(String.format(
-                "Path element %s does not end in a ]", element));
+            throw new JsonInteractiveSpacesException(String.format("Path element %s does not end in a ]", element));
           }
         } else if (curObject instanceof Map) {
           throw new JsonInteractiveSpacesException("Attempt to use an array index in an object");
@@ -596,7 +598,7 @@ public class JsonNavigator {
    * @throws SimpleInteractiveSpacesException
    *           if there was a typecast or other error
    */
-  private <T> T checkedValue(Object value, String name) {
+  private <T> T checkedValue(Object value, String name) throws SimpleInteractiveSpacesException {
     return checkedValue(value, name, 0);
   }
 
@@ -618,7 +620,7 @@ public class JsonNavigator {
    *           if there was a typecast or other error
    */
   @SuppressWarnings("unchecked")
-  private <T> T checkedValue(Object value, String format, int index) {
+  private <T> T checkedValue(Object value, String format, int index) throws SimpleInteractiveSpacesException {
     try {
       return (T) value;
     } catch (Exception e) {
