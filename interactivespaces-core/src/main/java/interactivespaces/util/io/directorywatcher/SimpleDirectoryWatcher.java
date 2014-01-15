@@ -16,11 +16,11 @@
 
 package interactivespaces.util.io.directorywatcher;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.Files;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 
@@ -31,7 +31,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A basic {@link DirectoryWatcher}/
+ * A basic {@link DirectoryWatcher}.
  *
  * @author Keith M. Hughes
  */
@@ -40,7 +40,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   /**
    * The directories being watched.
    */
-  private List<File> directoriesWatched = Lists.newArrayList();
+  private final List<File> directoriesWatched = Lists.newArrayList();
 
   /**
    * The files seen on the last round.
@@ -50,7 +50,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   /**
    * The listeners.
    */
-  private List<DirectoryWatcherListener> listeners = Lists.newArrayList();
+  private final List<DirectoryWatcherListener> listeners = Lists.newArrayList();
 
   /**
    * The future used for scheduling the scanning.
@@ -75,9 +75,8 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   /**
    * Construct a new SimpleWatcher.
    *
-   * @param cleanFirst
-   *          {@code true} if added directories are cleaned before they are
-   *          watched
+   * <p>
+   * Directories will not be cleaned before they are watched.
    */
   public SimpleDirectoryWatcher() {
     this(false);
@@ -109,8 +108,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   }
 
   @Override
-  public synchronized void startup(InteractiveSpacesEnvironment environment, long period,
-      TimeUnit unit) {
+  public synchronized void startup(InteractiveSpacesEnvironment environment, long period, TimeUnit unit) {
     // If no log was set, we will use the space environment log
     if (log == null) {
       log = environment.getLog();
@@ -119,8 +117,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   }
 
   @Override
-  public Set<File> startupWithScan(InteractiveSpacesEnvironment environment, long period,
-      TimeUnit unit) {
+  public Set<File> startupWithScan(InteractiveSpacesEnvironment environment, long period, TimeUnit unit) {
     filesLastScanned = scanAllDirectories();
 
     startup(environment, period, unit);
@@ -210,16 +207,19 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   }
 
   /**
-   * Scan all directories for the files they contain
+   * Scan all directories for the files they contain.
    *
    * @return the set of all files which are currently in the folders
    */
   protected Set<File> scanAllDirectories() {
     Set<File> currentScan = Sets.newHashSet();
     for (File directory : directoriesWatched) {
-      if (directory.exists() && directory.isDirectory()) {
-        for (File file : directory.listFiles()) {
-          currentScan.add(file);
+      if (directory.isDirectory()) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+          for (File file : files) {
+            currentScan.add(file);
+          }
         }
       }
     }
@@ -238,9 +238,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
       try {
         listener.onFileAdded(fileAdded);
       } catch (Exception e) {
-        log.error(
-            String.format("Exception while signalling file added %s", fileAdded.getAbsolutePath()),
-            e);
+        log.error(String.format("Exception while signalling file added %s", fileAdded.getAbsolutePath()), e);
       }
     }
   }
@@ -256,9 +254,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
       try {
         listener.onFileRemoved(fileRemoved);
       } catch (Exception e) {
-        log.error(
-            String.format("Exception while signalling file removed %s",
-                fileRemoved.getAbsolutePath()), e);
+        log.error(String.format("Exception while signalling file removed %s", fileRemoved.getAbsolutePath()), e);
       }
     }
   }

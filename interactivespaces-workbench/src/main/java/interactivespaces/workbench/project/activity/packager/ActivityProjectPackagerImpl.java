@@ -102,8 +102,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @throws IOException
    *           error writing artifact to output file
    */
-  private void addArtifacts(ProjectBuildContext context, byte[] buf, ZipOutputStream out)
-      throws IOException {
+  private void addArtifacts(ProjectBuildContext context, byte[] buf, ZipOutputStream out) throws IOException {
     for (File artifact : context.getArtifactsToAdd()) {
       writeZipEntry(buf, out, "", artifact);
     }
@@ -124,13 +123,16 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @throws IOException
    *           error writing artifact to output file
    */
-  private void writeDistributionFile(File activityFolder, byte[] buf,
-      ZipOutputStream packageOutputStream, String parentPath) throws IOException {
-    for (File file : activityFolder.listFiles()) {
-      if (file.isDirectory()) {
-        writeDistributionFile(file, buf, packageOutputStream, parentPath + file.getName() + "/");
-      } else {
-        writeZipEntry(buf, packageOutputStream, parentPath, file);
+  private void writeDistributionFile(File activityFolder, byte[] buf, ZipOutputStream packageOutputStream,
+      String parentPath) throws IOException {
+    File[] files = activityFolder.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.isDirectory()) {
+          writeDistributionFile(file, buf, packageOutputStream, parentPath + file.getName() + "/");
+        } else {
+          writeZipEntry(buf, packageOutputStream, parentPath, file);
+        }
       }
     }
   }
@@ -150,8 +152,8 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @throws IOException
    *           problem writing zip entry
    */
-  protected void writeZipEntry(byte[] buf, ZipOutputStream packageOutputStream, String parentPath,
-      File file) throws IOException {
+  protected void writeZipEntry(byte[] buf, ZipOutputStream packageOutputStream, String parentPath, File file)
+      throws IOException {
     FileInputStream in = new FileInputStream(file);
 
     // Add ZIP entry to output stream.

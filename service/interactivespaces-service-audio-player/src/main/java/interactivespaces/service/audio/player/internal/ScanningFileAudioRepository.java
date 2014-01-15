@@ -16,14 +16,14 @@
 
 package interactivespaces.service.audio.player.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrack;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.farng.mp3.MP3File;
 
@@ -61,6 +61,9 @@ public class ScanningFileAudioRepository implements AudioRepository {
    */
   private Map<String, PlayableAudioTrack> tracks;
 
+  /**
+   * The random number generator for shuffle play.
+   */
   private Random random;
 
   @Override
@@ -110,7 +113,7 @@ public class ScanningFileAudioRepository implements AudioRepository {
   }
 
   /**
-   * Get a list of all tracks
+   * Get a list of all tracks.
    *
    * @return a list of all tracks in no particular order
    */
@@ -122,8 +125,7 @@ public class ScanningFileAudioRepository implements AudioRepository {
    * v Scan all base repositories.
    */
   private void scanRepositories() {
-    String baseRepositories =
-        configuration.getRequiredPropertyString(PROPERTY_MUSIC_REPOSITORY_BASE);
+    String baseRepositories = configuration.getRequiredPropertyString(PROPERTY_MUSIC_REPOSITORY_BASE);
 
     for (String baseRepository : baseRepositories.split("::")) {
       if (baseRepository.trim().isEmpty()) {
@@ -131,7 +133,7 @@ public class ScanningFileAudioRepository implements AudioRepository {
       }
 
       File baseRepositoryFile = new File(baseRepository);
-      if (baseRepositoryFile.exists()) {
+      if (baseRepositoryFile.isDirectory()) {
         scanRepositoryDir(baseRepositoryFile);
       }
     }
@@ -141,14 +143,17 @@ public class ScanningFileAudioRepository implements AudioRepository {
    * Scan the contents of the directory and all subdirectories for tracks.
    *
    * @param repositoryDir
-   *          the reposiory directory to scan
+   *          the repository directory to scan
    */
   private void scanRepositoryDir(File repositoryDir) {
-    for (File file : repositoryDir.listFiles()) {
-      if (file.isDirectory()) {
-        scanRepositoryDir(file);
-      } else if (isMusicFile(file)) {
-        addMusicFile(file);
+    File[] files = repositoryDir.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.isDirectory()) {
+          scanRepositoryDir(file);
+        } else if (isMusicFile(file)) {
+          addMusicFile(file);
+        }
       }
     }
   }
@@ -173,8 +178,7 @@ public class ScanningFileAudioRepository implements AudioRepository {
    */
   private void addMusicFile(File file) {
     if (!file.canRead()) {
-      throw new InteractiveSpacesException(String.format("Cannot read music file %s",
-          file.getAbsolutePath()));
+      throw new InteractiveSpacesException(String.format("Cannot read music file %s", file.getAbsolutePath()));
     }
 
     AudioTrack track = new AudioTrack();
@@ -203,8 +207,8 @@ public class ScanningFileAudioRepository implements AudioRepository {
    *
    * @param file
    *          the music file to extract the data from
-   *
-   * @return the metadata for the music, if possible to get, or null if not.
+   * @param track
+   *          the track object getting the metadata
    */
   private void getMusicMetadata(File file, AudioTrack track) {
     try {
@@ -214,8 +218,8 @@ public class ScanningFileAudioRepository implements AudioRepository {
       track.setArtist(metadata.getID3v2Tag().getLeadArtist());
       track.setAlbum(metadata.getID3v2Tag().getAlbumTitle());
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new InteractiveSpacesException(String.format("Error while scanning audio file %s", file.getAbsolutePath()),
+          e);
     }
   }
 }

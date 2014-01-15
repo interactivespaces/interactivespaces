@@ -16,10 +16,10 @@
 
 package interactivespaces.util.io.directorywatcher;
 
+import interactivespaces.system.InteractiveSpacesEnvironment;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.File;
 import java.util.List;
@@ -37,7 +37,7 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   /**
    * The directories being watched.
    */
-  private List<File> directoriesWatched = Lists.newArrayList();
+  private final List<File> directoriesWatched = Lists.newArrayList();
 
   /**
    * The files seen on the last round.
@@ -47,7 +47,7 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   /**
    * The listeners.
    */
-  private List<BatchDirectoryWatcherListener> listeners = Lists.newArrayList();
+  private final List<BatchDirectoryWatcherListener> listeners = Lists.newArrayList();
 
   /**
    * The future used for scheduling the scanning.
@@ -55,14 +55,12 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   private ScheduledFuture<?> scanningFuture;
 
   @Override
-  public synchronized void startup(InteractiveSpacesEnvironment environment, long period,
-      TimeUnit unit) {
+  public synchronized void startup(InteractiveSpacesEnvironment environment, long period, TimeUnit unit) {
     scanningFuture = environment.getExecutorService().scheduleAtFixedRate(this, 0, period, unit);
   }
 
   @Override
-  public Set<File> startupWithScan(InteractiveSpacesEnvironment environment, long period,
-      TimeUnit unit) {
+  public Set<File> startupWithScan(InteractiveSpacesEnvironment environment, long period, TimeUnit unit) {
     filesLastScanned = scanAllDirectories();
 
     startup(environment, period, unit);
@@ -104,8 +102,7 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   }
 
   @Override
-  public synchronized void removeBatchDirectoryWatcherListener(
-      BatchDirectoryWatcherListener listener) {
+  public synchronized void removeBatchDirectoryWatcherListener(BatchDirectoryWatcherListener listener) {
     listeners.remove(listener);
   }
 
@@ -135,16 +132,19 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   }
 
   /**
-   * Scan all directories for the files they contain
+   * Scan all directories for the files they contain.
    *
    * @return the set of all files which are currently in the folders
    */
   private Set<File> scanAllDirectories() {
     Set<File> currentScan = Sets.newHashSet();
     for (File directory : directoriesWatched) {
-      if (directory.exists() && directory.isDirectory()) {
-        for (File file : directory.listFiles()) {
-          currentScan.add(file);
+      if (directory.isDirectory()) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+          for (File file : files) {
+            currentScan.add(file);
+          }
         }
       }
     }
@@ -155,8 +155,8 @@ public class SimpleBatchDirectoryWatcher implements BatchDirectoryWatcher, Runna
   /**
    * Signal all listeners that a file has been added.
    *
-   * @param fileAdded
-   *          the file which has been added
+   * @param filesAdded
+   *          the files which have been added
    */
   private void signalFileAdded(Set<File> filesAdded) {
     for (BatchDirectoryWatcherListener listener : listeners) {
