@@ -32,6 +32,7 @@ import org.ros.message.MessageListener;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -78,14 +79,24 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   private final String rosMessageType;
 
   /**
-   * All topic inputs
+   * All topic inputs mapped to their subscribers.
    */
   private final Map<String, RosSubscribers<T>> inputs = Maps.newConcurrentMap();
 
   /**
-   * All topic outputs
+   * All topic inputs mapped to their topic names.
+   */
+  private final Map<String, String> inputTopics = new ConcurrentSkipListMap<String, String>();
+
+  /**
+   * All topic outputs mapped to their publishers.
    */
   private final Map<String, RosPublishers<T>> outputs = Maps.newConcurrentMap();
+
+  /**
+   * All topic outputs mapped to their topic names.
+   */
+  private final Map<String, String> outputTopics = new ConcurrentSkipListMap<String, String>();
 
   /**
    * A publisher collection to be used as a message factory.
@@ -237,6 +248,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     RosPublishers<T> publishers =
         new RosPublishers<T>(getComponentContext().getActivity().getLog());
     outputs.put(outputName, publishers);
+    outputTopics.put(outputName, topicNames);
 
     // Only matters that we get one. They are all for the same
     // message type, so will take the last one.
@@ -262,6 +274,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     RosSubscribers<T> subscribers =
         new RosSubscribers<T>(getComponentContext().getActivity().getLog());
     inputs.put(inputName, subscribers);
+    inputTopics.put(inputName, topicNames);
 
     subscribers.addSubscribers(rosActivityComponent.getNode(), rosMessageType,
         topicNames, new MessageListener<T>() {
@@ -297,11 +310,13 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       input.shutdown();
     }
     inputs.clear();
+    inputTopics.clear();
 
     for (RosPublishers<T> output : outputs.values()) {
       output.shutdown();
     }
     outputs.clear();
+    outputTopics.clear();
   }
 
   @Override
@@ -387,5 +402,17 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
    */
   private String newHandlerInvocationId() {
     return Long.toHexString(handlerInvocationId.getAndIncrement());
+  }
+
+  @Override
+  public String getComponentStatusDetail() {
+    StringBuilder routes = new StringBuilder();
+    for (Map.Entry<String, String> input : inputTopics.entrySet()) {
+      routes.append(input.getKey()).append(" < ").append(input.getValue()).append('\n');
+    }
+    for (Map.Entry<String, String> input : outputTopics.entrySet()) {
+      routes.append(input.getKey()).append(" > ").append(input.getValue()).append('\n');
+    }
+    return routes.toString();
   }
 }

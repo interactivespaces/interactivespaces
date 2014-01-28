@@ -303,7 +303,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     for (ActivityComponent component : componentContext.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
-        detailString.append(" ").append(detail);
+        detailString.append('\n').append(detail.trim());
       }
     }
     return detailString.toString();
