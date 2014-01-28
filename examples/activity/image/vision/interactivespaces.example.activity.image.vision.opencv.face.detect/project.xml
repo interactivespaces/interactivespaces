@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>OpenCV Vision Example: Face Detection</name>
+    <description>
+An activity which uses the camera attached to the controller and detects faces. The faces are announced by callback giving their rectangle.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.image.vision.opencv.face.detect</identifyingName>
+    <version>1.0.0</version>
+</project>

@@ -41,6 +41,11 @@ public class OpenCvMatPanel extends JPanel {
   private BufferedImage image;
 
   /**
+   * {@code true} if the image should be released after it is drawn.
+   */
+  private final boolean releaseAfterDraw;
+
+  /**
    * Logger for the panel.
    */
   private final Log log;
@@ -48,11 +53,27 @@ public class OpenCvMatPanel extends JPanel {
   /**
    * Construct a new panel.
    *
+   * <p>
+   * The image will be released after it is drawn.
+   *
    * @param log
    *          logger for the panel
    */
   public OpenCvMatPanel(Log log) {
+    this(log, true);
+  }
+
+  /**
+   * Construct a new panel.
+   *
+   * @param log
+   *          logger for the panel
+   * @param releaseAfterDraw
+   *          {@code true} if the Mat should be released after it is drawn
+   */
+  public OpenCvMatPanel(Log log, boolean releaseAfterDraw) {
     this.log = log;
+    this.releaseAfterDraw = releaseAfterDraw;
   }
 
   @Override
@@ -82,6 +103,10 @@ public class OpenCvMatPanel extends JPanel {
           image = get();
 
           repaint();
+
+          if (releaseAfterDraw) {
+            opencvImage.release();
+          }
         } catch (InterruptedException e) {
           log.info("Swing worker for rendering Mat images interrupted");
         } catch (ExecutionException e) {

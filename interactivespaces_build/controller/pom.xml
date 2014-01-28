@@ -451,6 +451,14 @@
 
                 <artifactItem>
                   <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-interaction</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
                   <artifactId>interactivespaces-service-core</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
@@ -672,7 +680,7 @@
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${staging.dir}/extras/opencv</outputDirectory>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.vision</outputDirectory>
                 </artifactItem>
 
               </artifactItems>

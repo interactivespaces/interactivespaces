@@ -18,15 +18,13 @@ package interactivespaces.service.image.vision.opencv;
 
 import interactivespaces.service.image.video.VideoLoop;
 import interactivespaces.util.InteractiveSpacesUtilities;
-import interactivespaces.util.concurrency.CancellableLoop;
 
 import org.apache.commons.logging.Log;
 import org.opencv.core.Mat;
 import org.opencv.highgui.VideoCapture;
 
 /**
- * A {@link CancellableLoop} which grabs video frames using OpenCV and processes
- * them.
+ * A {@link VideoLoop} which grabs video frames using OpenCV and processes them.
  *
  * @author Keith M. Hughes
  */
@@ -41,11 +39,6 @@ public class OpenCvVideoLoop extends VideoLoop<Mat> {
    * The IS of the camera to use.
    */
   private final int cameraId;
-
-  /**
-   * The image being captured.
-   */
-  private Mat frame;
 
   /**
    * The video capture device.
@@ -72,7 +65,6 @@ public class OpenCvVideoLoop extends VideoLoop<Mat> {
 
   @Override
   protected void setup() {
-    frame = new Mat();
     capture = new VideoCapture(cameraId);
 
     // OpenCV sometimes needs a bit of time for the camera to fully initialize.
@@ -81,6 +73,7 @@ public class OpenCvVideoLoop extends VideoLoop<Mat> {
 
   @Override
   protected void loop() throws InterruptedException {
+    Mat frame = new Mat();
     capture.grab();
     capture.retrieve(frame);
     if (frame.empty()) {

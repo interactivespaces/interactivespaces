@@ -16,7 +16,8 @@
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-
+  compile project(':interactivespaces-interaction')
+  
   compile files("${project.getProperty('opencv.home')}/bin/opencv-247.jar")
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'

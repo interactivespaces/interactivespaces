@@ -33,61 +33,42 @@ import java.util.List;
 public abstract class VideoLoop<T> extends CancellableLoop {
 
   /**
-   * A list of listeners.
+   * A set of processors for the video frames.
    */
-  private final List<VideoFrameListener<T>> listeners = Lists.newCopyOnWriteArrayList();
+  private final List<VideoFrameProcessor<T>> processors = Lists.newCopyOnWriteArrayList();
 
   /**
-   * Add a new frame listener to the loop.
+   * Add a new frame processor to the loop.
    *
-   * @param listener
-   *          the new listener
+   * @param processor
+   *          the new processor
    */
-  public void addListener(VideoFrameListener<T> listener) {
-    listeners.add(listener);
+  public void addProcessor(VideoFrameProcessor<T> processor) {
+    processors.add(processor);
   }
 
   /**
-   * Remove a frame listener from the loop.
+   * Remove a frame processor from the loop.
    *
    * <p>
-   * Does nothing if the listener was never added.
+   * Does nothing if the processor was never added.
    *
-   * @param listener
-   *          the listener to remove
+   * @param processor
+   *          the processor to remove
    */
-  public void removeListener(VideoFrameListener<T> listener) {
-    listeners.remove(listener);
+  public void removeProcessor(VideoFrameProcessor<T> processor) {
+    processors.remove(processor);
   }
 
   /**
-   * Notify all listeners about a new video frame.
+   * Notify all processors about a new video frame.
    *
    * @param frame
    *          the new frame
    */
   protected void notifyListenersNewVideoFrame(T frame) {
-    for (VideoFrameListener<T> listener : listeners) {
-      listener.onNewVideoFrame(frame);
+    for (VideoFrameProcessor<T> processor : processors) {
+      processor.onNewVideoFrame(frame);
     }
-  }
-
-  /**
-   * A listener for frames captured during with a {@link VideoLoop}.
-   *
-   * @param <T>
-   *          the type of video frame
-   *
-   * @author Keith M. Hughes
-   */
-  public interface VideoFrameListener<T> {
-
-    /**
-     * A new frame has come in.
-     *
-     * @param frame
-     *          the new frame
-     */
-    void onNewVideoFrame(T frame);
   }
 }
