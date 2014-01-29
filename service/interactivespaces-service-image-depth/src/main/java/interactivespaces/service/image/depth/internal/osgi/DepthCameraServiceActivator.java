@@ -14,20 +14,20 @@
  * the License.
  */
 
-package interactivespaces.service.image.vision.internal.osgi;
+package interactivespaces.service.image.depth.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
-import interactivespaces.service.image.gesture.leapmotion.LeapMotionGestureService;
+import interactivespaces.service.image.depth.internal.openni2.Openni2DepthCameraService;
 
 /**
- * An OSGI bundle activator for the image vision service.
+ * An OSGI bundle activator for the image depth camera service.
  *
  * @author Keith M. Hughes
  */
-public class ImageVisionServiceActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+public class DepthCameraServiceActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   @Override
   protected void allRequiredServicesAvailable() {
-    registerNewInteractiveSpacesService(new LeapMotionGestureService());
+    registerNewInteractiveSpacesService(new Openni2DepthCameraService());
   }
 }

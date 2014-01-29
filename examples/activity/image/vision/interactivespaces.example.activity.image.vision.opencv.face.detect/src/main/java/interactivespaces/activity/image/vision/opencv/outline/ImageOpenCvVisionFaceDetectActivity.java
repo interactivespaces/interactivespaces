@@ -19,7 +19,7 @@ package interactivespaces.activity.image.vision.opencv.outline;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.interaction.detection.DetectionEventListener;
-import interactivespaces.service.image.video.BaseVideoFrameListener;
+import interactivespaces.service.image.video.BaseVideoFrameProcessor;
 import interactivespaces.service.image.video.CompositeVideoFrameProcessor;
 import interactivespaces.service.image.vision.opencv.OpenCvCascadeClassifierVideoFrameProcessor;
 import interactivespaces.service.image.vision.opencv.OpenCvVideoLoop;
@@ -147,7 +147,7 @@ public class ImageOpenCvVisionFaceDetectActivity extends BaseRoutableRosActivity
     frame.setContentPane(panel);
     frame.setVisible(true);
     addManagedResource(new JFrameManagedResource(frame));
-    compositeListener.addComponent(new BaseVideoFrameListener<Mat>() {
+    compositeListener.addComponent(new BaseVideoFrameProcessor<Mat>() {
 
       @Override
       public Mat onNewVideoFrame(Mat frame) {

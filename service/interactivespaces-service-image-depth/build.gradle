@@ -18,7 +18,8 @@ dependencies {
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-interaction')
   
-  compile files("${project.getProperty('opencv.home')}/bin/opencv-247.jar")
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/openni/2.2/org.openni.jar")
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/nite/2.2/com.primesense.nite.jar")
   
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
@@ -26,40 +27,19 @@ dependencies {
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
-task copyResources(type: Copy) {
-  from 'src/main/resources/extras'
-  into 'build/staging/controller/extras'
-}
-
-task copyOpenCVJars(type: Copy) {
-  from "${project.getProperty('opencv.home')}/bin"
-  into 'build/staging/controller/extras/interactivespaces.service.image.vision/jars'
-  include '**/*.jar'
-}
-
-task copyOpenCVNativeLibs(type: Copy) {
-  from "${project.getProperty('opencv.home')}/lib"
-  into 'build/staging/controller/extras/interactivespaces.service.image.vision/native/linux'
-  exclude '**/*.a'
-}
-
-task copyExtraComponents(dependsOn: [copyResources, copyOpenCVNativeLibs, copyOpenCVJars])
-
-install.dependsOn.add copyExtraComponents
-
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.service.image.vision'
+    symbolicName = 'interactivespaces.service.image.depth'
 
     instruction 'Bundle-Activator',
-        'interactivespaces.service.image.vision.internal.osgi.ImageVisionServiceActivator'
+        'interactivespaces.service.image.depth.internal.osgi.DepthCameraServiceActivator'
 
     instruction 'Export-Package',
-        '!interactivespaces.service.image.vision.internal.*',
+        '!interactivespaces.service.image.depth.internal.*',
         '*'
 
     instruction 'Private-Package',
-        'interactivespaces.service.image.vision.internal.*'
+        'interactivespaces.service.image.depth.internal.*'
   }
 }

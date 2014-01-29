@@ -47,7 +47,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
   /**
    * All OSGi service registrations from this bundle.
    */
-  private final List<ServiceRegistration> osgiServiceRegistrations = Lists.newArrayList();
+  private final List<ServiceRegistration<?>> osgiServiceRegistrations = Lists.newArrayList();
 
   /**
    * All services registered by this bundle.
@@ -128,7 +128,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * Unregister all OSGi-registered services.
    */
   private void unregisterOsgiServices() {
-    for (ServiceRegistration service : osgiServiceRegistrations) {
+    for (ServiceRegistration<?> service : osgiServiceRegistrations) {
       service.unregister();
     }
     osgiServiceRegistrations.clear();
@@ -205,13 +205,18 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    *          the service to be registered
    */
   protected void registerNewInteractiveSpacesService(Service service) {
-    interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry().registerService(service);
+    try {
+      interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry().registerService(service);
 
-    if (SupportedService.class.isAssignableFrom(service.getClass())) {
-      ((SupportedService) service).startup();
+      if (SupportedService.class.isAssignableFrom(service.getClass())) {
+        ((SupportedService) service).startup();
+      }
+
+      registeredServices.add(service);
+    } catch (Exception e) {
+      interactiveSpacesEnvironmentTracker.getMyService().getLog()
+          .error(String.format("Error while starting up service %s", service.getName()), e);
     }
-
-    registeredServices.add(service);
   }
 
   /**

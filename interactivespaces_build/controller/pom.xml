@@ -195,7 +195,15 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-
+                
+                <artifactItem>
+                  <groupId>org.codehaus.groovy</groupId>
+                  <artifactId>groovy-all</artifactId>
+                  <version>2.2.1</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
                 <!-- ROS bundles needed -->
                 <artifactItem>
                   <groupId>interactivespaces</groupId>
@@ -682,7 +690,15 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.vision</outputDirectory>
                 </artifactItem>
-
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-service-image-depth</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.depth</outputDirectory>
+                </artifactItem>
+                
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>

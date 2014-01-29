@@ -17,7 +17,7 @@
 package interactivespaces.activity.image.vision.opencv.outline;
 
 import interactivespaces.activity.impl.BaseActivity;
-import interactivespaces.service.image.video.VideoFrameProcessor;
+import interactivespaces.service.image.video.BaseVideoFrameProcessor;
 import interactivespaces.service.image.vision.opencv.OpenCvVideoLoop;
 import interactivespaces.service.image.vision.opencv.swing.OpenCvMatPanel;
 import interactivespaces.util.ui.swing.JFrameManagedResource;
@@ -34,7 +34,7 @@ import javax.swing.JFrame;
  *
  * @author Keith M. Hughes
  */
-public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements VideoFrameProcessor<Mat> {
+public class ImageOpenCvVisionOutlineActivity extends BaseActivity {
 
   /**
    * Configuration property for specifying which camera to use.
@@ -96,12 +96,25 @@ public class ImageOpenCvVisionOutlineActivity extends BaseActivity implements Vi
     OpenCvVideoLoop videoLoop =
         new OpenCvVideoLoop(getConfiguration().getPropertyInteger(CONFIGURATION_NAME_CAMERA_ID, CAMERA_ID_DEFAULT),
             getLog());
-    videoLoop.addProcessor(this);
+    videoLoop.addProcessor(new BaseVideoFrameProcessor<Mat>() {
+
+      @Override
+      public Mat onNewVideoFrame(Mat frame) {
+        return handleNewVideoFrame(frame);
+      }
+    });
     getManagedCommands().submit(videoLoop);
   }
 
-  @Override
-  public Mat onNewVideoFrame(Mat frame) {
+  /**
+   * Handle a new video frame.
+   *
+   * @param frame
+   *        the frame to handle
+   *
+   * @return the completed frame
+   */
+  public Mat handleNewVideoFrame(Mat frame) {
     Mat processed = new Mat(frame.size(), CvType.CV_8UC3);
     edgeify(frame, processed);
 

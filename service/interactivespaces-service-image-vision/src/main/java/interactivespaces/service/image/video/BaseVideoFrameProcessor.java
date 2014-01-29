@@ -24,7 +24,7 @@ package interactivespaces.service.image.video;
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseVideoFrameListener<T> implements VideoFrameProcessor<T> {
+public abstract class BaseVideoFrameProcessor<T> implements VideoFrameProcessor<T> {
 
   @Override
   public void startup() {

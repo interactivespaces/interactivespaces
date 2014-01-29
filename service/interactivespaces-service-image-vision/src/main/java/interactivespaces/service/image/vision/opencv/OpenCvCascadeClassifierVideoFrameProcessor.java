@@ -17,7 +17,7 @@
 package interactivespaces.service.image.vision.opencv;
 
 import interactivespaces.interaction.detection.DetectionEventListener;
-import interactivespaces.service.image.video.BaseVideoFrameListener;
+import interactivespaces.service.image.video.BaseVideoFrameProcessor;
 import interactivespaces.util.geometry.Rectangle2;
 
 import com.google.common.collect.Lists;
@@ -39,7 +39,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class OpenCvCascadeClassifierVideoFrameProcessor extends BaseVideoFrameListener<Mat> {
+public class OpenCvCascadeClassifierVideoFrameProcessor extends BaseVideoFrameProcessor<Mat> {
 
   /**
    * Color to use for drawing detection rectangles.
