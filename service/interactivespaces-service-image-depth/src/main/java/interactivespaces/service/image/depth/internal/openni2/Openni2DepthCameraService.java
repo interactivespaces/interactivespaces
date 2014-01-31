@@ -22,10 +22,7 @@ import interactivespaces.service.image.depth.DepthCameraService;
 
 import com.google.common.collect.Lists;
 
-import com.primesense.nite.NiTE;
 import org.apache.commons.logging.Log;
-import org.openni.DeviceInfo;
-import org.openni.OpenNI;
 
 import java.util.List;
 
@@ -43,43 +40,43 @@ public class Openni2DepthCameraService extends BaseSupportedService implements D
 
   @Override
   public void startup() {
-    OpenNI.initialize();
-    NiTE.initialize();
-
-    getSpaceEnvironment().getExecutorService().submit(new Runnable() {
-
-      @Override
-      public void run() {
-        DepthCameraEndpoint endpoint = null;
-        try {
-          endpoint = newDepthCameraEndpoint(getSpaceEnvironment().getLog());
-          endpoint.startup();
-
-          Thread.sleep(20000);
-        } catch (Exception e) {
-          getSpaceEnvironment().getLog().error("Endpoint failed", e);
-        } finally {
-          if (endpoint != null) {
-            try {
-              endpoint.shutdown();
-            } catch (Exception e) {
-              getSpaceEnvironment().getLog().error("Endpoint shutdown failed", e);
-            }
-          }
-        }
-
-      }
-
-    });
+//    OpenNI.initialize();
+//    NiTE.initialize();
+//
+//    getSpaceEnvironment().getExecutorService().submit(new Runnable() {
+//
+//      @Override
+//      public void run() {
+//        DepthCameraEndpoint endpoint = null;
+//        try {
+//          endpoint = newDepthCameraEndpoint(getSpaceEnvironment().getLog());
+//          endpoint.startup();
+//
+//          Thread.sleep(20000);
+//        } catch (Exception e) {
+//          getSpaceEnvironment().getLog().error("Endpoint failed", e);
+//        } finally {
+//          if (endpoint != null) {
+//            try {
+//              endpoint.shutdown();
+//            } catch (Exception e) {
+//              getSpaceEnvironment().getLog().error("Endpoint shutdown failed", e);
+//            }
+//          }
+//        }
+//
+//      }
+//
+//    });
   }
 
   @Override
   public List<String> getDepthCamerasAvailable() {
     List<String> cameras = Lists.newArrayList();
 
-    for (DeviceInfo device : OpenNI.enumerateDevices()) {
-      cameras.add(device.getUri());
-    }
+//    for (DeviceInfo device : OpenNI.enumerateDevices()) {
+//      cameras.add(device.getUri());
+//    }
 
     return cameras;
   }
