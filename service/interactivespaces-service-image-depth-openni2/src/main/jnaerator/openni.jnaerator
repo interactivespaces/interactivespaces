@@ -1,0 +1,16 @@
+-I "$(OPENNI_HOME)/Include"
+-I "$(NITE_HOME)/Include"
+
+-preferJavac
+-package interactivespaces.service.image.depth.internal.openni2.libraries
+-mode Directory
+-o src/main/java
+-U_WIN32
+-D__linux__=1
+-runtime BridJ
+
+-library NiTE2
+     "$(NITE_HOME)/Include/*.h"
+
+-library OpenNI2
+     "$(OPENNI_HOME)/Include/*.h"

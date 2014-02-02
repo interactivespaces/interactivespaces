@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,9 +21,24 @@ import interactivespaces.util.geometry.Vector3;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
+ * A depth camera endpoint which does user tracking.
+ *
+ * <p>
+ * Entities will be detected. The 3D position of their center of mass will be
+ * part of the event stream. IDs are stable, meaning that the ID of a particular
+ * entity will be stable from frame to frame.
+ *
  * @author Keith M. Hughes
  */
-public interface DepthCameraEndpoint extends ManagedResource {
+public interface UserTrackerDepthCameraEndpoint extends ManagedResource {
+
+  /**
+   * Set how often frames are sampled from the camera.
+   *
+   * @param readerLoopRate
+   *          the time between camera samples, in milliseconds
+   */
+  void setReaderLoopRate(int readerLoopRate);
 
   /**
    * Add a new tracked entity listener to the endpoint.

@@ -1,0 +1,14 @@
+The code in this bundle provides access to the OpenNI2 and NiTE2 C APIs.
+
+Interestingly the C++ API is build fully on the C APIs using .h files that define the needed class code.
+
+This command runs the jnaerator package, available at https://code.google.com/p/jnaerator/
+
+This tool reads the library's .h files and writes Java code which represents the library. The 
+openni.jnaerator file describes how the code should be generated. In the current case, code is generated
+which uses the BridJ library, which can call code in a native library dynamically without generating any
+JNI code.
+
+java -DNITE_HOME=~/software/openni/NiTE-Linux-x64-2.2 \
+    -DOPENNI_HOME=~/software/openni/OpenNI-Linux-x64-2.2 -jar \
+    ~/Downloads/jnaerator-0.12-SNAPSHOT-20130727.jar -f openni.jnaerator

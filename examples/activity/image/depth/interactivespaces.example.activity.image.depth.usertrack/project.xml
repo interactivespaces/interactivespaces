@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+    <name>Depth Camera Example: User Tracking</name>
+    <description>
+An activity which uses a depth camera attached to the controller to track users. The user position is sent on a route.
+    </description>
+
+    <identifyingName>interactivespaces.example.activity.image.depth.usertrack</identifyingName>
+    <version>1.0.0</version>
+</project>
