@@ -109,10 +109,36 @@ public class NettyWebServer implements WebServer {
    */
   private ServerBootstrap bootstrap;
 
+  /**
+   * Create a web server using a singular thread pool.
+   *
+   * @param serverName
+   *          name for the server
+   * @param port
+   *          port to listen on
+   * @param threadPool
+   *          thread pool to use
+   * @param log
+   *          logger
+   */
   public NettyWebServer(String serverName, int port, ScheduledExecutorService threadPool, Log log) {
     this(serverName, port, threadPool, threadPool, log);
   }
 
+  /**
+   * Create a server with differentiated thread pools.
+   *
+   * @param serverName
+   *          name for the server
+   * @param port
+   *          port to listen on
+   * @param bossThreadPool
+   *          thread pool to use for boss threads
+   * @param workerThreadPool
+   *          thread pool to use for workers
+   * @param log
+   *          logger
+   */
   public NettyWebServer(String serverName, int port, ScheduledExecutorService bossThreadPool,
       ScheduledExecutorService workerThreadPool, Log log) {
     this.serverName = serverName;
@@ -174,12 +200,23 @@ public class NettyWebServer implements WebServer {
   @Override
   public void addStaticContentHandler(String uriPrefix, File baseDir,
       Map<String, String> extraHttpContentHeaders) {
-    if (!baseDir.exists())
+    addStaticContentHandler(uriPrefix, baseDir, extraHttpContentHeaders, null);
+  }
+
+  @Override
+  public void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders,
+      HttpDynamicRequestHandler fallbackHandler) {
+    if (!baseDir.exists()) {
       throw new InteractiveSpacesException(String.format("Cannot find web folder %s",
           baseDir.getAbsolutePath()));
+    }
+
+    NettyHttpDynamicRequestHandlerHandler fallbackNettyHandler = fallbackHandler == null ? null
+        : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
+            fallbackHandler, extraHttpContentHeaders);
 
     serverHandler.addHttpContentHandler(new NettyStaticContentHandler(serverHandler, uriPrefix,
-        baseDir, extraHttpContentHeaders));
+        baseDir, extraHttpContentHeaders, fallbackNettyHandler));
   }
 
   @Override
@@ -229,7 +266,7 @@ public class NettyWebServer implements WebServer {
   /**
    * Get the worker thread pool.
    *
-   * @return
+   * @return thread pool to use for worker threads
    */
   public ExecutorService getWorkerThreadPool() {
     return workerThreadPool;
@@ -238,7 +275,7 @@ public class NettyWebServer implements WebServer {
   /**
    * A new channel was opened. Register it so it can be properly shut down.
    *
-   * @param channel
+   * @param channel channel that has been opened
    */
   public void channelOpened(Channel channel) {
     allChannels.add(channel);

@@ -54,9 +54,19 @@ import java.util.Set;
 public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
   /**
+   * Chunk size to use for copying content.
+   */
+  private static final int COPY_CHUNK_SIZE = 8192;
+
+  /**
    * The parent content handler for this handler.
    */
   private NettyWebServerHandler parentHandler;
+
+  /**
+   * Fallback handler to use in case of missing target.
+   */
+  private NettyHttpDynamicRequestHandlerHandler fallbackHandler;
 
   /**
    * The URI prefix to be handled by this handler.
@@ -73,23 +83,38 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
    */
   private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
-  public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String up, File baseDir,
-      Map<String, String> extraHttpContentHeaders) {
+  /**
+   * Create a new instance.
+   *
+   * @param parentHandler
+   *          parent handler of this handler
+   * @param uriPrefix
+   *          uri prefix for this handler
+   * @param baseDir
+   *          base directory for static content
+   * @param extraHttpContentHeaders
+   *          extra http headers to use, can be {@code null}
+   * @param fallbackHandler
+   *          fallback handler to use, can be {@code null}
+   */
+  public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String uriPrefix, File baseDir,
+      Map<String, String> extraHttpContentHeaders, NettyHttpDynamicRequestHandlerHandler fallbackHandler) {
     this.parentHandler = parentHandler;
+    this.fallbackHandler = fallbackHandler;
 
     if (extraHttpContentHeaders != null) {
       this.extraHttpContentHeaders.putAll(extraHttpContentHeaders);
     }
 
-    StringBuilder uriPrefix = new StringBuilder();
-    if (!up.startsWith("/")) {
-      uriPrefix.append('/');
+    StringBuilder sanitizedUriPrefix = new StringBuilder();
+    if (!uriPrefix.startsWith("/")) {
+      sanitizedUriPrefix.append('/');
     }
-    uriPrefix.append(up);
-    if (!up.endsWith("/")) {
-      uriPrefix.append('/');
+    sanitizedUriPrefix.append(uriPrefix);
+    if (!uriPrefix.endsWith("/")) {
+      sanitizedUriPrefix.append('/');
     }
-    this.uriPrefix = uriPrefix.toString();
+    this.uriPrefix = sanitizedUriPrefix.toString();
 
     this.baseDir = baseDir;
   }
@@ -106,8 +131,9 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
     // Strip off query parameters, if any, as we don't care.
     int pos = url.indexOf('?');
-    if (pos != -1)
+    if (pos != -1) {
       url = url.substring(0, pos);
+    }
 
     int luriPrefixLength = uriPrefix.length();
     String filepath = url.substring(url.indexOf(uriPrefix) + luriPrefixLength);
@@ -119,7 +145,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     try {
       raf = new RandomAccessFile(file, "r");
     } catch (FileNotFoundException fnfe) {
-      parentHandler.sendError(ctx, NOT_FOUND);
+      if (fallbackHandler != null) {
+        fallbackHandler.handleWebRequest(ctx, req, cookiesToAdd);
+      } else {
+        parentHandler.sendError(ctx, NOT_FOUND);
+      }
       return;
     }
     long fileLength = raf.length();
@@ -145,7 +175,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     ChannelFuture writeFuture;
     if (ch.getPipeline().get(SslHandler.class) != null) {
       // Cannot use zero-copy with HTTPS.
-      writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, 8192));
+      writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, COPY_CHUNK_SIZE));
     } else {
       // No encryption - use zero-copy.
       final FileRegion region = new DefaultFileRegion(raf.getChannel(), 0, fileLength);

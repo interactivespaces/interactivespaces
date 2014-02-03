@@ -60,10 +60,28 @@ public interface WebServer extends ManagedResource {
    * @param baseDir
    *          the base directory for the content
    * @param extraHttpContentHeaders
-   *          extra content headers to add to every response, can be
-   *          {@code null}
+   *          extra content headers to add to every response, can be {@code null}
    */
   void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders);
+
+  /**
+   * Add in a new static content handler to the server.
+   *
+   * <p>
+   * Content handlers are attempted in the order added. The first prefix which
+   * matches will be run.
+   *
+   * @param uriPrefix
+   *          URI prefix for the content
+   * @param baseDir
+   *          the base directory for the content
+   * @param extraHttpContentHeaders
+   *          extra content headers to add to every response, can be {@code null}
+   * @param fallbackHandler
+   *          dynamic content handler to use if requested file is missing, can be {@code null}
+   */
+  void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders,
+      HttpDynamicRequestHandler fallbackHandler);
 
   /**
    * Add in a new dynamic content handler to the server.
