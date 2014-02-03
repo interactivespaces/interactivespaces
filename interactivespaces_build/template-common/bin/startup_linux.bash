@@ -17,17 +17,29 @@ if [ -f $RCFILE ]; then
   source $RCFILE
 fi
 
-CONTAINERARGS=./lib/system/java/container.args
+CONTAINERARGS=./config/environment/container.args
 if [ -f $CONTAINERARGS ]; then
   CONTAINERARGS_CONTENTS=`cat ${CONTAINERARGS}`
   EXTRAARGS="${EXTRAARGS} ${CONTAINERARGS_CONTENTS}"
 fi
 
+LOCALENVIRONMENTRC=./config/environment/localenvironment.rc
+if [ -f $LOCALENVIRONMENTRC ]; then
+  echo Reading config from $LOCALENVIRONMENTRC...
+  source $LOCALENVIRONMENTRC
+fi
+
+CLASSPATH=interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
+
+if [ -n $CLASSPATH_ADDITIONAL ]; then
+  CLASSPATH="${CLASSPATH}:${CLASSPATH_ADDITIONAL}"
+fi
+
 # Start up Interactive Spaces
 if [ $# == 0 ] || [ $1 == "foreground" ]; then
-  java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
+  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher
 fi
 
 if [ "$1" == "background" ]; then
-  nohup java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar --noshell &>/dev/null &
+  nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell &>/dev/null &
 fi

@@ -184,11 +184,15 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         createCoreServices(args);
 
-        List<String> loadclasses = new ArrayList<String>();
+        File systemFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM);
+        ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
+        extensionsReader.processExtensionFiles(systemFolder);
 
-        createAndStartFramework(loadclasses);
+        createAndStartFramework(extensionsReader);
 
         registerCoreServices();
+
+        loadClasses(extensionsReader.getLoadclasses());
 
         startBundles(initialBundles);
 
@@ -327,13 +331,13 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * Create, configure, and start the OSGi framework instance.
    *
-   * @param loadclasses
-   *          classes to load by the bootstrapper
+   * @param extensionsReader
+   *          the reader for extensions files
    *
    * @throws Exception
    *           unable to create and/or start the framework
    */
-  private void createAndStartFramework(List<String> loadclasses) throws Exception {
+  private void createAndStartFramework(ExtensionsReader extensionsReader) throws Exception {
     Map<String, String> m = new HashMap<String, String>();
 
     m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
@@ -351,11 +355,6 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (String pckage : PACKAGES_SYSTEM_INTERACTIVESPACES) {
       extraPackages.add(pckage);
     }
-
-    File systemFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM);
-
-    ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
-    extensionsReader.processExtensionFiles(systemFolder);
 
     extraPackages.addAll(extensionsReader.getPackages());
 
@@ -394,6 +393,25 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (String library : libraries) {
       loggingProvider.getLog().info(String.format("Loading library %s", library));
       System.loadLibrary(library);
+    }
+  }
+
+  /**
+   * Load a collection of classes.
+   *
+   * @param classes
+   *          the classes to load
+   */
+  private void loadClasses(List<String> classes) {
+    for (String className : classes) {
+      loggingProvider.getLog().info(String.format("Loading class %s", className));
+      try {
+        Class<?> clazz = InteractiveSpacesFrameworkBootstrap.class.getClassLoader().loadClass(className);
+        Object obj = clazz.newInstance();
+        rootBundleContext.registerService(obj.getClass().getName(), obj, null);
+      } catch (Exception e) {
+        loggingProvider.getLog().error(String.format("Error while creating class %s", className), e);
+      }
     }
   }
 

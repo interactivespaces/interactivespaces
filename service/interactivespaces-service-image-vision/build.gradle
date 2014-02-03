@@ -31,19 +31,19 @@ task copyResources(type: Copy) {
   into 'build/staging/controller/extras'
 }
 
-task copyOpenCVJars(type: Copy) {
+task copyExtrasJars(type: Copy) {
   from "${project.getProperty('opencv.home')}/bin"
   into 'build/staging/controller/extras/interactivespaces.service.image.vision/jars'
   include '**/*.jar'
 }
 
-task copyOpenCVNativeLibs(type: Copy) {
+task copyExtrasNativeLibs(type: Copy) {
   from "${project.getProperty('opencv.home')}/lib"
-  into 'build/staging/controller/extras/interactivespaces.service.image.vision/native/linux'
+  into 'build/staging/controller/extras/interactivespaces.service.image.vision/native/linux_x64'
   exclude '**/*.a'
 }
 
-task copyExtraComponents(dependsOn: [copyResources, copyOpenCVNativeLibs, copyOpenCVJars])
+task copyExtraComponents(dependsOn: [copyResources, copyExtrasNativeLibs, copyExtrasJars])
 
 install.dependsOn.add copyExtraComponents
 

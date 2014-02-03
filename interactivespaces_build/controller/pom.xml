@@ -195,7 +195,7 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-                
+
                 <artifactItem>
                   <groupId>org.codehaus.groovy</groupId>
                   <artifactId>groovy-all</artifactId>
@@ -203,7 +203,7 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-                
+
                 <!-- ROS bundles needed -->
                 <artifactItem>
                   <groupId>interactivespaces</groupId>
@@ -658,12 +658,12 @@
 
                 <!-- USB Service -->
                 <artifactItem>
-                  <groupId>net.java.dev.jna</groupId>
-                  <artifactId>jna</artifactId>
-                  <version>4.0.0</version>
+                  <groupId>com.nativelibs4java</groupId>
+                  <artifactId>bridj</artifactId>
+                  <version>0.7-SNAPSHOT</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${staging.dir}/extras</outputDirectory>
+                  <outputDirectory>${staging.dir}/extras/support/jars</outputDirectory>
                 </artifactItem>
                 <!--Interactive Spaces web services -->
                 <artifactItem>
@@ -698,7 +698,7 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.depth</outputDirectory>
                 </artifactItem>
-                
+
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>
@@ -750,6 +750,11 @@
       <id>org.ros.release</id>
       <name>ROS Repository - Releases</name>
       <url>http://robotbrains.hideho.org/nexus/content/groups/ros-public/</url>
+    </repository>
+    <repository>
+      <id>SnapshotRepository</id>
+      <name>Snapshot repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
 

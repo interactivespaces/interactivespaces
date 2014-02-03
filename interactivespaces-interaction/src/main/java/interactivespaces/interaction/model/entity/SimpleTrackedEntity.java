@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -77,4 +77,9 @@ public class SimpleTrackedEntity<T> extends SimplePositionableEntity<T> implemen
     return stateLost;
   }
 
+  @Override
+  public String toString() {
+    return "SimpleTrackedEntity [stateNew=" + stateNew + ", stateVisible=" + stateVisible + ", stateLost=" + stateLost
+        + ", getId()=" + getId() + ", getPosition()=" + getPosition() + "]";
+  }
 }

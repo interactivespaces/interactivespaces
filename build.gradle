@@ -126,6 +126,9 @@ subprojects {
         url 'http://robotbrains.hideho.org/nexus/content/groups/ros-public'
       }
       mavenCentral()
+      maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+      }
     }
 
     install.dependsOn build

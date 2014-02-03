@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -29,10 +29,10 @@ import java.util.List;
 public interface TrackedEntityListener<T> {
 
   /**
-   * New round of tracked entities have happened.
+   * Handle an update of the state of a collection of tracked entities.
    *
    * @param entities
    *          the entities
    */
-  void onNewTrackedEntities(List<TrackedEntity<T>> entities);
+  void onTrackedEntityUpdate(List<TrackedEntity<T>> entities);
 }

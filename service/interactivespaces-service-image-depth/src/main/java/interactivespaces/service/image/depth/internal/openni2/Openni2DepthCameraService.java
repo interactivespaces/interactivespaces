@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,13 +16,21 @@
 
 package interactivespaces.service.image.depth.internal.openni2;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.BaseSupportedService;
-import interactivespaces.service.image.depth.DepthCameraEndpoint;
 import interactivespaces.service.image.depth.DepthCameraService;
+import interactivespaces.service.image.depth.UserTrackerDepthCameraEndpoint;
+import interactivespaces.service.image.depth.internal.openni2.libraries.NiTE2Library;
+import interactivespaces.service.image.depth.internal.openni2.libraries.NiTE2Library.NiteStatus;
+import interactivespaces.service.image.depth.internal.openni2.libraries.OniDeviceInfo;
+import interactivespaces.service.image.depth.internal.openni2.libraries.OpenNI2Library;
+import interactivespaces.service.image.depth.internal.openni2.libraries.OpenNI2Library.OniStatus;
 
 import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
+import org.bridj.IntValuedEnum;
+import org.bridj.Pointer;
 
 import java.util.List;
 
@@ -40,49 +48,52 @@ public class Openni2DepthCameraService extends BaseSupportedService implements D
 
   @Override
   public void startup() {
-//    OpenNI.initialize();
-//    NiTE.initialize();
-//
-//    getSpaceEnvironment().getExecutorService().submit(new Runnable() {
-//
-//      @Override
-//      public void run() {
-//        DepthCameraEndpoint endpoint = null;
-//        try {
-//          endpoint = newDepthCameraEndpoint(getSpaceEnvironment().getLog());
-//          endpoint.startup();
-//
-//          Thread.sleep(20000);
-//        } catch (Exception e) {
-//          getSpaceEnvironment().getLog().error("Endpoint failed", e);
-//        } finally {
-//          if (endpoint != null) {
-//            try {
-//              endpoint.shutdown();
-//            } catch (Exception e) {
-//              getSpaceEnvironment().getLog().error("Endpoint shutdown failed", e);
-//            }
-//          }
-//        }
-//
-//      }
-//
-//    });
+    IntValuedEnum<OniStatus> openniStatus = OpenNI2Library.oniInitialize(OpenNI2Library.ONI_API_VERSION);
+    if (openniStatus != OniStatus.ONI_STATUS_OK) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("OpenNI2 would not initialize,  return status was %s", openniStatus));
+    }
+
+    IntValuedEnum<NiteStatus> niteStatus = NiTE2Library.niteInitialize();
+    if (niteStatus != NiteStatus.NITE_STATUS_OK) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("NiTE would not initialize,  return status was %s", niteStatus));
+    }
   }
 
   @Override
   public List<String> getDepthCamerasAvailable() {
-    List<String> cameras = Lists.newArrayList();
+    Pointer<Integer> numDevices = Pointer.allocateInt();
+    Pointer<Pointer<OniDeviceInfo>> devices = Pointer.allocatePointer(OniDeviceInfo.class);
 
-//    for (DeviceInfo device : OpenNI.enumerateDevices()) {
-//      cameras.add(device.getUri());
-//    }
+    try {
+      List<String> cameras = Lists.newArrayList();
 
-    return cameras;
+      OpenNI2Library.oniGetDeviceList(devices, numDevices);
+
+      for (int i = 0; i < numDevices.getInt(); i++) {
+        OniDeviceInfo info = devices.get(i).get();
+        cameras.add(info.uri().getCString());
+      }
+      return cameras;
+    } finally {
+      devices.release();
+      numDevices.release();
+    }
   }
 
   @Override
-  public DepthCameraEndpoint newDepthCameraEndpoint(Log log) {
-    return new Openni2DepthCameraEndpoint(log);
+  public UserTrackerDepthCameraEndpoint newUserTrackerDepthCameraEndpoint(Log log) {
+    List<String> cameraIds = getDepthCamerasAvailable();
+    if (cameraIds.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("No depth cameras available");
+    }
+
+    return newUserTrackerDepthCameraEndpoint(cameraIds.get(0), log);
+  }
+
+  @Override
+  public UserTrackerDepthCameraEndpoint newUserTrackerDepthCameraEndpoint(String cameraId, Log log) {
+    return new Openni2UserTrackerDepthCameraEndpoint(cameraId, getSpaceEnvironment().getExecutorService(), log);
   }
 }

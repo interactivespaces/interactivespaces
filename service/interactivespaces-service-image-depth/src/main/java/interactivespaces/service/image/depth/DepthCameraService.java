@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -42,13 +42,25 @@ public interface DepthCameraService extends SupportedService {
   List<String> getDepthCamerasAvailable();
 
   /**
-   * Get a new depth camera endpoint with the default connection parameters.
+   * Get a new depth camera endpoint. Pick the first camera found.
    *
    * @param log
    *          the logger to use
    *
-   * @return a new gesture endpoint
+   * @return a new depth camera endpoint
    */
-  DepthCameraEndpoint newDepthCameraEndpoint(Log log);
+  UserTrackerDepthCameraEndpoint newUserTrackerDepthCameraEndpoint(Log log);
+
+  /**
+   * Get a new depth camera endpoint with the specified ID.
+   *
+   * @param cameraId
+   *          the ID for the camera
+   * @param log
+   *          the logger to use
+   *
+   * @return a new depth camera endpoint
+   */
+  UserTrackerDepthCameraEndpoint newUserTrackerDepthCameraEndpoint(String cameraId, Log log);
 
 }

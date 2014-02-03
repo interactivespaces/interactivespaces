@@ -17,15 +17,36 @@ dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-interaction')
+  compile project(':service:interactivespaces-service-image-depth-openni2')
   
-  compile files("${project.getProperty('interactivespaces.dependencies.home')}/openni/2.2/org.openni.jar")
-  compile files("${project.getProperty('interactivespaces.dependencies.home')}/nite/2.2/com.primesense.nite.jar")
-  
+  compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
+   
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
+
+task copyResources(type: Copy) {
+  from 'src/main/resources/extras'
+  into 'build/staging/controller/extras'
+}
+
+task copyExtrasNativeLibs1(type: Copy) {
+  from "${project.getProperty('interactivespaces.dependencies.home')}/openni/2.2/native"
+  into 'build/staging/controller/extras/interactivespaces.service.image.depth/openni/native'
+  exclude '**/*.a'
+}
+
+task copyExtrasNativeLibs2(type: Copy) {
+  from "${project.getProperty('interactivespaces.dependencies.home')}/nite/2.2/native"
+  into 'build/staging/controller/extras/interactivespaces.service.image.depth/nite/native'
+  exclude '**/*.a'
+}
+
+task copyExtraComponents(dependsOn: [copyResources, copyExtrasNativeLibs1, copyExtrasNativeLibs2])
+
+install.dependsOn.add copyExtraComponents
 
 jar {
   manifest {
@@ -41,5 +62,10 @@ jar {
 
     instruction 'Private-Package',
         'interactivespaces.service.image.depth.internal.*'
+
+    instruction 'Import-Package',
+        'org.bridj.*;version="0.0.0"',
+        'interactivespaces.service.image.depth.internal.openni2.libraries;version="0.0.0"',
+        '*'
   }
 }
