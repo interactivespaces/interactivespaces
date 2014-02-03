@@ -50,14 +50,12 @@ public class Openni2DepthCameraService extends BaseSupportedService implements D
   public void startup() {
     IntValuedEnum<OniStatus> openniStatus = OpenNI2Library.oniInitialize(OpenNI2Library.ONI_API_VERSION);
     if (openniStatus != OniStatus.ONI_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("OpenNI2 would not initialize,  return status was %s", openniStatus));
+      OpenNi2Support.throwExtendedOpenNIError("OpenNI2 would not initialize", openniStatus);
     }
 
     IntValuedEnum<NiteStatus> niteStatus = NiTE2Library.niteInitialize();
     if (niteStatus != NiteStatus.NITE_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("NiTE would not initialize,  return status was %s", niteStatus));
+      OpenNi2Support.throwExtendedNiteError("NiTE would not initialize", niteStatus);
     }
   }
 

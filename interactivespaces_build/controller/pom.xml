@@ -698,7 +698,15 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.depth</outputDirectory>
                 </artifactItem>
-
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-service-image-depth-openni2</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.depth</outputDirectory>
+                </artifactItem>
+                
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>

@@ -16,7 +16,6 @@
 
 package interactivespaces.service.image.depth.internal.openni2;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.interaction.model.entity.SimpleTrackedEntity;
 import interactivespaces.interaction.model.entity.TrackedEntity;
 import interactivespaces.interaction.model.entity.TrackedEntityListener;
@@ -51,7 +50,8 @@ import java.util.concurrent.TimeUnit;
 public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCameraEndpoint {
 
   /**
-   * The default value for the amount of time between camera frame updates. In milliseconds.
+   * The default value for the amount of time between camera frame updates. In
+   * milliseconds.
    */
   public static final int READER_LOOP_RATE_DEFAULT = 100;
 
@@ -127,8 +127,7 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
     camera = Pointer.allocate(OniDeviceHandle.class);
     IntValuedEnum<OniStatus> cameraStatus = OpenNI2Library.oniDeviceOpen(Pointer.pointerToCString(cameraId), camera);
     if (cameraStatus != OniStatus.ONI_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Could not allocate OpenNI camera, status was %s", cameraStatus));
+      OpenNi2Support.throwExtendedOpenNIError("Could not allocate OpenNI camera", cameraStatus);
     }
 
     // TODO(keith): Get this attaching the requested camera, for now gets any
@@ -138,8 +137,7 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
     // IntValuedEnum<NiteStatus> niteStatus =
     // NiTE2Library.niteInitializeUserTrackerByDevice(camera, userTracker);
     if (niteStatus != NiteStatus.NITE_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(String.format("Could not allocate NiTE user tracker, status was %s",
-          niteStatus));
+      OpenNi2Support.throwExtendedNiteError("Could not allocate NiTE user tracker", niteStatus);
     }
 
     pointerTrackerFrame = Pointer.allocatePointer(NiteUserTrackerFrame.class);
@@ -160,17 +158,16 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
 
     IntValuedEnum<NiteStatus> niteStatus = NiTE2Library.niteShutdownUserTracker();
     if (niteStatus != NiteStatus.NITE_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Could not shut down NiTE user tracker, status was %s", niteStatus));
+      OpenNi2Support.throwExtendedNiteError("Could not shut down NiTE user tracker", niteStatus);
     }
 
     IntValuedEnum<OniStatus> openniStatus = OpenNI2Library.oniDeviceClose(camera.get());
     if (openniStatus != OniStatus.ONI_STATUS_OK) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Could not shut down camera, status was %s", niteStatus));
+      OpenNi2Support.throwExtendedOpenNIError("Could not shut down camera, status was %s", openniStatus);
     }
 
-    // TODO(keith): release all allocated memory, make sure no matter what no memory leaks
+    // TODO(keith): release all allocated memory, make sure no matter what no
+    // memory leaks
   }
 
   @Override

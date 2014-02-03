@@ -18,9 +18,9 @@ dependencies {
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-interaction')
   compile project(':service:interactivespaces-service-image-depth-openni2')
-  
+
   compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
-   
+
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
@@ -44,7 +44,11 @@ task copyExtrasNativeLibs2(type: Copy) {
   exclude '**/*.a'
 }
 
-task copyExtraComponents(dependsOn: [copyResources, copyExtrasNativeLibs1, copyExtrasNativeLibs2])
+task copyExtraComponents(dependsOn: [
+  copyResources,
+  copyExtrasNativeLibs1,
+  copyExtrasNativeLibs2
+])
 
 install.dependsOn.add copyExtraComponents
 
