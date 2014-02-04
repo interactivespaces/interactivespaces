@@ -9,6 +9,8 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # Get to the directory above the bin directory.
 cd $DIR/..
 
+CONTAINER_TYPE=@INTERACTIVESPACES_CONTAINER_TYPE@
+
 EXTRAARGS=
 # Read user configuration file, if present.
 RCFILE=$HOME/.interactivespaces.rc

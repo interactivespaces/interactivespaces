@@ -13,6 +13,8 @@
  * the License.
  */
 
+ext { containerType = "workbench" }
+
 task assembleContainers(type: Exec) {
   commandLine "mvn", "clean", "install", "-DinteractiveSpacesVersion=${version}"
 }
@@ -20,6 +22,6 @@ task assembleContainers(type: Exec) {
 task installDev(type: Exec, dependsOn: [assembleContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
   def stagingDir = new File(project.projectDir, "target/staging").absolutePath
-  def containerDir = getProperty("interactivespaces.dev.home") + "/workbench"
-  commandLine "bash", "../install_container.bash", version, "workbench" , containerDir, stagingDir
+  def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
+  commandLine "bash", "../install_container.bash", version, project.ext.containerType , containerDir, stagingDir
 }

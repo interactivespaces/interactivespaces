@@ -15,6 +15,8 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+ext { containerType = "master" }
+
 task cleanContainer(type: Exec) {
   commandLine "rm", "-fR", new File(project.projectDir, "target").absolutePath
 }
@@ -29,6 +31,7 @@ task copyCore(type:Copy) {
   from project.file('src/izpack')
   into 'target/staging'
   filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_CONTAINER_TYPE:project.ext.containerType])
 }
 
 task copyPythonCore(type:Copy) {
@@ -59,6 +62,6 @@ task assembleContainers(type: Exec, dependsOn: [
 task installDev(type: Exec, dependsOn: [assembleContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
   def stagingDir = new File(project.projectDir, "target/staging").absolutePath
-  def containerDir = getProperty("interactivespaces.dev.home") + "/master"
-  commandLine "bash", "../install_container.bash", version, "master" , containerDir, stagingDir
+  def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
+  commandLine "bash", "../install_container.bash", version, project.ext.containerType, containerDir, stagingDir
 }
