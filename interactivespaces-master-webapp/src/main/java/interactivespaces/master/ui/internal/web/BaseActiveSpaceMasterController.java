@@ -16,10 +16,10 @@
 
 package interactivespaces.master.ui.internal.web;
 
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceManager;
 import interactivespaces.master.server.services.ActiveControllerManager;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiSpaceManager;
 
 /**
  * Base support for Spring MVC controllers for the space master who have live
@@ -37,17 +37,17 @@ public class BaseActiveSpaceMasterController extends BaseSpaceMasterController {
   /**
    * The UI manager for activities.
    */
-  protected UiActivityManager uiActivityManager;
+  protected MasterApiActivityManager masterApiActivityManager;
 
   /**
    * The UI manager for spaces.
    */
-  protected UiSpaceManager uiSpaceManager;
+  protected MasterApiSpaceManager masterApiSpaceManager;
 
   /**
    * The UI manager for controllers.
    */
-  protected UiControllerManager uiControllerManager;
+  protected MasterApiControllerManager masterApiControllerManager;
 
   /**
    * @param activeControllerManager
@@ -58,26 +58,28 @@ public class BaseActiveSpaceMasterController extends BaseSpaceMasterController {
   }
 
   /**
-   * @param uiActivityManager
-   *          the uiActivityManager to set
+   * @param masterApiActivityManager
+   *          the masterApiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
-   * @param uiSpaceManager
-   *          the uiSpaceManager to set
+   * @param masterApiSpaceManager
+   *          the masterApiSpaceManager to set
    */
-  public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
-    this.uiSpaceManager = uiSpaceManager;
+  public void setMasterApiSpaceManager(MasterApiSpaceManager masterApiSpaceManager) {
+    this.masterApiSpaceManager = masterApiSpaceManager;
   }
 
   /**
-   * @param uiControllerManager
-   *          the uiControllerManager to set
+   * Set the Master API controller manager.
+   *
+   * @param masterApiControllerManager
+   *          the Master API controller manager to use
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 }

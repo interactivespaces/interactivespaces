@@ -14,23 +14,33 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.space.Space;
 
 import java.util.Map;
 
 /**
- * Manager for the ui control of spaces.
+ * Manager for the Master API control of spaces.
  *
  * @author Keith M. Hughes
  */
-public interface UiSpaceManager {
+public interface MasterApiSpaceManager {
 
   /**
    * Message key for non-existent spaces.
    */
-  public static final String MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN = "space.domain.space.unknown";
+  String MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN = "space.domain.space.unknown";
+
+  /**
+   * Get all spaces that meet a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return the master API response
+   */
+  Map<String, Object> getSpacesByFilter(String filter);
 
   /**
    * Delete a space from the space repository.
@@ -39,9 +49,11 @@ public interface UiSpaceManager {
    * Does nothing if there is no space with the given ID.
    *
    * @param id
-   *          ID of the space.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void deleteSpace(String id);
+  Map<String, Object> deleteSpace(String id);
 
   /**
    * Deploy everything needed a space.
@@ -51,9 +63,11 @@ public interface UiSpaceManager {
    * .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void deploySpace(String id);
+  Map<String, Object> deploySpace(String id);
 
   /**
    * Configure all components in a space.
@@ -63,19 +77,21 @@ public interface UiSpaceManager {
    * .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the Master API response
    */
-  void configureSpace(String id);
+  Map<String, Object> configureSpace(String id);
 
   /**
-   * Get the basic JSON view of a space.
+   * Get the basic Master API view of a space.
    *
    * @param space
    *          the space
    *
-   * @return the JSON view data for the space
+   * @return the Master API data
    */
-  Map<String, Object> getBasicSpaceViewJsonData(Space space);
+  Map<String, Object> getBasicSpaceViewApiResponse(Space space);
 
   /**
    * Add in the basic space data used in API calls.
@@ -83,19 +99,19 @@ public interface UiSpaceManager {
    * @param space
    *          the space to get the data from
    * @param data
-   *          the JSON data being collected
+   *          the Master API response data being collected
    */
-  void getBasicSpaceData(Space space, Map<String, Object> data);
+  void getBasicSpaceApiResponse(Space space, Map<String, Object> data);
 
   /**
    * Get the JSON view data for a specific space.
    *
-   * @param space
-   *          the space to get the data from
+   * @param id
+   *          ID of the space
    *
-   * @return the map of data for that space
+   * @return the master API response
    */
-  Map<String, Object> getSpaceViewJsonData(Space space);
+  Map<String, Object> getSpaceView(String id);
 
   /**
    * Modify a space's metadata.
@@ -116,7 +132,7 @@ public interface UiSpaceManager {
    * @param metadataCommand
    *          the modification command
    *
-   * @return a JSON response object
+   * @return the master API response
    */
   Map<String, Object> updateSpaceMetadata(String id, Map<String, Object> metadataCommand);
 
@@ -125,12 +141,14 @@ public interface UiSpaceManager {
    *
    * For details, see
    * {@link interactivespaces.master.server.services.ActiveSpaceManager#startupSpace(Space)}
-   * .
+   * . .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void startupSpace(String id);
+  Map<String, Object> startupSpace(String id);
 
   /**
    * Shut a given space down. Child spaces will be shut down first.
@@ -140,21 +158,25 @@ public interface UiSpaceManager {
    * .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void shutdownSpace(String id);
+  Map<String, Object> shutdownSpace(String id);
 
   /**
    * Activate a space.
    *
    * For details, see
    * {@link interactivespaces.master.server.services.ActiveSpaceManager#activateSpace(Space)}
-   * .
+   * . .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void activateSpace(String id);
+  Map<String, Object> activateSpace(String id);
 
   /**
    * Deactivate a space.
@@ -164,17 +186,19 @@ public interface UiSpaceManager {
    * .
    *
    * @param id
-   *          ID of the space node.
+   *          ID of the space
+   *
+   * @return the master API response
    */
-  void deactivateSpace(String id);
+  Map<String, Object> deactivateSpace(String id);
 
   /**
-   * Get the JSON status for a space.
+   * Get the status for a space.
    *
    * @param id
    *          ID of the space
    *
-   * @return a JSON response object
+   * @return the master API response
    */
-  Map<String, Object> getJsonSpaceStatus(String id);
+  Map<String, Object> getSpaceStatus(String id);
 }

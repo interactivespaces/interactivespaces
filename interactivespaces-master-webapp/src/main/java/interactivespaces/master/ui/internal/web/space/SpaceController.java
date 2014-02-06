@@ -16,23 +16,21 @@
 
 package interactivespaces.master.ui.internal.web.space;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.space.Space;
-import interactivespaces.expression.FilterExpression;
+import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.MasterApiSpaceLiveActivityGroup;
+import interactivespaces.master.api.MasterApiUtilities;
 import interactivespaces.master.server.services.ActiveSpaceManager;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.UiLiveActivity;
-import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
-import interactivespaces.master.ui.internal.web.UiSpaceLiveActivityGroup;
 import interactivespaces.master.ui.internal.web.UiUtilities;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,14 +69,15 @@ public class SpaceController extends BaseActiveSpaceMasterController {
   /**
    * Display a list of all spaces.
    *
-   * @return Model and view for space list display.
+   * @return model and view for space list display
    */
   @RequestMapping("/space/all.html")
   public ModelAndView listActivities() {
     ModelAndView mav = getModelAndView();
     mav.setViewName("space/SpaceViewAll");
+
     List<Space> spaces = Lists.newArrayList(activityRepository.getAllSpaces());
-    Collections.sort(spaces, UiUtilities.SPACE_BY_NAME_COMPARATOR);
+    Collections.sort(spaces, MasterApiUtilities.SPACE_BY_NAME_COMPARATOR);
     mav.addObject("spaces", spaces);
 
     return mav;
@@ -94,15 +93,15 @@ public class SpaceController extends BaseActiveSpaceMasterController {
       mav.addObject("metadata", UiUtilities.getMetadataView(space.getMetadata()));
 
       List<? extends LiveActivityGroup> liveActivityGroups = space.getActivityGroups();
-      Collections.sort(liveActivityGroups, UiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
+      Collections.sort(liveActivityGroups, MasterApiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
       mav.addObject("liveActivityGroups", liveActivityGroups);
 
       List<? extends Space> subspaces = space.getSpaces();
-      Collections.sort(subspaces, UiUtilities.SPACE_BY_NAME_COMPARATOR);
+      Collections.sort(subspaces, MasterApiUtilities.SPACE_BY_NAME_COMPARATOR);
       mav.addObject("subspaces", subspaces);
 
       List<Space> cspaces = Lists.newArrayList(activityRepository.getSpacesBySubspace(space));
-      Collections.sort(cspaces, UiUtilities.SPACE_BY_NAME_COMPARATOR);
+      Collections.sort(cspaces, MasterApiUtilities.SPACE_BY_NAME_COMPARATOR);
       mav.addObject("cspaces", cspaces);
     } else {
       mav.setViewName("space/SpaceNonexistent");
@@ -113,7 +112,7 @@ public class SpaceController extends BaseActiveSpaceMasterController {
 
   @RequestMapping(value = "/space/{id}/delete.html", method = RequestMethod.GET)
   public String deleteSpace(@PathVariable String id) {
-    uiSpaceManager.deleteSpace(id);
+    masterApiSpaceManager.deleteSpace(id);
 
     return "redirect:/space/all.html";
   }
@@ -129,23 +128,21 @@ public class SpaceController extends BaseActiveSpaceMasterController {
       Set<LiveActivityGroup> liveActivityGroups = Sets.newHashSet();
       collectLiveActivityGroups(space, liveActivityGroups);
 
-      List<UiSpaceLiveActivityGroup> uiLiveActivityGroups = Lists.newArrayList();
+      List<MasterApiSpaceLiveActivityGroup> masterApiLiveActivityGroups = Lists.newArrayList();
       for (LiveActivityGroup liveActivityGroup : liveActivityGroups) {
         List<LiveActivity> liveActivities = Lists.newArrayList();
         for (GroupLiveActivity gla : liveActivityGroup.getActivities()) {
           liveActivities.add(gla.getActivity());
         }
 
-        List<UiLiveActivity> liveactivities =
-            uiControllerManager.getUiLiveActivities(liveActivities);
-        Collections.sort(liveactivities, UiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+        List<MasterApiLiveActivity> liveactivities = masterApiControllerManager.getUiLiveActivities(liveActivities);
+        Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
 
-        uiLiveActivityGroups.add(new UiSpaceLiveActivityGroup(liveActivityGroup, liveactivities));
+        masterApiLiveActivityGroups.add(new MasterApiSpaceLiveActivityGroup(liveActivityGroup, liveactivities));
       }
-      Collections.sort(uiLiveActivityGroups,
-          UiUtilities.UI_SPACE_LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
+      Collections.sort(masterApiLiveActivityGroups, MasterApiUtilities.UI_SPACE_LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
 
-      mav.addObject("liveactivitygroups", uiLiveActivityGroups);
+      mav.addObject("liveactivitygroups", masterApiLiveActivityGroups);
     } else {
       mav.setViewName("space/SpaceNonexistent");
     }
@@ -171,52 +168,26 @@ public class SpaceController extends BaseActiveSpaceMasterController {
 
   @RequestMapping(value = "/space/all.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> listAllSpacesJson(
-      @RequestParam(value = "filter", required = false) String filter) {
-    List<Map<String, Object>> data = Lists.newArrayList();
-
-    try {
-      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
-
-      for (Space space : activityRepository.getSpaces(filterExpression)) {
-        data.add(uiSpaceManager.getBasicSpaceViewJsonData(space));
-      }
-
-      return JsonSupport.getSuccessJsonResponse(data);
-    } catch (Exception e) {
-      spacesEnvironment.getLog().error("Attempt to get live activity group data failed", e);
-
-      return JsonSupport.getFailureJsonResponse("call failed");
-    }
+  Map<String, ? extends Object> listAllSpacesJson(@RequestParam(value = "filter", required = false) String filter) {
+    return masterApiSpaceManager.getSpacesByFilter(filter);
   }
 
   @RequestMapping(value = "/space/{id}/view.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> viewSpaceJson(@PathVariable String id) {
-    Space space = activityRepository.getSpaceById(id);
-    if (space != null) {
-      return JsonSupport.getSuccessJsonResponse(uiSpaceManager.getSpaceViewJsonData(space));
-    } else {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.getSpaceView(id);
   }
 
   @RequestMapping(value = "/space/{id}/status.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusSpaceJson(@PathVariable String id) {
-    return uiSpaceManager.getJsonSpaceStatus(id);
+    return masterApiSpaceManager.getSpaceStatus(id);
   }
 
   @RequestMapping(value = "/space/{id}/liveactivitystatus.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusSpaceLiveActivities(@PathVariable String id) {
-    try {
-      uiControllerManager.liveActivityStatusSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiControllerManager.liveActivityStatusSpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/metadata.json", method = RequestMethod.POST)
@@ -228,97 +199,53 @@ public class SpaceController extends BaseActiveSpaceMasterController {
       @SuppressWarnings("unchecked")
       Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
 
-      return uiSpaceManager.updateSpaceMetadata(id, metadataCommand);
+      return masterApiSpaceManager.updateSpaceMetadata(id, metadataCommand);
     } else {
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
   }
 
   @RequestMapping(value = "/space/{id}/load.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> loadSpace(@PathVariable String id) {
-    return JsonSupport.getSimpleSuccessJsonResponse();
+    // Should check code base to see if this can go.
+    return MasterApiMessageSupport.getSimpleSuccessResponse();
   }
 
   @RequestMapping(value = "/space/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deploySpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.deploySpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.deploySpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/configure.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> configureSpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.configureSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.configureSpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/startup.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> startupSpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.startupSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.startupSpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/activate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> activateSpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.activateSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.activateSpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/deactivate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deactivateSpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.deactivateSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
+    return masterApiSpaceManager.deactivateSpace(id);
   }
 
   @RequestMapping(value = "/space/{id}/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownSpace(@PathVariable String id) {
-    try {
-      uiSpaceManager.shutdownSpace(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchSpaceResult();
-    }
-  }
-
-  /**
-   * Get a JSON error response for no such space.
-   *
-   * @return the JSON result
-   */
-  private Map<String, Object> getNoSuchSpaceResult() {
-    return JsonSupport.getFailureJsonResponse(UiSpaceManager.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
+    return masterApiSpaceManager.shutdownSpace(id);
   }
 
   /**

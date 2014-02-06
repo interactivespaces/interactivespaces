@@ -16,18 +16,16 @@
 
 package interactivespaces.master.server.services.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiMasterSupportManager;
+import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.ScriptingNames;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiMasterSupportManager;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.script.FileScriptSource;
 import interactivespaces.service.script.Script;
@@ -39,6 +37,9 @@ import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcherListener;
 import interactivespaces.util.io.directorywatcher.SimpleBatchDirectoryWatcher;
 import interactivespaces.util.io.directorywatcher.SimpleDirectoryWatcher;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.Collections;
@@ -56,6 +57,11 @@ import java.util.concurrent.TimeUnit;
 public class BasicExtensionManager implements ExtensionManager {
 
   /**
+   * How often the watched directories should be scanned. In seconds.
+   */
+  public static final int DIRECTORY_SCAN_TIME = 10;
+
+  /**
    * Directory where startup extensions will be placed.
    */
   public static final String STARTUP_EXTENSIONS_DIRECTORY = "extensions/startup";
@@ -66,7 +72,7 @@ public class BasicExtensionManager implements ExtensionManager {
   public static final String API_EXTENSIONS_DIRECTORY = "extensions/api";
 
   /**
-   * The script service to use for the extension master
+   * The script service to use for the extension master.
    */
   private ScriptService scriptService;
 
@@ -91,19 +97,19 @@ public class BasicExtensionManager implements ExtensionManager {
   private ActiveControllerManager activeControllerManager;
 
   /**
-   * The ui activity manager to use for the extension master.
+   * The Master API activity manager to use for the extension master.
    */
-  private UiActivityManager uiActivityManager;
+  private MasterApiActivityManager masterApiActivityManager;
 
   /**
-   * The ui controller manager to use for the extension master.
+   * The Master API controller manager to use for the extension master.
    */
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager masterApiControllerManager;
 
   /**
-   * The ui master supoort manager to use for the extension master.
+   * The Master API master support manager to use for the extension master.
    */
-  private UiMasterSupportManager uiMasterSupportManager;
+  private MasterApiMasterSupportManager masterApiMasterSupportManager;
 
   /**
    * The automation manager to use.
@@ -133,7 +139,7 @@ public class BasicExtensionManager implements ExtensionManager {
   /**
    * Mapping of API name to the script for that name.
    */
-  private Map<String, Script> apiExtensions = Maps.newConcurrentMap();
+  private final Map<String, Script> apiExtensions = Maps.newConcurrentMap();
 
   @Override
   public void startup() {
@@ -170,15 +176,14 @@ public class BasicExtensionManager implements ExtensionManager {
         @SuppressWarnings("unchecked")
         Map<String, Object> result = (Map<String, Object>) script.eval(completeBindings);
 
-        return getJsonSuccessResponse(result);
+        return MasterApiMessageSupport.getSuccessResponse(result);
       } catch (Exception e) {
-        spaceEnvironment.getLog().error(String.format("Could not run extension %s", extensionName),
-            e);
+        spaceEnvironment.getLog().error(String.format("Could not run extension %s", extensionName), e);
 
-        return getJsonFailureResult(RESULT_KEY_SPACE_MASTER_EXTENSION_EXCEPTION);
+        return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_EXCEPTION);
       }
     } else {
-      return getJsonFailureResult(RESULT_KEY_SPACE_MASTER_EXTENSION_UNKNOWN);
+      return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_UNKNOWN);
     }
   }
 
@@ -192,9 +197,9 @@ public class BasicExtensionManager implements ExtensionManager {
     bindings.put(ScriptingNames.SCRIPTING_NAME_SCRIPT_SERVICE, scriptService);
     bindings.put(ScriptingNames.SCRIPTING_NAME_SCHEDULER_SERVICE, schedulerService);
     bindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER, activeControllerManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, uiActivityManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, uiControllerManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER, uiMasterSupportManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, masterApiActivityManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, masterApiControllerManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
     bindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_ENVIRONMENT, spaceEnvironment);
     bindings.put(ScriptingNames.SCRIPTING_NAME_AUTOMATION_MANAGER, automationManager);
   }
@@ -204,17 +209,16 @@ public class BasicExtensionManager implements ExtensionManager {
    */
   private void initializeStartupExtensions() {
     startupExtensionsDirectoryWatcher = new SimpleBatchDirectoryWatcher();
-    startupExtensionsDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem()
-        .getInstallDirectory(), STARTUP_EXTENSIONS_DIRECTORY));
-    startupExtensionsDirectoryWatcher
-        .addBatchDirectoryWatcherListener(new BatchDirectoryWatcherListener() {
-          @Override
-          public void onFilesAdded(Set<File> files) {
-            onStartupExtensionFileAdded(files);
-          }
-        });
+    startupExtensionsDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
+        STARTUP_EXTENSIONS_DIRECTORY));
+    startupExtensionsDirectoryWatcher.addBatchDirectoryWatcherListener(new BatchDirectoryWatcherListener() {
+      @Override
+      public void onFilesAdded(Set<File> files) {
+        onStartupExtensionFileAdded(files);
+      }
+    });
     Set<File> initialFiles =
-        startupExtensionsDirectoryWatcher.startupWithScan(spaceEnvironment, 10, TimeUnit.SECONDS);
+        startupExtensionsDirectoryWatcher.startupWithScan(spaceEnvironment, DIRECTORY_SCAN_TIME, TimeUnit.SECONDS);
     onStartupExtensionFileAdded(initialFiles);
   }
 
@@ -225,6 +229,7 @@ public class BasicExtensionManager implements ExtensionManager {
    * Sort them by name then run them.
    *
    * @param files
+   *          the files which have been added
    */
   private void onStartupExtensionFileAdded(Set<File> files) {
     List<File> sortedFiles = Lists.newArrayList(files);
@@ -247,8 +252,8 @@ public class BasicExtensionManager implements ExtensionManager {
    */
   private void initializeApiExtensions() {
     apiExtensionsDirectoryWatcher = new SimpleDirectoryWatcher();
-    apiExtensionsDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem()
-        .getInstallDirectory(), API_EXTENSIONS_DIRECTORY));
+    apiExtensionsDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
+        API_EXTENSIONS_DIRECTORY));
     apiExtensionsDirectoryWatcher.addDirectoryWatcherListener(new DirectoryWatcherListener() {
       @Override
       public void onFileAdded(File file) {
@@ -260,7 +265,7 @@ public class BasicExtensionManager implements ExtensionManager {
         onApiExtensionFileRemoved(file);
       }
     });
-    apiExtensionsDirectoryWatcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
+    apiExtensionsDirectoryWatcher.startup(spaceEnvironment, DIRECTORY_SCAN_TIME, TimeUnit.SECONDS);
   }
 
   /**
@@ -276,17 +281,14 @@ public class BasicExtensionManager implements ExtensionManager {
       String extensionName = name.substring(0, dotPos);
       String extensionExtension = name.substring(dotPos + 1);
 
-      Script extensionScript =
-          scriptService.newScriptByExtension(extensionExtension, new FileScriptSource(file));
+      Script extensionScript = scriptService.newScriptByExtension(extensionExtension, new FileScriptSource(file));
 
       apiExtensions.put(extensionName, extensionScript);
 
       spaceEnvironment.getLog().info(
-          String.format("Added API extension %s with extension %s", extensionName,
-              extensionExtension));
+          String.format("Added API extension %s with extension %s", extensionName, extensionExtension));
     } catch (Exception e) {
-      spaceEnvironment.getLog().error(
-          String.format("Could not load API extension %s", file.getAbsolutePath()), e);
+      spaceEnvironment.getLog().error(String.format("Could not load API extension %s", file.getAbsolutePath()), e);
     }
   }
 
@@ -302,49 +304,6 @@ public class BasicExtensionManager implements ExtensionManager {
     spaceEnvironment.getLog().info(String.format("Removing API extension %s", extensionName));
 
     apiExtensions.remove(extensionName);
-  }
-
-  /**
-   * Get the simple version of a JSON success response.
-   *
-   * @return a success JSON object with no data
-   */
-  public Map<String, Object> getSimpleJsonSuccessResponse() {
-    Map<String, Object> response = Maps.newHashMap();
-
-    response.put("result", "success");
-
-    return response;
-  }
-
-  /**
-   * Get ta JSON success response with the data field filled in.
-   *
-   * @return a success JSON object with data in the "data" field
-   */
-  public Map<String, Object> getJsonSuccessResponse(Object data) {
-    Map<String, Object> response = getSimpleJsonSuccessResponse();
-
-    response.put("data", data);
-
-    return response;
-  }
-
-  /**
-   * Get a failure result for a JSON command.
-   *
-   * @param reason
-   *          the reason for the failure
-   *
-   * @return JSON failure result
-   */
-  public Map<String, Object> getJsonFailureResult(String reason) {
-    Map<String, Object> result = Maps.newHashMap();
-    result.put("result", "failure");
-
-    result.put("reason", reason);
-
-    return result;
   }
 
   /**
@@ -388,40 +347,44 @@ public class BasicExtensionManager implements ExtensionManager {
   }
 
   /**
-   * @param uiActivityManager
+   * @param masterApiActivityManager
    *          the uiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
-   * @param uiControllerManager
+   * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 
   /**
-   * @param uiMasterSupportManager
+   * @param masterApiMasterSupportManager
    *          the uiMasterSupportManager to set
    */
-  public void setUiMasterSupportManager(UiMasterSupportManager uiMasterSupportManager) {
-    this.uiMasterSupportManager = uiMasterSupportManager;
+  public void setMasterApiMasterSupportManager(MasterApiMasterSupportManager masterApiMasterSupportManager) {
+    this.masterApiMasterSupportManager = masterApiMasterSupportManager;
   }
 
   /**
+   * Set the automation manager.
+   *
    * @param automationManager
-   *          the automationManager to set
+   *          the automation manager to use
    */
   public void setAutomationManager(AutomationManager automationManager) {
     this.automationManager = automationManager;
   }
 
   /**
+   * Set the space environment.
+   *
    * @param spaceEnvironment
-   *          the spaceEnvironment to set
+   *          the space environment to use
    */
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;

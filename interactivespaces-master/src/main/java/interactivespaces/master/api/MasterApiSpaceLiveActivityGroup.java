@@ -14,47 +14,58 @@
  * the License.
  */
 
-package interactivespaces.master.ui.internal.web;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.basic.LiveActivityGroup;
-import interactivespaces.master.server.ui.UiLiveActivity;
 
 import java.util.List;
 
 /**
- * UI information about a live activity group which is part of a space.
+ * Master API information about a live activity group which is part of a space.
  *
  * @author Keith M. Hughes
  */
-public class UiSpaceLiveActivityGroup {
+@Deprecated
+public class MasterApiSpaceLiveActivityGroup {
 
   /**
    * The live activity group represented.
    */
-  private LiveActivityGroup liveActivityGroup;
+  private final LiveActivityGroup liveActivityGroup;
 
   /**
    * The list of all live activities for a given group.
    */
-  private List<UiLiveActivity> liveActivities;
+  private final List<MasterApiLiveActivity> liveActivities;
 
-  public UiSpaceLiveActivityGroup(LiveActivityGroup liveActivityGroup,
-      List<UiLiveActivity> liveActivities) {
+  /**
+   * Construct the master API representation of a live activity group.
+   *
+   * @param liveActivityGroup
+   *          the group
+   * @param liveActivities
+   *          the live activities in the group
+   */
+  public MasterApiSpaceLiveActivityGroup(LiveActivityGroup liveActivityGroup, List<MasterApiLiveActivity> liveActivities) {
     this.liveActivityGroup = liveActivityGroup;
     this.liveActivities = liveActivities;
   }
 
   /**
-   * @return the liveActivityGroup
+   * Get the live activity group.
+   *
+   * @return the live activity group
    */
   public LiveActivityGroup getLiveActivityGroup() {
     return liveActivityGroup;
   }
 
   /**
-   * @return the liveActivities
+   * Get the live activities in the group.
+   *
+   * @return the live activities in the group
    */
-  public List<UiLiveActivity> getLiveActivities() {
+  public List<MasterApiLiveActivity> getLiveActivities() {
     return liveActivities;
   }
 }

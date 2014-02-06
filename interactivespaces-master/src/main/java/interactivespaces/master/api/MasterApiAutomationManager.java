@@ -14,19 +14,35 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- * A manager for ui control of scripts.
+ * A Master API manager for control of scripts and other master automation.
  *
  * @author Keith M. Hughes
  */
-public interface UiAutomationManager {
+public interface MasterApiAutomationManager {
+
+  /**
+   * The schedule type for a script which have a repeat schedule.
+   */
+  String SCHEDULE_TYPE_REPEAT = "repeat:";
+
+  /**
+   * The schedule type for a script which will run only once at a given time.
+   */
+  String SCHEDULE_TYPE_ONCE = "once:";
+
+  /**
+   * Message key for non-existent named scripts.
+   */
+  String MESSAGE_SPACE_DOMAIN_NAMEDSCRIPT_UNKNOWN = "space.domain.namedscript.unknown";
 
   /**
    * Get a set of all scripting languages which can be used.
@@ -69,9 +85,9 @@ public interface UiAutomationManager {
    * @param id
    *          ID of the script
    *
-   * @return the script manager which performed the operation.
+   * @return the API response
    */
-  UiAutomationManager deleteNamedScript(String id);
+  Map<String, Object> deleteNamedScript(String id);
 
   /**
    * Run the specified script.
@@ -79,7 +95,7 @@ public interface UiAutomationManager {
    * @param id
    *          ID of the script
    *
-   * @return the script manager which performed the operation.
+   * @return the API response
    */
-  UiAutomationManager runScript(String id);
+  Map<String, Object> runScript(String id);
 }

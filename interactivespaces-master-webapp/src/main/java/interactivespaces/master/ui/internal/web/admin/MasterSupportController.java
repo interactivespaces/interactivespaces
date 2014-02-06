@@ -16,8 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.admin;
 
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.UiMasterSupportManager;
+import interactivespaces.master.api.MasterApiMasterSupportManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
@@ -45,7 +44,7 @@ public class MasterSupportController extends BaseSpaceMasterController {
   /**
    * The UI manager for master support activities.
    */
-  private UiMasterSupportManager uiMasterSupportManager;
+  private MasterApiMasterSupportManager masterApiMasterSupportManager;
 
   /**
    * Display a list of all named scripts.
@@ -59,8 +58,7 @@ public class MasterSupportController extends BaseSpaceMasterController {
     mav.addObject(
         "interactivespacesVersion",
         spacesEnvironment.getSystemConfiguration().getPropertyString(
-            InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION,
-            INTERACTIVESPACES_VERSION_UNKNOWN));
+            InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION, INTERACTIVESPACES_VERSION_UNKNOWN));
     mav.setViewName("admin/SupportAll");
 
     return mav;
@@ -68,37 +66,21 @@ public class MasterSupportController extends BaseSpaceMasterController {
 
   @RequestMapping(value = "/admin/support/exportMasterDomainModel.json", method = RequestMethod.GET)
   public @ResponseBody
-      Map<String, ? extends Object> exportMasterDomainModel() {
-    try {
-      uiMasterSupportManager.getMasterDomainDescription();
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (Exception e) {
-      spacesEnvironment.getLog().error("Attempt to export master domain model failed", e);
-
-      return JsonSupport.getFailureJsonResponse("call failed");
-    }
+  Map<String, ? extends Object> exportMasterDomainModel() {
+    return masterApiMasterSupportManager.getMasterDomainDescription();
   }
 
   @RequestMapping(value = "/admin/support/importMasterDomainModel.json", method = RequestMethod.GET)
   public @ResponseBody
-      Map<String, ? extends Object> importMasterDomainModel() {
-    try {
-      uiMasterSupportManager.importMasterDomainDescription();
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (Exception e) {
-      spacesEnvironment.getLog().error("Attempt to get import master domain model failed", e);
-
-      return JsonSupport.getFailureJsonResponse("call failed");
-    }
+  Map<String, ? extends Object> importMasterDomainModel() {
+    return masterApiMasterSupportManager.importMasterDomainDescription();
   }
 
   /**
-   * @param uiMasterSupportManager
-   *          the uiMasterSupportManager to set
+   * @param masterApiMasterSupportManager
+   *          the masterApiMasterSupportManager to set
    */
-  public void setUiMasterSupportManager(UiMasterSupportManager uiMasterSupportManager) {
-    this.uiMasterSupportManager = uiMasterSupportManager;
+  public void setMasterApiMasterSupportManager(MasterApiMasterSupportManager masterApiMasterSupportManager) {
+    this.masterApiMasterSupportManager = masterApiMasterSupportManager;
   }
 }

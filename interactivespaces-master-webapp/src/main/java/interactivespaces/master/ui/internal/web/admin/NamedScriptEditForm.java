@@ -19,8 +19,8 @@ package interactivespaces.master.ui.internal.web.admin;
 import interactivespaces.domain.support.AutomationUtils;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
+import interactivespaces.master.api.MasterApiAutomationManager;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.ui.UiAutomationManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
@@ -51,9 +51,9 @@ public class NamedScriptEditForm extends BaseSpaceMasterController {
   private AutomationRepository automationRepository;
 
   /**
-   * The ui manager for automation operations.
+   * The masterApi manager for automation operations.
    */
-  private UiAutomationManager uiAutomationManager;
+  private MasterApiAutomationManager masterApiAutomationManager;
 
   @InitBinder
   public void setAllowedFields(WebDataBinder dataBinder) {
@@ -79,7 +79,7 @@ public class NamedScriptEditForm extends BaseSpaceMasterController {
     if (result.hasErrors()) {
       return "admin/NamedScriptEdit";
     } else {
-      uiAutomationManager.updateNamedScript(id, template);
+      masterApiAutomationManager.updateNamedScript(id, template);
 
       status.setComplete();
 
@@ -96,10 +96,10 @@ public class NamedScriptEditForm extends BaseSpaceMasterController {
   }
 
   /**
-   * @param uiAutomationManager
-   *          the uiAutomationManager to set
+   * @param masterApiAutomationManager
+   *          the masterApiAutomationManager to set
    */
-  public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
-    this.uiAutomationManager = uiAutomationManager;
+  public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
+    this.masterApiAutomationManager = masterApiAutomationManager;
   }
 }

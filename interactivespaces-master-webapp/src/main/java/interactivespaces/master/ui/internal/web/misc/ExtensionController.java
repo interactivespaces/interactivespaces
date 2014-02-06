@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web.misc;
 
+import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.master.server.services.ExtensionManager;
-import interactivespaces.master.server.ui.JsonSupport;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
@@ -54,13 +54,15 @@ public class ExtensionController extends BaseSpaceMasterController {
 
       return extensionManager.evaluateApiExtension(extensionName, args);
     } else {
-      return JsonSupport.getFailureJsonResponse("Extension arguments are not a dictionary");
+      return MasterApiMessageSupport.getFailureResponse("Extension arguments are not a dictionary");
     }
   }
 
   /**
+   * Set the extension manager.
+   *
    * @param extensionManager
-   *          the extensionManager to set
+   *          the extension manager to use
    */
   public void setExtensionManager(ExtensionManager extensionManager) {
     this.extensionManager = extensionManager;

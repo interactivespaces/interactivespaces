@@ -14,55 +14,43 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.io.InputStream;
 import java.util.Map;
 
 /**
- * A manager for working with activities for UIs.
+ * A Master API manager for working with activities.
  *
  * <p>
  * This is mostly for crud operations. To work with activities on controllers,
- * see {@link UiControllerManager}.
+ * see {@link MasterApiControllerManager}.
  *
  * @author Keith M. Hughes
  */
-public interface UiActivityManager {
+public interface MasterApiActivityManager extends ManagedResource {
 
   /**
    * Message key for non-existent activities.
    */
-  public static final String MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN =
-      "space.domain.activity.unknown";
+  String MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN = "space.domain.activity.unknown";
 
   /**
    * Message key for non-existent live activities.
    */
-  public static final String MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN =
-      "space.domain.liveactivity.unknown";
+  String MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN = "space.domain.liveactivity.unknown";
 
   /**
    * Message key for non-existent live activity groups.
    */
-  public static final String MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN =
-      "space.domain.liveactivitygroup.unknown";
-
-  /**
-   * Start the manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the manager down.
-   */
-  void shutdown();
+  String MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN = "space.domain.liveactivitygroup.unknown";
 
   /**
    * Save an activity.
@@ -71,11 +59,33 @@ public interface UiActivityManager {
    * Includes saving the activity file in the activity repository.
    *
    * @param activity
-   *          The data for the activity.
-   * @param activityFile
-   *          Input stream containing the contents of the activity.
+   *          the activity
+   * @param activityStream
+   *          the input stream containing the contents of the activity
+   *
+   * @return the updated activity
    */
-  Activity saveActivity(SimpleActivity activity, InputStream activityFile);
+  Activity saveActivity(SimpleActivity activity, InputStream activityStream);
+
+  /**
+   * Get all activities that meet a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return the master API message for all activities that meet the filter
+   */
+  Map<String, Object> getActivitiesByFilter(String filter);
+
+  /**
+   * Get basic information about an activity.
+   *
+   * @param activity
+   *          the activity
+   *
+   * @return a Master API coded object giving the basic information
+   */
+  Map<String, Object> getBasicActivityApiData(Activity activity);
 
   /**
    * Delete an activity from the activity repository.
@@ -85,8 +95,10 @@ public interface UiActivityManager {
    *
    * @param id
    *          ID of the activity.
+   *
+   * @return result of deleting activity
    */
-  void deleteActivity(String id);
+  Map<String, Object> deleteActivity(String id);
 
   /**
    * Modify a activity's metadata.
@@ -112,15 +124,37 @@ public interface UiActivityManager {
   Map<String, Object> updateActivityMetadata(String id, Map<String, Object> metadataCommand);
 
   /**
+   * Get all live activities that meet a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return the master API message for all live activities that meet the filter
+   */
+  Map<String, Object> getLiveActivitiesByFilter(String filter);
+
+  /**
+   * Get the view of a live activity.
+   *
+   * @param id
+   *          ID for the live activity
+   *
+   * @return the master API message for the live activity view
+   */
+  Map<String, Object> getLiveActivityView(String id);
+
+  /**
    * Delete an installed activity from the activity repository.
    *
    * <p>
-   * Does nothing if there is no installed activity with the given ID.
+   * Does nothing if there is no live activity with the given ID.
    *
    * @param id
-   *          ID of the installed activity.
+   *          ID of the live activity
+   *
+   * @return API response to deletion
    */
-  void deleteLiveActivity(String id);
+  Map<String, Object> deleteLiveActivity(String id);
 
   /**
    * Get the configuration of a live activity.
@@ -130,7 +164,7 @@ public interface UiActivityManager {
    *
    * @return the configuration
    */
-  Map<String, String> getLiveActivityConfiguration(String id);
+  Map<String, Object> getLiveActivityConfiguration(String id);
 
   /**
    * Configure a live activity.
@@ -139,18 +173,10 @@ public interface UiActivityManager {
    *          ID of the live activity
    * @param map
    *          the new configuration
-   */
-  void configureLiveActivity(String id, Map<String, String> map);
-
-  /**
-   * Get basic information about an activity.
    *
-   * @param activity
-   *          the activity
-   *
-   * @return a JSON coded object giving the basic information
+   * @return API response
    */
-  Map<String, Object> getBasicActivityJsonData(Activity activity);
+  Map<String, Object> configureLiveActivity(String id, Map<String, String> map);
 
   /**
    * Get basic information about a space controller.
@@ -158,49 +184,59 @@ public interface UiActivityManager {
    * @param controller
    *          the space controller
    *
-   * @return a JSON coded object giving the basic information
+   * @return a Master API Response coded object giving the basic information
    */
-  Map<String, Object> getBasicSpaceControllerJsonData(SpaceController controller);
+  Map<String, Object> getBasicSpaceControllerApiData(SpaceController controller);
 
   /**
-   * Get the JSON data for a live activity.
+   * Get the Master API response data for a live activity.
    *
    * @param activity
    *          the live activity to get data from
    * @param activityData
    *          the map where the data will be store
    */
-  void getLiveActivityViewJsonData(LiveActivity activity, Map<String, Object> activityData);
+  void getLiveActivityViewApiData(LiveActivity activity, Map<String, Object> activityData);
 
   /**
-   * Add in all data needed for the JSON status of the live activity
+   * Add in all data needed for the Master API response of the live activity.
    *
    * @param activity
    *          the live activity
    * @param data
    *          the JSON map to add the data into
    */
-  void getLiveActivityStatusJsonData(LiveActivity activity, Map<String, Object> data);
+  void getLiveActivityStatusApiData(LiveActivity activity, Map<String, Object> data);
 
   /**
-   * Get the JSON data describing a live activity group.
+   * Get the view of a live activity group.
+   *
+   * @param id
+   *          ID of the live activity group
+   *
+   * @return the Master API view of the group
+   */
+  Map<String, Object> getLiveActivityGroupView(String id);
+
+  /**
+   * Get the Master API response data describing a live activity group.
    *
    * @param liveActivityGroup
    *          the live activity group
    *
-   * @return the JSON data describing the group
+   * @return the API Response data describing the group
    */
-  Map<String, Object> getLiveActivityGroupJsonData(LiveActivityGroup liveActivityGroup);
+  Map<String, Object> getLiveActivityGroupApiData(LiveActivityGroup liveActivityGroup);
 
   /**
-   * Add in the basic group data used in API calls.
+   * Get all live activity groups that meet a filter.
    *
-   * @param group
-   *          the group to get the data from
-   * @param data
-   *          the JSON data being collected
+   * @param filter
+   *          the filter for the group, can be {@code null}
+   *
+   * @return the master API message for all groups
    */
-  void getBasicLiveActivityGroupJsonData(LiveActivityGroup group, Map<String, Object> data);
+  Map<String, Object> getLiveActivityGroupsByFilter(String filter);
 
   /**
    * Modify a live activity's metadata.
@@ -233,8 +269,10 @@ public interface UiActivityManager {
    *
    * @param id
    *          ID of the activity group.
+   *
+   * @return API response
    */
-  void deleteActivityGroup(String id);
+  Map<String, Object> deleteActivityGroup(String id);
 
   /**
    * Modify a live activity group's metadata.
@@ -257,6 +295,5 @@ public interface UiActivityManager {
    *
    * @return a JSON response object
    */
-  Map<String, Object>
-      updateLiveActivityGroupMetadata(String id, Map<String, Object> metadataCommand);
+  Map<String, Object> updateLiveActivityGroupMetadata(String id, Map<String, Object> metadataCommand);
 }

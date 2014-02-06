@@ -16,18 +16,15 @@
 
 package interactivespaces.master.ui.internal.web.activity;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
-import interactivespaces.expression.FilterExpression;
+import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.MasterApiUtilities;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiLiveActivity;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 import interactivespaces.master.ui.internal.web.UiUtilities;
+
+import com.google.common.collect.Lists;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,7 +62,7 @@ public class ActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping("/activity/all.html")
   public ModelAndView listActivities() {
     List<Activity> activities = Lists.newArrayList(activityRepository.getAllActivities());
-    Collections.sort(activities, UiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
+    Collections.sort(activities, MasterApiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
 
     ModelAndView mav = getModelAndView();
 
@@ -79,10 +76,9 @@ public class ActivityController extends BaseActiveSpaceMasterController {
   public ModelAndView viewActivity(@PathVariable String id) {
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
-      List<UiLiveActivity> liveactivities =
-          uiControllerManager.getUiLiveActivities(activityRepository
-              .getLiveActivitiesByActivity(activity));
-      Collections.sort(liveactivities, UiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+      List<MasterApiLiveActivity> liveactivities =
+          masterApiControllerManager.getUiLiveActivities(activityRepository.getLiveActivitiesByActivity(activity));
+      Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
 
       ModelAndView mav = getModelAndView();
       mav.setViewName("activity/ActivityView");
@@ -103,12 +99,12 @@ public class ActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/activity/{id}/delete.html", method = RequestMethod.GET)
   public ModelAndView deleteActivity(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
-    try {
-      uiActivityManager.deleteActivity(id);
 
+    Map<String, Object> response = masterApiActivityManager.deleteActivity(id);
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.clear();
       mav.setViewName("redirect:/activity/all.html");
-    } catch (EntityNotFoundInteractiveSpacesException e) {
+    } else {
       mav.setViewName("activity/ActivityNonexistent");
     }
 
@@ -117,44 +113,14 @@ public class ActivityController extends BaseActiveSpaceMasterController {
 
   @RequestMapping(value = "/activity/all.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> getAllActivities(
-      @RequestParam(value = "filter", required = false) String filter) {
-    List<Map<String, Object>> data = Lists.newArrayList();
-
-    try {
-      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
-
-      for (Activity activity : activityRepository.getActivities(filterExpression)) {
-        Map<String, Object> d = Maps.newHashMap();
-        data.add(d);
-
-        d.put("id", activity.getId());
-        d.put("identifyingName", activity.getIdentifyingName());
-        d.put("version", activity.getVersion());
-        d.put("name", activity.getName());
-        d.put("description", activity.getDescription());
-        d.put("metadata", activity.getMetadata());
-        d.put("lastUploadDate", activity.getLastUploadDate());
-      }
-
-      return JsonSupport.getSuccessJsonResponse(data);
-    } catch (Exception e) {
-      spacesEnvironment.getLog().error("Attempt to get activity data failed", e);
-
-      return JsonSupport.getFailureJsonResponse("call failed");
-    }
+  Map<String, ? extends Object> getAllActivities(@RequestParam(value = "filter", required = false) String filter) {
+    return masterApiActivityManager.getActivitiesByFilter(filter);
   }
 
   @RequestMapping(value = "/activity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployActivities(@PathVariable String id) {
-    try {
-      uiControllerManager.deployAllActivityInstances(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchActivityResult();
-    }
+    return masterApiControllerManager.deployAllActivityInstances(id);
   }
 
   @RequestMapping(value = "/activity/{id}/metadata.json", method = RequestMethod.POST)
@@ -166,20 +132,10 @@ public class ActivityController extends BaseActiveSpaceMasterController {
       @SuppressWarnings("unchecked")
       Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
 
-      return uiActivityManager.updateActivityMetadata(id, metadataCommand);
+      return masterApiActivityManager.updateActivityMetadata(id, metadataCommand);
     } else {
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
-  }
-
-  /**
-   * Prepare a JSON result for there not being a particular activity.
-   *
-   * @return
-   */
-  private Map<String, Object> getNoSuchActivityResult() {
-    return JsonSupport
-        .getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
   }
 
   /**

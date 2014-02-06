@@ -14,29 +14,38 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 
 /**
- * Information about a {@link LiveActivity} for the UI.
+ * Information about a {@link LiveActivity} for the Master API.
  *
  * @author Keith M. Hughes
  */
-public class UiLiveActivity {
+@Deprecated
+public class MasterApiLiveActivity {
 
   /**
    * The live activity.
    */
-  private LiveActivity activity;
+  private final LiveActivity activity;
 
   /**
    * The active live activity. Can be {@code null}.
    */
-  private ActiveLiveActivity active;
+  private final ActiveLiveActivity active;
 
-  public UiLiveActivity(LiveActivity activity, ActiveLiveActivity active) {
+  /**
+   * Construct the live activity.
+   *
+   * @param activity
+   *          the live activity
+   * @param active
+   *          the active component for the live activity
+   */
+  public MasterApiLiveActivity(LiveActivity activity, ActiveLiveActivity active) {
     this.activity = activity;
     this.active = active;
   }
@@ -53,7 +62,7 @@ public class UiLiveActivity {
   /**
    * Get the active live activity, if any.
    *
-   * @return the active live activity, or {@code null} if none.
+   * @return the active live activity, or {@code null} if none
    */
   public ActiveLiveActivity getActive() {
     return active;

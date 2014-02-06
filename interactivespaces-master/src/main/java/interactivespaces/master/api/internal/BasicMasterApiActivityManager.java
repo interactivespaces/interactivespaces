@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui.internal;
+package interactivespaces.master.api.internal;
 
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
@@ -26,17 +26,15 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
+import interactivespaces.expression.FilterExpression;
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerSupport;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.MetadataJsonSupport;
-import interactivespaces.master.server.ui.UiActivityManager;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -48,11 +46,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Simple activity manager for UIs.
+ * Simple Master API manager for activity operations.
  *
  * @author Keith M. Hughes
  */
-public class BasicUiActivityManager implements UiActivityManager {
+public class BasicMasterApiActivityManager extends BaseMasterApiManager implements MasterApiActivityManager {
 
   /**
    * Repository for activities.
@@ -73,11 +71,6 @@ public class BasicUiActivityManager implements UiActivityManager {
    * Listener for space controller events.
    */
   private SpaceControllerListener controllerListener;
-
-  /**
-   * The Interactive Spaces environment.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
 
   @Override
   public void startup() {
@@ -107,12 +100,42 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public void deleteActivity(String id) {
+  public Map<String, Object> getActivitiesByFilter(String filter) {
+    List<Map<String, Object>> responseData = Lists.newArrayList();
+
+    try {
+      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
+
+      for (Activity activity : activityRepository.getActivities(filterExpression)) {
+        Map<String, Object> activityData = Maps.newHashMap();
+        responseData.add(activityData);
+
+        activityData.put("id", activity.getId());
+        activityData.put("identifyingName", activity.getIdentifyingName());
+        activityData.put("version", activity.getVersion());
+        activityData.put("name", activity.getName());
+        activityData.put("description", activity.getDescription());
+        activityData.put("metadata", activity.getMetadata());
+        activityData.put("lastUploadDate", activity.getLastUploadDate());
+      }
+
+      return MasterApiMessageSupport.getSuccessResponse(responseData);
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error("Attempt to get activity data failed", e);
+
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
+    }
+  }
+
+  @Override
+  public Map<String, Object> deleteActivity(String id) {
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
       activityRepository.deleteActivity(activity);
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format("Activity with ID %s not found", id));
+      return noSuchActivityResult();
     }
   }
 
@@ -121,87 +144,131 @@ public class BasicUiActivityManager implements UiActivityManager {
     try {
       Activity activity = activityRepository.getActivityById(id);
       if (activity == null) {
-        return JsonSupport.getFailureJsonResponse(MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
+        return noSuchActivityResult();
       }
 
-      String command = (String) metadataCommand.get(JsonSupport.JSON_PARAMETER_COMMAND);
+      String command = (String) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_COMMAND);
 
-      if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
+      if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         activity.setMetadata(replacement);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
 
         activity.setMetadata(metadata);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_DELETE.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_DELETE.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications =
+            (List<String>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
 
         activity.setMetadata(metadata);
       } else {
-        return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
       }
 
       activityRepository.saveActivity(activity);
 
-      return JsonSupport.getSimpleSuccessJsonResponse();
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Could not modify activity metadata", e);
 
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
   @Override
-  public void deleteLiveActivity(String id) {
+  public Map<String, Object> getLiveActivitiesByFilter(String filter) {
+    List<Map<String, Object>> responseData = Lists.newArrayList();
+
+    try {
+      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
+
+      for (LiveActivity activity : activityRepository.getLiveActivities(filterExpression)) {
+        Map<String, Object> activityData = Maps.newHashMap();
+
+        getLiveActivityViewApiData(activity, activityData);
+
+        responseData.add(activityData);
+      }
+
+      return MasterApiMessageSupport.getSuccessResponse(responseData);
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error("Attempt to get live activity data failed", e);
+
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
+    }
+  }
+
+  @Override
+  public Map<String, Object> getLiveActivityView(String id) {
+    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+    if (liveactivity != null) {
+      Map<String, Object> data = Maps.newHashMap();
+
+      getLiveActivityViewApiData(liveactivity, data);
+
+      return MasterApiMessageSupport.getSuccessResponse(data);
+    } else {
+      return noSuchLiveActivityResult();
+    }
+  }
+
+  @Override
+  public Map<String, Object> deleteLiveActivity(String id) {
     LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
     if (liveActivity != null) {
       activityRepository.deleteLiveActivity(liveActivity);
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
+      return noSuchLiveActivityResult();
     }
   }
 
   @Override
-  public Map<String, String> getLiveActivityConfiguration(String id) {
+  public Map<String, Object> getLiveActivityConfiguration(String id) {
     LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
     if (liveActivity != null) {
-      Map<String, String> map = Maps.newHashMap();
+      Map<String, String> data = Maps.newHashMap();
 
       ActivityConfiguration config = liveActivity.getConfiguration();
       if (config != null) {
         for (ConfigurationParameter parameter : config.getParameters()) {
-          map.put(parameter.getName(), parameter.getValue());
+          data.put(parameter.getName(), parameter.getValue());
         }
       }
 
-      return map;
+      return MasterApiMessageSupport.getSuccessResponse(data);
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
+      return noSuchLiveActivityResult();
     }
   }
 
   @Override
-  public void configureLiveActivity(String id, Map<String, String> map) {
+  public Map<String, Object> configureLiveActivity(String id, Map<String, String> map) {
     LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
     if (liveActivity != null) {
       if (saveConfiguration(liveActivity, map)) {
         activityRepository.saveLiveActivity(liveActivity);
       }
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity with ID %s not found", id));
+      return noSuchLiveActivityResult();
     }
   }
 
@@ -311,61 +378,66 @@ public class BasicUiActivityManager implements UiActivityManager {
     try {
       LiveActivity activity = activityRepository.getLiveActivityById(id);
       if (activity == null) {
-        return JsonSupport.getFailureJsonResponse(MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
       }
 
-      String command = (String) metadataCommand.get(JsonSupport.JSON_PARAMETER_COMMAND);
+      String command = (String) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_COMMAND);
 
-      if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
+      if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         activity.setMetadata(replacement);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
 
         activity.setMetadata(metadata);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_DELETE.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_DELETE.equals(command)) {
         Map<String, Object> metadata = activity.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications =
+            (List<String>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
 
         activity.setMetadata(metadata);
       } else {
-        return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
       }
 
       activityRepository.saveLiveActivity(activity);
 
-      return JsonSupport.getSimpleSuccessJsonResponse();
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Could not modify live activity metadata", e);
 
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
   @Override
-  public void deleteActivityGroup(String id) {
+  public Map<String, Object> deleteActivityGroup(String id) {
     LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
     if (group != null) {
       activityRepository.deleteLiveActivityGroup(group);
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format("Live Activity Group with ID %s not found", id));
+      return noSuchLiveActivityGroupResult();
     }
   }
 
   @Override
-  public Map<String, Object> getBasicActivityJsonData(Activity activity) {
+  public Map<String, Object> getBasicActivityApiData(Activity activity) {
     Map<String, Object> data = Maps.newHashMap();
 
     data.put("identifyingName", activity.getIdentifyingName());
@@ -376,7 +448,7 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public Map<String, Object> getBasicSpaceControllerJsonData(SpaceController controller) {
+  public Map<String, Object> getBasicSpaceControllerApiData(SpaceController controller) {
     Map<String, Object> data = Maps.newHashMap();
 
     data.put("id", controller.getId());
@@ -387,20 +459,20 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public void getLiveActivityViewJsonData(LiveActivity activity, Map<String, Object> activityData) {
+  public void getLiveActivityViewApiData(LiveActivity activity, Map<String, Object> activityData) {
     activityData.put("id", activity.getId());
     activityData.put("uuid", activity.getUuid());
     activityData.put("name", activity.getName());
     activityData.put("description", activity.getDescription());
     activityData.put("metadata", activity.getMetadata());
-    activityData.put("activity", getBasicActivityJsonData(activity.getActivity()));
-    activityData.put("controller", getBasicSpaceControllerJsonData(activity.getController()));
+    activityData.put("activity", getBasicActivityApiData(activity.getActivity()));
+    activityData.put("controller", getBasicSpaceControllerApiData(activity.getController()));
 
-    getLiveActivityStatusJsonData(activity, activityData);
+    getLiveActivityStatusApiData(activity, activityData);
   }
 
   @Override
-  public void getLiveActivityStatusJsonData(LiveActivity activity, Map<String, Object> data) {
+  public void getLiveActivityStatusApiData(LiveActivity activity, Map<String, Object> data) {
     ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
     String runtimeState = active.getRuntimeState().getDescription();
     data.put("status", runtimeState);
@@ -409,10 +481,43 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   @Override
-  public Map<String, Object> getLiveActivityGroupJsonData(LiveActivityGroup liveActivityGroup) {
+  public Map<String, Object> getLiveActivityGroupView(String id) {
+    LiveActivityGroup liveActivityGroup = activityRepository.getLiveActivityGroupById(id);
+    if (liveActivityGroup != null) {
+      return MasterApiMessageSupport.getSuccessResponse(getLiveActivityGroupApiData(liveActivityGroup));
+    } else {
+      return noSuchLiveActivityGroupResult();
+    }
+  }
+
+  @Override
+  public Map<String, Object> getLiveActivityGroupsByFilter(String filter) {
+    List<Map<String, Object>> responseData = Lists.newArrayList();
+
+    try {
+      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
+
+      for (LiveActivityGroup group : activityRepository.getLiveActivityGroups(filterExpression)) {
+        Map<String, Object> groupData = Maps.newHashMap();
+
+        translateLiveActivityGroupToMasterApi(group, groupData);
+
+        responseData.add(groupData);
+      }
+
+      return MasterApiMessageSupport.getSuccessResponse(responseData);
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error("Attempt to get live activity group data failed", e);
+
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
+    }
+  }
+
+  @Override
+  public Map<String, Object> getLiveActivityGroupApiData(LiveActivityGroup liveActivityGroup) {
     Map<String, Object> data = Maps.newHashMap();
 
-    getBasicLiveActivityGroupJsonData(liveActivityGroup, data);
+    translateLiveActivityGroupToMasterApi(liveActivityGroup, data);
 
     List<Map<String, Object>> activityData = Lists.newArrayList();
     data.put("liveActivities", activityData);
@@ -423,13 +528,20 @@ public class BasicUiActivityManager implements UiActivityManager {
       Map<String, Object> adata = Maps.newHashMap();
       activityData.add(adata);
 
-      getLiveActivityViewJsonData(activity, adata);
+      getLiveActivityViewApiData(activity, adata);
     }
     return data;
   }
 
-  @Override
-  public void getBasicLiveActivityGroupJsonData(LiveActivityGroup group, Map<String, Object> data) {
+  /**
+   * Translate live activity group data into the form needed for the Master API.
+   *
+   * @param group
+   *          the group to get the data from
+   * @param data
+   *          the API data being collected
+   */
+  private void translateLiveActivityGroupToMasterApi(LiveActivityGroup group, Map<String, Object> data) {
     data.put("id", group.getId());
     data.put("name", group.getName());
     data.put("description", group.getDescription());
@@ -441,46 +553,49 @@ public class BasicUiActivityManager implements UiActivityManager {
     try {
       LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
       if (group == null) {
-        return JsonSupport.getFailureJsonResponse(MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
       }
 
-      String command = (String) metadataCommand.get(JsonSupport.JSON_PARAMETER_COMMAND);
+      String command = (String) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_COMMAND);
 
-      if (MetadataJsonSupport.JSON_COMMAND_METADATA_REPLACE.equals(command)) {
+      if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> replacement = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> replacement =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         group.setMetadata(replacement);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_MODIFY.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = group.getMetadata();
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> modifications = (Map<String, Object>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        Map<String, Object> modifications =
+            (Map<String, Object>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
 
         group.setMetadata(metadata);
-      } else if (MetadataJsonSupport.JSON_COMMAND_METADATA_DELETE.equals(command)) {
+      } else if (MasterApiMessageSupport.MASTER_API_COMMAND_METADATA_DELETE.equals(command)) {
         Map<String, Object> metadata = group.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications = (List<String>) metadataCommand.get(JsonSupport.JSON_PARAMETER_DATA);
+        List<String> modifications =
+            (List<String>) metadataCommand.get(MasterApiMessageSupport.MASTER_API_PARAMETER_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
 
         group.setMetadata(metadata);
       } else {
-        return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_COMMAND_UNKNOWN);
       }
 
       activityRepository.saveLiveActivityGroup(group);
 
-      return JsonSupport.getSimpleSuccessJsonResponse();
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Could not modify live activity group metadata", e);
 
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -505,6 +620,35 @@ public class BasicUiActivityManager implements UiActivityManager {
   }
 
   /**
+   * Get the Master API response for no such activity.
+   *
+   * @return the API response
+   */
+  private Map<String, Object> noSuchActivityResult() {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiActivityManager.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
+  }
+
+  /**
+   * Get the Master API response for no such live activity.
+   *
+   * @return the API response
+   */
+  private Map<String, Object> noSuchLiveActivityResult() {
+    return MasterApiMessageSupport
+        .getFailureResponse(MasterApiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+  }
+
+  /**
+   * Get the Master API response for no such live activity group.
+   *
+   * @return the API response
+   */
+  private Map<String, Object> noSuchLiveActivityGroupResult() {
+    return MasterApiMessageSupport
+        .getFailureResponse(MasterApiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+  }
+
+  /**
    * @param activityRepository
    *          the activityRepository to set
    */
@@ -526,13 +670,5 @@ public class BasicUiActivityManager implements UiActivityManager {
    */
   public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
     this.activeControllerManager = activeControllerManager;
-  }
-
-  /**
-   * @param spaceEnvironment
-   *          the spaceEnvironment to set
-   */
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

@@ -16,9 +16,9 @@
 
 package interactivespaces.master.server.control;
 
-import interactivespaces.master.server.ui.UiAutomationManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiSpaceManager;
+import interactivespaces.master.api.MasterApiAutomationManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
@@ -39,6 +39,11 @@ import java.util.concurrent.TimeUnit;
  * @author Keith M. Hughes
  */
 public class MasterFileControl implements DirectoryWatcherListener {
+
+  /**
+   * How often the watched directories should be scanned. In seconds.
+   */
+  public static final int DIRECTORY_SCAN_TIME = 10;
 
   /**
    * The subfolder of the container installation being watched for system
@@ -101,19 +106,19 @@ public class MasterFileControl implements DirectoryWatcherListener {
   private InteractiveSpacesSystemControl spaceSystemControl;
 
   /**
-   * Manager for control of space controllers.
+   * Master API manager for control of space controllers.
    */
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager masterApiControllerManager;
 
   /**
-   * Manager for control of spaces.
+   * Master API manager for control of spaces.
    */
-  private UiSpaceManager uiSpaceManager;
+  private MasterApiSpaceManager masterApiSpaceManager;
 
   /**
-   * Manager for automation control, e.g. running scripts.
+   * Master API manager for automation control, e.g. running scripts.
    */
-  private UiAutomationManager uiAutomationManager;
+  private MasterApiAutomationManager masterApiAutomationManager;
 
   /**
    * The directory watcher watching the directory for control files.
@@ -121,7 +126,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
   private DirectoryWatcher watcher;
 
   /**
-   * Start up the controller;
+   * Start up the controller.
    */
   public void startup() {
     File controlDirectory =
@@ -133,7 +138,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
     // The trains must keep running
     watcher.setStopOnException(false);
 
-    watcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
+    watcher.startup(spaceEnvironment, DIRECTORY_SCAN_TIME, TimeUnit.SECONDS);
 
     spaceEnvironment.getLog().info(
         String.format("File control of master started, watching %s",
@@ -177,29 +182,29 @@ public class MasterFileControl implements DirectoryWatcherListener {
       if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
         spaceSystemControl.shutdown();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL.equalsIgnoreCase(command)) {
-        uiControllerManager.shutdownAllControllers();
+        masterApiControllerManager.shutdownAllControllers();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES.equalsIgnoreCase(command)) {
-        uiControllerManager.shutdownAllActivitiesAllControllers();
+        masterApiControllerManager.shutdownAllActivitiesAllControllers();
       } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP)) {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP.length());
 
-        uiControllerManager.startupLiveActivityGroup(id);
+        masterApiControllerManager.startupLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE.length());
 
-        uiControllerManager.activateLiveActivityGroup(id);
+        masterApiControllerManager.activateLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_STARTUP.length());
 
-        uiSpaceManager.startupSpace(id);
+        masterApiSpaceManager.startupSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_ACTIVATE.length());
 
-        uiSpaceManager.activateSpace(id);
+        masterApiSpaceManager.activateSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SCRIPT_RUN)) {
         String id = command.substring(COMMAND_PREFIX_SCRIPT_RUN.length());
 
-        uiAutomationManager.runScript(id);
+        masterApiAutomationManager.runScript(id);
       } else {
         spaceEnvironment.getLog().warn(
             String.format("Unknown command to master file control %s", command));
@@ -227,26 +232,26 @@ public class MasterFileControl implements DirectoryWatcherListener {
   }
 
   /**
-   * @param uiControllerManager
+   * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 
   /**
-   * @param uiSpaceManager
+   * @param masterApiSpaceManager
    *          the uiSpaceManager to set
    */
-  public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
-    this.uiSpaceManager = uiSpaceManager;
+  public void setMasterApiSpaceManager(MasterApiSpaceManager masterApiSpaceManager) {
+    this.masterApiSpaceManager = masterApiSpaceManager;
   }
 
   /**
-   * @param uiAutomationManager
+   * @param masterApiAutomationManager
    *          the uiAutomationManager to set
    */
-  public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
-    this.uiAutomationManager = uiAutomationManager;
+  public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
+    this.masterApiAutomationManager = masterApiAutomationManager;
   }
 }

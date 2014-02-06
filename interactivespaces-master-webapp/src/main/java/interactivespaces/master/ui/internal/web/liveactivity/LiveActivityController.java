@@ -16,19 +16,15 @@
 
 package interactivespaces.master.ui.internal.web.liveactivity;
 
-import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
-import interactivespaces.expression.FilterExpression;
+import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.MasterApiUtilities;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiLiveActivity;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 import interactivespaces.master.ui.internal.web.UiUtilities;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,8 +71,8 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
    */
   @RequestMapping("/liveactivity/all.html")
   public ModelAndView listActivities() {
-    List<UiLiveActivity> liveactivities = uiControllerManager.getAllUiLiveActivities();
-    Collections.sort(liveactivities, UiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+    List<MasterApiLiveActivity> liveactivities = masterApiControllerManager.getAllUiLiveActivities();
+    Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("liveactivity/LiveActivityViewAll");
@@ -89,19 +85,16 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   public ModelAndView viewActivity(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
 
-    UiLiveActivity liveactivity = uiControllerManager.getUiLiveActivity(id);
+    MasterApiLiveActivity liveactivity = masterApiControllerManager.getUiLiveActivity(id);
     if (liveactivity != null) {
       mav.setViewName("liveactivity/LiveActivityView");
       mav.addObject("liveactivity", liveactivity);
-      mav.addObject("metadata",
-          UiUtilities.getMetadataView(liveactivity.getActivity().getMetadata()));
-      mav.addObject("runtimeStateDetail", rewriteRuntimeStateDetail(liveactivity.getActive()
-          .getRuntimeStateDetail()));
+      mav.addObject("metadata", UiUtilities.getMetadataView(liveactivity.getActivity().getMetadata()));
+      mav.addObject("runtimeStateDetail", rewriteRuntimeStateDetail(liveactivity.getActive().getRuntimeStateDetail()));
 
       List<LiveActivityGroup> groups =
-          Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveactivity
-              .getActivity()));
-      Collections.sort(groups, UiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
+          Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveactivity.getActivity()));
+      Collections.sort(groups, MasterApiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
       mav.addObject("liveactivitygroups", groups);
 
     } else {
@@ -113,97 +106,48 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 
   @RequestMapping(value = "/liveactivity/all.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> listActivitiesJson(
-      @RequestParam(value = "filter", required = false) String filter) {
-    List<Map<String, Object>> data = Lists.newArrayList();
-
-    try {
-      FilterExpression filterExpression = expressionFactory.getFilterExpression(filter);
-
-      for (LiveActivity activity : activityRepository.getLiveActivities(filterExpression)) {
-        Map<String, Object> activityData = Maps.newHashMap();
-
-        uiActivityManager.getLiveActivityViewJsonData(activity, activityData);
-
-        data.add(activityData);
-      }
-
-      return JsonSupport.getSuccessJsonResponse(data);
-    } catch (Exception e) {
-      spacesEnvironment.getLog().error("Attempt to get live activity data failed", e);
-
-      return JsonSupport.getFailureJsonResponse("call failed");
-    }
+  Map<String, ? extends Object> listActivitiesJson(@RequestParam(value = "filter", required = false) String filter) {
+    return masterApiActivityManager.getLiveActivitiesByFilter(filter);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/view.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> viewLiveActivityJson(@PathVariable String id) {
-    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
-    if (liveactivity != null) {
-      Map<String, Object> data = Maps.newHashMap();
-
-      uiActivityManager.getLiveActivityViewJsonData(liveactivity, data);
-
-      return JsonSupport.getSuccessJsonResponse(data);
-    } else {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.getLiveActivityView(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployLiveActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.deployLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.deployLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/configure.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> configureLiveActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.configureLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.configureLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/configuration.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> getLiveActivityConfiguration(@PathVariable String id) {
-    try {
-      return JsonSupport.getSuccessJsonResponse(uiActivityManager.getLiveActivityConfiguration(id));
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.getLiveActivityConfiguration(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/configuration.json", method = RequestMethod.POST)
   public @ResponseBody
-  Map<String, ? extends Object> setLiveActivityConfiguration(@PathVariable String id,
-      @RequestBody Object config, HttpServletResponse response) {
+  Map<String, ? extends Object> setLiveActivityConfiguration(@PathVariable String id, @RequestBody Object config,
+      HttpServletResponse response) {
 
-    try {
-      if (Map.class.isAssignableFrom(config.getClass())) {
-        @SuppressWarnings("unchecked")
-        Map<String, String> map = (Map<String, String>) config;
+    if (Map.class.isAssignableFrom(config.getClass())) {
+      @SuppressWarnings("unchecked")
+      Map<String, String> map = (Map<String, String>) config;
 
-        uiActivityManager.configureLiveActivity(id, map);
-
-        return JsonSupport.getSimpleSuccessJsonResponse();
-      } else {
-        return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
-      }
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
+      return masterApiActivityManager.configureLiveActivity(id, map);
+    } else {
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
+
   }
 
   @RequestMapping(value = "/liveactivity/{id}/metadata.json", method = RequestMethod.POST)
@@ -215,111 +159,63 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
       @SuppressWarnings("unchecked")
       Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
 
-      return uiActivityManager.updateLiveActivityMetadata(id, metadataCommand);
+      return masterApiActivityManager.updateLiveActivityMetadata(id, metadataCommand);
     } else {
-      return JsonSupport.getFailureJsonResponse(JsonSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
   }
 
   @RequestMapping(value = "/liveactivity/{id}/startup.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> startupActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.startupLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.startupLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/activate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> activateActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.activateLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.activateLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/deactivate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deactivateActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.deactivateLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.deactivateLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.shutdownLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.shutdownLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/status.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> statusActivity(@PathVariable String id) {
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity != null) {
-      // Get an update from the controller
-      uiControllerManager.statusLiveActivity(id);
-
-      Map<String, Object> statusData = Maps.newHashMap();
-
-      uiActivityManager.getLiveActivityStatusJsonData(activity, statusData);
-
-      return JsonSupport.getSuccessJsonResponse(statusData);
-    } else {
-      return getNoSuchLiveActivityResult();
-    }
+  Map<String, ? extends Object> statusLiveActivity(@PathVariable String id) {
+    return masterApiControllerManager.statusLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/cleantmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanTempDataActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.cleanLiveActivityTempData(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.cleanLiveActivityTempData(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/cleanpermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanPermanentDataActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.cleanLiveActivityPermanentData(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.cleanLiveActivityPermanentData(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/delete.html", method = RequestMethod.GET)
   public ModelAndView deleteActivity(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
-    try {
-      uiActivityManager.deleteLiveActivity(id);
 
+    Map<String, Object> response = masterApiActivityManager.deleteLiveActivity(id);
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.clear();
       mav.setViewName("redirect:/liveactivity/all.html");
-    } catch (EntityNotFoundInteractiveSpacesException e) {
+    } else {
       mav.setViewName("liveactivity/LiveActivityNonexistent");
     }
 
@@ -329,13 +225,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/liveactivity/{id}/remotedelete.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> remoteDeleteActivity(@PathVariable String id) {
-    try {
-      uiControllerManager.deleteLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.deleteLiveActivity(id);
   }
 
   /**
@@ -350,16 +240,6 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
       return null;
     }
     return detail.replaceAll(HTTP_LINK_REGEXP, HTTP_LINK_REPLACEMENT);
-  }
-
-  /**
-   * Get a JSON error response for no such live activity.
-   *
-   * @return the JSON result
-   */
-  private Map<String, Object> getNoSuchLiveActivityResult() {
-    return JsonSupport
-        .getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
   }
 
   /**

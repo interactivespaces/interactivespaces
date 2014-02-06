@@ -16,18 +16,16 @@
 
 package interactivespaces.master.server.services.internal;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.system.NamedScript;
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiMasterSupportManager;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
 import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.server.services.ScriptingNames;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiMasterSupportManager;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.script.ScriptService;
 import interactivespaces.service.script.StringScriptSource;
@@ -35,6 +33,8 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.directorywatcher.BaseDirectoryWatcherListener;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
 import interactivespaces.util.io.directorywatcher.SimpleDirectoryWatcher;
+
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,24 +44,29 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A basic implementation of the {@link AutomationManager}
+ * A basic implementation of the {@link AutomationManager}.
  *
  * @author Keith M. Hughes
  */
 public class BasicAutomationManager implements AutomationManager {
 
   /**
-   * Watched subfolder for importing new activities
+   * How often the watched directories should be scanned. In seconds.
+   */
+  public static final int DIRECTORY_SCAN_TIME = 10;
+
+  /**
+   * Watched subfolder for importing new activities.
    */
   public static final String ACTIVITY_IMPORT_DIRECTORY = "master/activity/import";
 
   /**
-   * Watched subfolder for importing and deploying new activities
+   * Watched subfolder for importing and deploying new activities.
    */
   public static final String ACTIVITY_DEPLOY_DIRECTORY = "master/activity/deploy";
 
   /**
-   * The script service to use for the automation master
+   * The script service to use for the automation master.
    */
   private ScriptService scriptService;
 
@@ -86,19 +91,19 @@ public class BasicAutomationManager implements AutomationManager {
   private ActiveControllerManager activeControllerManager;
 
   /**
-   * The ui activity manager to use for the automation master.
+   * The Master API activity manager to use for the automation master.
    */
-  private UiActivityManager uiActivityManager;
+  private MasterApiActivityManager masterApiActivityManager;
 
   /**
-   * The ui controller manager to use for the automation master.
+   * The Master API controller manager to use for the automation master.
    */
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager masterApiControllerManager;
 
   /**
-   * The ui master support manager to use for the automation master.
+   * The Master API master support manager to use for the automation master.
    */
-  private UiMasterSupportManager uiMasterSupportManager;
+  private MasterApiMasterSupportManager masterApiMasterSupportManager;
 
   /**
    * Interactive Spaces environment being run in.
@@ -110,6 +115,9 @@ public class BasicAutomationManager implements AutomationManager {
    */
   private DirectoryWatcher importDirectoryWatcher;
 
+  /**
+   * The map of bindings that every automation invocation will receive.
+   */
   private Map<String, Object> automationBindings;
 
   @Override
@@ -141,8 +149,8 @@ public class BasicAutomationManager implements AutomationManager {
   public void runScript(NamedScript script) {
 
     try {
-      scriptService.executeScriptByName(script.getLanguage(),
-          new StringScriptSource(script.getContent()), automationBindings);
+      scriptService.executeScriptByName(script.getLanguage(), new StringScriptSource(script.getContent()),
+          automationBindings);
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Error while running script", e);
     }
@@ -153,17 +161,17 @@ public class BasicAutomationManager implements AutomationManager {
    */
   private void prepareImportDirectoryWatcher() {
     importDirectoryWatcher = new SimpleDirectoryWatcher();
-    importDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem()
-        .getInstallDirectory(), ACTIVITY_IMPORT_DIRECTORY));
-    importDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem()
-        .getInstallDirectory(), ACTIVITY_DEPLOY_DIRECTORY));
+    importDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
+        ACTIVITY_IMPORT_DIRECTORY));
+    importDirectoryWatcher.addDirectory(new File(spaceEnvironment.getFilesystem().getInstallDirectory(),
+        ACTIVITY_DEPLOY_DIRECTORY));
     importDirectoryWatcher.addDirectoryWatcherListener(new BaseDirectoryWatcherListener() {
       @Override
       public void onFileAdded(File file) {
-        onImportActivityFileAdded(file);
+        handleImportActivityFileAdded(file);
       }
     });
-    importDirectoryWatcher.startup(spaceEnvironment, 10, TimeUnit.SECONDS);
+    importDirectoryWatcher.startup(spaceEnvironment, DIRECTORY_SCAN_TIME, TimeUnit.SECONDS);
   }
 
   /**
@@ -172,17 +180,13 @@ public class BasicAutomationManager implements AutomationManager {
   private void prepareAutomationBindings() {
     automationBindings = Maps.newHashMap();
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVITY_REPOSITORY, activityRepository);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_CONTROLLER_REPOSITORY,
-        controllerRepository);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_CONTROLLER_REPOSITORY, controllerRepository);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCRIPT_SERVICE, scriptService);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCHEDULER_SERVICE, schedulerService);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER,
-        activeControllerManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, uiActivityManager);
-    automationBindings
-        .put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, uiControllerManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER,
-        uiMasterSupportManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER, activeControllerManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, masterApiActivityManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, masterApiControllerManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_ENVIRONMENT, spaceEnvironment);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_AUTOMATION_MANAGER, this);
   }
@@ -193,22 +197,20 @@ public class BasicAutomationManager implements AutomationManager {
    * @param file
    *          the folder which has been added
    */
-  private void onImportActivityFileAdded(File file) {
-    spaceEnvironment.getLog().info(
-        String.format("Activity file  %s found in autoinput folders", file));
+  private void handleImportActivityFileAdded(File file) {
+    spaceEnvironment.getLog().info(String.format("Activity file  %s found in autoinput folders", file));
 
     FileInputStream activityStream = null;
     try {
       activityStream = new FileInputStream(file);
-      Activity activity = uiActivityManager.saveActivity(null, activityStream);
+      Activity activity = masterApiActivityManager.saveActivity(null, activityStream);
 
       String watchedFolder = file.getParent();
       if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
-        uiControllerManager.deployAllActivityInstances(activity.getId());
+        masterApiControllerManager.deployAllActivityInstances(activity.getId());
       }
     } catch (Exception e) {
-      spaceEnvironment.getLog().error(
-          String.format("Could not read imported activity file %s", file), e);
+      spaceEnvironment.getLog().error(String.format("Could not read imported activity file %s", file), e);
     } finally {
       if (activityStream != null) {
         try {
@@ -263,27 +265,27 @@ public class BasicAutomationManager implements AutomationManager {
   }
 
   /**
-   * @param uiActivityManager
+   * @param masterApiActivityManager
    *          the uiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
-   * @param uiControllerManager
+   * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 
   /**
-   * @param uiMasterSupportManager
+   * @param masterApiMasterSupportManager
    *          the uiMasterSupportManager to set
    */
-  public void setUiMasterSupportManager(UiMasterSupportManager uiMasterSupportManager) {
-    this.uiMasterSupportManager = uiMasterSupportManager;
+  public void setMasterApiMasterSupportManager(MasterApiMasterSupportManager masterApiMasterSupportManager) {
+    this.masterApiMasterSupportManager = masterApiMasterSupportManager;
   }
 
   /**

@@ -14,26 +14,12 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
-
-import interactivespaces.master.server.services.MasterSupportManager;
+package interactivespaces.master.api;
 
 /**
- * UI access for the {@link MasterSupportManager}
+ * A manager for activity operations.
  *
  * @author Keith M. Hughes
  */
-public interface UiMasterSupportManager {
-
-  /**
-   * Get the master domain description.
-   *
-   * @return
-   */
-  String getMasterDomainDescription();
-
-  /**
-   * Import the master domain description.
-   */
-  void importMasterDomainDescription();
+public interface RemoteActivityManager {
 }

@@ -16,16 +16,15 @@
 
 package interactivespaces.master.ui.internal.web.admin;
 
+import interactivespaces.domain.system.NamedScript;
+import interactivespaces.master.api.MasterApiAutomationManager;
+import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.MasterApiUtilities;
+import interactivespaces.master.server.services.AutomationRepository;
+import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import interactivespaces.domain.system.NamedScript;
-import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.UiAutomationManager;
-import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
-import interactivespaces.master.ui.internal.web.UiUtilities;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,7 +53,7 @@ public class AutomationController extends BaseSpaceMasterController {
   /**
    * The UI manager for automation.
    */
-  private UiAutomationManager uiAutomationManager;
+  private MasterApiAutomationManager masterApiAutomationManager;
 
   /**
    * Display a list of all named scripts.
@@ -64,7 +63,7 @@ public class AutomationController extends BaseSpaceMasterController {
   @RequestMapping("/admin/namedscript/all.html")
   public ModelAndView listNamedScripts() {
     List<NamedScript> scripts = Lists.newArrayList(automationRepository.getAllNamedScripts());
-    Collections.sort(scripts, UiUtilities.NAMED_SCRIPT_BY_NAME_COMPARATOR);
+    Collections.sort(scripts, MasterApiUtilities.NAMED_SCRIPT_BY_NAME_COMPARATOR);
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("admin/NamedScriptViewAll");
@@ -92,12 +91,11 @@ public class AutomationController extends BaseSpaceMasterController {
   @RequestMapping(value = "/admin/namedscript/{id}/delete.html", method = RequestMethod.GET)
   public ModelAndView deleteController(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
-    try {
-      uiAutomationManager.deleteNamedScript(id);
-
+    Map<String, Object> response = masterApiAutomationManager.deleteNamedScript(id);
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.clear();
       mav.setViewName("redirect:/admin/namedscript/all.html");
-    } catch (EntityNotFoundInteractiveSpacesException e) {
+    } else {
       mav.setViewName("admin/NamedScriptNonexistent");
     }
 
@@ -119,28 +117,13 @@ public class AutomationController extends BaseSpaceMasterController {
       data.add(scriptData);
     }
 
-    return JsonSupport.getSuccessJsonResponse(data);
+    return MasterApiMessageSupport.getSuccessResponse(data);
   }
 
   @RequestMapping(value = "/admin/namedscript/{id}/run.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> runNamedScript(@PathVariable String id) {
-    try {
-      uiAutomationManager.runScript(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchNamedScriptResult();
-    }
-  }
-
-  /**
-   * Get a result for no such named script for JSON results.
-   *
-   * @return
-   */
-  private Map<String, Object> getNoSuchNamedScriptResult() {
-    return JsonSupport.getFailureJsonResponse("No such named script");
+    return masterApiAutomationManager.runScript(id);
   }
 
   /**
@@ -152,10 +135,10 @@ public class AutomationController extends BaseSpaceMasterController {
   }
 
   /**
-   * @param uiAutomationManager
-   *          the uiAutomationManager to set
+   * @param masterApiAutomationManager
+   *          the masterApiAutomationManager to set
    */
-  public void setUiAutomationManager(UiAutomationManager uiAutomationManager) {
-    this.uiAutomationManager = uiAutomationManager;
+  public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
+    this.masterApiAutomationManager = masterApiAutomationManager;
   }
 }

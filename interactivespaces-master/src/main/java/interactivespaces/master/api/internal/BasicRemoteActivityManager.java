@@ -14,28 +14,29 @@
  * the License.
  */
 
-package interactivespaces.master.server.services;
+package interactivespaces.master.api.internal;
 
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.master.api.RemoteActivityManager;
+import interactivespaces.master.server.services.RemoteControllerClient;
 
 /**
- * A {@link SimpleInteractiveSpacesException} for entities which are not found.
+ * A simple remote activity manager.
  *
  * @author Keith M. Hughes
  */
-public class EntityNotFoundInteractiveSpacesException extends SimpleInteractiveSpacesException {
-  /**
-   * The UID for the serialization.
-   */
-  private static final long serialVersionUID = -8428724375774147347L;
+public class BasicRemoteActivityManager implements RemoteActivityManager {
 
   /**
-   * Construct an entity not found exception.
-   *
-   * @param message
-   *          message for the exception
+   * Handle operations on remote controllers.
    */
-  public EntityNotFoundInteractiveSpacesException(String message) {
-    super(message);
+  private RemoteControllerClient remoteControllerClient;
+
+  /**
+   * @param remoteControllerClient
+   *          the remoteControllerClient to set
+   */
+  public void setRemoteControllerClient(RemoteControllerClient remoteControllerClient) {
+    this.remoteControllerClient = remoteControllerClient;
   }
+
 }

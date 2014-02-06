@@ -21,9 +21,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import interactivespaces.master.server.ui.UiAutomationManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiSpaceManager;
+import interactivespaces.master.api.MasterApiAutomationManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 
@@ -42,11 +42,11 @@ public class MasterFileControlTest {
 
   private InteractiveSpacesSystemControl spaceSystemControl;
 
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager uiControllerManager;
 
-  private UiSpaceManager uiSpaceManager;
+  private MasterApiSpaceManager uiSpaceManager;
 
-  private UiAutomationManager uiAutomationManager;
+  private MasterApiAutomationManager uiAutomationManager;
 
   private MasterFileControl fileControl;
 
@@ -59,16 +59,16 @@ public class MasterFileControlTest {
     when(spaceEnvironment.getLog()).thenReturn(log);
 
     spaceSystemControl = mock(InteractiveSpacesSystemControl.class);
-    uiControllerManager = mock(UiControllerManager.class);
-    uiSpaceManager = mock(UiSpaceManager.class);
-    uiAutomationManager = mock(UiAutomationManager.class);
+    uiControllerManager = mock(MasterApiControllerManager.class);
+    uiSpaceManager = mock(MasterApiSpaceManager.class);
+    uiAutomationManager = mock(MasterApiAutomationManager.class);
 
     fileControl = new MasterFileControl();
     fileControl.setSpaceEnvironment(spaceEnvironment);
     fileControl.setSpaceSystemControl(spaceSystemControl);
-    fileControl.setUiControllerManager(uiControllerManager);
-    fileControl.setUiSpaceManager(uiSpaceManager);
-    fileControl.setUiAutomationManager(uiAutomationManager);
+    fileControl.setMasterApiControllerManager(uiControllerManager);
+    fileControl.setMasterApiSpaceManager(uiSpaceManager);
+    fileControl.setMasterApiAutomationManager(uiAutomationManager);
   }
 
   /**

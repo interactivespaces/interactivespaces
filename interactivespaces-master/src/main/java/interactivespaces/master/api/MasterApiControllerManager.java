@@ -14,19 +14,20 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui;
+package interactivespaces.master.api;
 
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manager for the UI control of controllers.
  *
  * @author Keith M. Hughes
  */
-public interface UiControllerManager {
+public interface MasterApiControllerManager {
 
   /**
    * Message key for non-existent controllers.
@@ -34,14 +35,31 @@ public interface UiControllerManager {
   String MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN = "space.domain.controller.unknown";
 
   /**
+   * Get the view of all space controllers.
+   *
+   * @return the Master API view of all space controllers
+   */
+  Map<String, Object> getSpaceControllerAllView();
+
+  /**
+   * Get the view of a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   *
+   * @return the Master API view of the space controller
+   */
+  Map<String, Object> getSpaceControllerView(String id);
+
+  /**
    * Delete a controller from the controller repository.
    *
    * @param id
    *          ID of the controller.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deleteController(String id);
+  Map<String, Object> deleteController(String id);
 
   /**
    * Shut down a set of controllers controller.
@@ -49,46 +67,46 @@ public interface UiControllerManager {
    * @param ids
    *          IDs of the controllers
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager shutdownControllers(List<String> ids);
+  Map<String, Object> shutdownControllers(List<String> ids);
 
   /**
    * Connect to all controllers in the repository.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager connectToAllControllers();
+  Map<String, Object> connectToAllControllers();
 
   /**
    * Disconnect to all controllers in the repository.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager disconnectFromAllControllers();
+  Map<String, Object> disconnectFromAllControllers();
 
   /**
    * Shut down all controllers in the repository.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager shutdownAllControllers();
+  Map<String, Object> shutdownAllControllers();
 
   /**
    * Get the status from all controllers in the repository that are not marked
    * unknown. This means no one has tried connecting.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager statusFromAllControllers();
+  Map<String, Object> statusFromAllControllers();
 
   /**
    * Get the status from all controllers in the repository, whether or not they
    * are connected.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager forceStatusFromAllControllers();
+  Map<String, Object> forceStatusFromAllControllers();
 
   /**
    * Connect to all controllers listed.
@@ -99,9 +117,9 @@ public interface UiControllerManager {
    * @param ids
    *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager connectToControllers(List<String> ids);
+  Map<String, Object> connectToControllers(List<String> ids);
 
   /**
    * Disconnect from all controllers listed.
@@ -112,9 +130,9 @@ public interface UiControllerManager {
    * @param ids
    *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager disconnectFromControllers(List<String> ids);
+  Map<String, Object> disconnectFromControllers(List<String> ids);
 
   /**
    * Get a status from all controllers listed.
@@ -125,9 +143,9 @@ public interface UiControllerManager {
    * @param ids
    *          IDs of all controllers
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager statusControllers(List<String> ids);
+  Map<String, Object> statusControllers(List<String> ids);
 
   /**
    * Clean the temp data folder for the specified controller.
@@ -135,16 +153,16 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerTempData(String id);
+  Map<String, Object> cleanControllerTempData(String id);
 
   /**
    * Clean the temp data folder for all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerTempDataAllControllers();
+  Map<String, Object> cleanControllerTempDataAllControllers();
 
   /**
    * Clean the permanent data folder for the controller.
@@ -152,16 +170,16 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerPermanentData(String id);
+  Map<String, Object> cleanControllerPermanentData(String id);
 
   /**
    * Clean the permanent data folder for all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerPermanentDataAllControllers();
+  Map<String, Object> cleanControllerPermanentDataAllControllers();
 
   /**
    * Clean the temp data folder for all live activities on a controller.
@@ -169,16 +187,16 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerActivitiesTempData(String id);
+  Map<String, Object> cleanControllerActivitiesTempData(String id);
 
   /**
    * Clean the temp data folder for all live activities on all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerActivitiesTempDataAllControllers();
+  Map<String, Object> cleanControllerActivitiesTempDataAllControllers();
 
   /**
    * Clean the permanent data folder for all live activities on a controller.
@@ -186,16 +204,16 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerActivitiesPermanentData(String id);
+  Map<String, Object> cleanControllerActivitiesPermanentData(String id);
 
   /**
    * Clean the permanent data folder all live activities on all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanControllerActivitiesPermanentDataAllControllers();
+  Map<String, Object> cleanControllerActivitiesPermanentDataAllControllers();
 
   /**
    * Capture the data bundle for the given controller ID.
@@ -203,9 +221,9 @@ public interface UiControllerManager {
    * @param id
    *          Id of the target controller
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager captureControllerDataBundle(String id);
+  Map<String, Object> captureControllerDataBundle(String id);
 
   /**
    * Restore the data bundle for the given controller ID.
@@ -213,23 +231,23 @@ public interface UiControllerManager {
    * @param id
    *          Id of the target controller
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager restoreControllerDataBundle(String id);
+  Map<String, Object> restoreControllerDataBundle(String id);
 
   /**
    * Capture the data bundle for all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager captureDataAllControllers();
+  Map<String, Object> captureDataAllControllers();
 
   /**
    * Restore the data bundles for all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager restoreDataAllControllers();
+  Map<String, Object> restoreDataAllControllers();
 
   /**
    * Shut down all activities on the specified controller.
@@ -237,16 +255,16 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager shutdownAllActivities(String id);
+  Map<String, Object> shutdownAllActivities(String id);
 
   /**
    * Shut down all activities on all controllers.
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager shutdownAllActivitiesAllControllers();
+  Map<String, Object> shutdownAllActivitiesAllControllers();
 
   /**
    * Deploy all activities which are on the specified controller.
@@ -254,9 +272,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the controller
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deployAllControllerActivityInstances(String id);
+  Map<String, Object> deployAllControllerActivityInstances(String id);
 
   /**
    * Deploy all out of date live activities which are based on the specified
@@ -265,9 +283,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deployAllActivityInstances(String id);
+  Map<String, Object> deployAllActivityInstances(String id);
 
   /**
    * Deploy the specified live activity to its controller.
@@ -275,9 +293,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deployLiveActivity(String id);
+  Map<String, Object> deployLiveActivity(String id);
 
   /**
    * Delete the specified live activity from its controller.
@@ -285,9 +303,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deleteLiveActivity(String id);
+  Map<String, Object> deleteLiveActivity(String id);
 
   /**
    * Configure a live activity on its controller.
@@ -295,9 +313,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager configureLiveActivity(String id);
+  Map<String, Object> configureLiveActivity(String id);
 
   /**
    * Start a live activity on its controller.
@@ -305,9 +323,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager startupLiveActivity(String id);
+  Map<String, Object> startupLiveActivity(String id);
 
   /**
    * Activate a live activity on its controller.
@@ -315,9 +333,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager activateLiveActivity(String id);
+  Map<String, Object> activateLiveActivity(String id);
 
   /**
    * Deactivate a live activity on its controller.
@@ -325,9 +343,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deactivateLiveActivity(String id);
+  Map<String, Object> deactivateLiveActivity(String id);
 
   /**
    * Shut a live activity down on its controller.
@@ -335,9 +353,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager shutdownLiveActivity(String id);
+  Map<String, Object> shutdownLiveActivity(String id);
 
   /**
    * Status of a live activity on its controller.
@@ -345,9 +363,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager statusLiveActivity(String id);
+  Map<String, Object> statusLiveActivity(String id);
 
   /**
    * Clean the permanent data folder for the live activity.
@@ -355,9 +373,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanLiveActivityPermanentData(String id);
+  Map<String, Object> cleanLiveActivityPermanentData(String id);
 
   /**
    * Clean the temp data folder for the live activity.
@@ -365,9 +383,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity to clean
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager cleanLiveActivityTempData(String id);
+  Map<String, Object> cleanLiveActivityTempData(String id);
 
   /**
    * Deploy the specified activity group.
@@ -375,9 +393,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deployLiveActivityGroup(String id);
+  Map<String, Object> deployLiveActivityGroup(String id);
 
   /**
    * Configure the specified activity group.
@@ -385,9 +403,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager configureLiveActivityGroup(String id);
+  Map<String, Object> configureLiveActivityGroup(String id);
 
   /**
    * Start an activity group on its controller.
@@ -395,9 +413,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager startupLiveActivityGroup(String id);
+  Map<String, Object> startupLiveActivityGroup(String id);
 
   /**
    * Activate an activity group on its controller.
@@ -405,9 +423,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager activateLiveActivityGroup(String id);
+  Map<String, Object> activateLiveActivityGroup(String id);
 
   /**
    * Deactivate an activity group on its controller.
@@ -415,9 +433,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager deactivateLiveActivityGroup(String id);
+  Map<String, Object> deactivateLiveActivityGroup(String id);
 
   /**
    * Shut an activity group.
@@ -425,9 +443,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation.
+   * @return the Master API response.
    */
-  UiControllerManager shutdownLiveActivityGroup(String id);
+  Map<String, Object> shutdownLiveActivityGroup(String id);
 
   /**
    * Force all live activities in a live activity group to shutdown.
@@ -435,9 +453,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager forceShutdownLiveActivitiesLiveActivityGroup(String id);
+  Map<String, Object> forceShutdownLiveActivitiesLiveActivityGroup(String id);
 
   /**
    * Status of all live activities in a live activity group.
@@ -445,9 +463,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the live activity group
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager statusLiveActivityGroup(String id);
+  Map<String, Object> statusLiveActivityGroup(String id);
 
   /**
    * Status of all live activities in all live activity groups in a space and
@@ -456,9 +474,9 @@ public interface UiControllerManager {
    * @param id
    *          ID of the space
    *
-   * @return the controller manager which performed the operation
+   * @return the Master API response
    */
-  UiControllerManager liveActivityStatusSpace(String id);
+  Map<String, Object> liveActivityStatusSpace(String id);
 
   /**
    * Get a list of all live activities and, if any, the associated active
@@ -470,7 +488,7 @@ public interface UiControllerManager {
    *
    * @return all UI live activities
    */
-  List<UiLiveActivity> getAllUiLiveActivities();
+  List<MasterApiLiveActivity> getAllUiLiveActivities();
 
   /**
    * Get a list of all live activities and, if any, the associated active
@@ -485,7 +503,7 @@ public interface UiControllerManager {
    *
    * @return all UI live activities for the controller
    */
-  List<UiLiveActivity> getAllUiLiveActivitiesByController(SpaceController controller);
+  List<MasterApiLiveActivity> getAllUiLiveActivitiesByController(SpaceController controller);
 
   /**
    * Get a live activity and, if any, the associated active counterpart.
@@ -499,7 +517,7 @@ public interface UiControllerManager {
    *
    * @return the UI live activity
    */
-  UiLiveActivity getUiLiveActivity(String id);
+  MasterApiLiveActivity getUiLiveActivity(String id);
 
   /**
    * Get the UI live activity component for all given live activities.
@@ -509,5 +527,5 @@ public interface UiControllerManager {
    *
    * @return list of the UI live activities
    */
-  List<UiLiveActivity> getUiLiveActivities(List<LiveActivity> activities);
+  List<MasterApiLiveActivity> getUiLiveActivities(List<LiveActivity> activities);
 }

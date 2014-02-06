@@ -43,18 +43,15 @@
     <property name="dataSource" ref="myDataSource" />
 
     <property name="jpaVendorAdapter">
-
       <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter" />
     </property>
   </bean>
 
   <bean id="interactivespaces.presistence.database.template" class="org.springframework.orm.jpa.JpaTemplate">
-
     <property name="entityManagerFactory" ref="myEmf" />
   </bean>
 
   <bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-
     <property name="entityManagerFactory" ref="myEmf" />
   </bean>
 
@@ -129,6 +126,8 @@
 
   <bean id="interactivespaces.master.logger" factory-bean="interactivespaces.environment"
     factory-method="getLog" />
+
+  <bean id="interactivespaces.expression.factory" class="interactivespaces.expression.OgnlExpressionFactory" />
 
   <bean id="interactivespaces.master.ros.context"
     class="interactivespaces.master.server.services.internal.ros.MasterRosContext"
@@ -292,11 +291,11 @@
 
     <property name="scriptService" ref="interactivespaces.service.script" />
 
-    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+    <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
 
-    <property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
+    <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
   </bean>
 
   <bean id="interactivespaces.master.extension"
@@ -315,22 +314,27 @@
 
     <property name="scriptService" ref="interactivespaces.service.script" />
 
-    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+    <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
 
-    <property name="uiMasterSupportManager" ref="interactivespaces.master.support.ui" />
+    <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
 
     <property name="automationManager" ref="interactivespaces.master.automation" />
   </bean>
 
-  <bean id="interactivespaces.master.activity.ui" parent="txProxyTemplate">
+  <bean id="abstractMasterApiManager" abstract="true">
+    <property name="expressionFactory" ref="interactivespaces.expression.factory" />
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.api.activity" parent="txProxyTemplate">
 
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.ui.internal.BasicUiActivityManager"
-        destroy-method="shutdown" init-method="startup">
+        class="interactivespaces.master.api.internal.BasicMasterApiActivityManager"
+        destroy-method="shutdown" init-method="startup" parent="abstractMasterApiManager">
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
@@ -339,18 +343,17 @@
 
         <property name="activeControllerManager"
           ref="interactivespaces.master.controller.active" />
-
-        <property name="spaceEnvironment" ref="interactivespaces.environment" />
       </bean>
     </property>
   </bean>
 
-  <bean id="interactivespaces.master.controller.ui" parent="txProxyTemplate">
+  <bean id="interactivespaces.master.api.controller" parent="txProxyTemplate">
 
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.ui.internal.BasicUiControllerManager">
+        class="interactivespaces.master.api.internal.BasicMasterApiControllerManager"
+        parent="abstractMasterApiManager">
 
         <property name="controllerRepository"
           ref="interactivespaces.repository.controller" />
@@ -360,17 +363,18 @@
         <property name="activeControllerManager"
           ref="interactivespaces.master.controller.active" />
 
-        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+        <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
       </bean>
     </property>
   </bean>
 
-  <bean id="interactivespaces.master.space.ui" parent="txProxyTemplate">
+  <bean id="interactivespaces.master.api.space" parent="txProxyTemplate">
 
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.ui.internal.BasicUiSpaceManager">
+        class="interactivespaces.master.api.internal.BasicMasterApiSpaceManager"
+        parent="abstractMasterApiManager">
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
@@ -379,36 +383,34 @@
         <property name="activeControllerManager"
           ref="interactivespaces.master.controller.active" />
 
-        <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
-
-        <property name="spaceEnvironment" ref="interactivespaces.environment" />
+        <property name="uiActivityManager" ref="interactivespaces.master.api.activity" />
       </bean>
     </property>
   </bean>
 
-  <bean id="interactivespaces.master.automation.ui" parent="txProxyTemplate">
+  <bean id="interactivespaces.master.api.automation" parent="txProxyTemplate">
 
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.ui.internal.BasicUiAutomationManager">
+        class="interactivespaces.master.api.internal.BasicMasterApiAutomationManager"
+        parent="abstractMasterApiManager">
 
         <property name="automationRepository"
           ref="interactivespaces.repository.automation" />
 
         <property name="automationManager" ref="interactivespaces.master.automation" />
-
-        <property name="spaceEnvironment" ref="interactivespaces.environment" />
       </bean>
     </property>
   </bean>
 
-  <bean id="interactivespaces.master.support.ui" parent="txProxyTemplate">
+  <bean id="interactivespaces.master.api.support" parent="txProxyTemplate">
 
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.ui.internal.BasicUiMasterSupportManager">
+        class="interactivespaces.master.api.internal.BasicMasterApiMasterSupportManager"
+        parent="abstractMasterApiManager">
 
         <property name="masterSupportManager" ref="interactivespaces.master.support" />
       </bean>
@@ -437,7 +439,7 @@
   </bean>
 
   <bean id="interactivespaces.master.websocket"
-    class="interactivespaces.master.server.ui.internal.BasicMasterWebsocketManager"
+    class="interactivespaces.master.api.internal.BasicMasterWebsocketManager"
     destroy-method="shutdown" init-method="startup">
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
@@ -448,20 +450,20 @@
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+    <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
   </bean>
 
   <context:component-scan base-package="interactivespaces" />
 
   <bean id="interactivespaces.master.shell"
-    class="interactivespaces.master.server.ui.internal.osgi.OsgiMasterShell"
+    class="interactivespaces.master.api.internal.osgi.OsgiMasterShell"
     destroy-method="deactivate" init-method="activate">
 
-    <property name="uiActivityManager" ref="interactivespaces.master.activity.ui" />
+    <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
@@ -484,28 +486,30 @@
 
     <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
 
-    <property name="uiControllerManager" ref="interactivespaces.master.controller.ui" />
+    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
 
-    <property name="uiSpaceManager" ref="interactivespaces.master.space.ui" />
+    <property name="masterApiSpaceManager" ref="interactivespaces.master.api.space" />
 
-    <property name="uiAutomationManager" ref="interactivespaces.master.automation.ui" />
+    <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
-  <osgi:service interface="interactivespaces.master.server.ui.UiActivityManager"
-    ref="interactivespaces.master.activity.ui" />
-
-  <osgi:service interface="interactivespaces.master.server.ui.UiControllerManager"
-    ref="interactivespaces.master.controller.ui" />
-
-  <osgi:service interface="interactivespaces.master.server.ui.UiSpaceManager"
-    ref="interactivespaces.master.space.ui" />
-
-  <osgi:service interface="interactivespaces.master.server.ui.UiAutomationManager"
-    ref="interactivespaces.master.automation.ui" />
+  <osgi:service interface="interactivespaces.master.api.MasterApiActivityManager"
+    ref="interactivespaces.master.api.activity" />
 
   <osgi:service
-    interface="interactivespaces.master.server.ui.UiMasterSupportManager"
-    ref="interactivespaces.master.support.ui" />
+    interface="interactivespaces.master.api.MasterApiControllerManager"
+    ref="interactivespaces.master.api.controller" />
+
+  <osgi:service interface="interactivespaces.master.api.MasterApiSpaceManager"
+    ref="interactivespaces.master.api.space" />
+
+  <osgi:service
+    interface="interactivespaces.master.api.MasterApiAutomationManager"
+    ref="interactivespaces.master.api.automation" />
+
+  <osgi:service
+    interface="interactivespaces.master.api.MasterApiMasterSupportManager"
+    ref="interactivespaces.master.api.support" />
 
   <osgi:service
     interface="interactivespaces.master.server.services.ActiveSpaceManager"

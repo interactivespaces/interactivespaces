@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui.internal;
+package interactivespaces.master.api.internal;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
@@ -23,19 +23,17 @@ import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketH
 import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceManager;
+import interactivespaces.master.api.MasterWebsocketManager;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.RemoteControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
-import interactivespaces.master.server.ui.JsonSupport;
-import interactivespaces.master.server.ui.MasterWebsocketManager;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiControllerManager;
-import interactivespaces.master.server.ui.UiSpaceManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -54,11 +52,12 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterWebsocketManager implements MasterWebsocketManager, MultipleConnectionWebSocketHandler,
-    RemoteSpaceControllerClientListener {
+public class BasicMasterWebsocketManager extends BaseMasterApiManager implements MasterWebsocketManager,
+    MultipleConnectionWebSocketHandler, RemoteSpaceControllerClientListener {
 
   /**
-   * Status parameter name for the status time in the master websocket connection.
+   * Status parameter name for the status time in the master websocket
+   * connection.
    */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS_TIME = "statusTime";
 
@@ -68,22 +67,26 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_STATUS = "status";
 
   /**
-   * Status parameter name for the detailed status in the master websocket connection.
+   * Status parameter name for the detailed status in the master websocket
+   * connection.
    */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_DETAIL = "statusDetail";
 
   /**
-   * Status parameter name for the ID of the entity in the master websocket connection.
+   * Status parameter name for the ID of the entity in the master websocket
+   * connection.
    */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_ID = "id";
 
   /**
-   * Status parameter name for the UUID of the entity in the master websocket connection.
+   * Status parameter name for the UUID of the entity in the master websocket
+   * connection.
    */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_UUID = "uuid";
 
   /**
-   * Status parameter name for the type of the entity in the master websocket connection.
+   * Status parameter name for the type of the entity in the master websocket
+   * connection.
    */
   public static final String WEBSOCKET_STATUS_PARAMETER_NAME_TYPE = "type";
 
@@ -128,19 +131,19 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
   private ActivityRepository activityRepository;
 
   /**
-   * The UI manager for activities.
+   * The Master API manager for activities.
    */
-  private UiActivityManager uiActivityManager;
+  private MasterApiActivityManager masterApiActivityManager;
 
   /**
-   * The UI manager for spaces.
+   * The Master API manager for spaces.
    */
-  private UiSpaceManager uiSpaceManager;
+  private MasterApiSpaceManager masterApiSpaceManager;
 
   /**
-   * The UI manager for controllers.
+   * The Master API manager for controllers.
    */
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager masterApiControllerManager;
 
   @Override
   public void startup() {
@@ -294,16 +297,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityView(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
-    if (liveactivity != null) {
-      Map<String, Object> data = Maps.newHashMap();
-
-      uiActivityManager.getLiveActivityViewJsonData(liveactivity, data);
-
-      return JsonSupport.getSuccessJsonResponse(data);
-    } else {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.getLiveActivityView(id);
   }
 
   /**
@@ -316,13 +310,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityDeploy(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.deployLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.deployLiveActivity(id);
   }
 
   /**
@@ -335,13 +323,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityConfigure(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.configureLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.configureLiveActivity(id);
   }
 
   /**
@@ -354,11 +336,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityGetConfiguration(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      return JsonSupport.getSuccessJsonResponse(uiActivityManager.getLiveActivityConfiguration(id));
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.getLiveActivityConfiguration(id);
   }
 
   /**
@@ -372,14 +350,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
   private Map<String, Object> liveActivitySetConfiguration(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
     Map<String, String> config = getRequiredMapArg(args, "config");
-    try {
-
-      uiActivityManager.configureLiveActivity(id, config);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.configureLiveActivity(id, config);
   }
 
   /**
@@ -394,7 +365,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
     String id = getRequiredStringArg(args, "id");
     Map<String, Object> metadata = getRequiredMapArg(args, "metadata");
 
-    return uiActivityManager.updateLiveActivityMetadata(id, metadata);
+    return masterApiActivityManager.updateLiveActivityMetadata(id, metadata);
   }
 
   /**
@@ -407,13 +378,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityStartup(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.startupLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.startupLiveActivity(id);
   }
 
   /**
@@ -426,13 +391,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityActivate(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.activateLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.activateLiveActivity(id);
   }
 
   /**
@@ -445,13 +404,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityDeactivate(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.deactivateLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.deactivateLiveActivity(id);
   }
 
   /**
@@ -464,13 +417,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityShutdown(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.shutdownLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.shutdownLiveActivity(id);
   }
 
   /**
@@ -483,19 +430,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityStatus(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    LiveActivity activity = activityRepository.getLiveActivityById(id);
-    if (activity != null) {
-      // Get an update from the controller
-      uiControllerManager.statusLiveActivity(id);
-
-      Map<String, Object> statusData = Maps.newHashMap();
-
-      uiActivityManager.getLiveActivityStatusJsonData(activity, statusData);
-
-      return JsonSupport.getSuccessJsonResponse(statusData);
-    } else {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiControllerManager.statusLiveActivity(id);
   }
 
   /**
@@ -508,13 +443,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityDelete(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiActivityManager.deleteLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
+    return masterApiActivityManager.deleteLiveActivity(id);
   }
 
   /**
@@ -527,22 +456,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    */
   private Map<String, Object> liveActivityRemoteDelete(Map<String, Object> args) {
     String id = getRequiredStringArg(args, "id");
-    try {
-      uiControllerManager.deleteLiveActivity(id);
-
-      return JsonSupport.getSimpleSuccessJsonResponse();
-    } catch (EntityNotFoundInteractiveSpacesException e) {
-      return getNoSuchLiveActivityResult();
-    }
-  }
-
-  /**
-   * Get a JSON error response for no such live activity.
-   *
-   * @return the JSON result
-   */
-  private Map<String, Object> getNoSuchLiveActivityResult() {
-    return JsonSupport.getFailureJsonResponse(UiActivityManager.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+    return masterApiControllerManager.deleteLiveActivity(id);
   }
 
   /**
@@ -604,6 +518,7 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
    * @param spaceEnvironment
    *          the spaceEnvironment to set
    */
+  @Override
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
@@ -633,26 +548,26 @@ public class BasicMasterWebsocketManager implements MasterWebsocketManager, Mult
   }
 
   /**
-   * @param uiActivityManager
+   * @param masterApiActivityManager
    *          the uiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
-   * @param uiSpaceManager
+   * @param masterApiSpaceManager
    *          the uiSpaceManager to set
    */
-  public void setUiSpaceManager(UiSpaceManager uiSpaceManager) {
-    this.uiSpaceManager = uiSpaceManager;
+  public void setMasterApiSpaceManager(MasterApiSpaceManager masterApiSpaceManager) {
+    this.masterApiSpaceManager = masterApiSpaceManager;
   }
 
   /**
-   * @param uiControllerManager
+   * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 }

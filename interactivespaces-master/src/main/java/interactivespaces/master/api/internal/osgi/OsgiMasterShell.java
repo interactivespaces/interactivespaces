@@ -14,22 +14,22 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui.internal.osgi;
-
-import com.google.common.collect.Maps;
+package interactivespaces.master.api.internal.osgi;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.ControllerRepository;
-import interactivespaces.master.server.ui.UiActivityManager;
-import interactivespaces.master.server.ui.UiControllerManager;
 import interactivespaces.service.script.FileScriptSource;
 import interactivespaces.service.script.ScriptService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+
+import com.google.common.collect.Maps;
 
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
@@ -51,14 +51,14 @@ import java.util.Map;
 public class OsgiMasterShell {
 
   /**
-   * Manager for UI operations on activities.
+   * Master API manager for operations on activities.
    */
-  private UiActivityManager uiActivityManager;
+  private MasterApiActivityManager masterApiActivityManager;
 
   /**
-   * Manager for UI operations on controllers.
+   * Master API manager for operations on controllers.
    */
-  private UiControllerManager uiControllerManager;
+  private MasterApiControllerManager masterApiControllerManager;
 
   /**
    * Repository for activities.
@@ -90,24 +90,33 @@ public class OsgiMasterShell {
    */
   private InteractiveSpacesSystemControl spaceSystemControl;
 
+  /**
+   * Activate the shell.
+   */
   public void activate() {
     Dictionary<String, Object> dict = new Hashtable<String, Object>();
     dict.put(CommandProcessor.COMMAND_SCOPE, "interactivespaces");
-    dict.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "list_apps", "list_controllers",
-        "add_controller", "controller_shutdownallapps", "list_iapps", "add_iapp", "deploy_iapp",
-        "startup_iapp", "activate_iapp", "deactivate_iapp", "shutdown_iapp", "delete_iapp",
-        "list_groups", "add_group", "deploy_group", "startup_group", "activate_group",
-        "deactivate_group", "shutdown_group", "delete_group", "script", "shutdown" });
+    dict.put(CommandProcessor.COMMAND_FUNCTION, new String[] { "listActivities", "addActivity", "listControllers",
+        "addController", "controllerShutdownallapps", "listLiveActivities", "addLiveActivity", "deployLiveActivity",
+        "startupLiveActivity", "activateLiveActivity", "deactivateLiveActivity", "shutdownLiveActivity",
+        "deleteLiveActivity", "listGroups", "addGroup", "deployGroup", "startupGroup", "activateGroup",
+        "deactivateGroup", "shutdownGroup", "deleteGroup", "script", "shutdown" });
     bundleContext.registerService(getClass().getName(), this, dict);
   }
 
+  /**
+   * Deactivate the shell.
+   */
   public void deactivate() {
   }
 
   /**
    * A shell command to shut down Interactive Spaces.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
   public void shutdown(CommandSession session, String[] args) {
     System.out.println("Shutting down");
@@ -117,9 +126,12 @@ public class OsgiMasterShell {
   /**
    * A shell command to list all activities.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void list_apps(CommandSession session, String[] args) {
+  public void listActivities(CommandSession session, String[] args) {
     // databaseConnection.getTransactionRunner().run(new Runnable() {
     // @Override
     // public void run() {
@@ -137,9 +149,12 @@ public class OsgiMasterShell {
   /**
    * A shell command to add an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void add_app(CommandSession session, String[] args) {
+  public void addActivity(CommandSession session, String[] args) {
     final Console console = System.console();
 
     if (console != null) {
@@ -154,28 +169,29 @@ public class OsgiMasterShell {
       app.setIdentifyingName(identifyingName);
 
       String description = console.readLine("Description: ");
-      if (!description.trim().isEmpty())
+      if (!description.trim().isEmpty()) {
         app.setDescription(description);
+      }
 
       activityRepository.saveActivity(app);
-      // }
-      // });
     }
   }
 
   /**
    * A shell command to list all controllers.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void list_controllers(CommandSession session, String[] args) {
+  public void listControllers(CommandSession session, String[] args) {
     List<SpaceController> controllers = controllerRepository.getAllSpaceControllers();
 
     System.out.format("Number of controllers: %d\n", controllers.size());
 
     for (SpaceController controller : controllers) {
-      System.out.format("%s\n\tID: %s\tUUID: %s\n", controller.getName(), controller.getId(),
-          controller.getUuid());
+      System.out.format("%s\n\tID: %s\tUUID: %s\n", controller.getName(), controller.getId(), controller.getUuid());
       System.out.format("\tHostId: %s\n", controller.getHostId());
     }
   }
@@ -183,34 +199,40 @@ public class OsgiMasterShell {
   /**
    * A shell command to shut down all activities on a controller.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void controller_shutdownallapps(CommandSession session, final String[] args) {
+  public void controllerShutdownallapps(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("controller_shutdownallapps id1 id2 id3...");
+      System.out.println("controllerShutdownallapps id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Shutting down all apps on controller %s\n", id);
-      uiControllerManager.shutdownAllActivities(id);
+      masterApiControllerManager.shutdownAllActivities(id);
     }
   }
 
   /**
    * A shell command to list all installed activities.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void list_iapps(CommandSession session, String[] args) {
-    List<LiveActivity> iapps = activityRepository.getAllLiveActivities();
+  public void listLiveAictivites(CommandSession session, String[] args) {
+    List<LiveActivity> liveAictivites = activityRepository.getAllLiveActivities();
 
-    System.out.format("Number of installed activities: %d\n", iapps.size());
+    System.out.format("Number of installed activities: %d\n", liveAictivites.size());
 
-    for (LiveActivity iapp : iapps) {
-      System.out.format("%s\n\t%s\t%s\n", iapp.getName(), iapp.getId(), iapp.getUuid());
-      System.out.format("\tActivity: ID: %s\tName: %s\n", iapp.getActivity().getId(), iapp
+    for (LiveActivity liveActivity : liveAictivites) {
+      System.out.format("%s\n\t%s\t%s\n", liveActivity.getName(), liveActivity.getId(), liveActivity.getUuid());
+      System.out.format("\tActivity: ID: %s\tName: %s\n", liveActivity.getActivity().getId(), liveActivity
           .getActivity().getName());
-      System.out.format("\tController: ID: %s\tName: %s\n", iapp.getController().getId(), iapp
+      System.out.format("\tController: ID: %s\tName: %s\n", liveActivity.getController().getId(), liveActivity
           .getController().getName());
     }
   }
@@ -218,9 +240,12 @@ public class OsgiMasterShell {
   /**
    * A shell command to add an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void add_iapp(CommandSession session, String[] args) {
+  public void addLiveActivity(CommandSession session, String[] args) {
     final Console console = System.console();
 
     if (console != null) {
@@ -238,123 +263,145 @@ public class OsgiMasterShell {
         return;
       }
 
-      LiveActivity iapp = activityRepository.newLiveActivity();
-      iapp.setController(controller);
-      iapp.setActivity(app);
+      LiveActivity liveActivity = activityRepository.newLiveActivity();
+      liveActivity.setController(controller);
+      liveActivity.setActivity(app);
 
       String name = console.readLine("Name: ");
-      iapp.setName(name);
+      liveActivity.setName(name);
 
       String description = console.readLine("Description: ");
-      if (!description.trim().isEmpty())
-        iapp.setDescription(description);
+      if (!description.trim().isEmpty()) {
+        liveActivity.setDescription(description);
+      }
 
-      activityRepository.saveLiveActivity(iapp);
+      activityRepository.saveLiveActivity(liveActivity);
     }
   }
 
   /**
    * A shell command to deploy an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void deploy_iapp(CommandSession session, final String[] args) {
+  public void deployLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("deploy_iapp id1 id2 id3...");
+      System.out.println("deployLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deploying activity %s\n", id);
-      uiControllerManager.deployLiveActivity(id);
+      masterApiControllerManager.deployLiveActivity(id);
     }
   }
 
   /**
    * A shell command to start up an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void startup_iapp(CommandSession session, final String[] args) {
+  public void startupLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("startup_iapp id1 id2 id3...");
+      System.out.println("startupLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Starting up activity %s\n", id);
-      uiControllerManager.startupLiveActivity(id);
+      masterApiControllerManager.startupLiveActivity(id);
     }
   }
 
   /**
    * A shell command to activate an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void activate_iapp(CommandSession session, final String[] args) {
+  public void activateLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("activate_iapp id1 id2 id3...");
+      System.out.println("activateLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Activating activity %s\n", id);
-      uiControllerManager.activateLiveActivity(id);
+      masterApiControllerManager.activateLiveActivity(id);
     }
   }
 
   /**
    * A shell command to deactivate an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void deactivate_iapp(CommandSession session, final String[] args) {
+  public void deactivateLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("deactivate_iapp id1 id2 id3...");
+      System.out.println("deactivateLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deactivating activity %s\n", id);
-      uiControllerManager.deactivateLiveActivity(id);
+      masterApiControllerManager.deactivateLiveActivity(id);
     }
   }
 
   /**
    * A shell command to shutdown an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void shutdown_iapp(CommandSession session, final String[] args) {
+  public void shutdownLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("shutdown_iapp id1 id2 id3...");
+      System.out.println("shutdownLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Shutting down activity %s\n", id);
-      uiControllerManager.shutdownLiveActivity(id);
+      masterApiControllerManager.shutdownLiveActivity(id);
     }
   }
 
   /**
    * A shell command to delete an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void delete_iapp(CommandSession session, final String[] args) {
+  public void deleteLiveActivity(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("delete_iapp id1 id2 id3...");
+      System.out.println("deleteLiveActivity id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deleting activity %s\n", id);
-      uiActivityManager.deleteLiveActivity(id);
+      masterApiActivityManager.deleteLiveActivity(id);
     }
   }
 
   /**
    * A shell command to list all installed activity groups.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void list_group(CommandSession session, String[] args) {
+  public void listGroup(CommandSession session, String[] args) {
     List<LiveActivityGroup> groups = activityRepository.getAllLiveActivityGroups();
 
     System.out.format("Number of installed activity groups: %d\n", groups.size());
@@ -367,115 +414,144 @@ public class OsgiMasterShell {
   /**
    * A shell command to add an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void add_group(CommandSession session, String[] args) {
+  public void addGroup(CommandSession session, String[] args) {
     System.out.println("Not implemented yet");
   }
 
   /**
    * A shell command to deploy an activity group.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void deploy_group(CommandSession session, final String[] args) {
+  public void deployGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("deploy_group id1 id2 id3...");
+      System.out.println("deployGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deploying activity group %s\n", id);
-      uiControllerManager.deployLiveActivityGroup(id);
+      masterApiControllerManager.deployLiveActivityGroup(id);
     }
   }
 
   /**
    * A shell command to start up an activity.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void startup_group(CommandSession session, final String[] args) {
+  public void startupGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("startup_group id1 id2 id3...");
+      System.out.println("startupGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Starting up activity group %s\n", id);
-      uiControllerManager.startupLiveActivityGroup(id);
+      masterApiControllerManager.startupLiveActivityGroup(id);
     }
   }
 
   /**
    * A shell command to activate an activity group.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void activate_group(CommandSession session, final String[] args) {
+  public void activateGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("activate_group id1 id2 id3...");
+      System.out.println("activateGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Activating activity group %s\n", id);
-      uiControllerManager.activateLiveActivityGroup(id);
+      masterApiControllerManager.activateLiveActivityGroup(id);
     }
   }
 
   /**
    * A shell command to deactivate an activity group.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void deactivate_group(CommandSession session, final String[] args) {
+  public void deactivateGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("deactivate_group id1 id2 id3...");
+      System.out.println("deactivateGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deactivating live activity group %s\n", id);
-      uiControllerManager.deactivateLiveActivityGroup(id);
+      masterApiControllerManager.deactivateLiveActivityGroup(id);
     }
   }
 
   /**
    * A shell command to shutdown an activity group.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void shutdown_group(CommandSession session, final String[] args) {
+  public void shutdownGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("shutdown_group id1 id2 id3...");
+      System.out.println("shutdownGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Shutting down activity group %s\n", id);
-      uiControllerManager.shutdownLiveActivityGroup(id);
+      masterApiControllerManager.shutdownLiveActivityGroup(id);
     }
   }
 
   /**
    * A shell command to delete an activity group.
    *
+   * @param session
+   *          the command session
    * @param args
+   *          the args for the command
    */
-  public void delete_group(CommandSession session, final String[] args) {
+  public void deleteGroup(CommandSession session, final String[] args) {
     if (args.length < 1) {
-      System.out.println("delete_group id1 id2 id3...");
+      System.out.println("deleteGroup id1 id2 id3...");
     }
 
     for (String id : args) {
       System.out.format("Deleting activity group %s\n", id);
-      uiActivityManager.deleteActivityGroup(id);
+      masterApiActivityManager.deleteActivityGroup(id);
     }
   }
 
+  /**
+   * Run a script.
+   *
+   * @param session
+   *          the command session
+   * @param args
+   *          the arguments for the script command
+   */
   public void script(CommandSession session, final String[] args) {
     if (args.length < 1) {
       System.out.println("script script1 script2 script3... where each script is a filename");
     }
 
     Map<String, Object> bindings = Maps.newHashMap();
-    bindings.put("controllerManager", uiControllerManager);
+    bindings.put("controllerManager", masterApiControllerManager);
 
     try {
       for (int i = 0; i < args.length; i++) {
@@ -484,16 +560,14 @@ public class OsgiMasterShell {
           if (scriptFile.canRead()) {
             String name = scriptFile.getName();
             String extension = name.substring(name.lastIndexOf('.') + 1);
-            scriptService.executeScriptByExtension(extension, new FileScriptSource(scriptFile),
-                bindings);
+            scriptService.executeScriptByExtension(extension, new FileScriptSource(scriptFile), bindings);
           } else {
             spaceEnvironment.getLog().error(
                 String.format("Script file %s is not readable", scriptFile.getAbsolutePath()));
           }
 
         } else {
-          spaceEnvironment.getLog().error(
-              String.format("Script file %s does not exist", scriptFile.getAbsolutePath()));
+          spaceEnvironment.getLog().error(String.format("Script file %s does not exist", scriptFile.getAbsolutePath()));
         }
       }
     } catch (Exception ex) {
@@ -502,19 +576,19 @@ public class OsgiMasterShell {
   }
 
   /**
-   * @param uiActivityManager
+   * @param masterApiActivityManager
    *          the uiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
-   * @param uiControllerManager
+   * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setUiControllerManager(UiControllerManager uiControllerManager) {
-    this.uiControllerManager = uiControllerManager;
+  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
+    this.masterApiControllerManager = masterApiControllerManager;
   }
 
   /**
@@ -564,5 +638,4 @@ public class OsgiMasterShell {
   public void setBundleContext(BundleContext bundleContext) {
     this.bundleContext = bundleContext;
   }
-
 }

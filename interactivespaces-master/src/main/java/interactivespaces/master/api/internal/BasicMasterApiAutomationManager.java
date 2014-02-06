@@ -14,26 +14,27 @@
  * the License.
  */
 
-package interactivespaces.master.server.ui.internal;
+package interactivespaces.master.api.internal;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.support.AutomationUtils;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
+import interactivespaces.master.api.MasterApiAutomationManager;
+import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.master.server.services.AutomationManager;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.EntityNotFoundInteractiveSpacesException;
-import interactivespaces.master.server.ui.UiAutomationManager;
 import interactivespaces.service.scheduler.SchedulerService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- * A basic implementation of the {@link UiAutomationManager}.
+ * A basic implementation of the {@link MasterApiAutomationManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicUiAutomationManager implements UiAutomationManager {
+public class BasicMasterApiAutomationManager extends BaseMasterApiManager implements MasterApiAutomationManager {
 
   /**
    * The automation repository.
@@ -44,11 +45,6 @@ public class BasicUiAutomationManager implements UiAutomationManager {
    * The automation manager.
    */
   private AutomationManager automationManager;
-
-  /**
-   * The space environment.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
 
   @Override
   public Set<String> getScriptingLanguages() {
@@ -77,13 +73,12 @@ public class BasicUiAutomationManager implements UiAutomationManager {
 
       return script;
     } else {
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Named script with id %s does not exist", id));
+      throw new SimpleInteractiveSpacesException(String.format("Named script with id %s does not exist", id));
     }
   }
 
   /**
-   * Start a script if it is scheduled
+   * Start a script if it is scheduled.
    *
    * @param script
    *          the script to schedule
@@ -96,12 +91,13 @@ public class BasicUiAutomationManager implements UiAutomationManager {
         spaceEnvironment.getLog().info(String.format("Scheduling script %s", script.getName()));
 
         String schedule = script.getSchedule();
-        if (schedule.startsWith("once:")) {
-          // schedulerService.schedule("foo", "bar", "goober",
-          // schedule)
-        } else if (schedule.startsWith("repeat:")) {
+        if (schedule.startsWith(SCHEDULE_TYPE_ONCE)) {
+          // TODO(keith): Support once running
+        } else if (schedule.startsWith(SCHEDULE_TYPE_REPEAT)) {
+          // TODO(keith): Allow specification or autogeneration of job and group
+          // names.
           schedulerService.scheduleScriptWithCron("foo", "bar", "goober",
-              "0 " + schedule.substring(7));
+              "0 " + schedule.substring(SCHEDULE_TYPE_REPEAT.length()));
         } else {
           spaceEnvironment.getLog().error(
               String.format("Script %s has an illegal schedule: %s", script.getName(), schedule));
@@ -114,49 +110,47 @@ public class BasicUiAutomationManager implements UiAutomationManager {
   }
 
   @Override
-  public UiAutomationManager deleteNamedScript(String id) {
-    automationRepository.deleteNamedScript(getNamedScript(id));
+  public Map<String, Object> deleteNamedScript(String id) {
+    NamedScript script = automationRepository.getNamedScriptById(id);
+    if (script != null) {
+      automationRepository.deleteNamedScript(script);
 
-    return this;
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
+    } else {
+      return getNoSuchNamedScriptResult();
+    }
   }
 
   @Override
-  public UiAutomationManager runScript(String id) {
+  public Map<String, Object> runScript(String id) {
     spaceEnvironment.getLog().info(String.format("Running script with id %s", id));
+    NamedScript script = automationRepository.getNamedScriptById(id);
+    if (script != null) {
+      // TODO(keith): Run in another thread?
+      automationManager.runScript(script);
 
-    automationManager.runScript(getNamedScript(id));
-
-    return this;
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
+    } else {
+      return getNoSuchNamedScriptResult();
+    }
   }
 
   /**
-   * Attempt to get a named script by ID.
+   * Get a Master API response for no such named script.
    *
-   * <p>
-   * Will throw an exception if no such script.
-   *
-   * @param id
-   *          ID of the script
-   * @return
+   * @return the Master API response
    */
-  private NamedScript getNamedScript(String id) {
-    NamedScript script = automationRepository.getNamedScriptById(id);
-    if (script != null) {
-      return script;
-    } else {
-      spaceEnvironment.getLog().error(String.format("Unknown named script %s", id));
-
-      throw new EntityNotFoundInteractiveSpacesException(String.format(
-          "Named script with ID %s not found", id));
-    }
+  private Map<String, Object> getNoSuchNamedScriptResult() {
+    return MasterApiMessageSupport
+        .getFailureResponse(MasterApiAutomationManager.MESSAGE_SPACE_DOMAIN_NAMEDSCRIPT_UNKNOWN);
   }
 
   /**
    * @param automationRepository
    *          the automationRepository to set
    */
-  public void setAutomationRepository(AutomationRepository scriptRepository) {
-    this.automationRepository = scriptRepository;
+  public void setAutomationRepository(AutomationRepository automationRepository) {
+    this.automationRepository = automationRepository;
   }
 
   /**
@@ -165,13 +159,5 @@ public class BasicUiAutomationManager implements UiAutomationManager {
    */
   public void setAutomationManager(AutomationManager automationManager) {
     this.automationManager = automationManager;
-  }
-
-  /**
-   * @param spaceEnvironment
-   *          the spaceEnvironment to set
-   */
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
   }
 }

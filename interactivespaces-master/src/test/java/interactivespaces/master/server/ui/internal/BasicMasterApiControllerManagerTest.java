@@ -18,6 +18,7 @@ package interactivespaces.master.server.ui.internal;
 
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.api.internal.BasicMasterApiControllerManager;
 import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.ControllerRepository;
@@ -33,13 +34,13 @@ import org.mockito.Mockito;
 import java.util.List;
 
 /**
- * Do some tests of the {@link BasicUiControllerManager}.
+ * Do some tests of the {@link BasicMasterApiControllerManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicUiControllerManagerTest {
+public class BasicMasterApiControllerManagerTest {
 
-  private BasicUiControllerManager manager;
+  private BasicMasterApiControllerManager manager;
   private ControllerRepository controllerRepository;
   private ActivityRepository activityRepository;
   private ActiveControllerManager activeControllerManager;
@@ -57,7 +58,7 @@ public class BasicUiControllerManagerTest {
     activityRepository = Mockito.mock(ActivityRepository.class);
     activeControllerManager = Mockito.mock(ActiveControllerManager.class);
 
-    manager = new BasicUiControllerManager();
+    manager = new BasicMasterApiControllerManager();
 
     manager.setControllerRepository(controllerRepository);
     manager.setActivityRepository(activityRepository);

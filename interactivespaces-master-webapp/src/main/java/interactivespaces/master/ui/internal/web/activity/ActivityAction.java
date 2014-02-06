@@ -19,7 +19,7 @@ package interactivespaces.master.ui.internal.web.activity;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
-import interactivespaces.master.server.ui.UiActivityManager;
+import interactivespaces.master.api.MasterApiActivityManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +39,7 @@ public class ActivityAction extends BaseSpaceMasterController {
   /**
    * Manager for UI operations on activities.
    */
-  private UiActivityManager uiActivityManager;
+  private MasterApiActivityManager masterApiActivityManager;
 
   /**
    * Get a new activity model.
@@ -69,7 +69,7 @@ public class ActivityAction extends BaseSpaceMasterController {
   public void saveActivity(ActivityForm form) {
     try {
       Activity activity =
-          uiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
+          masterApiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
               .getInputStream());
 
       // So the ID gets copied out of the flow.
@@ -80,11 +80,11 @@ public class ActivityAction extends BaseSpaceMasterController {
   }
 
   /**
-   * @param uiActivityManager
-   *          the uiActivityManager to set
+   * @param masterApiActivityManager
+   *          the masterApiActivityManager to set
    */
-  public void setUiActivityManager(UiActivityManager uiActivityManager) {
-    this.uiActivityManager = uiActivityManager;
+  public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
+    this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**

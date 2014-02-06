@@ -16,15 +16,17 @@
 
 package interactivespaces.master.ui.internal.web;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
+import interactivespaces.master.api.MasterApiUtilities;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.springframework.context.MessageSource;
 
 import java.util.Collections;
@@ -68,7 +70,7 @@ public final class WebSupport {
    */
   public static Map<String, String> getActivitySelections(List<Activity> activities) {
     List<Activity> toBeSorted = Lists.newArrayList(activities);
-    Collections.sort(toBeSorted, UiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
+    Collections.sort(toBeSorted, MasterApiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
 
     Map<String, String> items = Maps.newLinkedHashMap();
     for (Activity activity : toBeSorted) {
@@ -89,7 +91,7 @@ public final class WebSupport {
    */
   public static Map<String, String> getControllerSelections(List<SpaceController> controllers) {
     List<SpaceController> toBeSorted = Lists.newArrayList(controllers);
-    Collections.sort(toBeSorted, UiUtilities.SPACE_CONTROLLER_BY_NAME_COMPARATOR);
+    Collections.sort(toBeSorted, MasterApiUtilities.SPACE_CONTROLLER_BY_NAME_COMPARATOR);
 
     Map<String, String> items = Maps.newLinkedHashMap();
     for (SpaceController controller : toBeSorted) {
@@ -127,7 +129,7 @@ public final class WebSupport {
    */
   public static Map<String, String> getLiveActivitySelections(List<LiveActivity> activities) {
     List<LiveActivity> toBeSorted = Lists.newArrayList(activities);
-    Collections.sort(toBeSorted, UiUtilities.LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+    Collections.sort(toBeSorted, MasterApiUtilities.LIVE_ACTIVITY_BY_NAME_COMPARATOR);
 
     Map<String, String> items = Maps.newLinkedHashMap();
     for (LiveActivity activity : toBeSorted) {
@@ -147,7 +149,7 @@ public final class WebSupport {
    */
   public static Map<String, String> getLiveActivityGroupSelections(List<LiveActivityGroup> groups) {
     List<LiveActivityGroup> toBeSorted = Lists.newArrayList(groups);
-    Collections.sort(toBeSorted, UiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
+    Collections.sort(toBeSorted, MasterApiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
 
     Map<String, String> items = Maps.newLinkedHashMap();
     for (LiveActivityGroup group : toBeSorted) {
@@ -167,7 +169,7 @@ public final class WebSupport {
    */
   public static Map<String, String> getSpaceSelections(List<Space> spaces) {
     List<Space> toBeSorted = Lists.newArrayList(spaces);
-    Collections.sort(toBeSorted, UiUtilities.SPACE_BY_NAME_COMPARATOR);
+    Collections.sort(toBeSorted, MasterApiUtilities.SPACE_BY_NAME_COMPARATOR);
 
     Map<String, String> items = Maps.newLinkedHashMap();
     for (Space space : toBeSorted) {
