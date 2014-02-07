@@ -50,7 +50,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   private Map<String, String> parameters = Maps.newHashMap();
 
   /**
-   * The decoder
+   * The decoder.
    */
   private HttpPostRequestDecoder decoder;
 
@@ -60,12 +60,25 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   private HttpRequest request;
 
   /**
-   * web server this is part of
+   * web server this is part of.
    */
   private NettyWebServer webServer;
 
+  /**
+   * FileUpload container for this particular upload.
+   */
   private FileUpload fileUpload;
 
+  /**
+   * Create a new instance.
+   *
+   * @param request
+   *          incoming request
+   * @param decoder
+   *          decoder to use
+   * @param webServer
+   *          underlying webServer
+   */
   public NettyHttpFileUpload(HttpRequest request, HttpPostRequestDecoder decoder,
       NettyWebServer webServer) {
     this.request = request;
@@ -87,21 +100,26 @@ public class NettyHttpFileUpload implements HttpFileUpload {
    *          the context for the channel handling
    * @param chunk
    *          the chunked data
+   *
+   * @throws Exception
+   *           problem adding chunk
+   *
    */
   public void addChunk(ChannelHandlerContext ctx, HttpChunk chunk) throws Exception {
     decoder.offer(chunk);
-    if (!chunk.isLast()) {
-      try {
-        while (decoder.hasNext()) {
-          InterfaceHttpData data = decoder.next();
-          if (data != null) {
-            processHttpData(data);
-          }
+    try {
+      while (decoder.hasNext()) {
+        InterfaceHttpData data = decoder.next();
+        if (data != null) {
+          processHttpData(data);
         }
-      } catch (EndOfDataDecoderException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        if (chunk.isLast()) {
+          break;
+        }
       }
+    } catch (EndOfDataDecoderException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
