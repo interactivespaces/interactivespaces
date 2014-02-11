@@ -37,12 +37,25 @@
 <div id="commandResult">
 </div>
 
-<table>
+<table class="activity-list">
+  <tr>
+    <th></th>
+    <th>Name</th>
+    <th>Version</th>
+    <th>Last Uploaded</th>
+    <th>Last Started</th>
+    <th>Bundle Content Hash</th>
+  </tr>
 <#list activities as activity>
-    <tr>
+    <#assign trCss = (activity_index % 2 == 0)?string("even","odd")>
+    <tr class="${trCss}">
       <td><a href="${activity.id}/view.html">View</a></td>
       <td>${activity.name}</td>
       <td>${activity.version}</td>
+      <td>${activity.lastUploadDate?datetime}</td>
+      <td><#if activity.lastStartDate??>${activity.lastStartDate?datetime}</#if></td>
+      <td class="bundle-content-hash"><#if activity.bundleContentHash??>${activity.bundleContentHash}</#if></td>
+    </tr>
 </#list>
 </table>
 

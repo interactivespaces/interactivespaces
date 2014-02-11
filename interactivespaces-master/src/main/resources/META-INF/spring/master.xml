@@ -482,6 +482,10 @@
     class="interactivespaces.master.server.control.MasterFileControl"
     destroy-method="shutdown" init-method="startup">
 
+    <property name="activityRepository" ref="interactivespaces.repository.activity" />
+
+    <property name="activityRepositoryManager" ref="interactivespaces.resource.repository.manager" />
+
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="spaceSystemControl" ref="interactivespaces.systemctl" />

@@ -16,9 +16,12 @@
 
 package interactivespaces.master.server.control;
 
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.master.api.MasterApiAutomationManager;
 import interactivespaces.master.api.MasterApiControllerManager;
 import interactivespaces.master.api.MasterApiSpaceManager;
+import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
@@ -26,6 +29,7 @@ import interactivespaces.util.io.directorywatcher.DirectoryWatcherListener;
 import interactivespaces.util.io.directorywatcher.SimpleDirectoryWatcher;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +59,11 @@ public class MasterFileControl implements DirectoryWatcherListener {
    * The command for shutting the entire container down.
    */
   public static final String COMMAND_SHUTDOWN = "shutdown";
+
+  /**
+   * The command for forcing the calculation of all activity hashes.
+   */
+  public static final String COMMAND_CALCULATE_ACTIVITY_HASHES = "calculate-activity-hashes";
 
   /**
    * The command for shutting down all space controllers.
@@ -121,6 +130,16 @@ public class MasterFileControl implements DirectoryWatcherListener {
   private MasterApiAutomationManager masterApiAutomationManager;
 
   /**
+   * Repository for activities.
+   */
+  private ActivityRepository activityRepository;
+
+  /**
+   * Repository manager for activities.
+   */
+  private ActivityRepositoryManager activityRepositoryManager;
+
+  /**
    * The directory watcher watching the directory for control files.
    */
   private DirectoryWatcher watcher;
@@ -181,6 +200,8 @@ public class MasterFileControl implements DirectoryWatcherListener {
     try {
       if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
         spaceSystemControl.shutdown();
+      } else if (COMMAND_CALCULATE_ACTIVITY_HASHES.equalsIgnoreCase(command)) {
+        calculateActivityHashes();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL.equalsIgnoreCase(command)) {
         masterApiControllerManager.shutdownAllControllers();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES.equalsIgnoreCase(command)) {
@@ -213,6 +234,20 @@ public class MasterFileControl implements DirectoryWatcherListener {
       spaceEnvironment.getLog().error(
           String.format("Exception while executing master file control %s", command), e);
     }
+  }
+
+  /**
+   * Calculate and update the hashes for all current activities. This is necessary for working with
+   * legacy systems that have already uploaded activities.
+   *
+   * TODO(peringknife): Remove this after all centers have been upgraded.
+   */
+  private void calculateActivityHashes() {
+     List<Activity> activities = activityRepository.getAllActivities();
+     for (Activity activity : activities) {
+       activityRepositoryManager.calculateBundleContentHash(activity);
+       activityRepository.saveActivity(activity);
+     }
   }
 
   /**
@@ -253,5 +288,21 @@ public class MasterFileControl implements DirectoryWatcherListener {
    */
   public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
     this.masterApiAutomationManager = masterApiAutomationManager;
+  }
+
+  /**
+   * @param activityRepository
+   *          the activityRepository to set
+   */
+  public void setActivityRepository(ActivityRepository activityRepository) {
+    this.activityRepository = activityRepository;
+  }
+
+  /**
+   * @param activityRepositoryManager
+   *          the activityRepositoryManager to set
+   */
+  public void setActivityRepositoryManager(ActivityRepositoryManager activityRepositoryManager) {
+    this.activityRepositoryManager = activityRepositoryManager;
   }
 }

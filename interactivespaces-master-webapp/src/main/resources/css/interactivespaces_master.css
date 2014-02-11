@@ -112,8 +112,17 @@ tr.form-row {
 
 .liveactivity-list .liveactivity-name,
 .liveactivity-details th,
+.activity-details th,
+.activity-list th,
+.activity-list td,
 .controller-details th {
   padding-right: 10px;
+}
+
+.bundle-content-hash {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 div.form-row {

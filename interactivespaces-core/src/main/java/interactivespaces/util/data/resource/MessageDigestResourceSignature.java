@@ -16,11 +16,13 @@
 
 package interactivespaces.util.data.resource;
 
-import interactivespaces.InteractiveSpacesException;
+import com.google.common.io.Closeables;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.ByteUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.MessageDigest;
 
 /**
@@ -30,33 +32,48 @@ import java.security.MessageDigest;
  */
 public class MessageDigestResourceSignature implements ResourceSignature {
 
+  /**
+   * Buffer size for digesting stream.
+   */
+  private static final int COPY_BUFFER_SIZE = 4096;
+
+  /**
+   * Digest signature algorithm.
+   */
+  public static final String SIGNATURE_ALGORITHM = "SHA-512";
+
   @Override
   public String getBundleSignature(File bundleFile) {
     FileInputStream fis = null;
 
     try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-512");
-
-      byte[] buffer = new byte[(int) bundleFile.length()];
       fis = new FileInputStream(bundleFile);
-      fis.read(buffer);
-      fis.close();
-
-      digest.update(buffer);
-
-      return ByteUtils.toHexString(digest.digest());
+      return getBundleSignature(fis);
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not create signature for file %s",
+      throw new SimpleInteractiveSpacesException(String.format("Could not create signature for file %s",
           bundleFile.getAbsolutePath()), e);
     } finally {
-      if (fis != null) {
-        try {
-          fis.close();
-        } catch (Exception e) {
-          // Don't care
-        }
-      }
+      Closeables.closeQuietly(fis);
     }
   }
 
+  /**
+   * Provide a bundle signature for the stream.
+   * @param inputStream
+   *          stream which to digest
+   * @return bundle signature for the given stream
+   */
+  public String getBundleSignature(InputStream inputStream) {
+    try {
+      byte[] buffer = new byte[COPY_BUFFER_SIZE];
+      MessageDigest digest = MessageDigest.getInstance(SIGNATURE_ALGORITHM);
+      int len;
+      while ((len = inputStream.read(buffer)) > 0) {
+        digest.update(buffer, 0, len);
+      }
+      return ByteUtils.toHexString(digest.digest());
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Could not calculate stream signature", e);
+    }
+  }
 }

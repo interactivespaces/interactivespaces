@@ -97,6 +97,18 @@ public class JpaActivity implements Activity {
   private Date lastUploadDate;
 
   /**
+   * When the activity was last started.
+   */
+  @Column(nullable = true)
+  private Date lastStartDate;
+
+  /**
+   * The hash of the activity content bundle.
+   */
+  @Column(nullable = true)
+  private String bundleContentHash;
+
+  /**
    * The dependencies the activity has.
    */
   @OneToMany(targetEntity = JpaActivityDependency.class, cascade = CascadeType.ALL,
@@ -172,6 +184,26 @@ public class JpaActivity implements Activity {
   }
 
   @Override
+  public Date getLastStartDate() {
+    return lastStartDate;
+  }
+
+  @Override
+  public void setLastStartDate(Date lastStartDate) {
+    this.lastStartDate = lastStartDate;
+  }
+
+  @Override
+  public String getBundleContentHash() {
+    return bundleContentHash;
+  }
+
+  @Override
+  public void setBundleContentHash(String bundleContentHash) {
+    this.bundleContentHash = bundleContentHash;
+  }
+
+  @Override
   public void setDependencies(List<ActivityDependency> newDependencies) {
     synchronized (dependencies) {
       dependencies.clear();
@@ -224,7 +256,8 @@ public class JpaActivity implements Activity {
   @Override
   public String toString() {
     return "JpaActivity [id=" + id + ", identifyingName=" + identifyingName + ", name=" + name
-        + ", description=" + description + ", version=" + version + ", lastUploadDate="
-        + lastUploadDate + ", dependencies=" + dependencies + ", metadata=" + getMetadata() + "]";
+        + ", description=" + description + ", version=" + version + ", lastUploadDate=" + lastUploadDate
+        + ", lastStartDate=" + lastStartDate + ", bundleContentHash=" + bundleContentHash
+        + ", dependencies=" + dependencies + ", metadata=" + getMetadata() + "]";
   }
 }

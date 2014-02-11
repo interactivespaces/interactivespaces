@@ -68,6 +68,16 @@ public class SimpleActivity extends SimpleObject implements Activity {
   private Date lastUploadDate;
 
   /**
+   * When the activity was last started.
+   */
+  private Date lastStartDate;
+
+  /**
+   * The activity bundle content hash.
+   */
+  private String bundleContentHash;
+
+  /**
    * The dependencies the activity has.
    */
   private List<ActivityDependency> dependencies = Lists.newArrayList();
@@ -125,6 +135,26 @@ public class SimpleActivity extends SimpleObject implements Activity {
   @Override
   public void setLastUploadDate(Date lastUploadDate) {
     this.lastUploadDate = lastUploadDate;
+  }
+
+  @Override
+  public Date getLastStartDate() {
+    return lastStartDate;
+  }
+
+  @Override
+  public void setLastStartDate(Date lastStartDate) {
+    this.lastStartDate = lastStartDate;
+  }
+
+  @Override
+  public String getBundleContentHash() {
+    return bundleContentHash;
+  }
+
+  @Override
+  public void setBundleContentHash(String bundleContentHash) {
+    this.bundleContentHash = bundleContentHash;
   }
 
   @Override

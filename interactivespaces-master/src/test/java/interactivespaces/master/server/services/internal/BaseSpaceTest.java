@@ -21,10 +21,12 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Lists;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.GroupLiveActivity.GroupLiveActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivityGroup;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
@@ -205,6 +207,8 @@ public class BaseSpaceTest {
     if (app == null) {
       app = new SimpleLiveActivity().setUuid(uuid);
       app.setController(controller);
+      Activity activity = new SimpleActivity();
+      app.setActivity(activity);
       installedAppsByUuid.put(uuid, app);
     }
 

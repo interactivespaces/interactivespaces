@@ -110,6 +110,36 @@ public interface Activity extends PersistedObject, Serializable {
   void setLastUploadDate(Date lastUploadDate);
 
   /**
+   * Get when the activity was last started.
+   *
+   * @return the date the activity was last started.
+   */
+  Date getLastStartDate();
+
+  /**
+   * Set when the activity was last started.
+   *
+   * @param lastStartDate
+   *          the last start date, can be {@code null}
+   */
+  void setLastStartDate(Date lastStartDate);
+
+  /**
+   * Get the hash value of the activity bundle.
+   *
+   * @return the date the activity was last loaded.
+   */
+  String getBundleContentHash();
+
+  /**
+   * Set the hash value of the activity bundle.
+   *
+   * @param bundleContentHash
+   *          the hash value for the activity bundle.
+   */
+  void setBundleContentHash(String bundleContentHash);
+
+  /**
    * Set dependencies to the activity.
    *
    * @param dependencies
@@ -120,7 +150,7 @@ public interface Activity extends PersistedObject, Serializable {
   /**
    * Get a list of all dependencies the activity has.
    *
-   * @return
+   * @return list of activity dependencies
    */
   List<? extends ActivityDependency> getDependencies();
 

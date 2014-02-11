@@ -16,6 +16,8 @@
 
 package interactivespaces.resource.repository.internal;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
@@ -27,8 +29,7 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
-
-import com.google.common.collect.Lists;
+import interactivespaces.util.data.resource.MessageDigestResourceSignature;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -54,8 +55,9 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
   @Override
   public Activity addActivity(InputStream activityStream) {
     String stageHandle = repositoryStorageManager.stageResource(activityStream);
+    InputStream activityDescriptionStream = null;
     try {
-      InputStream activityDescriptionStream =
+      activityDescriptionStream =
           repositoryStorageManager.getStagedResourceDescription("activity.xml", stageHandle);
       ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
       ActivityDescription activityDescription = reader.readDescription(activityDescriptionStream);
@@ -77,17 +79,39 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
       }
 
       ActivityUtils.copy(activityDescription, finalActivity);
+
+      // TODO(peringknife): Use appropriate TimeProvider for this.
       finalActivity.setLastUploadDate(new Date());
 
       copyDependencies(activityDescription, finalActivity);
+
+      calculateBundleContentHash(finalActivity);
 
       activityRepository.saveActivity(finalActivity);
 
       return finalActivity;
     } finally {
+      Closeables.closeQuietly(activityDescriptionStream);
       repositoryStorageManager.removeStagedReource(stageHandle);
     }
 
+  }
+
+  @Override
+  public void calculateBundleContentHash(Activity activity) {
+    InputStream inputStream = null;
+    try {
+      inputStream =
+          repositoryStorageManager.getResourceStream(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
+              activity.getIdentifyingName(), Version.parseVersion(activity.getVersion()));
+      String bundleSignature = new MessageDigestResourceSignature().getBundleSignature(inputStream);
+      activity.setBundleContentHash(bundleSignature);
+      inputStream.close();
+    } catch (Exception e) {
+      // do something!
+    } finally {
+      Closeables.closeQuietly(inputStream);
+    }
   }
 
   /**

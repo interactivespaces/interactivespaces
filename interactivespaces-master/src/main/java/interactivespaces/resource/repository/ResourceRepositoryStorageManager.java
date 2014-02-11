@@ -115,6 +115,19 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
       throws InteractiveSpacesException;
 
   /**
+   * Get an {@link InputStream} for the entire activity bundle.
+   *
+   * @param stageHandle
+   *          staging handle for which to get the data stream
+   *
+   * @return the input stream for the activity bundle
+   *
+   * @throws InteractiveSpacesException
+   *           if the bundle can not be accessed, or the handle is invalid
+   */
+  InputStream getStagedResourceBundle(String stageHandle) throws InteractiveSpacesException;
+
+  /**
    * Add a resource to the repository.
    *
    * @param category

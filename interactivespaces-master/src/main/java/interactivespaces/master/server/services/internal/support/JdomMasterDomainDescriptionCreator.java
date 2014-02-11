@@ -41,6 +41,7 @@ import org.jdom.output.XMLOutputter;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -60,8 +61,6 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
    *          the repository for activity entities
    * @param controllerRepository
    *          the repository for controller entities
-   * @param spaceRepository
-   *          the repository for space entities
    * @param automationRepository
    *          the repository for automation entities
    *
@@ -173,6 +172,16 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
         .addContent(
             new Element(ELEMENT_NAME_DESCRIPTION).addContent(new CDATA(activity.getDescription())))
         .addContent(getMetadataElement(activity.getMetadata()));
+
+    Date lastUploadDate = activity.getLastUploadDate();
+    if (lastUploadDate != null) {
+      activityElement.setAttribute(ATTRIBUTE_NAME_LAST_UPLOAD_DATE, Long.toString(lastUploadDate.getTime()));
+    }
+
+    Date lastStartDate = activity.getLastStartDate();
+    if (lastStartDate != null) {
+      activityElement.setAttribute(ATTRIBUTE_NAME_LAST_START_DATE, Long.toString(lastStartDate.getTime()));
+    }
 
     addActivityDependencies(activity, activityElement);
 

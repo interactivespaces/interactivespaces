@@ -104,6 +104,18 @@ public class ActiveLiveActivity {
    */
   private Set<ActiveLiveActivityGroup> groupsActivated = Sets.newHashSet();
 
+  /**
+   * Creates a new active live activity.
+   *
+   * @param activeController
+   *          associated controller
+   * @param activity
+   *          underlying activity
+   * @param remoteControllerClient
+   *          client for connecting to remote controller
+   * @param timeProvider
+   *          time source
+   */
   public ActiveLiveActivity(ActiveSpaceController activeController, LiveActivity activity,
       RemoteControllerClient remoteControllerClient, TimeProvider timeProvider) {
     this.activeController = activeController;
@@ -412,6 +424,9 @@ public class ActiveLiveActivity {
    */
   private void attemptRemoteStartup() {
     setRuntimeState(ActivityState.STARTUP_ATTEMPT, null);
+
+    markLastStartDate();
+
     remoteControllerClient.startupActivity(this);
   }
 
@@ -420,6 +435,10 @@ public class ActiveLiveActivity {
    */
   private void attemptRemoteActivation() {
     setRuntimeState(ActivityState.ACTIVATE_ATTEMPT, null);
+
+    // Necessary because ACTIVATE implicitly triggers STARTUP on the controller.
+    markLastStartDate();
+
     remoteControllerClient.activateActivity(this);
   }
 
@@ -437,5 +456,12 @@ public class ActiveLiveActivity {
   private void attemptRemoteShutdown() {
     setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT, null);
     remoteControllerClient.shutdownActivity(this);
+  }
+
+  /**
+   * Mark the live activity with the current date.
+   */
+  private void markLastStartDate() {
+    getLiveActivity().getActivity().setLastStartDate(new Date(timeProvider.getCurrentTime()));
   }
 }

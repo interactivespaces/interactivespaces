@@ -117,6 +117,8 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         activityData.put("description", activity.getDescription());
         activityData.put("metadata", activity.getMetadata());
         activityData.put("lastUploadDate", activity.getLastUploadDate());
+        activityData.put("lastStartDate", activity.getLastStartDate());
+        activityData.put("bundleContentHash", activity.getBundleContentHash());
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);

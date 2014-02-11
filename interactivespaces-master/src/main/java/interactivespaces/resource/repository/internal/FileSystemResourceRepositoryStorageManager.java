@@ -17,6 +17,7 @@
 package interactivespaces.resource.repository.internal;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
@@ -286,6 +287,21 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
       }
     } else {
       throw new InteractiveSpacesException(String.format("%s is not a valid staging handle", stageHandle));
+    }
+  }
+
+  @Override
+  public InputStream getStagedResourceBundle(String stageHandle) {
+    File stageFile = stagingFiles.get(stageHandle);
+    if (stageFile != null) {
+      try {
+        return new FileInputStream(stageFile);
+      } catch (Exception e) {
+        throw new SimpleInteractiveSpacesException(String.format("Cannot get bundle from staged resource %s",
+            stageHandle), e);
+      }
+    } else {
+      throw new SimpleInteractiveSpacesException(String.format("%s is not a valid staging handle", stageHandle));
     }
   }
 

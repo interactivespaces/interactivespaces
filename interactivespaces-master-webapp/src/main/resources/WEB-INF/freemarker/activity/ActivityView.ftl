@@ -79,7 +79,7 @@ function deleteActivity() {
 ${activity.description}
 </p></#if>
 
-<table>
+<table class="activity-details">
 <tr>
 <th>Version</th>
 <td>${activity.version}</td>
@@ -88,10 +88,18 @@ ${activity.description}
 <th>Identifying Name</th>
 <td>${activity.identifyingName}</td>
 </tr>
-<tr>
-<th>Last Uploaded</th>
-<td>${activity.lastUploadDate?datetime}</td>
-</tr>
+  <tr>
+    <th>Last Uploaded</th>
+    <td>${activity.lastUploadDate?datetime}</td>
+  </tr>
+  <tr>
+    <th>Last Started</th>
+    <td><#if activity.lastStartDate??>${activity.lastStartDate?datetime}</#if></td>
+  </tr>
+  <tr>
+    <th>Bundle Content Hash</th>
+    <td class="bundle-content-hash"><#if activity.bundleContentHash??>${activity.bundleContentHash}</#if></td>
+  </tr>
 <tr>
 <th valign="top">Metadata</th>
 <td><table><#list metadata as item>
@@ -105,7 +113,7 @@ ${activity.description}
 <#if liveactivities?has_content>
 
 <table>
-<tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></td>
+<tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></tr>
 
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>

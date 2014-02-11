@@ -38,4 +38,14 @@ public interface ActivityRepositoryManager {
    * @return The activity loaded.
    */
   Activity addActivity(InputStream activityStream);
+
+  /**
+   * Calculate and update the content hash for the activity bundle.  This updates
+   * the activity's hash record with the calculated hash.
+   *
+   * @param activity
+   *          activity for which to update the bundle hash
+   */
+  void calculateBundleContentHash(Activity activity);
+
 }

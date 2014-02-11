@@ -83,12 +83,12 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   /**
    * IMport a space domain description.
    *
+   * @param description
+   *          description to import
    * @param activityRepository
    *          the repository for activity entities
    * @param controllerRepository
    *          the repository for controller entities
-   * @param spaceRepository
-   *          the repository for space entities
    * @param automationRepository
    *          the repository for automation entities
    * @param timeProvider
@@ -215,7 +215,16 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     activity.setVersion(version);
     activity.setName(name);
     activity.setDescription(description);
-    activity.setLastUploadDate(new Date(timeProvider.getCurrentTime()));
+
+    String lastUploadDateString = activityElement.getAttributeValue(ATTRIBUTE_NAME_LAST_UPLOAD_DATE);
+    if (lastUploadDateString != null) {
+      activity.setLastUploadDate(new Date(Long.parseLong(lastUploadDateString)));
+    }
+
+    String lastStartDateString = activityElement.getAttributeValue(ATTRIBUTE_NAME_LAST_START_DATE);
+    if (lastStartDateString != null) {
+      activity.setLastStartDate(new Date(Long.parseLong(lastStartDateString)));
+    }
 
     Map<String, Object> metadata = getMetadata(activityElement.getChild(ELEMENT_NAME_METADATA));
     if (metadata != null) {
@@ -652,6 +661,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @return the root element of the parse
    *
    * @throws InteractiveSpacesException
+   *           if there was an error reading the description
    */
   private Element readDescription(String description) throws InteractiveSpacesException {
     try {
