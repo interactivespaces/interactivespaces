@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -86,9 +87,10 @@ public class FileSupportImpl implements FileSupport {
    * @param basePath
    *          base path for the content copy
    * @param relPath
-   *          relative path (to {@code basePath}), that will be included in the
-   *          zip file
+   *          relative path (to {@code basePath}), that will be included in the zip file
+   *
    * @throws java.io.IOException
+   *           on problem adding the file to the zip stream
    */
   private void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath) throws IOException {
     FileInputStream fileStream = null;
@@ -120,6 +122,11 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void unzip(File source, File baseLocation) {
+    unzip(source, baseLocation, null);
+  }
+
+  @Override
+  public void unzip(File source, File baseLocation, Map<File, File> extractMap) {
     java.util.zip.ZipFile zipFile = null;
     try {
       zipFile = new java.util.zip.ZipFile(source);
@@ -141,6 +148,9 @@ public class FileSupportImpl implements FileSupport {
           }
 
           copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
+          if (extractMap != null) {
+            extractMap.put(file, source);
+          }
         }
       }
 
@@ -169,6 +179,11 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void copyDirectory(File sourceDir, File destDir, boolean overwrite) {
+    copyDirectory(sourceDir, destDir, overwrite, null);
+  }
+
+  @Override
+  public void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> fileMap) {
     directoryExists(destDir);
 
     File[] sourceFiles = sourceDir.listFiles();
@@ -180,9 +195,12 @@ public class FileSupportImpl implements FileSupport {
       try {
         File dst = new File(destDir, src.getName());
         if (src.isDirectory()) {
-          copyDirectory(src, dst, overwrite);
+          copyDirectory(src, dst, overwrite, fileMap);
         } else {
           if (!dst.exists() || overwrite) {
+            if (fileMap != null) {
+              fileMap.put(dst, src);
+            }
             copyFile(src, dst);
           }
         }

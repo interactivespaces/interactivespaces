@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.builder;
 
+import com.google.common.collect.Maps;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -26,6 +27,7 @@ import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A context for building and packaging activities.
@@ -68,6 +70,11 @@ public class ProjectBuildContext {
    * The project type of the project.
    */
   private final ProjectType projectType;
+
+  /**
+   * Collection of dest to src file mappings, constructed during the build process.
+   */
+  private final Map<File, File> sourceMap = Maps.newHashMap();
 
   /**
    * Construct a new build context.
@@ -176,5 +183,17 @@ public class ProjectBuildContext {
       return targetFile;
     }
     return new File(rootDirectory, targetPath);
+  }
+
+  /**
+   * The resource source map is a map that can be used at runtime to link project files
+   * back to their original source, for enabling live editing of javascript or other resources.
+   * This map is constructed during the build process (by adding to the map), and then can be
+   * written to a file or other construct as part of the resulting build.
+   *
+   * @return mutable resource source map, stored as {dest, source} key/value pairs
+   */
+  public Map<File, File> getResourceSourceMap() {
+    return sourceMap;
   }
 }

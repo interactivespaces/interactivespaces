@@ -19,7 +19,8 @@ package interactivespaces.workbench.project.constituent;
 import static com.google.common.io.Closeables.closeQuietly;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
@@ -48,6 +49,16 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   public static final String PROJECT_TYPE = "bundle";
 
   /**
+   * File support instance for file operations.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Marker file to use for bundle source recording.
+   */
+  public static final File BUNDLE_SOURCE_MARKER_FILE = new File("SOURCE-BUNDLE");
+
+  /**
    * The directory to which contents will be copied.
    *
    * <p>
@@ -68,7 +79,7 @@ public class ProjectBundleConstituent implements ProjectConstituent {
     try {
       File baseDirectory = project.getBaseDirectory();
       File outputFile = context.getProjectTarget(stagingDirectory, outputPath);
-      Files.directoryExists(outputFile.getParentFile());
+      fileSupport.directoryExists(outputFile.getParentFile());
       outputStream = new FileOutputStream(outputFile);
 
       for (String sourcePath : sourcePaths) {
@@ -79,10 +90,11 @@ public class ProjectBundleConstituent implements ProjectConstituent {
           throw new SimpleInteractiveSpacesException("Source file is a directory " + sourceFile.getAbsolutePath());
         }
         inputStream = new FileInputStream(sourceFile);
-        Files.copyStream(inputStream, outputStream, false);
+        fileSupport.copyStream(inputStream, outputStream, false);
         inputStream.close();
       }
       outputStream.close();
+      context.getResourceSourceMap().put(outputFile, BUNDLE_SOURCE_MARKER_FILE);
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("While processing bundle resource " + outputPath, e);
     } finally {

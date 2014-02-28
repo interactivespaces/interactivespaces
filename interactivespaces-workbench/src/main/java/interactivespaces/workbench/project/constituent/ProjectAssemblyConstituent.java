@@ -74,7 +74,7 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
     File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
     File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
     FILE_SUPPORT.directoryExists(outputDirectory);
-    FILE_SUPPORT.unzip(sourceZipFile, outputDirectory);
+    FILE_SUPPORT.unzip(sourceZipFile, outputDirectory, context.getResourceSourceMap());
   }
 
   @Override

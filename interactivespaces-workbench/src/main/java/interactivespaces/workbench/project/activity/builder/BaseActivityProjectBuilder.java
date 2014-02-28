@@ -16,16 +16,19 @@
 
 package interactivespaces.workbench.project.activity.builder;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,17 +39,23 @@ import java.util.Map;
  */
 public class BaseActivityProjectBuilder extends BaseProjectBuilder {
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public boolean build(Project project, ProjectBuildContext context) {
     File stagingDirectory =
         new File(context.getBuildDirectory(), BUILD_STAGING_DIRECTORY);
-    Files.directoryExists(stagingDirectory);
+    fileSupport.directoryExists(stagingDirectory);
 
     if (onBuild(project, context, stagingDirectory)) {
 
-      copyActivityResources(project, stagingDirectory);
+      copyActivityResources(project, stagingDirectory, context);
       copyActivityXml(project, stagingDirectory, context);
       processResources(project, stagingDirectory, context);
+      writeResourceMap(project, stagingDirectory, context);
 
       return true;
     } else {
@@ -61,8 +70,13 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder {
    *          the project being built
    * @param stagingDirectory
    *          where the items will be copied
+   * @param context
+   *          context for the build
+   *
+   * @throws InteractiveSpacesException
+   *           if the activity resource directory does not exist
    */
-  private void copyActivityResources(Project project, File stagingDirectory)
+  private void copyActivityResources(Project project, File stagingDirectory, ProjectBuildContext context)
       throws InteractiveSpacesException {
     File activityDirectory =
         new File(project.getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
@@ -70,7 +84,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder {
       throw new InteractiveSpacesException(String.format("Activity directory %s does not exist",
           activityDirectory.getAbsolutePath()));
     }
-    Files.copyDirectory(activityDirectory, stagingDirectory, true);
+    fileSupport.copyDirectory(activityDirectory, stagingDirectory, true, context.getResourceSourceMap());
   }
 
   /**
@@ -89,7 +103,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder {
     File activityXmlSrc =
         new File(project.getBaseDirectory(), ActivityProject.FILENAME_ACTIVITY_XML);
     if (activityXmlSrc.exists()) {
-      Files.copyFile(activityXmlSrc, activityXmlDest);
+      fileSupport.copyFile(activityXmlSrc, activityXmlDest);
     } else {
       Map<String, Object> templateData = Maps.newHashMap();
       templateData.put("project", project);
@@ -98,6 +112,38 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder {
       context.getWorkbench().getTemplater()
           .writeTemplate(templateData, activityXmlDest, "activity/activity.xml.ftl");
     }
+  }
+
+  /**
+   * Write out the resource source map contained in the project build context.
+   *
+   * @param project
+   *          current build project
+   * @param stagingDirectory
+   *          destination directory for build output
+   * @param context
+   *          project context containing the resource source map
+   */
+  private void writeResourceMap(Project project, File stagingDirectory, ProjectBuildContext context) {
+    File resourceMapFile = new File(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
+
+    Map<String, Object> templateData = Maps.newHashMap();
+    List<Map<String, String>> srcList = Lists.newArrayList();
+    templateData.put("srclist", srcList);
+
+    String stagingPrefix = stagingDirectory.getAbsolutePath() + File.separatorChar;
+
+    for (Map.Entry<File, File> sourceEntry : context.getResourceSourceMap().entrySet()) {
+      Map<String, String> stringMap = Maps.newHashMapWithExpectedSize(1);
+      String destPath = sourceEntry.getKey().getAbsolutePath();
+      if (destPath.startsWith(stagingPrefix)) {
+        destPath = destPath.substring(stagingPrefix.length());
+      }
+      stringMap.put("dst", destPath);
+      stringMap.put("src", sourceEntry.getValue().getAbsolutePath());
+      srcList.add(stringMap);
+    }
+    context.getWorkbench().getTemplater().writeTemplate(templateData, resourceMapFile, "activity/resource.map.ftl");
   }
 
 }

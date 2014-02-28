@@ -16,7 +16,8 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
@@ -41,6 +42,11 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    * Element type for a source, which is functionally equivalent to a resource.
    */
   public static final String PROJECT_TYPE_ALTERNATE = "source";
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * A directory from which all contents will be copied.
@@ -134,23 +140,26 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     File baseDirectory = project.getBaseDirectory();
     if (getDestinationDirectory() != null) {
       File destDir = context.getProjectTarget(stagingDirectory, getDestinationDirectory());
-      Files.directoryExists(destDir);
+      fileSupport.directoryExists(destDir);
 
       if (getSourceDirectory() != null) {
         File srcDir = context.getProjectTarget(baseDirectory, getSourceDirectory());
-        Files.copyDirectory(srcDir, destDir, true);
+        fileSupport.copyDirectory(srcDir, destDir, true, context.getResourceSourceMap());
       } else {
         // There is a file to be copied.
         File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
-        Files.copyFile(srcFile, new File(destDir, srcFile.getName()));
+        File destination = new File(destDir, srcFile.getName());
+        fileSupport.copyFile(srcFile, destination);
+        context.getResourceSourceMap().put(destination, srcFile);
       }
     } else {
       // Have a dest file
       // There is a file to be copied.
       File destFile = context.getProjectTarget(stagingDirectory, getDestinationFile());
       File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
-      Files.directoryExists(destFile.getParentFile());
-      Files.copyFile(srcFile, destFile);
+      fileSupport.directoryExists(destFile.getParentFile());
+      fileSupport.copyFile(srcFile, destFile);
+      context.getResourceSourceMap().put(destFile, srcFile);
     }
   }
 

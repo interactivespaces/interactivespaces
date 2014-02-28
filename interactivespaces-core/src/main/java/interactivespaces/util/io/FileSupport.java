@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * Various useful file routines.
@@ -52,6 +53,18 @@ public interface FileSupport {
    *          where the contents will be written
    */
   void unzip(File source, File baseLocation);
+
+  /**
+   * Place the contents of a zip file into a base directory and keep a record of unziped files.
+   *
+   * @param source
+   *          the source zip file
+   * @param baseLocation
+   *          where the contents will be written
+   * @param extractMap
+   *          if not {@code null}, add extracted files to map, with dest (key) and source (value)
+   */
+  void unzip(File source, File baseLocation, Map<File, File> extractMap);
 
   /**
    * Copy the source directory to the destination directory.
@@ -85,6 +98,23 @@ public interface FileSupport {
    *          destination folder
    */
   void copyDirectory(File sourceDir, File destDir, boolean overwrite);
+
+  /**
+   * Copy the contents of the source directory to the destination directory.
+   *
+   * <p>
+   * This includes all subdirectories, their subdirectories, etc.
+   *
+   * @param sourceDir
+   *          the source directory
+   * @param destDir
+   *          the destination directory (which will be created if necessary)
+   * @param overwrite
+   *          {@code true} if should overwrite files if already in the destination folder
+   * @param copyMap
+   *          if not {@code null}, add copied files to map, with dest (key) and source (value)
+   */
+  void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> copyMap);
 
   /**
    * Copy an input stream to an output file.

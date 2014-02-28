@@ -43,6 +43,11 @@ public class ActivityProject {
   public static final String FILENAME_ACTIVITY_CONF = "activity.conf";
 
   /**
+   * Activity source map file name.
+   */
+  public static final String FILENAME_RESOURCE_MAP = "resource.map";
+
+  /**
    * The project description for the activity.
    */
   private Project project;
@@ -57,6 +62,12 @@ public class ActivityProject {
    */
   private String activityRuntimeName;
 
+  /**
+   * Create a new activity project.
+   *
+   * @param project
+   *          defining project
+   */
   public ActivityProject(Project project) {
     this.project = project;
   }
