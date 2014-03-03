@@ -72,8 +72,13 @@ public class ActivitySystemConfiguration {
    */
   public static String getActivityNativeBrowserCommandFlags(Configuration configuration,
       boolean debug) {
-    String os = configuration.getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
+    String simpleVersion = configuration.getPropertyString(ACTIVITY_NATIVE_BROWSER_COMMAND_FLAGS_PREFIX);
+    if (simpleVersion != null) {
+      return simpleVersion;
+    }
+
+    String os = configuration.getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
     if (debug) {
       String debugVersion =
           configuration.getPropertyString(ACTIVITY_NATIVE_BROWSER_COMMAND_FLAGS_PREFIX + "."
