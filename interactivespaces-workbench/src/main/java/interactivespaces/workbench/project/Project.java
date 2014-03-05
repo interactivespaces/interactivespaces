@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
@@ -26,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -157,6 +159,16 @@ public class Project {
   }
 
   /**
+   * Set the base directory for the project.
+   *
+   * @param baseDirectory
+   *          the base directory for the project
+   */
+  public void setBaseDirectory(String baseDirectory) {
+    setBaseDirectory(new File(baseDirectory));
+  }
+
+  /**
    * Get the base directory of the project.
    *
    * @return the base directory
@@ -261,6 +273,16 @@ public class Project {
   }
 
   /**
+   * Set the version for the project.
+   *
+   * @param version
+   *          the version
+   */
+  public void setVersion(String version) {
+    setVersion(Version.parseVersion(version));
+  }
+
+  /**
    * Get the range of Interactive Spaces versions that this project requires.
    *
    * @return the range of Interactive Spaces versions that this project requires
@@ -278,6 +300,25 @@ public class Project {
    */
   public void setInteractiveSpacesVersionRange(VersionRange interactiveSpacesVersionRange) {
     this.interactiveSpacesVersion = interactiveSpacesVersionRange;
+  }
+
+  /**
+   * Set the dynamically specified project property.
+   *
+   * @param name
+   *          property name to set
+   * @param value
+   *          value to set
+   */
+  public void setProperty(String name, String value) {
+    try {
+      String methodName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+      Method method = Project.class.getDeclaredMethod(methodName, String.class);
+      method.invoke(this, value);
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("Could not set project property %s to %s", name, value), e);
+    }
   }
 
   /**

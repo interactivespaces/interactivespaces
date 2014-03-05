@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.io.Files;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -66,6 +67,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -648,28 +650,41 @@ public class InteractiveSpacesWorkbench {
   private void createProject(List<String> commands) {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
 
-    Project project = getProjectFromConsole();
-    project.setBaseDirectory(new File(project.getIdentifyingName()));
-
-    spec.setProject(project);
+    String projectSpecPath = null;
 
     String projectType = "activity";
 
-    String command = commands.remove(0);
-    if ("language".equals(command)) {
-      spec.setLanguage(commands.remove(0));
-    } else if ("template".equals(command)) {
-      String source = commands.remove(0);
-      if ("example".equals(source)) {
-        System.out.println("Not implemented yet");
-        return;
-      } else if ("site".equals(source)) {
-        System.out.println("Not implemented yet");
-        return;
+    while (commands.size() > 0) {
+      String command = commands.remove(0);
+      if ("language".equals(command)) {
+        spec.setLanguage(commands.remove(0));
+      } else if ("template".equals(command)) {
+        String source = commands.remove(0);
+        if ("example".equals(source)) {
+          System.out.println("Not implemented yet");
+          return;
+        } else if ("site".equals(source)) {
+          System.out.println("Not implemented yet");
+          return;
+        }
+      } else if ("type".equals(command)) {
+        projectType = commands.remove(0);
+      } else if ("spec".equals(command)) {
+        projectSpecPath = commands.remove(0);
+      } else {
+        throw new SimpleInteractiveSpacesException("Unknown create command: " + command);
       }
-    } else if ("type".equals(command)) {
-      projectType = commands.remove(0);
     }
+
+    Project project;
+    if (projectSpecPath == null || "-".equals(projectSpecPath)) {
+      project = getProjectFromConsole();
+      project.setBaseDirectory(new File(project.getIdentifyingName()));
+      spec.setProject(project);
+    } else {
+      project = readProjectSpecification(projectSpecPath);
+    }
+    spec.setProject(project);
 
     project.setType(projectType);
 
@@ -699,6 +714,31 @@ public class InteractiveSpacesWorkbench {
       return project;
     } else {
       throw new InteractiveSpacesException("Could not allocate console");
+    }
+  }
+
+  /**
+   * Get the activity data from a specification file.
+   *
+   * @param projectSpecPath
+   *          path to the project specification file
+   *
+   * @return the activity data input from the spec file
+   */
+  private Project readProjectSpecification(String projectSpecPath) {
+    try {
+      Project project = new Project();
+      List<String> parameters = Files.readLines(new File(projectSpecPath), Charset.defaultCharset());
+      for (String line : parameters) {
+        String parts[] = line.trim().split("=", 2);
+        if (parts.length != 2) {
+          throw new SimpleInteractiveSpacesException("Invalid property line syntax: " + line);
+        }
+        project.setProperty(parts[0], parts[1]);
+      }
+      return project;
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Could not read/process spec file " + projectSpecPath, e);
     }
   }
 

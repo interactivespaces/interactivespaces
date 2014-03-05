@@ -3,6 +3,7 @@
 .classpath
 .settings
 .gradle
+.islintignore
 gradle.properties
 *.iml
 interactivespaces_docs/src/main/sphinx/conf.py
