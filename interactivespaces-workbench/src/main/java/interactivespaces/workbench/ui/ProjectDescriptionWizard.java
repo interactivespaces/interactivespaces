@@ -25,19 +25,25 @@ import interactivespaces.workbench.ui.wizard.Wizard;
 import javax.swing.JComponent;
 
 /**
- * A {@link Wizard} for getting an Activity Description.
+ * A {@link Wizard} for getting an Project Description.
  *
  * @author Keith M. Hughes
  */
-public class ActivityDescriptionWizard extends SingleComponentWizard {
+public class ProjectDescriptionWizard extends SingleComponentWizard {
 
   /**
-   * The activity description panel to use.
+   * The project description panel to use.
    */
-  private ActivityDescriptionPanel panel;
+  private final ProjectDescriptionPanel panel;
 
-  public ActivityDescriptionWizard() {
-    panel = new ActivityDescriptionPanel();
+  /**
+   * Construct a new wizard.
+   *
+   * @param project
+   *          the project being created
+   */
+  public ProjectDescriptionWizard(Project project) {
+    panel = new ProjectDescriptionPanel(project);
   }
 
   @Override
@@ -45,6 +51,11 @@ public class ActivityDescriptionWizard extends SingleComponentWizard {
     return panel;
   }
 
+  /**
+   * Get the project from the wizard.
+   *
+   * @return the project
+   */
   public Project getProject() {
     panel.syncProjectDescription();
     return panel.getProjectDescription();

@@ -133,16 +133,8 @@ public class ProjectBundleConstituent implements ProjectConstituent {
       super(log);
     }
 
-    /**
-     * Get an project dependency from the dependency element.
-     *
-     * @param element
-     *          the element containing the data
-     *
-     * @return the dependency found in the element
-     */
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element element) {
+    public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
       ProjectBundleConstituent bundle = new ProjectBundleConstituent();
 
       bundle.outputPath = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);

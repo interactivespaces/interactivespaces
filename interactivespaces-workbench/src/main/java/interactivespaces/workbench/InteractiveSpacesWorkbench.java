@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
@@ -33,6 +32,7 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
@@ -270,7 +270,7 @@ public class InteractiveSpacesWorkbench {
 
     try {
       if (builder.build(project, context)) {
-        if (Project.PROJECT_TYPE_ACTIVITY.equals(project.getType())) {
+        if (ActivityProject.PROJECT_TYPE_NAME.equals(project.getType())) {
           activityProjectPackager.packageActivityProject(project, context);
         }
         return true;
@@ -648,12 +648,12 @@ public class InteractiveSpacesWorkbench {
   private void createProject(List<String> commands) {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
 
-    Project project = getProjectFromConsole();
+    ActivityProject project = new ActivityProject();
+    project.setType(ActivityProject.PROJECT_TYPE_NAME);
+    populateProjectFromConsole(project);
     project.setBaseDirectory(new File(project.getIdentifyingName()));
 
     spec.setProject(project);
-
-    String projectType = "activity";
 
     String command = commands.remove(0);
     if ("language".equals(command)) {
@@ -667,21 +667,18 @@ public class InteractiveSpacesWorkbench {
         System.out.println("Not implemented yet");
         return;
       }
-    } else if ("type".equals(command)) {
-      projectType = commands.remove(0);
     }
-
-    project.setType(projectType);
 
     activityProjectCreator.createProject(spec);
   }
 
   /**
-   * Get the activity data from the console.
+   * Populate the project data from the console.
    *
-   * @return the activity data input from the console
+   * @param project
+   *          where the project data should be stored
    */
-  private Project getProjectFromConsole() {
+  private void populateProjectFromConsole(Project project) {
     Console console = System.console();
 
     if (console != null) {
@@ -690,15 +687,12 @@ public class InteractiveSpacesWorkbench {
       String name = console.readLine("Name: ");
       String description = console.readLine("Description: ");
 
-      Project project = new Project();
       project.setIdentifyingName(identifyingName);
       project.setVersion(Version.parseVersion(version));
       project.setName(name);
       project.setDescription(description);
-
-      return project;
     } else {
-      throw new InteractiveSpacesException("Could not allocate console");
+      throw new SimpleInteractiveSpacesException("Could not allocate console");
     }
   }
 

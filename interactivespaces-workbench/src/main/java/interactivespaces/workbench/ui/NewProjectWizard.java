@@ -19,6 +19,7 @@ package interactivespaces.workbench.ui;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.ui.wizard.Wizard;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 
@@ -32,36 +33,45 @@ import java.io.File;
 public class NewProjectWizard extends WizardCollection {
 
   /**
-   * The directory choosing wizard
+   * The directory choosing wizard.
    */
-  private ChooseDirectoryWizard chooseDirectoryWizard;
+  private final ChooseDirectoryWizard chooseDirectoryWizard;
 
   /**
-   * The activity description wizard
+   * The activity description wizard.
    */
-  private ActivityDescriptionWizard activityDescriptionWizard;
+  private final ProjectDescriptionWizard activityDescriptionWizard;
 
   /**
    * Wizard for choosing the project template.
    */
-  private ActivityProjectTemplateChooserWizard activityProjectTemplateChooserWizard;
+  private final ActivityProjectTemplateChooserWizard activityProjectTemplateChooserWizard;
 
   /**
    * The workbench UI.
    */
-  private WorkbenchUi workbenchUi;
+  private final WorkbenchUi workbenchUi;
 
   /**
    * The workbench.
    */
-  private InteractiveSpacesWorkbench workbench;
+  private final InteractiveSpacesWorkbench workbench;
 
+  /**
+   * Construct a new project wizard.
+   *
+   * @param workbenchUi
+   *        the workbench UI component
+   * @param workbench
+   *        the workbench
+   */
   public NewProjectWizard(WorkbenchUi workbenchUi, InteractiveSpacesWorkbench workbench) {
     this.workbenchUi = workbenchUi;
     this.workbench = workbench;
 
     chooseDirectoryWizard = new ChooseDirectoryWizard();
-    activityDescriptionWizard = new ActivityDescriptionWizard();
+    // TODO(keith): Fix this so a project is handed in or some sort of spec is created
+    activityDescriptionWizard = new ProjectDescriptionWizard(null);
     activityProjectTemplateChooserWizard =
         new ActivityProjectTemplateChooserWizard(workbench.getActivityProjectCreator()
             .getActivityProjectTemplates());

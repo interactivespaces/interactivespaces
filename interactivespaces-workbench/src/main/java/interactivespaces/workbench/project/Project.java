@@ -34,17 +34,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class Project {
-
-  /**
-   * The project type for an activity project.
-   */
-  public static final String PROJECT_TYPE_ACTIVITY = "activity";
-
-  /**
-   * The project type for an activity project.
-   */
-  public static final String PROJECT_TYPE_LIBRARY = "library";
+public abstract class Project {
 
   /**
    * The base directory for the file.
@@ -106,6 +96,13 @@ public class Project {
    * indicated by the empty list).
    */
   private final List<ProjectConstituent> sources = Lists.newArrayList();
+
+  /**
+   * An extra set of project constituents. Some constituents are common to all
+   * projects, these will be specific to an actual project type and will be
+   * processed by the specific project type builder as that builder needs.
+   */
+  private final List<ProjectConstituent> extraConstituents = Lists.newArrayList();
 
   /**
    * The deployments the project requires.
@@ -413,5 +410,36 @@ public class Project {
    */
   public String getAttribute(String key) {
     return attributes.get(key);
+  }
+
+  /**
+   * Add an extra constituent to the project.
+   *
+   * @param constituent
+   *          the constituent to add
+   */
+  public void addExtraConstituent(ProjectConstituent constituent) {
+    extraConstituents.add(constituent);
+  }
+
+  /**
+   * Add extra constituents to the project.
+   *
+   * @param constituents
+   *          the constituents to add, can be {@code null}
+   */
+  public void addExtraConstituents(List<ProjectConstituent> constituents) {
+    if (constituents != null) {
+      extraConstituents.addAll(constituents);
+    }
+  }
+
+  /**
+   * Get the list of extra constituents.
+   *
+   * @return the list of extra constituents
+   */
+  public List<ProjectConstituent> getExtraConstituents() {
+    return extraConstituents;
   }
 }

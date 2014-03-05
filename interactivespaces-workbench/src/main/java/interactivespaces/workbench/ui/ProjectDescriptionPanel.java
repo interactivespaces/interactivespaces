@@ -39,11 +39,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * A panel to allow editing of activity Descriptions.
+ * A panel to allow editing of project descriptions.
  *
  * @author Keith M. Hughes
  */
-public class ActivityDescriptionPanel extends JPanel {
+public class ProjectDescriptionPanel extends JPanel {
 
   /**
    * Number of rows in a description box.
@@ -80,16 +80,15 @@ public class ActivityDescriptionPanel extends JPanel {
    */
   private ValidationMessageDisplay validationMessageDisplay;
 
+  /**
+   * The validator for identifying names.
+   */
   private final ActivityIdentifyingNameValidator identifyingNameValidator;
 
-  private final VersionValidator versionValidator;
-
   /**
-   * Construct a fresh descriptiuon panel with a newly created project.
+   * The validator for version numbers.
    */
-  public ActivityDescriptionPanel() {
-    this(new Project());
-  }
+  private final VersionValidator versionValidator;
 
   /**
    * Construct a description panel.
@@ -97,7 +96,7 @@ public class ActivityDescriptionPanel extends JPanel {
    * @param project
    *          the project to back the panel
    */
-  public ActivityDescriptionPanel(Project project) {
+  public ProjectDescriptionPanel(Project project) {
     setLayout(new GridBagLayout());
 
     KeyListener verifyingKeyListener = new KeyListener() {

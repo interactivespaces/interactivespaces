@@ -8,4 +8,9 @@ callback messages.
 
     <identifyingName>interactivespaces.example.activity.hello</identifyingName>
     <version>1.0.0</version>
+    
+    <activity type="interactivespaces_native" logLevel="info">
+        <name>example_activity_hello</name>
+        <class>interactivespaces.activity.example.hello.HelloActivity</class>
+    </activity>
 </project>

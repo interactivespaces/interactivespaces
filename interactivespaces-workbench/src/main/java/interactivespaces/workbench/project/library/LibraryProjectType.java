@@ -32,14 +32,9 @@ import com.google.common.collect.Lists;
  */
 public class LibraryProjectType extends JavaProjectType {
 
-  /**
-   * Name for the type.
-   */
-  public static final String NAME = "library";
-
   @Override
   public boolean isProperType(Project project) {
-    return NAME.equals(project.getType());
+    return LibraryProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
 
   @Override

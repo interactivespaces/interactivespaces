@@ -32,12 +32,15 @@ import java.io.File;
  *
  * @author Trevor Pering
  */
-public class AssemblyProjectBuilder extends BaseProjectBuilder {
+public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> {
 
-  private static final String ASSEMBLY_FILE_EXTENSION = "zip";
+  /**
+   * File extension for an assembly artifact.
+   */
+  public static final String ASSEMBLY_FILE_EXTENSION = "zip";
 
   @Override
-  public boolean build(Project project, ProjectBuildContext context) {
+  public boolean build(AssemblyProject project, ProjectBuildContext context) {
     String packFormat = project.getAttribute(PACK_FORMAT_ATTRIBUTE);
     if (!ZIP_PACK_FORMAT.equals(packFormat)) {
       throw new SimpleInteractiveSpacesException(String.format(

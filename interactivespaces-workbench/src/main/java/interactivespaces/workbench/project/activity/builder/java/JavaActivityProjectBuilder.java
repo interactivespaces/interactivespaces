@@ -18,7 +18,7 @@ package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
@@ -31,14 +31,14 @@ import interactivespaces.workbench.project.test.JunitTestRunner;
 import java.io.File;
 
 /**
- * An {@link ProjectBuilder} for java projects.
+ * A {@link ProjectBuilder} for Java-base activity projects.
  *
  * @author Keith M. Hughes
  */
 public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
 
   /**
-   * File extension to give the build artifact
+   * File extension to give the build artifact.
    */
   private static final String JAR_FILE_EXTENSION = "jar";
 
@@ -48,7 +48,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   private final JavaProjectExtension extensions;
 
   /**
-   * The compiler for Java JARs
+   * The compiler for Java JARs.
    */
   private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
 
@@ -75,13 +75,14 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   }
 
   @Override
-  public boolean onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
+  public boolean onBuild(ActivityProject project, ProjectBuildContext context, File stagingDirectory) {
     try {
       File buildDirectory = context.getBuildDirectory();
-      File compilationFolder = getOutputDirectory(buildDirectory);
-      File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory);
+      File compilationDirectory = getCompilationOutputDirectory(buildDirectory);
+      File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory, JAR_FILE_EXTENSION);
+      project.setActivityExecutable(jarDestinationFile.getName());
 
-      if (compiler.buildJar(jarDestinationFile, compilationFolder, extensions, context)) {
+      if (compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, context)) {
         return runTests(jarDestinationFile, context);
       }
 
@@ -110,36 +111,18 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   }
 
   /**
-   * Create the output directory for the activity compilation
+   * Create the output directory for the activity compilation.
    *
    * @param buildDirectory
    *          the root of the build folder
    *
    * @return the output directory for building
    */
-  private File getOutputDirectory(File buildDirectory) {
+  private File getCompilationOutputDirectory(File buildDirectory) {
     File outputDirectory =
         new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;
-  }
-
-  /**
-   * Get the build destination file.
-   *
-   * <p>
-   * Any subdirectories needed will be created.
-   *
-   * @param project
-   *          the project being built
-   * @param buildDirectory
-   *          where the artifact will be built
-   *
-   * @return the file where the build should be written
-   */
-  private File getBuildDestinationFile(Project project, File buildDirectory) {
-    return new File(buildDirectory, project.getIdentifyingName() + "-" + project.getVersion() + "."
-        + JAR_FILE_EXTENSION);
   }
 }

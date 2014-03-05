@@ -44,11 +44,6 @@ public class ProjectResourceConstituent implements ProjectConstituent {
   public static final String PROJECT_TYPE_ALTERNATE = "source";
 
   /**
-   * The file support to use.
-   */
-  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
-
-  /**
    * A directory from which all contents will be copied.
    */
   private String sourceDirectory;
@@ -73,6 +68,11 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    * This file will be relative to the project's installed folder.
    */
   private String destinationFile;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * @return the sourceDirectory
@@ -191,7 +191,7 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     }
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement) {
+    public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
       String sourceDir = resourceElement.getAttributeValue(SOURCE_DIRECTORY_ATTRIBUTE);
       String sourceFile = resourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
       String destDir = resourceElement.getAttributeValue(DESTINATION_DIRECTORY_ATTRIBUTE);

@@ -1,10 +1,43 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Routable Input Web Example Activity</name>
-    <description>
-A Java-based routable input activity which uses a browser for display of the routed messages.
-    </description>
+  <name>Routable Input Web Example Activity</name>
+  <description>
+    A Java-based routable input activity which uses a browser
+    for display
+    of the routed messages.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.routable.input.web</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>interactivespaces.example.activity.routable.input.web
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native" logLevel="info">
+    <name>interactivespacesExampleActivityRoutableInputWeb</name>
+    <class>interactivespaces.example.activity.routable.input.web.RoutableInputWebExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.ros.node.name">
+        <value>example/routable/input/web
+        </value>
+      </property>
+      <property name="space.activity.routes.inputs" value="input1" />
+      <property name="space.activity.route.input.input1">
+        <value>/example/routable/channel1
+        </value>
+      </property>
+      <property name="space.activity.webapp.web.server.port"
+        value="9101" />
+
+      <property name="space.activity.webapp.content.location"
+        value="webapp" />
+      <property name="space.activity.webapp.url.initial" value="index.html" />
+      <property name="space.activity.webapp.url.query_string">
+        <value><![CDATA[o=h&w=l]]></value>
+      </property>
+      <property name="space.activity.webapp.browser.debug"
+        value="true" />
+
+    </configuration>
+  </activity>
 </project>
