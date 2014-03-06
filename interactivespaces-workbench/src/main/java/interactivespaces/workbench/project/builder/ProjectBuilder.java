@@ -21,9 +21,12 @@ import interactivespaces.workbench.project.Project;
 /**
  * A builder for Interactive Spaces projects.
  *
+ * @param <T>
+ *          the type of the project
+ *
  * @author Keith M. Hughes
  */
-public interface ProjectBuilder {
+public interface ProjectBuilder<T extends Project> {
 
   /**
    * Configuration property defining the project home directory.
@@ -45,5 +48,5 @@ public interface ProjectBuilder {
    *
    * @return {@code true} if a successful build
    */
-  boolean build(Project project, ProjectBuildContext context);
+  boolean build(T project, ProjectBuildContext context);
 }

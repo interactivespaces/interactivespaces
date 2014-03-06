@@ -140,14 +140,14 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
       activityDescriptionStream = new FileInputStream(activityFile);
       ActivityDescription activity = reader.readDescription(activityDescriptionStream);
 
-      Project project = new Project();
+      Project project = new ActivityProject();
       project.setBaseDirectory(activityFile.getParentFile());
       project.setName(activity.getName());
       project.setDescription(activity.getDescription());
       project.setBuilderType(activity.getBuilderType());
       project.setIdentifyingName(activity.getIdentifyingName());
       project.setVersion(Version.parseVersion(activity.getVersion()));
-      project.setType("activity");
+      project.setType(ActivityProject.PROJECT_TYPE_NAME);
 
       postProcessProject(project);
 
@@ -160,15 +160,18 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
 
   @Override
   public Source getActivityConfSource(Project project) {
-    // TODO(keith): This sucks!!!
-    ActivityProject aproject = new ActivityProject(project);
-    Source source = new SimpleSource();
-    File sourceFile = aproject.getActivityConfigFile();
-    source.setPath(sourceFile.getAbsolutePath());
-    source.setProject(project);
-    source.setContent(fileSupport.readFile(sourceFile));
+    // TODO(keith): This sucks in so many ways!!!
+    if (project instanceof ActivityProject) {
+      Source source = new SimpleSource();
+      File sourceFile = ((ActivityProject) project).getActivityConfigFile();
+      source.setPath(sourceFile.getAbsolutePath());
+      source.setProject(project);
+      source.setContent(fileSupport.readFile(sourceFile));
 
-    return source;
+      return source;
+    } else {
+      throw new SimpleInteractiveSpacesException("Project was not an activity project");
+    }
   }
 
   @Override

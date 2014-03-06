@@ -16,9 +16,9 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
+
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -50,16 +50,18 @@ public class ProjectCreationSpecification {
   private Project project;
 
   /**
-   * Extra configuration parameters for the activity
+   * Extra configuration parameters for the activity.
    */
-  private List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
+  private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
 
   /**
    * A list of all source directories needed.
    */
-  private List<String> sourceDirectories = Lists.newArrayList();
+  private final List<String> sourceDirectories = Lists.newArrayList();
 
   /**
+   * Get the programming language for the project.
+   *
    * @return the language
    */
   public String getLanguage() {
@@ -67,6 +69,8 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Set the programming language for the project.
+   *
    * @param language
    *          the language to set
    */
@@ -75,6 +79,8 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Get the project template.
+   *
    * @return the template
    */
   public ProjectTemplate getTemplate() {
@@ -82,6 +88,8 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Set the project template.
+   *
    * @param template
    *          the template to set
    */
@@ -90,13 +98,21 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Get the project description associated with the spec.
+   *
+   * @param <T>
+   *          the project type
+   *
    * @return the project
    */
-  public Project getProject() {
-    return project;
+  @SuppressWarnings("unchecked")
+  public <T extends Project> T getProject() {
+    return (T) project;
   }
 
   /**
+   * Set the project description for the spec.
+   *
    * @param project
    *          the project to set
    */
@@ -105,6 +121,8 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Get the executable, if any, for the spec.
+   *
    * @return the executable
    */
   public String getExecutable() {
@@ -112,6 +130,8 @@ public class ProjectCreationSpecification {
   }
 
   /**
+   * Set the executable.
+   *
    * @param executable
    *          the executable to set
    */
@@ -166,10 +186,6 @@ public class ProjectCreationSpecification {
    *          the value of the parameter to add
    */
   public void addExtraConfigurationParameter(String name, String value) {
-    SimpleConfigurationParameter parameter = new SimpleConfigurationParameter();
-    parameter.setName(name);
-    parameter.setValue(value);
-
-    extraConfigurationParameters.add(parameter);
+    extraConfigurationParameters.add(new SimpleConfigurationParameter(name, value));
   }
 }

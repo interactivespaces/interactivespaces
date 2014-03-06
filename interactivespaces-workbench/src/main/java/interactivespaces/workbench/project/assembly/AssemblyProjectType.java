@@ -18,10 +18,10 @@ package interactivespaces.workbench.project.assembly;
 
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.builder.ProjectBuilder;
 
 /**
  * A project type for assembly projects.
@@ -30,14 +30,9 @@ import interactivespaces.workbench.project.activity.type.ProjectType;
  */
 public class AssemblyProjectType implements ProjectType {
 
-  /**
-   * Name for the type.
-   */
-  public static final String NAME = "assembly";
-
   @Override
   public boolean isProperType(Project project) {
-    return NAME.equals(project.getType());
+    return AssemblyProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
 
   @Override

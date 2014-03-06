@@ -16,16 +16,26 @@
 
 package interactivespaces.workbench.project.activity;
 
+import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectConfigurationProperty;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * A project for an activity.
  *
  * @author Keith M. Hughes
  */
-public class ActivityProject {
+public class ActivityProject extends Project {
+
+  /**
+   * Name of the project type.
+   */
+  public static final String PROJECT_TYPE_NAME = "activity";
 
   /**
    * Folder where activities are stored.
@@ -43,19 +53,24 @@ public class ActivityProject {
   public static final String FILENAME_ACTIVITY_CONF = "activity.conf";
 
   /**
-   * Activity source map file name.
+   * Activity resource map file name.
    */
   public static final String FILENAME_RESOURCE_MAP = "resource.map";
 
   /**
-   * The project description for the activity.
-   */
-  private Project project;
-
-  /**
-   * Type of the activity.
+   * The type of the activity, e.g. interactivespaces_native.
    */
   private String activityType;
+
+  /**
+   * Name of the activity.
+   */
+  private String activityName;
+
+  /**
+   * The name of the executable file.
+   */
+  private String activityExecutable;
 
   /**
    * The runtime name of the activity.
@@ -63,20 +78,89 @@ public class ActivityProject {
   private String activityRuntimeName;
 
   /**
-   * Create a new activity project.
-   *
-   * @param project
-   *          defining project
+   * Extra configuration parameters for the activity.
    */
-  public ActivityProject(Project project) {
-    this.project = project;
+  private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
+
+  /**
+   * Configuration properies for the activity.
+   */
+  private List<ProjectConfigurationProperty> configurationProperties;
+
+  /**
+   * Get the type of the activity.
+   *
+   * @return type of the activity
+   */
+  public String getActivityType() {
+    return activityType;
   }
 
   /**
-   * @return the project
+   * Set the type of the activity.
+   *
+   * @param activityType
+   *          the type of the activity
    */
-  public Project getProject() {
-    return project;
+  public void setActivityType(String activityType) {
+    this.activityType = activityType;
+  }
+
+  /**
+   * Get the name of the activity.
+   *
+   * @return the name of the activity
+   */
+  public String getActivityName() {
+    return activityName;
+  }
+
+  /**
+   * Set the name of the activity.
+   *
+   * @param activityName
+   *          the name of the activity
+   */
+  public void setActivityName(String activityName) {
+    this.activityName = activityName;
+  }
+
+  /**
+   * Get the executable for the activity.
+   *
+   * @return the executable for the activity
+   */
+  public String getActivityExecutable() {
+    return activityExecutable;
+  }
+
+  /**
+   * Set the executable for the activity.
+   *
+   * @param activityExecutable
+   *          the executable for the activity
+   */
+  public void setActivityExecutable(String activityExecutable) {
+    this.activityExecutable = activityExecutable;
+  }
+
+  /**
+   * Get the name of the activity runtime.
+   *
+   * @return the name of the activity runtime
+   */
+  public String getActivityRuntimeName() {
+    return activityRuntimeName;
+  }
+
+  /**
+   * Set the name of the activity runtime.
+   *
+   * @param activityRuntimeName
+   *          the name of the activity runtime
+   */
+  public void setActivityRuntimeName(String activityRuntimeName) {
+    this.activityRuntimeName = activityRuntimeName;
   }
 
   /**
@@ -85,7 +169,7 @@ public class ActivityProject {
    * @return the location of the config file
    */
   public File getActivityConfigFile() {
-    return new File(getActivityResourceDirectory(), "activity.conf");
+    return new File(getActivityResourceDirectory(), FILENAME_ACTIVITY_CONF);
   }
 
   /**
@@ -94,7 +178,7 @@ public class ActivityProject {
    * @return the location of the source resource directory
    */
   public File getActivityResourceDirectory() {
-    return new File(project.getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
+    return new File(getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
   }
 
   /**
@@ -103,7 +187,7 @@ public class ActivityProject {
    * @return the location of the description file
    */
   public File getActivityDescriptionFile() {
-    return new File(project.getBaseDirectory(), "activity.xml");
+    return new File(getBaseDirectory(), "activity.xml");
   }
 
   /**
@@ -112,36 +196,60 @@ public class ActivityProject {
    * @return the location of the source directory for activities
    */
   public File getActivitySourceFolder() {
-    return new File(project.getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
+    return new File(getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
   }
 
   /**
-   * @return the activityType
+   * Get all extra configurations for the activity.
+   *
+   * @return all extra configurations for the activity
    */
-  public String getActivityType() {
-    return activityType;
+  public List<SimpleConfigurationParameter> getExtraConfigurationParameters() {
+    return extraConfigurationParameters;
   }
 
   /**
-   * @param activityType
-   *          the activityType to set
+   * Add an extra configuration parameter to the spec.
+   *
+   * @param parameter
+   *          the new configuration parameter to add
    */
-  public void setActivityType(String activityType) {
-    this.activityType = activityType;
+  public void addExtraConfigurationParameter(SimpleConfigurationParameter parameter) {
+    extraConfigurationParameters.add(parameter);
   }
 
   /**
-   * @return the activityRuntimeName
+   * Add an extra configuration parameter to the spec.
+   *
+   * @param name
+   *          the name of the parameter to add
+   * @param value
+   *          the value of the parameter to add
    */
-  public String getActivityRuntimeName() {
-    return activityRuntimeName;
+  public void addExtraConfigurationParameter(String name, String value) {
+    SimpleConfigurationParameter parameter = new SimpleConfigurationParameter();
+    parameter.setName(name);
+    parameter.setValue(value);
+
+    extraConfigurationParameters.add(parameter);
   }
 
   /**
-   * @param activityRuntimeName
-   *          the activityRuntimeName to set
+   * Get the configuration properties for the activity.
+   *
+   * @return the configuration properties for the activity
    */
-  public void setActivityRuntimeName(String activityRuntimeName) {
-    this.activityRuntimeName = activityRuntimeName;
+  public List<ProjectConfigurationProperty> getConfigurationProperties() {
+    return configurationProperties;
+  }
+
+  /**
+   * Set the configuration properties for the activity.
+   *
+   * @param configurationProperties
+   *          the configuration properties for the activity
+   */
+  public void setConfigurationProperties(List<ProjectConfigurationProperty> configurationProperties) {
+    this.configurationProperties = configurationProperties;
   }
 }

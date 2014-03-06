@@ -19,8 +19,8 @@ package interactivespaces.workbench.project.activity.creator;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
-import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.activity.ActivityProject;
 
 import java.io.File;
 import java.util.Map;
@@ -37,6 +37,12 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    */
   public static final String PROJECT_TYPE_ACTIVITY = "activity";
 
+  /**
+   * Construct the template.
+   *
+   * @param displayName
+   *          display name for the template
+   */
   public BaseActivityProjectTemplate(String displayName) {
     super(displayName);
 
@@ -44,10 +50,8 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec,
-      Map<String, Object> fullTemplateData) {
-    spec.getProject().setType(PROJECT_TYPE_ACTIVITY);
-    ActivityProject activityProject = new ActivityProject(spec.getProject());
+  public void onTemplateSetup(ProjectCreationSpecification spec, Map<String, Object> fullTemplateData) {
+    ActivityProject activityProject = spec.getProject();
     fullTemplateData.put("activity", activityProject);
 
     // Create an activity name from the identifying name
@@ -66,13 +70,16 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   }
 
   @Override
-  public void writeCommonTemplates(ProjectCreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
+  public void writeCommonTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
     writeActivityConf(templater, spec, fullTemplateData);
   }
 
   /**
+   * Write out the activity conf.
+   *
+   * @param templater
+   *          the templater to use
    * @param spec
    *          the build specification
    * @param templateData
@@ -94,8 +101,8 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    * @param fullTemplateData
    *          the template data to be handed to this template
    */
-  public abstract void onTemplateSetup(ProjectCreationSpecification spec,
-      ActivityProject activityProject, Map<String, Object> fullTemplateData);
+  public abstract void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
+      Map<String, Object> fullTemplateData);
 
   /**
    * Get the activity resource directory.
@@ -106,7 +113,6 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    * @return the resource directory for activity components
    */
   public File getActivityResourceDirectory(ProjectCreationSpecification spec) {
-    return new File(spec.getProject().getBaseDirectory(),
-        ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+    return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 }

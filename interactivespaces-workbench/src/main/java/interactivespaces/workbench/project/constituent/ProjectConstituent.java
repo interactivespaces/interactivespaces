@@ -53,6 +53,29 @@ public interface ProjectConstituent {
   String DESTINATION_DIRECTORY_ATTRIBUTE = "destinationDirectory";
 
   /**
+   * Process the needed constituent for the project.
+   *
+   * @param project
+   *          the project being built
+   * @param stagingDirectory
+   *          where the items will be copied
+   * @param context
+   *          context for the build
+   */
+  void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
+
+  /**
+   * Return the source directory for this constituent.
+   *
+   * @return source directory
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if constituent type does not provide a source directory
+   */
+  String getSourceDirectory() throws SimpleInteractiveSpacesException;
+
+
+  /**
    * Factory for project constituent builders.
    *
    * @author Keith M. Hughes
@@ -80,31 +103,11 @@ public interface ProjectConstituent {
      *
      * @param constituentElement
      *          project file definition element
+     * @param project
+     *          the project description being built
      *
      * @return new project object or {@code null} if there were errors
      */
-    ProjectConstituent buildConstituentFromElement(Element constituentElement);
+    ProjectConstituent buildConstituentFromElement(Element constituentElement, Project project);
   }
-
-  /**
-   * Process the needed constituent for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
-
-  /**
-   * Return the source directory for this constituent.
-   *
-   * @return source directory
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if constituent type does not provide a source directory
-   */
-  String getSourceDirectory() throws SimpleInteractiveSpacesException;
 }

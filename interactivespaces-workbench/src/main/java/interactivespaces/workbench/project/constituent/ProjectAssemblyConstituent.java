@@ -107,16 +107,8 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
       super(log);
     }
 
-    /**
-     * Get an project dependency from the dependency element.
-     *
-     * @param resourceElement
-     *          the element containing the data
-     *
-     * @return the dependency found in the element
-     */
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement) {
+    public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
       String packFormat = resourceElement.getAttributeValue(PACK_FORMAT_ATTRIBUTE);
       if (!ZIP_PACK_FORMAT.equals(packFormat)) {
         addError(String.format("Pack format '%s' not supported (currently must be '%s')", packFormat, ZIP_PACK_FORMAT));
