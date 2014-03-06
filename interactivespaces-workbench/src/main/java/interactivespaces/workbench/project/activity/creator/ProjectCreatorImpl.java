@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
@@ -70,6 +69,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
     this.workbench = workbench;
     this.templater = templater;
 
+    // TODO(pering): This should all be moved to the activity-specific classes.
     activityProjectTemplatesInternal = Lists.newArrayList();
     activityProjectTemplates = Collections.unmodifiableList(activityProjectTemplatesInternal);
 
@@ -80,7 +80,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public List<ProjectTemplate> getActivityProjectTemplates() {
+  public List<ProjectTemplate> getProjectTemplates() {
     return activityProjectTemplates;
   }
 
@@ -113,39 +113,16 @@ public class ProjectCreatorImpl implements ProjectCreator {
     if (template == null) {
       String projectType = spec.getProject().getType();
 
-      // TODO(khughes): Put all project types in constants somewhere.
-      if ("activity".equals(projectType)) {
-        template = getActivityProjectTemplateByLanguage(spec.getLanguage());
-      } else if ("library".equals(projectType)) {
+      if (BaseActivityProjectTemplate.PROJECT_TYPE.equals(projectType)) {
+        template = BaseActivityProjectTemplate.getActivityProjectTemplateByLanguage(spec.getLanguage());
+      } else if (LibraryProjectTemplate.PROJECT_TYPE.equals(projectType)) {
         template = new LibraryProjectTemplate();
-      } else if ("resource".equals(projectType)) {
+      } else if (AssemblyProjectTemplate.PROJECT_TYPE.equals(projectType)) {
         template = new AssemblyProjectTemplate();
       }
     }
 
     writeProjectTemplate(template, spec, templateData);
-  }
-
-  /**
-   * Get a generic project template by language.
-   *
-   * @param language
-   *          the language
-   *
-   * @return the generic template for that language
-   */
-  private ProjectTemplate getActivityProjectTemplateByLanguage(String language) {
-    if ("java".equals(language)) {
-      return new GenericJavaActivityProjectTemplate();
-    } else if ("python".equals(language)) {
-      return new GenericPythonActivityProjectTemplate();
-    } else if ("javascript".equals(language)) {
-      return new GenericJavascriptActivityProjectTemplate();
-    } else if ("android".equals(language)) {
-      return new GenericAndroidActivityProjectTemplate();
-    } else {
-      throw new InteractiveSpacesException(String.format("Unknown language %s", language));
-    }
   }
 
   /**

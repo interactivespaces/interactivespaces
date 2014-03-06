@@ -46,7 +46,7 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   /**
    * Project type for a bundle resource.
    */
-  public static final String PROJECT_TYPE = "bundle";
+  public static final String TYPE_NAME = "bundle";
 
   /**
    * File support instance for file operations.

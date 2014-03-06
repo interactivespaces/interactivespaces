@@ -41,7 +41,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   /**
    * Element type for a resource.
    */
-  public static final String PROJECT_TYPE = "activity";
+  public static final String TYPE_NAME = "activity";
 
   /**
    * XML entity name for an activity.

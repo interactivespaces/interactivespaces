@@ -36,12 +36,12 @@ public class ProjectResourceConstituent implements ProjectConstituent {
   /**
    * Element type for a resource.
    */
-  public static final String PROJECT_TYPE = "resource";
+  public static final String TYPE_NAME = "resource";
 
   /**
    * Element type for a source, which is functionally equivalent to a resource.
    */
-  public static final String PROJECT_TYPE_ALTERNATE = "source";
+  public static final String ALTERNATE_NAME = "source";
 
   /**
    * A directory from which all contents will be copied.

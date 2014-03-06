@@ -33,7 +33,7 @@ public interface ProjectCreator {
    *
    * @return the templates ordered by their display name.
    */
-  List<ProjectTemplate> getActivityProjectTemplates();
+  List<ProjectTemplate> getProjectTemplates();
 
   /**
    * Create an activity project.

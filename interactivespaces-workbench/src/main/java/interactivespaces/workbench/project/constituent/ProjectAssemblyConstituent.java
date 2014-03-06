@@ -38,7 +38,7 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
   /**
    * Project type for an assembly resource.
    */
-  public static final String PROJECT_TYPE = "assembly";
+  public static final String TYPE_NAME = "assembly";
 
   /**
    * Pack format attribute name.

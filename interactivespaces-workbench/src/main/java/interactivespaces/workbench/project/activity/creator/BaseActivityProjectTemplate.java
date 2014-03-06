@@ -16,11 +16,15 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
 
 import java.io.File;
 import java.util.Map;
@@ -35,7 +39,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   /**
    * The activity project type.
    */
-  public static final String PROJECT_TYPE_ACTIVITY = "activity";
+  public static final String PROJECT_TYPE = "activity";
 
   /**
    * Construct the template.
@@ -47,6 +51,28 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     super(displayName);
 
     addSourceDirectory(ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+  }
+
+  /**
+   * Get a generic project template by language.
+   *
+   * @param language
+   *          the language
+   *
+   * @return the generic template for that language
+   */
+  static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
+    if ("java".equals(language)) {
+      return new GenericJavaActivityProjectTemplate();
+    } else if ("python".equals(language)) {
+      return new GenericPythonActivityProjectTemplate();
+    } else if ("javascript".equals(language)) {
+      return new GenericJavascriptActivityProjectTemplate();
+    } else if ("android".equals(language)) {
+      return new GenericAndroidActivityProjectTemplate();
+    } else {
+      throw new InteractiveSpacesException(String.format("Unknown language %s", language));
+    }
   }
 
   @Override

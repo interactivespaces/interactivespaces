@@ -74,7 +74,7 @@ public class NewProjectWizard extends WizardCollection {
     activityDescriptionWizard = new ProjectDescriptionWizard(null);
     activityProjectTemplateChooserWizard =
         new ActivityProjectTemplateChooserWizard(workbench.getActivityProjectCreator()
-            .getActivityProjectTemplates());
+            .getProjectTemplates());
 
     addWizards(chooseDirectoryWizard, activityDescriptionWizard,
         activityProjectTemplateChooserWizard);

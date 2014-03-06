@@ -61,13 +61,12 @@ public class JdomProjectReader implements ProjectReader {
    * Map of resource types to resource builders.
    */
   private static final Map<String, ProjectConstituent.ProjectConstituentFactory> PROJECT_CONSTITUENT_FACTORY_MAP =
-      ImmutableMap.of(ProjectResourceConstituent.PROJECT_TYPE,
-          new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
-          ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE,
-          new ProjectResourceConstituent.ProjectResourceBuilderFactory(), ProjectAssemblyConstituent.PROJECT_TYPE,
-          new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(), ProjectBundleConstituent.PROJECT_TYPE,
-          new ProjectBundleConstituent.ProjectBundleConstituentFactory(), ActivityProjectConstituent.PROJECT_TYPE,
-          new ActivityProjectConstituent.ActivityProjectBuilderFactory());
+      ImmutableMap.of(
+          ProjectResourceConstituent.TYPE_NAME, new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
+          ProjectResourceConstituent.ALTERNATE_NAME, new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
+          ProjectAssemblyConstituent.TYPE_NAME, new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(),
+          ProjectBundleConstituent.TYPE_NAME, new ProjectBundleConstituent.ProjectBundleConstituentFactory(),
+          ActivityProjectConstituent.TYPE_NAME, new ActivityProjectConstituent.ActivityProjectBuilderFactory());
 
   /**
    * The name of the project.

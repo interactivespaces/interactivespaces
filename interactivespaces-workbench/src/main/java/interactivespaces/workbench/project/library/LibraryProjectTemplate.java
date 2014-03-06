@@ -32,6 +32,11 @@ import java.util.Map;
 public class LibraryProjectTemplate extends BaseProjectTemplate {
 
   /**
+   * The activity project type.
+   */
+  public static final String PROJECT_TYPE = "library";
+
+  /**
    * Construct a new template.
    */
   public LibraryProjectTemplate() {

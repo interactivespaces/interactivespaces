@@ -31,6 +31,11 @@ import java.util.Map;
 public class AssemblyProjectTemplate extends BaseProjectTemplate {
 
   /**
+   * The activity project type.
+   */
+  public static final String PROJECT_TYPE = "assembly";
+
+  /**
    * Create a basic resource project template.
    */
   public AssemblyProjectTemplate() {
