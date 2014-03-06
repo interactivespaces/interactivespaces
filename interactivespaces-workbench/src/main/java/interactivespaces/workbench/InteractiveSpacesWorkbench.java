@@ -661,10 +661,10 @@ public class InteractiveSpacesWorkbench {
     } else if ("template".equals(command)) {
       String source = commands.remove(0);
       if ("example".equals(source)) {
-        System.out.println("Not implemented yet");
+        log.error("Not implemented yet");
         return;
       } else if ("site".equals(source)) {
-        System.out.println("Not implemented yet");
+        log.error("Not implemented yet");
         return;
       }
     }

@@ -63,9 +63,9 @@ public class ActivityProject extends Project {
   private String activityType;
 
   /**
-   * Name of the activity.
+   * The runtime name of the activity.
    */
-  private String activityName;
+  private String activityRuntimeName;
 
   /**
    * The name of the executable file.
@@ -73,9 +73,9 @@ public class ActivityProject extends Project {
   private String activityExecutable;
 
   /**
-   * The runtime name of the activity.
+   * Class of the activity.
    */
-  private String activityRuntimeName;
+  private String activityClass;
 
   /**
    * Extra configuration parameters for the activity.
@@ -107,22 +107,22 @@ public class ActivityProject extends Project {
   }
 
   /**
-   * Get the name of the activity.
+   * Get the name of the activity runtime.
    *
-   * @return the name of the activity
+   * @return the name of the activity runtime
    */
-  public String getActivityName() {
-    return activityName;
+  public String getActivityRuntimeName() {
+    return activityRuntimeName;
   }
 
   /**
-   * Set the name of the activity.
+   * Set the name of the activity runtime.
    *
-   * @param activityName
-   *          the name of the activity
+   * @param activityRuntimeName
+   *          the name of the activity runtime
    */
-  public void setActivityName(String activityName) {
-    this.activityName = activityName;
+  public void setActivityRuntimeName(String activityRuntimeName) {
+    this.activityRuntimeName = activityRuntimeName;
   }
 
   /**
@@ -145,22 +145,22 @@ public class ActivityProject extends Project {
   }
 
   /**
-   * Get the name of the activity runtime.
+   * Get the class of the activity.
    *
-   * @return the name of the activity runtime
+   * @return the class of the activity
    */
-  public String getActivityRuntimeName() {
-    return activityRuntimeName;
+  public String getActivityClass() {
+    return activityClass;
   }
 
   /**
-   * Set the name of the activity runtime.
+   * Set the Class of the activity.
    *
-   * @param activityRuntimeName
-   *          the name of the activity runtime
+   * @param activityClass
+   *          the class of the activity
    */
-  public void setActivityRuntimeName(String activityRuntimeName) {
-    this.activityRuntimeName = activityRuntimeName;
+  public void setActivityClass(String activityClass) {
+    this.activityClass = activityClass;
   }
 
   /**

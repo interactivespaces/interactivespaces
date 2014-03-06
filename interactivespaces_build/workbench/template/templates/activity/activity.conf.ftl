@@ -1,11 +1,11 @@
 <#ftl strip_whitespace=true>
 space.activity.type=${project.activityType}
 space.activity.executable=${project.activityExecutable}
-<#if project.activityRuntimeName?has_content>
-space.activity.java.class=${project.activityRuntimeName}
+<#if project.activityClass?has_content>
+space.activity.java.class=${project.activityClass}
 </#if>
 
-space.activity.name=${project.activityName}
+space.activity.name=${project.activityRuntimeName}
 
 <#list project.extraConfigurationParameters as parameter>
 ${parameter.name}=${parameter.value}

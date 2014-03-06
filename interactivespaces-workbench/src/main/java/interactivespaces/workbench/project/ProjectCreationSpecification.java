@@ -40,11 +40,6 @@ public class ProjectCreationSpecification {
   private ProjectTemplate template;
 
   /**
-   * The executable for the project.
-   */
-  private String executable;
-
-  /**
    * The project itself.
    */
   private Project project;
@@ -118,25 +113,6 @@ public class ProjectCreationSpecification {
    */
   public void setProject(Project project) {
     this.project = project;
-  }
-
-  /**
-   * Get the executable, if any, for the spec.
-   *
-   * @return the executable
-   */
-  public String getExecutable() {
-    return executable;
-  }
-
-  /**
-   * Set the executable.
-   *
-   * @param executable
-   *          the executable to set
-   */
-  public void setExecutable(String executable) {
-    this.executable = executable;
   }
 
   /**
