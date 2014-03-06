@@ -33,7 +33,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 
 /**
- * A Split Pane UI for the Workbench UI
+ * A Split Pane UI for the Workbench UI.
  *
  * @author Keith M. Hughes
  */
@@ -47,7 +47,7 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements ActionListen
   /**
    * The workbench UI we are contained in.
    */
-  private WorkbenchUi workbenchUi;
+  private final WorkbenchUi workbenchUi;
 
   /**
    * Where the information windows go.
@@ -74,12 +74,21 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements ActionListen
    */
   private JFileSystemExplorerTree projectExplorerPane;
 
+  /**
+   * Construct a split pane window for the workbench UI.
+   *
+   * @param workbenchUi
+   *          the UI to be embeded in the split pane
+   */
   public WorkbenchSplitPane(WorkbenchUi workbenchUi) {
     this.workbenchUi = workbenchUi;
 
     init();
   }
 
+  /**
+   * initialize the split pane.
+   */
   private void init() {
     setupLayout();
 
@@ -100,12 +109,11 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements ActionListen
     confPane.addTab("Project Explorer", projectExplorerScrollPane);
 
     sourceWindowManager =
-        new BasicSourceWindowManager(workbenchUi, sourcePane, workbenchUi.getWorkbench()
-            .getProjectManager());
+        new BasicSourceWindowManager(workbenchUi, sourcePane, workbenchUi.getWorkbench().getProjectManager());
   }
 
   /**
-   * Set up the layout of the split pane
+   * Set up the layout of the split pane.
    */
   private void setupLayout() {
     Split col1 = new Split();
@@ -154,8 +162,7 @@ public class WorkbenchSplitPane extends JXMultiSplitPane implements ActionListen
    *          the new project
    */
   public void setCurrentActivityProject(Project project) {
-    // TODO(keith): yech!
-    ActivityProject aproject = new ActivityProject(project);
-    projectExplorerPane.buildTree(aproject);
+    // TODO(keith): make this work with all project types
+    projectExplorerPane.buildTree((ActivityProject) project);
   }
 }

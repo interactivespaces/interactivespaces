@@ -25,9 +25,12 @@ import java.util.List;
 /**
  * A base builder class for common project types.
  *
+ * @param <T>
+ *          the type of the project
+ *
  * @author peringknife@google.com (Trevor Pering)
  */
-public abstract class BaseProjectBuilder implements ProjectBuilder {
+public abstract class BaseProjectBuilder<T extends Project> implements ProjectBuilder<T> {
 
   /**
    * Build has begun. Do any specific parts of the build.
@@ -41,7 +44,7 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    *
    * @return {@code true} if build part was successful
    */
-  public boolean onBuild(Project project, ProjectBuildContext context, File stagingDirectory) {
+  public boolean onBuild(T project, ProjectBuildContext context, File stagingDirectory) {
     // Default is nothing
     return true;
   }
@@ -56,9 +59,22 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    * @param context
    *          context for the build
    */
-  protected void processResources(Project project, File stagingDirectory,
-      ProjectBuildContext context) {
+  protected void processResources(Project project, File stagingDirectory, ProjectBuildContext context) {
     processConstituents(project, project.getResources(), stagingDirectory, context);
+  }
+
+  /**
+   * Process the extra constituents for the project.
+   *
+   * @param project
+   *          the project being built
+   * @param stagingDirectory
+   *          where the items will be copied
+   * @param context
+   *          context for the build
+   */
+  protected void processExtraConstituents(Project project, File stagingDirectory, ProjectBuildContext context) {
+    processConstituents(project, project.getExtraConstituents(), stagingDirectory, context);
   }
 
   /**
@@ -71,8 +87,7 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    * @param context
    *          context for the build
    */
-  protected void processSources(Project project, File stagingDirectory,
-      ProjectBuildContext context) {
+  protected void processSources(Project project, File stagingDirectory, ProjectBuildContext context) {
     processConstituents(project, project.getSources(), stagingDirectory, context);
   }
 
@@ -88,8 +103,8 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    * @param context
    *          context for the build
    */
-  private void processConstituents(Project project, List<ProjectConstituent> constituents,
-      File stagingDirectory, ProjectBuildContext context) {
+  private void processConstituents(Project project, List<ProjectConstituent> constituents, File stagingDirectory,
+      ProjectBuildContext context) {
     if (constituents == null) {
       return;
     }
@@ -112,7 +127,20 @@ public abstract class BaseProjectBuilder implements ProjectBuilder {
    * @return the file where the build should be written
    */
   protected File getBuildDestinationFile(Project project, File buildDirectory, String extension) {
-    return new File(buildDirectory, project.getIdentifyingName() + "-" + project.getVersion()
-        + "." + extension);
+    return new File(buildDirectory, getProjectArtifactFilename(project, extension));
+  }
+
+  /**
+   * Get the name of the project artifact.
+   *
+   * @param project
+   *          the project
+   * @param extension
+   *          the extension to be used for the artifact
+   *
+   * @return the filename for the project artifact
+   */
+  private String getProjectArtifactFilename(Project project, String extension) {
+    return project.getIdentifyingName() + "-" + project.getVersion() + "." + extension;
   }
 }

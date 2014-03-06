@@ -31,12 +31,15 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   private final Log log;
 
   /**
-   * {@code true}
+   * {@code true} if the builder had errors.
    */
   private boolean errors;
 
   /**
+   * Construct the base builder.
+   *
    * @param log
+   *          the log to use
    */
   public BaseProjectConstituentBuilder(Log log) {
     this.log = log;
@@ -51,6 +54,16 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   protected void addError(String message) {
     log.error(message);
     errors = true;
+  }
+
+  /**
+   * Add a warn to the builder.
+   *
+   * @param message
+   *          the warn message
+   */
+  protected void addWarn(String message) {
+    log.warn(message);
   }
 
   /**

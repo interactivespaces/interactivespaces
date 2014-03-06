@@ -21,6 +21,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
@@ -65,7 +66,8 @@ public class JdomProjectReader implements ProjectReader {
           ProjectResourceConstituent.PROJECT_TYPE_ALTERNATE,
           new ProjectResourceConstituent.ProjectResourceBuilderFactory(), ProjectAssemblyConstituent.PROJECT_TYPE,
           new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(), ProjectBundleConstituent.PROJECT_TYPE,
-          new ProjectBundleConstituent.ProjectBundleConstituentFactory());
+          new ProjectBundleConstituent.ProjectBundleConstituentFactory(), ActivityProjectConstituent.PROJECT_TYPE,
+          new ActivityProjectConstituent.ActivityProjectBuilderFactory());
 
   /**
    * The name of the project.
@@ -239,8 +241,9 @@ public class JdomProjectReader implements ProjectReader {
 
     Element rootElement = doc.getRootElement();
 
-    Project project = new Project();
-    project.setType(getProjectType(rootElement));
+    String projectType = getProjectType(rootElement);
+    Project project = ProjectTypes.newProject(projectType);
+    project.setType(projectType);
     project.setBaseDirectory(projectFile.getParentFile());
 
     getProjectAttributes(project, rootElement);
@@ -248,8 +251,12 @@ public class JdomProjectReader implements ProjectReader {
     getMetadata(project, rootElement);
     getDependencies(project, rootElement);
     getConfiguration(project, rootElement);
-    project.addResources(getConstituents(rootElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME)));
-    project.addSources(getConstituents(rootElement.getChild(PROJECT_ELEMENT_NAME_SOURCES)));
+    project.addResources(getContainerConstituents(rootElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
+    project.addSources(getContainerConstituents(rootElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
+
+    project.addExtraConstituents(getIndividualConstituent(
+        rootElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
+
     getDeployments(project, rootElement);
 
     if (failure) {
@@ -514,14 +521,16 @@ public class JdomProjectReader implements ProjectReader {
   }
 
   /**
-   * Add the constituents from the document.
+   * Add the constituents from a container in the document the document.
    *
    * @param containerElement
    *          root element of the XML DOM containing the project data
+   * @param project
+   *          the project being read
    *
    * @return the constituents for the project
    */
-  private List<ProjectConstituent> getConstituents(Element containerElement) {
+  private List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
     if (containerElement == null) {
       return null;
     }
@@ -531,19 +540,55 @@ public class JdomProjectReader implements ProjectReader {
     List<Element> childElements = containerElement.getChildren();
 
     for (Element childElement : childElements) {
-      String type = childElement.getName();
-      ProjectConstituent.ProjectConstituentFactory factory = PROJECT_CONSTITUENT_FACTORY_MAP.get(type);
-      if (factory == null) {
-        addError(String.format("Unknown resource type '%s'", type));
-      } else {
-        ProjectConstituent constituent = factory.newBuilder(log).buildConstituentFromElement(childElement);
-        if (constituent != null) {
-          constituents.add(constituent);
-        }
-      }
+      getConstituent(childElement, project, constituents);
     }
 
     return constituents;
+  }
+
+  /**
+   * Add the constituents from a container in the document the document.
+   *
+   * @param constituentElement
+   *          XML element containing the constituent data
+   * @param project
+   *          the project being read
+   *
+   * @return the constituents for the element
+   */
+  private List<ProjectConstituent> getIndividualConstituent(Element constituentElement, Project project) {
+    if (constituentElement == null) {
+      return null;
+    }
+
+    List<ProjectConstituent> constituents = Lists.newArrayList();
+
+    getConstituent(constituentElement, project, constituents);
+
+    return constituents;
+  }
+
+  /**
+   * Get the constituent from the element which describes it..
+   *
+   * @param constituentElement
+   *          the element containing the constituent
+   * @param project
+   *          the project being built
+   * @param constituents
+   *          the list of constituents currently being extracted
+   */
+  private void getConstituent(Element constituentElement, Project project, List<ProjectConstituent> constituents) {
+    String type = constituentElement.getName();
+    ProjectConstituent.ProjectConstituentFactory factory = PROJECT_CONSTITUENT_FACTORY_MAP.get(type);
+    if (factory == null) {
+      addError(String.format("Unknown resource type '%s'", type));
+    } else {
+      ProjectConstituent constituent = factory.newBuilder(log).buildConstituentFromElement(constituentElement, project);
+      if (constituent != null) {
+        constituents.add(constituent);
+      }
+    }
   }
 
   /**

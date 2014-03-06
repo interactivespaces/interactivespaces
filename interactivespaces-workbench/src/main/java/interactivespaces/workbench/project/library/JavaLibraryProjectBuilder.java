@@ -18,7 +18,6 @@ package interactivespaces.workbench.project.library;
 
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
@@ -33,15 +32,15 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
+public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject> {
 
   /**
-   * File extension to give the build artifact
+   * File extension to give the build artifact.
    */
   private static final String JAR_FILE_EXTENSION = "jar";
 
   /**
-   * The compiler for Java JARs
+   * The compiler for Java JARs.
    */
   private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
 
@@ -51,7 +50,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(Project project, ProjectBuildContext context) {
+  public boolean build(LibraryProject project, ProjectBuildContext context) {
     File buildDirectory = context.getBuildDirectory();
     File compilationFolder = getOutputDirectory(buildDirectory);
     File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
@@ -80,7 +79,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
   }
 
   /**
-   * Create the output directory for the library compilation
+   * Create the output directory for the library compilation.
    *
    * @param buildDirectory
    *          the root of the build folder
@@ -94,5 +93,4 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder {
 
     return outputDirectory;
   }
-
 }
