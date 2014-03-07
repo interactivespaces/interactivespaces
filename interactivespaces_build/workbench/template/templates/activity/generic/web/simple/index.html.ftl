@@ -1,8 +1,11 @@
 <html>
-<#if project.extraTemplateEntries?has_content>
+  <head>
 <#list project.extraTemplateEntries as entry>
     ${entry}
 </#list>
-</#if>
-${webAppFileBase}
+    <script src=\"js/${webAppFileBase}.js\" type="text/javascript" />
+  </head>
+  <body>
+    Hello World.
+  </body>
 </html>

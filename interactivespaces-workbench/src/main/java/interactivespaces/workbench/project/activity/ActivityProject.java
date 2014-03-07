@@ -239,6 +239,10 @@ public class ActivityProject extends Project {
     extraConfigurationParameters.add(parameter);
   }
 
+  public List<String> getExtraTemplateEntries() {
+    return extraTemplateEntries;
+  }
+
   public void addExtraEntry(String entry) {
     extraTemplateEntries.add(entry);
   }

@@ -302,27 +302,25 @@ public abstract class Project {
   }
 
   /**
-   * Set the dynamically specified project property.
+   * Set/add the dynamically specified project property. This will search the project class for a matching
+   * setter or adder, and then set or add the property, accordingly.
    *
    * @param name
-   *          property name to set
+   *          property name to set or add
    * @param value
-   *          value to set
+   *          value to set/add
    */
   public void setProperty(String name, String value) {
     try {
+      String camlName = name.substring(0, 1).toUpperCase() + name.substring(1);
       try {
-        String methodName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-        Method method = Project.class.getDeclaredMethod(methodName, String.class);
-        method.invoke(this, value);
+        getClass().getMethod("set" + camlName, String.class).invoke(this, value);
       } catch (NoSuchMethodException e) {
-        String methodName = "add" + name.substring(0, 1).toUpperCase() + name.substring(1);
-        Method method = Project.class.getDeclaredMethod(methodName, String.class);
-        method.invoke(this, value);
+        getClass().getMethod("add" + camlName, String.class).invoke(this, value);
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(
-          String.format("Could not set/add project property %s to %s", name, value), e);
+          String.format("Could not set/add property %s value %s", name, value), e);
     }
   }
 
