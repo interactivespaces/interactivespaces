@@ -70,6 +70,9 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    */
   private String destinationFile;
 
+  /**
+   * True if the alternate name should be used for this constituent.
+   */
   private boolean useAlternateName;
 
   /**
@@ -166,6 +169,16 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     }
   }
 
+  /**
+   * Create a new project resource constituent from a string.
+   *
+   * @param input
+   *          specification string
+   * @param useAlternateName
+   *          {@code true} if the "alternate" name should be used
+   *
+   * @return parsed constituent
+   */
   public static ProjectResourceConstituent fromString(String input, boolean useAlternateName) {
     String[] parts = input.split(",");
     if (parts.length > 2) {
@@ -190,10 +203,25 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     return constituent;
   }
 
+  /**
+   * Helper function to optionally generate an attribute for a value.
+   *
+   * @param name
+   *          attribute name
+   * @param value
+   *          attribute value
+   *
+   * @return attribute setter string, or the empty string if no value
+   */
   private String makeAttribute(String name, String value) {
     return value == null ? "" : String.format("%s=\"%s\" ", name, value);
   }
 
+  /**
+   * Convert the constituent to a single line of XML.
+   *
+   * @return representation of constituent represented as XML
+   */
   public String toXml() {
     String tagName = useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
     String destDirAttr = makeAttribute("destinationDirectory", destinationDirectory);

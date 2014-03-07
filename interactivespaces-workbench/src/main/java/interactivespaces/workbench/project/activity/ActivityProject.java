@@ -239,10 +239,21 @@ public class ActivityProject extends Project {
     extraConfigurationParameters.add(parameter);
   }
 
+  /**
+   * @return list of extra template entries for this project
+   */
   public List<String> getExtraTemplateEntries() {
     return extraTemplateEntries;
   }
 
+  /**
+   * An extra template entry is an externally specified string that can be added in a template-specific fashion. For
+   * java this may represent a snippet of Java code, for web this could be bit of HTML. This mechanism is simply to
+   * add an extra entry to the project, and then they are presented to the template.
+   *
+   * @param entry
+   *          extra template entry to add
+   */
   public void addExtraEntry(String entry) {
     extraTemplateEntries.add(entry);
   }

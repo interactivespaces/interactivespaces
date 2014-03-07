@@ -43,6 +43,12 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    */
   private List<String> sourceDirectories = Lists.newArrayList();
 
+  /**
+   * Create a new project template.
+   *
+   * @param displayName
+   *          name to be displayed for the project template
+   */
   public BaseProjectTemplate(String displayName) {
     this.displayName = displayName;
   }
@@ -67,6 +73,9 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
     sourceDirectories.add(directory);
   }
 
+  /**
+   * @return source directories associated with this project
+   */
   public List<String> getSourceDirectories() {
     return sourceDirectories;
   }
@@ -166,6 +175,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Write out the project.xml file.
    *
+   * @param templater
+   *          the templater to use
    * @param spec
    *          the build specification
    * @param templateData

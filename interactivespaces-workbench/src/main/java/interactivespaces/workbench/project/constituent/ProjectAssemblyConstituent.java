@@ -82,6 +82,14 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
     throw new SimpleInteractiveSpacesException("Source directory not supported for Assembly constituents");
   }
 
+  /**
+   * Create a new project assembly constituent from a string.
+   *
+   * @param input
+   *          specification string
+   *
+   * @return parsed constituent
+   */
   public static ProjectAssemblyConstituent fromString(String input) {
     String[] parts = input.split(",");
     if (parts.length > 2) {
@@ -93,6 +101,11 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
     return constituent;
   }
 
+  /**
+   * Convert the constituent to a single line of XML.
+   *
+   * @return representation of constituent represented as XML
+   */
   public String toXml() {
     String destinationAttribute =
         destinationDirectory == null ? "" : String.format("destinationDirectory=\"%s\" ", destinationDirectory);

@@ -393,14 +393,32 @@ public abstract class Project {
     }
   }
 
+  /**
+   * Add a project source to this project.
+   *
+   * @param source
+   *          specification for the project source
+   */
   public void addSource(String source) {
     sources.add(ProjectResourceConstituent.fromString(source, true));
   }
 
+  /**
+   * Add a project resource to this project.
+   *
+   * @param resource
+   *          specification for the project resource
+   */
   public void addResource(String resource) {
     resources.add(ProjectResourceConstituent.fromString(resource, false));
   }
 
+  /**
+   * Add a project assembly to this project.
+   *
+   * @param assembly
+   *          specification for the project assembly
+   */
   public void addAssembly(String assembly) {
     resources.add(ProjectAssemblyConstituent.fromString(assembly));
   }

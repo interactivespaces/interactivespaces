@@ -36,6 +36,9 @@ import java.util.Map;
  */
 public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+  /**
+   * Map of file/template pairs to add to the template.
+   */
   public static final Map<String, String> TEMPLATE_MAP = ImmutableMap.of(
       "activity/generic/web/simple/index.html.ftl", "webapp/index.html",
       "activity/generic/web/simple/SimpleWebActivity.js.ftl", "webapp/js/%s.js",
