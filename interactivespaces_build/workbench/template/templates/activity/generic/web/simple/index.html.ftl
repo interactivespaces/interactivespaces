@@ -7,6 +7,6 @@
     <script src="js/${webAppFileBase}.js" type="text/javascript"></script>
   </head>
   <body>
-    Hello World.
+    <div class="hello-world">Hello World</div>
   </body>
 </html>

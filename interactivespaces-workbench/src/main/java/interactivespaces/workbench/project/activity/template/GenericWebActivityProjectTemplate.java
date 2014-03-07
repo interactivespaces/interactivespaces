@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
@@ -39,11 +40,22 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   /**
    * Map of file/template pairs to add to the template.
    */
-  public static final Map<String, String> TEMPLATE_MAP = ImmutableMap.of(
+  public static final Map<String, String> RESOURCE_TEMPLATE_MAP = ImmutableMap.of(
       "activity/generic/web/simple/index.html.ftl", "webapp/index.html",
       "activity/generic/web/simple/SimpleWebActivity.js.ftl", "webapp/js/%s.js",
       "activity/generic/web/simple/SimpleWebActivity.css.ftl", "webapp/css/%s.css"
   );
+
+  /**
+   * Host java class name for the web activity class.
+   */
+  private static final String WEB_ACTIVITY_NATIVE_HOST_CLASS = "SimpleWebActivity";
+
+  /**
+   * Map representing  main source activity file(s).
+   */
+  public static final Map<String, String> SRC_TEMPLATE_MAP = ImmutableMap.of(
+      "activity/generic/web/simple/SimpleWebActivity.java.ftl", "%s/" + WEB_ACTIVITY_NATIVE_HOST_CLASS + ".java");
 
   /**
    * Construct a template.
@@ -58,7 +70,7 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
     activityProject.setBuilderType("java");
 
     activityProject.setActivityType("interactivespaces_native");
-    activityProject.setActivityClass(activityProject.getIdentifyingName() + ".WebAppClassname");
+    activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + WEB_ACTIVITY_NATIVE_HOST_CLASS);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
     configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
@@ -73,10 +85,19 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    for (Map.Entry<String, String> template : TEMPLATE_MAP.entrySet()) {
-      String outName = String.format(template.getValue(), fullTemplateData.get("webAppFileBase"));
+    Object webAppFileBase = fullTemplateData.get("webAppFileBase");
+    for (Map.Entry<String, String> template : RESOURCE_TEMPLATE_MAP.entrySet()) {
+      String outName = String.format(template.getValue(), webAppFileBase);
       templater.writeTemplate(fullTemplateData,
           new File(getActivityResourceDirectory(spec), outName), template.getKey());
+    }
+
+    Project project = spec.getProject();
+    String packagePath = project.getIdentifyingName().replace('.', '/');
+    for (Map.Entry<String, String> template : SRC_TEMPLATE_MAP.entrySet()) {
+      String outName = String.format(template.getValue(), packagePath);
+      File sourceDirectory = new File(project.getBaseDirectory(), "src/main/java/" + outName);
+      templater.writeTemplate(fullTemplateData, sourceDirectory, template.getKey());
     }
   }
 }

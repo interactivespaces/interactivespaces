@@ -333,6 +333,16 @@ public abstract class Project {
   }
 
   /**
+   * Add a dependency to the project specified as a string.
+   *
+   * @param dependency
+   *          the dependency to add
+   */
+  public void addDependency(String dependency) {
+    dependencies.add(ProjectDependency.fromString(dependency));
+  }
+
+  /**
    * Get a list of all dependencies the project has.
    *
    * @return a copy of the dependencies list

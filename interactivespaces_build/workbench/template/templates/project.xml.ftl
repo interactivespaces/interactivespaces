@@ -23,6 +23,14 @@ ${project.description}
 </#list>
   </resources>
 </#if>
+<#if project.dependencies?has_content>
+
+  <dependencies>
+<#list project.dependencies as dependency>
+    <dependency name="${dependency.name}" required="${dependency.required?string}" minimumVersion="${dependency.minimumVersion}" maximumVersion="${dependency.maximumVersion}" />
+</#list>
+  </dependencies>
+</#if>
 <#if project.type == 'activity'>
 
   <activity type="${project.activityType}">

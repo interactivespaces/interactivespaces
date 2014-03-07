@@ -1,1 +1,3 @@
-css example
+.hello-world {
+  color: blue;
+}

@@ -160,6 +160,23 @@ public class ProjectDependency {
     return builder.toString();
   }
 
+  /**
+   * Create a new dependency from a string description.
+   *
+   * @param description
+   *          input string
+   * @return project description
+   */
+  public static ProjectDependency fromString(String description) {
+    String[] parts = description.split(",");
+    ProjectDependency dependency = new ProjectDependency();
+    dependency.setName(parts[0]);
+    dependency.setMinimumVersion(Version.parseVersion(parts[1]));
+    dependency.setMaximumVersion(Version.parseVersion(parts[2]));
+    dependency.setRequired(true);
+    return dependency;
+  }
+
   @Override
   public String toString() {
     return "ProjectDependency [name=" + name + ", minimumVersion=" + minimumVersion + ", maximumVersion="
