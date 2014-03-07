@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -23,13 +25,9 @@ import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 

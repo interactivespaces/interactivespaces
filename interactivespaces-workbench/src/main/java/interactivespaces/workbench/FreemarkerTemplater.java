@@ -21,8 +21,6 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
