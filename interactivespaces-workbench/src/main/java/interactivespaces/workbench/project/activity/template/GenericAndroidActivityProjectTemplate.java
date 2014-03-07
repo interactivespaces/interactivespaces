@@ -14,11 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.template;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
@@ -30,35 +31,44 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A project creator for java projects.
+ * A project creator for Android projects.
  *
  * @author Keith M. Hughes
  */
-public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTemplate {
+
   /**
-   * The filename for the activity executable name.
+   * Java classname for the activity.
    */
-  public static final String ACTIVITY_EXECUTABLE_FILENAME = "SimpleJavascriptActivity.js";
+  public static final String ACTIVITY_CLASSNAME = "SimpleAndroidActivity";
+
+  /**
+   * Filename for the activity.
+   */
+  public static final String ACTIVITY_FILENAME = ACTIVITY_CLASSNAME + ".java";
 
   /**
    * Pathname to the template.
    */
-  public static final String TEMPLATE_PATHNAME = "activity/generic/javascript/simple/" + ACTIVITY_EXECUTABLE_FILENAME
-      + ".ftl";
+  private static final String TEMPLATE_PATHNAME = "activity/generic/android/simple/" + ACTIVITY_FILENAME + ".ftl";
 
   /**
-   * Construct a template.
+   * Construct the template.
    */
-  public GenericJavascriptActivityProjectTemplate() {
-    super("Generic Simple Javascript Project", "javascript");
+  public GenericAndroidActivityProjectTemplate() {
+    super("Generic Simple Android Project", "android");
   }
 
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
-    activityProject.setActivityType("script");
+    activityProject.setBuilderType("android");
 
-    activityProject.setActivityExecutable(ACTIVITY_EXECUTABLE_FILENAME);
+    activityProject.setActivityType("interactivespaces_native");
+
+    activityProject.setActivityExecutable(activityProject.getIdentifyingName() + "-" + activityProject.getVersion()
+        + ".jar");
+    activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + ACTIVITY_CLASSNAME);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
     configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
@@ -70,7 +80,13 @@ public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjec
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    templater.writeTemplate(fullTemplateData,
-        new File(getActivityResourceDirectory(spec), ACTIVITY_EXECUTABLE_FILENAME), TEMPLATE_PATHNAME);
+    Project project = spec.getProject();
+
+    // TODO(keith): Fix this when start supporting Windoze
+    String pathname = project.getIdentifyingName().replace('.', '/');
+    File sourceDirectory = new File(project.getBaseDirectory(), "src/main/java/" + pathname);
+    makeDirectory(sourceDirectory);
+
+    templater.writeTemplate(fullTemplateData, new File(sourceDirectory, ACTIVITY_FILENAME), TEMPLATE_PATHNAME);
   }
 }

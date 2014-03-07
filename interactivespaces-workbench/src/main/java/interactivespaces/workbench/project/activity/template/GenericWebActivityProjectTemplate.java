@@ -14,80 +14,66 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type.android;
+package interactivespaces.workbench.project.activity.template;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.type.BaseActivityProjectTemplate;
-
-import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A project creator for Android projects.
+ * A project creator for java projects.
  *
  * @author Keith M. Hughes
  */
-public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
+
+  public static final Map<String, String> TEMPLATE_MAP = ImmutableMap.of(
+      "activity/generic/web/simple/index.html.ftl", "webapp/index.html",
+      "activity/generic/web/simple/SimpleWebActivity.js.ftl", "webapp/js/%s.js",
+      "activity/generic/web/simple/SimpleWebActivity.css.ftl", "webapp/css/%s.css"
+  );
 
   /**
-   * Java classname for the activity.
+   * Construct a template.
    */
-  public static final String ACTIVITY_CLASSNAME = "SimpleAndroidActivity";
-
-  /**
-   * Filename for the activity.
-   */
-  public static final String ACTIVITY_FILENAME = ACTIVITY_CLASSNAME + ".java";
-
-  /**
-   * Pathname to the template.
-   */
-  private static final String TEMPLATE_PATHNAME = "activity/generic/android/simple/" + ACTIVITY_FILENAME + ".ftl";
-
-  /**
-   * Construct the template.
-   */
-  public GenericAndroidActivityProjectTemplate() {
-    super("Generic Simple Android Project", "android");
+  public GenericWebActivityProjectTemplate() {
+    super("Generic Simple Web Project", "web");
   }
 
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
-    activityProject.setBuilderType("android");
+    activityProject.setBuilderType("java");
 
     activityProject.setActivityType("interactivespaces_native");
-
-    activityProject.setActivityExecutable(activityProject.getIdentifyingName() + "-" + activityProject.getVersion()
-        + ".jar");
-    activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + ACTIVITY_CLASSNAME);
+    activityProject.setActivityClass(activityProject.getIdentifyingName() + ".WebAppClassname");
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
     configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
         InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
 
     activityProject.setConfigurationProperties(configurationProperties);
+
+    String fileNameBase = activityProject.getIdentifyingName().replace('.', '-');
+    fullTemplateData.put("webAppFileBase", fileNameBase);
   }
 
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    Project project = spec.getProject();
-
-    // TODO(keith): Fix this when start supporting Windoze
-    String pathname = project.getIdentifyingName().replace('.', '/');
-    File sourceDirectory = new File(project.getBaseDirectory(), "src/main/java/" + pathname);
-    makeDirectory(sourceDirectory);
-
-    templater.writeTemplate(fullTemplateData, new File(sourceDirectory, ACTIVITY_FILENAME), TEMPLATE_PATHNAME);
+    for (Map.Entry<String, String> template : TEMPLATE_MAP.entrySet()) {
+      String outName = String.format(template.getValue(), fullTemplateData.get("webAppFileBase"));
+      templater.writeTemplate(fullTemplateData,
+          new File(getActivityResourceDirectory(spec), outName), template.getKey());
+    }
   }
 }

@@ -22,6 +22,9 @@ import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectTemplate;
 
 import java.io.File;
 import java.util.List;

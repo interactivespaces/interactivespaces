@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type.java;
+package interactivespaces.workbench.project.activity.template;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -23,7 +23,6 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.type.BaseActivityProjectTemplate;
 
 import com.google.common.collect.Lists;
 

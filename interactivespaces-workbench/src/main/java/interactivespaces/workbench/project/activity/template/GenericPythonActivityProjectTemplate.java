@@ -14,49 +14,51 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.template;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 /**
- * A project creator for java projects.
+ * A project creator for Python projects.
  *
  * @author Keith M. Hughes
  */
-public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTemplate {
+  /**
+   * The filename for the activity executable name.
+   */
+  public static final String ACTIVITY_EXECUTABLE_FILENAME = "SimplePythonActivity.py";
 
-  public static final Map<String, String> TEMPLATE_MAP = ImmutableMap.of(
-      "activity/generic/web/simple/index.html.ftl", "webapp/index.html",
-      "activity/generic/web/simple/SimpleWebActivity.js.ftl", "webapp/js/%s.js",
-      "activity/generic/web/simple/SimpleWebActivity.css.ftl", "webapp/css/%s.css"
-  );
+  /**
+   * Pathname to the template.
+   */
+  public static final String TEMPLATE_PATHNAME = "activity/generic/python/simple/" + ACTIVITY_EXECUTABLE_FILENAME
+      + ".ftl";
 
   /**
    * Construct a template.
    */
-  public GenericWebActivityProjectTemplate() {
-    super("Generic Simple Web Project", "web");
+  public GenericPythonActivityProjectTemplate() {
+    super("Generic Simple Python Project", "python");
   }
 
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
-    activityProject.setBuilderType("java");
+    activityProject.setActivityType("script");
 
-    activityProject.setActivityType("interactivespaces_native");
-    activityProject.setActivityClass(activityProject.getIdentifyingName() + ".WebAppClassname");
+    activityProject.setActivityExecutable(ACTIVITY_EXECUTABLE_FILENAME);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
     configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
@@ -68,11 +70,7 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    String baseFileName = "foo-bar";
-    for (Map.Entry<String, String> template : TEMPLATE_MAP.entrySet()) {
-      String outName = String.format(template.getValue(), baseFileName);
-      templater.writeTemplate(fullTemplateData,
-          new File(getActivityResourceDirectory(spec), outName), template.getKey());
-    }
+    templater.writeTemplate(fullTemplateData,
+        new File(getActivityResourceDirectory(spec), ACTIVITY_EXECUTABLE_FILENAME), TEMPLATE_PATHNAME);
   }
 }

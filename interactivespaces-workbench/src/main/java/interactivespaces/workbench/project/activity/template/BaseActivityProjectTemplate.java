@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.template;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,8 +23,6 @@ import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
-import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
 
 import java.io.File;
 import java.util.Collections;

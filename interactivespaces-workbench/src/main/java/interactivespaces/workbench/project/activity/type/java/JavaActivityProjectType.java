@@ -26,6 +26,7 @@ import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
 import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.activity.template.GenericJavaActivityProjectTemplate;
 
 /**
  * A Simple Java activity project type.

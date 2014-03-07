@@ -21,7 +21,7 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.type.BaseActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
 import interactivespaces.workbench.project.library.LibraryProject;

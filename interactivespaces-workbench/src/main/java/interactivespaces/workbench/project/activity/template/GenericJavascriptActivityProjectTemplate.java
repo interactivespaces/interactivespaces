@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.template;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -30,27 +30,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A project creator for Python projects.
+ * A project creator for java projects.
  *
  * @author Keith M. Hughes
  */
-public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjectTemplate {
   /**
    * The filename for the activity executable name.
    */
-  public static final String ACTIVITY_EXECUTABLE_FILENAME = "SimplePythonActivity.py";
+  public static final String ACTIVITY_EXECUTABLE_FILENAME = "SimpleJavascriptActivity.js";
 
   /**
    * Pathname to the template.
    */
-  public static final String TEMPLATE_PATHNAME = "activity/generic/python/simple/" + ACTIVITY_EXECUTABLE_FILENAME
+  public static final String TEMPLATE_PATHNAME = "activity/generic/javascript/simple/" + ACTIVITY_EXECUTABLE_FILENAME
       + ".ftl";
 
   /**
    * Construct a template.
    */
-  public GenericPythonActivityProjectTemplate() {
-    super("Generic Simple Python Project", "python");
+  public GenericJavascriptActivityProjectTemplate() {
+    super("Generic Simple Javascript Project", "javascript");
   }
 
   @Override
