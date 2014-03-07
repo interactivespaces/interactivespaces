@@ -83,6 +83,11 @@ public class ActivityProject extends Project {
   private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
 
   /**
+   * Extra entry lines for the project template.
+   */
+  private final List<String> extraTemplateEntries = Lists.newArrayList();
+
+  /**
    * Configuration properies for the activity.
    */
   private List<ProjectConfigurationProperty> configurationProperties;
@@ -232,6 +237,10 @@ public class ActivityProject extends Project {
     parameter.setValue(value);
 
     extraConfigurationParameters.add(parameter);
+  }
+
+  public void addExtraEntry(String entry) {
+    extraTemplateEntries.add(entry);
   }
 
   /**
