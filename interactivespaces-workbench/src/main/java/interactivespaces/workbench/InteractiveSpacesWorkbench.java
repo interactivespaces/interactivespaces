@@ -654,7 +654,6 @@ public class InteractiveSpacesWorkbench {
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
     spec.setProject(project);
 
-<<<<<<< HEAD
     String projectSpecPath = null;
 
     while (commands.size() > 0) {
@@ -664,28 +663,16 @@ public class InteractiveSpacesWorkbench {
       } else if ("template".equals(command)) {
         String source = commands.remove(0);
         if ("example".equals(source)) {
-          System.out.println("Not implemented yet");
+          log.error("Not implemented yet");
           return;
         } else if ("site".equals(source)) {
-          System.out.println("Not implemented yet");
+          log.error("Not implemented yet");
           return;
         }
       } else if ("spec".equals(command)) {
         projectSpecPath = commands.remove(0);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown create command: " + command);
-
-    String command = commands.remove(0);
-    if ("language".equals(command)) {
-      spec.setLanguage(commands.remove(0));
-    } else if ("template".equals(command)) {
-      String source = commands.remove(0);
-      if ("example".equals(source)) {
-        log.error("Not implemented yet");
-        return;
-      } else if ("site".equals(source)) {
-        log.error("Not implemented yet");
-        return;
       }
     }
 
