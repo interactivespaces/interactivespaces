@@ -64,6 +64,11 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   public static final String ACTIVITY_NAME_ELEMENT = "name";
 
   /**
+   * XML entity name giving the executable.
+   */
+  public static final String ACTIVITY_EXECUTABLE_ELEMENT = "executable";
+
+  /**
    * XML entity name giving the java class.
    */
   public static final String ACTIVITY_CLASS_ELEMENT = "class";
@@ -136,6 +141,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
       String activityType = resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE);
       String activityName = resourceElement.getChildTextNormalize(ACTIVITY_NAME_ELEMENT);
+      String activityExecutable = resourceElement.getChildTextNormalize(ACTIVITY_EXECUTABLE_ELEMENT);
       String activityClass = resourceElement.getChildTextNormalize(ACTIVITY_CLASS_ELEMENT);
 
       List<ProjectConfigurationProperty> configurationProperties =
@@ -145,8 +151,9 @@ public class ActivityProjectConstituent implements ProjectConstituent {
         // TODO(keith): Check that it is really an activity project.
         ActivityProject aproject = (ActivityProject) project;
         aproject.setActivityType(activityType);
-        aproject.setActivityName(activityName);
-        aproject.setActivityRuntimeName(activityClass);
+        aproject.setActivityRuntimeName(activityName);
+        aproject.setActivityExecutable(activityExecutable);
+        aproject.setActivityClass(activityClass);
         aproject.setConfigurationProperties(configurationProperties);
       }
 

@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
@@ -67,28 +65,6 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     activityProject.setActivityRuntimeName(activityRuntimeName.toString());
 
     onTemplateSetup(spec, activityProject, fullTemplateData);
-  }
-
-  @Override
-  public void writeCommonTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    writeActivityConf(templater, spec, fullTemplateData);
-  }
-
-  /**
-   * Write out the activity conf.
-   *
-   * @param templater
-   *          the templater to use
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeActivityConf(FreemarkerTemplater templater, ProjectCreationSpecification spec,
-      Map<String, Object> templateData) {
-    templater.writeTemplate(templateData, new File(getActivityResourceDirectory(spec),
-        ActivityProject.FILENAME_ACTIVITY_CONF), "activity/activity.conf.ftl");
   }
 
   /**

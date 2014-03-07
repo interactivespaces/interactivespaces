@@ -17,7 +17,7 @@ interactivespaces.activity.impl.BaseActivity {
 
     onActivityDeactivate: function() {
         this.getLog().info("Activity ${project.identifyingName} deactivate");
-    }
+    },
 
     onActivityPreShutdown: function() {
         this.getLog().info("Activity ${project.identifyingName} pre shutdown");
