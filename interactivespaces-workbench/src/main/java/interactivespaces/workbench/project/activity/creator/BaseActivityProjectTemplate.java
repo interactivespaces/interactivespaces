@@ -95,28 +95,6 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     onTemplateSetup(spec, activityProject, fullTemplateData);
   }
 
-  @Override
-  public void writeCommonTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    writeActivityConf(templater, spec, fullTemplateData);
-  }
-
-  /**
-   * Write out the activity conf.
-   *
-   * @param templater
-   *          the templater to use
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeActivityConf(FreemarkerTemplater templater, ProjectCreationSpecification spec,
-      Map<String, Object> templateData) {
-    templater.writeTemplate(templateData, new File(getActivityResourceDirectory(spec),
-        ActivityProject.FILENAME_ACTIVITY_CONF), "activity/activity.conf.ftl");
-  }
-
   /**
    * Template is being set up.
    *

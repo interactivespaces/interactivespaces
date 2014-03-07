@@ -19,10 +19,14 @@ package interactivespaces.workbench.project.activity.creator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.activity.ActivityProject;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,7 +35,20 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjectTemplate {
+  /**
+   * The filename for the activity executable name.
+   */
+  public static final String ACTIVITY_EXECUTABLE_FILENAME = "SimpleJavascriptActivity.js";
 
+  /**
+   * Pathname to the template.
+   */
+  public static final String TEMPLATE_PATHNAME = "activity/generic/javascript/simple/" + ACTIVITY_EXECUTABLE_FILENAME
+      + ".ftl";
+
+  /**
+   * Construct a template.
+   */
   public GenericJavascriptActivityProjectTemplate() {
     super("Generic Simple Javascript Project");
   }
@@ -41,17 +58,19 @@ public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjec
       Map<String, Object> fullTemplateData) {
     activityProject.setActivityType("script");
 
-    spec.setExecutable("SimpleJavascriptActivity.js");
-    spec.addExtraConfigurationParameter("space.activity.log.level",
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
+    activityProject.setActivityExecutable(ACTIVITY_EXECUTABLE_FILENAME);
+
+    List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
+    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
+        InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
+
+    activityProject.setConfigurationProperties(configurationProperties);
   }
 
   @Override
-  public void writeSpecificTemplates(ProjectCreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-    templater.writeTemplate(fullTemplateData, new File(getActivityResourceDirectory(spec),
-        "SimpleJavascriptActivity.js"),
-        "activity/generic/javascript/simple/SimpleJavascriptActivity.js.ftl");
+  public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
+    templater.writeTemplate(fullTemplateData,
+        new File(getActivityResourceDirectory(spec), ACTIVITY_EXECUTABLE_FILENAME), TEMPLATE_PATHNAME);
   }
 }

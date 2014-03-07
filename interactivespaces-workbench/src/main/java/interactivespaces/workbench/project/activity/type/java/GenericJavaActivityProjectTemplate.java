@@ -20,11 +20,15 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.creator.BaseActivityProjectTemplate;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +38,24 @@ import java.util.Map;
  */
 public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+  /**
+   * Java classname for the activity.
+   */
+  public static final String ACTIVITY_CLASSNAME = "SimpleJavaActivity";
+
+  /**
+   * Filename for the activity.
+   */
+  public static final String ACTIVITY_FILENAME = ACTIVITY_CLASSNAME + ".java";
+
+  /**
+   * Pathname to the template.
+   */
+  private static final String TEMPLATE_PATHNAME = "activity/generic/android/simple/" + ACTIVITY_FILENAME + ".ftl";
+
+  /**
+   * Construct a template.
+   */
   public GenericJavaActivityProjectTemplate() {
     super("Generic Simple Java Project");
   }
@@ -41,22 +63,21 @@ public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTempl
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
-    Project project = spec.getProject();
-    project.setBuilderType("java");
+    activityProject.setBuilderType("java");
 
     activityProject.setActivityType("interactivespaces_native");
+    activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + ACTIVITY_CLASSNAME);
 
-    spec.setExecutable(project.getIdentifyingName() + "-" + project.getVersion() + ".jar");
-    spec.addExtraConfigurationParameter("space.activity.log.level",
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO);
-    spec.addExtraConfigurationParameter("space.activity.java.class", project.getIdentifyingName()
-        + ".SimpleJavaActivity");
+    List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
+    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
+        InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
+
+    activityProject.setConfigurationProperties(configurationProperties);
   }
 
   @Override
-  public void writeSpecificTemplates(ProjectCreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
+  public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
     Project project = spec.getProject();
 
     // TODO(keith): Fix this when start supporting Windoze
@@ -64,7 +85,6 @@ public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTempl
     File sourceDirectory = new File(project.getBaseDirectory(), "src/main/java/" + pathname);
     makeDirectory(sourceDirectory);
 
-    templater.writeTemplate(fullTemplateData, new File(sourceDirectory, "SimpleJavaActivity.java"),
-        "activity/generic/java/simple/SimpleJavaActivity.java.ftl");
+    templater.writeTemplate(fullTemplateData, new File(sourceDirectory, ACTIVITY_FILENAME), TEMPLATE_PATHNAME);
   }
 }
