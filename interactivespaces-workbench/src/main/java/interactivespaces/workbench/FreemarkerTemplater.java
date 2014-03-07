@@ -38,6 +38,11 @@ import java.util.Map;
 public class FreemarkerTemplater {
 
   /**
+   * Base directory where templates are kept.
+   */
+  public static final File TEMPLATE_LOCATION = new File("templates");
+
+  /**
    * The configuration used by Freemarker.
    */
   private Configuration freemarkerConfig;
@@ -48,7 +53,7 @@ public class FreemarkerTemplater {
   public void startup() {
     try {
       freemarkerConfig = new Configuration();
-      freemarkerConfig.setDirectoryForTemplateLoading(new File("templates"));
+      freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);
       // Specify how templates will see the data-model. This is an
       // advanced topic... but just use this:
       freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
@@ -76,8 +81,8 @@ public class FreemarkerTemplater {
       temp.process(data, out);
       out.close();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not instantiate template %s at %s",
-          template, outputFile), e);
+      throw new InteractiveSpacesException(String.format("Could not instantiate template %s to %s",
+          new File(TEMPLATE_LOCATION, template).getAbsolutePath(), outputFile.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(out);
     }

@@ -51,7 +51,7 @@ public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTempl
   /**
    * Pathname to the template.
    */
-  private static final String TEMPLATE_PATHNAME = "activity/generic/android/simple/" + ACTIVITY_FILENAME + ".ftl";
+  private static final String TEMPLATE_PATHNAME = "activity/generic/java/simple/" + ACTIVITY_FILENAME + ".ftl";
 
   /**
    * Construct a template.
