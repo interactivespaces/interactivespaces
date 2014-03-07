@@ -7,8 +7,24 @@ ${project.description}
 
   <identifyingName>${project.identifyingName}</identifyingName>
   <version>${project.version}</version>
-    
+<#if project.sources?has_content>
+
+  <sources>
+<#list project.sources as source>
+    ${source.toXml()}
+</#list>
+  </sources>
+</#if>
+<#if project.resources?has_content>
+
+  <resources>
+<#list project.resources as resource>
+    ${resource.toXml()}
+</#list>
+  </resources>
+</#if>
 <#if project.type == 'activity'>
+
   <activity type="${project.activityType}">
     <name>${project.activityRuntimeName}</name>
 <#if project.activityExecutable?has_content>

@@ -49,6 +49,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   static {
     addProjectTemplate(new GenericJavaActivityProjectTemplate());
     addProjectTemplate(new GenericJavascriptActivityProjectTemplate());
+    addProjectTemplate(new GenericWebActivityProjectTemplate());
     addProjectTemplate(new GenericPythonActivityProjectTemplate());
     addProjectTemplate(new GenericAndroidActivityProjectTemplate());
   }

@@ -21,10 +21,12 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -309,12 +311,18 @@ public abstract class Project {
    */
   public void setProperty(String name, String value) {
     try {
-      String methodName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-      Method method = Project.class.getDeclaredMethod(methodName, String.class);
-      method.invoke(this, value);
+      try {
+        String methodName = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+        Method method = Project.class.getDeclaredMethod(methodName, String.class);
+        method.invoke(this, value);
+      } catch (NoSuchMethodException e) {
+        String methodName = "add" + name.substring(0, 1).toUpperCase() + name.substring(1);
+        Method method = Project.class.getDeclaredMethod(methodName, String.class);
+        method.invoke(this, value);
+      }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(
-          String.format("Could not set project property %s to %s", name, value), e);
+          String.format("Could not set/add project property %s to %s", name, value), e);
     }
   }
 
@@ -381,12 +389,24 @@ public abstract class Project {
    * Add sources to the project.
    *
    * @param addSources
-   *          the resources to add
+   *          the sources to add
    */
   public void addSources(List<ProjectConstituent> addSources) {
     if (addSources != null) {
       sources.addAll(addSources);
     }
+  }
+
+  public void addSource(String source) {
+    sources.add(ProjectResourceConstituent.fromString(source, true));
+  }
+
+  public void addResource(String resource) {
+    resources.add(ProjectResourceConstituent.fromString(resource, false));
+  }
+
+  public void addAssembly(String assembly) {
+    resources.add(ProjectAssemblyConstituent.fromString(assembly));
   }
 
   /**

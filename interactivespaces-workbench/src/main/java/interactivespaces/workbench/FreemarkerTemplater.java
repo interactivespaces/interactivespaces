@@ -16,13 +16,14 @@
 
 package interactivespaces.workbench;
 
-import interactivespaces.InteractiveSpacesException;
-
 import com.google.common.io.Closeables;
-
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -75,6 +76,8 @@ public class FreemarkerTemplater {
   public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
     Writer out = null;
     try {
+      FileSupportImpl.INSTANCE.directoryExists(outputFile.getParentFile());
+
       Template temp = freemarkerConfig.getTemplate(template);
 
       out = new FileWriter(outputFile);

@@ -82,6 +82,23 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
     throw new SimpleInteractiveSpacesException("Source directory not supported for Assembly constituents");
   }
 
+  public static ProjectAssemblyConstituent fromString(String input) {
+    String[] parts = input.split(",");
+    if (parts.length > 2) {
+      throw new SimpleInteractiveSpacesException("Extra parts when parsing assembly: " + input);
+    }
+    ProjectAssemblyConstituent constituent = new ProjectAssemblyConstituent();
+    constituent.sourceFile = parts[0];
+    constituent.destinationDirectory = parts.length > 1 ? parts[1] : null;
+    return constituent;
+  }
+
+  public String toXml() {
+    String destinationAttribute =
+        destinationDirectory == null ? "" : String.format("destinationDirectory=\"%s\" ", destinationDirectory);
+    return String.format("<assembly packFormat=\"zip\" sourceFile=\"%s\" %s/>", sourceFile, destinationAttribute);
+  }
+
   /**
    * Factory for creating new assembly resources.
    */

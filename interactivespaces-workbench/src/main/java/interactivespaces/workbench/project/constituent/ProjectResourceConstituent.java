@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
@@ -68,6 +69,8 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    * This file will be relative to the project's installed folder.
    */
   private String destinationFile;
+
+  private boolean useAlternateName;
 
   /**
    * The file support to use.
@@ -161,6 +164,43 @@ public class ProjectResourceConstituent implements ProjectConstituent {
       fileSupport.copyFile(srcFile, destFile);
       context.getResourceSourceMap().put(destFile, srcFile);
     }
+  }
+
+  public static ProjectResourceConstituent fromString(String input, boolean useAlternateName) {
+    String[] parts = input.split(",");
+    if (parts.length > 2) {
+      throw new SimpleInteractiveSpacesException("Extra parts when parsing source/resource: " + input);
+    }
+    ProjectResourceConstituent constituent = new ProjectResourceConstituent();
+    String source = parts[0];
+    if (source.endsWith("/")) {
+      constituent.setSourceDirectory(source);
+    } else {
+      constituent.setSourceFile(source);
+    }
+    if (parts.length > 1) {
+      String destination = parts[1];
+      if (destination.endsWith("/")) {
+        constituent.setDestinationDirectory(destination);
+      } else {
+        constituent.setDestinationFile(destination);
+      }
+    }
+    constituent.useAlternateName = useAlternateName;
+    return constituent;
+  }
+
+  private String makeAttribute(String name, String value) {
+    return value == null ? "" : String.format("%s=\"%s\" ", name, value);
+  }
+
+  public String toXml() {
+    String tagName = useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
+    String destDirAttr = makeAttribute("destinationDirectory", destinationDirectory);
+    String destFileAttr = makeAttribute("destinationFile", destinationFile);
+    String srcDirAttr = makeAttribute("sourceDirectory", sourceDirectory);
+    String srcFileAttr = makeAttribute("sourceFile", sourceFile);
+    return String.format("<%s %s%s%s%s/>", tagName, srcDirAttr, srcFileAttr, destDirAttr, destFileAttr);
   }
 
   /**
