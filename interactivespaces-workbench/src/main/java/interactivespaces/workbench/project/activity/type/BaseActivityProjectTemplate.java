@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project.activity.type;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
@@ -27,6 +27,8 @@ import interactivespaces.workbench.project.activity.type.android.GenericAndroidA
 import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,19 +38,29 @@ import java.util.Map;
  */
 public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 
-  /**
-   * The activity project type.
-   */
-  public static final String PROJECT_TYPE = "activity";
+  private static final Map<String, BaseActivityProjectTemplate> projectTemplates = Maps.newHashMap();
+
+  static {
+    addProjectTemplate(new GenericJavaActivityProjectTemplate());
+    addProjectTemplate(new GenericJavascriptActivityProjectTemplate());
+    addProjectTemplate(new GenericPythonActivityProjectTemplate());
+    addProjectTemplate(new GenericAndroidActivityProjectTemplate());
+  }
+
+  final String language;
 
   /**
    * Construct the template.
    *
    * @param displayName
    *          display name for the template
+   * @param language
+   *          language for this activity template
    */
-  public BaseActivityProjectTemplate(String displayName) {
+  public BaseActivityProjectTemplate(String displayName, String language) {
     super(displayName);
+
+    this.language = language;
 
     addSourceDirectory(ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
@@ -61,18 +73,15 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    *
    * @return the generic template for that language
    */
-  static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
-    if ("java".equals(language)) {
-      return new GenericJavaActivityProjectTemplate();
-    } else if ("python".equals(language)) {
-      return new GenericPythonActivityProjectTemplate();
-    } else if ("javascript".equals(language)) {
-      return new GenericJavascriptActivityProjectTemplate();
-    } else if ("android".equals(language)) {
-      return new GenericAndroidActivityProjectTemplate();
-    } else {
+  public static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
+    if (!projectTemplates.containsKey(language)) {
       throw new InteractiveSpacesException(String.format("Unknown language %s", language));
     }
+    return projectTemplates.get(language);
+  }
+
+  private static void addProjectTemplate(BaseActivityProjectTemplate projectTemplate) {
+    projectTemplates.put(projectTemplate.getLanguage(), projectTemplate);
   }
 
   @Override
@@ -118,5 +127,15 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    */
   public File getActivityResourceDirectory(ProjectCreationSpecification spec) {
     return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public static List<ProjectTemplate> getProjectTemplates() {
+    List<ProjectTemplate> projectTemplateList = Lists.newArrayList();
+    projectTemplateList.addAll(projectTemplates.values());
+    return Collections.unmodifiableList(projectTemplateList);
   }
 }

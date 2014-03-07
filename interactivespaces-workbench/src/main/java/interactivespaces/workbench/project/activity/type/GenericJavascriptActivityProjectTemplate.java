@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -50,7 +50,7 @@ public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjec
    * Construct a template.
    */
   public GenericJavascriptActivityProjectTemplate() {
-    super("Generic Simple Javascript Project");
+    super("Generic Simple Javascript Project", "javascript");
   }
 
   @Override

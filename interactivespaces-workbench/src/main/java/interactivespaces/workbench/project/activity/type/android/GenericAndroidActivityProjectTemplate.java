@@ -23,7 +23,7 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.creator.BaseActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.type.BaseActivityProjectTemplate;
 
 import com.google.common.collect.Lists;
 
@@ -57,7 +57,7 @@ public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTe
    * Construct the template.
    */
   public GenericAndroidActivityProjectTemplate() {
-    super("Generic Simple Android Project");
+    super("Generic Simple Android Project", "android");
   }
 
   @Override

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -50,7 +50,7 @@ public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTem
    * Construct a template.
    */
   public GenericPythonActivityProjectTemplate() {
-    super("Generic Simple Python Project");
+    super("Generic Simple Python Project", "python");
   }
 
   @Override

@@ -20,14 +20,13 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.type.android.GenericAndroidActivityProjectTemplate;
-import interactivespaces.workbench.project.activity.type.java.GenericJavaActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.activity.type.BaseActivityProjectTemplate;
+import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
+import interactivespaces.workbench.project.library.LibraryProject;
 import interactivespaces.workbench.project.library.LibraryProjectTemplate;
 
-import com.google.common.collect.Lists;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +37,6 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class ProjectCreatorImpl implements ProjectCreator {
-
-  /**
-   * The list of activities to be handed to clients.
-   */
-  private final List<ProjectTemplate> activityProjectTemplates;
-
-  /**
-   * The list of activities to be used internally.
-   */
-  private final List<ProjectTemplate> activityProjectTemplatesInternal;
 
   /**
    * Templater to use
@@ -68,20 +57,11 @@ public class ProjectCreatorImpl implements ProjectCreator {
   public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
     this.workbench = workbench;
     this.templater = templater;
-
-    // TODO(pering): This should all be moved to the activity-specific classes.
-    activityProjectTemplatesInternal = Lists.newArrayList();
-    activityProjectTemplates = Collections.unmodifiableList(activityProjectTemplatesInternal);
-
-    activityProjectTemplatesInternal.add(new GenericJavaActivityProjectTemplate());
-    activityProjectTemplatesInternal.add(new GenericJavascriptActivityProjectTemplate());
-    activityProjectTemplatesInternal.add(new GenericPythonActivityProjectTemplate());
-    activityProjectTemplatesInternal.add(new GenericAndroidActivityProjectTemplate());
   }
 
   @Override
   public List<ProjectTemplate> getProjectTemplates() {
-    return activityProjectTemplates;
+    return BaseActivityProjectTemplate.getProjectTemplates();
   }
 
   @Override
@@ -113,11 +93,11 @@ public class ProjectCreatorImpl implements ProjectCreator {
     if (template == null) {
       String projectType = spec.getProject().getType();
 
-      if (BaseActivityProjectTemplate.PROJECT_TYPE.equals(projectType)) {
+      if (ActivityProject.PROJECT_TYPE_NAME.equals(projectType)) {
         template = BaseActivityProjectTemplate.getActivityProjectTemplateByLanguage(spec.getLanguage());
-      } else if (LibraryProjectTemplate.PROJECT_TYPE.equals(projectType)) {
+      } else if (LibraryProject.PROJECT_TYPE_NAME.equals(projectType)) {
         template = new LibraryProjectTemplate();
-      } else if (AssemblyProjectTemplate.PROJECT_TYPE.equals(projectType)) {
+      } else if (AssemblyProject.PROJECT_TYPE_NAME.equals(projectType)) {
         template = new AssemblyProjectTemplate();
       }
     }
