@@ -201,10 +201,9 @@ public class ActivityProjectConstituent implements ProjectConstituent {
       String value = valueAttribute;
       if (valueAttribute != null) {
         if (valueChild != null) {
-          addWarn(String
-              .format(
-                  "Configuration property %s has both an attribute and child element giving the value. The child element is being used.",
-                  name));
+          addWarn(String.format(
+                  "Configuration property %s has both an attribute and child element giving the value. "
+                  + "The child element is being used.", name));
           value = valueChild;
         }
       } else {

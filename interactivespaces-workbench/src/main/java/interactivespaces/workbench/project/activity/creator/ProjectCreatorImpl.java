@@ -39,7 +39,7 @@ import java.util.Map;
 public class ProjectCreatorImpl implements ProjectCreator {
 
   /**
-   * Templater to use
+   * Templater to use.
    */
   private final FreemarkerTemplater templater;
 
@@ -51,8 +51,10 @@ public class ProjectCreatorImpl implements ProjectCreator {
   /**
    * Create a basic instance.
    *
-   * @param workbench containing workbench
-   * @param templater templater to use
+   * @param workbench
+   *          containing workbench
+   * @param templater
+   *          templater to use
    */
   public ProjectCreatorImpl(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
     this.workbench = workbench;
@@ -108,6 +110,8 @@ public class ProjectCreatorImpl implements ProjectCreator {
   /**
    * Write out the code template.
    *
+   * @param sourceDescription
+   *          source project template
    * @param spec
    *          the build specification
    * @param templateData

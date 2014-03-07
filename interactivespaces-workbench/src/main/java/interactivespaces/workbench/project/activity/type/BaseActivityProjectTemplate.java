@@ -38,8 +38,14 @@ import java.util.Map;
  */
 public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 
-  private static final Map<String, BaseActivityProjectTemplate> projectTemplates = Maps.newHashMap();
+  /**
+   * Static map of all template types, by language.
+   */
+  private static final Map<String, BaseActivityProjectTemplate> PROJECT_TEMPLATES = Maps.newHashMap();
 
+  /**
+   * Initializer block for all activity project templates.
+   */
   static {
     addProjectTemplate(new GenericJavaActivityProjectTemplate());
     addProjectTemplate(new GenericJavascriptActivityProjectTemplate());
@@ -47,7 +53,10 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     addProjectTemplate(new GenericAndroidActivityProjectTemplate());
   }
 
-  final String language;
+  /**
+   * Language supported by this activity project template.
+   */
+  private final String language;
 
   /**
    * Construct the template.
@@ -74,14 +83,20 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    * @return the generic template for that language
    */
   public static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
-    if (!projectTemplates.containsKey(language)) {
+    if (!PROJECT_TEMPLATES.containsKey(language)) {
       throw new InteractiveSpacesException(String.format("Unknown language %s", language));
     }
-    return projectTemplates.get(language);
+    return PROJECT_TEMPLATES.get(language);
   }
 
+  /**
+   * Add a project template to the static map, indexed by language.
+   *
+   * @param projectTemplate
+   *          template to add
+   */
   private static void addProjectTemplate(BaseActivityProjectTemplate projectTemplate) {
-    projectTemplates.put(projectTemplate.getLanguage(), projectTemplate);
+    PROJECT_TEMPLATES.put(projectTemplate.getLanguage(), projectTemplate);
   }
 
   @Override
@@ -129,13 +144,19 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 
+  /**
+   * @return language supported by this project template
+   */
   public String getLanguage() {
     return language;
   }
 
+  /**
+   * @return unmodifiable list of all the supported project templates
+   */
   public static List<ProjectTemplate> getProjectTemplates() {
     List<ProjectTemplate> projectTemplateList = Lists.newArrayList();
-    projectTemplateList.addAll(projectTemplates.values());
+    projectTemplateList.addAll(PROJECT_TEMPLATES.values());
     return Collections.unmodifiableList(projectTemplateList);
   }
 }
