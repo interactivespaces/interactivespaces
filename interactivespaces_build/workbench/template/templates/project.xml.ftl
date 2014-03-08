@@ -11,7 +11,11 @@ ${project.description}
 
   <sources>
 <#list project.sources as source>
-    ${source.toXml()}
+    <#if source.sourceDirectory?has_content><#assign srcAttr="sourceDirectory=\"${source.sourceDirectory}\""></#if>
+    <#if source.sourceFile?has_content><#assign srcAttr="sourceFile=\"${source.sourceFile}\""></#if>
+    <#if source.destinationDirectory?has_content><#assign dstAttr="destinationDirectory=\"${source.destinationDirectory}\""></#if>
+    <#if source.destinationFile?has_content><#assign dstAttr="destinationFile=\"${source.destinationFile}\""></#if>
+    <${source.getTypeName()} ${srcAttr!""} ${dstAttr!""} />
 </#list>
   </sources>
 </#if>
@@ -19,7 +23,11 @@ ${project.description}
 
   <resources>
 <#list project.resources as resource>
-    ${resource.toXml()}
+<#if resource.sourceDirectory?has_content><#assign srcAttr="sourceDirectory=\"${resource.sourceDirectory}\""></#if>
+<#if resource.sourceFile?has_content><#assign srcAttr="sourceFile=\"${resource.sourceFile}\""></#if>
+<#if resource.destinationDirectory?has_content><#assign dstAttr="destinationDirectory=\"${resource.destinationDirectory}\""></#if>
+<#if resource.destinationFile?has_content><#assign dstAttr="destinationFile=\"${resource.destinationFile}\""></#if>
+    <${resource.getTypeName()} ${srcAttr!""} ${dstAttr!""} />
 </#list>
   </resources>
 </#if>

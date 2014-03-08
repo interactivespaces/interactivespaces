@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
+import javax.swing.plaf.metal.OceanTheme;
 import java.io.File;
 import java.util.List;
 
@@ -108,6 +109,11 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   public String getSourceDirectory() throws SimpleInteractiveSpacesException {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public String getTypeName() {
+    return TYPE_NAME;
   }
 
   /**
@@ -202,7 +208,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
       if (valueAttribute != null) {
         if (valueChild != null) {
           addWarn(String.format(
-                  "Configuration property %s has both an attribute and child element giving the value. "
+              "Configuration property %s has both an attribute and child element giving the value. "
                   + "The child element is being used.", name));
           value = valueChild;
         }

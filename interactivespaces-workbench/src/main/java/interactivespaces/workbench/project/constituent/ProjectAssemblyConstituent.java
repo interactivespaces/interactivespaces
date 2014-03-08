@@ -79,7 +79,12 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
 
   @Override
   public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    throw new SimpleInteractiveSpacesException("Source directory not supported for Assembly constituents");
+    return null;
+  }
+
+  @Override
+  public String getTypeName() {
+    return TYPE_NAME;
   }
 
   /**
@@ -99,17 +104,6 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
     constituent.sourceFile = parts[0];
     constituent.destinationDirectory = parts.length > 1 ? parts[1] : null;
     return constituent;
-  }
-
-  /**
-   * Convert the constituent to a single line of XML.
-   *
-   * @return representation of constituent represented as XML
-   */
-  public String toXml() {
-    String destinationAttribute =
-        destinationDirectory == null ? "" : String.format("destinationDirectory=\"%s\" ", destinationDirectory);
-    return String.format("<assembly packFormat=\"zip\" sourceFile=\"%s\" %s/>", sourceFile, destinationAttribute);
   }
 
   /**

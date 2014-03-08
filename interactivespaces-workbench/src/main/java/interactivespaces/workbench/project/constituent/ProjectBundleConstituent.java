@@ -108,6 +108,11 @@ public class ProjectBundleConstituent implements ProjectConstituent {
     throw new SimpleInteractiveSpacesException("Source directory not supported for Bundle constituents");
   }
 
+  @Override
+  public String getTypeName() {
+    return TYPE_NAME;
+  }
+
   /**
    * Factory for the constituent components.
    */

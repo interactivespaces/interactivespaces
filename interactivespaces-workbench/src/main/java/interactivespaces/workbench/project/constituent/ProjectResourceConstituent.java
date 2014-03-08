@@ -80,12 +80,14 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
-  /**
-   * @return the sourceDirectory
-   */
   @Override
   public String getSourceDirectory() {
     return sourceDirectory;
+  }
+
+  @Override
+  public String getTypeName() {
+    return useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
   }
 
   /**
@@ -201,34 +203,6 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     }
     constituent.useAlternateName = useAlternateName;
     return constituent;
-  }
-
-  /**
-   * Helper function to optionally generate an attribute for a value.
-   *
-   * @param name
-   *          attribute name
-   * @param value
-   *          attribute value
-   *
-   * @return attribute setter string, or the empty string if no value
-   */
-  private String makeAttribute(String name, String value) {
-    return value == null ? "" : String.format("%s=\"%s\" ", name, value);
-  }
-
-  /**
-   * Convert the constituent to a single line of XML.
-   *
-   * @return representation of constituent represented as XML
-   */
-  public String toXml() {
-    String tagName = useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
-    String destDirAttr = makeAttribute("destinationDirectory", destinationDirectory);
-    String destFileAttr = makeAttribute("destinationFile", destinationFile);
-    String srcDirAttr = makeAttribute("sourceDirectory", sourceDirectory);
-    String srcFileAttr = makeAttribute("sourceFile", sourceFile);
-    return String.format("<%s %s%s%s%s/>", tagName, srcDirAttr, srcFileAttr, destDirAttr, destFileAttr);
   }
 
   /**
