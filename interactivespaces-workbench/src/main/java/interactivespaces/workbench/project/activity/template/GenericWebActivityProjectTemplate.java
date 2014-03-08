@@ -18,6 +18,8 @@ package interactivespaces.workbench.project.activity.template;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import interactivespaces.activity.component.web.WebBrowserActivityComponent;
+import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -73,8 +75,14 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
     activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + WEB_ACTIVITY_NATIVE_HOST_CLASS);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
-    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
+    configurationProperties.add(new ProjectConfigurationProperty(
+        "space.activity.log.level", null, false, InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
+    configurationProperties.add(new ProjectConfigurationProperty(
+        WebServerActivityComponent.CONFIGURATION_WEBAPP_CONTENT_LOCATION, null, false, "webapp"));
+    configurationProperties.add(new ProjectConfigurationProperty(
+        WebServerActivityComponent.CONFIGURATION_WEBAPP_WEB_SERVER_PORT, null, false, "9090"));
+    configurationProperties.add(new ProjectConfigurationProperty(
+        WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE, null, false, "index.html"));
 
     activityProject.setConfigurationProperties(configurationProperties);
 

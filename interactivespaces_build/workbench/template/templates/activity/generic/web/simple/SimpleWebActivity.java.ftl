@@ -17,9 +17,4 @@ public class SimpleWebActivity extends BaseActivity {
     getLog().info("Activity ${project.identifyingName} setup");
     webServerComponent = addActivityComponent(WebServerActivityComponent.COMPONENT_NAME);
   }
-
-  @Override
-  public void onActivityStartup() {
-    getLog().info("Activity ${project.identifyingName} startup");
-  }
 }

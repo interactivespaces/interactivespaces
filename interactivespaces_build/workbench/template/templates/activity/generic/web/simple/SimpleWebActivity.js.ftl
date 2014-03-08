@@ -1,4 +1,2 @@
-// TODO: Fill this in with a proper JS template.
-
-console.log('webactivity ${webAppFileBase}');
+console.log('Hello from ${webAppFileBase}');
 
