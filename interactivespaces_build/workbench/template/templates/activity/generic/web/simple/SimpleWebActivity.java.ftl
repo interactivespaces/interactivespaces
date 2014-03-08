@@ -6,7 +6,7 @@ import interactivespaces.activity.component.web.WebServerActivityComponent;
 /**
   * A simple Interactive Spaces Java-based activity for running a web server.
   */
-public class SimpleWebActivity extends BaseActivity {
+public class ${activityClassName} extends BaseActivity {
   /**
    * The web server component.
    */

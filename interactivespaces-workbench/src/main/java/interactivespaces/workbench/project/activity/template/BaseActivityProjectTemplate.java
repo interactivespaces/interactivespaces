@@ -23,6 +23,7 @@ import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.io.File;
 import java.util.Collections;
@@ -130,6 +131,18 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    */
   public abstract void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData);
+
+  /**
+   * Get the activity source directory.
+   *
+   * @param spec
+   *          specification for the build
+   *
+   * @return the source directory for activity sources
+   */
+  public File getActivitySourceDirectory(ProjectCreationSpecification spec) {
+    return new File(spec.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+  }
 
   /**
    * Get the activity resource directory.
