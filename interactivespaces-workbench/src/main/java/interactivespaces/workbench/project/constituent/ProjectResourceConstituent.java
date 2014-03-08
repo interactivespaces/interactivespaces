@@ -16,23 +16,24 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * A simple resource for a {@link interactivespaces.workbench.project.Project}.
  *
  * @author Keith M. Hughes
  */
-public class ProjectResourceConstituent implements ProjectConstituent {
+public class ProjectResourceConstituent extends ContainerConstituent {
 
   /**
    * Element type for a resource.
@@ -85,17 +86,27 @@ public class ProjectResourceConstituent implements ProjectConstituent {
     return sourceDirectory;
   }
 
-  @Override
-  public String getTypeName() {
-    return useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
-  }
-
   /**
    * @param sourceDirectory
    *          the sourceDirectory to set
    */
   public void setSourceDirectory(String sourceDirectory) {
     this.sourceDirectory = sourceDirectory;
+  }
+
+  @Override
+  public String getTypeName() {
+    return useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
+  }
+
+  @Override
+  public Map<String, String> getAttributeMap() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put(SOURCE_FILE_ATTRIBUTE, sourceFile);
+    map.put(SOURCE_DIRECTORY_ATTRIBUTE, sourceDirectory);
+    map.put(DESTINATION_FILE_ATTRIBUTE, destinationFile);
+    map.put(DESTINATION_DIRECTORY_ATTRIBUTE, destinationDirectory);
+    return map;
   }
 
   /**

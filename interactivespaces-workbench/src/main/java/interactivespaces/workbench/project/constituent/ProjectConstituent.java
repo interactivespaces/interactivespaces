@@ -19,7 +19,6 @@ package interactivespaces.workbench.project.constituent;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 

@@ -16,16 +16,17 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * An assembly resource for a
@@ -33,7 +34,7 @@ import java.io.File;
  *
  * @author Trevor Pering
  */
-public class ProjectAssemblyConstituent implements ProjectConstituent {
+public class ProjectAssemblyConstituent extends ContainerConstituent {
 
   /**
    * Project type for an assembly resource.
@@ -78,13 +79,17 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
   }
 
   @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    return null;
+  public String getTypeName() {
+    return TYPE_NAME;
   }
 
   @Override
-  public String getTypeName() {
-    return TYPE_NAME;
+  public Map<String, String> getAttributeMap() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put(PACK_FORMAT_ATTRIBUTE, ZIP_PACK_FORMAT);
+    map.put(SOURCE_FILE_ATTRIBUTE, sourceFile);
+    map.put(DESTINATION_DIRECTORY_ATTRIBUTE, destinationDirectory);
+    return map;
   }
 
   /**

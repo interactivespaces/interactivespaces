@@ -16,16 +16,10 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import static com.google.common.io.Closeables.closeQuietly;
-
+import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupport;
-import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
-import com.google.common.collect.Lists;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
@@ -36,22 +30,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import static com.google.common.io.Closeables.closeQuietly;
+
 /**
  * A bundle resource for a {@link interactivespaces.workbench.project.Project}.
  *
  * @author Trevor Pering
  */
-public class ProjectBundleConstituent implements ProjectConstituent {
+public class ProjectBundleConstituent extends ContainerConstituent {
 
   /**
    * Project type for a bundle resource.
    */
   public static final String TYPE_NAME = "bundle";
-
-  /**
-   * File support instance for file operations.
-   */
-  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Marker file to use for bundle source recording.
@@ -101,11 +92,6 @@ public class ProjectBundleConstituent implements ProjectConstituent {
       closeQuietly(inputStream);
       closeQuietly(outputStream);
     }
-  }
-
-  @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    throw new SimpleInteractiveSpacesException("Source directory not supported for Bundle constituents");
   }
 
   @Override

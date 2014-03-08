@@ -16,19 +16,16 @@
 
 package interactivespaces.workbench.project.activity;
 
+import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-
-import com.google.common.collect.Lists;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
-import javax.swing.plaf.metal.OceanTheme;
 import java.io.File;
 import java.util.List;
 
@@ -107,7 +104,6 @@ public class ActivityProjectConstituent implements ProjectConstituent {
 
   @Override
   public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    // TODO Auto-generated method stub
     return null;
   }
 
