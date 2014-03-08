@@ -52,7 +52,7 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
    * Map representing  main source activity file(s).
    */
   public static final Map<String, String> SRC_TEMPLATE_MAP = ImmutableMap.of(
-      "activity/generic/web/simple/SimpleWebActivity.java.ftl", "%s/%s.java)");
+      "activity/generic/web/simple/SimpleWebActivity.java.ftl", "%s/%s.java");
 
   /**
    * Subdirectory used to hold all web-app runtime files.
