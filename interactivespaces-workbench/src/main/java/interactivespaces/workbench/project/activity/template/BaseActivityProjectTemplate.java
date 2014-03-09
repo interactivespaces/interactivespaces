@@ -19,6 +19,8 @@ package interactivespaces.workbench.project.activity.template;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.workbench.FreemarkerTemplater;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
