@@ -26,6 +26,8 @@ import interactivespaces.util.io.FileSupportImpl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
@@ -58,6 +60,17 @@ public class FreemarkerTemplater {
       freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
     } catch (IOException e) {
       throw new InteractiveSpacesException("Cannot initialize activity project creator", e);
+    }
+  }
+
+  public String processStringTemplate(Map<String, Object> data, String templateContent) {
+    try {
+      Template temp = new Template(null, new StringReader(templateContent), freemarkerConfig);
+      StringWriter stringWriter = new StringWriter();
+      temp.process(data, stringWriter);
+      return stringWriter.toString();
+    } catch (Exception e) {
+      throw new InteractiveSpacesException(String.format("Could not instantiate string template %s", templateContent));
     }
   }
 

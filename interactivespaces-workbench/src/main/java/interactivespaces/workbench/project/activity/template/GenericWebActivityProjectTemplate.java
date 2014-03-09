@@ -23,7 +23,6 @@ import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
@@ -39,20 +38,17 @@ import java.util.Map;
  */
 public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+  private static final String TEMPLATE_BASE = "activity/generic/web/simple/";
+
   /**
    * Map of file/template pairs to add to the template.
    */
-  public static final Map<String, String> RESOURCE_TEMPLATE_MAP = ImmutableMap.of(
-      "activity/generic/web/simple/index.html.ftl", "%s/index.html",
-      "activity/generic/web/simple/SimpleWebActivity.js.ftl", "%s/js/%s.js",
-      "activity/generic/web/simple/SimpleWebActivity.css.ftl", "%s/css/%s.css"
+  private static final Map<String, String> TEMPLATE_MAP = ImmutableMap.of(
+      TEMPLATE_BASE + "index.html.ftl", "${activityResourceDirectory}/index.html",
+      TEMPLATE_BASE + "SimpleWebActivity.js.ftl", "${activityResourceDirectory}/js/${webAppFileBase}.js",
+      TEMPLATE_BASE + "SimpleWebActivity.css.ftl", "${activityResourceDirectory}/css/${webAppFileBase}.css",
+      TEMPLATE_BASE + "SimpleWebActivity.java.ftl", "${activitySourceDirectory}/${activityClassName}.java"
   );
-
-  /**
-   * Map representing  main source activity file(s).
-   */
-  public static final Map<String, String> SRC_TEMPLATE_MAP = ImmutableMap.of(
-      "activity/generic/web/simple/SimpleWebActivity.java.ftl", "%s/%s.java");
 
   /**
    * Subdirectory used to hold all web-app runtime files.
@@ -70,16 +66,6 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   public static final String WEB_APP_INITIAL_PAGE = "index.html";
 
   /**
-   * The native host class for the web-app server.
-   */
-  private String webActivityNativeHostClass;
-
-  /**
-   * The web-app filename base used for naming web-app files.
-   */
-  private String webActivityFileNameBase;
-
-  /**
    * Construct a template.
    */
   public GenericWebActivityProjectTemplate() {
@@ -90,10 +76,12 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
     String classBase = activityProject.getActivityRuntimeName();
-    webActivityNativeHostClass = classBase.substring(0, 1).toUpperCase() + classBase.substring(1);
+    String webActivityNativeHostClass = classBase.substring(0, 1).toUpperCase() + classBase.substring(1);
     fullTemplateData.put("activityClassName", webActivityNativeHostClass);
-    webActivityFileNameBase = activityProject.getIdentifyingName().replace('.', '-');
-    fullTemplateData.put("webAppFileBase", webActivityFileNameBase);
+    fullTemplateData.put("webAppFileBase", activityProject.getIdentifyingName().replace('.', '-'));
+    fullTemplateData.put("activityResourceDirectory", getActivityResourceDirectory(spec));
+    fullTemplateData.put("activitySourceDirectory", getActivitySourceDirectory(spec));
+    fullTemplateData.put("javaPackagePath", activityProject.getIdentifyingName().replace('.', '/'));
 
     activityProject.setBuilderType("java");
 
@@ -116,18 +104,9 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    for (Map.Entry<String, String> template : RESOURCE_TEMPLATE_MAP.entrySet()) {
-      String outName = String.format(template.getValue(), WEB_APP_BASE_WEB_PATH, webActivityFileNameBase);
-      templater.writeTemplate(fullTemplateData,
-          new File(getActivityResourceDirectory(spec), outName), template.getKey());
-    }
-
-    Project project = spec.getProject();
-    String packagePath = project.getIdentifyingName().replace('.', '/');
-    for (Map.Entry<String, String> template : SRC_TEMPLATE_MAP.entrySet()) {
-      String outName = String.format(template.getValue(), packagePath, webActivityNativeHostClass);
-      templater.writeTemplate(fullTemplateData,
-          new File(getActivitySourceDirectory(spec), outName), template.getKey());
+    for (Map.Entry<String, String> template : TEMPLATE_MAP.entrySet()) {
+      String outName = templater.processStringTemplate(fullTemplateData, template.getValue());
+      templater.writeTemplate(fullTemplateData, new File(outName), template.getKey());
     }
   }
 }
