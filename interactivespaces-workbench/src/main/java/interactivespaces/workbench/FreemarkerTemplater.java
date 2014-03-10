@@ -65,6 +65,16 @@ public class FreemarkerTemplater {
     }
   }
 
+  /**
+   * Process a string template.
+   *
+   * @param data
+   *          data for template
+   * @param templateContent
+   *          string template to process
+   *
+   * @return processed template
+   */
   public String processStringTemplate(Map<String, Object> data, String templateContent) {
     try {
       Template temp = new Template("generator for " + templateContent,
