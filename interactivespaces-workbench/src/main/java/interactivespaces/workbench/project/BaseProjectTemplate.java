@@ -134,6 +134,14 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
     }
   }
 
+  /**
+   * Add a file template to the common collection.
+   *
+   * @param source
+   *          template source
+   * @param dest
+   *          output destination
+   */
   public void addFileTemplate(String source, String dest) {
     fileTempaltes.add(new ProjectFileTemplate(source, dest));
   }
@@ -182,7 +190,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       Map<String, Object> fullTemplateData) {
     for (ProjectFileTemplate template : fileTempaltes) {
       String outName = templater.processStringTemplate(fullTemplateData, template.getOutputPath());
-      File outFile = outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
+      File outFile =
+          outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
       templater.writeTemplate(fullTemplateData, outFile, template.getTemplatePath());
     }
   }

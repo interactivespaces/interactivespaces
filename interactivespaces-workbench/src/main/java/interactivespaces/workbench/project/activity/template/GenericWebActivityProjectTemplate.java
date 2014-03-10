@@ -34,8 +34,14 @@ import java.util.Map;
  */
 public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+  /**
+   * Template input base for all web templates.
+   */
   private static final String TEMPLATE_BASE = "activity/generic/web/simple/";
 
+  /**
+   * Add the set of file templates for this project.
+   */
   {
     addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.java.ftl",
         "${project.getActivitySourceDirectory()}/${javaPackagePath}/${activityClassName}.java");

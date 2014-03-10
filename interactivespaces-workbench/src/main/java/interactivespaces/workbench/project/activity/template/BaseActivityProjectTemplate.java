@@ -134,6 +134,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   public abstract void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData);
 
+  @Override
   public void writeSpecificTemplates(ProjectCreationSpecification spec,
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {

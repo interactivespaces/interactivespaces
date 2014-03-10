@@ -41,22 +41,16 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
    * The root node for the tree of sections.
    */
   private FileTreeNode rootNode;
+
+  /**
+   * The tree model for the filesystem.
+   */
   private DefaultTreeModel treeModel;
 
+  /**
+   * Create a new instance.
+   */
   public JFileSystemExplorerTree() {
-    // projectManager.addProjectManagerListener(new
-    // ProjectManagerListenerAdapter() {
-    // @Override
-    // public void closingProject(ProjectManager projectManager) {
-    // buildTree(null);
-    // }
-    //
-    // @Override
-    // public void changingProject(ProjectManager projectManager) {
-    // buildTree(projectManager.getCurrentProject());
-    // }
-    // });
-
     treeModel = new DefaultTreeModel(rootNode);
     setModel(treeModel);
     getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -70,22 +64,20 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
   public void valueChanged(TreeSelectionEvent e) {
     FileTreeNode node = (FileTreeNode) getLastSelectedPathComponent();
 
-    if (node == null)
+    if (node == null) {
       // Nothing is selected.
       return;
+    }
 
     File file = node.getFile();
     System.out.format("Selected %s\n", file);
-    // ProjectSection section = (ProjectSection) nodeInfo;
-    // if (section != null) {
-    // ProjectGroup group = section.getGroups().get(0);
-    // if (group != null)
-    // projectManager.setCurrentGroup(group);
-    // }
   }
 
   /**
    * Clear out the old tree and build a new one based on the current project.
+   *
+   * @param project
+   *          project for which to build the tree
    */
   public void buildTree(ActivityProject project) {
     if (project != null) {
@@ -145,8 +137,9 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
       this.root = root;
       this.parent = parent;
       this.children = this.file.listFiles();
-      if (this.children == null)
+      if (this.children == null) {
         this.children = new File[0];
+      }
     }
 
     /**
@@ -165,7 +158,7 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
     public Enumeration<?> children() {
       final int elementCount = children != null ? children.length : 0;
       return new Enumeration<File>() {
-        int count = 0;
+        private int count = 0;
 
         @Override
         public boolean hasMoreElements() {
@@ -202,8 +195,9 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
     public int getIndex(TreeNode n) {
       FileTreeNode node = (FileTreeNode) n;
       for (int i = 0; i < children.length; i++) {
-        if (node.file.equals(children[i]))
+        if (node.file.equals(children[i])) {
           return i;
+        }
       }
       return -1;
     }
@@ -218,6 +212,9 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
       return !file.isDirectory();
     }
 
+    /**
+     * @return file node instance
+     */
     public File getFile() {
       return file;
     }

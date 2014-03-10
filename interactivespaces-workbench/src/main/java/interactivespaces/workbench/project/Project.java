@@ -533,10 +533,21 @@ public abstract class Project {
     return extraConstituents;
   }
 
+  /**
+   * Add a file template to the project.
+   *
+   * @param input
+   *          template specification
+   */
   public void addFileTemplate(String input) {
      fileTemplates.add(ProjectFileTemplate.fromString(input));
   }
 
+  /**
+   * Get the list of added file templates.
+   *
+   * @return file template list
+   */
   public List<ProjectFileTemplate> getFileTemplates() {
     return fileTemplates;
   }
