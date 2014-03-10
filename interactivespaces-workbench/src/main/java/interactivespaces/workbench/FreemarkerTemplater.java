@@ -24,8 +24,10 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -87,10 +89,17 @@ public class FreemarkerTemplater {
    */
   public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
     Writer out = null;
+    Reader in = null;
     try {
       FileSupportImpl.INSTANCE.directoryExists(outputFile.getParentFile());
 
-      Template temp = freemarkerConfig.getTemplate(template);
+      Template temp;
+      if (template.startsWith("/")) {
+        in = new FileReader(template);
+        temp = new Template(template, in, freemarkerConfig);
+      } else {
+        temp = freemarkerConfig.getTemplate(template);
+      }
 
       out = new FileWriter(outputFile);
       temp.process(data, out);
@@ -100,6 +109,7 @@ public class FreemarkerTemplater {
           new File(TEMPLATE_LOCATION, template).getAbsolutePath(), outputFile.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(out);
+      Closeables.closeQuietly(in);
     }
   }
 }

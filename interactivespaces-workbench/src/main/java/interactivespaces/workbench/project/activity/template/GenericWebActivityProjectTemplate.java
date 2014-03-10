@@ -37,13 +37,13 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
   private static final String TEMPLATE_BASE = "activity/generic/web/simple/";
 
   {
-    addTemplate(TEMPLATE_BASE + "SimpleWebActivity.java.ftl",
+    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.java.ftl",
         "${project.getActivitySourceDirectory()}/${javaPackagePath}/${activityClassName}.java");
-    addTemplate(TEMPLATE_BASE + "index.html.ftl",
+    addFileTemplate(TEMPLATE_BASE + "index.html.ftl",
         "${project.getActivityResourceDirectory()}/${webAppBasePath}/index.html");
-    addTemplate(TEMPLATE_BASE + "SimpleWebActivity.js.ftl",
+    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.js.ftl",
         "${project.getActivityResourceDirectory()}/${webAppBasePath}/js/${webAppFileBase}.js");
-    addTemplate(TEMPLATE_BASE + "SimpleWebActivity.css.ftl",
+    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.css.ftl",
         "${project.getActivityResourceDirectory()}/${webAppBasePath}/css/${webAppFileBase}.css");
   }
 

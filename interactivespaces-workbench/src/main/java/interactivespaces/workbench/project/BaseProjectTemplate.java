@@ -46,7 +46,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Map of file/template pairs to add to the created project.
    */
-  private static final Map<String, String> TEMPLATE_MAP = Maps.newLinkedHashMap();
+  private final List<ProjectFileTemplate> fileTempaltes = Lists.newLinkedList();
 
   /**
    * Create a new project template.
@@ -92,6 +92,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 
     Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
 
+    fileTempaltes.addAll(project.getFileTemplates());
+
     onTemplateSetup(spec, fullTemplateData);
 
     createProjectStructure(project);
@@ -132,8 +134,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
     }
   }
 
-  public void addTemplate(String source, String dest) {
-    TEMPLATE_MAP.put(dest, source);
+  public void addFileTemplate(String source, String dest) {
+    fileTempaltes.add(new ProjectFileTemplate(source, dest));
   }
 
   /**
@@ -178,9 +180,10 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   public void writeCommonTemplates(ProjectCreationSpecification spec,
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
-    for (Map.Entry<String, String> template : TEMPLATE_MAP.entrySet()) {
-      String outName = templater.processStringTemplate(fullTemplateData, template.getKey());
-      templater.writeTemplate(fullTemplateData, new File(outName), template.getValue());
+    for (ProjectFileTemplate template : fileTempaltes) {
+      String outName = templater.processStringTemplate(fullTemplateData, template.getOutputPath());
+      File outFile = outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
+      templater.writeTemplate(fullTemplateData, outFile, template.getTemplatePath());
     }
   }
 

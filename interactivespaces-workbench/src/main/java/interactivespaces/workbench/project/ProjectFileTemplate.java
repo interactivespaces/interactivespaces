@@ -16,8 +16,16 @@ public class ProjectFileTemplate {
     this.outputPath = outputPath;
   }
 
+  public String getTemplatePath() {
+    return templatePath;
+  }
+
+  public String getOutputPath() {
+    return outputPath;
+  }
+
   public static ProjectFileTemplate fromString(String input) {
-    String[] parts = input.split(".");
+    String[] parts = input.split(",");
     if (parts.length > 2) {
       throw new SimpleInteractiveSpacesException("Too many parts in template spec " + input);
     }
