@@ -90,7 +90,7 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
   public void buildTree(ActivityProject project) {
     if (project != null) {
 
-      rootNode = new FileTreeNode(project.getActivitySourceFolder(), true, null);
+      rootNode = new FileTreeNode(project.getActivitySourceDirectory(), true, null);
       treeModel.setRoot(rootNode);
     } else {
       treeModel.setRoot(null);

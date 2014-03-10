@@ -21,6 +21,8 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 
 import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.io.File;
 import java.util.List;
@@ -40,7 +42,7 @@ public class ActivityProject extends Project {
   /**
    * Folder where activities are stored.
    */
-  public static final String SRC_MAIN_RESOURCES_ACTIVITY = "src/main/resources/activity";
+  public static final String SRC_MAIN_RESOURCES_ACTIVITY = ProjectType.SOURCE_MAIN_RESOURCES + "/activity";
 
   /**
    * Activity XML file name.
@@ -187,7 +189,7 @@ public class ActivityProject extends Project {
    * @return the location of the description file
    */
   public File getActivityDescriptionFile() {
-    return new File(getBaseDirectory(), "activity.xml");
+    return new File(getBaseDirectory(), FILENAME_ACTIVITY_XML);
   }
 
   /**
@@ -195,8 +197,8 @@ public class ActivityProject extends Project {
    *
    * @return the location of the source directory for activities
    */
-  public File getActivitySourceFolder() {
-    return new File(getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
+  public File getActivitySourceDirectory() {
+    return new File(getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
   /**

@@ -65,7 +65,8 @@ public class FreemarkerTemplater {
 
   public String processStringTemplate(Map<String, Object> data, String templateContent) {
     try {
-      Template temp = new Template(null, new StringReader(templateContent), freemarkerConfig);
+      Template temp = new Template("generator for " + templateContent,
+          new StringReader(templateContent), freemarkerConfig);
       StringWriter stringWriter = new StringWriter();
       temp.process(data, stringWriter);
       return stringWriter.toString();

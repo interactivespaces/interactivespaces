@@ -25,6 +25,7 @@ import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
 import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.io.File;
 import java.util.List;
@@ -84,7 +85,7 @@ public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTe
 
     // TODO(keith): Fix this when start supporting Windoze
     String pathname = project.getIdentifyingName().replace('.', '/');
-    File sourceDirectory = new File(project.getBaseDirectory(), "src/main/java/" + pathname);
+    File sourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA + pathname);
     makeDirectory(sourceDirectory);
 
     templater.writeTemplate(fullTemplateData, new File(sourceDirectory, ACTIVITY_FILENAME), TEMPLATE_PATHNAME);

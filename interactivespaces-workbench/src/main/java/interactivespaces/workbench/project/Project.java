@@ -127,6 +127,11 @@ public abstract class Project {
   private final Configuration configuration = SimpleConfiguration.newConfiguration();
 
   /**
+   * Extra file templates to use when templating this project.
+   */
+  private final List<ProjectFileTemplate> fileTemplates = Lists.newArrayList();
+
+  /**
    * Get the type of the project.
    *
    * @return the type
@@ -526,5 +531,13 @@ public abstract class Project {
    */
   public List<ProjectConstituent> getExtraConstituents() {
     return extraConstituents;
+  }
+
+  public void addFileTemplate(String input) {
+     fileTemplates.add(ProjectFileTemplate.fromString(input));
+  }
+
+  public List<ProjectFileTemplate> getFileTemplates() {
+    return fileTemplates;
   }
 }

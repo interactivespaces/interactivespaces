@@ -134,6 +134,12 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   public abstract void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData);
 
+  public void writeSpecificTemplates(ProjectCreationSpecification spec,
+      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
+      Map<String, Object> fullTemplateData) {
+    // Do nothing by default -- only use common templates.
+  }
+
   /**
    * Get the activity source directory.
    *
