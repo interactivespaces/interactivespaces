@@ -722,10 +722,11 @@ public class InteractiveSpacesWorkbench {
     try {
       List<String> parameters = Files.readLines(new File(projectSpecPath), Charset.defaultCharset());
       for (String line : parameters) {
-        String[] parts = line.trim().split("=", 2);
-        if (parts.length == 0) {
+        String trimmed = line.trim();
+        if (trimmed.isEmpty()) {
           continue;
         }
+        String[] parts = trimmed.split("=", 2);
         if (parts.length != 2) {
           throw new SimpleInteractiveSpacesException("Invalid property line syntax: " + line);
         }
