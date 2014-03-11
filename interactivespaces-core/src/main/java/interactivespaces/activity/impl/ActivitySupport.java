@@ -189,13 +189,8 @@ public abstract class ActivitySupport implements Activity {
     return activityStatus;
   }
 
-  /**
-   * Set the activity status.
-   *
-   * @param activityStatus
-   *          the new activity status
-   */
-  protected void setActivityStatus(ActivityStatus activityStatus) {
+  @Override
+  public void setActivityStatus(ActivityStatus activityStatus) {
     ActivityStatus oldStatus = this.activityStatus;
     this.activityStatus = activityStatus;
 
