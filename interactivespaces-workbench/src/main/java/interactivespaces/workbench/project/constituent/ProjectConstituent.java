@@ -27,7 +27,7 @@ import java.io.File;
 /**
  * Interface for project constituents.
  *
- * @author peringknife@google.com (Trevor Pering)
+ * @author Trevor Pering
  */
 public interface ProjectConstituent {
 

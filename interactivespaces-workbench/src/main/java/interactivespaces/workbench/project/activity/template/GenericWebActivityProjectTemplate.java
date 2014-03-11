@@ -25,9 +25,9 @@ import interactivespaces.workbench.project.activity.ActivityProject;
 import java.util.Map;
 
 /**
- * A project creator for java projects.
+ * A project creator for web projects.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
 public class GenericWebActivityProjectTemplate extends BaseNativeActivityProjectTemplate {
 
