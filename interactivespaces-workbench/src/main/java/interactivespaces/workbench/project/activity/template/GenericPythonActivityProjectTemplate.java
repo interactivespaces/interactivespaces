@@ -61,7 +61,8 @@ public class GenericPythonActivityProjectTemplate extends BaseActivityProjectTem
     activityProject.setActivityExecutable(ACTIVITY_EXECUTABLE_FILENAME);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
-    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null
+    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level",
+        InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null
     ));
 
     activityProject.setConfigurationProperties(configurationProperties);
