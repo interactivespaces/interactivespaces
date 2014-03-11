@@ -192,7 +192,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       String outName = templater.processStringTemplate(fullTemplateData, template.getOutputPath());
       File outFile =
           outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
-      templater.writeTemplate(fullTemplateData, outFile, template.getTemplatePath());
+      String templatePath = templater.processStringTemplate(fullTemplateData, template.getTemplatePath());
+      templater.writeTemplate(fullTemplateData, outFile, templatePath);
     }
   }
 

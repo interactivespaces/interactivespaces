@@ -97,4 +97,13 @@ public class ProjectConfigurationProperty {
   public String getValue() {
     return value;
   }
+
+  public static ProjectConfigurationProperty fromString(String input) {
+    String[] parts = input.split(",", 3);
+    String name = parts[0];
+    String value = parts.length > 1 ? parts[1] : null;
+    boolean required = value != null;
+    String description = parts.length > 2 ? parts[2] : null;
+    return new ProjectConfigurationProperty(name, value, required, description);
+  }
 }

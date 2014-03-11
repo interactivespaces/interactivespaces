@@ -180,7 +180,7 @@ public class ActivityProject extends Project {
    * @return the class package of the activity
    */
   public String getActivityClassPackage() {
-    return activityClass.substring(0, activityClass.lastIndexOf(".") - 1);
+    return activityClass.substring(0, activityClass.lastIndexOf("."));
   }
 
   /**
@@ -293,5 +293,15 @@ public class ActivityProject extends Project {
       configurationProperties = Lists.newArrayList();
     }
     configurationProperties.add(configurationProperty);
+  }
+
+  /**
+   * Add a configuration properties from a string specification.
+   *
+   * @param configurationProperty
+   *          the configuration property for the activity
+   */
+  public void addConfigurationProperty(String configurationProperty) {
+    addConfigurationProperty(ProjectConfigurationProperty.fromString(configurationProperty));
   }
 }
