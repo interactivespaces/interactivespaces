@@ -16,12 +16,19 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+
 /**
  * An item in a project configuration.
  *
  * @author Keith M. Hughes
  */
 public class ProjectConfigurationProperty {
+
+  /**
+   * Maximum number of string parts for a string specification.
+   */
+  public static final int MAX_INPUT_PARTS = 3;
 
   /**
    * The name of the configuration property.
@@ -98,11 +105,22 @@ public class ProjectConfigurationProperty {
     return value;
   }
 
+  /**
+   * Construct a new instance given a specification input string.
+   *
+   * @param input
+   *          specification string
+   *
+   * @return new property instance
+   */
   public static ProjectConfigurationProperty fromString(String input) {
-    String[] parts = input.split(",", 3);
+    String[] parts = input.split(",");
+    if (parts.length > MAX_INPUT_PARTS) {
+      throw new SimpleInteractiveSpacesException("Excess parts found for input string: " + input);
+    }
     String name = parts[0];
-    String value = parts.length > 1 ? parts[1] : null;
-    boolean required = value != null;
+    String value = parts.length > 1 ? parts[1] : "";
+    boolean required = !value.isEmpty();
     String description = parts.length > 2 ? parts[2] : null;
     return new ProjectConfigurationProperty(name, value, required, description);
   }

@@ -11,16 +11,27 @@ import java.util.Map;
 /**
  */
 public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTemplate {
-  private boolean initialized;
 
+  /**
+   * Construct a new instance.
+   */
   public BaseNativeActivityProjectTemplate() {
     super("Generic Base Java Activity Project", "base");
   }
 
+  /**
+   * Construct a new instance with the given non-default parameters.
+   *
+   * @param displayName
+   *          ui display name
+   * @param language
+   *          template language
+   */
   public BaseNativeActivityProjectTemplate(String displayName, String language) {
     super(displayName, language);
   }
 
+  @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
 
@@ -37,14 +48,13 @@ public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTempla
     fullTemplateData.put("activityPackagePath", activityProject.getActivityPackagePath());
     fullTemplateData.put("activitySourceDirectory", activityProject.getActivitySourceDirectory());
     fullTemplateData.put("activityResourceDirectory", activityProject.getActivityResourceDirectory());
-
-    initialized = true;
   }
 
+  @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, Map<String, Object> fullTemplateData) {
     super.onTemplateSetup(spec, fullTemplateData);
 
-    if (!initialized) {
+    if (fullTemplateData.get("activityClassName") == null) {
       throw new SimpleInteractiveSpacesException("Base native onTemplateSetup not called");
     }
   }
