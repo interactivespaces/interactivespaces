@@ -212,7 +212,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
         value = valueChild;
       }
 
-      properties.add(new ProjectConfigurationProperty(name, description, required, value));
+      properties.add(new ProjectConfigurationProperty(name, value, required, description));
     }
   }
 }

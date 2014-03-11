@@ -16,15 +16,12 @@
 
 package interactivespaces.workbench.project.activity.template;
 
-import com.google.common.collect.Lists;
 import interactivespaces.activity.component.web.WebBrowserActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +29,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class GenericWebActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericWebActivityProjectTemplate extends BaseNativeActivityProjectTemplate {
 
   /**
    * Template input base for all web templates.
@@ -44,13 +41,13 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
    */
   {
     addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.java.ftl",
-        "${project.getActivitySourceDirectory()}/${javaPackagePath}/${activityClassName}.java");
+        "${activitySourceDirectory}/${activityPackagePath}/${activityClassName}.java");
     addFileTemplate(TEMPLATE_BASE + "index.html.ftl",
-        "${project.getActivityResourceDirectory()}/${webAppBasePath}/index.html");
+        "${activityResourceDirectory}/${webAppBasePath}/index.html");
     addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.js.ftl",
-        "${project.getActivityResourceDirectory()}/${webAppBasePath}/js/${webAppFileBase}.js");
+        "${activityResourceDirectory}/${webAppBasePath}/js/${webAppFileBase}.js");
     addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.css.ftl",
-        "${project.getActivityResourceDirectory()}/${webAppBasePath}/css/${webAppFileBase}.css");
+        "${activityResourceDirectory}/${webAppBasePath}/css/${webAppFileBase}.css");
   }
 
   /**
@@ -80,26 +77,17 @@ public class GenericWebActivityProjectTemplate extends BaseActivityProjectTempla
       Map<String, Object> fullTemplateData) {
     String classBase = activityProject.getActivityRuntimeName();
     String webActivityNativeHostClass = classBase.substring(0, 1).toUpperCase() + classBase.substring(1);
-    fullTemplateData.put("activityClassName", webActivityNativeHostClass);
-    fullTemplateData.put("javaPackagePath", activityProject.getIdentifyingName().replace('.', '/'));
-    fullTemplateData.put("webAppFileBase", activityProject.getIdentifyingName().replace('.', '-'));
     fullTemplateData.put("webAppBasePath", WEB_APP_BASE_WEB_PATH);
+    fullTemplateData.put("webAppFileBase", activityProject.getIdentifyingName().replace('.', '-'));
 
-    activityProject.setBuilderType("java");
-
-    activityProject.setActivityType("interactivespaces_native");
     activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + webActivityNativeHostClass);
+    super.onTemplateSetup(spec, activityProject, fullTemplateData);
 
-    List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
-    configurationProperties.add(new ProjectConfigurationProperty(
-        "space.activity.log.level", null, false, InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
-    configurationProperties.add(new ProjectConfigurationProperty(
-        WebServerActivityComponent.CONFIGURATION_WEBAPP_CONTENT_LOCATION, null, false, WEB_APP_BASE_WEB_PATH));
-    configurationProperties.add(new ProjectConfigurationProperty(
-        WebServerActivityComponent.CONFIGURATION_WEBAPP_WEB_SERVER_PORT, null, false, WEB_APP_DEFAULT_PORT));
-    configurationProperties.add(new ProjectConfigurationProperty(
-        WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE, null, false, WEB_APP_INITIAL_PAGE));
-
-    activityProject.setConfigurationProperties(configurationProperties);
+    activityProject.addConfigurationProperty(new ProjectConfigurationProperty(
+        WebServerActivityComponent.CONFIGURATION_WEBAPP_CONTENT_LOCATION, WEB_APP_BASE_WEB_PATH, false, null));
+    activityProject.addConfigurationProperty(new ProjectConfigurationProperty(
+        WebServerActivityComponent.CONFIGURATION_WEBAPP_WEB_SERVER_PORT, WEB_APP_DEFAULT_PORT, false, null));
+    activityProject.addConfigurationProperty(new ProjectConfigurationProperty(
+        WebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE, WEB_APP_INITIAL_PAGE, false, null));
   }
 }

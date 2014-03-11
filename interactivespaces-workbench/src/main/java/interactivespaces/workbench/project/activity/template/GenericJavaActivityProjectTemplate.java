@@ -16,19 +16,9 @@
 
 package interactivespaces.workbench.project.activity.template;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
-import com.google.common.collect.Lists;
-import interactivespaces.workbench.project.java.JavaProjectType;
-
-import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,7 +26,12 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTemplate {
+public class GenericJavaActivityProjectTemplate extends BaseNativeActivityProjectTemplate {
+
+  /**
+   * Template input base for all web templates.
+   */
+  private static final String TEMPLATE_BASE = "activity/generic/java/simple/";
 
   /**
    * Java classname for the activity.
@@ -44,14 +39,12 @@ public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTempl
   public static final String ACTIVITY_CLASSNAME = "SimpleJavaActivity";
 
   /**
-   * Filename for the activity.
+   * Add the set of file templates for this project.
    */
-  public static final String ACTIVITY_FILENAME = ACTIVITY_CLASSNAME + ".java";
-
-  /**
-   * Pathname to the template.
-   */
-  private static final String TEMPLATE_PATHNAME = "activity/generic/java/simple/" + ACTIVITY_FILENAME + ".ftl";
+  {
+    addFileTemplate(TEMPLATE_BASE + "${activityClassName}.java.ftl",
+        "${activitySourceDirectory}/${activityPackagePath}/${activityClassName}.java");
+  }
 
   /**
    * Construct a template.
@@ -63,28 +56,7 @@ public class GenericJavaActivityProjectTemplate extends BaseActivityProjectTempl
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec, ActivityProject activityProject,
       Map<String, Object> fullTemplateData) {
-    activityProject.setBuilderType("java");
-
-    activityProject.setActivityType("interactivespaces_native");
     activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + ACTIVITY_CLASSNAME);
-
-    List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
-    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
-
-    activityProject.setConfigurationProperties(configurationProperties);
-  }
-
-  @Override
-  public void writeSpecificTemplates(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    Project project = spec.getProject();
-
-    // TODO(keith): Fix this when start supporting Windoze
-    String pathname = project.getIdentifyingName().replace('.', '/');
-    File sourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA + pathname);
-    makeDirectory(sourceDirectory);
-
-    templater.writeTemplate(fullTemplateData, new File(sourceDirectory, ACTIVITY_FILENAME), TEMPLATE_PATHNAME);
+    super.onTemplateSetup(spec, activityProject, fullTemplateData);
   }
 }

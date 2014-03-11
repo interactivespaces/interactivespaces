@@ -72,8 +72,8 @@ public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTe
     activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + ACTIVITY_CLASSNAME);
 
     List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
-    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", null, false,
-        InteractiveSpacesEnvironment.LOG_LEVEL_INFO));
+    configurationProperties.add(new ProjectConfigurationProperty("space.activity.log.level", InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null
+    ));
 
     activityProject.setConfigurationProperties(configurationProperties);
   }

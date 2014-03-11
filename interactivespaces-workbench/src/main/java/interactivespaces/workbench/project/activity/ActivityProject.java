@@ -166,6 +166,33 @@ public class ActivityProject extends Project {
   }
 
   /**
+   * Get the simple class name of the activity, derived from the full activity class.
+   *
+   * @return the class name of the activity
+   */
+  public String getActivityClassName() {
+    return activityClass.substring(activityClass.lastIndexOf(".") + 1);
+  }
+
+  /**
+   * Get the class package of the activity, derived from the full activity class.
+   *
+   * @return the class package of the activity
+   */
+  public String getActivityClassPackage() {
+    return activityClass.substring(0, activityClass.lastIndexOf(".") - 1);
+  }
+
+  /**
+   * Get the class package path of the activity, derived from the full activity class.
+   *
+   * @return the class package path of the activity
+   */
+  public String getActivityPackagePath() {
+    return getActivityClassPackage().replace('.', '/');
+  }
+
+  /**
    * Get the location of the config file.
    *
    * @return the location of the config file
@@ -253,5 +280,18 @@ public class ActivityProject extends Project {
    */
   public void setConfigurationProperties(List<ProjectConfigurationProperty> configurationProperties) {
     this.configurationProperties = configurationProperties;
+  }
+
+  /**
+   * Add a configuration properties to the activity.
+   *
+   * @param configurationProperty
+   *          the configuration property for the activity
+   */
+  public void addConfigurationProperty(ProjectConfigurationProperty configurationProperty) {
+    if (configurationProperties == null) {
+      configurationProperties = Lists.newArrayList();
+    }
+    configurationProperties.add(configurationProperty);
   }
 }

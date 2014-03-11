@@ -48,6 +48,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    * Initializer block for all activity project templates.
    */
   static {
+    addProjectTemplate(new BaseNativeActivityProjectTemplate());
     addProjectTemplate(new GenericJavaActivityProjectTemplate());
     addProjectTemplate(new GenericJavascriptActivityProjectTemplate());
     addProjectTemplate(new GenericWebActivityProjectTemplate());

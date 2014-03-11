@@ -48,14 +48,14 @@ public class ProjectConfigurationProperty {
    *
    * @param name
    *          the name of the configuration property
-   * @param description
-   *          the description of the configuration property, can be {@code null}
-   * @param required
-   *          {@code true} if the property is required.
    * @param value
    *          the default value of the property, can be {@code null}
+   * @param required
+   *          {@code true} if the property is required.
+   * @param description
+   *          the description of the configuration property, can be {@code null}
    */
-  public ProjectConfigurationProperty(String name, String description, boolean required, String value) {
+  public ProjectConfigurationProperty(String name, String value, boolean required, String description) {
     this.name = name;
     this.description = description;
     this.required = required;
