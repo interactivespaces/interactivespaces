@@ -22,6 +22,7 @@ import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -40,14 +41,10 @@ public class GenericWebActivityProjectTemplate extends BaseNativeActivityProject
    * Add the set of file templates for this project.
    */
   {
-    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.java.ftl",
-        "${activitySourceDirectory}/${activityPackagePath}/${activityClassName}.java");
-    addFileTemplate(TEMPLATE_BASE + "index.html.ftl",
-        "${activityResourceDirectory}/${webAppBasePath}/index.html");
-    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.js.ftl",
-        "${activityResourceDirectory}/${webAppBasePath}/js/${webAppFileBase}.js");
-    addFileTemplate(TEMPLATE_BASE + "SimpleWebActivity.css.ftl",
-        "${activityResourceDirectory}/${webAppBasePath}/css/${webAppFileBase}.css");
+    addFileTemplate("${activityJavaDir}/${activityClassName}.java", TEMPLATE_BASE + "SimpleWebActivity.java.ftl");
+    addFileTemplate("${webAppBaseDir}/index.html", TEMPLATE_BASE + "index.html.ftl");
+    addFileTemplate("${webAppBaseDir}/js/${webAppFileBase}.js", TEMPLATE_BASE + "SimpleWebActivity.js.ftl");
+    addFileTemplate("${webAppBaseDir}/css/${webAppFileBase}.css", TEMPLATE_BASE + "SimpleWebActivity.css.ftl");
   }
 
   /**
@@ -77,11 +74,13 @@ public class GenericWebActivityProjectTemplate extends BaseNativeActivityProject
       Map<String, Object> fullTemplateData) {
     String classBase = activityProject.getActivityRuntimeName();
     String webActivityNativeHostClass = classBase.substring(0, 1).toUpperCase() + classBase.substring(1);
-    fullTemplateData.put("webAppBasePath", WEB_APP_BASE_WEB_PATH);
-    fullTemplateData.put("webAppFileBase", activityProject.getIdentifyingName().replace('.', '-'));
 
     activityProject.setActivityClass(activityProject.getIdentifyingName() + "." + webActivityNativeHostClass);
     super.onTemplateSetup(spec, activityProject, fullTemplateData);
+
+    fullTemplateData.put("webAppBaseDir",
+        fullTemplateData.get("activityResourceDir") + File.separator + WEB_APP_BASE_WEB_PATH);
+    fullTemplateData.put("webAppFileBase", activityProject.getIdentifyingName().replace('.', '-'));
 
     activityProject.addConfigurationProperty(new ProjectConfigurationProperty(
         WebServerActivityComponent.CONFIGURATION_WEBAPP_CONTENT_LOCATION, WEB_APP_BASE_WEB_PATH, false, null));

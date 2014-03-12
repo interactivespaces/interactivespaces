@@ -46,7 +46,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Map of file/template pairs to add to the created project.
    */
-  private final List<ProjectFileTemplate> fileTempaltes = Lists.newLinkedList();
+  private final List<ProjectInOutPair> fileTempaltes = Lists.newLinkedList();
 
   /**
    * Create a new project template.
@@ -94,7 +94,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 
     fileTempaltes.addAll(project.getFileTemplates());
 
-    onTemplateSetup(spec, fullTemplateData);
+    onTemplateSetup(spec, templater, fullTemplateData);
 
     createProjectStructure(project);
 
@@ -137,13 +137,13 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Add a file template to the common collection.
    *
-   * @param source
-   *          template source
    * @param dest
    *          output destination
+   * @param source
+ *            template source
    */
-  public void addFileTemplate(String source, String dest) {
-    fileTempaltes.add(new ProjectFileTemplate(source, dest));
+  public void addFileTemplate(String dest, String source) {
+    fileTempaltes.add(new ProjectInOutPair(dest, source));
   }
 
   /**
@@ -151,11 +151,13 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    *
    * @param spec
    *          spec for the project
+   * @param templater
+   *          the templater to use for setup
    * @param fullTemplateData
-   *          the template data to be handed to this template
+   *          template data to setup
    */
   public abstract void onTemplateSetup(ProjectCreationSpecification spec,
-      Map<String, Object> fullTemplateData);
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData);
 
   /**
    * Write out all templates specific for the template type.
@@ -188,11 +190,11 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
   public void writeCommonTemplates(ProjectCreationSpecification spec,
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
-    for (ProjectFileTemplate template : fileTempaltes) {
+    for (ProjectInOutPair template : fileTempaltes) {
       String outName = templater.processStringTemplate(fullTemplateData, template.getOutputPath());
       File outFile =
           outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
-      String templatePath = templater.processStringTemplate(fullTemplateData, template.getTemplatePath());
+      String templatePath = templater.processStringTemplate(fullTemplateData, template.getInputPath());
       templater.writeTemplate(fullTemplateData, outFile, templatePath);
     }
   }

@@ -18,10 +18,12 @@ package interactivespaces.workbench.project.activity.template;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -65,13 +67,15 @@ public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTempla
 
     fullTemplateData.put("activityClassName", activityProject.getActivityClassName());
     fullTemplateData.put("activityPackagePath", activityProject.getActivityPackagePath());
-    fullTemplateData.put("activitySourceDirectory", activityProject.getActivitySourceDirectory());
-    fullTemplateData.put("activityResourceDirectory", activityProject.getActivityResourceDirectory());
+    fullTemplateData.put("activitySourceDir", activityProject.getActivitySourceDirectory());
+    fullTemplateData.put("activityResourceDir", activityProject.getActivityResourceDirectory());
+    fullTemplateData.put("activityJavaDir",
+        activityProject.getActivitySourceDirectory() + File.separator + activityProject.getActivityPackagePath());
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, Map<String, Object> fullTemplateData) {
-    super.onTemplateSetup(spec, fullTemplateData);
+  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
+    super.onTemplateSetup(spec, templater, fullTemplateData);
 
     if (fullTemplateData.get("activityClassName") == null) {
       throw new SimpleInteractiveSpacesException("Base native onTemplateSetup not called");

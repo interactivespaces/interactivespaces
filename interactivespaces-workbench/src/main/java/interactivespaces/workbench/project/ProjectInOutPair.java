@@ -19,16 +19,16 @@ package interactivespaces.workbench.project;
 import interactivespaces.SimpleInteractiveSpacesException;
 
 /**
- * A simple file template specification.
+ * A simple input/output pair specification.
  *
  * @author Trevor Pering
  */
-public class ProjectFileTemplate {
+public class ProjectInOutPair {
 
   /**
-   * The input template path.
+   * The input path.
    */
-  private final String templatePath;
+  private final String inputPath;
 
   /**
    * Output path.
@@ -38,21 +38,21 @@ public class ProjectFileTemplate {
   /**
    * Create a new file template.
    *
-   * @param templatePath
-   *          input path
    * @param outputPath
    *          output path
+   * @param inputPath
+   *          input path
    */
-  public ProjectFileTemplate(String templatePath, String outputPath) {
-    this.templatePath = templatePath;
+  public ProjectInOutPair(String outputPath, String inputPath) {
     this.outputPath = outputPath;
+    this.inputPath = inputPath;
   }
 
   /**
    * @return file input template path
    */
-  public String getTemplatePath() {
-    return templatePath;
+  public String getInputPath() {
+    return inputPath;
   }
 
   /**
@@ -70,11 +70,11 @@ public class ProjectFileTemplate {
    *
    * @return instance constructed from input string
    */
-  public static ProjectFileTemplate fromString(String input) {
+  public static ProjectInOutPair fromString(String input) {
     String[] parts = input.split(",");
     if (parts.length > 2) {
       throw new SimpleInteractiveSpacesException("Too many parts in template spec " + input);
     }
-    return new ProjectFileTemplate(parts[0], parts[1]);
+    return new ProjectInOutPair(parts[0], parts[1]);
   }
 }

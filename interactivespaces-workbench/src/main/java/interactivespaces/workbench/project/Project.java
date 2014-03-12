@@ -107,6 +107,11 @@ public abstract class Project {
   private final List<ProjectConstituent> extraConstituents = Lists.newArrayList();
 
   /**
+   * Variables that should be fed into the output template.
+   */
+  private final List<ProjectInOutPair> templateVars = Lists.newArrayList();
+
+  /**
    * The deployments the project requires.
    */
   private final List<ProjectDeployment> deployments = Lists.newArrayList();
@@ -129,7 +134,7 @@ public abstract class Project {
   /**
    * Extra file templates to use when templating this project.
    */
-  private final List<ProjectFileTemplate> fileTemplates = Lists.newArrayList();
+  private final List<ProjectInOutPair> fileTemplates = Lists.newArrayList();
 
   /**
    * Get the type of the project.
@@ -540,7 +545,7 @@ public abstract class Project {
    *          template specification
    */
   public void addFileTemplate(String input) {
-     fileTemplates.add(ProjectFileTemplate.fromString(input));
+    fileTemplates.add(ProjectInOutPair.fromString(input));
   }
 
   /**
@@ -548,7 +553,26 @@ public abstract class Project {
    *
    * @return file template list
    */
-  public List<ProjectFileTemplate> getFileTemplates() {
+  public List<ProjectInOutPair> getFileTemplates() {
     return fileTemplates;
+  }
+
+  /**
+   * Add a file template to the project.
+   *
+   * @param input
+   *          template specification
+   */
+  public void addTemplateVar(String input) {
+    templateVars.add(ProjectInOutPair.fromString(input));
+  }
+
+  /**
+   * Get the list of added file templates.
+   *
+   * @return file template list
+   */
+  public List<ProjectInOutPair> getTemplateVars() {
+    return templateVars;
   }
 }

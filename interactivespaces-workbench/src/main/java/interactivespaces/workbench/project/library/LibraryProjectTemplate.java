@@ -40,7 +40,7 @@ public class LibraryProjectTemplate extends BaseProjectTemplate {
 
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec,
-      Map<String, Object> fullTemplateData) {
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
     addSourceDirectory(JavaProjectType.SOURCE_MAIN_JAVA);
   }
 

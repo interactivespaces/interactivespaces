@@ -44,7 +44,7 @@ public class AssemblyProjectTemplate extends BaseProjectTemplate {
 
   @Override
   public void onTemplateSetup(ProjectCreationSpecification spec,
-      Map<String, Object> fullTemplateData) {
+      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
   }
 
   @Override

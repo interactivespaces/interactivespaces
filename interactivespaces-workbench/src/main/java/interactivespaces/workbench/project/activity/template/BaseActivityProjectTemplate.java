@@ -23,6 +23,7 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.ProjectInOutPair;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.java.JavaProjectType;
@@ -103,12 +104,12 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, Map<String, Object> fullTemplateData) {
+  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
     ActivityProject activityProject = spec.getProject();
     fullTemplateData.put("activity", activityProject);
 
     // Create an activity name from the identifying name
-    String identifyingName = spec.getProject().getIdentifyingName();
+    String identifyingName = activityProject.getIdentifyingName();
     String[] parts = identifyingName.split("\\.");
     StringBuilder activityRuntimeName = new StringBuilder(parts[0]);
 
@@ -118,6 +119,10 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     }
 
     activityProject.setActivityRuntimeName(activityRuntimeName.toString());
+
+    for (ProjectInOutPair var : activityProject.getTemplateVars()) {
+      fullTemplateData.put(var.getOutputPath(), templater.processStringTemplate(fullTemplateData, var.getInputPath()));
+    }
 
     onTemplateSetup(spec, activityProject, fullTemplateData);
   }

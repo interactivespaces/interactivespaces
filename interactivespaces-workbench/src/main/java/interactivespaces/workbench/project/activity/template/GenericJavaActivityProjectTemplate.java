@@ -42,8 +42,9 @@ public class GenericJavaActivityProjectTemplate extends BaseNativeActivityProjec
    * Add the set of file templates for this project.
    */
   {
-    addFileTemplate(TEMPLATE_BASE + "${activityClassName}.java.ftl",
-        "${activitySourceDirectory}/${activityPackagePath}/${activityClassName}.java");
+    addFileTemplate("${activitySourceDirectory}/${activityPackagePath}/${activityClassName}.java",
+        TEMPLATE_BASE + "${activityClassName}.java.ftl"
+    );
   }
 
   /**
