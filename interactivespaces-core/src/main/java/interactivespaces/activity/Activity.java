@@ -177,6 +177,14 @@ public interface Activity extends ActivityControl {
   ActivityStatus getActivityStatus();
 
   /**
+   * Set the activity status.
+   *
+   * @param activityStatus
+   *          the new activity status
+   */
+  void setActivityStatus(ActivityStatus activityStatus);
+
+  /**
    * The activity didn't start. Do any cleanup necessary and clear its status.
    */
   void handleStartupFailure();
