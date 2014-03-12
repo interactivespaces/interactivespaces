@@ -177,7 +177,7 @@ public class ActiveControllerActivity implements ActivityControl {
         }
       } catch (Exception e) {
         controller.getSpaceEnvironment().getLog().error("Error starting activity", e);
-        setActivityStatus(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
+        setActivityStatusUnprotected(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
       } finally {
         releaseInstanceLock();
       }
