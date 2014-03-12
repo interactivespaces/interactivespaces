@@ -104,7 +104,8 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
+  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater,
+      Map<String, Object> fullTemplateData) {
     ActivityProject activityProject = spec.getProject();
     fullTemplateData.put("activity", activityProject);
 

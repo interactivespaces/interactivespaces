@@ -74,7 +74,8 @@ public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTempla
   }
 
   @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
+  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater,
+      Map<String, Object> fullTemplateData) {
     super.onTemplateSetup(spec, templater, fullTemplateData);
 
     if (fullTemplateData.get("activityClassName") == null) {
