@@ -18,7 +18,6 @@ package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
@@ -107,11 +106,6 @@ public abstract class Project {
   private final List<ProjectConstituent> extraConstituents = Lists.newArrayList();
 
   /**
-   * Variables that should be fed into the output template.
-   */
-  private final List<ProjectInOutPair> templateVars = Lists.newArrayList();
-
-  /**
    * The deployments the project requires.
    */
   private final List<ProjectDeployment> deployments = Lists.newArrayList();
@@ -130,11 +124,6 @@ public abstract class Project {
    * The configuration for this project.
    */
   private final Configuration configuration = SimpleConfiguration.newConfiguration();
-
-  /**
-   * Extra file templates to use when templating this project.
-   */
-  private final List<ProjectInOutPair> fileTemplates = Lists.newArrayList();
 
   /**
    * Get the type of the project.
@@ -280,16 +269,6 @@ public abstract class Project {
   }
 
   /**
-   * Set the version for the project.
-   *
-   * @param version
-   *          the version
-   */
-  public void setVersion(String version) {
-    setVersion(Version.parseVersion(version));
-  }
-
-  /**
    * Get the range of Interactive Spaces versions that this project requires.
    *
    * @return the range of Interactive Spaces versions that this project requires
@@ -310,29 +289,6 @@ public abstract class Project {
   }
 
   /**
-   * Set/add the dynamically specified project property. This will search the project class for a matching
-   * setter or adder, and then set or add the property, accordingly.
-   *
-   * @param name
-   *          property name to set or add
-   * @param value
-   *          value to set/add
-   */
-  public void setProperty(String name, String value) {
-    try {
-      String camlName = name.substring(0, 1).toUpperCase() + name.substring(1);
-      try {
-        getClass().getMethod("set" + camlName, String.class).invoke(this, value);
-      } catch (NoSuchMethodException e) {
-        getClass().getMethod("add" + camlName, String.class).invoke(this, value);
-      }
-    } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Could not set/add property %s value %s", name, value), e);
-    }
-  }
-
-  /**
    * Add a dependency to the project.
    *
    * @param dependency
@@ -340,16 +296,6 @@ public abstract class Project {
    */
   public void addDependency(ProjectDependency dependency) {
     dependencies.add(dependency);
-  }
-
-  /**
-   * Add a dependency to the project specified as a string.
-   *
-   * @param dependency
-   *          the dependency to add
-   */
-  public void addDependency(String dependency) {
-    dependencies.add(ProjectDependency.fromString(dependency));
   }
 
   /**
@@ -417,30 +363,30 @@ public abstract class Project {
    * Add a project source to this project.
    *
    * @param source
-   *          specification for the project source
+   *          the project source
    */
-  public void addSource(String source) {
-    sources.add(ProjectResourceConstituent.fromString(source, true));
+  public void addSource(ProjectResourceConstituent source) {
+    sources.add(source);
   }
 
   /**
    * Add a project resource to this project.
    *
    * @param resource
-   *          specification for the project resource
+   *          the project resource
    */
-  public void addResource(String resource) {
-    resources.add(ProjectResourceConstituent.fromString(resource, false));
+  public void addResource(ProjectResourceConstituent resource) {
+    resources.add(resource);
   }
 
   /**
    * Add a project assembly to this project.
    *
    * @param assembly
-   *          specification for the project assembly
+   *          the project assembly
    */
-  public void addAssembly(String assembly) {
-    resources.add(ProjectAssemblyConstituent.fromString(assembly));
+  public void addAssembly(ProjectAssemblyConstituent assembly) {
+    resources.add(assembly);
   }
 
   /**
@@ -536,43 +482,5 @@ public abstract class Project {
    */
   public List<ProjectConstituent> getExtraConstituents() {
     return extraConstituents;
-  }
-
-  /**
-   * Add a file template to the project.
-   *
-   * @param input
-   *          template specification
-   */
-  public void addFileTemplate(String input) {
-    fileTemplates.add(ProjectInOutPair.fromString(input));
-  }
-
-  /**
-   * Get the list of added file templates.
-   *
-   * @return file template list
-   */
-  public List<ProjectInOutPair> getFileTemplates() {
-    return fileTemplates;
-  }
-
-  /**
-   * Add a file template to the project.
-   *
-   * @param input
-   *          template specification
-   */
-  public void addTemplateVar(String input) {
-    templateVars.add(ProjectInOutPair.fromString(input));
-  }
-
-  /**
-   * Get the list of added file templates.
-   *
-   * @return file template list
-   */
-  public List<ProjectInOutPair> getTemplateVars() {
-    return templateVars;
   }
 }

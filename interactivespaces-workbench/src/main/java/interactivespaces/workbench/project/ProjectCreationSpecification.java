@@ -55,6 +55,16 @@ public class ProjectCreationSpecification {
   private final List<String> sourceDirectories = Lists.newArrayList();
 
   /**
+   * Extra file templates to use when templating this project.
+   */
+  private final List<ProjectInOutPair> fileTemplates = Lists.newArrayList();
+
+  /**
+   * Variables that should be fed into the output template.
+   */
+  private final List<ProjectInOutPair> templateVars = Lists.newArrayList();
+
+  /**
    * Get the programming language for the project.
    *
    * @return the language
@@ -163,5 +173,44 @@ public class ProjectCreationSpecification {
    */
   public void addExtraConfigurationParameter(String name, String value) {
     extraConfigurationParameters.add(new SimpleConfigurationParameter(name, value));
+  }
+
+  /**
+   * Add a file template to the project.
+   *
+   * @param input
+   *          template specification
+   * @param project
+   */
+  public void addFileTemplate(String input, Project project) {
+    fileTemplates.add(ProjectInOutPair.fromString(input));
+  }
+
+  /**
+   * Get the list of added file templates.
+   *
+   * @return file template list
+   */
+  public List<ProjectInOutPair> getFileTemplates() {
+    return fileTemplates;
+  }
+
+  /**
+   * Add a file template to the project.
+   *
+   * @param input
+   *          template specification
+   */
+  public void addTemplateVar(String input) {
+    templateVars.add(ProjectInOutPair.fromString(input));
+  }
+
+  /**
+   * Get the list of added file templates.
+   *
+   * @return file template list
+   */
+  public List<ProjectInOutPair> getTemplateVars() {
+    return templateVars;
   }
 }

@@ -121,7 +121,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 
     activityProject.setActivityRuntimeName(activityRuntimeName.toString());
 
-    for (ProjectInOutPair var : activityProject.getTemplateVars()) {
+    for (ProjectInOutPair var : spec.getTemplateVars()) {
       fullTemplateData.put(var.getOutputPath(), templater.processStringTemplate(fullTemplateData, var.getInputPath()));
     }
 

@@ -67,6 +67,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -680,7 +681,7 @@ public class InteractiveSpacesWorkbench {
       populateProjectFromConsole(project);
       project.setBaseDirectory(new File(project.getIdentifyingName()));
     } else {
-      populateProjectFromSpec(project, projectSpecPath);
+      populateFromSpec(projectSpecPath, spec, project);
     }
 
     activityProjectCreator.createProject(spec);
@@ -711,14 +712,16 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Get the activity data from a specification file.
+   * Get the requisite data from a specification file.
    *
+   * @param projectSpecPath
+   *          path to the input specification file
+   * @param spec
+   *          project specification to populate
    * @param project
    *          where the project data should be stored
-   * @param projectSpecPath
-   *          path to the project specification file
    */
-  private void populateProjectFromSpec(Project project, String projectSpecPath) {
+  private void populateFromSpec(String projectSpecPath, ProjectCreationSpecification spec, Project project) {
     try {
       List<String> parameters = Files.readLines(new File(projectSpecPath), Charset.defaultCharset());
       for (String line : parameters) {
@@ -730,11 +733,68 @@ public class InteractiveSpacesWorkbench {
         if (parts.length != 2) {
           throw new SimpleInteractiveSpacesException("Invalid property line syntax: " + line);
         }
-        project.setProperty(parts[0], parts[1]);
+        String[] targets = parts[0].split("\\.", 2);
+        String propertyContainer = targets[0];
+        Object propertyObject = "project".equals(propertyContainer) ? project : spec;
+        String propertyName = targets[1];
+        String propertyValue = parts[1];
+        setTargetProperty(propertyObject, propertyName, propertyValue);
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("Could not read/process spec file " + projectSpecPath, e);
     }
+  }
+
+  /**
+   * Set/add the dynamically specified project property. This will search the project class for a matching
+   * setter or adder, and then set or add the property, accordingly.
+   *
+   * @param target
+   *          the target object on which to set the property
+   * @param name
+   *          property name to set or add
+   * @param value
+   *          value to set/add
+   */
+  public void setTargetProperty(Object target, String name, String value) {
+    try {
+      String camlName = name.substring(0, 1).toUpperCase() + name.substring(1);
+      Method setter = findMethod(target.getClass(), "set", camlName);
+      setter = setter != null ? setter : findMethod(target.getClass(), "add", camlName);
+      if (setter == null) {
+        throw new SimpleInteractiveSpacesException("Matching set/add method not found");
+      }
+      Class<?> parameterType = setter.getParameterTypes()[0];
+      if (parameterType.isAssignableFrom(String.class)) {
+        setter.invoke(target, value);
+      } else {
+        Method converter = findMethod(parameterType, "parse", parameterType.getSimpleName());
+        setter.invoke(target, converter.invoke(null, value));
+      }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("Could not set/add property %s value %s", name, value), e);
+    }
+  }
+
+  Method findMethod(Class<?> targetClass, String prefix, String name) {
+    String methodName = prefix + name;
+    Method[] methods = targetClass.getMethods();
+    for (Method method : methods) {
+      if (method.getName().equals(methodName)) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 1) {
+          Class<?> parameterType = parameterTypes[0];
+          if (parameterType.isAssignableFrom(String.class)) {
+            return method;
+          } else if (parameterType.getSimpleName().equals(name)) {
+            return method;
+          }
+        }
+      }
+    }
+    getLog().warn(String.format("Could not find method %s in class %s", methodName, targetClass.getName()));
+    return null;
   }
 
   /**

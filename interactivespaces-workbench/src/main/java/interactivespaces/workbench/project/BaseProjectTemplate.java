@@ -92,7 +92,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 
     Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
 
-    fileTempaltes.addAll(project.getFileTemplates());
+    fileTempaltes.addAll(spec.getFileTemplates());
 
     onTemplateSetup(spec, templater, fullTemplateData);
 
