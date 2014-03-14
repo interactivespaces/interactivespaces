@@ -26,21 +26,24 @@ public class TemplateFile {
   /**
    * The input path.
    */
-  private final String template;
+  private String template;
 
   /**
    * Output path.
    */
-  private final String output;
+  private String output;
 
-  /**
-   * Create a new file template.
-   *
-   * @param output
-   *          output path
-   * @param template
-   *          input path
-   */
+  public TemplateFile() {
+  }
+
+    /**
+     * Create a new file template.
+     *
+     * @param output
+     *          output path
+     * @param template
+     *          input path
+     */
   public TemplateFile(String output, String template) {
     this.output = output;
     this.template = template;
@@ -59,5 +62,13 @@ public class TemplateFile {
    */
   public String getOutput() {
     return output;
+  }
+
+  public void setTemplate(String template) {
+    this.template = template;
+  }
+
+  public void setOutput(String output) {
+    this.output = output;
   }
 }

@@ -26,12 +26,12 @@ public class TemplateVar {
   /**
    * The input path.
    */
-  private final String value;
+  private String value;
 
   /**
    * Output path.
    */
-  private final String name;
+  private String name;
 
   /**
    * Create a new template variable entry.
@@ -41,9 +41,7 @@ public class TemplateVar {
    * @param value
    *          input path
    */
-  public TemplateVar(String name, String value) {
-    this.name = name;
-    this.value = value;
+  public TemplateVar() {
   }
 
   /**
@@ -59,5 +57,13 @@ public class TemplateVar {
    */
   public String getName() {
     return name;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

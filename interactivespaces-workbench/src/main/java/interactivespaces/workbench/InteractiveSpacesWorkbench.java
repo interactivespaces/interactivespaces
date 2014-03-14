@@ -807,7 +807,7 @@ public class InteractiveSpacesWorkbench {
         }
       }
     }
-    getLog().warn(String.format("Could not find method %s in class %s", methodName, targetClass.getName()));
+    getLog().debug(String.format("Could not find method %s in class %s", methodName, targetClass.getName()));
     return null;
   }
 
@@ -815,6 +815,7 @@ public class InteractiveSpacesWorkbench {
     try {
       return targetType.getConstructor(String.class);
     } catch (Exception e) {
+      getLog().debug(String.format("Could not find string constructor for %s", targetType.getName()));
       return null;
     }
   }
