@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.SimpleInteractiveSpacesException;
-
 /**
  * An item in a project configuration.
  *
@@ -50,6 +48,9 @@ public class ProjectConfigurationProperty {
    */
   private String value;
 
+  /**
+   * Create a new empty configuration property.
+   */
   public ProjectConfigurationProperty() {
   }
 
@@ -72,6 +73,12 @@ public class ProjectConfigurationProperty {
     this.value = value;
   }
 
+  /**
+   * Set the property name.
+   *
+   * @param name
+   *          property name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -85,6 +92,12 @@ public class ProjectConfigurationProperty {
     return name;
   }
 
+  /**
+   * Set property description.
+   *
+   * @param description
+   *          description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -98,6 +111,12 @@ public class ProjectConfigurationProperty {
     return description;
   }
 
+  /**
+   * Set the property required field.
+   *
+   * @param required
+   *          required attribute of this property
+   */
   public void setRequired(Boolean required) {
     this.required = required;
   }
@@ -111,6 +130,12 @@ public class ProjectConfigurationProperty {
     return required;
   }
 
+  /**
+   * Set the property default value.
+   *
+   * @param value
+   *          default value to use
+   */
   public void setValue(String value) {
     this.value = value;
   }
