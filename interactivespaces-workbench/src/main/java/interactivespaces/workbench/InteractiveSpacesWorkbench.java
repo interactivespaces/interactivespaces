@@ -28,6 +28,7 @@ import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
+import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
@@ -67,6 +68,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -162,6 +164,8 @@ public class InteractiveSpacesWorkbench {
    * using.
    */
   public static final String CONFIGURATION_MASTER_BASEDIR = "interactivespaces.master.basedir";
+
+  public static final JsonMapper MAPPER = new JsonMapper();
 
   /**
    * Properties for the workbench.
@@ -767,10 +771,25 @@ public class InteractiveSpacesWorkbench {
       Class<?> parameterType = setter.getParameterTypes()[0];
       if (parameterType.isAssignableFrom(String.class)) {
         setter.invoke(target, value);
-      } else {
-        Method converter = findMethod(parameterType, "parse", parameterType.getSimpleName());
-        setter.invoke(target, converter.invoke(null, value));
+        return;
       }
+
+      Constructor<?> constructor = findStringConstructor(parameterType);
+      if (constructor != null) {
+        setter.invoke(target, constructor.newInstance(value));
+        return;
+      }
+
+      Method converter = findMethod(parameterType, "parse", parameterType.getSimpleName());
+      if (converter != null) {
+        setter.invoke(target, converter.invoke(null, value));
+        return;
+      }
+
+      Class<?> targetType = setter.getParameterTypes()[0];
+      Object valueObject = buildFromJson(targetType, value);
+      setter.invoke(target, valueObject);
+
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(
           String.format("Could not set/add property %s value %s", name, value), e);
@@ -784,17 +803,45 @@ public class InteractiveSpacesWorkbench {
       if (method.getName().equals(methodName)) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
-          Class<?> parameterType = parameterTypes[0];
-          if (parameterType.isAssignableFrom(String.class)) {
-            return method;
-          } else if (parameterType.getSimpleName().equals(name)) {
-            return method;
-          }
+          return method;
         }
       }
     }
     getLog().warn(String.format("Could not find method %s in class %s", methodName, targetClass.getName()));
     return null;
+  }
+
+  public <T> Constructor<T> findStringConstructor(Class<T> targetType) {
+    try {
+      return targetType.getConstructor(String.class);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  public <T> T buildFromJson(Class<T> targetType, String json) {
+    try {
+      T targetObject = targetType.newInstance();
+      Map<String, Object> fieldMap;
+      try {
+        fieldMap = MAPPER.parseObject(json);
+      } catch (Exception e) {
+        throw new SimpleInteractiveSpacesException("Parsing json: " + json, e);
+      }
+      for (Map.Entry<String, Object> entry : fieldMap.entrySet()) {
+        String fieldName = entry.getKey();
+        String methodName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        try {
+          Method method = targetType.getMethod(methodName, entry.getValue().getClass());
+          method.invoke(targetObject, entry.getValue());
+        } catch (Exception e) {
+          throw new SimpleInteractiveSpacesException("Could not find method " + methodName, e);
+        }
+      }
+      return targetObject;
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Building from json for " + targetType.getSimpleName(), e);
+    }
   }
 
   /**

@@ -107,11 +107,6 @@ public class ActivityProjectConstituent implements ProjectConstituent {
     return null;
   }
 
-  @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
-
   /**
    * Factory for building the constituent builder.
    *

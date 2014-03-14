@@ -23,8 +23,9 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.ProjectInOutPair;
+import interactivespaces.workbench.project.TemplateFile;
 import interactivespaces.workbench.project.ProjectTemplate;
+import interactivespaces.workbench.project.TemplateVar;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
@@ -121,8 +122,8 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 
     activityProject.setActivityRuntimeName(activityRuntimeName.toString());
 
-    for (ProjectInOutPair var : spec.getTemplateVars()) {
-      fullTemplateData.put(var.getOutputPath(), templater.processStringTemplate(fullTemplateData, var.getInputPath()));
+    for (TemplateVar var : spec.getTemplateVars()) {
+      fullTemplateData.put(var.getName(), templater.processStringTemplate(fullTemplateData, var.getValue()));
     }
 
     onTemplateSetup(spec, activityProject, fullTemplateData);

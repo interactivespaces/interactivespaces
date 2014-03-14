@@ -83,8 +83,8 @@ public class ProjectDependency {
    * @param minimumVersion
    *          the minimum version
    */
-  public void setMinimumVersion(Version minimumVersion) {
-    this.minimumVersion = minimumVersion;
+  public void setMinimumVersion(String minimumVersion) {
+    this.minimumVersion = Version.parseVersion(minimumVersion);
   }
 
   /**
@@ -102,9 +102,8 @@ public class ProjectDependency {
    * @param maximumVersion
    *          the maximum version
    */
-  public void setMaximumVersion(Version maximumVersion) {
-    this.maximumVersion = maximumVersion;
-
+  public void setMaximumVersion(String maximumVersion) {
+    this.maximumVersion = Version.parseVersion(maximumVersion);
   }
 
   /**
@@ -158,23 +157,6 @@ public class ProjectDependency {
     }
 
     return builder.toString();
-  }
-
-  /**
-   * Create a new dependency from a string description.
-   *
-   * @param description
-   *          input string
-   * @return project description
-   */
-  public static ProjectDependency fromString(String description) {
-    String[] parts = description.split(",");
-    ProjectDependency dependency = new ProjectDependency();
-    dependency.setName(parts[0]);
-    dependency.setMinimumVersion(Version.parseVersion(parts[1]));
-    dependency.setMaximumVersion(Version.parseVersion(parts[2]));
-    dependency.setRequired(true);
-    return dependency;
   }
 
   @Override

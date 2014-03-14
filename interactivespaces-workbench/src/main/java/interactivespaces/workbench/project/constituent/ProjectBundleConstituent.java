@@ -94,11 +94,6 @@ public class ProjectBundleConstituent extends ContainerConstituent {
     }
   }
 
-  @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
-
   /**
    * Factory for the constituent components.
    */

@@ -15,7 +15,7 @@ ${project.description}
   <#list source.attributeMap?keys as key>
     <#if source.attributeMap[key]?has_content><#assign attributes="${attributes} ${key}=\"${source.attributeMap[key]}\""></#if>
   </#list>
-    <${source.getTypeName()}${attributes}/>
+    <source ${attributes}/>
 </#list>
   </sources>
 </#if>
@@ -27,7 +27,7 @@ ${project.description}
   <#list resource.attributeMap?keys as key>
     <#if resource.attributeMap[key]?has_content><#assign attributes="${attributes} ${key}=\"${resource.attributeMap[key]}\""></#if>
   </#list>
-    <${resource.getTypeName()}${attributes}/>
+    <resource ${attributes}/>
 </#list>
   </resources>
 </#if>

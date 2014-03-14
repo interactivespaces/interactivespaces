@@ -16,65 +16,48 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.SimpleInteractiveSpacesException;
-
 /**
  * A simple input/output pair specification.
  *
  * @author Trevor Pering
  */
-public class ProjectInOutPair {
+public class TemplateFile {
 
   /**
    * The input path.
    */
-  private final String inputPath;
+  private final String template;
 
   /**
    * Output path.
    */
-  private final String outputPath;
+  private final String output;
 
   /**
    * Create a new file template.
    *
-   * @param outputPath
+   * @param output
    *          output path
-   * @param inputPath
+   * @param template
    *          input path
    */
-  public ProjectInOutPair(String outputPath, String inputPath) {
-    this.outputPath = outputPath;
-    this.inputPath = inputPath;
+  public TemplateFile(String output, String template) {
+    this.output = output;
+    this.template = template;
   }
 
   /**
    * @return file input template path
    */
-  public String getInputPath() {
-    return inputPath;
+  public String getTemplate() {
+    return template;
   }
+
 
   /**
    * @return output path
    */
-  public String getOutputPath() {
-    return outputPath;
-  }
-
-  /**
-   * Create a new instance from an input string specification.
-   *
-   * @param input
-   *          input string
-   *
-   * @return instance constructed from input string
-   */
-  public static ProjectInOutPair fromString(String input) {
-    String[] parts = input.split(",");
-    if (parts.length > 2) {
-      throw new SimpleInteractiveSpacesException("Too many parts in template spec " + input);
-    }
-    return new ProjectInOutPair(parts[0], parts[1]);
+  public String getOutput() {
+    return output;
   }
 }

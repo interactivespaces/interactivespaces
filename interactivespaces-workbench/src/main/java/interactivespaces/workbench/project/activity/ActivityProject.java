@@ -294,14 +294,4 @@ public class ActivityProject extends Project {
     }
     configurationProperties.add(configurationProperty);
   }
-
-  /**
-   * Add a configuration properties from a string specification.
-   *
-   * @param configurationProperty
-   *          the configuration property for the activity
-   */
-  public void addConfigurationProperty(String configurationProperty) {
-    addConfigurationProperty(ProjectConfigurationProperty.fromString(configurationProperty));
-  }
 }

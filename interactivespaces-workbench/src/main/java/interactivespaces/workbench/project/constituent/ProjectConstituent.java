@@ -74,13 +74,6 @@ public interface ProjectConstituent {
   String getSourceDirectory() throws SimpleInteractiveSpacesException;
 
   /**
-   * Get the type name for this constituent.
-   *
-   * @return type name
-   */
-  String getTypeName();
-
-  /**
    * Factory for project constituent builders.
    *
    * @author Keith M. Hughes

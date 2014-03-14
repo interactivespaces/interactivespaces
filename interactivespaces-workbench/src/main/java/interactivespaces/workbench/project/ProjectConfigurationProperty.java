@@ -33,40 +33,47 @@ public class ProjectConfigurationProperty {
   /**
    * The name of the configuration property.
    */
-  private final String name;
+  private String name;
 
   /**
    * The description of the configuration property. Can be {@code null}.
    */
-  private final String description;
+  private String description;
 
   /**
    * {@code true} if the property is required.
    */
-  private final boolean required;
+  private boolean required;
 
   /**
    * The value of the property. Can be {@code null}.
    */
-  private final String value;
+  private String value;
 
-  /**
-   * Construct a new property.
-   *
-   * @param name
-   *          the name of the configuration property
-   * @param value
-   *          the default value of the property, can be {@code null}
-   * @param required
-   *          {@code true} if the property is required.
-   * @param description
-   *          the description of the configuration property, can be {@code null}
-   */
+  public ProjectConfigurationProperty() {
+  }
+
+    /**
+     * Construct a new property.
+     *
+     * @param name
+     *          the name of the configuration property
+     * @param value
+     *          the default value of the property, can be {@code null}
+     * @param required
+     *          {@code true} if the property is required.
+     * @param description
+     *          the description of the configuration property, can be {@code null}
+     */
   public ProjectConfigurationProperty(String name, String value, boolean required, String description) {
     this.name = name;
     this.description = description;
     this.required = required;
     this.value = value;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**
@@ -78,6 +85,10 @@ public class ProjectConfigurationProperty {
     return name;
   }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
   /**
    * Get the description of the property.
    *
@@ -85,6 +96,10 @@ public class ProjectConfigurationProperty {
    */
   public String getDescription() {
     return description;
+  }
+
+  public void setRequired(Boolean required) {
+    this.required = required;
   }
 
   /**
@@ -96,6 +111,10 @@ public class ProjectConfigurationProperty {
     return required;
   }
 
+  public void setValue(String value) {
+    this.value = value;
+  }
+
   /**
    * Get the value of the property.
    *
@@ -103,25 +122,5 @@ public class ProjectConfigurationProperty {
    */
   public String getValue() {
     return value;
-  }
-
-  /**
-   * Construct a new instance given a specification input string.
-   *
-   * @param input
-   *          specification string
-   *
-   * @return new property instance
-   */
-  public static ProjectConfigurationProperty fromString(String input) {
-    String[] parts = input.split(",");
-    if (parts.length > MAX_INPUT_PARTS) {
-      throw new SimpleInteractiveSpacesException("Excess parts found for input string: " + input);
-    }
-    String name = parts[0];
-    String value = parts.length > 1 ? parts[1] : "";
-    boolean required = !value.isEmpty();
-    String description = parts.length > 2 ? parts[2] : null;
-    return new ProjectConfigurationProperty(name, value, required, description);
   }
 }

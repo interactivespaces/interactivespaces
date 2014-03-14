@@ -47,8 +47,6 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    */
   public static final String ALTERNATE_NAME = "source";
 
-  public static JsonMapper MAPPER = new JsonMapper();
-
   /**
    * A directory from which all contents will be copied.
    */
@@ -76,11 +74,6 @@ public class ProjectResourceConstituent extends ContainerConstituent {
   private String destinationFile;
 
   /**
-   * True if the alternate name should be used for this constituent.
-   */
-  private boolean useAlternateName;
-
-  /**
    * The file support to use.
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -96,11 +89,6 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    */
   public void setSourceDirectory(String sourceDirectory) {
     this.sourceDirectory = sourceDirectory;
-  }
-
-  @Override
-  public String getTypeName() {
-    return useAlternateName ? ALTERNATE_NAME : TYPE_NAME;
   }
 
   @Override
@@ -183,34 +171,6 @@ public class ProjectResourceConstituent extends ContainerConstituent {
       fileSupport.directoryExists(destFile.getParentFile());
       fileSupport.copyFile(srcFile, destFile);
       context.getResourceSourceMap().put(destFile, srcFile);
-    }
-  }
-
-  /**
-   * Create a new project resource constituent from a string.
-   *
-   * @param json
-   *          specification json string
-   *
-   * @return parsed constituent
-   */
-  public static ProjectResourceConstituent fromJson(String json) {
-    ProjectResourceConstituent constituent = new ProjectResourceConstituent();
-    setFromJson(constituent, json);
-    return constituent;
-  }
-
-  public static void setFromJson(Object target, String json) {
-    Map<String, Object> fieldMap = MAPPER.parseObject(json);
-    for (Map.Entry<String, Object> entry : fieldMap.entrySet()) {
-      String fieldName = entry.getKey();
-      String methodName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-      try {
-        Method method = target.getClass().getMethod(methodName, String.class);
-        method.invoke(target, entry.getValue());
-      } catch (Exception e) {
-        throw new SimpleInteractiveSpacesException("Could not find method " + methodName, e);
-      }
     }
   }
 

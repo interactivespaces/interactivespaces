@@ -57,12 +57,12 @@ public class ProjectCreationSpecification {
   /**
    * Extra file templates to use when templating this project.
    */
-  private final List<ProjectInOutPair> fileTemplates = Lists.newArrayList();
+  private final List<TemplateFile> fileTemplates = Lists.newArrayList();
 
   /**
    * Variables that should be fed into the output template.
    */
-  private final List<ProjectInOutPair> templateVars = Lists.newArrayList();
+  private final List<TemplateVar> templateVars = Lists.newArrayList();
 
   /**
    * Get the programming language for the project.
@@ -178,12 +178,11 @@ public class ProjectCreationSpecification {
   /**
    * Add a file template to the project.
    *
-   * @param input
+   * @param templateFile
    *          template specification
-   * @param project
    */
-  public void addFileTemplate(String input, Project project) {
-    fileTemplates.add(ProjectInOutPair.fromString(input));
+  public void addFileTemplate(TemplateFile templateFile) {
+    fileTemplates.add(templateFile);
   }
 
   /**
@@ -191,18 +190,18 @@ public class ProjectCreationSpecification {
    *
    * @return file template list
    */
-  public List<ProjectInOutPair> getFileTemplates() {
+  public List<TemplateFile> getFileTemplates() {
     return fileTemplates;
   }
 
   /**
    * Add a file template to the project.
    *
-   * @param input
+   * @param templateVar
    *          template specification
    */
-  public void addTemplateVar(String input) {
-    templateVars.add(ProjectInOutPair.fromString(input));
+  public void addTemplateVar(TemplateVar templateVar) {
+    templateVars.add(templateVar);
   }
 
   /**
@@ -210,7 +209,7 @@ public class ProjectCreationSpecification {
    *
    * @return file template list
    */
-  public List<ProjectInOutPair> getTemplateVars() {
+  public List<TemplateVar> getTemplateVars() {
     return templateVars;
   }
 }

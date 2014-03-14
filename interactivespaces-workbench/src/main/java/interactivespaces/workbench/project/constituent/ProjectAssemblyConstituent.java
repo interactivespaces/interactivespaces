@@ -79,11 +79,6 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   }
 
   @Override
-  public String getTypeName() {
-    return TYPE_NAME;
-  }
-
-  @Override
   public Map<String, String> getAttributeMap() {
     Map<String, String> map = Maps.newHashMap();
     map.put(PACK_FORMAT_ATTRIBUTE, ZIP_PACK_FORMAT);
@@ -119,6 +114,14 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
     public ProjectConstituentBuilder newBuilder(Log log) {
       return new ProjectAssemblyBuilder(log);
     }
+  }
+
+  public void setSourceFile(String sourceFile) {
+    this.sourceFile = sourceFile;
+  }
+
+  public void setDestinationDirectory(String destinationDirectory) {
+    this.destinationDirectory = destinationDirectory;
   }
 
   /**
@@ -158,8 +161,8 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
       } else {
         ProjectAssemblyConstituent assembly = new ProjectAssemblyConstituent();
 
-        assembly.destinationDirectory = destinationDirectory;
-        assembly.sourceFile = sourceFile;
+        assembly.setDestinationDirectory(destinationDirectory);
+        assembly.setSourceFile(sourceFile);
 
         return assembly;
       }
