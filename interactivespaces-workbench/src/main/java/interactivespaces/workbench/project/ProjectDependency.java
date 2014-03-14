@@ -132,7 +132,7 @@ public class ProjectDependency {
    * @param required
    *          {@code true} if the dependency is required
    */
-  public void setRequired(boolean required) {
+  public void setRequired(Boolean required) {
     this.required = required;
   }
 
