@@ -17,8 +17,6 @@
 package interactivespaces.workbench.project.constituent;
 
 import com.google.common.collect.Maps;
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
@@ -27,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**

@@ -116,10 +116,22 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
     }
   }
 
+  /**
+   * Set the assembly source file.
+   *
+   * @param sourceFile
+   *          assembly source path
+   */
   public void setSourceFile(String sourceFile) {
     this.sourceFile = sourceFile;
   }
 
+  /**
+   * Set the destination directory for assembly expansion.
+   *
+   * @param destinationDirectory
+   *          directory to receive contents
+   */
   public void setDestinationDirectory(String destinationDirectory) {
     this.destinationDirectory = destinationDirectory;
   }

@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project;
 
 /**
- * A simple input/output pair specification.
+ * A file template specification.
  *
  * @author Trevor Pering
  */
@@ -33,19 +33,32 @@ public class TemplateFile {
    */
   private String output;
 
+  /**
+   * Create am empty template instance.
+   */
   public TemplateFile() {
   }
 
-    /**
-     * Create a new file template.
-     *
-     * @param output
-     *          output path
-     * @param template
-     *          input path
-     */
+  /**
+   * Create a new file template with supplied parameters.
+   *
+   * @param output
+   *          output path
+   * @param template
+   *          input path
+   */
   public TemplateFile(String output, String template) {
     this.output = output;
+    this.template = template;
+  }
+
+  /**
+   * Set the template source for this template.
+   *
+   * @param template
+   *          template source specification
+   */
+  public void setTemplate(String template) {
     this.template = template;
   }
 
@@ -56,19 +69,20 @@ public class TemplateFile {
     return template;
   }
 
+  /**
+   * Set the template output specification.
+   *
+   * @param output
+   *          template output
+   */
+  public void setOutput(String output) {
+    this.output = output;
+  }
 
   /**
    * @return output path
    */
   public String getOutput() {
     return output;
-  }
-
-  public void setTemplate(String template) {
-    this.template = template;
-  }
-
-  public void setOutput(String output) {
-    this.output = output;
   }
 }

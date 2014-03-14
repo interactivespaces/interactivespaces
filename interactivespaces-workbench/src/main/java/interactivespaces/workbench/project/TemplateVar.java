@@ -24,33 +24,30 @@ package interactivespaces.workbench.project;
 public class TemplateVar {
 
   /**
-   * The input path.
-   */
-  private String value;
-
-  /**
-   * Output path.
+   * The variable name.
    */
   private String name;
 
   /**
+   * The variable value.
+   */
+  private String value;
+
+  /**
    * Create a new template variable entry.
-   *
-   * @param name
-   *          output path
-   * @param value
-   *          input path
    */
   public TemplateVar() {
   }
 
   /**
-   * @return file input template path
+   * Set the name part of this variable.
+   *
+   * @param name
+   *          variable name
    */
-  public String getValue() {
-    return value;
+  public void setName(String name) {
+    this.name = name;
   }
-
 
   /**
    * @return output path
@@ -59,11 +56,20 @@ public class TemplateVar {
     return name;
   }
 
+  /**
+   * Set the value part of this variable.
+   *
+   * @param value
+   *          variable value
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  /**
+   * @return file input template path
+   */
+  public String getValue() {
+    return value;
   }
 }
