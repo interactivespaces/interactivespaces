@@ -16,19 +16,50 @@ import java.util.Map;
 /**
  */
 public class ProtocolReceptor {
-  public static final JsonMapper MAPPER = new JsonMapper();
 
-  Map<String, Object> targetMap = Maps.newHashMap();
+  /**
+   * For converting json strings.
+   */
+  private static final JsonMapper MAPPER = new JsonMapper();
 
+  /**
+   * Map of target protocol receptors.
+   */
+  private Map<String, Object> targetMap = Maps.newHashMap();
+
+  /**
+   * Logger to use.
+   */
   private final Log log;
 
+  /**
+   * Create a new instance.
+   *
+   * @param log
+   *          logger to use
+   */
   public ProtocolReceptor(Log log) {
     this.log = log;
   }
+
+  /**
+   * Add a target object.
+   *
+   * @param targetId
+   *          target id
+   * @param target
+   *          target object
+   */
   public void addTarget(String targetId, Object target) {
     targetMap.put(targetId, target);
   }
 
+  /**
+   * Reflect input from a given file path.
+   *
+   * @param inputPath
+   *          file path to process
+   */
   public void reflectFromPath(String inputPath) {
     try {
       List<String> parameters = Files.readLines(new File(inputPath), Charset.defaultCharset());
@@ -65,6 +96,7 @@ public class ProtocolReceptor {
    * @param name
    *          property name to set or add
    * @param value
+   *          value to set
    */
   public void setTargetProperty(Object target, String name, String value) {
     try {
@@ -102,7 +134,18 @@ public class ProtocolReceptor {
     }
   }
 
-
+  /**
+   * Dynamically find a matching method.
+   *
+   * @param targetClass
+   *          the target class to query
+   * @param prefix
+   *          function prefix name
+   * @param name
+   *          function property name
+   *
+   * @return method found, or {@code null}
+   */
   Method findMethod(Class<?> targetClass, String prefix, String name) {
     String methodName = prefix + name;
     Method[] methods = targetClass.getMethods();
@@ -118,6 +161,16 @@ public class ProtocolReceptor {
     return null;
   }
 
+  /**
+   * Find a matching string constructor for the given type.
+   *
+   * @param targetType
+   *          target class for which to find a constructor
+   * @param <T>
+   *          target type
+   *
+   * @return matching string constructor, or {@code null} if none
+   */
   public <T> Constructor<T> findStringConstructor(Class<T> targetType) {
     try {
       return targetType.getConstructor(String.class);
@@ -127,6 +180,18 @@ public class ProtocolReceptor {
     }
   }
 
+  /**
+   * Build a class of a given type from a json string.
+   *
+   * @param targetType
+   *          type to build
+   * @param json
+   *          json input
+   * @param <T>
+   *          output type
+   *
+   * @return created object
+   */
   public <T> T buildFromJson(Class<T> targetType, String json) {
     try {
       T targetObject = targetType.newInstance();
