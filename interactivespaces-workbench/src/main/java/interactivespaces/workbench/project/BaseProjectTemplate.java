@@ -140,7 +140,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    * @param dest
    *          output destination
    * @param source
- *            template source
+   *          template source
    */
   public void addFileTemplate(String dest, String source) {
     fileTempaltes.add(new TemplateFile(dest, source));

@@ -24,11 +24,6 @@ package interactivespaces.workbench.project;
 public class ProjectConfigurationProperty {
 
   /**
-   * Maximum number of string parts for a string specification.
-   */
-  public static final int MAX_INPUT_PARTS = 3;
-
-  /**
    * The name of the configuration property.
    */
   private String name;
@@ -54,18 +49,18 @@ public class ProjectConfigurationProperty {
   public ProjectConfigurationProperty() {
   }
 
-    /**
-     * Construct a new property.
-     *
-     * @param name
-     *          the name of the configuration property
-     * @param value
-     *          the default value of the property, can be {@code null}
-     * @param required
-     *          {@code true} if the property is required.
-     * @param description
-     *          the description of the configuration property, can be {@code null}
-     */
+  /**
+   * Construct a new property.
+   *
+   * @param name
+   *          the name of the configuration property
+   * @param value
+   *          the default value of the property, can be {@code null}
+   * @param required
+   *          {@code true} if the property is required.
+   * @param description
+   *          the description of the configuration property, can be {@code null}
+   */
   public ProjectConfigurationProperty(String name, String value, boolean required, String description) {
     this.name = name;
     this.description = description;

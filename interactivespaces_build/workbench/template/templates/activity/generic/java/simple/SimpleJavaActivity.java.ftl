@@ -1,4 +1,4 @@
-package ${project.identifyingName};
+package ${activityClassPackage};
 
 import interactivespaces.activity.impl.BaseActivity;
 

@@ -512,8 +512,8 @@ public class JdomProjectReader implements ProjectReader {
     ProjectDependency dependency = new ProjectDependency();
 
     dependency.setName(name);
-    dependency.setMinimumVersion(minimumVersion);
-    dependency.setMaximumVersion(maximumVersion);
+    dependency.setMinimumVersion(Version.parseVersion(minimumVersion));
+    dependency.setMaximumVersion(Version.parseVersion(maximumVersion));
     dependency.setRequired("true".equals(requiredString));
 
     return dependency;

@@ -83,8 +83,8 @@ public class ProjectDependency {
    * @param minimumVersion
    *          the minimum version
    */
-  public void setMinimumVersion(String minimumVersion) {
-    this.minimumVersion = Version.parseVersion(minimumVersion);
+  public void setMinimumVersion(Version minimumVersion) {
+    this.minimumVersion = minimumVersion;
   }
 
   /**
@@ -102,8 +102,8 @@ public class ProjectDependency {
    * @param maximumVersion
    *          the maximum version
    */
-  public void setMaximumVersion(String maximumVersion) {
-    this.maximumVersion = Version.parseVersion(maximumVersion);
+  public void setMaximumVersion(Version maximumVersion) {
+    this.maximumVersion = maximumVersion;
   }
 
   /**

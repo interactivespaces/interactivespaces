@@ -66,6 +66,7 @@ public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTempla
         "space.activity.log.level", InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null));
 
     fullTemplateData.put("activityClassName", activityProject.getActivityClassName());
+    fullTemplateData.put("activityClassPackage", activityProject.getActivityClassPackage());
     fullTemplateData.put("activityPackagePath", activityProject.getActivityPackagePath());
     fullTemplateData.put("activitySourceDir", activityProject.getActivitySourceDirectory());
     fullTemplateData.put("activityResourceDir", activityProject.getActivityResourceDirectory());
