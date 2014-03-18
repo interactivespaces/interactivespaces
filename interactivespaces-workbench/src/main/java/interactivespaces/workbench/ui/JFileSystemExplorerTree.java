@@ -51,6 +51,19 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
    * Create a new instance.
    */
   public JFileSystemExplorerTree() {
+    // projectManager.addProjectManagerListener(new
+    // ProjectManagerListenerAdapter() {
+    // @Override
+    // public void closingProject(ProjectManager projectManager) {
+    // buildTree(null);
+    // }
+    //
+    // @Override
+    // public void changingProject(ProjectManager projectManager) {
+    // buildTree(projectManager.getCurrentProject());
+    // }
+    // });
+
     treeModel = new DefaultTreeModel(rootNode);
     setModel(treeModel);
     getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -71,6 +84,12 @@ public class JFileSystemExplorerTree extends JTree implements TreeSelectionListe
 
     File file = node.getFile();
     System.out.format("Selected %s\n", file);
+    // ProjectSection section = (ProjectSection) nodeInfo;
+    // if (section != null) {
+    // ProjectGroup group = section.getGroups().get(0);
+    // if (group != null)
+    // projectManager.setCurrentGroup(group);
+    // }
   }
 
   /**
