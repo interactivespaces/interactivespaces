@@ -88,6 +88,16 @@ public class ProjectDependency {
   }
 
   /**
+   * Set the minimum version necessary for the activity.
+   *
+   * @param minimumVersion
+   *          the minimum version
+   */
+  public void setMinimumVersion(String minimumVersion) {
+    setMinimumVersion(Version.parseVersion(minimumVersion));
+  }
+
+  /**
    * Get the maximum version necessary for the activity.
    *
    * @return the maximum version
@@ -104,6 +114,16 @@ public class ProjectDependency {
    */
   public void setMaximumVersion(Version maximumVersion) {
     this.maximumVersion = maximumVersion;
+  }
+
+  /**
+   * Set the maximum version necessary for the activity.
+   *
+   * @param maximumVersion
+   *          the maximum version
+   */
+  public void setMaximumVersion(String maximumVersion) {
+    setMaximumVersion(Version.parseVersion(maximumVersion));
   }
 
   /**
