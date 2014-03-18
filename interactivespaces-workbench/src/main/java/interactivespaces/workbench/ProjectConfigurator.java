@@ -30,6 +30,21 @@ public class ProjectConfigurator {
   private static final Pattern INPUT_LINE_PATTERN = Pattern.compile("([^\\.]+)\\.([^=]+)=(.*)");
 
   /**
+   * Group index for the container.
+   */
+  public static final int REGEXP_CONTAINER_GROUP = 1;
+
+  /**
+   * Group index for the property name.
+   */
+  public static final int REGEXP_NAME_GROUP = 2;
+
+  /**
+   * Group index for the property value.
+   */
+  public static final int REGEXP_VALUE_GROUP = 3;
+
+  /**
    * Map of target protocol receptors.
    */
   private Map<String, Object> targetMap = Maps.newHashMap();
@@ -75,9 +90,9 @@ public class ProjectConfigurator {
         if (!matcher.matches()) {
           throw new SimpleInteractiveSpacesException("Invalid property line syntax: " + line);
         }
-        String propertyContainer = matcher.group(1);
-        String propertyName = matcher.group(2);
-        String propertyValue = matcher.group(3);
+        String propertyContainer = matcher.group(REGEXP_CONTAINER_GROUP);
+        String propertyName = matcher.group(REGEXP_NAME_GROUP);
+        String propertyValue = matcher.group(REGEXP_VALUE_GROUP);
         Object propertyObject = targetMap.get(propertyContainer);
         if (propertyContainer == null) {
           throw new SimpleInteractiveSpacesException("Could not find property container for " + propertyContainer);
@@ -109,16 +124,16 @@ public class ProjectConfigurator {
         throw new SimpleInteractiveSpacesException("Matching set/add method not found");
       }
       Class<?> parameterType = setter.getParameterTypes()[0];
-      Constructor<?> constructor;
-      Method converter;
+      Constructor<?> constructor = findStringConstructor(parameterType);
+      Method converter = findMethod(parameterType, "parse" + parameterType.getSimpleName());
 
       if (parameterType.isAssignableFrom(String.class)) {
         // Case where there is a setter that takes a simple String parameter.
         setter.invoke(target, value);
-      } else if ((constructor = findStringConstructor(parameterType)) != null) {
+      } else if (constructor != null) {
         // Case where there is a simple String constructor (like {@code File}).
         setter.invoke(target, constructor.newInstance(value));
-      } else if ((converter = findMethod(parameterType, "parse" + parameterType.getSimpleName())) != null) {
+      } else if (converter != null) {
         // Case where there is a converter function like Version.parseVersion(String).
         setter.invoke(target, converter.invoke(null, value));
       } else {
