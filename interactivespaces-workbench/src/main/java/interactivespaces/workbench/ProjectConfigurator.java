@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  */
@@ -21,6 +23,11 @@ public class ProjectConfigurator {
    * For converting json strings.
    */
   private static final JsonMapper MAPPER = new JsonMapper();
+
+  /**
+   * Pattern for parsing a configuration input line.
+   */
+  private static final Pattern INPUT_LINE_PATTERN = Pattern.compile("([^\\.]+)\\.([^=]+)=(.*)");
 
   /**
    * Map of target protocol receptors.
@@ -64,22 +71,17 @@ public class ProjectConfigurator {
     try {
       List<String> parameters = Files.readLines(new File(inputPath), Charset.defaultCharset());
       for (String line : parameters) {
-        String trimmed = line.trim();
-        if (trimmed.isEmpty()) {
-          continue;
-        }
-        String[] parts = trimmed.split("=", 2);
-        if (parts.length != 2) {
+        Matcher matcher = INPUT_LINE_PATTERN.matcher(line);
+        if (!matcher.matches()) {
           throw new SimpleInteractiveSpacesException("Invalid property line syntax: " + line);
         }
-        String[] targets = parts[0].split("\\.", 2);
-        String propertyContainer = targets[0];
-        if (!targetMap.containsKey(propertyContainer)) {
-          throw new SimpleInteractiveSpacesException("Target object " + propertyContainer + " not registered");
-        }
+        String propertyContainer = matcher.group(1);
+        String propertyName = matcher.group(2);
+        String propertyValue = matcher.group(3);
         Object propertyObject = targetMap.get(propertyContainer);
-        String propertyName = targets[1];
-        String propertyValue = parts[1];
+        if (propertyContainer == null) {
+          throw new SimpleInteractiveSpacesException("Could not find property container for " + propertyContainer);
+        }
         setTargetProperty(propertyObject, propertyName, propertyValue);
       }
     } catch (Exception e) {
@@ -101,33 +103,30 @@ public class ProjectConfigurator {
   public void setTargetProperty(Object target, String name, String value) {
     try {
       String camlName = name.substring(0, 1).toUpperCase() + name.substring(1);
-      Method setter = findMethod(target.getClass(), "set", camlName);
-      setter = setter != null ? setter : findMethod(target.getClass(), "add", camlName);
+      Method setter = findMethod(target.getClass(), "set" + camlName);
+      setter = setter != null ? setter : findMethod(target.getClass(), "add" + camlName);
       if (setter == null) {
         throw new SimpleInteractiveSpacesException("Matching set/add method not found");
       }
       Class<?> parameterType = setter.getParameterTypes()[0];
+      Constructor<?> constructor;
+      Method converter;
+
       if (parameterType.isAssignableFrom(String.class)) {
+        // Case where there is a setter that takes a simple String parameter.
         setter.invoke(target, value);
-        return;
-      }
-
-      Constructor<?> constructor = findStringConstructor(parameterType);
-      if (constructor != null) {
+      } else if ((constructor = findStringConstructor(parameterType)) != null) {
+        // Case where there is a simple String constructor (like {@code File}).
         setter.invoke(target, constructor.newInstance(value));
-        return;
-      }
-
-      Method converter = findMethod(parameterType, "parse", parameterType.getSimpleName());
-      if (converter != null) {
+      } else if ((converter = findMethod(parameterType, "parse" + parameterType.getSimpleName())) != null) {
+        // Case where there is a converter function like Version.parseVersion(String).
         setter.invoke(target, converter.invoke(null, value));
-        return;
+      } else {
+        // Case where there is a more complex type argument, and so construct a new instance using a builder pattern.
+        Class<?> targetType = setter.getParameterTypes()[0];
+        Object valueObject = buildFromJson(targetType, value);
+        setter.invoke(target, valueObject);
       }
-
-      Class<?> targetType = setter.getParameterTypes()[0];
-      Object valueObject = buildFromJson(targetType, value);
-      setter.invoke(target, valueObject);
-
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(
           String.format("Could not set/add property %s value %s", name, value), e);
@@ -137,17 +136,15 @@ public class ProjectConfigurator {
   /**
    * Dynamically find a matching method.
    *
+   *
    * @param targetClass
    *          the target class to query
-   * @param prefix
-   *          function prefix name
-   * @param name
-   *          function property name
+   * @param methodName
+   *          method name to look for
    *
    * @return method found, or {@code null}
    */
-  Method findMethod(Class<?> targetClass, String prefix, String name) {
-    String methodName = prefix + name;
+  Method findMethod(Class<?> targetClass, String methodName) {
     Method[] methods = targetClass.getMethods();
     for (Method method : methods) {
       if (method.getName().equals(methodName)) {
