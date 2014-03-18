@@ -49,7 +49,7 @@ public class FreemarkerTemplater {
   /**
    * File support instance to use.
    */
-  public FileSupport fileSupport = FileSupportImpl.INSTANCE;
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * The configuration used by Freemarker.

@@ -48,7 +48,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   /**
    * Project templates stored as an unmodifiable list.
    */
-  private static final List<ProjectTemplate> projectTemplateList;
+  private static final List<ProjectTemplate> PROJECT_TEMPLATE_LIST;
 
   /**
    * Initializer block for all activity project templates.
@@ -63,7 +63,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
 
     List<ProjectTemplate> intermediateList = Lists.newArrayList();
     intermediateList.addAll(PROJECT_TEMPLATES.values());
-    projectTemplateList = Collections.unmodifiableList(intermediateList);
+    PROJECT_TEMPLATE_LIST = Collections.unmodifiableList(intermediateList);
   }
 
   /**
@@ -85,7 +85,7 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    * @return unmodifiable list of all the supported project templates
    */
   public static List<ProjectTemplate> getProjectTemplates() {
-    return projectTemplateList;
+    return PROJECT_TEMPLATE_LIST;
   }
 
   /**
