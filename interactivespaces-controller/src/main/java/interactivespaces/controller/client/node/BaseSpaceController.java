@@ -34,6 +34,7 @@ import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
+
 import org.apache.commons.logging.Log;
 
 /**
@@ -44,7 +45,7 @@ import org.apache.commons.logging.Log;
 public abstract class BaseSpaceController implements SpaceController {
 
   /**
-   * Information about the controller
+   * Information about the controller.
    */
   private final SimpleSpaceController controllerInfo = new SimpleSpaceController();
 

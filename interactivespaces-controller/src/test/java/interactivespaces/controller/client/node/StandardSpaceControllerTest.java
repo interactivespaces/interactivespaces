@@ -23,7 +23,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
@@ -207,7 +206,7 @@ public class StandardSpaceControllerTest {
   private void tryActivityStateAction(ActivityAction action, ActivityState startState,
       ActivityState finishState) throws Exception {
     String activityUuid = "foop";
-    ActivityFilesystem activityFilesystem = mock(ActivityFilesystem.class);
+    InternalActivityFilesystem activityFilesystem = mock(InternalActivityFilesystem.class);
     when(activityStorageManager.getActivityFilesystem(activityUuid)).thenReturn(activityFilesystem);
     LiveActivityConfiguration configuration = mock(LiveActivityConfiguration.class);
     when(configurationManager.getConfiguration(activityFilesystem)).thenReturn(configuration);

@@ -17,7 +17,8 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.ActivityFilesystem;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
 
@@ -26,7 +27,7 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public class SimpleActivityFilesystem implements ActivityFilesystem {
+public class SimpleActivityFilesystem implements InternalActivityFilesystem {
 
   /**
    * The subdirectory off of the base install directory for the activity
@@ -53,37 +54,60 @@ public class SimpleActivityFilesystem implements ActivityFilesystem {
   public static final String SUBDIRECTORY_DATA_TEMPORARY = "tmp";
 
   /**
-   * The base installation directory for the activity
+   * The subdirectory off of the base install directory where the activity's
+   * internal Interactive Spaces data is stored.
    */
-  private File baseInstallationDirectory;
+  public static final String SUBDIRECTORY_INTERNAL = "internal";
+
+  /**
+   * The base installation directory for the activity.
+   */
+  private final File baseFilesystemDirectory;
 
   /**
    * Where the activity is installed.
    */
-  private File installDirectory;
+  private final File installDirectory;
 
   /**
    * Where log files are stored.
    */
-  private File logDirectory;
+  private final File logDirectory;
 
   /**
    * Where permanent data files can be stored.
    */
-  private File permanentDataDirectory;
+  private final File permanentDataDirectory;
 
   /**
    * Where temporary files can be stored.
    */
-  private File tempDataDirectory;
+  private final File tempDataDirectory;
 
+  /**
+   * Where internal Interactive Spaces files can be stored.
+   */
+  private final File internalDirectory;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct a filesystem.
+   *
+   * @param baseInstallationDirectory
+   *          the base install directory of the filesystem
+   */
   public SimpleActivityFilesystem(File baseInstallationDirectory) {
-    this.baseInstallationDirectory = baseInstallationDirectory;
+    this.baseFilesystemDirectory = baseInstallationDirectory;
 
     installDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_INSTALL);
     logDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_LOG);
     permanentDataDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_DATA_PERMANENT);
     tempDataDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_DATA_TEMPORARY);
+    internalDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_INTERNAL);
   }
 
   @Override
@@ -113,7 +137,7 @@ public class SimpleActivityFilesystem implements ActivityFilesystem {
 
   @Override
   public void cleanPermanentDataDirectory() {
-    Files.deleteDirectoryContents(getPermanentDataDirectory());
+    fileSupport.deleteDirectoryContents(getPermanentDataDirectory());
   }
 
   @Override
@@ -128,6 +152,16 @@ public class SimpleActivityFilesystem implements ActivityFilesystem {
 
   @Override
   public void cleanTempDataDirectory() {
-    Files.deleteDirectoryContents(getTempDataDirectory());
+    fileSupport.deleteDirectoryContents(getTempDataDirectory());
+  }
+
+  @Override
+  public File getInternalDirectory() {
+    return internalDirectory;
+  }
+
+  @Override
+  public File getInternalFile(String relative) {
+    return new File(internalDirectory, relative);
   }
 }

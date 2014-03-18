@@ -16,9 +16,9 @@
 
 package interactivespaces.controller.activity.configuration;
 
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.ConfigurationStorageManager;
 import interactivespaces.configuration.SimplePropertyFileConfigurationStorageManager;
+import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.evaluation.ExpressionEvaluator;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -30,8 +30,7 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public class PropertyFileLiveActivityConfigurationManager implements
-    LiveActivityConfigurationManager {
+public class PropertyFileLiveActivityConfigurationManager implements LiveActivityConfigurationManager {
 
   /**
    * File extension configuration files should have.
@@ -41,31 +40,38 @@ public class PropertyFileLiveActivityConfigurationManager implements
   /**
    * The Interactive Spaces environment.
    */
-  private InteractiveSpacesEnvironment spaceEnvironment;
+  private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * Factory for expression evaluators.
    */
-  private ExpressionEvaluatorFactory expressionEvaluatorFactory;
+  private final ExpressionEvaluatorFactory expressionEvaluatorFactory;
 
-  public PropertyFileLiveActivityConfigurationManager(
-      ExpressionEvaluatorFactory expressionEvaluatorFactory,
+  /**
+   * Construct a new configuration manager.
+   *
+   * @param expressionEvaluatorFactory
+   *          the expression evaluator factory to use
+   * @param spaceEnvironment
+   *          the space environment to use
+   */
+  public PropertyFileLiveActivityConfigurationManager(ExpressionEvaluatorFactory expressionEvaluatorFactory,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.expressionEvaluatorFactory = expressionEvaluatorFactory;
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public SimpleLiveActivityConfiguration getConfiguration(ActivityFilesystem activityFilesystem) {
+  public SimpleLiveActivityConfiguration getConfiguration(InternalActivityFilesystem activityFilesystem) {
     ExpressionEvaluator expressionEvaluator = expressionEvaluatorFactory.newEvaluator();
 
     ConfigurationStorageManager baseConfigurationStorageManager =
-        newConfiguration(activityFilesystem.getInstallFile(getConfigFileName("activity")), true,
+        newConfiguration(activityFilesystem.getInstallFile(getConfigFileName(CONFIG_TYPE_BASE_ACTIVITY)), true,
             expressionEvaluator);
 
     ConfigurationStorageManager installedActivityConfigurationStorageManager =
-        newConfiguration(activityFilesystem.getPermanentDataFile(getConfigFileName("activity")),
-            false, expressionEvaluator);
+        newConfiguration(activityFilesystem.getInternalFile(getConfigFileName(CONFIG_TYPE_LIVE_ACTIVITY)), false,
+            expressionEvaluator);
 
     SimpleLiveActivityConfiguration configuration =
         new SimpleLiveActivityConfiguration(baseConfigurationStorageManager,
@@ -90,15 +96,16 @@ public class PropertyFileLiveActivityConfigurationManager implements
    */
   private ConfigurationStorageManager newConfiguration(File configurationFile, boolean required,
       ExpressionEvaluator expressionEvaluator) {
-    return new SimplePropertyFileConfigurationStorageManager(required, configurationFile,
-        expressionEvaluator);
+    return new SimplePropertyFileConfigurationStorageManager(required, configurationFile, expressionEvaluator);
   }
 
   /**
    * Get the configuration file name from the configuration type.
    *
    * @param configType
-   * @return
+   *          the type of configuration
+   *
+   * @return the configuration file name
    */
   private String getConfigFileName(String configType) {
     return configType + "." + CONFIGURATION_FILE_EXTENSION;

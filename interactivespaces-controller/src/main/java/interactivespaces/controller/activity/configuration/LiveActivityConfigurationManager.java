@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.activity.configuration;
 
-import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.controller.client.node.InternalActivityFilesystem;
 
 /**
  * Manage configurations for Interactive Spaces activities.
@@ -26,11 +26,22 @@ import interactivespaces.activity.ActivityFilesystem;
 public interface LiveActivityConfigurationManager {
 
   /**
+   * The activity type for the base activity.
+   */
+  String CONFIG_TYPE_BASE_ACTIVITY = "activity";
+
+  /**
+   * The activity type for the live activity.
+   */
+  String CONFIG_TYPE_LIVE_ACTIVITY = "activity";
+
+  /**
    * Get a configuration.
    *
    * @param activityFilesystem
    *          filesystem for the activity
+   *
    * @return the installation specific configuration
    */
-  LiveActivityConfiguration getConfiguration(ActivityFilesystem activityFilesystem);
+  LiveActivityConfiguration getConfiguration(InternalActivityFilesystem activityFilesystem);
 }
