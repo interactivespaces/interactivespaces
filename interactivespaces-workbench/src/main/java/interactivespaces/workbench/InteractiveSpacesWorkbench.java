@@ -719,10 +719,10 @@ public class InteractiveSpacesWorkbench {
    *          where the project data should be stored
    */
   private void populateFromSpec(String projectSpecPath, ProjectCreationSpecification spec, Project project) {
-    ProtocolReceptor protocolReceptor = new ProtocolReceptor(getLog());
-    protocolReceptor.addTarget("project", project);
-    protocolReceptor.addTarget("spec", spec);
-    protocolReceptor.reflectFromPath(projectSpecPath);
+    ProjectConfigurator projectConfigurator = new ProjectConfigurator(getLog());
+    projectConfigurator.addTarget("project", project);
+    projectConfigurator.addTarget("spec", spec);
+    projectConfigurator.readFromPath(projectSpecPath);
   }
 
   /**

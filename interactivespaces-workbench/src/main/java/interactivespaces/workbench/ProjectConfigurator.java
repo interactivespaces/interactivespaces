@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  */
-public class ProtocolReceptor {
+public class ProjectConfigurator {
 
   /**
    * For converting json strings.
@@ -38,7 +38,7 @@ public class ProtocolReceptor {
    * @param log
    *          logger to use
    */
-  public ProtocolReceptor(Log log) {
+  public ProjectConfigurator(Log log) {
     this.log = log;
   }
 
@@ -60,7 +60,7 @@ public class ProtocolReceptor {
    * @param inputPath
    *          file path to process
    */
-  public void reflectFromPath(String inputPath) {
+  public void readFromPath(String inputPath) {
     try {
       List<String> parameters = Files.readLines(new File(inputPath), Charset.defaultCharset());
       for (String line : parameters) {
