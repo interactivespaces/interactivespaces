@@ -654,7 +654,7 @@ public class InteractiveSpacesWorkbench {
 
     String projectSpecPath = null;
 
-    while (commands.size() > 0) {
+    while (!commands.isEmpty()) {
       String command = commands.remove(0);
       if ("language".equals(command)) {
         spec.setLanguage(commands.remove(0));

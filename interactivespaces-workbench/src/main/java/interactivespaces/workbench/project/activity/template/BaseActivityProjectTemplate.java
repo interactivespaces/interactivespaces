@@ -46,6 +46,11 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
   private static final Map<String, BaseActivityProjectTemplate> PROJECT_TEMPLATES = Maps.newHashMap();
 
   /**
+   * Project templates stored as an unmodifiable list.
+   */
+  private static final List<ProjectTemplate> projectTemplateList;
+
+  /**
    * Initializer block for all activity project templates.
    */
   static {
@@ -55,6 +60,32 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     addProjectTemplate(new GenericWebActivityProjectTemplate());
     addProjectTemplate(new GenericPythonActivityProjectTemplate());
     addProjectTemplate(new GenericAndroidActivityProjectTemplate());
+
+    List<ProjectTemplate> intermediateList = Lists.newArrayList();
+    intermediateList.addAll(PROJECT_TEMPLATES.values());
+    projectTemplateList = Collections.unmodifiableList(intermediateList);
+  }
+
+  /**
+   * Get a generic project template by language.
+   *
+   * @param language
+   *          the language
+   *
+   * @return the generic template for that language
+   */
+  public static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
+    if (!PROJECT_TEMPLATES.containsKey(language)) {
+      throw new InteractiveSpacesException(String.format("Unknown language %s", language));
+    }
+    return PROJECT_TEMPLATES.get(language);
+  }
+
+  /**
+   * @return unmodifiable list of all the supported project templates
+   */
+  public static List<ProjectTemplate> getProjectTemplates() {
+    return projectTemplateList;
   }
 
   /**
@@ -76,21 +107,6 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     this.language = language;
 
     addSourceDirectory(ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
-  }
-
-  /**
-   * Get a generic project template by language.
-   *
-   * @param language
-   *          the language
-   *
-   * @return the generic template for that language
-   */
-  public static BaseActivityProjectTemplate getActivityProjectTemplateByLanguage(String language) {
-    if (!PROJECT_TEMPLATES.containsKey(language)) {
-      throw new InteractiveSpacesException(String.format("Unknown language %s", language));
-    }
-    return PROJECT_TEMPLATES.get(language);
   }
 
   /**
@@ -177,14 +193,5 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
    */
   public String getLanguage() {
     return language;
-  }
-
-  /**
-   * @return unmodifiable list of all the supported project templates
-   */
-  public static List<ProjectTemplate> getProjectTemplates() {
-    List<ProjectTemplate> projectTemplateList = Lists.newArrayList();
-    projectTemplateList.addAll(PROJECT_TEMPLATES.values());
-    return Collections.unmodifiableList(projectTemplateList);
   }
 }

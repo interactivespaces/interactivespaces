@@ -21,6 +21,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
@@ -44,6 +45,11 @@ public class FreemarkerTemplater {
    * Base directory where templates are kept.
    */
   public static final File TEMPLATE_LOCATION = new File("templates");
+
+  /**
+   * File support instance to use.
+   */
+  public FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * The configuration used by Freemarker.
@@ -83,7 +89,8 @@ public class FreemarkerTemplater {
       temp.process(data, stringWriter);
       return stringWriter.toString();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not instantiate string template %s", templateContent));
+      throw new InteractiveSpacesException(
+          String.format("Could not instantiate string template %s", templateContent), e);
     }
   }
 
@@ -101,7 +108,7 @@ public class FreemarkerTemplater {
     Writer out = null;
     Reader in = null;
     try {
-      FileSupportImpl.INSTANCE.directoryExists(outputFile.getParentFile());
+      fileSupport.directoryExists(outputFile.getParentFile());
 
       Template temp;
       if (template.startsWith("/")) {
