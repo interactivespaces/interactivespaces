@@ -16,8 +16,6 @@
 
 package interactivespaces.util.io;
 
-import static com.google.common.io.Closeables.closeQuietly;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
@@ -35,6 +33,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Various useful file routines.
@@ -68,9 +68,9 @@ public class FileSupportImpl implements FileSupport {
     }
     ZipOutputStream zipOutputStream = null;
     try {
-      zipOutputStream = new ZipOutputStream(new FileOutputStream(target));
+      zipOutputStream = createZipOutputStream(target);
       File relPath = new File(".");
-      addFileToZipStream(zipOutputStream, basePath, relPath);
+      addFileToZipStream(zipOutputStream, basePath, relPath, null);
       zipOutputStream.close();
     } catch (Exception e) {
       throw new InteractiveSpacesException("Error wile zipping directory " + basePath, e);
@@ -79,42 +79,42 @@ public class FileSupportImpl implements FileSupport {
     }
   }
 
-  /**
-   * Internal helper function to recursively copy contents into a zip file.
-   *
-   * @param zipOutputStream
-   *          output stream in which to copy the contents
-   * @param basePath
-   *          base path for the content copy
-   * @param relPath
-   *          relative path (to {@code basePath}), that will be included in the zip file
-   *
-   * @throws java.io.IOException
-   *           on problem adding the file to the zip stream
-   */
-  private void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath) throws IOException {
+  @Override
+  public ZipOutputStream createZipOutputStream(File outputFile) {
+    try {
+      return new ZipOutputStream(new FileOutputStream(outputFile));
+    } catch (IOException e) {
+      throw new SimpleInteractiveSpacesException("Error creating zip output file " + outputFile.getAbsolutePath(), e);
+    }
+  }
+
+  @Override
+  public void addFileToZipStream(ZipOutputStream zipOutputStream, File baseFile, File relFile, String prefixPath) {
     FileInputStream fileStream = null;
     try {
-      File target = new File(basePath, relPath.getPath());
+      File target = new File(baseFile, relFile.getPath());
+      String relPath = relFile.getPath();
+      String entryPath = prefixPath == null ? relPath : new File(prefixPath, relPath).getPath();
       if (target.isFile()) {
-        zipOutputStream.putNextEntry(new ZipEntry(relPath.getPath()));
+        zipOutputStream.putNextEntry(new ZipEntry(entryPath));
         fileStream = new FileInputStream(target);
         copyStream(fileStream, zipOutputStream, false);
         fileStream.close();
       } else if (target.isDirectory()) {
         // Zip requires trailing / for directory.
-        String dirPath = relPath.getPath() + ZIP_PATH_SEPARATOR;
-        zipOutputStream.putNextEntry(new ZipEntry(dirPath));
+        zipOutputStream.putNextEntry(new ZipEntry(entryPath + ZIP_PATH_SEPARATOR));
         File[] dirFiles = target.listFiles();
         if (dirFiles != null) {
           for (File childPath : dirFiles) {
-            File childRelPath = new File(relPath, childPath.getName());
-            addFileToZipStream(zipOutputStream, basePath, childRelPath);
+            File childRelPath = new File(relFile, childPath.getName());
+            addFileToZipStream(zipOutputStream, baseFile, childRelPath, prefixPath);
           }
         }
       } else {
-        throw new SimpleInteractiveSpacesException("Unsupported file type for " + relPath);
+        throw new SimpleInteractiveSpacesException("File source not found/recognized: " + target.getAbsolutePath());
       }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Error adding file to zip stream " + baseFile.getAbsolutePath(), e);
     } finally {
       closeQuietly(fileStream);
     }
@@ -329,6 +329,11 @@ public class FileSupportImpl implements FileSupport {
         delete(contained);
       }
     }
+  }
+
+  @Override
+  public boolean rename(File from, File to) {
+    return from.renameTo(to);
   }
 
   @Override

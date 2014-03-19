@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Various useful file routines.
@@ -65,6 +66,30 @@ public interface FileSupport {
    *          if not {@code null}, add extracted files to map, with dest (key) and source (value)
    */
   void unzip(File source, File baseLocation, Map<File, File> extractMap);
+
+  /**
+   * Create a new zip output stream.
+   *
+   * @param outputFile
+   *          the target output file
+   *
+   * @return the zip output stream
+   */
+  ZipOutputStream createZipOutputStream(File outputFile);
+
+  /**
+   * Internal helper function to recursively copy contents into a zip file.
+   *
+   * @param zipOutputStream
+   *          output stream in which to copy the contents
+   * @param basePath
+   *          base path for the content copy
+   * @param relPath
+   *          relative path (to {@code basePath}), that will be included in the zip file
+   * @param pathPrefix
+   *          path prefix for added sections
+   */
+  void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath, String pathPrefix);
 
   /**
    * Copy the source directory to the destination directory.
@@ -229,6 +254,18 @@ public interface FileSupport {
    *          the directory to be deleted
    */
   void deleteDirectoryContents(File file);
+
+  /**
+   * Rename a file/directory.
+   *
+   * @param from
+   *          source file to rename
+   * @param to
+   *          new target name
+   *
+   * @return {@code true} if rename was successful
+   */
+  boolean rename(File from, File to);
 
   /**
    * Get a file as a string.

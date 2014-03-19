@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.client.node;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityState;
@@ -47,10 +49,6 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
-
 import org.apache.commons.logging.Log;
 
 import java.util.ArrayList;
@@ -259,6 +257,7 @@ public class StandardSpaceController extends BaseSpaceController implements
 
     this.dataBundleManager = dataBundleManager;
     dataBundleManager.setSpaceController(this);
+    dataBundleManager.setActivityStorageManager(activityStorageManager);
 
     this.controllerCommunicator = controllerCommunicator;
     controllerCommunicator.setControllerControl(this);
@@ -410,7 +409,7 @@ public class StandardSpaceController extends BaseSpaceController implements
    * Startup the activities that need to start up when the controller starts.
    */
   private void startupAutostartActivities() {
-    for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
+    for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
       switch (activity.getControllerStartupType()) {
         case STARTUP:
           startupActivity(activity.getUuid());
@@ -470,6 +469,7 @@ public class StandardSpaceController extends BaseSpaceController implements
       controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_CAPTURE,
           SpaceControllerStatus.SUCCESS, null);
     } catch (Exception e) {
+      getSpaceEnvironment().getLog().error("Error capturing data bundle", e);
       controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_CAPTURE,
           SpaceControllerStatus.FAILURE, e);
     }
@@ -499,6 +499,7 @@ public class StandardSpaceController extends BaseSpaceController implements
       controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_RESTORE,
           SpaceControllerStatus.SUCCESS, null);
     } catch (Exception e) {
+      getSpaceEnvironment().getLog().error("Error restoring data bundle", e);
       controllerCommunicator.publishControllerDataStatus(SpaceControllerDataOperation.DATA_RESTORE,
           SpaceControllerStatus.FAILURE, e);
     }
@@ -721,7 +722,7 @@ public class StandardSpaceController extends BaseSpaceController implements
 
   @Override
   public void cleanControllerTempDataAll() {
-    for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
+    for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
       cleanActivityTmpData(activity.getUuid());
     }
   }
@@ -730,7 +731,7 @@ public class StandardSpaceController extends BaseSpaceController implements
   public void cleanControllerPermanentDataAll() {
     getSpaceEnvironment().getLog().info("Cleaning live activity permanent directories");
 
-    for (InstalledLiveActivity activity : controllerRepository.getAllInstalledLiveActivities()) {
+    for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
       cleanActivityPermanentData(activity.getUuid());
     }
   }
