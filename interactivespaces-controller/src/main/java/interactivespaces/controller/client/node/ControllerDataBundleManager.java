@@ -16,7 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import interactivespaces.controller.SpaceController;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
@@ -44,6 +43,17 @@ public interface ControllerDataBundleManager extends ManagedResource {
 
   /**
    * Set the space controller instance to manage.
+   *
+   * @param spaceController
+   *          space controller for the data bundle manager
    */
-  void setSpaceController(SpaceController uuid);
+  void setSpaceController(SpaceControllerControl spaceController);
+
+  /**
+   * Set the activity storage manager.
+   *
+   * @param activityStorageManager
+   *          activity storage manager for the data bundle manager
+   */
+  void setActivityStorageManager(ActivityStorageManager activityStorageManager);
 }
