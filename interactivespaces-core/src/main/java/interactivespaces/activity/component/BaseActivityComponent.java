@@ -55,7 +55,12 @@ public abstract class BaseActivityComponent implements ActivityComponent {
 
   @Override
   public String getComponentStatusDetail() {
-     return null;
+    return null;
+  }
+
+  @Override
+  public String getDescription() {
+    return getName();
   }
 
   @Override

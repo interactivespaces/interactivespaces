@@ -242,3 +242,40 @@ tr.odd {
   font-weight: bold;
   padding-right: 10px;
 }
+
+.status-detail {
+  background-color: #EEE;
+}
+
+.status-detail>tbody>tr:nth-child(even) {
+  background-color: #DDD;
+}
+
+.status-detail td {
+  padding: 4px;
+}
+
+.status-detail tr>td:first-of-type {
+  text-align: right;
+  font-weight: bold;
+}
+
+.status-detail>tbody>tr>td:first-of-type {
+  border-right: 1px solid #CCC;
+}
+
+.status-detail .route-detail {
+  width: 100%;
+}
+
+.status-detail .route-detail td {
+  padding: 2px;
+}
+
+.status-detail .route-detail .output-route {
+  color: #008;
+}
+
+.status-detail .route-detail .input-route {
+  color: #080;
+}

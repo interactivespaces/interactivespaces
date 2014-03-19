@@ -16,9 +16,7 @@
 
 package interactivespaces.activity.component.web;
 
-import interactivespaces.activity.Activity;
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -37,6 +35,11 @@ public interface WebServerActivityComponent extends ActivityComponent {
    * Name of the component.
    */
   String COMPONENT_NAME = "web.server";
+
+  /**
+   * Descriptive name of the component.
+   */
+  String COMPONENT_DESCRIPTION = "Web Server";
 
   /**
    * Configuration property giving the port the web server should be started on.
