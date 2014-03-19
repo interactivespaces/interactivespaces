@@ -205,7 +205,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    * @param fullTemplateData
    *          the full data to be used for the template
    */
-  public void writeFileTemplates(ProjectCreationSpecification spec,
+  public void writeTemplateList(ProjectCreationSpecification spec,
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
     for (TemplateFile template : fileTemplates) {
