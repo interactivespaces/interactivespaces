@@ -16,7 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
@@ -57,7 +56,7 @@ public interface ActivityStorageManager extends ManagedResource {
    *
    * @return the filesystem
    */
-  ActivityFilesystem getActivityFilesystem(String uuid);
+  InternalActivityFilesystem getActivityFilesystem(String uuid);
 
   /**
    * Delete an activity installation.

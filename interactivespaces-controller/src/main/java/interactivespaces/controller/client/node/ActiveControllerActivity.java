@@ -19,7 +19,6 @@ package interactivespaces.controller.client.node;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityControl;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.SpaceController;
@@ -68,7 +67,7 @@ public class ActiveControllerActivity implements ActivityControl {
   /**
    * File system for the activity.
    */
-  private final ActivityFilesystem activityFilesystem;
+  private final InternalActivityFilesystem activityFilesystem;
 
   /**
    * The activity configuration.
@@ -121,7 +120,7 @@ public class ActiveControllerActivity implements ActivityControl {
    *          the controller the activity is running under
    */
   public ActiveControllerActivity(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
-      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;

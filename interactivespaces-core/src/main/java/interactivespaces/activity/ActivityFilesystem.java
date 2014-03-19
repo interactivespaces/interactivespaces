@@ -29,7 +29,7 @@ public interface ActivityFilesystem {
    * Get the directory where the contents of the deployed activity are
    * installed.
    *
-   * @return The directory where the activity is installed.
+   * @return the directory where the activity is installed
    */
   File getInstallDirectory();
 
@@ -51,7 +51,7 @@ public interface ActivityFilesystem {
    * This directory will be removed if the activity is uninstalled, but
    * otherwise will stay around.
    *
-   * @return The directory where the activity can permanently store data.
+   * @return the directory where the activity can permanently store data
    */
   File getPermanentDataDirectory();
 
@@ -81,7 +81,7 @@ public interface ActivityFilesystem {
    * This directory is temporary and could be removed at any time. The activity
    * should assume it will not disappear while the activity is running.
    *
-   * @return The directory where the activity can temporarily store data.
+   * @return the directory where the activity can temporarily store data
    */
   File getTempDataDirectory();
 
@@ -95,7 +95,7 @@ public interface ActivityFilesystem {
    * @param relative
    *          path relative to the temporary data directory for the file
    *
-   * @return The directory where the activity can temporarily store data.
+   * @return the directory where the activity can temporarily store data
    */
   File getTempDataFile(String relative);
 
@@ -107,7 +107,7 @@ public interface ActivityFilesystem {
   /**
    * Get the directory where the activity stores logs.
    *
-   * @return The directory where the activity stores logs.
+   * @return the directory where the activity stores logs
    */
   File getLogDirectory();
 }

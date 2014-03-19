@@ -17,7 +17,6 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -39,13 +38,14 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
    * Configuration property giving the location of the base activity
    * installation directory.
    */
-  public static final String CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY_PROPERTY =
+  public static final String CONFIGURATION_CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY =
       "interactivespaces.controller.activity.installation.directory";
 
   /**
    * The default folder for installing activities.
    */
-  private static final String CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT = "controller/activities/installed";
+  public static final String CONFIGURATION_DEFAULT_CONTROLLER_APPLICATIONS_INSTALLATION_DIRECTORY =
+      "controller/activities/installed";
 
   /**
    * Base directory where activities are stored.
@@ -77,7 +77,8 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     activityBaseDirectory =
         new File(spaceEnvironment.getFilesystem().getInstallDirectory(), systemConfiguration.getPropertyString(
-            CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY_PROPERTY, CONTROLLER_APPLICATIONS_INSTALLATION_DEFAULT));
+            CONFIGURATION_CONTROLLER_APPLICATION_INSTALLATION_DIRECTORY,
+            CONFIGURATION_DEFAULT_CONTROLLER_APPLICATIONS_INSTALLATION_DIRECTORY));
   }
 
   @Override
@@ -106,17 +107,19 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
   }
 
   @Override
-  public ActivityFilesystem getActivityFilesystem(String uuid) {
+  public InternalActivityFilesystem getActivityFilesystem(String uuid) {
     File baseLocation = getBaseActivityLocation(uuid);
 
     fileSupport.directoryExists(baseLocation, "Creating activity base location");
 
-    ActivityFilesystem activityFilesystem = new SimpleActivityFilesystem(baseLocation);
+    InternalActivityFilesystem activityFilesystem = new SimpleActivityFilesystem(baseLocation);
     createFilesystemComponent(activityFilesystem.getInstallDirectory(), "Create activity installation directory");
     createFilesystemComponent(activityFilesystem.getLogDirectory(), "Creating activity log directory");
     createFilesystemComponent(activityFilesystem.getPermanentDataDirectory(),
         "Creating activity permanent data directory");
     createFilesystemComponent(activityFilesystem.getTempDataDirectory(), "Creating activity temporary data directory");
+    createFilesystemComponent(activityFilesystem.getInternalDirectory(),
+        "Creating activity internal Interactive Spaces directory");
 
     return activityFilesystem;
   }
@@ -130,9 +133,9 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
    *          the message saying what component is being created
    *
    * @throws InteractiveSpacesException
-   *           if cannot create the component.
+   *           if cannot create the component
    */
-  private void createFilesystemComponent(File component, String message) {
+  private void createFilesystemComponent(File component, String message) throws InteractiveSpacesException {
     fileSupport.directoryExists(component, message);
   }
 

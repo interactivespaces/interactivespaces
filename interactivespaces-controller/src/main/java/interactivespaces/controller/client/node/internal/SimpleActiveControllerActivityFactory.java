@@ -17,7 +17,6 @@
 package interactivespaces.controller.client.node.internal;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
@@ -26,6 +25,7 @@ import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.Version;
@@ -58,7 +58,7 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
 
   @Override
   public ActiveControllerActivity createActiveLiveActivity(String activityType, InstalledLiveActivity liveActivity,
-      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
 
     String bareActivityType = activityType;
     VersionRange versionRange = null;
@@ -96,7 +96,7 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
 
   @Override
   public ActiveControllerActivity newActiveActivity(InstalledLiveActivity liveActivity,
-      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
     String type = getConfiguredType(configuration);
 
     return createActiveLiveActivity(type, liveActivity, activityFilesystem, configuration, controller);

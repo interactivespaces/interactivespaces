@@ -16,12 +16,12 @@
 
 package interactivespaces.controller.client.node.internal;
 
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
+import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -42,7 +42,7 @@ public class SimpleActiveControllerActivityFactoryTest {
   private SimpleActiveControllerActivityFactory afactory;
   private SpaceController controller;
   private LiveActivityConfiguration configuration;
-  private ActivityFilesystem filesystem;
+  private InternalActivityFilesystem filesystem;
   private InstalledLiveActivity liveActivity;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private Log log;
@@ -51,7 +51,7 @@ public class SimpleActiveControllerActivityFactoryTest {
   public void setup() {
     afactory = new SimpleActiveControllerActivityFactory();
     controller = Mockito.mock(SpaceController.class);
-    filesystem = Mockito.mock(ActivityFilesystem.class);
+    filesystem = Mockito.mock(InternalActivityFilesystem.class);
     liveActivity = Mockito.mock(InstalledLiveActivity.class);
     configuration = Mockito.mock(LiveActivityConfiguration.class);
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);

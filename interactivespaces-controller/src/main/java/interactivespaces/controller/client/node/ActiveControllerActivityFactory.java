@@ -17,7 +17,6 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
@@ -49,7 +48,7 @@ public interface ActiveControllerActivityFactory {
    * @return A runner for the activity.
    */
   ActiveControllerActivity createActiveLiveActivity(String activityType, InstalledLiveActivity liapp,
-      ActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller);
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller);
 
   /**
    * Create an appropriate runner.
@@ -68,9 +67,9 @@ public interface ActiveControllerActivityFactory {
    * @param controller
    *          the controller which will run the activity
    *
-   * @return A runner for the activity.
+   * @return a runner for the activity
    */
-  ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+  ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp, InternalActivityFilesystem activityFilesystem,
       LiveActivityConfiguration configuration, SpaceController controller);
 
   /**
@@ -82,7 +81,7 @@ public interface ActiveControllerActivityFactory {
    * @return the activity type
    *
    * @throws InteractiveSpacesException
-   *           if can't determine the activity type.
+   *           if can't determine the activity type
    */
   String getConfiguredType(Configuration configuration) throws InteractiveSpacesException;
 

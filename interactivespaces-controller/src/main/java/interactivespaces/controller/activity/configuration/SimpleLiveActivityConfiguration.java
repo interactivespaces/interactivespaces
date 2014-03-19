@@ -36,23 +36,23 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
   /**
    * Storage manager for the base activity configuration.
    */
-  private ConfigurationStorageManager baseStorageManager;
+  private final ConfigurationStorageManager baseActivityConfigurationStorageManager;
 
   /**
    * Storage manager for the installed activity configuration.
    */
-  private ConfigurationStorageManager installedActivityStorageManager;
+  private final ConfigurationStorageManager installedActivityConfigurationStorageManager;
 
   /**
    * The temporary configuration is the root. All delegated calls go to this
    * one.
    */
-  private SimpleConfiguration temporary;
+  private final SimpleConfiguration temporary;
 
   /**
    * The system configuration.
    */
-  private Configuration systemConfiguration;
+  private final Configuration systemConfiguration;
 
   /**
    * Parent of this configuration.
@@ -60,8 +60,8 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
   private Configuration parent;
 
   /**
-   * @param baseStorageManager
-   *          the storage manager for the base configuration
+   * @param baseActivityConfigurationStorageManager
+   *          the storage manager for the base activity configuration
    * @param installedActivityStorageManager
    *          the storage manager for the installed activity
    * @param expressionEvaluator
@@ -69,17 +69,17 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
    * @param systemConfiguration
    *          the system configuration
    */
-  public SimpleLiveActivityConfiguration(ConfigurationStorageManager baseStorageManager,
+  public SimpleLiveActivityConfiguration(ConfigurationStorageManager baseActivityConfigurationStorageManager,
       ConfigurationStorageManager installedActivityStorageManager,
       ExpressionEvaluator expressionEvaluator, Configuration systemConfiguration) {
-    this.baseStorageManager = baseStorageManager;
-    this.installedActivityStorageManager = installedActivityStorageManager;
+    this.baseActivityConfigurationStorageManager = baseActivityConfigurationStorageManager;
+    this.installedActivityConfigurationStorageManager = installedActivityStorageManager;
     this.systemConfiguration = systemConfiguration;
 
     temporary = new SimpleConfiguration(expressionEvaluator);
 
     Configuration installedConfiguration = installedActivityStorageManager.getConfiguration();
-    Configuration baseConfiguration = baseStorageManager.getConfiguration();
+    Configuration baseConfiguration = baseActivityConfigurationStorageManager.getConfiguration();
     baseConfiguration.setParent(systemConfiguration);
     installedConfiguration.setParent(baseConfiguration);
     temporary.setParent(installedConfiguration);
@@ -88,15 +88,15 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
   @Override
   public void load() {
     temporary.clear();
-    baseStorageManager.load();
-    installedActivityStorageManager.load();
+    baseActivityConfigurationStorageManager.load();
+    installedActivityConfigurationStorageManager.load();
   }
 
   @Override
   public void update(Map<String, Object> update) {
-    installedActivityStorageManager.clear();
-    installedActivityStorageManager.update(update);
-    installedActivityStorageManager.save();
+    installedActivityConfigurationStorageManager.clear();
+    installedActivityConfigurationStorageManager.update(update);
+    installedActivityConfigurationStorageManager.save();
   }
 
   @Override

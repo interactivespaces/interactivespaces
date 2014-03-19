@@ -17,7 +17,6 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStateTransition;
@@ -742,7 +741,7 @@ public class StandardSpaceController extends BaseSpaceController implements
   }
 
   /**
-   * Publish an activity status in a safe manner
+   * Publish an activity status in a safe manner.
    *
    * @param uuid
    *          uuid of the activity
@@ -814,7 +813,7 @@ public class StandardSpaceController extends BaseSpaceController implements
   private ActiveControllerActivity newActiveActivityFromRepository(String uuid) {
     InstalledLiveActivity liveActivity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
     if (liveActivity != null) {
-      ActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
+      InternalActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
 
       LiveActivityConfiguration activityConfiguration =
           configurationManager.getConfiguration(activityFilesystem);
