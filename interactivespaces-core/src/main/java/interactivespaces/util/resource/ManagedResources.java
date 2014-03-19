@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -77,6 +78,15 @@ public class ManagedResources {
     }
 
     resources.add(resource);
+  }
+
+  /**
+   * Get a list of the currently managed resources.
+   *
+   * @return list of managed resources
+   */
+  public synchronized List<ManagedResource> getResources() {
+    return Collections.unmodifiableList(resources);
   }
 
   /**

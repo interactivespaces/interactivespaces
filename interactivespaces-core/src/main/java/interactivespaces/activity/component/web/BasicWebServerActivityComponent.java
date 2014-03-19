@@ -16,13 +16,13 @@
 
 package interactivespaces.activity.component.web;
 
+import com.google.common.collect.Lists;
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
+import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
-import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -30,9 +30,6 @@ import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import com.google.common.collect.Lists;
-
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -104,6 +101,11 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   @Override
   public String getName() {
     return COMPONENT_NAME;
+  }
+
+  @Override
+  public String getDescription() {
+    return COMPONENT_DESCRIPTION;
   }
 
   @Override
@@ -418,7 +420,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
 
   @Override
   public String getComponentStatusDetail() {
-    return webInitialPage;
+    return String.format(StatusDetail.LINK_FORMAT, webInitialPage);
   }
 
   /**

@@ -87,4 +87,11 @@ public interface ActivityComponent {
    * @return the component status detail
    */
   String getComponentStatusDetail();
+
+  /**
+   * Get a description of the component.
+   *
+   * @return the description of the component
+   */
+  String getDescription();
 }

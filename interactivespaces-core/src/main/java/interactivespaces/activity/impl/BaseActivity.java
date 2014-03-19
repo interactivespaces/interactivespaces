@@ -58,6 +58,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   private static final String ACTIVITY_STARTUP_CONFIG_LOG = "startup.conf";
 
   /**
+   * Display header to use for the activity status.
+   */
+  public static final String ACTIVITY_STATUS_HEADER = "Activity Status";
+
+  /**
    * Context all activity components will run under.
    */
   private ActivityComponentContext componentContext;
@@ -301,13 +306,27 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * @return status detail for this activity including components
    */
   protected String getActivityStatusDetailComposite(String baseDetail) {
-    StringBuilder detailString = new StringBuilder(baseDetail);
+    StringBuilder detailString = new StringBuilder();
+    detailString.append(String.format(StatusDetail.HEADER_FORMAT, "status-detail"))
+        .append(String.format(StatusDetail.PREFIX_FORMAT, "activity-status"))
+        .append(ACTIVITY_STATUS_HEADER).append(StatusDetail.SEPARATOR).append(baseDetail).append(StatusDetail.POSTFIX);
     for (ActivityComponent component : componentContext.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
-        detailString.append('\n').append(detail.trim());
+        detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "component-status"))
+            .append(component.getDescription()).append(StatusDetail.SEPARATOR)
+            .append(detail).append(StatusDetail.POSTFIX);
       }
     }
+
+    detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources"))
+        .append("Managed Resources").append(StatusDetail.SEPARATOR);
+    for (ManagedResource managedResource : managedResources.getResources()) {
+      detailString.append(managedResource.getClass().getName()).append(StatusDetail.BREAK);
+    }
+    detailString.append(StatusDetail.POSTFIX);
+
+    detailString.append(StatusDetail.FOOTER);
     return detailString.toString();
   }
 

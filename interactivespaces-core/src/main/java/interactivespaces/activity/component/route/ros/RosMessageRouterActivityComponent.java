@@ -16,20 +16,19 @@
 
 package interactivespaces.activity.component.route.ros;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
+import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-
 import org.apache.commons.logging.Log;
 import org.ros.message.MessageListener;
 
@@ -54,6 +53,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
    * Name of the component.
    */
   public static final String COMPONENT_NAME = "comm.router.ros";
+
+  /**
+   * Description of this component.
+   */
+  public static final String COMPONENT_DESCRIPTION = "Message Router";
 
   /**
    * Dependencies for the component.
@@ -129,6 +133,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   @Override
   public String getName() {
     return COMPONENT_NAME;
+  }
+
+  @Override
+  public String getDescription() {
+    return COMPONENT_DESCRIPTION;
   }
 
   @Override
@@ -381,13 +390,36 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
 
   @Override
   public String getComponentStatusDetail() {
-    StringBuilder routes = new StringBuilder();
+    Map<String, String> sortedRoutes = Maps.newTreeMap();
     for (Map.Entry<String, String> input : inputTopics.entrySet()) {
-      routes.append(input.getKey()).append(" < ").append(input.getValue()).append('\n');
+      String key = input.getKey();
+      sortedRoutes.put(key + ">", makeRouteDetail("input-route", key, StatusDetail.ARROW_LEFT, input.getValue()));
     }
-    for (Map.Entry<String, String> input : outputTopics.entrySet()) {
-      routes.append(input.getKey()).append(" > ").append(input.getValue()).append('\n');
+    for (Map.Entry<String, String> output : outputTopics.entrySet()) {
+      String key = output.getKey();
+      sortedRoutes.put(key + "<", makeRouteDetail("output-route", key, StatusDetail.ARROW_RIGHT, output.getValue()));
     }
-    return routes.toString();
+    String nodeName = rosActivityComponent.getNode().getName().toString();
+    return String.format(StatusDetail.HEADER_FORMAT, "route-detail")
+        + makeRouteDetail("node-name", "Node Name", StatusDetail.ITEM_IS, nodeName)
+        + "\n" + Joiner.on("\n").join(sortedRoutes.values()) + StatusDetail.FOOTER;
+  }
+
+  /**
+   * Function to format the various parts of a status row together into a single entity.
+   * @param className
+   *          class name for the row
+   * @param key
+   *          key for entry
+   * @param bridge
+   *          bridge string between key/value
+   * @param value
+   *          value for the entry
+   *
+   * @return formatted line for a route detail
+   */
+  private String makeRouteDetail(String className, String key, String bridge, String value) {
+    return String.format(StatusDetail.PREFIX_FORMAT, className) + key + StatusDetail.SEPARATOR + bridge
+        + StatusDetail.SEPARATOR + value + StatusDetail.POSTFIX;
   }
 }
