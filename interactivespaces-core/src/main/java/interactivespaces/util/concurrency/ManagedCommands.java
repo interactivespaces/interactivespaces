@@ -16,25 +16,16 @@
 
 package interactivespaces.util.concurrency;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * A collection of scheduled commands which can be shut down as a whole.
- *
- * <p>
- * Managed Commands are threads which should be running for some time, for
- * example, the lifetime of an activity, or while it is activated. If your
- * thread should run and be done "quickly", use
- * {@link InteractiveSpacesEnvironment#getExecutorService()}.
  *
  * <p>
  * Despite being in a concurrency class, this class is not threadsafe between
@@ -45,20 +36,28 @@ import java.util.concurrent.TimeUnit;
 public class ManagedCommands {
 
   /**
-   * All futures in collection.
+   * All managed commands in collection.
    */
-  private List<Future<?>> futures = Collections.synchronizedList(new ArrayList<Future<?>>());
+  private final Set<ManagedCommand> managedCommands = Sets.newHashSet();
 
   /**
    * The executor service for this collection.
    */
-  private ScheduledExecutorService executorService;
+  private final ScheduledExecutorService executorService;
 
   /**
    * The logger for the collection.
    */
-  private Log log;
+  private final Log log;
 
+  /**
+   * Construct a managed command collection.
+   *
+   * @param executorService
+   *          the executor service for the command
+   * @param log
+   *          the logger for the command
+   */
   public ManagedCommands(ScheduledExecutorService executorService, Log log) {
     this.executorService = executorService;
     this.log = log;
@@ -69,9 +68,15 @@ public class ManagedCommands {
    *
    * @param command
    *          the command to run
+   *
+   * @return the managed command
    */
-  public void submit(Runnable command) {
-    futures.add(executorService.submit(newWrappedTask(command, false)));
+  public synchronized ManagedCommand submit(Runnable command) {
+    ManagedCommand managedCommand = new ManagedCommand(command, this, false, false, log);
+    managedCommand.setFuture(executorService.submit(managedCommand.getTask()));
+    managedCommands.add(managedCommand);
+
+    return managedCommand;
   }
 
   /**
@@ -83,9 +88,15 @@ public class ManagedCommands {
    *          how soon in the future to run it
    * @param unit
    *          units on how soon to start
+   *
+   * @return the managed command
    */
-  public void schedule(Runnable command, long delay, TimeUnit unit) {
-    futures.add(executorService.schedule(newWrappedTask(command, false), delay, unit));
+  public synchronized ManagedCommand schedule(Runnable command, long delay, TimeUnit unit) {
+    ManagedCommand managedCommand = new ManagedCommand(command, this, false, false, log);
+    managedCommand.setFuture(executorService.schedule(managedCommand.getTask(), delay, unit));
+    managedCommands.add(managedCommand);
+
+    return managedCommand;
   }
 
   /**
@@ -103,13 +114,15 @@ public class ManagedCommands {
    *          the command to run
    * @param initialDelay
    *          how soon in the future to run it the first time
-   * @param delay
+   * @param period
    *          how long to delay between subsequent executions
    * @param unit
    *          time units for both delays
+   *
+   * @return the managed command
    */
-  public void scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-    scheduleAtFixedRate(command, initialDelay, period, unit, true);
+  public ManagedCommand scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
+    return scheduleAtFixedRate(command, initialDelay, period, unit, true);
   }
 
   /**
@@ -126,18 +139,24 @@ public class ManagedCommands {
    *          the command to run
    * @param initialDelay
    *          how soon in the future to run it the first time
-   * @param delay
+   * @param period
    *          how long to delay between subsequent executions
    * @param unit
    *          time units for both delays
    * @param allowTerminate
    *          {@code true} if the task should be allowed to terminate if it
    *          throws an exception
+   *
+   * @return the managed command
    */
-  public void scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit,
-      boolean allowTerminate) {
-    futures.add(executorService.scheduleAtFixedRate(newWrappedTask(command, allowTerminate),
-        initialDelay, period, unit));
+  public synchronized ManagedCommand scheduleAtFixedRate(Runnable command, long initialDelay, long period,
+      TimeUnit unit, boolean allowTerminate) {
+    ManagedCommand managedCommand = new ManagedCommand(command, this, true, allowTerminate, log);
+    managedCommand.setFuture(executorService.scheduleAtFixedRate(managedCommand.getTask(), initialDelay, period, unit));
+
+    managedCommands.add(managedCommand);
+
+    return managedCommand;
   }
 
   /**
@@ -159,10 +178,11 @@ public class ManagedCommands {
    *          how long to delay between subsequent executions
    * @param unit
    *          time units for both delays
+   *
+   * @return the managed command
    */
-  public void
-      scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-    scheduleWithFixedDelay(command, initialDelay, delay, unit, true);
+  public ManagedCommand scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+    return scheduleWithFixedDelay(command, initialDelay, delay, unit, true);
   }
 
   /**
@@ -183,71 +203,37 @@ public class ManagedCommands {
    * @param allowTerminate
    *          {@code true} if the task should be allowed to terminate if it
    *          throws an exception
+   *
+   * @return the managed command
    */
-  public void scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
+  public synchronized ManagedCommand scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
       TimeUnit unit, boolean allowTerminate) {
-    futures.add(executorService.scheduleWithFixedDelay(newWrappedTask(command, allowTerminate),
-        initialDelay, delay, unit));
+    ManagedCommand managedCommand = new ManagedCommand(command, this, true, allowTerminate, log);
+    managedCommand
+        .setFuture(executorService.scheduleWithFixedDelay(managedCommand.getTask(), initialDelay, delay, unit));
+
+    managedCommands.add(managedCommand);
+
+    return managedCommand;
   }
 
   /**
    * Shut down all executing commands or commands which haven't started yet.
    */
-  public void shutdownAll() {
-    for (Future<?> f : futures) {
-      f.cancel(true);
+  public synchronized void shutdownAll() {
+    for (ManagedCommand managedCommand : managedCommands) {
+      managedCommand.cancel();
     }
-    futures.clear();
+    managedCommands.clear();
   }
 
   /**
-   * Get a wrapped task.
+   * Remove a managed command from the collection.
    *
-   * @param runnable
-   *          the runnable to be done in the task
-   * @param allowTerminate
-   *          {@code true} if the task should be allowed to terminate if it
-   *          throws an exception (only makes sense for repeating tasks)
-   *
-   * @return the wrapped task
+   * @param managedCommand
+   *          the command to remove
    */
-  private WrappedTask newWrappedTask(Runnable runnable, boolean allowTerminate) {
-    return new WrappedTask(runnable, allowTerminate);
-  }
-
-  /**
-   * A runnable that logs exceptions.
-   *
-   * @author Keith M. Hughes
-   */
-  private class WrappedTask implements Runnable {
-
-    /**
-     * The actual runnable to be run.
-     */
-    private Runnable delegate;
-
-    private boolean allowTerminate;
-
-    public WrappedTask(Runnable delegate, boolean allowTerminate) {
-      this.delegate = delegate;
-      this.allowTerminate = allowTerminate;
-    }
-
-    @Override
-    public void run() {
-      try {
-        delegate.run();
-      } catch (Throwable e) {
-        log.error("Exception caught during Managed Command", e);
-
-        if (allowTerminate) {
-          // TODO(keith): Not entirely happy with this. maybe
-          // eventually put the future into this instance and shut it
-          // down.
-          throw new RuntimeException();
-        }
-      }
-    }
+  synchronized void removeManagedCommand(ManagedCommand managedCommand) {
+    managedCommands.remove(managedCommand);
   }
 }

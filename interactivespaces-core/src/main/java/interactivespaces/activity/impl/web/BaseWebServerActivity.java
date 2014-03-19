@@ -16,12 +16,14 @@
 
 package interactivespaces.activity.impl.web;
 
+import interactivespaces.activity.component.web.BasicWebServerActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.BaseActivity;
-import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.service.web.server.BasicMultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonMapper;
 
@@ -36,22 +38,18 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class BaseWebServerActivity extends BaseActivity implements
-    MultipleConnectionWebSocketHandler, HttpFileUploadListener {
+public class BaseWebServerActivity extends BaseActivity implements MultipleConnectionWebSocketHandler,
+    HttpFileUploadListener {
 
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = new JsonMapper();
 
   /**
    * Web socket handler for the connection to the browser.
    */
-  private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
+  private interactivespaces.service.web.server.MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 
   /**
    * The web server component.
@@ -60,9 +58,9 @@ public class BaseWebServerActivity extends BaseActivity implements
 
   @Override
   public void commonActivitySetup() {
-    webServerComponent = addActivityComponent(new WebServerActivityComponent());
+    webServerComponent = addActivityComponent(new BasicWebServerActivityComponent());
 
-    webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this, getLog());
+    webSocketFactory = new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, getLog());
     webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
     webServerComponent.setHttpFileUploadListener(this);
   }
@@ -72,6 +70,8 @@ public class BaseWebServerActivity extends BaseActivity implements
    *
    * @param map
    *          the map to stringify
+   *
+   * @return the JSON string
    */
   public String jsonStringify(Map<String, Object> map) {
     return MAPPER.toString(map);
@@ -82,6 +82,7 @@ public class BaseWebServerActivity extends BaseActivity implements
    *
    * @param data
    *          the JSON string
+   *
    * @return the map for the string
    */
   public Map<String, Object> jsonParse(String data) {
@@ -144,14 +145,14 @@ public class BaseWebServerActivity extends BaseActivity implements
    * @param connectionId
    *          ID for the web socket connection
    * @param data
-   *          The data from the web socket call.
+   *          the data from the web socket call
    */
   public void onWebSocketReceive(String connectionId, Object data) {
     // Default is to do nothing.
   }
 
   /**
-   * Send a JSON result to the web socket
+   * Send a JSON result to the web socket.
    *
    * @param connectionId
    *          ID for the web socket connection
@@ -173,7 +174,7 @@ public class BaseWebServerActivity extends BaseActivity implements
   }
 
   /**
-   * Send a string to the web socket
+   * Send a string to the web socket.
    *
    * @param connectionId
    *          ID for the web socket connection

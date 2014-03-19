@@ -18,10 +18,10 @@ package interactivespaces.util.data.json;
 
 import interactivespaces.InteractiveSpacesException;
 
-import java.util.Map;
-
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import java.util.Map;
 
 /**
  * A mapper for JSON.
@@ -32,6 +32,11 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author Keith M. Hughes
  */
 public class JsonMapper {
+
+  /**
+   * A global mapper everyone can use.
+   */
+  public static final JsonMapper INSTANCE = new JsonMapper();
 
   /**
    * The JSON mapper.
@@ -57,7 +62,7 @@ public class JsonMapper {
   public Map<String, Object> parseObject(String object) {
     try {
       @SuppressWarnings("unchecked")
-      Map<String, Object> map = (Map<String, Object>) MAPPER.readValue(object, Map.class);
+      Map<String, Object> map = MAPPER.readValue(object, Map.class);
       return map;
     } catch (Exception e) {
       throw new InteractiveSpacesException("Could not parse JSON string", e);

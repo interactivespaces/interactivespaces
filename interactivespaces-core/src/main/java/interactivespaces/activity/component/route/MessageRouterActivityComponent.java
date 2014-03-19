@@ -16,6 +16,7 @@
 
 package interactivespaces.activity.component.route;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.ActivityComponent;
 
 /**
@@ -76,4 +77,38 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    *          message to send
    */
   void writeOutputMessage(String outputChannelName, T message);
+
+  /**
+   * Register a new channel output topic route.
+   *
+   * @param outputName
+   *          channel name
+   * @param topicNames
+   *          output topic names
+   * @param latch
+   *          should output be latched
+   *
+   * @throws InteractiveSpacesException
+   *           the output name has been used before
+   */
+  void registerOutputChannelTopic(String outputName, String topicNames, boolean latch)
+      throws InteractiveSpacesException;
+
+  /**
+   * Register a new input topic channel.
+   *
+   * @param inputName
+   *          input channel name
+   * @param topicNames
+   *          input topic names
+   *
+   * @throws InteractiveSpacesException
+   *           the input name has been used before
+   */
+  void registerInputChannelTopic(final String inputName, String topicNames) throws InteractiveSpacesException;
+
+  /**
+   * Shutdown and clear all the input/output message topics.
+   */
+  void clearAllChannelTopics();
 }

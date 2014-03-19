@@ -17,7 +17,7 @@
 package interactivespaces.activity.component.route;
 
 /**
- * Message types supported out of the box for for IS routes.
+ * Message types supported out of the box for IS routes.
  *
  * @author Keith M. Hughes
  */

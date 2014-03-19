@@ -16,11 +16,11 @@
 
 package interactivespaces.activity.component.web;
 
-import com.google.common.collect.ImmutableList;
-
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
+
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -30,37 +30,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseWebBrowserActivityComponent extends BaseActivityComponent {
-
-  /**
-   * Configuration property giving the initial page of the web activity.
-   *
-   * <p>
-   * If there is no content location, this should be a fully qualified URL.
-   * Otherwise it can be relative to
-   * {@link #CONFIGURATION_WEBAPP_CONTENT_LOCATION}.
-   */
-  public static final String CONFIGURATION_INITIAL_PAGE = "space.activity.webapp.url.initial";
-
-  /**
-   * Configuration property of any query string parameter which should be added
-   * to the URL given to the web browser.
-   */
-  public static final String CONFIGURATION_INITIAL_URL_QUERY_STRING =
-      "space.activity.webapp.url.query_string";
-
-  /**
-   * Configuration property saying whether the browser should be started in
-   * debug mode or not.
-   */
-  public static final String CONFIGURATION_BROWSER_DEBUG = "space.activity.webapp.browser.debug";
-
-  /**
-   * Configuration property saying whether the browser should be started up when
-   * the app starts up.
-   */
-  public static final String CONFIGURATION_BROWSER_STARTUP =
-      "space.activity.webapp.browser.startup";
+public abstract class BaseWebBrowserActivityComponent extends BaseActivityComponent implements WebBrowserActivityComponent {
 
   /**
    * List of allowed prefixes for external URLs.
@@ -113,7 +83,7 @@ public abstract class BaseWebBrowserActivityComponent extends BaseActivityCompon
 
     configurationInitialPage = configurationInitialPage.trim();
     if (isDisallowedPrefix(configurationInitialPage)) {
-      throw new InteractiveSpacesException(String.format(
+      throw new SimpleInteractiveSpacesException(String.format(
           "The initial page %s starts with an illegal prefix", configurationInitialPage));
     }
 
@@ -173,12 +143,7 @@ public abstract class BaseWebBrowserActivityComponent extends BaseActivityCompon
     return false;
   }
 
-  /**
-   * Set the base URL that the browser will connect to.
-   *
-   * @param baseContentUrl
-   *          the base URL (can be {@code null}
-   */
+  @Override
   public void setBaseContentUrl(String baseContentUrl) {
     this.baseContentUrl = baseContentUrl;
   }

@@ -17,7 +17,7 @@
 package interactivespaces.activity.impl.web;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.web.WebBrowserActivityComponent;
+import interactivespaces.activity.component.web.BasicWebBrowserActivityComponent;
 
 /**
  * An {@link Activity} which starts up a web server with websocket handler and a
@@ -37,6 +37,6 @@ public class BaseWebActivity extends BaseWebServerActivity {
   public void commonActivitySetup() {
     super.commonActivitySetup();
 
-    addActivityComponent(new WebBrowserActivityComponent());
+    addActivityComponent(new BasicWebBrowserActivityComponent());
   }
 }

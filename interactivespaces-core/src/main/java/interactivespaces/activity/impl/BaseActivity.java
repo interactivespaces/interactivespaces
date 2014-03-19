@@ -145,7 +145,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
-      onActivityConfigurationUpdate(update);
+      onActivityConfiguration(update);
     } catch (Exception e) {
       logException("Failure when calling onActivityConfigurationUpdate", e);
     } finally {
@@ -171,6 +171,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     componentContext.beginStartupPhase();
     try {
+      updateConfiguration(null);
+
       commonActivitySetup();
 
       callOnActivitySetup();
@@ -665,23 +667,23 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   @Override
-  public void onActivityConfigurationUpdate(Map<String, Object> update) {
-    // Default is nothing on startup.
+  public void onActivityConfiguration(Map<String, Object> update) {
+    // Default is to do nothing.
   }
 
   @Override
   public void onActivitySetup() {
-    // Default is nothing on startup.
+    // Default is to do nothing.
   }
 
   @Override
   public void onActivityStartup() {
-    // Default is nothing on startup.
+    // Default is to do nothing.
   }
 
   @Override
   public void onActivityPostStartup() {
-    // Default is nothing on post startup.
+    // Default is to do nothing.
   }
 
   @Override

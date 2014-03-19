@@ -21,6 +21,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.service.script.ActivityScriptWrapper;
 import interactivespaces.service.script.ScriptSource;
 import interactivespaces.service.script.internal.ActivityScriptFactory;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -37,6 +38,21 @@ public class RhinoJavascriptActivityScriptFactory implements ActivityScriptFacto
    * our own global definitions in.
    */
   private Scriptable globalScope;
+
+  /**
+   * The Interactive Spaces environment we are running under.
+   */
+  private final InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * Construct the factory.
+   *
+   * @param spaceEnvironment
+   *          the space environment for the factory
+   */
+  public RhinoJavascriptActivityScriptFactory(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
+  }
 
   @Override
   public void initialize() {
@@ -55,7 +71,7 @@ public class RhinoJavascriptActivityScriptFactory implements ActivityScriptFacto
       // to do it once.
       globalScope = cx.initStandardObjects(null);
     } catch (Exception e) {
-      e.printStackTrace();
+      spaceEnvironment.getLog().error("Could not initialize Javascript activity scrpt factory", e);
     } finally {
       Context.exit();
     }
@@ -64,8 +80,7 @@ public class RhinoJavascriptActivityScriptFactory implements ActivityScriptFacto
   @Override
   public ActivityScriptWrapper getActivity(String objectName, ScriptSource scriptSource,
       ActivityFilesystem activityFilesystem, Configuration configuration) {
-    return new RhinoActivityScriptWrapper(globalScope, scriptSource, activityFilesystem,
-        configuration);
+    return new RhinoActivityScriptWrapper(globalScope, scriptSource, activityFilesystem, configuration);
   }
 
 }

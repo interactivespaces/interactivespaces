@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,64 +16,53 @@
 
 package interactivespaces.activity.component.web;
 
-import com.google.common.collect.ImmutableList;
-
-import interactivespaces.activity.binary.NativeBrowserRunner;
-
-import java.util.List;
+import interactivespaces.activity.component.ActivityComponent;
 
 /**
  * An {@link ActivityComponent} which starts up a web browser.
  *
  * @author Keith M. Hughes
  */
-public class WebBrowserActivityComponent extends BaseWebBrowserActivityComponent {
+public interface WebBrowserActivityComponent extends ActivityComponent {
 
   /**
    * Name of the component.
    */
-  public static final String COMPONENT_NAME = "web.browser";
+  String COMPONENT_NAME = "web.browser";
 
   /**
-   * Dependencies for the component.
+   * Configuration property giving the initial page of the web activity.
+   *
+   * <p>
+   * If there is no content location, this should be a fully qualified URL.
+   * Otherwise it can be relative to
+   * {@link #CONFIGURATION_WEBAPP_CONTENT_LOCATION}.
    */
-  public static final List<String> COMPONENT_DEPENDENCIES = ImmutableList.of(WebServerActivityComponent.COMPONENT_NAME);
+  String CONFIGURATION_INITIAL_PAGE = "space.activity.webapp.url.initial";
 
   /**
-   * The browser runner.
+   * Configuration property of any query string parameter which should be added
+   * to the URL given to the web browser.
    */
-  private NativeBrowserRunner browserRunner;
+  String CONFIGURATION_INITIAL_URL_QUERY_STRING = "space.activity.webapp.url.query_string";
 
-  @Override
-  public String getName() {
-    return COMPONENT_NAME;
-  }
+  /**
+   * Configuration property saying whether the browser should be started in
+   * debug mode or not.
+   */
+  String CONFIGURATION_BROWSER_DEBUG = "space.activity.webapp.browser.debug";
 
-  @Override
-  public List<String> getDependencies() {
-    return COMPONENT_DEPENDENCIES;
-  }
+  /**
+   * Configuration property saying whether the browser should be started up when
+   * the app starts up.
+   */
+  String CONFIGURATION_BROWSER_STARTUP = "space.activity.webapp.browser.startup";
 
-  @Override
-  public void startupComponent() {
-    if (browserStartup) {
-      browserRunner = new NativeBrowserRunner(getComponentContext().getActivity());
-      browserRunner.startup(initialUrl, browserDebug);
-    }
-  }
-
-  @Override
-  public void shutdownComponent() {
-    if (browserRunner != null) {
-      browserRunner.shutdown();
-      browserRunner = null;
-    }
-  }
-
-  @Override
-  public boolean isComponentRunning() {
-    // TODO(keith): Anything to check on the browser?
-    return browserRunner != null && browserRunner.isRunning();
-  }
-
+  /**
+   * Set the base URL that the browser will connect to.
+   *
+   * @param baseContentUrl
+   *          the base URL (can be {@code null}
+   */
+  void setBaseContentUrl(String baseContentUrl);
 }

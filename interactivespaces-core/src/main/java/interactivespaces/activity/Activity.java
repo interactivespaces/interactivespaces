@@ -61,14 +61,14 @@ public interface Activity extends ActivityControl {
    * Set the activity configuration.
    *
    * @param configuration
-   *          The activity configuration.
+   *          the activity configuration
    */
   void setConfiguration(Configuration configuration);
 
   /**
    * Get the current activity configuration.
    *
-   * @return The current activity configuration.
+   * @return the current activity configuration
    */
   Configuration getConfiguration();
 
@@ -77,7 +77,7 @@ public interface Activity extends ActivityControl {
    * if the startup was unsuccessful.Should throw an exception if the startup
    * was unsuccessful.
    *
-   * @return The controller in charge of the activity.
+   * @return the controller in charge of the activity
    */
   SpaceController getController();
 
@@ -93,21 +93,22 @@ public interface Activity extends ActivityControl {
    * The configuration has been updated.
    *
    * @param update
-   *          a map of the updates
+   *          the full update, will be {@code null} when called during setup,
+   *          though the initial activity configuration will be valid
    */
   void updateConfiguration(Map<String, Object> update);
 
   /**
    * Is the activity activated?
    *
-   * @return {@code true} if the activity is activated.
+   * @return {@code true} if the activity is activated
    */
   boolean isActivated();
 
   /**
    * Get the activity's file system.
    *
-   * @return The activity's file system.
+   * @return the activity's file system
    */
   ActivityFilesystem getActivityFilesystem();
 
@@ -115,7 +116,7 @@ public interface Activity extends ActivityControl {
    * Set the activity's file system.
    *
    * @param activityFilesystem
-   *          The activity's file system.
+   *          the activity's file system
    */
   void setActivityFilesystem(ActivityFilesystem activityFilesystem);
 
@@ -137,7 +138,7 @@ public interface Activity extends ActivityControl {
   /**
    * Get the name of the activity.
    *
-   * @return The name of the activity.
+   * @return the name of the activity
    */
   String getName();
 
@@ -145,14 +146,14 @@ public interface Activity extends ActivityControl {
    * Set the name of this activity.
    *
    * @param name
-   *          The name to set.
+   *          the name to set
    */
   void setName(String name);
 
   /**
    * Get the UUID of the activity.
    *
-   * @return The UUID of the activity.
+   * @return the UUID of the activity
    */
   String getUuid();
 
@@ -160,7 +161,7 @@ public interface Activity extends ActivityControl {
    * Set the UUID of this activity.
    *
    * @param uuid
-   *          The uuid to set.
+   *          the uuid to set
    */
   void setUuid(String uuid);
 
