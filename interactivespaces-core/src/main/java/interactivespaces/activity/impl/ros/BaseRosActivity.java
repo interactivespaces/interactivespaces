@@ -16,6 +16,7 @@
 
 package interactivespaces.activity.impl.ros;
 
+import interactivespaces.activity.component.ros.BasicRosActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.activity.ros.RosActivity;
@@ -39,7 +40,7 @@ public abstract class BaseRosActivity extends BaseActivity implements RosActivit
   public void commonActivitySetup() {
     super.commonActivitySetup();
 
-    rosActivityComponent = addActivityComponent(new RosActivityComponent());
+    rosActivityComponent = addActivityComponent(new BasicRosActivityComponent());
   }
 
   @Override

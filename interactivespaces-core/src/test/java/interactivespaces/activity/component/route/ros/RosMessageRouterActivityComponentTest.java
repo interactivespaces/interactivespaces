@@ -14,9 +14,11 @@
  * the License.
  */
 
-package interactivespaces.activity.component.ros;
+package interactivespaces.activity.component.route.ros;
 
 import interactivespaces.activity.component.ActivityComponentContext;
+import interactivespaces.activity.component.route.RoutableInputMessageListener;
+import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.ros.RosActivity;
 import interactivespaces.configuration.Configuration;

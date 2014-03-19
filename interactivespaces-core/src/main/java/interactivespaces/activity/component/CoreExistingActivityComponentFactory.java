@@ -18,10 +18,13 @@ package interactivespaces.activity.component;
 
 import interactivespaces.activity.component.binary.BasicNativeActivityComponent;
 import interactivespaces.activity.component.binary.NativeActivityComponent;
+import interactivespaces.activity.component.ros.BasicRosActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
-import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
+import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.component.web.WebBrowserActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
+import interactivespaces.activity.component.web.BasicWebBrowserActivityComponent;
+import interactivespaces.activity.component.web.BasicWebServerActivityComponent;
 
 /**
  * A {@link ActivityComponentFactory} which registers all the core activity
@@ -36,10 +39,10 @@ public class CoreExistingActivityComponentFactory extends SimpleActivityComponen
    */
   public CoreExistingActivityComponentFactory() {
     register(NativeActivityComponent.COMPONENT_NAME, BasicNativeActivityComponent.class);
-    register(RosActivityComponent.COMPONENT_NAME, RosActivityComponent.class);
+    register(RosActivityComponent.COMPONENT_NAME, BasicRosActivityComponent.class);
     register(RosMessageRouterActivityComponent.COMPONENT_NAME,
         RosMessageRouterActivityComponent.class);
-    register(WebBrowserActivityComponent.COMPONENT_NAME, WebBrowserActivityComponent.class);
-    register(WebServerActivityComponent.COMPONENT_NAME, WebServerActivityComponent.class);
+    register(WebBrowserActivityComponent.COMPONENT_NAME, BasicWebBrowserActivityComponent.class);
+    register(WebServerActivityComponent.COMPONENT_NAME, BasicWebServerActivityComponent.class);
   }
 }

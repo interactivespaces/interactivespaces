@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.impl.web;
 
-import interactivespaces.activity.component.web.WebBrowserActivityComponent;
+import interactivespaces.activity.component.web.BasicWebBrowserActivityComponent;
 
 /**
  * A web-based ROS Interactive Spaces activity which is routable.
@@ -29,6 +29,6 @@ public abstract class BaseRoutableRosWebActivity extends BaseRoutableRosWebServe
   public void commonActivitySetup() {
     super.commonActivitySetup();
 
-    addActivityComponent(new WebBrowserActivityComponent());
+    addActivityComponent(new BasicWebBrowserActivityComponent());
   }
 }

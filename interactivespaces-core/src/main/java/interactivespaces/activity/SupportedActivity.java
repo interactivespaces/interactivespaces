@@ -139,9 +139,10 @@ public interface SupportedActivity extends Activity {
    * A configuration update is coming in.
    *
    * @param update
-   *          the full update
+   *          the full update, will be {@code null} when called during setup,
+   *          though the initial activity configuration will be valid
    */
-  void onActivityConfigurationUpdate(Map<String, Object> update);
+  void onActivityConfiguration(Map<String, Object> update);
 
   /**
    * Add a new component to the activity.

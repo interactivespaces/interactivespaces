@@ -16,12 +16,14 @@
 
 package interactivespaces.activity.impl.web;
 
+import interactivespaces.activity.component.web.BasicWebServerActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
-import interactivespaces.activity.impl.web.MultipleConnectionWebServerWebSocketHandlerFactory.MultipleConnectionWebSocketHandler;
+import interactivespaces.service.web.server.BasicMultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.HttpFileUpload;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
@@ -40,16 +42,12 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = new JsonMapper();
 
   /**
    * Web socket handler for the connection to the browser.
    */
-  private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
+  private interactivespaces.service.web.server.MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
 
   /**
    * The web server component.
@@ -60,31 +58,19 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
   public void commonActivitySetup() {
     super.commonActivitySetup();
 
-    webSocketFactory = new MultipleConnectionWebServerWebSocketHandlerFactory(this, getLog());
+    webSocketFactory = new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, getLog());
 
-    webServerComponent = addActivityComponent(new WebServerActivityComponent());
+    webServerComponent = addActivityComponent(new BasicWebServerActivityComponent());
     webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
     webServerComponent.setHttpFileUploadListener(this);
   }
 
-  /**
-   * Convert a map to a JSON string.
-   *
-   * @param map
-   *          the map to convert
-   */
+  @Override
   public String jsonStringify(Map<String, Object> map) {
     return MAPPER.toString(map);
   }
 
-  /**
-   * Parse a JSON string and return the map.
-   *
-   * @param data
-   *          the JSON string
-   *
-   * @return the map for the string
-   */
+  @Override
   public Map<String, Object> jsonParse(String data) {
     return MAPPER.parseObject(data);
   }
@@ -104,7 +90,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
   /**
    * Is the web socket connected to anything?
    *
-   * @return {@code true} if the web socket is connected.
+   * @return {@code true} if the web socket is connected
    */
   public boolean isWebSocketConnected() {
     return webSocketFactory.areWebSocketsConnected();
@@ -136,14 +122,14 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
    * @param connectionId
    *          ID for the web socket connection
    * @param data
-   *          The data from the web socket call.
+   *          the data from the web socket call
    */
   public void onWebSocketReceive(String connectionId, Object data) {
     // Default is to do nothing.
   }
 
   /**
-   * Send a JSON result to the web socket
+   * Send a JSON result to the web socket.
    *
    * @param connectionId
    *          ID for the web socket connection
@@ -155,7 +141,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
   }
 
   /**
-   * Send a {@link JsonBuilder} result to the web socket
+   * Send a {@link JsonBuilder} result to the web socket.
    *
    * @param connectionId
    *          ID for the web socket connection
@@ -187,7 +173,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
   }
 
   /**
-   * Send a string to the web socket
+   * Send a string to the web socket.
    *
    * @param connectionId
    *          ID for the web socket connection

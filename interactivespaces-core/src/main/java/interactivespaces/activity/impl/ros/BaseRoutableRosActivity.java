@@ -16,12 +16,13 @@
 
 package interactivespaces.activity.impl.ros;
 
-import interactivespaces.activity.component.ros.RosMessageRouterActivityComponent;
-import interactivespaces.activity.component.ros.RoutableInputMessageListener;
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
+import interactivespaces.activity.component.route.RoutableInputMessageListener;
+import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
+
 import interactivespaces_msgs.GenericMessage;
 
 import java.util.Map;
@@ -37,11 +38,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = new JsonMapper();
 
   /**
    * Router for input and output messages.

@@ -27,7 +27,9 @@ public interface ActivityComponentFactory {
    * Register a component class with the factory.
    *
    * @param componentName
+   *          the name of the component
    * @param componentClass
+   *          the class of the component
    */
   void register(String componentName, Class<? extends ActivityComponent> componentClass);
 
@@ -36,6 +38,8 @@ public interface ActivityComponentFactory {
    *
    * @param componentName
    *          the component name of the component
+   * @param <T>
+   *          the type of the component
    *
    * @return a new instance of the requested component type
    */

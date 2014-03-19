@@ -16,9 +16,10 @@
 
 package interactivespaces.activity.component;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+
+import com.google.common.collect.Maps;
 
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class SimpleActivityComponentFactory implements ActivityComponentFactory 
   /**
    * The mapping of component names to the class implementing the component.
    */
-  private Map<String, Class<? extends ActivityComponent>> componentClassMap = Maps.newHashMap();
+  private final Map<String, Class<? extends ActivityComponent>> componentClassMap = Maps.newHashMap();
 
   @Override
   public void register(String componentName, Class<? extends ActivityComponent> componentClass) {
@@ -54,7 +55,7 @@ public class SimpleActivityComponentFactory implements ActivityComponentFactory 
             componentName), e);
       }
     } else {
-      throw new InteractiveSpacesException(String.format("Unknown activity component %s",
+      throw new SimpleInteractiveSpacesException(String.format("Unknown activity component %s",
           componentName));
     }
   }

@@ -14,12 +14,15 @@
  * the License.
  */
 
-package interactivespaces.activity.component.ros;
+package interactivespaces.activity.component.route.ros;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
+import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
+import interactivespaces.activity.component.route.RoutableInputMessageListener;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
@@ -55,8 +58,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   /**
    * Dependencies for the component.
    */
-  public static final List<String> COMPONENT_DEPENDENCIES =
-      ImmutableList.of(RosActivityComponent.COMPONENT_NAME);
+  public static final List<String> COMPONENT_DEPENDENCIES = ImmutableList.of(RosActivityComponent.COMPONENT_NAME);
 
   /**
    * The ROS activity component this component requires.
@@ -119,8 +121,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
    * @param messageListener
    *          the listener for message events
    */
-  public RosMessageRouterActivityComponent(String rosMessageType,
-      RoutableInputMessageListener<T> messageListener) {
+  public RosMessageRouterActivityComponent(String rosMessageType, RoutableInputMessageListener<T> messageListener) {
     this.rosMessageType = rosMessageType;
     this.messageListener = messageListener;
   }
@@ -139,8 +140,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   public void configureComponent(Configuration configuration) {
     super.configureComponent(configuration);
 
-    rosActivityComponent =
-        componentContext.getRequiredActivityComponent(RosActivityComponent.COMPONENT_NAME);
+    rosActivityComponent = componentContext.getRequiredActivityComponent(RosActivityComponent.COMPONENT_NAME);
 
     StringBuilder routeErrors = new StringBuilder();
 
@@ -151,8 +151,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
         String propertyName = CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName;
         if (configuration.getPropertyString(propertyName) == null) {
           handleError(String.format("Input route %s missing topic configuration %s", inputName, propertyName), null);
-          routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing input route=")
-              .append(inputName).append(":").append(propertyName);
+          routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing input route=").append(inputName)
+              .append(":").append(propertyName);
         }
       }
     }
@@ -164,8 +164,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
         String propertyName = CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName;
         if (configuration.getPropertyString(propertyName) == null) {
           handleError(String.format("Output route %s missing topic configuration %s", outputName, propertyName), null);
-          routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing output route=")
-              .append(outputName).append(":").append(propertyName);
+          routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing output route=").append(outputName)
+              .append(":").append(propertyName);
         }
       }
     }
@@ -174,11 +174,10 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       throw new InteractiveSpacesException("Router has missing routes: " + routeErrors);
     }
 
-    if ((inputNames == null || inputNames.isEmpty())
-        && (outputNames == null || outputNames.isEmpty())) {
+    if ((inputNames == null || inputNames.isEmpty()) && (outputNames == null || outputNames.isEmpty())) {
       throw new SimpleInteractiveSpacesException(String.format(
-          "Router has no routes. Define either %s or %s in your configuration",
-          CONFIGURATION_ROUTES_INPUTS, CONFIGURATION_ROUTES_OUTPUTS));
+          "Router has no routes. Define either %s or %s in your configuration", CONFIGURATION_ROUTES_INPUTS,
+          CONFIGURATION_ROUTES_OUTPUTS));
     }
   }
 
@@ -192,8 +191,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
         inputName = inputName.trim();
         if (!inputName.isEmpty()) {
           String inputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX
-                  + inputName);
+              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName);
           registerInputChannelTopic(inputName, inputTopicNames);
         }
       }
@@ -205,8 +203,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
         outputName.trim();
         if (!outputName.isEmpty()) {
           String outputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX
-                  + outputName);
+              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName);
 
           boolean latch = false;
           int semiPos = outputTopicNames.indexOf(';');
@@ -230,61 +227,6 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     running = true;
   }
 
-  /**
-   * Register a new channel output topic route.
-   *
-   * @param outputName
-   *          channel name
-   * @param topicNames
-   *          output topic names
-   * @param latch
-   *          should output be latched
-   */
-  public synchronized void registerOutputChannelTopic(String outputName,
-      String topicNames, boolean latch) {
-    if (outputs.containsKey(outputName)) {
-      throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
-    }
-    RosPublishers<T> publishers =
-        new RosPublishers<T>(getComponentContext().getActivity().getLog());
-    outputs.put(outputName, publishers);
-    outputTopics.put(outputName, topicNames);
-
-    // Only matters that we get one. They are all for the same
-    // message type, so will take the last one.
-    messageFactory = publishers;
-
-    publishers.addPublishers(rosActivityComponent.getNode(), rosMessageType,
-        topicNames, latch);
-  }
-
-  /**
-   * Register a new input topic channel.
-   *
-   * @param inputName
-   *          input channel name
-   * @param topicNames
-   *          input topic names
-   */
-  public synchronized void registerInputChannelTopic(final String inputName, String topicNames) {
-    if (inputs.containsKey(inputName)) {
-      throw new SimpleInteractiveSpacesException("Input channel already registered: " + inputName);
-    }
-
-    RosSubscribers<T> subscribers =
-        new RosSubscribers<T>(getComponentContext().getActivity().getLog());
-    inputs.put(inputName, subscribers);
-    inputTopics.put(inputName, topicNames);
-
-    subscribers.addSubscribers(rosActivityComponent.getNode(), rosMessageType,
-        topicNames, new MessageListener<T>() {
-          @Override
-          public void onNewMessage(T message) {
-            handleNewMessage(inputName, message);
-          }
-        });
-  }
-
   @Override
   public void shutdownComponent() {
     running = false;
@@ -297,26 +239,9 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     clearAllChannelTopics();
 
     if (log.isInfoEnabled()) {
-      log.info(String.format("ROS message router activity component shut down in %d msecs",
-          System.currentTimeMillis() - timeStart));
+      log.info(String.format("ROS message router activity component shut down in %d msecs", System.currentTimeMillis()
+          - timeStart));
     }
-  }
-
-  /**
-   * Shutdown and clear all the input/output message topics.
-   */
-  public synchronized void clearAllChannelTopics() {
-    for (RosSubscribers<T> input : inputs.values()) {
-      input.shutdown();
-    }
-    inputs.clear();
-    inputTopics.clear();
-
-    for (RosPublishers<T> output : outputs.values()) {
-      output.shutdown();
-    }
-    outputs.clear();
-    outputTopics.clear();
   }
 
   @Override
@@ -332,6 +257,57 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       throw new SimpleInteractiveSpacesException(String.format(
           "No output routes declared so could not create a message of type %s", rosMessageType));
     }
+  }
+
+  @Override
+  public synchronized void registerOutputChannelTopic(String outputName, String topicNames, boolean latch)
+      throws InteractiveSpacesException {
+    if (outputs.containsKey(outputName)) {
+      throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
+    }
+    RosPublishers<T> publishers = new RosPublishers<T>(getComponentContext().getActivity().getLog());
+    outputs.put(outputName, publishers);
+    outputTopics.put(outputName, topicNames);
+
+    // Only matters that we get one. They are all for the same
+    // message type, so will take the last one.
+    messageFactory = publishers;
+
+    publishers.addPublishers(rosActivityComponent.getNode(), rosMessageType, topicNames, latch);
+  }
+
+  @Override
+  public synchronized void registerInputChannelTopic(final String inputName, String topicNames)
+      throws InteractiveSpacesException {
+    if (inputs.containsKey(inputName)) {
+      throw new SimpleInteractiveSpacesException("Input channel already registered: " + inputName);
+    }
+
+    RosSubscribers<T> subscribers = new RosSubscribers<T>(getComponentContext().getActivity().getLog());
+    inputs.put(inputName, subscribers);
+    inputTopics.put(inputName, topicNames);
+
+    subscribers.addSubscribers(rosActivityComponent.getNode(), rosMessageType, topicNames, new MessageListener<T>() {
+      @Override
+      public void onNewMessage(T message) {
+        handleNewMessage(inputName, message);
+      }
+    });
+  }
+
+  @Override
+  public synchronized void clearAllChannelTopics() {
+    for (RosSubscribers<T> input : inputs.values()) {
+      input.shutdown();
+    }
+    inputs.clear();
+    inputTopics.clear();
+
+    for (RosPublishers<T> output : outputs.values()) {
+      output.shutdown();
+    }
+    outputs.clear();
+    outputTopics.clear();
   }
 
   /**
@@ -354,16 +330,15 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       String handlerInvocationId = newHandlerInvocationId();
       Log log = getComponentContext().getActivity().getLog();
       if (log.isDebugEnabled()) {
-        log.debug(String.format("Entering ROS route message handler invocation %s",
-            handlerInvocationId));
+        log.debug(String.format("Entering ROS route message handler invocation %s", handlerInvocationId));
       }
 
       // Send the message out to the listener.
       messageListener.onNewRoutableInputMessage(channelName, message);
 
       if (log.isDebugEnabled()) {
-        log.debug(String.format("Exiting ROS route message handler invocation %s in %d msecs",
-            handlerInvocationId, System.currentTimeMillis() - start));
+        log.debug(String.format("Exiting ROS route message handler invocation %s in %d msecs", handlerInvocationId,
+            System.currentTimeMillis() - start));
       }
     } catch (Throwable e) {
       handleError(String.format("Error after receiving routing message for channel %s", channelName), e);

@@ -14,11 +14,16 @@
  * the License.
  */
 
-package interactivespaces.activity.component.ros;
+package interactivespaces.activity.component.route;
+
+import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 
 /**
  * A listener for input messages from a
  * {@link RosMessageRouterActivityComponent} input topics.
+ *
+ * @param <T>
+ *          the type of the messages being sent over the rdoute
  *
  * @author Keith M. Hughes
  */

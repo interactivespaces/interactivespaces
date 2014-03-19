@@ -27,16 +27,16 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 /**
- * Tests for the {@link WebServerActivityComponent}.
+ * Tests for the {@link BasicWebServerActivityComponent}.
  *
  * @author Keith M. Hughes
  */
-public class WebServerActivityComponentTest {
+public class BasicWebServerActivityComponentTest {
 
-  private WebServerActivityComponent activityComponent;
+  private BasicWebServerActivityComponent activityComponent;
   private WebServerWebSocketHandler delegate;
   private ActivityComponentContext activityComponentContext;
-  private WebServerActivityComponent.MyWebServerWebSocketHandler handler;
+  private BasicWebServerActivityComponent.MyWebServerWebSocketHandler handler;
   private InOrder activityComponentContextInOrder;
   private SupportedActivity activity;
   private Log log;
@@ -46,7 +46,7 @@ public class WebServerActivityComponentTest {
     delegate = Mockito.mock(WebServerWebSocketHandler.class);
     activityComponentContext = Mockito.mock(ActivityComponentContext.class);
 
-    activityComponent = Mockito.mock(WebServerActivityComponent.class);
+    activityComponent = Mockito.mock(BasicWebServerActivityComponent.class);
     Mockito.when(activityComponent.getComponentContext()).thenReturn(activityComponentContext);
 
     activity = Mockito.mock(SupportedActivity.class);
@@ -55,7 +55,7 @@ public class WebServerActivityComponentTest {
     log = Mockito.mock(Log.class);
     Mockito.when(activity.getLog()).thenReturn(log);
 
-    handler = new WebServerActivityComponent.MyWebServerWebSocketHandler(delegate, activityComponent);
+    handler = new BasicWebServerActivityComponent.MyWebServerWebSocketHandler(delegate, activityComponent);
 
     activityComponentContextInOrder = Mockito.inOrder(activityComponentContext);
   }

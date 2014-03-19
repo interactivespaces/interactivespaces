@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,8 +17,6 @@
 package interactivespaces.activity.component.ros;
 
 import interactivespaces.activity.component.ActivityComponent;
-import interactivespaces.activity.component.BaseActivityComponent;
-import interactivespaces.configuration.Configuration;
 
 import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
@@ -29,81 +27,18 @@ import org.ros.osgi.common.RosEnvironment;
  *
  * @author Keith M. Hughes
  */
-public class RosActivityComponent extends BaseActivityComponent {
+public interface RosActivityComponent extends ActivityComponent {
 
   /**
    * Name of the component.
    */
-  public static final String COMPONENT_NAME = "comm.ros";
+  String COMPONENT_NAME = "comm.ros";
 
   /**
    * Configuration property for specifying the Interactive Spaces ROS node name
    * for the activity.
    */
-  public static final String CONFIGURATION_ACTIVITY_ROS_NODE_NAME = "space.activity.ros.node.name";
-
-  /**
-   * ROS Environment the activity is running in.
-   */
-  private RosEnvironment rosEnvironment;
-
-  /**
-   * The mainNode configuration for this app.
-   */
-  private NodeConfiguration nodeConfiguration;
-
-  /**
-   * The node for this component.
-   */
-  private ConnectedNode node;
-
-  /**
-   * Node name for the ROS node.
-   */
-  private String rosNodeName;
-
-  @Override
-  public String getName() {
-    return COMPONENT_NAME;
-  }
-
-  @Override
-  public void configureComponent(Configuration configuration) {
-    super.configureComponent(configuration);
-
-    rosEnvironment =
-        componentContext.getActivity().getSpaceEnvironment().getValue("environment.ros");
-
-    rosNodeName = configuration.getRequiredPropertyString(CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
-
-    nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
-    nodeConfiguration.setLog(componentContext.getActivity().getLog());
-    nodeConfiguration.setNodeName(rosNodeName);
-  }
-
-  @Override
-  public void startupComponent() {
-    node = rosEnvironment.newNode(nodeConfiguration);
-
-    getComponentContext()
-        .getActivity()
-        .getLog()
-        .info(
-            String.format("Start up ROS activity component with ROS node name %s", node.getName()));
-  }
-
-  @Override
-  public void shutdownComponent() {
-    if (node != null) {
-      node.shutdown();
-      node = null;
-    }
-  }
-
-  @Override
-  public boolean isComponentRunning() {
-    return node != null;
-  }
+  String CONFIGURATION_ACTIVITY_ROS_NODE_NAME = "space.activity.ros.node.name";
 
   /**
    * Get the ROS node name for the activity.
@@ -112,36 +47,28 @@ public class RosActivityComponent extends BaseActivityComponent {
    * This method can be overwritten by a subclass. Default it to read the
    * configuration property {@link #CONFIGURATION_ACTIVITY_ROS_NODE_NAME}.
    *
-   * @return The ROS node name for the activity.
+   * @return the ROS node name for the activity
    */
-  public String getNodeName() {
-    return rosNodeName;
-  }
+  String getNodeName();
 
   /**
-   * Get the node configuration for this activity.
+   * Get the ROS node configuration for this activity.
    *
-   * @return
+   * @return the ROS node configuration
    */
-  public NodeConfiguration getNodeConfiguration() {
-    return nodeConfiguration;
-  }
+  NodeConfiguration getNodeConfiguration();
 
   /**
    * Get the ROS node associated with this component.
    *
    * @return the ROS node associated with this component
    */
-  public ConnectedNode getNode() {
-    return node;
-  }
+  ConnectedNode getNode();
 
   /**
    * Get the ROS environment being used by this component.
    *
    * @return the ROS environment being used by this component
    */
-  public RosEnvironment getRosEnvironment() {
-    return rosEnvironment;
-  }
+  RosEnvironment getRosEnvironment();
 }
