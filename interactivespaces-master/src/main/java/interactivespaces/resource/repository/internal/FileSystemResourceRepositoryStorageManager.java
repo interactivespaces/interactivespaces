@@ -81,7 +81,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
    * but will require changing all masters.
    */
-  public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION = "repository/interactivespaces/activities";
+  public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION = "master/repository/interactivespaces/activities";
 
   /**
    * Configuration property for the location of the resource bundles repository.
@@ -96,13 +96,13 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   /**
    * Default value for the location of the data repository.
    */
-  public static final String DEFAULT_REPOSITORY_DATA_LOCATION = "repository/interactivespaces/data";
+  public static final String DEFAULT_REPOSITORY_DATA_LOCATION = "master/repository/interactivespaces/data";
 
   /**
    * Default value for the location of the resources repository.
    */
   public static final String DEFAULT_REPOSITORY_BUNDLE_RESOURCE_LOCATION =
-      "repository/interactivespaces/resources/bundles";
+      "master/repository/interactivespaces/resources/bundles";
 
   /**
    * Extension placed on activity archives for transmission.

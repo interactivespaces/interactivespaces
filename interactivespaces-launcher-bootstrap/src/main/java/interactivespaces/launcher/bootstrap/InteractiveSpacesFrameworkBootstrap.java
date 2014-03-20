@@ -184,9 +184,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         createCoreServices(args);
 
-        File systemFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_SYSTEM);
+        File environmentFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT);
         ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
-        extensionsReader.processExtensionFiles(systemFolder);
+        extensionsReader.processExtensionFiles(environmentFolder);
 
         createAndStartFramework(extensionsReader);
 
