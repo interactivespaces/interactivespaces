@@ -40,6 +40,11 @@ public class ContainerFilesystemLayout {
   public static final String FOLDER_CONFIG_INTERACTIVESPACES = "config/interactivespaces";
 
   /**
+   * Subdirectory which will contain the local environment.
+   */
+  public static final String FOLDER_CONFIG_ENVIRONMENT = "config/environment";
+
+  /**
    * Subdirectory which will contain additional bundles for bootstrap.
    */
   public static final String FOLDER_USER_BOOTSTRAP = "startup";
