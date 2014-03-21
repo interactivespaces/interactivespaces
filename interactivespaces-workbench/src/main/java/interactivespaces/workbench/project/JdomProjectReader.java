@@ -25,6 +25,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
@@ -46,7 +47,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JdomProjectReader implements ProjectReader {
+public class JdomProjectReader extends JdomReader implements ProjectReader {
 
   /**
    * The default version range for projects which do not specify a version
@@ -103,6 +104,11 @@ public class JdomProjectReader implements ProjectReader {
    * The version of the project.
    */
   private static final String PROJECT_ELEMENT_NAME_VERSION = "version";
+
+  /**
+   * The base directory of the project.
+   */
+  private static final String PROJECT_ELEMENT_NAME_BASE_DIRECTORY = "baseDirectory";
 
   /**
    * Project definition file element name for resources.
@@ -204,55 +210,24 @@ public class JdomProjectReader implements ProjectReader {
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
   /**
-   * Log for errors.
-   */
-  private final Log log;
-
-  /**
-   * {@code true} if read was successful.
-   */
-  private boolean failure;
-
-  /**
    * Construct a project reader.
    *
    * @param log
    *          the logger to use
    */
   public JdomProjectReader(Log log) {
-    this.log = log;
+    super(log);
   }
 
   @Override
   public Project readProject(File projectFile) {
-    Document doc = null;
-    FileInputStream inputStream = null;
-    try {
-      inputStream = new FileInputStream(projectFile);
-      SAXBuilder builder = new SAXBuilder();
-      doc = builder.build(inputStream);
-    } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Exception while processing project file %s",
-          projectFile.getAbsolutePath()), e);
-    } finally {
-      Closeables.closeQuietly(inputStream);
-    }
-
-    Element rootElement = doc.getRootElement();
-
-    Project project = processElement(rootElement);
-
+    Element rootElement = getRootElement(projectFile);
+    Project project = processSpecification(rootElement);
     project.setBaseDirectory(projectFile.getParentFile());
-
-    if (failure) {
-      throw new SimpleInteractiveSpacesException(String.format("Project file %s had errors",
-          projectFile.getAbsolutePath()));
-    }
-
     return project;
   }
 
-  public Project processElement(Element projectElement) {
+  public Project processSpecification(Element projectElement) {
     if (!PROJECT_ELEMENT_NAME.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
@@ -273,6 +248,11 @@ public class JdomProjectReader implements ProjectReader {
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
 
     getDeployments(project, projectElement);
+
+    if (failure) {
+      throw new SimpleInteractiveSpacesException(String.format("Project specification had errors"));
+    }
+
     return project;
   }
 
@@ -309,6 +289,11 @@ public class JdomProjectReader implements ProjectReader {
     String version = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_VERSION);
     project.setVersion(Version.parseVersion(version));
 
+    String baseDirectory = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
+    if (baseDirectory != null) {
+      project.setBaseDirectory(new File(baseDirectory));
+    }
+
     String builder = getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, null);
     project.setBuilderType(builder);
 
@@ -340,75 +325,6 @@ public class JdomProjectReader implements ProjectReader {
     for (Attribute attribute : attributes) {
       project.addAttribute(attribute.getName(), attribute.getValue());
     }
-  }
-
-  /**
-   * Return the trimmed text of a child element.
-   *
-   * @param element
-   *          container element
-   * @param key
-   *          variable key
-   *
-   * @return trimmed element text
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if the child element is not provided
-   */
-  private String getChildTextTrimmed(Element element, String key) throws SimpleInteractiveSpacesException {
-    try {
-      return element.getChildText(key).trim();
-    } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("Looking for text of child: " + key, e);
-    }
-  }
-
-  /**
-   * Return a required element attribute.
-   *
-   * @param element
-   *          container element
-   * @param key
-   *          attribute key
-   *
-   * @return attribute value or {@code null} if none found
-   */
-  private String getRequiredAttributeValue(Element element, String key) {
-    String value = getAttributeValue(element, key);
-    if (value == null) {
-      log.error("Missing required attribute " + key);
-    }
-    return value;
-  }
-
-  /**
-   * Return a given element attribute, using the default value if not found.
-   *
-   * @param element
-   *          container element
-   * @param key
-   *          attribute key
-   * @param fallback
-   *          default attribute value
-   *
-   * @return attribute value
-   */
-  private String getAttributeValue(Element element, String key, String fallback) {
-    return element.getAttributeValue(key, fallback);
-  }
-
-  /**
-   * Return a given element attribute.
-   *
-   * @param element
-   *          container element
-   * @param key
-   *          attribute key
-   *
-   * @return attribute value, or {@code null} if not found.
-   */
-  private String getAttributeValue(Element element, String key) {
-    return getAttributeValue(element, key, null);
   }
 
   /**
@@ -642,14 +558,4 @@ public class JdomProjectReader implements ProjectReader {
     return new ProjectDeployment(type, method, location);
   }
 
-  /**
-   * An error has occurred.
-   *
-   * @param error
-   *          text of the error message
-   */
-  private void addError(String error) {
-    log.error(error);
-    failure = true;
-  }
 }

@@ -34,6 +34,7 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
 import interactivespaces.workbench.confederate.JdomConfederacyReader;
+import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -48,6 +49,8 @@ import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackager;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
+import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
@@ -60,6 +63,7 @@ import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 import org.apache.commons.logging.Log;
+import org.jdom.Element;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -97,11 +101,6 @@ public class InteractiveSpacesWorkbench {
    * Command to create a new project.
    */
   public static final String COMMAND_CREATE = "create";
-
-  /**
-   * Command to create a new project.
-   */
-  public static final String COMMAND_CONFEDERATE = "confederate";
 
   /**
    * Command to deploy a project.
@@ -565,11 +564,8 @@ public class InteractiveSpacesWorkbench {
     String command = commands.remove(0);
 
     if (COMMAND_CREATE.equals(command)) {
-      System.out.println("Creating project...");
-      createProject(commands);
-    } else if (COMMAND_CONFEDERATE.equals(command)) {
-      System.out.println("Creating confederate...");
-      createConfederacy(commands);
+      System.out.println("Creating from template...");
+      createFromTemplate(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(commands.remove(0));
     } else {
@@ -655,61 +651,36 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
-  /**
-   * Create a confederacy of projects.
-   *
-   * @param commands
-   *          the commands to execute
-   */
-  private void createConfederacy(List<String> commands) {
-    File specificationFile = new File(commands.remove(0));
-    JdomConfederacyReader confederacyReader = new JdomConfederacyReader(getLog());
-    Confederacy spec = confederacyReader.readSpecification(specificationFile);
-    confederacyCreator.create(spec);
+  private void createFromTemplate(List<String> commands) {
+    String templateFile = commands.remove(0);
+    try {
+      Element rootElement = JdomReader.getRootElement(new File(templateFile));
+      String type = rootElement.getName();
+      if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
+        createConfederacyFromElement(rootElement);
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(type)) {
+        createProjectFromElement(rootElement);
+      } else {
+        throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
+      }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("While processing template file " + templateFile, e);
+    }
   }
 
-  /**
-   * Create a project.
-   *
-   * @param commands
-   *          the commands to execute
-   */
-  private void createProject(List<String> commands) {
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+  private void createConfederacyFromElement(Element rootElement) {
+    JdomConfederacyReader confederacyReader = new JdomConfederacyReader(log);
+    confederacyCreator.create(confederacyReader.processSpecification(rootElement));
+  }
 
-    ActivityProject project = new ActivityProject();
+  private void createProjectFromElement(Element rootElement) {
+    JdomProjectReader projectReader = new JdomProjectReader(log);
+    Project project = projectReader.processSpecification(rootElement);
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
+
+    ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
-
-    String projectSpecPath = null;
-
-    while (!commands.isEmpty()) {
-      String command = commands.remove(0);
-      if ("language".equals(command)) {
-        spec.setLanguage(commands.remove(0));
-      } else if ("template".equals(command)) {
-        String source = commands.remove(0);
-        if ("example".equals(source)) {
-          log.error("Not implemented yet");
-          return;
-        } else if ("site".equals(source)) {
-          log.error("Not implemented yet");
-          return;
-        }
-      } else if ("spec".equals(command)) {
-        projectSpecPath = commands.remove(0);
-      } else {
-        throw new SimpleInteractiveSpacesException("Unknown create command: " + command);
-      }
-    }
-
-    if (projectSpecPath == null || "-".equals(projectSpecPath)) {
-      populateProjectFromConsole(project);
-      project.setBaseDirectory(new File(project.getIdentifyingName()));
-    } else {
-      populateFromSpec(projectSpecPath, spec, project);
-    }
-
+    spec.setLanguage(BaseNativeActivityProjectTemplate.LANGUAGE);
     activityProjectCreator.createProject(spec);
   }
 
@@ -735,23 +706,6 @@ public class InteractiveSpacesWorkbench {
     } else {
       throw new SimpleInteractiveSpacesException("Could not allocate console");
     }
-  }
-
-  /**
-   * Get the requisite data from a specification file.
-   *
-   * @param projectSpecPath
-   *          path to the input specification file
-   * @param spec
-   *          project specification to populate
-   * @param project
-   *          where the project data should be stored
-   */
-  private void populateFromSpec(String projectSpecPath, ProjectCreationSpecification spec, Project project) {
-    PropertyConfigurator propertyConfigurator = new PropertyConfigurator(getLog());
-    propertyConfigurator.addTarget("project", project);
-    propertyConfigurator.addTarget("spec", spec);
-    propertyConfigurator.readFromPath(projectSpecPath);
   }
 
   /**

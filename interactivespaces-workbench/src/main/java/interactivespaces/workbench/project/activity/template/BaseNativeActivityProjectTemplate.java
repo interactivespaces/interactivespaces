@@ -33,11 +33,13 @@ import java.util.Map;
  */
 public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTemplate {
 
+  public static final String LANGUAGE = "base";
+
   /**
    * Construct a new instance.
    */
   public BaseNativeActivityProjectTemplate() {
-    super("Generic Base Java Activity Project", "base");
+    super("Generic Base Java Activity Project", LANGUAGE);
   }
 
   /**

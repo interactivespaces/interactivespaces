@@ -59,40 +59,24 @@ public class JdomConfederacyReader {
     this.log = log;
   }
 
-
-  public Confederacy readSpecification(File inputFile) {
-    FileInputStream inputStream = null;
-    try {
-      Document doc = null;
-      inputStream = new FileInputStream(inputFile);
-      SAXBuilder builder = new SAXBuilder();
-      doc = builder.build(inputStream);
-
-      Element rootElement = doc.getRootElement();
-
-      if (!CONFEDERACY_ELEMENT_NAME.equals(rootElement.getName())) {
-        throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
-      }
-
-      Confederacy spec = new Confederacy();
-
-      @SuppressWarnings("unchecked")
-      List<Element> children = (List<Element>) rootElement.getChildren();
-      for (Element child : children) {
-        addElementToSpec(spec, child);
-      }
-
-      if (failure) {
-        throw new SimpleInteractiveSpacesException("Project had errors");
-      }
-
-      return spec;
-    } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(String.format("Exception while processing confederacy file %s",
-          inputFile.getAbsolutePath()), e);
-    } finally {
-      Closeables.closeQuietly(inputStream);
+  public Confederacy processSpecification(Element rootElement) {
+    if (!CONFEDERACY_ELEMENT_NAME.equals(rootElement.getName())) {
+      throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }
+
+    Confederacy spec = new Confederacy();
+
+    @SuppressWarnings("unchecked")
+    List<Element> children = (List<Element>) rootElement.getChildren();
+    for (Element child : children) {
+      addElementToSpec(spec, child);
+    }
+
+    if (failure) {
+      throw new SimpleInteractiveSpacesException("Project had errors");
+    }
+
+    return spec;
   }
 
   private void addElementToSpec(Confederacy spec, Element child) {
@@ -115,7 +99,7 @@ public class JdomConfederacyReader {
     if (spec.getBaseDirectory() == null) {
       throw new SimpleInteractiveSpacesException("Confederacy base directory not defined before projects");
     }
-    Project project = new JdomProjectReader(log).processElement(child);
+    Project project = new JdomProjectReader(log).processSpecification(child);
     project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
     spec.addProject(project);
   }
