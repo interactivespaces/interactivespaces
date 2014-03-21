@@ -26,56 +26,40 @@ public class ProjectConfigurationProperty {
   /**
    * The name of the configuration property.
    */
-  private String name;
+  private final String name;
 
   /**
    * The description of the configuration property. Can be {@code null}.
    */
-  private String description;
+  private final String description;
 
   /**
    * {@code true} if the property is required.
    */
-  private boolean required;
+  private final boolean required;
 
   /**
    * The value of the property. Can be {@code null}.
    */
-  private String value;
-
-  /**
-   * Create a new empty configuration property.
-   */
-  public ProjectConfigurationProperty() {
-  }
+  private final String value;
 
   /**
    * Construct a new property.
    *
    * @param name
    *          the name of the configuration property
-   * @param value
-   *          the default value of the property, can be {@code null}
-   * @param required
-   *          {@code true} if the property is required.
    * @param description
    *          the description of the configuration property, can be {@code null}
+   * @param required
+   *          {@code true} if the property is required.
+   * @param value
+   *          the default value of the property, can be {@code null}
    */
-  public ProjectConfigurationProperty(String name, String value, boolean required, String description) {
+  public ProjectConfigurationProperty(String name, String description, boolean required, String value) {
     this.name = name;
     this.description = description;
     this.required = required;
     this.value = value;
-  }
-
-  /**
-   * Set the property name.
-   *
-   * @param name
-   *          property name to set
-   */
-  public void setName(String name) {
-    this.name = name;
   }
 
   /**
@@ -88,16 +72,6 @@ public class ProjectConfigurationProperty {
   }
 
   /**
-   * Set property description.
-   *
-   * @param description
-   *          description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
    * Get the description of the property.
    *
    * @return the description, can be {@code null}
@@ -107,32 +81,12 @@ public class ProjectConfigurationProperty {
   }
 
   /**
-   * Set the property required field.
-   *
-   * @param required
-   *          required attribute of this property
-   */
-  public void setRequired(Boolean required) {
-    this.required = required;
-  }
-
-  /**
    * Is the property required?
    *
    * @return {@code true} if the property is required
    */
   public boolean isRequired() {
     return required;
-  }
-
-  /**
-   * Set the property default value.
-   *
-   * @param value
-   *          default value to use
-   */
-  public void setValue(String value) {
-    this.value = value;
   }
 
   /**

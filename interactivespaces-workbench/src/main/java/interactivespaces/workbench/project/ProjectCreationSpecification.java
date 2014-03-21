@@ -41,11 +41,6 @@ public class ProjectCreationSpecification {
   private ProjectTemplate template;
 
   /**
-   * The base directory for instantiation.
-   */
-  private File baseDirectory;
-
-  /**
    * The project itself.
    */
   private Project project;
@@ -119,14 +114,6 @@ public class ProjectCreationSpecification {
    */
   public void setProject(Project project) {
     this.project = project;
-  }
-
-  public File getBaseDirectory() {
-    return baseDirectory;
-  }
-
-  public void setBaseDirectory(File baseDirectory) {
-    this.baseDirectory = baseDirectory;
   }
 
   /**
