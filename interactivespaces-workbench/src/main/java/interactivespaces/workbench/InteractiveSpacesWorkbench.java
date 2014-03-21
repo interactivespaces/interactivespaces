@@ -31,7 +31,6 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
 import interactivespaces.workbench.confederate.JdomConfederacyReader;
 import interactivespaces.workbench.project.JdomProjectReader;
@@ -49,7 +48,6 @@ import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackager;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
-import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;

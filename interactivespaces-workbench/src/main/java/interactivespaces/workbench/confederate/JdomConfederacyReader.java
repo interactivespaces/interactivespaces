@@ -16,17 +16,13 @@
 
 package interactivespaces.workbench.confederate;
 
-import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import org.apache.commons.logging.Log;
-import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 /**
@@ -38,6 +34,8 @@ public class JdomConfederacyReader {
 
 
   private static final String BASE_DIRECTORY_ELEMENT_NAME = "baseDirectory";
+
+  private final PrototypeManager prototypeManager = new PrototypeManager();
 
   /**
    * Log for errors.
@@ -87,19 +85,25 @@ public class JdomConfederacyReader {
         spec.setBaseDirectory(new File(child.getTextTrim()));
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(name)) {
         addProjectElementToSpec(spec, child);
+      } else if (PrototypeManager.PROTOTYPE_ELEMENT_NAME.equals(name)) {
+        addPrototypeElementToSpec(spec, child);
       } else {
         throw new SimpleInteractiveSpacesException("Unrecognized element");
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While processing confederacy element " + name, e);
+      throw new SimpleInteractiveSpacesException("While processing confederacy element: " + name, e);
     }
+  }
+
+  private void addPrototypeElementToSpec(Confederacy spec, Element child) {
+    prototypeManager.addPrototypeElement(child);
   }
 
   private void addProjectElementToSpec(Confederacy spec, Element child) {
     if (spec.getBaseDirectory() == null) {
       throw new SimpleInteractiveSpacesException("Confederacy base directory not defined before projects");
     }
-    Project project = new JdomProjectReader(log).processSpecification(child);
+    Project project = new JdomProjectReader(log, prototypeManager).processSpecification(child);
     project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
     spec.addProject(project);
   }

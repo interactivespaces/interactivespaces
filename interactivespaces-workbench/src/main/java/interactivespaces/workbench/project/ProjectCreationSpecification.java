@@ -16,11 +16,8 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
-
 import com.google.common.collect.Lists;
 
-import java.io.File;
 import java.util.List;
 
 /**

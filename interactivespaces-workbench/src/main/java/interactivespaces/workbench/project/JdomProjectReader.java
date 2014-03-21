@@ -19,13 +19,12 @@ package interactivespaces.workbench.project;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.JdomReader;
+import interactivespaces.workbench.confederate.PrototypeManager;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
@@ -33,12 +32,9 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
-import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -209,6 +205,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
+  private final PrototypeManager prototypeManager;
+
   /**
    * Construct a project reader.
    *
@@ -216,7 +214,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *          the logger to use
    */
   public JdomProjectReader(Log log) {
+    this(log, new PrototypeManager());
+  }
+
+  public JdomProjectReader(Log log, PrototypeManager prototypeManager) {
     super(log);
+    this.prototypeManager = prototypeManager;
   }
 
   @Override
@@ -234,8 +237,21 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     String projectType = getProjectType(projectElement);
     Project project = ProjectTypes.newProject(projectType);
-    project.setType(projectType);
 
+    List<Element> prototypeChain = prototypeManager.getPrototypeChain(projectElement);
+    for (Element prototype : prototypeChain) {
+      configureProjectFromElement(project, prototype);
+    }
+    configureProjectFromElement(project, projectElement);
+
+    if (failure) {
+      throw new SimpleInteractiveSpacesException(String.format("Project specification had errors"));
+    }
+
+    return project;
+  }
+
+  private void configureProjectFromElement(Project project, Element projectElement) {
     getProjectAttributes(project, projectElement);
     getMainData(project, projectElement);
     getMetadata(project, projectElement);
@@ -248,12 +264,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
 
     getDeployments(project, projectElement);
-
-    if (failure) {
-      throw new SimpleInteractiveSpacesException(String.format("Project specification had errors"));
-    }
-
-    return project;
   }
 
   /**
@@ -278,16 +288,24 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   private void getMainData(Project project, Element rootElement) {
     String name = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_NAME);
-    project.setName(name);
+    if (name != null) {
+      project.setName(name);
+    }
 
     String description = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_DESCRIPTION);
-    project.setDescription(description);
+    if (description != null) {
+      project.setDescription(description);
+    }
 
     String identifyingName = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_IDENTIFYING_NAME);
-    project.setIdentifyingName(identifyingName);
+    if (identifyingName != null) {
+      project.setIdentifyingName(identifyingName);
+    }
 
     String version = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_VERSION);
-    project.setVersion(Version.parseVersion(version));
+    if (version != null) {
+      project.setVersion(Version.parseVersion(version));
+    }
 
     String baseDirectory = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
     if (baseDirectory != null) {
@@ -295,15 +313,17 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     String builder = getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, null);
-    project.setBuilderType(builder);
+    if (builder != null) {
+      project.setBuilderType(builder);
+    }
 
     String interactiveSpacesVersionRangeAttribute =
         getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION, null);
 
-    VersionRange interactiveSpacesVersionRange = null;
+    VersionRange interactiveSpacesVersionRange = project.getInteractiveSpacesVersionRange();
     if (interactiveSpacesVersionRangeAttribute != null) {
       interactiveSpacesVersionRange = VersionRange.parseVersionRange(interactiveSpacesVersionRangeAttribute);
-    } else {
+    } else if (interactiveSpacesVersionRange == null) {
       log.warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
           + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
       interactiveSpacesVersionRange = INTERACTIVESPACES_VERSION_RANGE_DEFAULT;

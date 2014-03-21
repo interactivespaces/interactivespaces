@@ -65,6 +65,7 @@ public class ProjectTypes {
       try {
         @SuppressWarnings("unchecked")
         T project = (T) clazz.newInstance();
+        project.setType(typeName);
 
         return project;
       } catch (Exception e) {

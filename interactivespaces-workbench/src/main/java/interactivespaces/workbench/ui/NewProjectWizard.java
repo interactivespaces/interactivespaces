@@ -86,11 +86,11 @@ public class NewProjectWizard extends WizardCollection {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
 
     Project project = activityDescriptionWizard.getProject();
-    project.setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
 
     // Folder will be by identifying name in the folder selected in the
     // directory choose dialog
     String identifyingName = project.getIdentifyingName();
+    project.setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
 
     spec.setProject(project);
 
