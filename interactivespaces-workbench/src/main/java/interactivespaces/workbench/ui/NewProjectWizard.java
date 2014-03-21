@@ -90,8 +90,7 @@ public class NewProjectWizard extends WizardCollection {
     // Folder will be by identifying name in the folder selected in the
     // directory choose dialog
     String identifyingName = project.getIdentifyingName();
-    project
-        .setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
+    spec.setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
 
     spec.setProject(project);
 

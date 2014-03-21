@@ -16,11 +16,36 @@
 
 package interactivespaces.workbench.confederate;
 
+import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.Project;
+
+import java.io.File;
+import java.util.List;
+
 /**
- * A specification for creating a project.
+ * A confederacy of projects.
  *
  * @author Keith M. Hughes
  */
-public class ConfederacySpecification {
+public class Confederacy {
 
+  private final List<Project> projectList = Lists.newArrayList();
+
+  private File baseDirectory;
+
+  public List<Project> getProjectList() {
+    return projectList;
+  }
+
+  public void addProject(Project project) {
+    projectList.add(project);
+  }
+
+  public File getBaseDirectory() {
+    return baseDirectory;
+  }
+
+  public void setBaseDirectory(File baseDirectory) {
+    this.baseDirectory = baseDirectory;
+  }
 }

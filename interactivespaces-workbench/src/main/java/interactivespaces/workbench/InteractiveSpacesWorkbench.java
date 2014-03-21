@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
@@ -29,9 +31,9 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
-import interactivespaces.workbench.confederate.ConfederacyReader;
-import interactivespaces.workbench.confederate.ConfederacySpecification;
+import interactivespaces.workbench.confederate.JdomConfederacyReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -57,10 +59,6 @@ import interactivespaces.workbench.project.java.JavadocGenerator;
 import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
@@ -99,6 +97,11 @@ public class InteractiveSpacesWorkbench {
    * Command to create a new project.
    */
   public static final String COMMAND_CREATE = "create";
+
+  /**
+   * Command to create a new project.
+   */
+  public static final String COMMAND_CONFEDERATE = "confederate";
 
   /**
    * Command to deploy a project.
@@ -562,7 +565,10 @@ public class InteractiveSpacesWorkbench {
     String command = commands.remove(0);
 
     if (COMMAND_CREATE.equals(command)) {
-      System.out.println("Creating project confederate...");
+      System.out.println("Creating project...");
+      createProject(commands);
+    } else if (COMMAND_CONFEDERATE.equals(command)) {
+      System.out.println("Creating confederate...");
       createConfederacy(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(commands.remove(0));
@@ -582,8 +588,8 @@ public class InteractiveSpacesWorkbench {
       }
     }
 
-    if (!command.isEmpty()) {
-      throw new SimpleInteractiveSpacesException("Extra command line arguments: " + command);
+    if (!commands.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("Extra command line arguments: " + commands);
     }
   }
 
@@ -657,8 +663,8 @@ public class InteractiveSpacesWorkbench {
    */
   private void createConfederacy(List<String> commands) {
     File specificationFile = new File(commands.remove(0));
-    ConfederacyReader confederacyReader = new ConfederacyReader(getLog());
-    ConfederacySpecification spec = confederacyReader.readSpecification(specificationFile);
+    JdomConfederacyReader confederacyReader = new JdomConfederacyReader(getLog());
+    Confederacy spec = confederacyReader.readSpecification(specificationFile);
     confederacyCreator.create(spec);
   }
 

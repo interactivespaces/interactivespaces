@@ -16,23 +16,20 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
-import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
-
 import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -49,7 +46,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JdomProjectReader implements ProjectReader, JdomReader<Project> {
+public class JdomProjectReader implements ProjectReader {
 
   /**
    * The default version range for projects which do not specify a version
@@ -69,7 +66,7 @@ public class JdomProjectReader implements ProjectReader, JdomReader<Project> {
           ProjectBundleConstituent.TYPE_NAME, new ProjectBundleConstituent.ProjectBundleConstituentFactory(),
           ActivityProjectConstituent.TYPE_NAME, new ActivityProjectConstituent.ActivityProjectBuilderFactory());
 
-  public static final String ROOT_ELEMENT_NAME = "project";
+  public static final String PROJECT_ELEMENT_NAME = "project";
 
   /**
    * The name of the project.
@@ -243,10 +240,6 @@ public class JdomProjectReader implements ProjectReader, JdomReader<Project> {
 
     Element rootElement = doc.getRootElement();
 
-    if (ROOT_ELEMENT_NAME.equals(rootElement.getName())) {
-      throw new SimpleInteractiveSpacesException("Invalid project root element name " + rootElement.getName());
-    }
-
     Project project = processElement(rootElement);
 
     project.setBaseDirectory(projectFile.getParentFile());
@@ -259,30 +252,28 @@ public class JdomProjectReader implements ProjectReader, JdomReader<Project> {
     return project;
   }
 
-  @Override
-  public Project processElement(Element rootElement) {
-    String projectType = getProjectType(rootElement);
+  public Project processElement(Element projectElement) {
+    if (!PROJECT_ELEMENT_NAME.equals(projectElement.getName())) {
+      throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
+    }
+
+    String projectType = getProjectType(projectElement);
     Project project = ProjectTypes.newProject(projectType);
     project.setType(projectType);
 
-    getProjectAttributes(project, rootElement);
-    getMainData(project, rootElement);
-    getMetadata(project, rootElement);
-    getDependencies(project, rootElement);
-    getConfiguration(project, rootElement);
-    project.addResources(getContainerConstituents(rootElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
-    project.addSources(getContainerConstituents(rootElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
+    getProjectAttributes(project, projectElement);
+    getMainData(project, projectElement);
+    getMetadata(project, projectElement);
+    getDependencies(project, projectElement);
+    getConfiguration(project, projectElement);
+    project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
+    project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
 
     project.addExtraConstituents(getIndividualConstituent(
-        rootElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
+        projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
 
-    getDeployments(project, rootElement);
+    getDeployments(project, projectElement);
     return project;
-  }
-
-  @Override
-  public void handleResult(Project result) {
-    throw new UnsupportedOperationException("Illegal call to handleResult");
   }
 
   /**

@@ -20,6 +20,7 @@ import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
 
 import com.google.common.collect.Lists;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -40,19 +41,14 @@ public class ProjectCreationSpecification {
   private ProjectTemplate template;
 
   /**
+   * The base directory for instantiation.
+   */
+  private File baseDirectory;
+
+  /**
    * The project itself.
    */
   private Project project;
-
-  /**
-   * Extra configuration parameters for the activity.
-   */
-  private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
-
-  /**
-   * A list of all source directories needed.
-   */
-  private final List<String> sourceDirectories = Lists.newArrayList();
 
   /**
    * Extra file templates to use when templating this project.
@@ -125,54 +121,12 @@ public class ProjectCreationSpecification {
     this.project = project;
   }
 
-  /**
-   * Get all source directories needed by the project.
-   *
-   * @return the source directories
-   */
-  public List<String> getSourceDirectories() {
-    return sourceDirectories;
+  public File getBaseDirectory() {
+    return baseDirectory;
   }
 
-  /**
-   * Add a new source directory to the spec.
-   *
-   * @param sourceDirectory
-   *          the new source directory
-   */
-  public void addSourceDirectory(String sourceDirectory) {
-    sourceDirectories.add(sourceDirectory);
-  }
-
-  /**
-   * Get all extra configurations for the activity.
-   *
-   * @return all extra configurations for the activity
-   */
-  public List<SimpleConfigurationParameter> getExtraConfigurationParameters() {
-    return extraConfigurationParameters;
-  }
-
-  /**
-   * Add an extra configuration parameter to the spec.
-   *
-   * @param parameter
-   *          the new configuration parameter to add
-   */
-  public void addExtraConfigurationParameter(SimpleConfigurationParameter parameter) {
-    extraConfigurationParameters.add(parameter);
-  }
-
-  /**
-   * Add an extra configuration parameter to the spec.
-   *
-   * @param name
-   *          the name of the parameter to add
-   * @param value
-   *          the value of the parameter to add
-   */
-  public void addExtraConfigurationParameter(String name, String value) {
-    extraConfigurationParameters.add(new SimpleConfigurationParameter(name, value));
+  public void setBaseDirectory(File baseDirectory) {
+    this.baseDirectory = baseDirectory;
   }
 
   /**

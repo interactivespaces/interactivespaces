@@ -16,20 +16,13 @@
 
 package interactivespaces.workbench.confederate;
 
-import com.google.common.collect.Maps;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
-import interactivespaces.workbench.project.assembly.AssemblyProject;
-import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
-import interactivespaces.workbench.project.library.LibraryProject;
-import interactivespaces.workbench.project.library.LibraryProjectTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.activity.creator.ProjectCreator;
+import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
+import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 
 /**
  * A {@link interactivespaces.workbench.project.activity.creator.ProjectCreator} implementation.
@@ -48,6 +41,8 @@ public class ConfederacyCreator {
    */
   private final InteractiveSpacesWorkbench workbench;
 
+  private final ProjectCreator projectCreator;
+
   /**
    * Create a basic instance.
    *
@@ -59,43 +54,24 @@ public class ConfederacyCreator {
   public ConfederacyCreator(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
     this.workbench = workbench;
     this.templater = templater;
+    projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
-  public void create(ConfederacySpecification spec) {
+  public void create(Confederacy spec) {
     try {
-      // Create the templateData hash
-      Map<String, Object> templateData = new HashMap<String, Object>();
-      templateData.put("spec", spec);
-
-      writeProjectTemplate(spec, templateData);
-
+      for (Project project : spec.getProjectList()) {
+        createProject(project);
+      }
     } catch (Exception e) {
-      workbench.logError("Error while creating project", e);
+      workbench.logError("Error while creating confederacy", e);
     }
   }
 
-  /**
-   * Write out the code template.
-   *
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeProjectTemplate(ConfederacySpecification spec, Map<String, Object> templateData) {
-    //Project project = spec.getProject();
-
-    Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
-
-    //fileTemplates.addAll(spec.getFileTemplates());
-
-    //onTemplateSetup(spec, templater, fullTemplateData);
-
-    //createProjectStructure(project);
-
-    //writeTemplateList(spec, workbench, templater, fullTemplateData);
-    //writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
-    //writeCommonTemplates(spec, workbench, templater, fullTemplateData);
-    //writeProjectXml(templater, spec, fullTemplateData);
+  public void createProject(Project project) {
+    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    spec.setProject(project);
+    spec.setLanguage("java");
+    spec.setTemplate(new BaseNativeActivityProjectTemplate());
+    projectCreator.createProject(spec);
   }
 }

@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.configuration.Configuration;
@@ -152,16 +153,6 @@ public abstract class Project {
    */
   public void setBaseDirectory(File baseDirectory) {
     this.baseDirectory = baseDirectory;
-  }
-
-  /**
-   * Set the base directory for the project.
-   *
-   * @param baseDirectory
-   *          the base directory for the project
-   */
-  public void setBaseDirectory(String baseDirectory) {
-    setBaseDirectory(new File(baseDirectory));
   }
 
   /**

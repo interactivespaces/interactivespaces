@@ -16,29 +16,11 @@
 
 package interactivespaces.workbench.confederate;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.resource.Version;
-import interactivespaces.resource.VersionRange;
-import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectDependency;
-import interactivespaces.workbench.project.ProjectDeployment;
-import interactivespaces.workbench.project.ProjectReader;
-import interactivespaces.workbench.project.ProjectTypes;
-import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
-import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
-import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
-import interactivespaces.workbench.project.constituent.ProjectConstituent;
-import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import org.apache.commons.logging.Log;
-import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -46,37 +28,26 @@ import org.jdom.input.SAXBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Trevor Pering
  */
-public class ConfederacyReader  {
+public class JdomConfederacyReader {
 
-  public static final String ROOT_ELEMENT_NAME = "confederacy";
+  public static final String CONFEDERACY_ELEMENT_NAME = "confederacy";
+
+
+  private static final String BASE_DIRECTORY_ELEMENT_NAME = "baseDirectory";
 
   /**
    * Log for errors.
    */
   private final Log log;
 
-  ConfederacySpecification spec = new ConfederacySpecification();
-
   /**
    * {@code true} if read was successful.
    */
   private boolean failure;
-
-  private final Map<String, JdomReader> elementReaders = Maps.newHashMap();
-
-  {
-    elementReaders.put(JdomProjectReader.ROOT_ELEMENT_NAME, new JdomProjectReader(log) {
-      @Override
-      public void handleResult(Project result) {
-        addProject(result);
-      }
-    });
-  }
 
   /**
    * Construct a project reader.
@@ -84,12 +55,12 @@ public class ConfederacyReader  {
    * @param log
    *          the logger to use
    */
-  public ConfederacyReader(Log log) {
+  public JdomConfederacyReader(Log log) {
     this.log = log;
   }
 
 
-  public ConfederacySpecification readSpecification(File inputFile) {
+  public Confederacy readSpecification(File inputFile) {
     FileInputStream inputStream = null;
     try {
       Document doc = null;
@@ -99,19 +70,16 @@ public class ConfederacyReader  {
 
       Element rootElement = doc.getRootElement();
 
-      if (ROOT_ELEMENT_NAME.equals(rootElement.getName())) {
+      if (!CONFEDERACY_ELEMENT_NAME.equals(rootElement.getName())) {
         throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
       }
+
+      Confederacy spec = new Confederacy();
 
       @SuppressWarnings("unchecked")
       List<Element> children = (List<Element>) rootElement.getChildren();
       for (Element child : children) {
-        @SuppressWarnings("unchecked")
-        JdomReader<Object> reader = elementReaders.get(child.getName());
-        if (reader == null) {
-          throw new SimpleInteractiveSpacesException("Unrecognized element name: " + child.getName());
-        }
-        reader.handleResult(reader.processElement(child));
+        addElementToSpec(spec, child);
       }
 
       if (failure) {
@@ -127,7 +95,29 @@ public class ConfederacyReader  {
     }
   }
 
-  private void addProject(Project project) {
+  private void addElementToSpec(Confederacy spec, Element child) {
+    String name = child.getName();
+
+    try {
+      if (BASE_DIRECTORY_ELEMENT_NAME.equals(name)) {
+        spec.setBaseDirectory(new File(child.getTextTrim()));
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(name)) {
+        addProjectElementToSpec(spec, child);
+      } else {
+        throw new SimpleInteractiveSpacesException("Unrecognized element");
+      }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("While processing confederacy element " + name, e);
+    }
+  }
+
+  private void addProjectElementToSpec(Confederacy spec, Element child) {
+    if (spec.getBaseDirectory() == null) {
+      throw new SimpleInteractiveSpacesException("Confederacy base directory not defined before projects");
+    }
+    Project project = new JdomProjectReader(log).processElement(child);
+    project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
+    spec.addProject(project);
   }
 
   /**
