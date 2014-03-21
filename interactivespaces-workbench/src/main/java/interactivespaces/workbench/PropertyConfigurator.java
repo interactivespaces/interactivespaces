@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 /**
  */
-public class ProjectConfigurator {
+public class PropertyConfigurator {
 
   /**
    * For converting json strings.
@@ -60,7 +60,7 @@ public class ProjectConfigurator {
    * @param log
    *          logger to use
    */
-  public ProjectConfigurator(Log log) {
+  public PropertyConfigurator(Log log) {
     this.log = log;
   }
 

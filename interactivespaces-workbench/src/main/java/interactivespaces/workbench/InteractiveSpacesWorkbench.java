@@ -29,6 +29,8 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.confederate.ConfederacyCreator;
+import interactivespaces.workbench.confederate.ConfederacySpecification;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -180,6 +182,8 @@ public class InteractiveSpacesWorkbench {
    */
   private final ProjectCreator activityProjectCreator;
 
+  private final ConfederacyCreator confederacyCreator;
+
   /**
    * A packager for activities.
    */
@@ -246,6 +250,7 @@ public class InteractiveSpacesWorkbench {
     activityProjectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
+    confederacyCreator = new ConfederacyCreator(this, templater);
   }
 
   /**
@@ -556,8 +561,8 @@ public class InteractiveSpacesWorkbench {
     String command = commands.remove(0);
 
     if (COMMAND_CREATE.equals(command)) {
-      System.out.println("Creating project");
-      createProject(commands);
+      System.out.println("Creating project confederate...");
+      createConfederate(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(commands.remove(0));
     } else {
@@ -574,6 +579,10 @@ public class InteractiveSpacesWorkbench {
               baseDir.getAbsolutePath()));
         }
       }
+    }
+
+    if (!command.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("Extra command line arguments: " + command);
     }
   }
 
@@ -638,6 +647,23 @@ public class InteractiveSpacesWorkbench {
       }
     }
   }
+
+  /**
+   * Create a confederacy of projects.
+   *
+   * @param commands
+   *          the commands to execute
+   */
+  private void createConfederate(List<String> commands) {
+    ConfederacySpecification spec = new ConfederacySpecification();
+
+    PropertyConfigurator propertyConfigurator = new PropertyConfigurator(getLog());
+    propertyConfigurator.addTarget("spec", spec);
+    propertyConfigurator.readFromPath(commands.remove(0));
+
+    confederacyCreator.create(spec);
+  }
+
 
   /**
    * Create a project.
@@ -719,10 +745,10 @@ public class InteractiveSpacesWorkbench {
    *          where the project data should be stored
    */
   private void populateFromSpec(String projectSpecPath, ProjectCreationSpecification spec, Project project) {
-    ProjectConfigurator projectConfigurator = new ProjectConfigurator(getLog());
-    projectConfigurator.addTarget("project", project);
-    projectConfigurator.addTarget("spec", spec);
-    projectConfigurator.readFromPath(projectSpecPath);
+    PropertyConfigurator propertyConfigurator = new PropertyConfigurator(getLog());
+    propertyConfigurator.addTarget("project", project);
+    propertyConfigurator.addTarget("spec", spec);
+    propertyConfigurator.readFromPath(projectSpecPath);
   }
 
   /**
