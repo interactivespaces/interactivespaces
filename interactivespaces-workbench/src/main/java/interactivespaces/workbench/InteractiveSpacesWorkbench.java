@@ -30,6 +30,7 @@ import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
+import interactivespaces.workbench.confederate.ConfederacyReader;
 import interactivespaces.workbench.confederate.ConfederacySpecification;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
@@ -562,7 +563,7 @@ public class InteractiveSpacesWorkbench {
 
     if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating project confederate...");
-      createConfederate(commands);
+      createConfederacy(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(commands.remove(0));
     } else {
@@ -654,16 +655,12 @@ public class InteractiveSpacesWorkbench {
    * @param commands
    *          the commands to execute
    */
-  private void createConfederate(List<String> commands) {
-    ConfederacySpecification spec = new ConfederacySpecification();
-
-    PropertyConfigurator propertyConfigurator = new PropertyConfigurator(getLog());
-    propertyConfigurator.addTarget("spec", spec);
-    propertyConfigurator.readFromPath(commands.remove(0));
-
+  private void createConfederacy(List<String> commands) {
+    File specificationFile = new File(commands.remove(0));
+    ConfederacyReader confederacyReader = new ConfederacyReader(getLog());
+    ConfederacySpecification spec = confederacyReader.readSpecification(specificationFile);
     confederacyCreator.create(spec);
   }
-
 
   /**
    * Create a project.

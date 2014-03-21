@@ -21,6 +21,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
@@ -48,7 +49,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JdomProjectReader implements ProjectReader {
+public class JdomProjectReader implements ProjectReader, JdomReader<Project> {
 
   /**
    * The default version range for projects which do not specify a version
@@ -67,6 +68,8 @@ public class JdomProjectReader implements ProjectReader {
           ProjectAssemblyConstituent.TYPE_NAME, new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(),
           ProjectBundleConstituent.TYPE_NAME, new ProjectBundleConstituent.ProjectBundleConstituentFactory(),
           ActivityProjectConstituent.TYPE_NAME, new ActivityProjectConstituent.ActivityProjectBuilderFactory());
+
+  public static final String ROOT_ELEMENT_NAME = "project";
 
   /**
    * The name of the project.
@@ -240,10 +243,27 @@ public class JdomProjectReader implements ProjectReader {
 
     Element rootElement = doc.getRootElement();
 
+    if (ROOT_ELEMENT_NAME.equals(rootElement.getName())) {
+      throw new SimpleInteractiveSpacesException("Invalid project root element name " + rootElement.getName());
+    }
+
+    Project project = processElement(rootElement);
+
+    project.setBaseDirectory(projectFile.getParentFile());
+
+    if (failure) {
+      throw new SimpleInteractiveSpacesException(String.format("Project file %s had errors",
+          projectFile.getAbsolutePath()));
+    }
+
+    return project;
+  }
+
+  @Override
+  public Project processElement(Element rootElement) {
     String projectType = getProjectType(rootElement);
     Project project = ProjectTypes.newProject(projectType);
     project.setType(projectType);
-    project.setBaseDirectory(projectFile.getParentFile());
 
     getProjectAttributes(project, rootElement);
     getMainData(project, rootElement);
@@ -257,13 +277,12 @@ public class JdomProjectReader implements ProjectReader {
         rootElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
 
     getDeployments(project, rootElement);
-
-    if (failure) {
-      throw new SimpleInteractiveSpacesException(String.format("Project file %s had errors",
-          projectFile.getAbsolutePath()));
-    }
-
     return project;
+  }
+
+  @Override
+  public void handleResult(Project result) {
+    throw new UnsupportedOperationException("Illegal call to handleResult");
   }
 
   /**

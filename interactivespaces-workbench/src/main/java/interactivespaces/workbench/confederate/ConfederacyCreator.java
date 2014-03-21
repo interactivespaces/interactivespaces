@@ -66,7 +66,6 @@ public class ConfederacyCreator {
       // Create the templateData hash
       Map<String, Object> templateData = new HashMap<String, Object>();
       templateData.put("spec", spec);
-      templateData.put("project", spec.getProject());
 
       writeProjectTemplate(spec, templateData);
 
@@ -84,35 +83,7 @@ public class ConfederacyCreator {
    *          data to go into the template
    */
   private void writeProjectTemplate(ConfederacySpecification spec, Map<String, Object> templateData) {
-    ProjectTemplate template = spec.getTemplate();
-    if (template == null) {
-      String projectType = spec.getProject().getType();
-
-      if (ActivityProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = BaseActivityProjectTemplate.getActivityProjectTemplateByLanguage(spec.getLanguage());
-      } else if (LibraryProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = new LibraryProjectTemplate();
-      } else if (AssemblyProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = new AssemblyProjectTemplate();
-      }
-    }
-
-    writeProjectTemplate(template, spec, templateData);
-  }
-
-  /**
-   * Write out the code template.
-   *
-   * @param sourceDescription
-   *          source project template
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeProjectTemplate(ProjectTemplate sourceDescription,
-      ConfederacySpecification spec, Map<String, Object> templateData) {
-    Project project = spec.getProject();
+    //Project project = spec.getProject();
 
     Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
 
