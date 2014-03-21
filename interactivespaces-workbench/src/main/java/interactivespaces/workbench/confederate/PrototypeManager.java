@@ -14,7 +14,7 @@ public class PrototypeManager {
 
   Map<String, Element> prototypeMap = Maps.newHashMap();
 
-  public static final String INHERRITS_FROM_ATTRIBUTE = "inherritsFrom";
+  public static final String INHERITS_FROM_ATTRIBUTE = "inheritsFrom";
 
   public static final String PROTOTYPE_NAME_ATTRIBUTE = "prototypeName";
 
@@ -29,8 +29,8 @@ public class PrototypeManager {
   public List<Element> getPrototypeChain(Element element) {
     List<Element> prototypeChain = Lists.newArrayList();
 
-    while (element != null && element.getAttribute(INHERRITS_FROM_ATTRIBUTE) != null) {
-      String prototypeName = element.getAttributeValue(INHERRITS_FROM_ATTRIBUTE);
+    while (element != null && element.getAttribute(INHERITS_FROM_ATTRIBUTE) != null) {
+      String prototypeName = element.getAttributeValue(INHERITS_FROM_ATTRIBUTE);
       Element parent = prototypeMap.get(prototypeName);
       Preconditions.checkNotNull(parent, "Could not find prototype named " + prototypeName);
       prototypeChain.add(parent);
