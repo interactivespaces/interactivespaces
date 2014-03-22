@@ -178,6 +178,28 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    */
   public static class ProjectResourceBuilderFactory implements ProjectConstituentFactory {
     @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder(Log log) {
+      return new ProjectResourceBuilder(log);
+    }
+  }
+
+  /**
+   * Factory for building the constituent builder.
+   *
+   * @author Keith M. Hughes
+   */
+  public static class ProjectSourceBuilderFactory implements ProjectConstituentFactory {
+    @Override
+    public String getName() {
+      return ALTERNATE_NAME;
+    }
+
+    @Override
     public ProjectConstituentBuilder newBuilder(Log log) {
       return new ProjectResourceBuilder(log);
     }

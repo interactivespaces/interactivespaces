@@ -92,7 +92,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
 
     Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
 
-    fileTemplates.addAll(spec.getFileTemplates());
+    fileTemplates.addAll(project.getTemplates());
 
     onTemplateSetup(spec, templater, fullTemplateData);
 
@@ -209,11 +209,13 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
       Map<String, Object> fullTemplateData) {
     for (TemplateFile template : fileTemplates) {
-      String outName = templater.processStringTemplate(fullTemplateData, template.getOutput());
-      File outFile =
-          outName.startsWith("/") ? new File(outName) : new File(spec.getProject().getBaseDirectory(), outName);
-      String templatePath = templater.processStringTemplate(fullTemplateData, template.getTemplate());
-      templater.writeTemplate(fullTemplateData, outFile, templatePath);
+      Project project = spec.getProject();
+      String relativeOutPath = templater.processStringTemplate(fullTemplateData, template.getOutput());
+      File outFile = new File(project.getBaseDirectory(), relativeOutPath);
+      String relativeInPath = templater.processStringTemplate(fullTemplateData, template.getTemplate());
+      File specificationSource = project.getSpecificationSource();
+      String absoluteInPath = new File(specificationSource.getParentFile(), relativeInPath).getAbsolutePath();
+      templater.writeTemplate(fullTemplateData, outFile, absoluteInPath);
     }
   }
 

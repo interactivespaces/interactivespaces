@@ -31,6 +31,7 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
 import interactivespaces.workbench.confederate.JdomConfederacyReader;
 import interactivespaces.workbench.project.JdomProjectReader;
@@ -650,25 +651,29 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void createFromTemplate(List<String> commands) {
-    String templateFile = commands.remove(0);
+    String templatePath = commands.remove(0);
     try {
-      Element rootElement = JdomReader.getRootElement(new File(templateFile));
+      File templateFile = new File(templatePath);
+      Element rootElement = JdomReader.getRootElement(templateFile);
       String type = rootElement.getName();
       if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
-        createConfederacyFromElement(rootElement);
+        createConfederacyFromElement(rootElement, templateFile);
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(type)) {
         createProjectFromElement(rootElement);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While processing template file " + templateFile, e);
+      throw new SimpleInteractiveSpacesException("While processing template file " + templatePath, e);
     }
   }
 
-  private void createConfederacyFromElement(Element rootElement) {
+  private void createConfederacyFromElement(Element rootElement, File specFile) {
     JdomConfederacyReader confederacyReader = new JdomConfederacyReader(log);
-    confederacyCreator.create(confederacyReader.processSpecification(rootElement));
+    Confederacy confederacy = new Confederacy();
+    confederacy.setSpecificationSource(specFile);
+    confederacyReader.processSpecification(confederacy, rootElement);
+    confederacyCreator.create(confederacy);
   }
 
   private void createProjectFromElement(Element rootElement) {

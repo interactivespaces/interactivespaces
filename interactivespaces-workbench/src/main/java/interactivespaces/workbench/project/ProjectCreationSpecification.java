@@ -43,16 +43,6 @@ public class ProjectCreationSpecification {
   private Project project;
 
   /**
-   * Extra file templates to use when templating this project.
-   */
-  private final List<TemplateFile> fileTemplates = Lists.newArrayList();
-
-  /**
-   * Variables that should be fed into the output template.
-   */
-  private final List<TemplateVar> templateVars = Lists.newArrayList();
-
-  /**
    * Get the programming language for the project.
    *
    * @return the language
@@ -111,43 +101,5 @@ public class ProjectCreationSpecification {
    */
   public void setProject(Project project) {
     this.project = project;
-  }
-
-  /**
-   * Add a file template to the project.
-   *
-   * @param templateFile
-   *          template specification
-   */
-  public void addFileTemplate(TemplateFile templateFile) {
-    fileTemplates.add(templateFile);
-  }
-
-  /**
-   * Get the list of added file templates.
-   *
-   * @return file template list
-   */
-  public List<TemplateFile> getFileTemplates() {
-    return fileTemplates;
-  }
-
-  /**
-   * Add a file template to the project.
-   *
-   * @param templateVar
-   *          template specification
-   */
-  public void addTemplateVar(TemplateVar templateVar) {
-    templateVars.add(templateVar);
-  }
-
-  /**
-   * Get the list of added file templates.
-   *
-   * @return file template list
-   */
-  public List<TemplateVar> getTemplateVars() {
-    return templateVars;
   }
 }

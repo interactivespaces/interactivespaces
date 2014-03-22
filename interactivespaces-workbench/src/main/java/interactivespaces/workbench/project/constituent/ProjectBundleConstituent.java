@@ -99,6 +99,11 @@ public class ProjectBundleConstituent extends ContainerConstituent {
    */
   public static class ProjectBundleConstituentFactory implements ProjectConstituentFactory {
     @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
     public ProjectConstituentBuilder newBuilder(Log log) {
       return new ProjectBundleConstituentBuilder(log);
     }

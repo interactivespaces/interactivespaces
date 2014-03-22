@@ -114,6 +114,11 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    */
   public static class ActivityProjectBuilderFactory implements ProjectConstituentFactory {
     @Override
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
     public ProjectConstituentBuilder newBuilder(Log log) {
       return new ActivityProjectBuilder(log);
     }

@@ -80,6 +80,8 @@ public interface ProjectConstituent {
    */
   interface ProjectConstituentFactory {
 
+    String getName();
+
     /**
      * Create a new builder.
      *

@@ -33,6 +33,8 @@ public class Confederacy {
 
   private File baseDirectory;
 
+  private File specificationSource;
+
   public List<Project> getProjectList() {
     return projectList;
   }
@@ -47,5 +49,13 @@ public class Confederacy {
 
   public void setBaseDirectory(File baseDirectory) {
     this.baseDirectory = baseDirectory;
+  }
+
+  public File getSpecificationSource() {
+    return specificationSource;
+  }
+
+  public void setSpecificationSource(File specDirectory) {
+    this.specificationSource = specDirectory;
   }
 }

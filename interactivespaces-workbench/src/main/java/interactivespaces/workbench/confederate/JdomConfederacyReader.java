@@ -57,24 +57,20 @@ public class JdomConfederacyReader {
     this.log = log;
   }
 
-  public Confederacy processSpecification(Element rootElement) {
+  public void processSpecification(Confederacy confederacy, Element rootElement) {
     if (!CONFEDERACY_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }
 
-    Confederacy spec = new Confederacy();
-
     @SuppressWarnings("unchecked")
     List<Element> children = (List<Element>) rootElement.getChildren();
     for (Element child : children) {
-      addElementToSpec(spec, child);
+      addElementToSpec(confederacy, child);
     }
 
     if (failure) {
       throw new SimpleInteractiveSpacesException("Project had errors");
     }
-
-    return spec;
   }
 
   private void addElementToSpec(Confederacy spec, Element child) {
@@ -105,6 +101,7 @@ public class JdomConfederacyReader {
     }
     Project project = new JdomProjectReader(log, prototypeManager).processSpecification(child);
     project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
+    project.setSpecificationSource(spec.getSpecificationSource());
     spec.addProject(project);
   }
 

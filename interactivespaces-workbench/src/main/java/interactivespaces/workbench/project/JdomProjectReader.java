@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -30,6 +29,7 @@ import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituen
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
 import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -56,12 +56,20 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * Map of resource types to resource builders.
    */
   private static final Map<String, ProjectConstituent.ProjectConstituentFactory> PROJECT_CONSTITUENT_FACTORY_MAP =
-      ImmutableMap.of(
-          ProjectResourceConstituent.TYPE_NAME, new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
-          ProjectResourceConstituent.ALTERNATE_NAME, new ProjectResourceConstituent.ProjectResourceBuilderFactory(),
-          ProjectAssemblyConstituent.TYPE_NAME, new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory(),
-          ProjectBundleConstituent.TYPE_NAME, new ProjectBundleConstituent.ProjectBundleConstituentFactory(),
-          ActivityProjectConstituent.TYPE_NAME, new ActivityProjectConstituent.ActivityProjectBuilderFactory());
+      Maps.newHashMap();
+
+  {
+    addConstituentType(new ProjectResourceConstituent.ProjectResourceBuilderFactory());
+    addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
+    addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
+    addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
+    addConstituentType(new ProjectTemplateConstituent.ProjectTemplateConstituentFactory());
+    addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
+  }
+
+  private static void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
+    PROJECT_CONSTITUENT_FACTORY_MAP.put(constituentFactory.getName(), constituentFactory);
+  }
 
   public static final String PROJECT_ELEMENT_NAME = "project";
 
@@ -200,6 +208,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM = "property";
 
   /**
+   * Project definition file element name for configurations.
+   */
+  private static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
+
+  /**
+   * Project definition file element name for a configuration item.
+   */
+  private static final String PROJECT_ELEMENT_NAME_TEMPLATE_ITEM = "template";
+
+  /**
    * Project definition file attribute name for the name of a configuration
    * item.
    */
@@ -259,6 +277,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     getConfiguration(project, projectElement);
     project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
     project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
+
+    getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_TEMPLATES), project);
 
     project.addExtraConstituents(getIndividualConstituent(
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
