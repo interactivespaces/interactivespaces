@@ -17,12 +17,15 @@
 package interactivespaces.workbench.confederate;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.TemplateFile;
 import interactivespaces.workbench.project.TemplateVar;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A confederacy of projects.

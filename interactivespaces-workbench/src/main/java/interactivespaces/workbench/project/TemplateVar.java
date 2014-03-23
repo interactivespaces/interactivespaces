@@ -23,7 +23,7 @@ package interactivespaces.workbench.project;
  */
 public class TemplateVar {
 
-  public static final String GROUP_ELEMENT_NAME = "vars";
+  public static final String GROUP_ELEMENT_NAME = "templateVars";
 
   public static final String ELEMENT_NAME = "var";
 

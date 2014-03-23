@@ -106,6 +106,9 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       for (TemplateVar templateVar : spec.getTemplateVars()) {
         templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
       }
+      for (TemplateVar templateVar : project.getTemplateVars()) {
+        templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
+      }
 
       writeTemplateList(spec, workbench, templater, fullTemplateData);
       writeSpecificTemplates(spec, workbench, templater, fullTemplateData);

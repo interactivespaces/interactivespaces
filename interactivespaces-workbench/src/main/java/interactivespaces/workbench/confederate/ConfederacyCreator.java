@@ -78,6 +78,7 @@ public class ConfederacyCreator {
     // TODO(peringknife): Need to make a generic version of the BaseProjectTemplate (extract base class).
     Map<String, Object> templateData = Maps.newHashMap();
     templateData.put("baseDirectory", spec.getBaseDirectory());
+    // TODO(peringknife): Need to add the spec template vars here
     for (TemplateFile templateFile : spec.getTemplateFiles()) {
       File outputFile = new File(spec.getBaseDirectory(), templateFile.getOutput());
       File sourceTemplateDirectory = spec.getSpecificationSource().getParentFile();

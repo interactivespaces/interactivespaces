@@ -100,9 +100,8 @@ public class JdomConfederacyReader extends JdomReader {
     if (!TemplateVar.ELEMENT_NAME.equals(child.getName())) {
       throw new SimpleInteractiveSpacesException("Bad element name " + child.getName());
     }
-    String name = getRequiredAttributeValue(child, TemplateVar.NAME_KEY);
-    String value = getRequiredAttributeValue(child, TemplateVar.VALUE_KEY);
-    spec.addTemplateVar(new TemplateVar(name, value));
+    TemplateVar templateVar = getTemplateVarFromElement(child);
+    spec.addTemplateVar(templateVar);
   }
 
   private void addPrototypeElement(Confederacy spec, Element child) {

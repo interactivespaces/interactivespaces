@@ -213,6 +213,11 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_TEMPLATES = TemplateFile.GROUP_ELEMENT_NAME;
 
   /**
+   * Project definition file element name for configurations.
+   */
+  private static final String PROJECT_ELEMENT_NAME_TEMPLATE_VARS = TemplateVar.GROUP_ELEMENT_NAME;
+
+  /**
    * Project definition file attribute name for the name of a configuration
    * item.
    */
@@ -276,6 +281,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     getMetadata(project, projectElement);
     getDependencies(project, projectElement);
     getConfiguration(project, projectElement);
+    getTemplateVars(project, projectElement);
     project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
     project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
 
@@ -562,6 +568,27 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         if (deployment != null) {
           project.addDeployment(deployment);
         }
+      }
+    }
+  }
+
+  /**
+   * Get the deployments from the document.
+   *
+   * @param project
+   *          the project description whose data is being read
+   * @param rootElement
+   *          root element of the XML DOM containing the project data
+   */
+  private void getTemplateVars(Project project, Element rootElement) {
+    Element varsElement = rootElement.getChild(TemplateVar.GROUP_ELEMENT_NAME);
+
+    if (varsElement != null) {
+      @SuppressWarnings("unchecked")
+      List<Element> varElements = varsElement.getChildren(TemplateVar.ELEMENT_NAME);
+
+      for (Element varElement : varElements) {
+        project.addTemplateVar(getTemplateVarFromElement(varElement));
       }
     }
   }

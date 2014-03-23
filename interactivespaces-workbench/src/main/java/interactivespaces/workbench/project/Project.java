@@ -120,6 +120,11 @@ public abstract class Project {
   private final List<TemplateFile> templates = Lists.newArrayList();
 
   /**
+   * The template variables that are used by this project during a create process.
+   */
+  private final List<TemplateVar> templateVars = Lists.newArrayList();
+
+  /**
    * The meta data for this project.
    */
   private Map<String, Object> metadata = Maps.newHashMap();
@@ -402,6 +407,14 @@ public abstract class Project {
    */
   public List<TemplateFile> getTemplates() {
     return Lists.newArrayList(templates);
+  }
+
+  public void addTemplateVar(TemplateVar templateVar) {
+    templateVars.add(templateVar);
+  }
+
+  public List<TemplateVar> getTemplateVars() {
+    return templateVars;
   }
 
   /**
