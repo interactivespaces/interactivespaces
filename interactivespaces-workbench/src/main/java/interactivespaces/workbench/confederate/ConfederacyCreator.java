@@ -16,13 +16,18 @@
 
 package interactivespaces.workbench.confederate;
 
+import com.google.common.collect.Maps;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.TemplateFile;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
+
+import java.io.File;
+import java.util.Map;
 
 /**
  * A {@link interactivespaces.workbench.project.activity.creator.ProjectCreator} implementation.
@@ -63,17 +68,31 @@ public class ConfederacyCreator {
       for (Project project : spec.getProjectList()) {
         createProject(project, spec);
       }
+      writeConfederacyTemplates(spec);
     } catch (Exception e) {
-      workbench.logError("Error while creating confederacy", e);
+      workbench.handleError("Error while creating confederacy", e);
+    }
+  }
+
+  private void writeConfederacyTemplates(Confederacy spec) {
+    // TODO(peringknife): Need to make a generic version of the BaseProjectTemplate (extract base class).
+    Map<String, Object> templateData = Maps.newHashMap();
+    templateData.put("baseDirectory", spec.getBaseDirectory());
+    for (TemplateFile templateFile : spec.getTemplateFiles()) {
+      File outputFile = new File(spec.getBaseDirectory(), templateFile.getOutput());
+      File sourceTemplateDirectory = spec.getSpecificationSource().getParentFile();
+      String source = new File(sourceTemplateDirectory, templateFile.getTemplate()).getAbsolutePath();
+      templater.writeTemplate(templateData, outputFile, source);
     }
   }
 
   private void createProject(Project project, Confederacy confederacy) {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
-    spec.setLanguage("java"); // SHould be taken from project... ?
+    spec.setLanguage(project.getBuilderType());
     spec.setTemplate(new BaseNativeActivityProjectTemplate());
     spec.addAllTemplateVars(confederacy.getTemplateVars());
+    spec.setConfederacyDirectory(confederacy.getBaseDirectory());
     projectCreator.createProject(spec);
   }
 }

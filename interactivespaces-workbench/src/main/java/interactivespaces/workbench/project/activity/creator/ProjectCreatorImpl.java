@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
@@ -78,7 +77,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
       writeProjectTemplate(spec, templateData);
 
     } catch (Exception e) {
-      workbench.logError("Error while creating project", e);
+      workbench.handleError("Error while creating project", e);
     }
   }
 

@@ -65,6 +65,24 @@ public abstract class JdomReader {
   }
 
   /**
+   * Return the trimmed text of a child element.
+   *
+   * @param element
+   *          container element
+   * @param key
+   *          variable key
+   *
+   * @return trimmed element text
+   *
+   * @throws interactivespaces.SimpleInteractiveSpacesException
+   *           if the child element is not provided
+   */
+  protected String getChildTextTrimmed(Element element, String key, String fallback) {
+    String value = getChildTextTrimmed(element, key);
+    return (value == null || (!value.isEmpty() && fallback != null)) ? fallback : value;
+  }
+
+  /**
    * Return a required element attribute.
    *
    * @param element

@@ -16,6 +16,11 @@
 
 package interactivespaces;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
 /**
  * A simple exception which probably doesn't need to send a stack trace.
  *
@@ -59,11 +64,11 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
       if (causeMessage != null) {
         message.append(causeMessage);
       } else {
-        message.append(cause.getClass().getName());
-        StackTraceElement[] stackTraceElements = cause.getStackTrace();
-        if (stackTraceElements != null && stackTraceElements.length > 0) {
-          message.append(" @").append(stackTraceElements[0]);
-        }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(outputStream);
+        cause.printStackTrace(writer);
+        writer.flush();
+        message.append("\n").append(outputStream.toString());
       }
       message.append("\n");
       cause = cause.getCause();

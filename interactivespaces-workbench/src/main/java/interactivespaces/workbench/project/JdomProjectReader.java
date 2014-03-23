@@ -257,6 +257,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
     configureProjectFromElement(project, projectElement);
 
+    if (project.getInteractiveSpacesVersionRange() == null) {
+      log.warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
+          + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
+      project.setInteractiveSpacesVersionRange(INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
+    }
+
     if (failure) {
       throw new SimpleInteractiveSpacesException(String.format("Project specification had errors"));
     }
@@ -302,20 +308,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *          root element of the XML DOM containing the project data
    */
   private void getMainData(Project project, Element rootElement) {
-    String name = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_NAME);
-    if (name != null) {
-      project.setName(name);
-    }
-
-    String description = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_DESCRIPTION);
-    if (description != null) {
-      project.setDescription(description);
-    }
-
-    String identifyingName = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_IDENTIFYING_NAME);
-    if (identifyingName != null) {
-      project.setIdentifyingName(identifyingName);
-    }
+    project.setName(
+        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_NAME, project.getName()));
+    project.setDescription(
+        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_DESCRIPTION, project.getDescription()));
+    project.setIdentifyingName(
+        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_IDENTIFYING_NAME, project.getIdentifyingName()));
 
     String version = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_VERSION);
     if (version != null) {
@@ -327,23 +325,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       project.setBaseDirectory(new File(baseDirectory));
     }
 
-    String builder = getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, null);
-    if (builder != null) {
-      project.setBuilderType(builder);
-    }
+    project.setBuilderType(
+        getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, project.getBuilderType()));
 
     String interactiveSpacesVersionRangeAttribute =
         getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION, null);
 
-    VersionRange interactiveSpacesVersionRange = project.getInteractiveSpacesVersionRange();
     if (interactiveSpacesVersionRangeAttribute != null) {
-      interactiveSpacesVersionRange = VersionRange.parseVersionRange(interactiveSpacesVersionRangeAttribute);
-    } else if (interactiveSpacesVersionRange == null) {
-      log.warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
-          + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
-      interactiveSpacesVersionRange = INTERACTIVESPACES_VERSION_RANGE_DEFAULT;
+      VersionRange versionRange = VersionRange.parseVersionRange(interactiveSpacesVersionRangeAttribute);
+      project.setInteractiveSpacesVersionRange(versionRange);
     }
-    project.setInteractiveSpacesVersionRange(interactiveSpacesVersionRange);
   }
 
   /**

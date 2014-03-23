@@ -85,7 +85,7 @@ public class EclipseIdeProjectCreator {
 
       return true;
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while creating eclipse project", e);
+      context.getWorkbench().handleError("Error while creating eclipse project", e);
 
       return false;
     }

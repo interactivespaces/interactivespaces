@@ -124,18 +124,6 @@ public abstract class BaseActivityProjectTemplate extends BaseProjectTemplate {
     ActivityProject activityProject = spec.getProject();
     fullTemplateData.put("activity", activityProject);
 
-    // Create an activity name from the identifying name
-    String identifyingName = activityProject.getIdentifyingName();
-    String[] parts = identifyingName.split("\\.");
-    StringBuilder activityRuntimeName = new StringBuilder(parts[0]);
-
-    for (int i = 1; i < parts.length; ++i) {
-      String part = parts[i];
-      activityRuntimeName.append(part.substring(0, 1).toUpperCase()).append(part.substring(1));
-    }
-
-    activityProject.setActivityRuntimeName(activityRuntimeName.toString());
-
     onTemplateSetup(spec, activityProject, fullTemplateData);
   }
 

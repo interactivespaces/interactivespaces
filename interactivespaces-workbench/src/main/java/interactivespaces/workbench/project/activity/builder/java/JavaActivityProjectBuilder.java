@@ -88,7 +88,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
 
       return false;
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while building java activity project", e);
+      context.getWorkbench().handleError("Error while building java activity project", e);
 
       return false;
     }

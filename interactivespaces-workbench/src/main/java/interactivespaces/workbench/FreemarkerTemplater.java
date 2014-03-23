@@ -21,7 +21,9 @@ import com.google.common.io.Closeables;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
+import freemarker.template.TemplateExceptionHandler;
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
@@ -147,7 +149,7 @@ public class FreemarkerTemplater {
 
     // By design. if there are any errors processing the templates, these files will remain.
     for (File toDelete : deleteList) {
-      //FileSupportImpl.INSTANCE.delete(toDelete);
+      FileSupportImpl.INSTANCE.delete(toDelete);
     }
   }
 
@@ -167,7 +169,7 @@ public class FreemarkerTemplater {
       temp.process(data, out);
       out.close();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not instantiate template %s to %s",
+      throw new SimpleInteractiveSpacesException(String.format("Could not instantiate template %s to %s",
           new File(TEMPLATE_LOCATION, template).getAbsolutePath(), outputFile.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(out);

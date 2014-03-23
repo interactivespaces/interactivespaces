@@ -166,33 +166,6 @@ public class ActivityProject extends Project {
   }
 
   /**
-   * Get the simple class name of the activity, derived from the full activity class.
-   *
-   * @return the class name of the activity
-   */
-  public String getActivityClassName() {
-    return activityClass.substring(activityClass.lastIndexOf(".") + 1);
-  }
-
-  /**
-   * Get the class package of the activity, derived from the full activity class.
-   *
-   * @return the class package of the activity
-   */
-  public String getActivityClassPackage() {
-    return activityClass.substring(0, activityClass.lastIndexOf("."));
-  }
-
-  /**
-   * Get the class package path of the activity, derived from the full activity class.
-   *
-   * @return the class package path of the activity
-   */
-  public String getActivityPackagePath() {
-    return getActivityClassPackage().replace('.', '/');
-  }
-
-  /**
    * Get the location of the config file.
    *
    * @return the location of the config file

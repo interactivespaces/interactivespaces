@@ -283,7 +283,7 @@ public class InteractiveSpacesWorkbench {
         return true;
       }
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     }
 
     return false;
@@ -356,7 +356,7 @@ public class InteractiveSpacesWorkbench {
 
       return true;
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
 
       return false;
     }
@@ -397,7 +397,7 @@ public class InteractiveSpacesWorkbench {
     try {
       osgiBundleCreator.createBundle(new File(file), null, null);
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     }
   }
 
@@ -547,7 +547,7 @@ public class InteractiveSpacesWorkbench {
         }
       }
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     } finally {
       Closeables.closeQuietly(reader);
     }
@@ -564,7 +564,7 @@ public class InteractiveSpacesWorkbench {
 
     if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating from template...");
-      createFromTemplate(commands);
+      createFromSpecification(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(commands.remove(0));
     } else {
@@ -650,21 +650,21 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
-  private void createFromTemplate(List<String> commands) {
-    String templatePath = commands.remove(0);
+  private void createFromSpecification(List<String> commands) {
+    String specPath = commands.remove(0);
     try {
-      File templateFile = new File(templatePath);
-      Element rootElement = JdomReader.getRootElement(templateFile);
+      File specFile = new File(specPath);
+      Element rootElement = JdomReader.getRootElement(specFile);
       String type = rootElement.getName();
       if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
-        createConfederacyFromElement(rootElement, templateFile);
+        createConfederacyFromElement(rootElement, specFile);
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(type)) {
         createProjectFromElement(rootElement);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While processing template file " + templatePath, e);
+      throw new SimpleInteractiveSpacesException("While processing specification file " + specPath, e);
     }
   }
 
@@ -857,14 +857,7 @@ public class InteractiveSpacesWorkbench {
    * @param e
    *          the exception
    */
-  public void logError(String message, Exception e) {
-    System.err.println(message);
-
-    if (e instanceof SimpleInteractiveSpacesException) {
-      getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
-    } else {
-      getLog().error(message, e);
-    }
+  public void handleError(String message, Exception e) {
     throw new SimpleInteractiveSpacesException(message, e);
   }
 

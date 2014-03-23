@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.osgi;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
@@ -126,6 +127,12 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
         public void run() {
           try {
             workbench.doCommands(commandLineArguments);
+          } catch (Exception e) {
+            if (e instanceof SimpleInteractiveSpacesException) {
+              workbench.getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
+            } else {
+              workbench.getLog().error("Error executing workbench commands", e);
+            }
           } finally {
             try {
               bundleContext.getBundle(0).stop();

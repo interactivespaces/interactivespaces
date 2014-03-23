@@ -112,7 +112,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         return false;
       }
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
 
       return false;
     }

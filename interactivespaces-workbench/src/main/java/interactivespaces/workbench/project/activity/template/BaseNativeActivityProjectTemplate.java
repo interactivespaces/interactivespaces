@@ -23,7 +23,6 @@ import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -60,29 +59,6 @@ public class BaseNativeActivityProjectTemplate extends BaseActivityProjectTempla
 
     if (activityProject.getActivityClass() == null) {
       throw new SimpleInteractiveSpacesException("Activity class not set by subclass");
-    }
-    activityProject.setBuilderType("java");
-    activityProject.setActivityType("interactivespaces_native");
-
-    activityProject.addConfigurationProperty(new ProjectConfigurationProperty(
-        "space.activity.log.level", InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null));
-
-    fullTemplateData.put("activityClassName", activityProject.getActivityClassName());
-    fullTemplateData.put("activityClassPackage", activityProject.getActivityClassPackage());
-    fullTemplateData.put("activityPackagePath", activityProject.getActivityPackagePath());
-    fullTemplateData.put("activitySourceDir", activityProject.getActivitySourceDirectory());
-    fullTemplateData.put("activityResourceDir", activityProject.getActivityResourceDirectory());
-    fullTemplateData.put("activityJavaDir",
-        activityProject.getActivitySourceDirectory() + File.separator + activityProject.getActivityPackagePath());
-  }
-
-  @Override
-  public void onTemplateSetup(ProjectCreationSpecification spec, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-    super.onTemplateSetup(spec, templater, fullTemplateData);
-
-    if (fullTemplateData.get("activityClassName") == null) {
-      throw new SimpleInteractiveSpacesException("Base native onTemplateSetup not called");
     }
   }
 }

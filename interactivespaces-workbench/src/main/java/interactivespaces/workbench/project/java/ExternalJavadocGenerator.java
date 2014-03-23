@@ -77,7 +77,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
 
       waitForEnd(process, context);
     } catch (IOException e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     }
   }
 
@@ -119,7 +119,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         System.out.println(result.toString());
       }
     } catch (InterruptedException e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     }
   }
 
@@ -140,7 +140,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         result.append(line);
       }
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     } finally {
       Closeables.closeQuietly(reader);
     }

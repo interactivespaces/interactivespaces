@@ -17,9 +17,8 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.logging.Log;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -38,6 +37,8 @@ public class ProjectCreationSpecification {
    * The template for the project.
    */
   private ProjectTemplate template;
+
+  private File confederacyDirectory;
 
   /**
    * The project itself.
@@ -113,5 +114,13 @@ public class ProjectCreationSpecification {
 
   public List<TemplateVar> getTemplateVars() {
     return templateVars;
+  }
+
+  public File getConfederacyDirectory() {
+    return confederacyDirectory;
+  }
+
+  public void setConfederacyDirectory(File confederacyDirectory) {
+    this.confederacyDirectory = confederacyDirectory;
   }
 }

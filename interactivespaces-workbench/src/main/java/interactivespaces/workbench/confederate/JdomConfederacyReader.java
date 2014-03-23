@@ -99,8 +99,8 @@ public class JdomConfederacyReader extends JdomReader {
       throw new SimpleInteractiveSpacesException("Confederacy base directory not defined before projects");
     }
     Project project = new JdomProjectReader(log, prototypeManager).processSpecification(child);
-    project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
     project.setSpecificationSource(spec.getSpecificationSource());
+    project.setBaseDirectory(new File("."));
     spec.addProject(project);
   }
 }

@@ -21,13 +21,10 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -98,37 +95,30 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
     Project project = spec.getProject();
 
     Map<String, Object> fullTemplateData = Maps.newTreeMap();
+    fullTemplateData.put("baseDirectory", spec.getConfederacyDirectory());
     fullTemplateData.putAll(templateData);
 
     fileTemplates.addAll(project.getTemplates());
 
     onTemplateSetup(spec, templater, fullTemplateData);
 
-    File variableDump = new File(project.getBaseDirectory(), TEMPLATE_VARIABLES_TMP);
-    dumpVariables(fullTemplateData, variableDump);
     try {
       for (TemplateVar templateVar : spec.getTemplateVars()) {
         templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
       }
-
-      createProjectStructure(project);
-
-      dumpVariables(fullTemplateData, variableDump);
 
       writeTemplateList(spec, workbench, templater, fullTemplateData);
       writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
       writeCommonTemplates(spec, workbench, templater, fullTemplateData);
       writeProjectXml(templater, spec, fullTemplateData);
     } catch (Exception e) {
+      File variableDump = new File(TEMPLATE_VARIABLES_TMP);
+      dumpVariables(fullTemplateData, variableDump);
       throw new SimpleInteractiveSpacesException("Template variables are in " + variableDump.getAbsolutePath(), e);
     }
-
-    // Only delete this if everything is successful, let it remain on error.
-    //FileSupportImpl.INSTANCE.delete(variableDump);
   }
 
   private void dumpVariables(Map<String, Object> fullTemplateData, File variableDump) {
-    makeDirectory(variableDump.getParentFile());
     PrintWriter variableWriter = null;
     try {
       variableWriter = new PrintWriter(variableDump);
@@ -140,21 +130,6 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
           "Error writing variable dump file " + variableDump.getAbsolutePath(), e);
     } finally {
       Closeables.closeQuietly(variableWriter);
-    }
-  }
-
-  /**
-   * Create all common directory structures for the project.
-   *
-   * @param project
-   *          the project being created.
-   */
-  private void createProjectStructure(Project project) {
-    File baseDirectory = project.getBaseDirectory();
-    makeDirectory(baseDirectory);
-
-    for (String srcDir : getSourceDirectories()) {
-      makeDirectory(new File(baseDirectory, srcDir));
     }
   }
 
@@ -249,13 +224,23 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       Map<String, Object> fullTemplateData) {
     for (TemplateFile template : fileTemplates) {
       Project project = spec.getProject();
-      String relativeOutPath = templater.processStringTemplate(fullTemplateData, template.getOutput(), null);
-      File outFile = new File(project.getBaseDirectory(), relativeOutPath);
+
+      File outFile = new File(templater.processStringTemplate(fullTemplateData, template.getOutput(), null));
+      if (!outFile.isAbsolute()) {
+        File projectDirectory = getBaseDirectory(spec, templater, fullTemplateData, project);
+        outFile = new File(projectDirectory, outFile.getPath());
+      }
+
       String relativeInPath = templater.processStringTemplate(fullTemplateData, template.getTemplate(), null);
       File specificationSource = project.getSpecificationSource();
       String absoluteInPath = new File(specificationSource.getParentFile(), relativeInPath).getAbsolutePath();
       templater.writeTemplate(fullTemplateData, outFile, absoluteInPath);
     }
+  }
+
+  private File getBaseDirectory(ProjectCreationSpecification spec, FreemarkerTemplater templater, Map<String, Object> fullTemplateData, Project project) {
+    String identifyingName = templater.processStringTemplate(fullTemplateData, project.getIdentifyingName(), null);
+    return new File(spec.getConfederacyDirectory(), identifyingName);
   }
 
   /**
@@ -270,7 +255,8 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    */
   private void writeProjectXml(FreemarkerTemplater templater, ProjectCreationSpecification spec,
       Map<String, Object> templateData) {
-    templater.writeTemplate(templateData, new File(spec.getProject().getBaseDirectory(),
-        "project.xml"), "project.xml.ftl");
+    Project project = spec.getProject();
+    File baseDirectory = getBaseDirectory(spec, templater, templateData, project);
+    templater.writeTemplate(templateData, new File(baseDirectory, "project.xml"), "project.xml.ftl");
   }
 }
