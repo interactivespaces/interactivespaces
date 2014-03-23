@@ -48,30 +48,32 @@ public class ConfederacyCreator {
    *
    * @param workbench
    *          containing workbench
-   * @param templater
-   *          templater to use
+   *
    */
-  public ConfederacyCreator(InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater) {
+  public ConfederacyCreator(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
-    this.templater = templater;
+    templater = new FreemarkerTemplater();
+    templater.startup();
+    templater.addEvaluationPass();
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
   public void create(Confederacy spec) {
     try {
       for (Project project : spec.getProjectList()) {
-        createProject(project);
+        createProject(project, spec);
       }
     } catch (Exception e) {
       workbench.logError("Error while creating confederacy", e);
     }
   }
 
-  public void createProject(Project project) {
+  private void createProject(Project project, Confederacy confederacy) {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
-    spec.setLanguage("java");
+    spec.setLanguage("java"); // SHould be taken from project... ?
     spec.setTemplate(new BaseNativeActivityProjectTemplate());
+    spec.addAllTemplateVars(confederacy.getTemplateVars());
     projectCreator.createProject(spec);
   }
 }

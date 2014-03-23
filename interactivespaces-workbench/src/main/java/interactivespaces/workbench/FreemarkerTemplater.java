@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -32,6 +33,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,6 +58,8 @@ public class FreemarkerTemplater {
    */
   private Configuration freemarkerConfig;
 
+  private int evaluationPasses = 1;
+
   /**
    * Start the templater up.
    */
@@ -71,17 +75,33 @@ public class FreemarkerTemplater {
     }
   }
 
+  public void addEvaluationPass() {
+    evaluationPasses++;
+  }
+
   /**
    * Process a string template.
+   *
    *
    * @param data
    *          data for template
    * @param templateContent
    *          string template to process
    *
+   * @param defineResult
    * @return processed template
    */
-  public String processStringTemplate(Map<String, Object> data, String templateContent) {
+  public String processStringTemplate(Map<String, Object> data, String templateContent, String defineResult) {
+    for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
+      templateContent = processStringTemplateCore(data, templateContent);
+      if (defineResult != null) {
+        data.put(defineResult, templateContent);
+      }
+    }
+    return templateContent;
+  }
+
+  public String processStringTemplateCore(Map<String, Object> data, String templateContent) {
     try {
       Template temp = new Template("generator for " + templateContent,
           new StringReader(templateContent), freemarkerConfig);
@@ -105,11 +125,36 @@ public class FreemarkerTemplater {
    *          which template to use
    */
   public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
+    fileSupport.directoryExists(outputFile.getParentFile());
+
+    List<File> deleteList = Lists.newArrayList();
+    File tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), evaluationPasses));
+    deleteList.add(tempFile);
+    File inputFile = new File(template);
+    if (inputFile.isAbsolute()) {
+      FileSupportImpl.INSTANCE.copyFile(inputFile, tempFile);
+    }
+    for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
+      tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), passesRemaining - 1));
+      deleteList.add(tempFile);
+      if (passesRemaining == 1) {
+        writeTemplateCore(data, outputFile, template);
+      } else {
+        writeTemplateCore(data, tempFile, template);
+        template = tempFile.getAbsolutePath();
+      }
+    }
+
+    // By design. if there are any errors processing the templates, these files will remain.
+    for (File toDelete : deleteList) {
+      //FileSupportImpl.INSTANCE.delete(toDelete);
+    }
+  }
+
+  public void writeTemplateCore(Map<String, Object> data, File outputFile, String template) {
     Writer out = null;
     Reader in = null;
     try {
-      fileSupport.directoryExists(outputFile.getParentFile());
-
       Template temp;
       if (template.startsWith("/")) {
         in = new FileReader(template);

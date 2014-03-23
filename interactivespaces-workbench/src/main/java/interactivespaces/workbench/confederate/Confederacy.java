@@ -18,6 +18,8 @@ package interactivespaces.workbench.confederate;
 
 import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.TemplateFile;
+import interactivespaces.workbench.project.TemplateVar;
 
 import java.io.File;
 import java.util.List;
@@ -34,6 +36,10 @@ public class Confederacy {
   private File baseDirectory;
 
   private File specificationSource;
+
+  private final List<TemplateFile> templateFiles = Lists.newArrayList();
+
+  private final List<TemplateVar> templateVars = Lists.newArrayList();
 
   public List<Project> getProjectList() {
     return projectList;
@@ -58,4 +64,21 @@ public class Confederacy {
   public void setSpecificationSource(File specDirectory) {
     this.specificationSource = specDirectory;
   }
+
+  public List<TemplateFile> getTemplateFiles() {
+    return templateFiles;
+  }
+
+  public void addTemplateFile(TemplateFile templateFile) {
+    templateFiles.add(templateFile);
+  }
+
+  public List<TemplateVar> getTemplateVars() {
+    return templateVars;
+  }
+
+  public void addTemplateVar(TemplateVar templateVar) {
+    templateVars.add(templateVar);
+  }
+
 }

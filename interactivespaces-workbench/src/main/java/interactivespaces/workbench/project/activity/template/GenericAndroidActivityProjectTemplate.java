@@ -76,7 +76,7 @@ public class GenericAndroidActivityProjectTemplate extends BaseActivityProjectTe
         InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null
     ));
 
-    activityProject.setConfigurationProperties(configurationProperties);
+    activityProject.addConfigurationProperties(configurationProperties);
   }
 
   @Override

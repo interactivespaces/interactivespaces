@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.constituent;
 
 import org.apache.commons.logging.Log;
+import org.jdom.Element;
 
 /**
  * Base implementation of a project constituent builder.
@@ -73,5 +74,10 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    */
   protected boolean hasErrors() {
     return errors;
+  }
+
+  public String getChildTextNormalize(Element resourceElement, String propertyName, String fallback) {
+    String value = resourceElement.getChildTextNormalize(propertyName);
+    return (value == null || (value.isEmpty() && fallback != null)) ? fallback : value;
   }
 }

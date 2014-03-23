@@ -65,7 +65,7 @@ public class GenericJavascriptActivityProjectTemplate extends BaseActivityProjec
         InteractiveSpacesEnvironment.LOG_LEVEL_INFO, false, null
     ));
 
-    activityProject.setConfigurationProperties(configurationProperties);
+    activityProject.addConfigurationProperties(configurationProperties);
   }
 
   @Override

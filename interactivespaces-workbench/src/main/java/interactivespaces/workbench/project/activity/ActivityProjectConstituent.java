@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.activity;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
@@ -141,23 +142,20 @@ public class ActivityProjectConstituent implements ProjectConstituent {
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
-      String activityType = resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE);
-      String activityName = resourceElement.getChildTextNormalize(ACTIVITY_NAME_ELEMENT);
-      String activityExecutable = resourceElement.getChildTextNormalize(ACTIVITY_EXECUTABLE_ELEMENT);
-      String activityClass = resourceElement.getChildTextNormalize(ACTIVITY_CLASS_ELEMENT);
+      ActivityProject aproject = (ActivityProject) project;
+
+      aproject.setActivityType(
+          resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE, aproject.getActivityType()));
+      aproject.setActivityRuntimeName(
+          getChildTextNormalize(resourceElement, ACTIVITY_NAME_ELEMENT, aproject.getActivityRuntimeName()));
+      aproject.setActivityExecutable(
+          getChildTextNormalize(resourceElement, ACTIVITY_EXECUTABLE_ELEMENT, aproject.getActivityExecutable()));
+      aproject.setActivityClass(
+          getChildTextNormalize(resourceElement, ACTIVITY_CLASS_ELEMENT, aproject.getActivityClass()));
 
       List<ProjectConfigurationProperty> configurationProperties =
           getProjectConfigurationProperty(resourceElement.getChild(ACTIVITY_CONFIGURATION_ELEMENT));
-
-      if (!hasErrors()) {
-        // TODO(keith): Check that it is really an activity project.
-        ActivityProject aproject = (ActivityProject) project;
-        aproject.setActivityType(activityType);
-        aproject.setActivityRuntimeName(activityName);
-        aproject.setActivityExecutable(activityExecutable);
-        aproject.setActivityClass(activityClass);
-        aproject.setConfigurationProperties(configurationProperties);
-      }
+      aproject.addConfigurationProperties(configurationProperties);
 
       return null;
     }

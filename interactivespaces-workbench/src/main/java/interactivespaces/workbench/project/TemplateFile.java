@@ -23,6 +23,8 @@ package interactivespaces.workbench.project;
  */
 public class TemplateFile {
 
+  public static final String ELEMENT_NAME = "template";
+
   /**
    * The input path.
    */

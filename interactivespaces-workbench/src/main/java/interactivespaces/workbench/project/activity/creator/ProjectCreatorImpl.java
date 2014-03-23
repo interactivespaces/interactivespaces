@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;

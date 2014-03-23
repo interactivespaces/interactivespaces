@@ -35,7 +35,7 @@ public class ProjectTemplateConstituent extends ContainerConstituent {
   /**
    * Project type for a bundle resource.
    */
-  public static final String TYPE_NAME = "template";
+  public static final String TYPE_NAME = TemplateFile.ELEMENT_NAME;
 
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
@@ -74,23 +74,28 @@ public class ProjectTemplateConstituent extends ContainerConstituent {
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
-      TemplateFile templateFile = new TemplateFile();
-
-      String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
-      if (sourcePath == null) {
-        throw new SimpleInteractiveSpacesException("Template specification has no sourceFile");
-      }
-      templateFile.setTemplate(sourcePath);
-
-      String destinationFile = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
-      if (destinationFile == null) {
-        throw new SimpleInteractiveSpacesException("Template specification has no destinationFile");
-      }
-      templateFile.setOutput(destinationFile);
+      TemplateFile templateFile = getTemplateFileFromElement(element);
 
       project.addTemplate(templateFile);
 
       return null;
     }
+  }
+
+  public static TemplateFile getTemplateFileFromElement(Element element) {
+    TemplateFile templateFile = new TemplateFile();
+
+    String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
+    if (sourcePath == null) {
+      throw new SimpleInteractiveSpacesException("Template specification has no sourceFile");
+    }
+    templateFile.setTemplate(sourcePath);
+
+    String destinationFile = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
+    if (destinationFile == null) {
+      throw new SimpleInteractiveSpacesException("Template specification has no destinationFile");
+    }
+    templateFile.setOutput(destinationFile);
+    return templateFile;
   }
 }

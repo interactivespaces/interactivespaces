@@ -17,6 +17,8 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.logging.Log;
 
 import java.util.List;
 
@@ -41,6 +43,8 @@ public class ProjectCreationSpecification {
    * The project itself.
    */
   private Project project;
+
+  private final List<TemplateVar> templateVars = Lists.newArrayList();
 
   /**
    * Get the programming language for the project.
@@ -101,5 +105,13 @@ public class ProjectCreationSpecification {
    */
   public void setProject(Project project) {
     this.project = project;
+  }
+
+  public void addAllTemplateVars(List<TemplateVar> addTemplateVars) {
+    templateVars.addAll(addTemplateVars);
+  }
+
+  public List<TemplateVar> getTemplateVars() {
+    return templateVars;
   }
 }

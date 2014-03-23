@@ -23,6 +23,12 @@ package interactivespaces.workbench.project;
  */
 public class TemplateVar {
 
+  public static final String ELEMENT_NAME = "templateVar";
+
+  public static final String NAME_KEY = "name";
+
+  public static final String VALUE_KEY = "value";
+
   /**
    * The variable name.
    */
@@ -37,6 +43,14 @@ public class TemplateVar {
    * Create a new template variable entry.
    */
   public TemplateVar() {
+  }
+
+  /**
+   * Create a new template variable entry.
+   */
+  public TemplateVar(String name, String value) {
+    this.name = name;
+    this.value = value;
   }
 
   /**

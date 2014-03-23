@@ -252,7 +252,7 @@ public class InteractiveSpacesWorkbench {
     activityProjectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
-    confederacyCreator = new ConfederacyCreator(this, templater);
+    confederacyCreator = new ConfederacyCreator(this);
   }
 
   /**
@@ -865,6 +865,7 @@ public class InteractiveSpacesWorkbench {
     } else {
       getLog().error(message, e);
     }
+    throw new SimpleInteractiveSpacesException(message, e);
   }
 
   /**

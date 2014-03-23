@@ -213,11 +213,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
 
   /**
-   * Project definition file element name for a configuration item.
-   */
-  private static final String PROJECT_ELEMENT_NAME_TEMPLATE_ITEM = "template";
-
-  /**
    * Project definition file attribute name for the name of a configuration
    * item.
    */

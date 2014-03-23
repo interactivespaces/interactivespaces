@@ -18,11 +18,17 @@ package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +39,7 @@ import java.util.Map;
  */
 public abstract class BaseProjectTemplate implements ProjectTemplate {
 
+  public static final String TEMPLATE_VARIABLES_TMP = "template_variables.tmp";
   /**
    * The display name for the template.
    */
@@ -90,18 +97,50 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       FreemarkerTemplater templater, Map<String, Object> templateData) {
     Project project = spec.getProject();
 
-    Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
+    Map<String, Object> fullTemplateData = Maps.newTreeMap();
+    fullTemplateData.putAll(templateData);
 
     fileTemplates.addAll(project.getTemplates());
 
     onTemplateSetup(spec, templater, fullTemplateData);
 
-    createProjectStructure(project);
+    File variableDump = new File(project.getBaseDirectory(), TEMPLATE_VARIABLES_TMP);
+    dumpVariables(fullTemplateData, variableDump);
+    try {
+      for (TemplateVar templateVar : spec.getTemplateVars()) {
+        templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
+      }
 
-    writeTemplateList(spec, workbench, templater, fullTemplateData);
-    writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
-    writeCommonTemplates(spec, workbench, templater, fullTemplateData);
-    writeProjectXml(templater, spec, fullTemplateData);
+      createProjectStructure(project);
+
+      dumpVariables(fullTemplateData, variableDump);
+
+      writeTemplateList(spec, workbench, templater, fullTemplateData);
+      writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
+      writeCommonTemplates(spec, workbench, templater, fullTemplateData);
+      writeProjectXml(templater, spec, fullTemplateData);
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException("Template variables are in " + variableDump.getAbsolutePath(), e);
+    }
+
+    // Only delete this if everything is successful, let it remain on error.
+    //FileSupportImpl.INSTANCE.delete(variableDump);
+  }
+
+  private void dumpVariables(Map<String, Object> fullTemplateData, File variableDump) {
+    makeDirectory(variableDump.getParentFile());
+    PrintWriter variableWriter = null;
+    try {
+      variableWriter = new PrintWriter(variableDump);
+      for (Map.Entry<String, Object> entry : fullTemplateData.entrySet()) {
+        variableWriter.println(String.format("%s=%s", entry.getKey(), entry.getValue()));
+      }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(
+          "Error writing variable dump file " + variableDump.getAbsolutePath(), e);
+    } finally {
+      Closeables.closeQuietly(variableWriter);
+    }
   }
 
   /**
@@ -129,7 +168,7 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
    *           could not create directory
    */
   public void makeDirectory(File directory) throws InteractiveSpacesException {
-    if (!directory.mkdirs()) {
+    if (!directory.isDirectory() && !directory.mkdirs()) {
       throw new InteractiveSpacesException(String.format("Cannot create directory %s",
           directory.getAbsolutePath()));
     }
@@ -210,9 +249,9 @@ public abstract class BaseProjectTemplate implements ProjectTemplate {
       Map<String, Object> fullTemplateData) {
     for (TemplateFile template : fileTemplates) {
       Project project = spec.getProject();
-      String relativeOutPath = templater.processStringTemplate(fullTemplateData, template.getOutput());
+      String relativeOutPath = templater.processStringTemplate(fullTemplateData, template.getOutput(), null);
       File outFile = new File(project.getBaseDirectory(), relativeOutPath);
-      String relativeInPath = templater.processStringTemplate(fullTemplateData, template.getTemplate());
+      String relativeInPath = templater.processStringTemplate(fullTemplateData, template.getTemplate(), null);
       File specificationSource = project.getSpecificationSource();
       String absoluteInPath = new File(specificationSource.getParentFile(), relativeInPath).getAbsolutePath();
       templater.writeTemplate(fullTemplateData, outFile, absoluteInPath);

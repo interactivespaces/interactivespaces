@@ -17,8 +17,12 @@
 package interactivespaces.workbench.confederate;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.TemplateFile;
+import interactivespaces.workbench.project.TemplateVar;
+import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
@@ -28,24 +32,13 @@ import java.util.List;
 /**
  * @author Trevor Pering
  */
-public class JdomConfederacyReader {
+public class JdomConfederacyReader extends JdomReader {
 
   public static final String CONFEDERACY_ELEMENT_NAME = "confederacy";
-
 
   private static final String BASE_DIRECTORY_ELEMENT_NAME = "baseDirectory";
 
   private final PrototypeManager prototypeManager = new PrototypeManager();
-
-  /**
-   * Log for errors.
-   */
-  private final Log log;
-
-  /**
-   * {@code true} if read was successful.
-   */
-  private boolean failure;
 
   /**
    * Construct a project reader.
@@ -54,7 +47,7 @@ public class JdomConfederacyReader {
    *          the logger to use
    */
   public JdomConfederacyReader(Log log) {
-    this.log = log;
+    super(log);
   }
 
   public void processSpecification(Confederacy confederacy, Element rootElement) {
@@ -66,10 +59,6 @@ public class JdomConfederacyReader {
     List<Element> children = (List<Element>) rootElement.getChildren();
     for (Element child : children) {
       addElementToSpec(confederacy, child);
-    }
-
-    if (failure) {
-      throw new SimpleInteractiveSpacesException("Project had errors");
     }
   }
 
@@ -83,12 +72,22 @@ public class JdomConfederacyReader {
         addProjectElementToSpec(spec, child);
       } else if (PrototypeManager.PROTOTYPE_ELEMENT_NAME.equals(name)) {
         addPrototypeElementToSpec(spec, child);
+      } else if (TemplateFile.ELEMENT_NAME.equals(name)) {
+        spec.addTemplateFile(ProjectTemplateConstituent.getTemplateFileFromElement(child));
+      } else if (TemplateVar.ELEMENT_NAME.equals(name)) {
+        addTemplateVarToSpec(spec, child);
       } else {
         throw new SimpleInteractiveSpacesException("Unrecognized element");
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("While processing confederacy element: " + name, e);
     }
+  }
+
+  private void addTemplateVarToSpec(Confederacy spec, Element child) {
+    String name = getRequiredAttributeValue(child, TemplateVar.NAME_KEY);
+    String value = getRequiredAttributeValue(child, TemplateVar.VALUE_KEY);
+    spec.addTemplateVar(new TemplateVar(name, value));
   }
 
   private void addPrototypeElementToSpec(Confederacy spec, Element child) {
@@ -103,16 +102,5 @@ public class JdomConfederacyReader {
     project.setBaseDirectory(new File(spec.getBaseDirectory(), project.getIdentifyingName()));
     project.setSpecificationSource(spec.getSpecificationSource());
     spec.addProject(project);
-  }
-
-  /**
-   * An error has occurred.
-   *
-   * @param error
-   *          text of the error message
-   */
-  private void addError(String error) {
-    log.error(error);
-    failure = true;
   }
 }

@@ -87,7 +87,7 @@ public class ActivityProject extends Project {
   /**
    * Configuration properies for the activity.
    */
-  private List<ProjectConfigurationProperty> configurationProperties;
+  private final List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
 
   /**
    * Get the type of the activity.
@@ -275,11 +275,11 @@ public class ActivityProject extends Project {
   /**
    * Set the configuration properties for the activity.
    *
-   * @param configurationProperties
+   * @param addConfigurationProperties
    *          the configuration properties for the activity
    */
-  public void setConfigurationProperties(List<ProjectConfigurationProperty> configurationProperties) {
-    this.configurationProperties = configurationProperties;
+  public void addConfigurationProperties(List<ProjectConfigurationProperty> addConfigurationProperties) {
+    configurationProperties.addAll(addConfigurationProperties);
   }
 
   /**
@@ -289,9 +289,6 @@ public class ActivityProject extends Project {
    *          the configuration property for the activity
    */
   public void addConfigurationProperty(ProjectConfigurationProperty configurationProperty) {
-    if (configurationProperties == null) {
-      configurationProperties = Lists.newArrayList();
-    }
     configurationProperties.add(configurationProperty);
   }
 }
