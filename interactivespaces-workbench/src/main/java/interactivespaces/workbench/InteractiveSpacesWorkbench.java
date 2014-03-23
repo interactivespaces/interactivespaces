@@ -560,25 +560,26 @@ public class InteractiveSpacesWorkbench {
    *          the commands to run
    */
   public void doCommands(List<String> commands) {
-    String command = commands.remove(0);
+    String command = removeArgument(commands, "command");
 
     if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating from template...");
       createFromSpecification(commands);
     } else if (COMMAND_OSGI.equals(command)) {
-      createOsgi(commands.remove(0));
+      createOsgi(removeArgument(commands, "osgi file"));
     } else {
       File baseDir = new File(command);
       if (projectManager.isProjectFolder(baseDir)) {
         doCommandsOnProject(baseDir, commands);
+      } else if (commands.isEmpty()) {
+        throw new SimpleInteractiveSpacesException(
+            String.format("%s is not a project directory", baseDir.getAbsolutePath()));
       } else {
-        if (!commands.isEmpty() && COMMAND_RECURSIVE.equals(commands.get(0))) {
-          commands.remove(0);
-
+        String commandModifier = removeArgument(commands, "command modifier");
+        if (!COMMAND_RECURSIVE.equals(commandModifier)) {
           doCommandsOnTree(baseDir, commands);
         } else {
-          throw new SimpleInteractiveSpacesException(String.format("%s is not a project directory",
-              baseDir.getAbsolutePath()));
+          throw new SimpleInteractiveSpacesException("Unknown command modifier " + commandModifier);
         }
       }
     }
@@ -651,39 +652,51 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void createFromSpecification(List<String> commands) {
-    String specPath = commands.remove(0);
+    File specFile = new File(removeArgument(commands, "specification file"));
+    File baseDirectory = new File(removeArgument(commands, "base output directory"));
     try {
-      File specFile = new File(specPath);
       Element rootElement = JdomReader.getRootElement(specFile);
       String type = rootElement.getName();
       if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
-        createConfederacyFromElement(rootElement, specFile);
+        createConfederacyFromElement(rootElement, specFile, baseDirectory);
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(type)) {
-        createProjectFromElement(rootElement);
+        createProjectFromElement(rootElement, baseDirectory);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While processing specification file " + specPath, e);
+      throw new SimpleInteractiveSpacesException(
+          "While processing specification file " + specFile.getAbsolutePath(), e);
     }
   }
 
-  private void createConfederacyFromElement(Element rootElement, File specFile) {
+  private String removeArgument(List<String> commands, String description) {
+    if (commands.size() <= 0) {
+      throw new SimpleInteractiveSpacesException("Missing argument " + description);
+    }
+    return commands.remove(0);
+  }
+
+  private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
     JdomConfederacyReader confederacyReader = new JdomConfederacyReader(log);
     Confederacy confederacy = new Confederacy();
     confederacy.setSpecificationSource(specFile);
+    confederacy.setBaseDirectory(baseDirectory);
     confederacyReader.processSpecification(confederacy, rootElement);
     confederacyCreator.create(confederacy);
   }
 
-  private void createProjectFromElement(Element rootElement) {
+  private void createProjectFromElement(Element rootElement, File baseDirectory) {
     JdomProjectReader projectReader = new JdomProjectReader(log);
+
     Project project = projectReader.processSpecification(rootElement);
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
+    project.setBaseDirectory(baseDirectory);
 
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
     spec.setLanguage(BaseNativeActivityProjectTemplate.LANGUAGE);
+
     activityProjectCreator.createProject(spec);
   }
 
@@ -752,7 +765,7 @@ public class InteractiveSpacesWorkbench {
 
     boolean noErrors = true;
     while (!commands.isEmpty() && noErrors) {
-      String command = commands.remove(0);
+      String command = removeArgument(commands, "workbench command");
 
       if (COMMAND_BUILD.equals(command)) {
         System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
@@ -765,10 +778,10 @@ public class InteractiveSpacesWorkbench {
         noErrors = generateDocs(project);
       } else if (COMMAND_IDE.equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = generateIdeActivityProject(project, commands.remove(0));
+        noErrors = generateIdeActivityProject(project, removeArgument(commands, "ide type"));
       } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = deployProject(project, commands.remove(0));
+        noErrors = deployProject(project, removeArgument(commands, "deployment type"));
       }
     }
   }
