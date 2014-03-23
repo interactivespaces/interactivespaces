@@ -23,6 +23,8 @@ package interactivespaces.workbench.project;
  */
 public class TemplateFile {
 
+  public static final String GROUP_ELEMENT_NAME = "templates";
+
   public static final String ELEMENT_NAME = "template";
 
   /**

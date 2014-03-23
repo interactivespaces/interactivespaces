@@ -83,6 +83,9 @@ public class ProjectTemplateConstituent extends ContainerConstituent {
   }
 
   public static TemplateFile getTemplateFileFromElement(Element element) {
+    if (!TemplateFile.ELEMENT_NAME.equals(element.getName())) {
+      throw new SimpleInteractiveSpacesException("Bad element name " + element.getName());
+    }
     TemplateFile templateFile = new TemplateFile();
 
     String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);

@@ -36,8 +36,6 @@ public class JdomConfederacyReader extends JdomReader {
 
   public static final String CONFEDERACY_ELEMENT_NAME = "confederacy";
 
-  private static final String BASE_DIRECTORY_ELEMENT_NAME = "baseDirectory";
-
   private final PrototypeManager prototypeManager = new PrototypeManager();
 
   /**
@@ -66,16 +64,14 @@ public class JdomConfederacyReader extends JdomReader {
     String name = child.getName();
 
     try {
-      if (BASE_DIRECTORY_ELEMENT_NAME.equals(name)) {
-        spec.setBaseDirectory(new File(child.getTextTrim()));
-      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(name)) {
-        addProjectElementToSpec(spec, child);
+      if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(name)) {
+        addProjectElement(spec, child);
       } else if (PrototypeManager.PROTOTYPE_ELEMENT_NAME.equals(name)) {
-        addPrototypeElementToSpec(spec, child);
-      } else if (TemplateFile.ELEMENT_NAME.equals(name)) {
-        spec.addTemplateFile(ProjectTemplateConstituent.getTemplateFileFromElement(child));
-      } else if (TemplateVar.ELEMENT_NAME.equals(name)) {
-        addTemplateVarToSpec(spec, child);
+        addPrototypeElement(spec, child);
+      } else if (TemplateFile.GROUP_ELEMENT_NAME.equals(name)) {
+        addTemplateFileGroup(spec, child);
+      } else if (TemplateVar.GROUP_ELEMENT_NAME.equals(name)) {
+        addVarGroup(spec, child);
       } else {
         throw new SimpleInteractiveSpacesException("Unrecognized element");
       }
@@ -84,20 +80,36 @@ public class JdomConfederacyReader extends JdomReader {
     }
   }
 
+  private void addVarGroup(Confederacy spec, Element group) {
+    @SuppressWarnings("unchecked")
+    List<Element> children = (List<Element>) group.getChildren();
+    for (Element entry : children) {
+      addTemplateVarToSpec(spec, entry);
+    }
+  }
+
+  private void addTemplateFileGroup(Confederacy spec, Element group) {
+    @SuppressWarnings("unchecked")
+    List<Element> children = (List<Element>) group.getChildren();
+    for (Element entry : children) {
+      spec.addTemplateFile(ProjectTemplateConstituent.getTemplateFileFromElement(entry));
+    }
+  }
+
   private void addTemplateVarToSpec(Confederacy spec, Element child) {
+    if (!TemplateVar.ELEMENT_NAME.equals(child.getName())) {
+      throw new SimpleInteractiveSpacesException("Bad element name " + child.getName());
+    }
     String name = getRequiredAttributeValue(child, TemplateVar.NAME_KEY);
     String value = getRequiredAttributeValue(child, TemplateVar.VALUE_KEY);
     spec.addTemplateVar(new TemplateVar(name, value));
   }
 
-  private void addPrototypeElementToSpec(Confederacy spec, Element child) {
+  private void addPrototypeElement(Confederacy spec, Element child) {
     prototypeManager.addPrototypeElement(child);
   }
 
-  private void addProjectElementToSpec(Confederacy spec, Element child) {
-    if (spec.getBaseDirectory() == null) {
-      throw new SimpleInteractiveSpacesException("Confederacy base directory not defined before projects");
-    }
+  private void addProjectElement(Confederacy spec, Element child) {
     Project project = new JdomProjectReader(log, prototypeManager).processSpecification(child);
     project.setSpecificationSource(spec.getSpecificationSource());
     project.setBaseDirectory(new File("."));
