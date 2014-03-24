@@ -20,13 +20,6 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
-import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
-import interactivespaces.workbench.project.assembly.AssemblyProject;
-import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
-import interactivespaces.workbench.project.library.LibraryProject;
-import interactivespaces.workbench.project.library.LibraryProjectTemplate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,11 +56,6 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public List<ProjectTemplate> getProjectTemplates() {
-    return BaseActivityProjectTemplate.getProjectTemplates();
-  }
-
-  @Override
   public void createProject(ProjectCreationSpecification spec) {
     try {
       // Create the templateData hash
@@ -92,7 +80,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
    */
   private void writeProjectTemplate(ProjectCreationSpecification spec,
       Map<String, Object> templateData) {
-    ProjectTemplate template = new BaseNativeActivityProjectTemplate();
+    ProjectTemplate template = new ActivityProjectTemplate();
     writeProjectTemplate(template, spec, templateData);
   }
 

@@ -24,7 +24,6 @@ import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.TemplateFile;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
-import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 
 import java.io.File;
 import java.util.Map;

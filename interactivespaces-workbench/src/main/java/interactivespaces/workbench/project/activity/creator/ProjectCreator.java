@@ -29,13 +29,6 @@ import java.util.List;
 public interface ProjectCreator {
 
   /**
-   * Get all activity project templates.
-   *
-   * @return the templates ordered by their display name.
-   */
-  List<ProjectTemplate> getProjectTemplates();
-
-  /**
    * Create an activity project.
    *
    * @param spec
