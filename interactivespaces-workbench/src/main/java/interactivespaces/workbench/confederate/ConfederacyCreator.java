@@ -87,14 +87,6 @@ public class ConfederacyCreator {
     templateData.put("baseDirectory", spec.getBaseDirectory());
     template.addAllFileTemplate(spec.getTemplateFiles());
     template.process(creator, workbench, templater, templateData);
-
-    // TODO(peringknife): Need to add the spec template vars here
-    //for (TemplateFile templateFile : spec.getTemplateFiles()) {
-    //  File outputFile = new File(spec.getBaseDirectory(), templateFile.getOutput());
-    //  File sourceTemplateDirectory = spec.getSpecificationSource().getParentFile();
-    //  String source = new File(sourceTemplateDirectory, templateFile.getTemplate()).getAbsolutePath();
-    //  templater.writeTemplate(templateData, outputFile, source);
-    //}
   }
 
   private void createProject(Project project, Confederacy confederacy) {
