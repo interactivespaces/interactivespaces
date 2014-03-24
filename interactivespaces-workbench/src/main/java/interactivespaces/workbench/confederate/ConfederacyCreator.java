@@ -19,6 +19,8 @@ package interactivespaces.workbench.confederate;
 import com.google.common.collect.Maps;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.BaseTemplate;
+import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.TemplateFile;
@@ -74,16 +76,25 @@ public class ConfederacyCreator {
   }
 
   private void writeConfederacyTemplates(Confederacy spec) {
-    // TODO(peringknife): Need to make a generic version of the BaseProjectTemplate (extract base class).
+
+    CreationSpecification creator = new CreationSpecification();
+    creator.addAllTemplateVars(spec.getTemplateVars());
+    creator.setBaseDirectory(spec.getBaseDirectory());
+    creator.setSpecification(spec.getSpecificationSource());
+
+    BaseTemplate template = new BaseTemplate("Confederacy Writer");
     Map<String, Object> templateData = Maps.newHashMap();
     templateData.put("baseDirectory", spec.getBaseDirectory());
+    template.addAllFileTemplate(spec.getTemplateFiles());
+    template.process(creator, workbench, templater, templateData);
+
     // TODO(peringknife): Need to add the spec template vars here
-    for (TemplateFile templateFile : spec.getTemplateFiles()) {
-      File outputFile = new File(spec.getBaseDirectory(), templateFile.getOutput());
-      File sourceTemplateDirectory = spec.getSpecificationSource().getParentFile();
-      String source = new File(sourceTemplateDirectory, templateFile.getTemplate()).getAbsolutePath();
-      templater.writeTemplate(templateData, outputFile, source);
-    }
+    //for (TemplateFile templateFile : spec.getTemplateFiles()) {
+    //  File outputFile = new File(spec.getBaseDirectory(), templateFile.getOutput());
+    //  File sourceTemplateDirectory = spec.getSpecificationSource().getParentFile();
+    //  String source = new File(sourceTemplateDirectory, templateFile.getTemplate()).getAbsolutePath();
+    //  templater.writeTemplate(templateData, outputFile, source);
+    //}
   }
 
   private void createProject(Project project, Confederacy confederacy) {
@@ -91,7 +102,8 @@ public class ConfederacyCreator {
     spec.setProject(project);
     spec.setLanguage(project.getBuilderType());
     spec.addAllTemplateVars(confederacy.getTemplateVars());
-    spec.setConfederacyDirectory(confederacy.getBaseDirectory());
+    spec.setBaseDirectory(confederacy.getBaseDirectory());
+    spec.setSpecification(confederacy.getSpecificationSource());
     projectCreator.createProject(spec);
   }
 }

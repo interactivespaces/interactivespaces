@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class ProjectCreationSpecification {
+public class ProjectCreationSpecification extends CreationSpecification {
 
   /**
    * The language for the project.
@@ -34,18 +34,9 @@ public class ProjectCreationSpecification {
   private String language;
 
   /**
-   * The template for the project.
-   */
-  private File specification;
-
-  private File confederacyDirectory;
-
-  /**
    * The project itself.
    */
   private Project project;
-
-  private final List<TemplateVar> templateVars = Lists.newArrayList();
 
   /**
    * Get the programming language for the project.
@@ -64,25 +55,6 @@ public class ProjectCreationSpecification {
    */
   public void setLanguage(String language) {
     this.language = language;
-  }
-
-  /**
-   * Get the project template.
-   *
-   * @return the template
-   */
-  public File getSpecification() {
-    return specification;
-  }
-
-  /**
-   * Set the project template.
-   *
-   * @param specification
-   *          the template to set
-   */
-  public void setSpecification(File specification) {
-    this.specification = specification;
   }
 
   /**
@@ -108,19 +80,4 @@ public class ProjectCreationSpecification {
     this.project = project;
   }
 
-  public void addAllTemplateVars(List<TemplateVar> addTemplateVars) {
-    templateVars.addAll(addTemplateVars);
-  }
-
-  public List<TemplateVar> getTemplateVars() {
-    return templateVars;
-  }
-
-  public File getConfederacyDirectory() {
-    return confederacyDirectory;
-  }
-
-  public void setConfederacyDirectory(File confederacyDirectory) {
-    this.confederacyDirectory = confederacyDirectory;
-  }
 }

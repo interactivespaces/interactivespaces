@@ -50,6 +50,6 @@ public interface ProjectTemplate {
    * @param templateData
    *          the template data to use
    */
-  void process(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
+  void process(CreationSpecification spec, InteractiveSpacesWorkbench workbench,
       FreemarkerTemplater templater, Map<String, Object> templateData);
 }
