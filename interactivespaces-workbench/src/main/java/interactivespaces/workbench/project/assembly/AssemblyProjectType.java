@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project.assembly;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -38,11 +37,6 @@ public class AssemblyProjectType implements ProjectType {
   @Override
   public ProjectBuilder newBuilder() {
     return new AssemblyProjectBuilder();
-  }
-
-  @Override
-  public ProjectTemplate newProjectTemplate() {
-    return new AssemblyProjectTemplate();
   }
 
   @Override

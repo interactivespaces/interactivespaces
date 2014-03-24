@@ -16,17 +16,14 @@
 
 package interactivespaces.workbench.project.activity.type.android;
 
+import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
-
-import com.google.common.collect.Lists;
-import interactivespaces.workbench.project.activity.template.GenericAndroidActivityProjectTemplate;
 
 /**
  * An Android activity project type.
@@ -53,11 +50,6 @@ public class AndroidActivityProjectType extends JavaProjectType {
   @Override
   public ProjectBuilder newBuilder() {
     return new JavaActivityProjectBuilder(extension);
-  }
-
-  @Override
-  public ProjectTemplate newProjectTemplate() {
-    return new GenericAndroidActivityProjectTemplate();
   }
 
   @Override

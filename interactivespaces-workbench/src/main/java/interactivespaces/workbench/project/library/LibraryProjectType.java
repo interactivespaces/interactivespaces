@@ -43,11 +43,6 @@ public class LibraryProjectType extends JavaProjectType {
   }
 
   @Override
-  public ProjectTemplate newProjectTemplate() {
-    return new LibraryProjectTemplate();
-  }
-
-  @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
     return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(JavaProjectType.SOURCE_MAIN_JAVA),
         Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS));

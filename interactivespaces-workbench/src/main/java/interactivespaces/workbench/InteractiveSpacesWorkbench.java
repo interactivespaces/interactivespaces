@@ -49,7 +49,6 @@ import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackager;
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
-import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
@@ -695,7 +694,6 @@ public class InteractiveSpacesWorkbench {
 
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
-    spec.setLanguage(BaseNativeActivityProjectTemplate.LANGUAGE);
 
     activityProjectCreator.createProject(spec);
   }

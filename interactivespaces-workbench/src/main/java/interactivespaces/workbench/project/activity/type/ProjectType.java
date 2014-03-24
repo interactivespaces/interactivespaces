@@ -54,13 +54,6 @@ public interface ProjectType {
   ProjectBuilder newBuilder();
 
   /**
-   * Get a new project template for the project type.
-   *
-   * @return a project template
-   */
-  ProjectTemplate newProjectTemplate();
-
-  /**
    * Get the specification for Eclipse project building.
    *
    * @return the specification for Eclipse project building
