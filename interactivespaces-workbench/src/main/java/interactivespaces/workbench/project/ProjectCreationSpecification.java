@@ -36,7 +36,7 @@ public class ProjectCreationSpecification {
   /**
    * The template for the project.
    */
-  private ProjectTemplate template;
+  private File specification;
 
   private File confederacyDirectory;
 
@@ -71,18 +71,18 @@ public class ProjectCreationSpecification {
    *
    * @return the template
    */
-  public ProjectTemplate getTemplate() {
-    return template;
+  public File getSpecification() {
+    return specification;
   }
 
   /**
    * Set the project template.
    *
-   * @param template
+   * @param specification
    *          the template to set
    */
-  public void setTemplate(ProjectTemplate template) {
-    this.template = template;
+  public void setSpecification(File specification) {
+    this.specification = specification;
   }
 
   /**

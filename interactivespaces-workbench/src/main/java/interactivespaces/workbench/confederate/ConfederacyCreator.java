@@ -91,7 +91,6 @@ public class ConfederacyCreator {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
     spec.setLanguage(project.getBuilderType());
-    spec.setTemplate(new BaseNativeActivityProjectTemplate());
     spec.addAllTemplateVars(confederacy.getTemplateVars());
     spec.setConfederacyDirectory(confederacy.getBaseDirectory());
     projectCreator.createProject(spec);

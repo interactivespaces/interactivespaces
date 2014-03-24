@@ -57,7 +57,6 @@ public class ProjectDescriptionWizard extends SingleComponentWizard {
    * @return the project
    */
   public Project getProject() {
-    panel.syncProjectDescription();
     return panel.getProjectDescription();
   }
 

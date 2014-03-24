@@ -22,6 +22,7 @@ import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.template.BaseActivityProjectTemplate;
+import interactivespaces.workbench.project.activity.template.BaseNativeActivityProjectTemplate;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectTemplate;
 import interactivespaces.workbench.project.library.LibraryProject;
@@ -91,19 +92,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
    */
   private void writeProjectTemplate(ProjectCreationSpecification spec,
       Map<String, Object> templateData) {
-    ProjectTemplate template = spec.getTemplate();
-    if (template == null) {
-      String projectType = spec.getProject().getType();
-
-      if (ActivityProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = BaseActivityProjectTemplate.getActivityProjectTemplateByLanguage(spec.getLanguage());
-      } else if (LibraryProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = new LibraryProjectTemplate();
-      } else if (AssemblyProject.PROJECT_TYPE_NAME.equals(projectType)) {
-        template = new AssemblyProjectTemplate();
-      }
-    }
-
+    ProjectTemplate template = new BaseNativeActivityProjectTemplate();
     writeProjectTemplate(template, spec, templateData);
   }
 
