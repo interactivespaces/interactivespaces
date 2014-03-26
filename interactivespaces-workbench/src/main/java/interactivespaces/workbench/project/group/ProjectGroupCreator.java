@@ -63,7 +63,7 @@ public class ProjectGroupCreator {
         projectCreator.instantiate(makeCreationSpecification(spec, project));
       }
     } catch (Exception e) {
-      workbench.handleError("Error while creating confederacy", e);
+      workbench.handleError("Error while creating projectGroup", e);
     }
   }
 

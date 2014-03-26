@@ -1,4 +1,4 @@
-<confederacy>
+<projectGroup>
 
   <prototypes>
     <prototype prototypeName="commonVars">
@@ -89,4 +89,4 @@
       </templates>
     </project>
   </projects>
-</confederacy>
+</projectGroup>

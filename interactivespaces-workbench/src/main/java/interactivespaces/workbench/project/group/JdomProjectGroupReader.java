@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class JdomProjectGroupReader extends JdomReader {
 
-  public static final String PROJECT_GROUP_ELEMENT_NAME = "confederacy";
+  public static final String PROJECT_GROUP_ELEMENT_NAME = "projectGroup";
 
   private final PrototypeManager prototypeManager = new PrototypeManager();
 
@@ -68,7 +68,7 @@ public class JdomProjectGroupReader extends JdomReader {
         throw new SimpleInteractiveSpacesException("Unrecognized element");
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While processing confederacy element: " + name, e);
+      throw new SimpleInteractiveSpacesException("While processing projectGroup element: " + name, e);
     }
   }
 

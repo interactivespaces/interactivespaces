@@ -677,11 +677,11 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
-    JdomProjectGroupReader confederacyReader = new JdomProjectGroupReader(log);
+    JdomProjectGroupReader projectGroupReader = new JdomProjectGroupReader(log);
     ProjectGroup projectGroup = new ProjectGroup();
     projectGroup.setSpecificationSource(specFile);
     projectGroup.setBaseDirectory(baseDirectory);
-    confederacyReader.processSpecification(projectGroup, rootElement);
+    projectGroupReader.processSpecification(projectGroup, rootElement);
     projectGroupCreator.create(projectGroup);
   }
 
