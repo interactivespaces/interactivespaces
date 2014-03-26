@@ -16,12 +16,15 @@
 
 package interactivespaces.workbench.project.library;
 
-import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
+
+import com.google.common.collect.Lists;
 
 /**
  * A project type for library projects.
@@ -31,6 +34,11 @@ import interactivespaces.workbench.project.java.JavaProjectType;
 public class LibraryProjectType extends JavaProjectType {
 
   @Override
+  public String getProjectTypeName() {
+    return LibraryProject.PROJECT_TYPE_NAME;
+  }
+
+  @Override
   public boolean isProperType(Project project) {
     return LibraryProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
@@ -38,6 +46,11 @@ public class LibraryProjectType extends JavaProjectType {
   @Override
   public ProjectBuilder newBuilder() {
     return new JavaLibraryProjectBuilder();
+  }
+
+  @Override
+  public ProjectTemplate newProjectTemplate() {
+    return new BaseProjectTemplate();
   }
 
   @Override

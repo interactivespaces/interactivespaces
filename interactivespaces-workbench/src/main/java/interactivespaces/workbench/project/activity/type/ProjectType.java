@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 
@@ -36,6 +37,11 @@ public interface ProjectType {
   String SOURCE_MAIN_RESOURCES = "src/main/resources";
 
   /**
+   * Get the project type name for this project types.
+   */
+  String getProjectTypeName();
+
+  /**
    * Can this project type handle the given project?
    *
    * @param project
@@ -51,6 +57,13 @@ public interface ProjectType {
    * @return an activity builder
    */
   ProjectBuilder newBuilder();
+
+  /**
+   * Get a new project template for the project type.
+   *
+   * @return a project template
+   */
+  ProjectTemplate newProjectTemplate();
 
   /**
    * Get the specification for Eclipse project building.

@@ -18,6 +18,7 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.activity.type.ProjectType;
 
 /**
  * A {@link ProjectCreator} implementation.
@@ -52,7 +53,8 @@ public class ProjectCreatorImpl implements ProjectCreator {
   @Override
   public void instantiate(ProjectCreationSpecification spec) {
     try {
-      ProjectTemplate projectTemplate = spec.getProject().newProjectTemplate();
+      ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(spec.getProject());
+      ProjectTemplate projectTemplate = projectType.newProjectTemplate();
       projectTemplate.setTemplater(templater);
       projectTemplate.process(spec);
 

@@ -82,7 +82,10 @@ public class JdomProjectGroupReader extends JdomReader {
   private void addProjects(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
-      Project project = new JdomProjectReader(log, prototypeManager).processSpecification(entry);
+      JdomProjectReader projectReader = new JdomProjectReader(log);
+      projectReader.setWorkbench(getWorkbench());
+      projectReader.setPrototypeManager(prototypeManager);
+      Project project = projectReader.processSpecification(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
       project.setBaseDirectory(new File("."));
       spec.addProject(project);

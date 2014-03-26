@@ -23,6 +23,7 @@ import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 

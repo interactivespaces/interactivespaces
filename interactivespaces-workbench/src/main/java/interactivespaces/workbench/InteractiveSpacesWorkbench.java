@@ -31,6 +31,7 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.group.ProjectGroup;
 import interactivespaces.workbench.project.group.JdomProjectGroupReader;
 import interactivespaces.workbench.project.group.ProjectGroupCreator;
@@ -51,7 +52,6 @@ import interactivespaces.workbench.project.activity.packager.ActivityProjectPack
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
-import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
@@ -247,7 +247,7 @@ public class InteractiveSpacesWorkbench {
     this.templater = new FreemarkerTemplater();
     templater.initialize();
 
-    projectTypeRegistry = new SimpleProjectTypeRegistery();
+    projectTypeRegistry = new SimpleProjectTypeRegistry();
     activityProjectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
@@ -677,16 +677,20 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
-    JdomProjectGroupReader projectGroupReader = new JdomProjectGroupReader(log);
     ProjectGroup projectGroup = new ProjectGroup();
     projectGroup.setSpecificationSource(specFile);
     projectGroup.setBaseDirectory(baseDirectory);
+
+    JdomProjectGroupReader projectGroupReader = new JdomProjectGroupReader(log);
+    projectGroupReader.setWorkbench(this);
     projectGroupReader.processSpecification(projectGroup, rootElement);
+
     projectGroupCreator.create(projectGroup);
   }
 
   private void createProjectFromElement(Element rootElement, File baseDirectory) {
     JdomProjectReader projectReader = new JdomProjectReader(log);
+    projectReader.setWorkbench(this);
 
     Project project = projectReader.processSpecification(rootElement);
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
@@ -870,6 +874,10 @@ public class InteractiveSpacesWorkbench {
    */
   public void handleError(String message, Exception e) {
     throw new SimpleInteractiveSpacesException(message, e);
+  }
+
+  public ProjectTypeRegistry getProjectTypeRegistry() {
+    return projectTypeRegistry;
   }
 
   /**

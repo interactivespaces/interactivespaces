@@ -21,6 +21,10 @@ public abstract class JdomReader {
    * Log for errors.
    */
   protected final Log log;
+
+  private InteractiveSpacesWorkbench workbench;
+
+
   /**
    * {@code true} if read was successful.
    */
@@ -141,6 +145,14 @@ public abstract class JdomReader {
   @SuppressWarnings("unchecked")
   protected List<Element> getChildren(Element element) {
     return element.getChildren();
+  }
+
+  public InteractiveSpacesWorkbench getWorkbench() {
+    return workbench;
+  }
+
+  public void setWorkbench(InteractiveSpacesWorkbench workbench) {
+    this.workbench = workbench;
   }
 
   /**

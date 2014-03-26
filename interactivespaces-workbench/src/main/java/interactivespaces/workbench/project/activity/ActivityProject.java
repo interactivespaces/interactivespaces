@@ -265,9 +265,4 @@ public class ActivityProject extends Project {
   public void addConfigurationProperty(ProjectConfigurationProperty configurationProperty) {
     configurationProperties.add(configurationProperty);
   }
-
-  @Override
-  public ProjectTemplate newProjectTemplate() {
-    return new ActivityProjectTemplate();
-  }
 }

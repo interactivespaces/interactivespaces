@@ -22,6 +22,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
@@ -225,21 +226,17 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
-  private final PrototypeManager prototypeManager;
+  private PrototypeManager prototypeManager;
 
   /**
    * Construct a project reader.
    *
    * @param log
    *          the logger to use
+   *
    */
   public JdomProjectReader(Log log) {
-    this(log, new PrototypeManager());
-  }
-
-  public JdomProjectReader(Log log, PrototypeManager prototypeManager) {
     super(log);
-    this.prototypeManager = prototypeManager;
   }
 
   @Override
@@ -256,11 +253,13 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     String projectType = getProjectType(projectElement);
-    Project project = ProjectFactory.newProject(projectType);
+    Project project = getWorkbench().getProjectTypeRegistry().newProject(projectType);
 
-    List<Element> prototypeChain = prototypeManager.getPrototypeChain(projectElement);
-    for (Element prototype : prototypeChain) {
-      configureProjectFromElement(project, prototype);
+    if (prototypeManager != null) {
+      List<Element> prototypeChain = prototypeManager.getPrototypeChain(projectElement);
+      for (Element prototype : prototypeChain) {
+        configureProjectFromElement(project, prototype);
+      }
     }
     configureProjectFromElement(project, projectElement);
 
@@ -612,5 +611,14 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     return new ProjectDeployment(type, method, location);
   }
+
+  public PrototypeManager getPrototypeManager() {
+    return prototypeManager;
+  }
+
+  public void setPrototypeManager(PrototypeManager prototypeManager) {
+    this.prototypeManager = prototypeManager;
+  }
+
 
 }

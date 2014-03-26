@@ -29,15 +29,6 @@ import java.io.File;
  */
 public class ActivityProjectTemplate extends BaseProjectTemplate {
 
-  /**
-   * Construct the template.
-   *
-   *
-   */
-  public ActivityProjectTemplate() {
-    super();
-  }
-
   @Override
   protected void onTemplateSetup(ProjectCreationSpecification spec) {
     spec.addTemplateDataEntry("activity", spec.getProject());
