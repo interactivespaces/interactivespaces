@@ -245,7 +245,7 @@ public class InteractiveSpacesWorkbench {
         .getAbsolutePath());
 
     this.templater = new FreemarkerTemplater();
-    templater.startup();
+    templater.initialize();
 
     projectTypeRegistry = new SimpleProjectTypeRegistery();
     activityProjectCreator = new ProjectCreatorImpl(this, templater);

@@ -1,0 +1,92 @@
+<confederacy>
+
+  <prototypes>
+    <prototype prototypeName="commonVars">
+      <templateVars>
+        <var name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
+        <var name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
+        <var name="groupPackage" value="${groupName?replace('.', '/')}" />
+        <var name="origBaseDirectory" value="${baseDirectory}" />
+      </templateVars>
+    </prototype>
+
+    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
+      <templateVars>
+        <var name="shard" value="${project.getAttribute('shard')}" />
+        <var name="idName" value="${groupName}.${shard}" />
+        <var name="package" value="${groupName}.${shard}" />
+        <var name="packagePath" value="${package?replace('.', '/')}" />
+        <var name="baseDirectory" value="${baseDirectory}/${idName}" />
+        <var name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <var name="javaClassName" value="${fullName?replace(' ', '')}" />
+        <var name="webAppFileBase" value="${idName?replace('.', '-')}" />
+        <var name="webSrcDir" value="${activity.getActivityResourceDirectory()}/webapp" />
+        <var name="javaSrcDir" value="${activity.getActivitySourceDirectory()}" />
+      </templateVars>
+
+      <version>0.0.1</version>
+      <name>${fullName}</name>
+      <identifyingName>${idName}</identifyingName>
+      <description>Auto-generated activity for ${fullName}</description>
+    </prototype>
+
+    <prototype prototypeName="projectPrototype" inheritsFrom="baseProject" builder="java">
+      <activity type="interactivespaces_native">
+        <name>${fullName}</name>
+        <class>${package}.${javaClassName}</class>
+        <configuration>
+          <property name="space.activity.log.level" value="info" required="false" />
+          <property name="space.activity.enable.display" value="true" required="true" />
+        </configuration>
+      </activity>
+      <templates>
+        <template destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+      </templates>
+    </prototype>
+  </prototypes>
+
+  <projects>
+    <project inheritsFrom="commonVars" type="blank">
+      <templates>
+        <template destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
+      </templates>
+    </project>
+
+    <project shard="display" inheritsFrom="projectPrototype" type="activity">
+      <templates>
+        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
+        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
+        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
+        <template destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="activity.java.ftl" />
+      </templates>
+    </project>
+
+    <project shard="admin" inheritsFrom="projectPrototype" type="activity">
+      <sources>
+        <source sourceDirectory="${'$'}{repo.cec}/resources/activity/configured/src/main/java/" />
+      </sources>
+
+      <resources>
+        <assembly packFormat="zip" sourceFile="${'$'}{repo.cec.lib}/cec.javascript.common-1.3.3.zip" />
+        <resource sourceDirectory="${'$'}{repo.cec}/resources/fonts/OpenSans/" destinationDirectory="webapp/fonts/OpenSans/" />
+      </resources>
+
+      <dependencies>
+        <dependency name="com.google.support" minimumVersion="1.3.3" maximumVersion="1.4.0" required="true" />
+      </dependencies>
+
+      <activity>
+        <configuration>
+          <property name="space.activity.webapp.url.initial" value="index.html"/>
+          <property name="space.activity.webapp.content.location" value="webapp" description="Content location" />
+        </configuration>
+      </activity>
+
+      <templates>
+        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
+        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
+        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
+      </templates>
+    </project>
+  </projects>
+</confederacy>

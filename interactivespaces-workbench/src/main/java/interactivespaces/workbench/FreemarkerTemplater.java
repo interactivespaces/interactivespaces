@@ -62,9 +62,9 @@ public class FreemarkerTemplater {
   private int evaluationPasses = 1;
 
   /**
-   * Start the templater up.
+   * Initialize the templater.
    */
-  public void startup() {
+  public void initialize() {
     try {
       freemarkerConfig = new Configuration();
       freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);

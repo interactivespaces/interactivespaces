@@ -52,8 +52,8 @@ public class ConfederacyCreator {
   public ConfederacyCreator(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
     templater = new FreemarkerTemplater();
-    templater.startup();
     templater.setEvaluationPasses(2);
+    templater.initialize();
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
