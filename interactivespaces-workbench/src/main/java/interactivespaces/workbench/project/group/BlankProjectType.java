@@ -44,7 +44,7 @@ public class BlankProjectType implements ProjectType {
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new AssemblyProjectBuilder();
+    return new BlankProjectBuilder();
   }
 
   @Override
