@@ -18,6 +18,7 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.group.BlankProject;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
@@ -32,7 +33,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public final class ProjectTypes {
+public final class ProjectFactory {
 
   /**
    * The map of project types.
@@ -47,7 +48,7 @@ public final class ProjectTypes {
     PROJECT_TYPES.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
   }
 
-  private ProjectTypes() {
+  private ProjectFactory() {
   }
 
   /**

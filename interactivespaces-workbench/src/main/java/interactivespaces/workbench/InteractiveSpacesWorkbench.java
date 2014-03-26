@@ -699,7 +699,6 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   *
    * Populate the project data from the console.
    *
    * @param project

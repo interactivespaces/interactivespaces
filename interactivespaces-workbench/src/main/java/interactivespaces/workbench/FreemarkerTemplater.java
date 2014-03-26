@@ -170,7 +170,7 @@ public class FreemarkerTemplater {
       out.close();
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format("Could not instantiate template %s to %s",
-          new File(TEMPLATE_LOCATION, template).getAbsolutePath(), outputFile.getAbsolutePath()), e);
+          template, outputFile.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(out);
       Closeables.closeQuietly(in);

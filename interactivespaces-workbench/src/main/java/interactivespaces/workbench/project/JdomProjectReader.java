@@ -23,13 +23,13 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.JdomReader;
-import interactivespaces.workbench.project.group.PrototypeManager;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
+import interactivespaces.workbench.project.group.PrototypeManager;
 import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -256,7 +256,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     String projectType = getProjectType(projectElement);
-    Project project = ProjectTypes.newProject(projectType);
+    Project project = ProjectFactory.newProject(projectType);
 
     List<Element> prototypeChain = prototypeManager.getPrototypeChain(projectElement);
     for (Element prototype : prototypeChain) {
