@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Maps;
-import interactivespaces.workbench.FreemarkerTemplater;
 
 import java.io.File;
 import java.util.Map;

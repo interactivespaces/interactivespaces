@@ -61,5 +61,5 @@ public interface ProjectTypeRegistry {
    * @throws InteractiveSpacesException
    *           either couldn't create the requested class or unknown project type
    */
-  public <T extends Project> T newProject(String typeName) throws InteractiveSpacesException;
+  <T extends Project> T newProject(String typeName) throws InteractiveSpacesException;
 }

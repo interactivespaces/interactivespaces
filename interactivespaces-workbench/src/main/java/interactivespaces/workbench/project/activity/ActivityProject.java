@@ -16,12 +16,10 @@
 
 package interactivespaces.workbench.project.activity;
 
+import com.google.common.collect.Lists;
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
-
-import com.google.common.collect.Lists;
-import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.java.JavaProjectType;
 

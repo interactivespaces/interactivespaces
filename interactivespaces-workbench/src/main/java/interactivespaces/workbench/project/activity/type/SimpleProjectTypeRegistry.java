@@ -45,9 +45,9 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
   /**
    * The mapping of names to project types.
    */
-  private final List<ProjectType> PROJECT_TYPES = Lists.newArrayList();
+  private final List<ProjectType> projectTypes = Lists.newArrayList();
 
-  private final Map<String, Class<? extends Project>> PROJECT_CREATOR_MAP = Maps.newHashMap();
+  private final Map<String, Class<? extends Project>> projectCreatorMap = Maps.newHashMap();
 
   /**
    * Create a basic registry for project types.
@@ -59,15 +59,15 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
     registerProjectType(new AssemblyProjectType());
     registerProjectType(new BlankProjectType());
 
-    PROJECT_CREATOR_MAP.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
-    PROJECT_CREATOR_MAP.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
-    PROJECT_CREATOR_MAP.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
-    PROJECT_CREATOR_MAP.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
+    projectCreatorMap.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
+    projectCreatorMap.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
+    projectCreatorMap.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
+    projectCreatorMap.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
   }
 
   @Override
   public ProjectType getProjectType(Project project) {
-    for (ProjectType type : PROJECT_TYPES) {
+    for (ProjectType type : projectTypes) {
       if (type.isProperType(project)) {
         return type;
       }
@@ -78,12 +78,12 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
 
   @Override
   public void registerProjectType(ProjectType type) {
-    PROJECT_TYPES.add(type);
+    projectTypes.add(type);
   }
 
   @Override
   public <T extends Project> T newProject(String typeName) throws InteractiveSpacesException {
-    Class<? extends Project> clazz = PROJECT_CREATOR_MAP.get(typeName);
+    Class<? extends Project> clazz = projectCreatorMap.get(typeName);
     if (clazz != null) {
       try {
         @SuppressWarnings("unchecked")

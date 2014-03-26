@@ -38,6 +38,8 @@ public interface ProjectType {
 
   /**
    * Get the project type name for this project types.
+   *
+   * @return project type name
    */
   String getProjectTypeName();
 
