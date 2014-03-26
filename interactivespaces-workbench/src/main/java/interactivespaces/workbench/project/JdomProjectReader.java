@@ -207,7 +207,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Project definition file element name for a configuration item.
    */
-  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM = "property";
+  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM = ActivityProjectConstituent.PROPERTY_ELEMENT_NAME;
 
   /**
    * Project definition file element name for configurations.

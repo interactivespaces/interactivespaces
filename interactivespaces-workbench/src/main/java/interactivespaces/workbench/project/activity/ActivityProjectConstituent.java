@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
@@ -27,7 +28,9 @@ import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The project file constituent for activity projects.
@@ -90,6 +93,11 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    * XML element name giving the description of a configuration property.
    */
   public static final String CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT = "description";
+
+  /**
+   * Project definition file element name for a configuration item.
+   */
+  public static final String PROPERTY_ELEMENT_NAME = "property";
 
   /**
    * XML element or attribute (can be either) name giving the value of a
@@ -169,15 +177,19 @@ public class ActivityProjectConstituent implements ProjectConstituent {
      */
     @SuppressWarnings("unchecked")
     private List<ProjectConfigurationProperty> getProjectConfigurationProperty(Element configurationElement) {
-      List<ProjectConfigurationProperty> properties = Lists.newArrayList();
+
+      // Use a map internally, but return a list, to coalesce multiple properties with the same name together
+      // into one item (e.g., if one comes from a prototype). Also use a tree map so the output is sorted, just for
+      // convenience.
+      Map<String, ProjectConfigurationProperty> properties = Maps.newTreeMap();
 
       if (configurationElement != null) {
-        for (Element propertyElement : (List<Element>) configurationElement.getChildren("property")) {
+        for (Element propertyElement : (List<Element>) configurationElement.getChildren(PROPERTY_ELEMENT_NAME)) {
           processConfigurationPropertyElement(propertyElement, properties);
         }
       }
 
-      return properties;
+      return new ArrayList(properties.values());
     }
 
     /**
@@ -186,10 +198,10 @@ public class ActivityProjectConstituent implements ProjectConstituent {
      * @param propertyElement
      *          the property element
      * @param properties
-     *          the list of properties being built
+     *          the properties map to populate
      */
     private void processConfigurationPropertyElement(Element propertyElement,
-        List<ProjectConfigurationProperty> properties) {
+        Map<String, ProjectConfigurationProperty> properties) {
       String name = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_NAME_ATTRIBUTE);
       String description = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT);
       String requiredAttribute = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_REQUIRED_ATTRIBUTE);
@@ -209,7 +221,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
         value = valueChild;
       }
 
-      properties.add(new ProjectConfigurationProperty(name, value, required, description));
+      properties.put(name, new ProjectConfigurationProperty(name, value, required, description));
     }
   }
 }
