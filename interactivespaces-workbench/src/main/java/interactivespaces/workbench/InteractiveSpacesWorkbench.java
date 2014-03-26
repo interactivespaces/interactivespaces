@@ -31,9 +31,9 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.confederate.Confederacy;
-import interactivespaces.workbench.confederate.ConfederacyCreator;
-import interactivespaces.workbench.confederate.JdomConfederacyReader;
+import interactivespaces.workbench.project.group.ProjectGroup;
+import interactivespaces.workbench.project.group.JdomProjectGroupReader;
+import interactivespaces.workbench.project.group.ProjectGroupCreator;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
@@ -183,7 +183,7 @@ public class InteractiveSpacesWorkbench {
    */
   private final ProjectCreator activityProjectCreator;
 
-  private final ConfederacyCreator confederacyCreator;
+  private final ProjectGroupCreator projectGroupCreator;
 
   /**
    * A packager for activities.
@@ -251,7 +251,7 @@ public class InteractiveSpacesWorkbench {
     activityProjectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
-    confederacyCreator = new ConfederacyCreator(this);
+    projectGroupCreator = new ProjectGroupCreator(this);
   }
 
   /**
@@ -656,7 +656,7 @@ public class InteractiveSpacesWorkbench {
     try {
       Element rootElement = JdomReader.getRootElement(specFile);
       String type = rootElement.getName();
-      if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
+      if (JdomProjectGroupReader.PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
         createConfederacyFromElement(rootElement, specFile, baseDirectory);
       } else if (JdomProjectReader.ELEMENT_NAME.equals(type)) {
         createProjectFromElement(rootElement, baseDirectory);
@@ -677,12 +677,12 @@ public class InteractiveSpacesWorkbench {
   }
 
   private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
-    JdomConfederacyReader confederacyReader = new JdomConfederacyReader(log);
-    Confederacy confederacy = new Confederacy();
-    confederacy.setSpecificationSource(specFile);
-    confederacy.setBaseDirectory(baseDirectory);
-    confederacyReader.processSpecification(confederacy, rootElement);
-    confederacyCreator.create(confederacy);
+    JdomProjectGroupReader confederacyReader = new JdomProjectGroupReader(log);
+    ProjectGroup projectGroup = new ProjectGroup();
+    projectGroup.setSpecificationSource(specFile);
+    projectGroup.setBaseDirectory(baseDirectory);
+    confederacyReader.processSpecification(projectGroup, rootElement);
+    projectGroupCreator.create(projectGroup);
   }
 
   private void createProjectFromElement(Element rootElement, File baseDirectory) {

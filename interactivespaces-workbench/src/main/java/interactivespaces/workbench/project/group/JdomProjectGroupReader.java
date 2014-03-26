@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.confederate;
+package interactivespaces.workbench.project.group;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.JdomReader;
@@ -29,9 +29,9 @@ import java.util.List;
 /**
  * @author Trevor Pering
  */
-public class JdomConfederacyReader extends JdomReader {
+public class JdomProjectGroupReader extends JdomReader {
 
-  public static final String CONFEDERACY_ELEMENT_NAME = "confederacy";
+  public static final String PROJECT_GROUP_ELEMENT_NAME = "confederacy";
 
   private final PrototypeManager prototypeManager = new PrototypeManager();
 
@@ -41,22 +41,22 @@ public class JdomConfederacyReader extends JdomReader {
    * @param log
    *          the logger to use
    */
-  public JdomConfederacyReader(Log log) {
+  public JdomProjectGroupReader(Log log) {
     super(log);
   }
 
-  public void processSpecification(Confederacy confederacy, Element rootElement) {
-    if (!CONFEDERACY_ELEMENT_NAME.equals(rootElement.getName())) {
+  public void processSpecification(ProjectGroup projectGroup, Element rootElement) {
+    if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }
 
     List<Element> children = getChildren(rootElement);
     for (Element child : children) {
-      addElementToSpec(confederacy, child);
+      addElementToSpec(projectGroup, child);
     }
   }
 
-  private void addElementToSpec(Confederacy spec, Element child) {
+  private void addElementToSpec(ProjectGroup spec, Element child) {
     String name = child.getName();
 
     try {
@@ -72,14 +72,14 @@ public class JdomConfederacyReader extends JdomReader {
     }
   }
 
-  private void addPrototypes(Confederacy spec, Element group) {
+  private void addPrototypes(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       prototypeManager.addPrototypeElement(entry);
     }
   }
 
-  private void addProjects(Confederacy spec, Element group) {
+  private void addProjects(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       Project project = new JdomProjectReader(log, prototypeManager).processSpecification(entry);

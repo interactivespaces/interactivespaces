@@ -23,7 +23,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.JdomReader;
-import interactivespaces.workbench.confederate.PrototypeManager;
+import interactivespaces.workbench.project.group.PrototypeManager;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;

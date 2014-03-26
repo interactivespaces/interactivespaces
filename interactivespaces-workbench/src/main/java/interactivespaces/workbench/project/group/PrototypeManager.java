@@ -1,4 +1,4 @@
-package interactivespaces.workbench.confederate;
+package interactivespaces.workbench.project.group;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.confederate;
+package interactivespaces.workbench.project.group;
 
 import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.Project;
@@ -25,11 +25,11 @@ import java.io.File;
 import java.util.List;
 
 /**
- * A confederacy of projects.
+ * A group of projects.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public class Confederacy {
+public class ProjectGroup {
 
   private final List<Project> projectList = Lists.newArrayList();
 

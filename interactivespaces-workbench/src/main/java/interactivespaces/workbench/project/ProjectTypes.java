@@ -18,7 +18,7 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.confederate.BlankProject;
+import interactivespaces.workbench.project.group.BlankProject;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.library.LibraryProject;

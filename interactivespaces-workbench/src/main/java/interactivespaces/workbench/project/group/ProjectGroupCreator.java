@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.confederate;
+package interactivespaces.workbench.project.group;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
@@ -24,11 +24,11 @@ import interactivespaces.workbench.project.ProjectCreator;
 import interactivespaces.workbench.project.ProjectCreatorImpl;
 
 /**
- * A {@link interactivespaces.workbench.project.ProjectCreator} implementation.
+ * A project group creator implementation.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public class ConfederacyCreator {
+public class ProjectGroupCreator {
 
   /**
    * Templater to use.
@@ -49,7 +49,7 @@ public class ConfederacyCreator {
    *          containing workbench
    *
    */
-  public ConfederacyCreator(InteractiveSpacesWorkbench workbench) {
+  public ProjectGroupCreator(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
     templater = new FreemarkerTemplater();
     templater.setEvaluationPasses(2);
@@ -57,7 +57,7 @@ public class ConfederacyCreator {
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
-  public void create(Confederacy spec) {
+  public void create(ProjectGroup spec) {
     try {
       for (Project project : spec.getProjectList()) {
         projectCreator.instantiate(makeCreationSpecification(spec, project));
@@ -67,12 +67,12 @@ public class ConfederacyCreator {
     }
   }
 
-  private ProjectCreationSpecification makeCreationSpecification(Confederacy confederacy, Project project) {
+  private ProjectCreationSpecification makeCreationSpecification(ProjectGroup projectGroup, Project project) {
     ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);
-    creationSpecification.setBaseDirectory(confederacy.getBaseDirectory());
-    creationSpecification.setSpecificationBase(confederacy.getSpecificationSource().getParentFile());
-    creationSpecification.addTemplateDataEntry("baseDirectory", confederacy.getBaseDirectory());
+    creationSpecification.setBaseDirectory(projectGroup.getBaseDirectory());
+    creationSpecification.setSpecificationBase(projectGroup.getSpecificationSource().getParentFile());
+    creationSpecification.addTemplateDataEntry("baseDirectory", projectGroup.getBaseDirectory());
     return creationSpecification;
   }
 

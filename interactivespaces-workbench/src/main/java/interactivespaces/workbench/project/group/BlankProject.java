@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.confederate;
+package interactivespaces.workbench.project.group;
 
 import interactivespaces.workbench.project.Project;
 
