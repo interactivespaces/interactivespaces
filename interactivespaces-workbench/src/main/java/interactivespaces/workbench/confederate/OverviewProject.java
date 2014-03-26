@@ -14,31 +14,19 @@
  * the License.
  */
 
-package interactivespaces.workbench.project;
+package interactivespaces.workbench.confederate;
+
+import interactivespaces.workbench.project.Project;
 
 /**
- * A template for a project.
+ * A project for a meta-project.
  *
  * @author Keith M. Hughes
  */
-public interface ProjectTemplate {
+public class OverviewProject extends Project {
 
   /**
-   * Get the display name for the template.
-   *
-   * @return display name for the template
+   * Name of the project type.
    */
-  String getDisplayName();
-
-  /**
-   * Process the source description.
-   *
-   * <p>
-   * This may fill in portions of the specification
-   *
-   * @param spec
-   *          the build specification
-   *
-   */
-  void process(CreationSpecification spec);
+  public static final String PROJECT_TYPE_NAME = "overview";
 }

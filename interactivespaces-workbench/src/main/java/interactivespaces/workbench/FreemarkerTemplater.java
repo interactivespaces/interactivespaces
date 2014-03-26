@@ -21,7 +21,6 @@ import com.google.common.io.Closeables;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
-import freemarker.template.TemplateExceptionHandler;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
@@ -89,8 +88,9 @@ public class FreemarkerTemplater {
    *          data for template
    * @param templateContent
    *          string template to process
-   *
    * @param defineResult
+   *          target value to define with new value
+   *
    * @return processed template
    */
   public String processStringTemplate(Map<String, Object> data, String templateContent, String defineResult) {

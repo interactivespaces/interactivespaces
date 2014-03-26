@@ -20,9 +20,9 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
 import interactivespaces.workbench.ui.validation.ValidationResult;
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
-import interactivespaces.workbench.ui.wizard.Wizard;
 
 import javax.swing.JComponent;
+
 
 /**
  * A {@link Wizard} for getting an Project Description.

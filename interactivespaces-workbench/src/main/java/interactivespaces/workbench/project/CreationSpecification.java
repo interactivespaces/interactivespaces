@@ -1,11 +1,9 @@
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.workbench.FreemarkerTemplater;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,17 +12,43 @@ public class CreationSpecification {
 
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
-  private FreemarkerTemplater templater;
+  /**
+   * The project itself.
+   */
+  private Project project;
 
+  private FreemarkerTemplater templater;
   /**
    * The template for the project.
    */
   private File specificationBase;
-
   /**
    * Base directory where output files should be rooted.
    */
   private File baseDirectory;
+
+  /**
+   * Get the project description associated with the spec.
+   *
+   * @param <T>
+   *          the project type
+   *
+   * @return the project
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Project> T getProject() {
+    return (T) project;
+  }
+
+  /**
+   * Set the project description for the spec.
+   *
+   * @param project
+   *          the project to set
+   */
+  public void setProject(Project project) {
+    this.project = project;
+  }
 
   /**
    * Get the project template.
@@ -72,4 +96,5 @@ public class CreationSpecification {
   public void setTemplater(FreemarkerTemplater templater) {
     this.templater = templater;
   }
+
 }

@@ -71,7 +71,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     PROJECT_CONSTITUENT_FACTORY_MAP.put(constituentFactory.getName(), constituentFactory);
   }
 
-  public static final String PROJECT_ELEMENT_NAME = "project";
+  public static final String ELEMENT_NAME = "project";
+
+  public static final String GROUP_ELEMENT_NAME = "projects";
 
   /**
    * The name of the project.
@@ -249,7 +251,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   }
 
   public Project processSpecification(Element projectElement) {
-    if (!PROJECT_ELEMENT_NAME.equals(projectElement.getName())) {
+    if (!ELEMENT_NAME.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
 

@@ -49,6 +49,11 @@ public class TemplateVar {
 
   /**
    * Create a new template variable entry.
+   *
+   * @param name
+   *          var name
+   * @param value
+   *          var value
    */
   public TemplateVar(String name, String value) {
     this.name = name;

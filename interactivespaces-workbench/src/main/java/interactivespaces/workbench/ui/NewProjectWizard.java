@@ -18,7 +18,7 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 import interactivespaces.workbench.ui.wizard.component.ChooseFileWizard;
@@ -81,7 +81,7 @@ public class NewProjectWizard extends WizardCollection {
   public void completeWizard() {
     super.completeWizard();
 
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    CreationSpecification spec = new CreationSpecification();
 
     Project project = activityDescriptionWizard.getProject();
 
@@ -93,7 +93,7 @@ public class NewProjectWizard extends WizardCollection {
 
     spec.setSpecificationBase(activityProjectTemplateChooserWizard.getSelectedFile().getParentFile());
 
-    workbench.getActivityProjectCreator().createProject(spec);
+    workbench.getActivityProjectCreator().instantiate(spec);
 
     workbenchUi.setCurrentProject(project);
   }

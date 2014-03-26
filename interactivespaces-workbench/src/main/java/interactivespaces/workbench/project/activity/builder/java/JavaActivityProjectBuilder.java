@@ -21,7 +21,6 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;

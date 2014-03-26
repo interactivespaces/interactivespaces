@@ -18,11 +18,8 @@ package interactivespaces.workbench.project.activity.creator;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link ProjectCreator} implementation.
@@ -55,12 +52,8 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void createProject(ProjectCreationSpecification spec) {
+  public void instantiate(CreationSpecification spec) {
     try {
-      spec.addTemplateDataEntry("spec", spec);
-      spec.addTemplateDataEntry("project", spec.getProject());
-
-      // TODO(pering): This needs to be fixed to accomodate other project types.
       ProjectTemplate projectTemplate = new ActivityProjectTemplate();
       projectTemplate.process(spec);
 

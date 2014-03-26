@@ -18,8 +18,6 @@ package interactivespaces.workbench.project.activity.creator;
 
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.CreationSpecification;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
@@ -39,14 +37,11 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    */
   public ActivityProjectTemplate() {
     super("Activity Project Template");
-
-    addSourceDirectory(ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 
   @Override
   protected void onTemplateSetup(CreationSpecification spec) {
-    Project project = ((ProjectCreationSpecification) spec).getProject();
-    spec.addTemplateDataEntry("activity", project);
+    spec.addTemplateDataEntry("activity", spec.getProject());
     super.onTemplateSetup(spec);
   }
 
@@ -58,7 +53,7 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    *
    * @return the source directory for activity sources
    */
-  public File getActivitySourceDirectory(ProjectCreationSpecification spec) {
+  public File getActivitySourceDirectory(CreationSpecification spec) {
     return new File(spec.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
@@ -70,7 +65,7 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    *
    * @return the resource directory for activity components
    */
-  public File getActivityResourceDirectory(ProjectCreationSpecification spec) {
+  public File getActivityResourceDirectory(CreationSpecification spec) {
     return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 }

@@ -34,9 +34,9 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
 import interactivespaces.workbench.confederate.JdomConfederacyReader;
+import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
@@ -658,7 +658,7 @@ public class InteractiveSpacesWorkbench {
       String type = rootElement.getName();
       if (JdomConfederacyReader.CONFEDERACY_ELEMENT_NAME.equals(type)) {
         createConfederacyFromElement(rootElement, specFile, baseDirectory);
-      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME.equals(type)) {
+      } else if (JdomProjectReader.ELEMENT_NAME.equals(type)) {
         createProjectFromElement(rootElement, baseDirectory);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
@@ -692,13 +692,14 @@ public class InteractiveSpacesWorkbench {
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
     project.setBaseDirectory(baseDirectory);
 
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    CreationSpecification spec = new CreationSpecification();
     spec.setProject(project);
 
-    activityProjectCreator.createProject(spec);
+    activityProjectCreator.instantiate(spec);
   }
 
   /**
+   *
    * Populate the project data from the console.
    *
    * @param project

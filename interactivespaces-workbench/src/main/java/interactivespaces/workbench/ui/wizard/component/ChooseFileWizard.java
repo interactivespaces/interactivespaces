@@ -18,7 +18,8 @@ package interactivespaces.workbench.ui.wizard.component;
 
 import interactivespaces.workbench.ui.wizard.SingleComponentWizard;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import java.io.File;
 
 /**

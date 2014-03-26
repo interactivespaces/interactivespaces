@@ -82,7 +82,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
   }
 
   /**
-   * Get the root subpackages into the Javadoc command being built
+   * Get the root subpackages into the Javadoc command being built.
    *
    * @param classesFolder
    *          the folder containing the packages
@@ -124,15 +124,16 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
   }
 
   /**
-   * Get the stream contents
+   * Get the stream contents.
    *
    * @param result
    *          where the contents will be written
    * @param stream
    *          the stream to read the contents from
+   * @param context
+   *          project build context
    */
-  private void getStreamContents(StringBuilder result, InputStream stream,
-      ProjectBuildContext context) {
+  private void getStreamContents(StringBuilder result, InputStream stream, ProjectBuildContext context) {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
     String line = null;
     try {

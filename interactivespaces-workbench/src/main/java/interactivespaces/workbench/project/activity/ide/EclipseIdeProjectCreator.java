@@ -94,8 +94,8 @@ public class EclipseIdeProjectCreator {
   /**
    * Write the project file.
    *
-   * @param freemarkerConfig
-   *          the Freemarker configuration
+   * @param project
+   *          project to write
    * @param freemarkerContext
    *          the Freemarker context
    *

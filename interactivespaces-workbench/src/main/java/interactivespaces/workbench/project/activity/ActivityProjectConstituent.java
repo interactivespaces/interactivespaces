@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.activity;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;

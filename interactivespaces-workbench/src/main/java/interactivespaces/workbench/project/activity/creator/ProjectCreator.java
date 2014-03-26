@@ -16,10 +16,7 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
-
-import java.util.List;
+import interactivespaces.workbench.project.CreationSpecification;
 
 /**
  * Creator for new activity projects.
@@ -29,10 +26,10 @@ import java.util.List;
 public interface ProjectCreator {
 
   /**
-   * Create an activity project.
+   * Instantiate a project.
    *
    * @param spec
    *          specification for the new project
    */
-  void createProject(ProjectCreationSpecification spec);
+  void instantiate(CreationSpecification spec);
 }

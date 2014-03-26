@@ -17,8 +17,6 @@
 package interactivespaces;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 /**

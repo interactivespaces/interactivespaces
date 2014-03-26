@@ -11,6 +11,7 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 /**
  */
@@ -30,7 +31,8 @@ public abstract class JdomReader {
   }
 
   protected static Element getRootElement(File projectFile) {
-    Document doc;FileInputStream inputStream = null;
+    Document doc;
+    FileInputStream inputStream = null;
     try {
       inputStream = new FileInputStream(projectFile);
       SAXBuilder builder = new SAXBuilder();
@@ -60,7 +62,7 @@ public abstract class JdomReader {
    *
    * @return trimmed element text
    *
-   * @throws interactivespaces.SimpleInteractiveSpacesException
+   * @throws SimpleInteractiveSpacesException
    *           if the child element is not provided
    */
   protected String getChildTextTrimmed(Element element, String key) throws SimpleInteractiveSpacesException {
@@ -78,11 +80,10 @@ public abstract class JdomReader {
    *          container element
    * @param key
    *          variable key
+   * @param fallback
+   *          fallback when not defined
    *
    * @return trimmed element text
-   *
-   * @throws interactivespaces.SimpleInteractiveSpacesException
-   *           if the child element is not provided
    */
   protected String getChildTextTrimmed(Element element, String key, String fallback) {
     String value = getChildTextTrimmed(element, key);
@@ -135,6 +136,11 @@ public abstract class JdomReader {
    */
   protected String getAttributeValue(Element element, String key) {
     return getAttributeValue(element, key, null);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected List<Element> getChildren(Element element) {
+    return element.getChildren();
   }
 
   /**

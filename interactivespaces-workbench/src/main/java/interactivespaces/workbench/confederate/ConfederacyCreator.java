@@ -18,10 +18,8 @@ package interactivespaces.workbench.confederate;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.BaseTemplate;
 import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 
@@ -73,18 +71,16 @@ public class ConfederacyCreator {
   private void writeConfederacyTemplates(Confederacy confederacy) {
     CreationSpecification creationSpecification = new CreationSpecification();
     populateCreationSpecificaiton(confederacy, creationSpecification);
-    BaseTemplate template = new BaseTemplate("Confederacy Writer");
-    template.addAllFileTemplate(confederacy.getTemplateFiles());
-    template.addTemplateVars(confederacy.getTemplateVars());
-    template.process(creationSpecification);
+    Project project = new OverviewProject();
+    creationSpecification.setProject(project);
+    projectCreator.instantiate(creationSpecification);
   }
 
   private void createProject(Project project, Confederacy confederacy) {
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    CreationSpecification spec = new CreationSpecification();
     populateCreationSpecificaiton(confederacy, spec);
     spec.setProject(project);
-    spec.setLanguage(project.getBuilderType());
-    projectCreator.createProject(spec);
+    projectCreator.instantiate(spec);
   }
 
   private void populateCreationSpecificaiton(Confederacy confederacy, CreationSpecification creationSpecification) {
