@@ -502,4 +502,8 @@ public abstract class Project {
   public List<ProjectConstituent> getExtraConstituents() {
     return extraConstituents;
   }
+
+  protected ProjectTemplate newProjectTemplate() {
+    return new BaseProjectTemplate();
+  }
 }

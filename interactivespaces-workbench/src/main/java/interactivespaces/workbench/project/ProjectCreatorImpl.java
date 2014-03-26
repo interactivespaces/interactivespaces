@@ -14,12 +14,10 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.CreationSpecification;
-import interactivespaces.workbench.project.ProjectTemplate;
 
 /**
  * A {@link ProjectCreator} implementation.
@@ -52,9 +50,10 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void instantiate(CreationSpecification spec) {
+  public void instantiate(ProjectCreationSpecification spec) {
     try {
-      ProjectTemplate projectTemplate = new ActivityProjectTemplate();
+      ProjectTemplate projectTemplate = spec.getProject().newProjectTemplate();
+      projectTemplate.setTemplater(templater);
       projectTemplate.process(spec);
 
     } catch (Exception e) {

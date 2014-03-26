@@ -18,13 +18,13 @@ package interactivespaces.workbench.confederate;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.CreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.activity.creator.ProjectCreator;
-import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
+import interactivespaces.workbench.project.ProjectCreator;
+import interactivespaces.workbench.project.ProjectCreatorImpl;
 
 /**
- * A {@link interactivespaces.workbench.project.activity.creator.ProjectCreator} implementation.
+ * A {@link interactivespaces.workbench.project.ProjectCreator} implementation.
  *
  * @author Keith M. Hughes
  */
@@ -60,34 +60,20 @@ public class ConfederacyCreator {
   public void create(Confederacy spec) {
     try {
       for (Project project : spec.getProjectList()) {
-        createProject(project, spec);
+        projectCreator.instantiate(makeCreationSpecification(spec, project));
       }
-      writeConfederacyTemplates(spec);
     } catch (Exception e) {
       workbench.handleError("Error while creating confederacy", e);
     }
   }
 
-  private void writeConfederacyTemplates(Confederacy confederacy) {
-    CreationSpecification creationSpecification = new CreationSpecification();
-    populateCreationSpecificaiton(confederacy, creationSpecification);
-    Project project = new OverviewProject();
+  private ProjectCreationSpecification makeCreationSpecification(Confederacy confederacy, Project project) {
+    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);
-    projectCreator.instantiate(creationSpecification);
-  }
-
-  private void createProject(Project project, Confederacy confederacy) {
-    CreationSpecification spec = new CreationSpecification();
-    populateCreationSpecificaiton(confederacy, spec);
-    spec.setProject(project);
-    projectCreator.instantiate(spec);
-  }
-
-  private void populateCreationSpecificaiton(Confederacy confederacy, CreationSpecification creationSpecification) {
     creationSpecification.setBaseDirectory(confederacy.getBaseDirectory());
     creationSpecification.setSpecificationBase(confederacy.getSpecificationSource().getParentFile());
     creationSpecification.addTemplateDataEntry("baseDirectory", confederacy.getBaseDirectory());
-    creationSpecification.setTemplater(templater);
+    return creationSpecification;
   }
 
 }

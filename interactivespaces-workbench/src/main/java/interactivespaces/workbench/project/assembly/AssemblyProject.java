@@ -29,5 +29,4 @@ public class AssemblyProject extends Project {
    * Name of the project type.
    */
   public static final String PROJECT_TYPE_NAME = "assembly";
-
 }

@@ -16,19 +16,14 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.workbench.FreemarkerTemplater;
+
 /**
  * A template for a project.
  *
  * @author Keith M. Hughes
  */
 public interface ProjectTemplate {
-
-  /**
-   * Get the display name for the template.
-   *
-   * @return display name for the template
-   */
-  String getDisplayName();
 
   /**
    * Process the source description.
@@ -40,5 +35,7 @@ public interface ProjectTemplate {
    *          the build specification
    *
    */
-  void process(CreationSpecification spec);
+  void process(ProjectCreationSpecification spec);
+
+  void setTemplater(FreemarkerTemplater templater);
 }

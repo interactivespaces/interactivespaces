@@ -34,7 +34,7 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.confederate.Confederacy;
 import interactivespaces.workbench.confederate.ConfederacyCreator;
 import interactivespaces.workbench.confederate.JdomConfederacyReader;
-import interactivespaces.workbench.project.CreationSpecification;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -42,8 +42,8 @@ import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.creator.ProjectCreator;
-import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
+import interactivespaces.workbench.project.ProjectCreator;
+import interactivespaces.workbench.project.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
@@ -692,7 +692,7 @@ public class InteractiveSpacesWorkbench {
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
     project.setBaseDirectory(baseDirectory);
 
-    CreationSpecification spec = new CreationSpecification();
+    ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
 
     activityProjectCreator.instantiate(spec);

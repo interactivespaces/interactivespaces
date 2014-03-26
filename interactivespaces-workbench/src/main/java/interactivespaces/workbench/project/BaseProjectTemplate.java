@@ -16,6 +16,7 @@ import java.util.Map;
 public class BaseProjectTemplate implements ProjectTemplate {
 
   public static final String TEMPLATE_VARIABLES_TMP = "template_variables.tmp";
+
   public static final String BASE_DIRECTORY_VARIABLE = "baseDirectory";
   /**
    * Map of file/template pairs to add to the created project.
@@ -24,20 +25,9 @@ public class BaseProjectTemplate implements ProjectTemplate {
 
   private final List<TemplateVar> templateVars = Lists.newArrayList();
 
-  /**
-   * The display name for the template.
-   */
-  protected String displayName;
+  private FreemarkerTemplater templater;
 
-  public BaseProjectTemplate(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void process(CreationSpecification spec) {
+  public void process(ProjectCreationSpecification spec) {
     try {
       onTemplateSetup(spec);
       onTemplateWrite(spec);
@@ -56,7 +46,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
    *          spec for the project
    *
    */
-  protected void onTemplateSetup(CreationSpecification spec) {
+  protected void onTemplateSetup(ProjectCreationSpecification spec) {
     Project project = spec.getProject();
 
     spec.addTemplateDataEntry("baseDirectory", spec.getBaseDirectory().getAbsolutePath());
@@ -64,13 +54,13 @@ public class BaseProjectTemplate implements ProjectTemplate {
     spec.addTemplateDataEntry("spec", spec);
     spec.addTemplateDataEntry("project", project);
 
-    FreemarkerTemplater templater = spec.getTemplater();
+    FreemarkerTemplater templater = getTemplater();
     for (TemplateVar templateVar : project.getTemplateVars()) {
       templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
     }
   }
 
-  protected void onTemplateWrite(CreationSpecification spec) {
+  protected void onTemplateWrite(ProjectCreationSpecification spec) {
     writeTemplateList(spec);
   }
 
@@ -136,10 +126,10 @@ public class BaseProjectTemplate implements ProjectTemplate {
    *          specification for the project
    *
    */
-  public void writeTemplateList(CreationSpecification spec) {
+  public void writeTemplateList(ProjectCreationSpecification spec) {
     for (TemplateFile template : spec.getProject().getTemplates()) {
 
-      FreemarkerTemplater templater = spec.getTemplater();
+      FreemarkerTemplater templater = getTemplater();
       Map<String, Object> templateData = spec.getTemplateData();
 
       String outPath = templater.processStringTemplate(templateData, template.getOutput(), null);
@@ -157,5 +147,13 @@ public class BaseProjectTemplate implements ProjectTemplate {
 
       templater.writeTemplate(templateData, outFile, inPath);
     }
+  }
+
+  public FreemarkerTemplater getTemplater() {
+    return templater;
+  }
+
+  public void setTemplater(FreemarkerTemplater templater) {
+    this.templater = templater;
   }
 }

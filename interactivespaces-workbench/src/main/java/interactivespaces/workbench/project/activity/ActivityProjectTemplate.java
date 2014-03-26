@@ -14,11 +14,10 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
+package interactivespaces.workbench.project.activity;
 
 import interactivespaces.workbench.project.BaseProjectTemplate;
-import interactivespaces.workbench.project.CreationSpecification;
-import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.io.File;
@@ -36,11 +35,11 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    *
    */
   public ActivityProjectTemplate() {
-    super("Activity Project Template");
+    super();
   }
 
   @Override
-  protected void onTemplateSetup(CreationSpecification spec) {
+  protected void onTemplateSetup(ProjectCreationSpecification spec) {
     spec.addTemplateDataEntry("activity", spec.getProject());
     super.onTemplateSetup(spec);
   }
@@ -53,7 +52,7 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    *
    * @return the source directory for activity sources
    */
-  public File getActivitySourceDirectory(CreationSpecification spec) {
+  public File getActivitySourceDirectory(ProjectCreationSpecification spec) {
     return new File(spec.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
@@ -65,7 +64,7 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    *
    * @return the resource directory for activity components
    */
-  public File getActivityResourceDirectory(CreationSpecification spec) {
+  public File getActivityResourceDirectory(ProjectCreationSpecification spec) {
     return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 }

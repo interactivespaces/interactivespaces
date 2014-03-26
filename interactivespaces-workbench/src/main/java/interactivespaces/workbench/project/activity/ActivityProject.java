@@ -21,6 +21,7 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 
 import com.google.common.collect.Lists;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
@@ -263,5 +264,10 @@ public class ActivityProject extends Project {
    */
   public void addConfigurationProperty(ProjectConfigurationProperty configurationProperty) {
     configurationProperties.add(configurationProperty);
+  }
+
+  @Override
+  public ProjectTemplate newProjectTemplate() {
+    return new ActivityProjectTemplate();
   }
 }

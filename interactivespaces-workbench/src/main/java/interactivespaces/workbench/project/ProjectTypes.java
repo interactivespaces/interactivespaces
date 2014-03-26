@@ -18,7 +18,7 @@ package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.confederate.OverviewProject;
+import interactivespaces.workbench.confederate.BlankProject;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.library.LibraryProject;
@@ -44,7 +44,7 @@ public final class ProjectTypes {
     PROJECT_TYPES.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
     PROJECT_TYPES.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
     PROJECT_TYPES.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
-    PROJECT_TYPES.put(OverviewProject.PROJECT_TYPE_NAME, OverviewProject.class);
+    PROJECT_TYPES.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
   }
 
   private ProjectTypes() {

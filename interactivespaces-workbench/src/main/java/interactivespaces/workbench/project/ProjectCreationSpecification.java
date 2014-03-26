@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  */
-public class CreationSpecification {
+public class ProjectCreationSpecification {
 
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
@@ -17,7 +17,6 @@ public class CreationSpecification {
    */
   private Project project;
 
-  private FreemarkerTemplater templater;
   /**
    * The template for the project.
    */
@@ -87,14 +86,6 @@ public class CreationSpecification {
 
   public void addTemplateDataEntry(String key, Object value) {
     templateData.put(key, value);
-  }
-
-  public FreemarkerTemplater getTemplater() {
-    return templater;
-  }
-
-  public void setTemplater(FreemarkerTemplater templater) {
-    this.templater = templater;
   }
 
 }

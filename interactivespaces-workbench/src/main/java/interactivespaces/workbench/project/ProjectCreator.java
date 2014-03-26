@@ -14,19 +14,20 @@
  * the License.
  */
 
-package interactivespaces.workbench.confederate;
-
-import interactivespaces.workbench.project.Project;
+package interactivespaces.workbench.project;
 
 /**
- * A project for a meta-project.
+ * Creator for new activity projects.
  *
  * @author Keith M. Hughes
  */
-public class OverviewProject extends Project {
+public interface ProjectCreator {
 
   /**
-   * Name of the project type.
+   * Instantiate a project.
+   *
+   * @param spec
+   *          specification for the new project
    */
-  public static final String PROJECT_TYPE_NAME = "overview";
+  void instantiate(ProjectCreationSpecification spec);
 }
