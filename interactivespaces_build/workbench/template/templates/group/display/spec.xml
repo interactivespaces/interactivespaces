@@ -30,17 +30,32 @@
       <description>Auto-generated activity for ${fullName}</description>
     </prototype>
 
-    <prototype prototypeName="projectPrototype" inheritsFrom="baseProject" builder="java">
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="java">
       <activity type="interactivespaces_native">
         <name>${fullName}</name>
         <class>${package}.${javaClassName}</class>
         <configuration>
           <property name="space.activity.log.level" value="info" required="false" />
-          <property name="space.activity.enable.display" value="true" required="true" />
         </configuration>
       </activity>
       <templates>
         <template destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+      </templates>
+    </prototype>
+
+    <prototype prototypeName="webActivity" inheritsFrom="activityProject">
+      <activity type="interactivespaces_native">
+        <configuration>
+          <property name="space.activity.enable.web.server" value="true" required="true" />
+          <property name="space.activity.webapp.url.initial" value="index.html"/>
+          <property name="space.activity.webapp.content.location" value="webapp" description="Content location" />
+        </configuration>
+      </activity>
+      <templates>
+        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
+        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
+        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
+        <template destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="Activity.java.ftl" />
       </templates>
     </prototype>
   </prototypes>
@@ -52,41 +67,15 @@
       </templates>
     </project>
 
-    <project shard="display" inheritsFrom="projectPrototype" type="activity">
-      <templates>
-        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
-        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
-        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
-        <template destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="activity.java.ftl" />
-      </templates>
-    </project>
-
-    <project shard="admin" inheritsFrom="projectPrototype" type="activity">
-      <sources>
-        <source sourceDirectory="${'$'}{repo.cec}/resources/activity/configured/src/main/java/" />
-      </sources>
-
-      <resources>
-        <assembly packFormat="zip" sourceFile="${'$'}{repo.cec.lib}/cec.javascript.common-1.3.3.zip" />
-        <resource sourceDirectory="${'$'}{repo.cec}/resources/fonts/OpenSans/" destinationDirectory="webapp/fonts/OpenSans/" />
-      </resources>
-
-      <dependencies>
-        <dependency name="com.google.support" minimumVersion="1.3.3" maximumVersion="1.4.0" required="true" />
-      </dependencies>
-
-      <activity>
+    <project shard="display" inheritsFrom="webActivity" type="activity">
+      <activity type="interactivespaces_native">
         <configuration>
-          <property name="space.activity.webapp.url.initial" value="index.html"/>
-          <property name="space.activity.webapp.content.location" value="webapp" description="Content location" />
+          <property name="space.activity.enable.display" value="true" required="true" />
         </configuration>
       </activity>
+    </project>
 
-      <templates>
-        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
-        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
-        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
-      </templates>
+    <project shard="admin" inheritsFrom="webActivity" type="activity">
     </project>
   </projects>
 </projectGroup>
