@@ -91,7 +91,7 @@ public class NewProjectWizard extends WizardCollection {
 
     spec.setProject(project);
 
-    spec.setSpecification(activityProjectTemplateChooserWizard.getSelectedFile());
+    spec.setSpecificationBase(activityProjectTemplateChooserWizard.getSelectedFile().getParentFile());
 
     workbench.getActivityProjectCreator().createProject(spec);
 

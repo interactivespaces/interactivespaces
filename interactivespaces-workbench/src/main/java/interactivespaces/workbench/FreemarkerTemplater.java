@@ -77,8 +77,8 @@ public class FreemarkerTemplater {
     }
   }
 
-  public void addEvaluationPass() {
-    evaluationPasses++;
+  public void setEvaluationPasses(int evaluationPasses) {
+    this.evaluationPasses = evaluationPasses;
   }
 
   /**

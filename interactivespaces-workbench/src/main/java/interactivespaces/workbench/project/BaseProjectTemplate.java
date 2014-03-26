@@ -18,7 +18,6 @@ package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 
 import java.io.File;
 import java.util.List;
@@ -29,7 +28,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseProjectTemplate extends BaseTemplate implements ProjectTemplate {
+public class BaseProjectTemplate extends BaseTemplate implements ProjectTemplate {
 
   /**
    * List of all source directories needed.
@@ -69,25 +68,22 @@ public abstract class BaseProjectTemplate extends BaseTemplate implements Projec
   }
 
   @Override
-  protected void onTemplateSetup(CreationSpecification spec, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-    super.onTemplateSetup(spec, templater, fullTemplateData);
+  protected void onTemplateSetup(CreationSpecification spec) {
+    super.onTemplateSetup(spec);
 
     Project project = ((ProjectCreationSpecification) spec).getProject();
     addAllFileTemplate(project.getTemplates());
 
+    FreemarkerTemplater templater = spec.getTemplater();
     for (TemplateVar templateVar : project.getTemplateVars()) {
-      templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
+      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
     }
   }
 
   @Override
-  protected void onTemplateWrite(CreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    super.onTemplateWrite(spec, workbench, templater, fullTemplateData);
-    writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
-    writeCommonTemplates(spec, workbench, templater, fullTemplateData);
-    writeProjectXml(templater, spec, fullTemplateData);
+  protected void onTemplateWrite(CreationSpecification spec) {
+    super.onTemplateWrite(spec);
+    writeProjectXml(spec);
   }
 
   protected File getBaseDirectory(CreationSpecification spec, FreemarkerTemplater templater,
@@ -98,51 +94,15 @@ public abstract class BaseProjectTemplate extends BaseTemplate implements Projec
   }
 
   /**
-   * Write out all templates specific for the template type.
-   *
-   * @param spec
-   *          specification for the project
-   * @param workbench
-   *          the workbench the project is being built under
-   * @param templater
-   *          the templater to use
-   * @param fullTemplateData
-   *          the full data to be used for the template
-   */
-  public abstract void writeSpecificTemplates(CreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData);
-
-  /**
-   * Write templates common to all projects of a given type.
-   *
-   * @param spec
-   *          specification for the project
-   * @param workbench
-   *          the workbench the project is being built under
-   * @param templater
-   *          the templater to use
-   * @param fullTemplateData
-   *          the full data to be used for the template
-   */
-  public void writeCommonTemplates(CreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-  }
-
-  /**
    * Write out the project.xml file.
    *
-   * @param templater
-   *          the templater to use
    * @param spec
    *          the build specification
-   * @param templateData
-   *          data for any templates
+   *
    */
-  private void writeProjectXml(FreemarkerTemplater templater, CreationSpecification spec,
-      Map<String, Object> templateData) {
-    Project project = ((ProjectCreationSpecification) spec).getProject();
+  private void writeProjectXml(CreationSpecification spec) {
+    FreemarkerTemplater templater = spec.getTemplater();
+    Map<String, Object> templateData = spec.getTemplateData();
     File baseDirectory = getBaseDirectory(spec, templater, templateData);
     templater.writeTemplate(templateData, new File(baseDirectory, "project.xml"), "project.xml.ftl");
   }

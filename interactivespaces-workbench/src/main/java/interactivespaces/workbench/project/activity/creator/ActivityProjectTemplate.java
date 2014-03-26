@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project.activity.creator;
 
-import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.Project;
@@ -26,7 +24,6 @@ import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
 import java.io.File;
-import java.util.Map;
 
 /**
  * A base implementation of a project template for activities.
@@ -47,18 +44,10 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
   }
 
   @Override
-  protected void onTemplateSetup(CreationSpecification spec, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
+  protected void onTemplateSetup(CreationSpecification spec) {
     Project project = ((ProjectCreationSpecification) spec).getProject();
-    fullTemplateData.put("activity", project);
-    super.onTemplateSetup(spec, templater, fullTemplateData);
-  }
-
-  @Override
-  public void writeSpecificTemplates(CreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-    // Do nothing by default -- only use common templates.
+    spec.addTemplateDataEntry("activity", project);
+    super.onTemplateSetup(spec);
   }
 
   /**

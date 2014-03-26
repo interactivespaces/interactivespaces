@@ -43,13 +43,7 @@ public interface ProjectTemplate {
    *
    * @param spec
    *          the build specification
-   * @param workbench
-   *          the workbench for the project
-   * @param templater
-   *          the templater to use
-   * @param templateData
-   *          the template data to use
+   *
    */
-  void process(CreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> templateData);
+  void process(CreationSpecification spec);
 }

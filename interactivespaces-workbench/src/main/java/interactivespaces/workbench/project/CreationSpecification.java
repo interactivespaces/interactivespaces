@@ -1,18 +1,31 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import interactivespaces.workbench.FreemarkerTemplater;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  */
 public class CreationSpecification {
+
   private final List<TemplateVar> templateVars = Lists.newArrayList();
+
+  private final Map<String, Object> templateData = Maps.newTreeMap();
+
+  private FreemarkerTemplater templater;
+
   /**
    * The template for the project.
    */
-  private File specification;
+  private File specificationBase;
+
+  /**
+   * Base directory where output files should be rooted.
+   */
   private File baseDirectory;
 
   /**
@@ -20,8 +33,8 @@ public class CreationSpecification {
    *
    * @return the template
    */
-  public File getSpecification() {
-    return specification;
+  public File getSpecificationBase() {
+    return specificationBase;
   }
 
   /**
@@ -30,11 +43,11 @@ public class CreationSpecification {
    * @param specification
    *          the template to set
    */
-  public void setSpecification(File specification) {
-    this.specification = specification;
+  public void setSpecificationBase(File specification) {
+    this.specificationBase = specification;
   }
 
-  public void addAllTemplateVars(List<TemplateVar> addTemplateVars) {
+  public void addTemplateVars(List<TemplateVar> addTemplateVars) {
     templateVars.addAll(addTemplateVars);
   }
 
@@ -48,5 +61,25 @@ public class CreationSpecification {
 
   public void setBaseDirectory(File baseDirectory) {
     this.baseDirectory = baseDirectory;
+  }
+
+  public Map<String, Object> getTemplateData() {
+    return templateData;
+  }
+
+  public void addTemplateData(Map<String, Object> addData) {
+    templateData.putAll(addData);
+  }
+
+  public void addTemplateDataEntry(String key, Object value) {
+    templateData.put(key, value);
+  }
+
+  public FreemarkerTemplater getTemplater() {
+    return templater;
+  }
+
+  public void setTemplater(FreemarkerTemplater templater) {
+    this.templater = templater;
   }
 }

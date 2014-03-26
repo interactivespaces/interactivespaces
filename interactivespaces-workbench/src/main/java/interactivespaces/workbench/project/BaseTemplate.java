@@ -1,12 +1,10 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -35,21 +33,15 @@ public class BaseTemplate {
     return displayName;
   }
 
-  public void process(CreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> templateData) {
-
-    Map<String, Object> fullTemplateData = Maps.newTreeMap();
-    fullTemplateData.putAll(templateData);
-
-    onTemplateSetup(spec, templater, fullTemplateData);
-
+  public void process(CreationSpecification spec) {
     try {
-
-      onTemplateWrite(spec, workbench, templater, fullTemplateData);
+      onTemplateSetup(spec);
+      onTemplateWrite(spec);
     } catch (Exception e) {
       File variableDump = new File(TEMPLATE_VARIABLES_TMP);
-      dumpVariables(fullTemplateData, variableDump);
-      throw new SimpleInteractiveSpacesException("Template variables are in " + variableDump.getAbsolutePath(), e);
+      dumpVariables(variableDump, spec.getTemplateData());
+      throw new SimpleInteractiveSpacesException(
+          "Template variables can be found in " + variableDump.getAbsolutePath(), e);
     }
   }
 
@@ -58,29 +50,25 @@ public class BaseTemplate {
    *
    * @param spec
    *          spec for the project
-   * @param templater
-   *          the templater to use for setup
-   * @param fullTemplateData
-   *          template data to setup
+   *
    */
-  protected void onTemplateSetup(CreationSpecification spec,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    fullTemplateData.put("baseDirectory", spec.getBaseDirectory());
+  protected void onTemplateSetup(CreationSpecification spec) {
+    spec.addTemplateDataEntry("baseDirectory", spec.getBaseDirectory());
+    FreemarkerTemplater templater = spec.getTemplater();
     for (TemplateVar templateVar : spec.getTemplateVars()) {
-      templater.processStringTemplate(fullTemplateData, templateVar.getValue(), templateVar.getName());
+      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
     }
   }
 
-  protected void onTemplateWrite(CreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> fullTemplateData) {
-    writeTemplateList(spec, workbench, templater, fullTemplateData);
+  protected void onTemplateWrite(CreationSpecification spec) {
+    writeTemplateList(spec);
   }
 
-  private void dumpVariables(Map<String, Object> fullTemplateData, File variableDump) {
+  private void dumpVariables(File variableDump, Map<String, Object> variables) {
     PrintWriter variableWriter = null;
     try {
       variableWriter = new PrintWriter(variableDump);
-      for (Map.Entry<String, Object> entry : fullTemplateData.entrySet()) {
+      for (Map.Entry<String, Object> entry : variables.entrySet()) {
         variableWriter.println(String.format("%s=%s", entry.getKey(), entry.getValue()));
       }
     } catch (Exception e) {
@@ -128,28 +116,23 @@ public class BaseTemplate {
    *
    * @param spec
    *          specification for the project
-   * @param workbench
-   *          the workbench the project is being built under
-   * @param templater
-   *          the templater to use
-   * @param fullTemplateData
-   *          the full data to be used for the template
+   *
    */
-  public void writeTemplateList(CreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
+  public void writeTemplateList(CreationSpecification spec) {
     for (TemplateFile template : fileTemplates) {
 
-      File outFile = new File(templater.processStringTemplate(fullTemplateData, template.getOutput(), null));
+      FreemarkerTemplater templater = spec.getTemplater();
+      Map<String, Object> templateData = spec.getTemplateData();
+      String outPath = templater.processStringTemplate(templateData, template.getOutput(), null);
+      File outFile = new File(outPath);
       if (!outFile.isAbsolute()) {
-        File projectDirectory = getBaseDirectory(spec, templater, fullTemplateData);
+        File projectDirectory = getBaseDirectory(spec, templater, templateData);
         outFile = new File(projectDirectory, outFile.getPath());
       }
 
-      String relativeInPath = templater.processStringTemplate(fullTemplateData, template.getTemplate(), null);
-      File specificationSource = spec.getSpecification();
-      String absoluteInPath = new File(specificationSource.getParentFile(), relativeInPath).getAbsolutePath();
-      templater.writeTemplate(fullTemplateData, outFile, absoluteInPath);
+      String relativeInPath = templater.processStringTemplate(templateData, template.getTemplate(), null);
+      String absoluteInPath = new File(spec.getSpecificationBase(), relativeInPath).getAbsolutePath();
+      templater.writeTemplate(templateData, outFile, absoluteInPath);
     }
   }
 

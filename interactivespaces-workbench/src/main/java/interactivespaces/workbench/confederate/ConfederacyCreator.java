@@ -16,19 +16,14 @@
 
 package interactivespaces.workbench.confederate;
 
-import com.google.common.collect.Maps;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseTemplate;
 import interactivespaces.workbench.project.CreationSpecification;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.TemplateFile;
 import interactivespaces.workbench.project.activity.creator.ProjectCreator;
 import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
-
-import java.io.File;
-import java.util.Map;
 
 /**
  * A {@link interactivespaces.workbench.project.activity.creator.ProjectCreator} implementation.
@@ -60,7 +55,7 @@ public class ConfederacyCreator {
     this.workbench = workbench;
     templater = new FreemarkerTemplater();
     templater.startup();
-    templater.addEvaluationPass();
+    templater.setEvaluationPasses(2);
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
@@ -75,27 +70,28 @@ public class ConfederacyCreator {
     }
   }
 
-  private void writeConfederacyTemplates(Confederacy spec) {
-
-    CreationSpecification creator = new CreationSpecification();
-    creator.addAllTemplateVars(spec.getTemplateVars());
-    creator.setBaseDirectory(spec.getBaseDirectory());
-    creator.setSpecification(spec.getSpecificationSource());
-
+  private void writeConfederacyTemplates(Confederacy confederacy) {
+    CreationSpecification creationSpecification = new CreationSpecification();
+    populateCreationSpecificaiton(confederacy, creationSpecification);
     BaseTemplate template = new BaseTemplate("Confederacy Writer");
-    Map<String, Object> templateData = Maps.newHashMap();
-    templateData.put("baseDirectory", spec.getBaseDirectory());
-    template.addAllFileTemplate(spec.getTemplateFiles());
-    template.process(creator, workbench, templater, templateData);
+    template.addAllFileTemplate(confederacy.getTemplateFiles());
+    template.process(creationSpecification);
   }
 
   private void createProject(Project project, Confederacy confederacy) {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    populateCreationSpecificaiton(confederacy, spec);
     spec.setProject(project);
     spec.setLanguage(project.getBuilderType());
-    spec.addAllTemplateVars(confederacy.getTemplateVars());
-    spec.setBaseDirectory(confederacy.getBaseDirectory());
-    spec.setSpecification(confederacy.getSpecificationSource());
     projectCreator.createProject(spec);
   }
+
+  private void populateCreationSpecificaiton(Confederacy confederacy, CreationSpecification creationSpecification) {
+    creationSpecification.addTemplateVars(confederacy.getTemplateVars());
+    creationSpecification.setBaseDirectory(confederacy.getBaseDirectory());
+    creationSpecification.setSpecificationBase(confederacy.getSpecificationSource().getParentFile());
+    creationSpecification.addTemplateDataEntry("baseDirectory", confederacy.getBaseDirectory());
+    creationSpecification.setTemplater(templater);
+  }
+
 }

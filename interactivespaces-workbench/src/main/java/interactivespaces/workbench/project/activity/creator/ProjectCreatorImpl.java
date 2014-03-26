@@ -22,7 +22,6 @@ import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectTemplate;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,44 +57,15 @@ public class ProjectCreatorImpl implements ProjectCreator {
   @Override
   public void createProject(ProjectCreationSpecification spec) {
     try {
-      // Create the templateData hash
-      Map<String, Object> templateData = new HashMap<String, Object>();
-      templateData.put("spec", spec);
-      templateData.put("project", spec.getProject());
+      spec.addTemplateDataEntry("spec", spec);
+      spec.addTemplateDataEntry("project", spec.getProject());
 
-      writeProjectTemplate(spec, templateData);
+      // TODO(pering): This needs to be fixed to accomodate other project types.
+      ProjectTemplate projectTemplate = new ActivityProjectTemplate();
+      projectTemplate.process(spec);
 
     } catch (Exception e) {
       workbench.handleError("Error while creating project", e);
     }
-  }
-
-  /**
-   * Write out the code template.
-   *
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeProjectTemplate(ProjectCreationSpecification spec,
-      Map<String, Object> templateData) {
-    ProjectTemplate template = new ActivityProjectTemplate();
-    writeProjectTemplate(template, spec, templateData);
-  }
-
-  /**
-   * Write out the code template.
-   *
-   * @param sourceDescription
-   *          source project template
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data to go into the template
-   */
-  private void writeProjectTemplate(ProjectTemplate sourceDescription,
-      ProjectCreationSpecification spec, Map<String, Object> templateData) {
-    sourceDescription.process(spec, workbench, templater, templateData);
   }
 }

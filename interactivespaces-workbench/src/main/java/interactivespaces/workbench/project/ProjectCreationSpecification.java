@@ -16,11 +16,6 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
-
-import java.io.File;
-import java.util.List;
-
 /**
  * A specification for creating a project.
  *
