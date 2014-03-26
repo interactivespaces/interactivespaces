@@ -88,20 +88,20 @@ public class JdomConfederacyReader extends JdomReader {
     }
   }
 
-  private void addTemplateFileGroup(Confederacy spec, Element group) {
-    @SuppressWarnings("unchecked")
-    List<Element> children = (List<Element>) group.getChildren();
-    for (Element entry : children) {
-      spec.addTemplateFile(ProjectTemplateConstituent.getTemplateFileFromElement(entry));
-    }
-  }
-
   private void addTemplateVarToSpec(Confederacy spec, Element child) {
     if (!TemplateVar.ELEMENT_NAME.equals(child.getName())) {
       throw new SimpleInteractiveSpacesException("Bad element name " + child.getName());
     }
     TemplateVar templateVar = getTemplateVarFromElement(child);
     spec.addTemplateVar(templateVar);
+  }
+
+  private void addTemplateFileGroup(Confederacy spec, Element group) {
+    @SuppressWarnings("unchecked")
+    List<Element> children = (List<Element>) group.getChildren();
+    for (Element entry : children) {
+      spec.addTemplateFile(ProjectTemplateConstituent.getTemplateFileFromElement(entry));
+    }
   }
 
   private void addPrototypeElement(Confederacy spec, Element child) {

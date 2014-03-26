@@ -75,6 +75,7 @@ public class ConfederacyCreator {
     populateCreationSpecificaiton(confederacy, creationSpecification);
     BaseTemplate template = new BaseTemplate("Confederacy Writer");
     template.addAllFileTemplate(confederacy.getTemplateFiles());
+    template.addTemplateVars(confederacy.getTemplateVars());
     template.process(creationSpecification);
   }
 
@@ -87,7 +88,6 @@ public class ConfederacyCreator {
   }
 
   private void populateCreationSpecificaiton(Confederacy confederacy, CreationSpecification creationSpecification) {
-    creationSpecification.addTemplateVars(confederacy.getTemplateVars());
     creationSpecification.setBaseDirectory(confederacy.getBaseDirectory());
     creationSpecification.setSpecificationBase(confederacy.getSpecificationSource().getParentFile());
     creationSpecification.addTemplateDataEntry("baseDirectory", confederacy.getBaseDirectory());

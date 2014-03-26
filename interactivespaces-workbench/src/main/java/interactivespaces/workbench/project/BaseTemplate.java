@@ -20,6 +20,8 @@ public class BaseTemplate {
    */
   private final List<TemplateFile> fileTemplates = Lists.newLinkedList();
 
+  private final List<TemplateVar> templateVars = Lists.newArrayList();
+
   /**
    * The display name for the template.
    */
@@ -109,6 +111,14 @@ public class BaseTemplate {
 
   public void addAllFileTemplate(List<TemplateFile> addFileTemplate) {
     fileTemplates.addAll(addFileTemplate);
+  }
+
+  public List<TemplateVar> getTemplateVars() {
+    return templateVars;
+  }
+
+  public void addTemplateVars(List<TemplateVar> addTemplateVars) {
+    templateVars.addAll(addTemplateVars);
   }
 
   /**

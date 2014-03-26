@@ -12,8 +12,6 @@ import java.util.Map;
  */
 public class CreationSpecification {
 
-  private final List<TemplateVar> templateVars = Lists.newArrayList();
-
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
   private FreemarkerTemplater templater;
@@ -45,14 +43,6 @@ public class CreationSpecification {
    */
   public void setSpecificationBase(File specification) {
     this.specificationBase = specification;
-  }
-
-  public void addTemplateVars(List<TemplateVar> addTemplateVars) {
-    templateVars.addAll(addTemplateVars);
-  }
-
-  public List<TemplateVar> getTemplateVars() {
-    return templateVars;
   }
 
   public File getBaseDirectory() {
