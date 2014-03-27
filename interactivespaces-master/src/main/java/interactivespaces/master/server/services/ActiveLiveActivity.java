@@ -75,6 +75,11 @@ public class ActiveLiveActivity {
   private ActivityState deployState = ActivityState.UNKNOWN;
 
   /**
+   * Detail message for the deploy state detail, if any.
+   */
+  private String deployStateDetail;
+
+  /**
    * The last state update. {@code null} means there hasn't been one yet.
    */
   private Long lastStateUpdate;
@@ -410,13 +415,35 @@ public class ActiveLiveActivity {
   }
 
   /**
+   * Get the current local knowledge of the activity deploy state detail.
+   *
+   * @return the deploy state detail
+   */
+  public String getDeployStateDetail() {
+    return deployStateDetail;
+  }
+
+  /**
    * Set the current local knowledge of the activity deploy state.
    *
    * @param deployState
    *          the state to set
    */
   public void setDeployState(ActivityState deployState) {
+    setDeployState(deployState, null);
+  }
+
+  /**
+   * Set the current local knowledge of the activity deploy state w/ detail.
+   *
+   * @param deployState
+   *          the state to set
+   * @param deployStateDetail
+   *          the state detail to set
+   */
+  public void setDeployState(ActivityState deployState, String deployStateDetail) {
     this.deployState = deployState;
+    this.deployStateDetail = deployStateDetail;
   }
 
   /**

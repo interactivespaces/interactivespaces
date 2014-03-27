@@ -292,7 +292,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
       Map<String, Object> liveActivityData = Maps.newHashMap();
       extractLiveActivityApiData(liveActivity, liveActivityData);
 
-      responseData.put("liveActivity", liveActivityData);
+      responseData.put("liveactivity", liveActivityData);
 
       List<LiveActivityGroup> liveActivityGroups =
           Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveActivity));
@@ -569,6 +569,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     ActivityState deployState = active.getDeployState();
     activeData.put("deployState", deployState.name());
     activeData.put("deployStateDescription", deployState.getDescription());
+    activeData.put("deployStateDetail", active.getDeployStateDetail());
     activeData.put("directRunning", active.isDirectRunning());
     activeData.put("directActivated", active.isDirectActivated());
     activeData.put("numberLiveActivityGroupRunning", active.getNumberLiveActivityGroupRunning());

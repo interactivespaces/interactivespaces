@@ -348,7 +348,7 @@ public class ActiveSpaceControllerManagerTest extends BaseSpaceTest {
     activeControllerManager.deployLiveActivityGroup(group1);
 
     assertActiveActivityState(activeActivities.get(0), false, 0, false, 0, ActivityState.UNKNOWN,
-        ActivityState.DEPLOY_ATTEMPT);
+        ActivityState.DEPLOY_FAILURE);
     assertActiveActivityState(activeActivities.get(1), false, 0, false, 0, ActivityState.UNKNOWN,
         ActivityState.DEPLOY_ATTEMPT);
 

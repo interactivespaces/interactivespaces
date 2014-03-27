@@ -22,6 +22,7 @@ import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.Version;
 import interactivespaces.util.resource.ManagedResource;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -182,4 +183,14 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * @return all resources in the given category
    */
   NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getAllResources(String category);
+
+  /**
+   * Get the base location for files from a give category.
+   *
+   * @param category
+   *          the category
+   *
+   * @return the base location
+   */
+  File getBaseLocation(String category);
 }

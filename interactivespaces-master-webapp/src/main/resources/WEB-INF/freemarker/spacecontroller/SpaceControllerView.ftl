@@ -244,6 +244,7 @@ ${spacecontroller.description}
         <#if liveactivity.active.deployState != "READY">
           <span>
             <@spring.message liveactivity.active.deployStateDescription />
+            <#if liveactivity.active.deployStateDetail?has_content>: ${liveactivity.active.deployStateDetail}</#if>
           </span>
         </#if>
       </td>

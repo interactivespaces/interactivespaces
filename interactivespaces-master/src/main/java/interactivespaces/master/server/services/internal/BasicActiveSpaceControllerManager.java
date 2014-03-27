@@ -16,6 +16,12 @@
 
 package interactivespaces.master.server.services.internal;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
@@ -29,19 +35,11 @@ import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
 import interactivespaces.master.server.services.ActiveSpace;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerHelper;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 import java.util.List;
 import java.util.Map;
@@ -256,12 +254,11 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
                 .getController().getHostId()));
       }
 
-      synchronized (activeLiveActivity) {
-        activeLiveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
-      }
+      activeLiveActivity.setDeployState(ActivityState.DEPLOY_ATTEMPT);
 
       remoteActivityDeploymentManager.deployLiveActivity(activeLiveActivity);
     } catch (Exception e) {
+      activeLiveActivity.setDeployState(ActivityState.DEPLOY_FAILURE, e.getMessage());
       spaceEnvironment.getLog().error(
           String.format("could not deploy live activity %s to controller %s", liveActivity.getUuid(), liveActivity
               .getController().getHostId()), e);
@@ -282,9 +279,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
               .getController().getHostId()));
     }
 
-    synchronized (activeLiveActivity) {
-      activeLiveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
-    }
+    activeLiveActivity.setDeployState(ActivityState.DELETE_ATTEMPT);
 
     remoteActivityDeploymentManager.deleteLiveActivity(activeLiveActivity);
   }
@@ -893,7 +888,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
         spaceEnvironment.getLog().info(String.format("Live activity %s deployed successfully", uuid));
 
       } else {
-        active.setDeployState(ActivityState.DEPLOY_FAILURE);
+        active.setDeployState(ActivityState.DEPLOY_FAILURE, result.getStatus().toString());
 
         spaceEnvironment.getLog()
             .info(String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
