@@ -21,7 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
+<body class="admin-content">
 
 <script type="text/javascript">
 function doAjaxCommand(command) {
@@ -39,8 +39,6 @@ function deleteSpace() {
     }
 }
 </script>
-
-<#include "/allpages_body_header.ftl">
 
 <h1>Space: ${space.name}</h1>
 
@@ -83,8 +81,8 @@ ${space.description}
 </tr>
 <tr>
 <th valign="top">Metadata</th>
-<td><table><#list metadata as item>
-<tr><th valign="top">${item.label}</th><td>${item.value}</td></tr>
+<td><table><#assign metadataKeys = space.metadata?keys?sort><#list metadataKeys as metadataKey>
+<tr><th valign="top">${metadataKey}</th><td>${space.metadata[metadataKey]}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -94,7 +92,7 @@ ${space.description}
 <#if liveActivityGroups?has_content>
 <ul>
 <#list liveActivityGroups as group>
-    <li><a href="/interactivespaces/liveactivitygroup/${group.id}/view.html">${group.name}</a></li>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${group.id}/view.html')">${group.name}</a></li>
 </#list>
 </ul>
 <#else>
@@ -106,7 +104,7 @@ None
 <#if subspaces?has_content>
 <ul>
 <#list subspaces as subspace>
-    <li><a href="/interactivespaces/space/${subspace.id}/view.html">${subspace.name}</a></li>
+    <li><a href=" onclick="ugly.changePage('/interactivespaces/space/${subspace.id}/view.html')">${subspace.name}</a></li>
 </#list>
 </ul>
 <#else>
@@ -116,10 +114,10 @@ None
 
 <h3>Containing Spaces</h3>
 
-<#if cspaces?has_content>
+<#if containingSpaces?has_content>
 <ul>
-<#list cspaces as cspace>
-    <li><a href="/interactivespaces/space/${cspace.id}/view.html">${cspace.name}</a></li>
+<#list containingSpaces as containingSpace>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${containingSpace.id}/view.html')">${containingSpace.name}</a></li>
 </#list>
 </ul>
 <#else>

@@ -16,7 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 
 import org.springframework.webflow.core.FlowException;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
@@ -35,7 +35,7 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
 
   private static final String DEFAULT_URL = "/spacecontroller/all.html";
 
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   @Override
   public String handleExecutionOutcome(FlowExecutionOutcome outcome, HttpServletRequest request,
@@ -57,7 +57,7 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
   /**
    * @return the controllerRepository
    */
-  public ControllerRepository getControllerRepository() {
+  public SpaceControllerRepository getControllerRepository() {
     return controllerRepository;
   }
 
@@ -65,7 +65,7 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 

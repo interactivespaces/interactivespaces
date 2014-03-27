@@ -32,12 +32,12 @@ import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.MasterDataBundleManager;
-import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
+import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerHelper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -74,11 +74,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link RemoteControllerClient} which uses ROS.
+ * A {@link RemoteSpaceControllerClient} which uses ROS.
  *
  * @author Keith M. Hughes
  */
-public class RosRemoteControllerClient implements RemoteControllerClient {
+public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClient {
 
   /**
    * Default number of milliseconds to wait for a controller connection.
@@ -98,7 +98,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   /**
    * Helps with listeners for activity events.
    */
-  private RemoteControllerClientListenerHelper remoteControllerClientListeners;
+  private RemoteSpaceControllerClientListenerHelper remoteControllerClientListeners;
 
   /**
    * The ROS environment the client is running in.
@@ -194,7 +194,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   public void startup() {
     log.info("Starting up ROS remote controller");
 
-    remoteControllerClientListeners = new RemoteControllerClientListenerHelper(log);
+    remoteControllerClientListeners = new RemoteSpaceControllerClientListenerHelper(log);
 
     masterNode = masterRosContext.getNode();
     rosMessageFactory = masterNode.getTopicMessageFactory();
@@ -417,7 +417,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   @Override
-  public RemoteControllerClientListenerHelper registerRemoteActivityDeploymentManager(
+  public RemoteSpaceControllerClientListenerHelper registerRemoteActivityDeploymentManager(
       RemoteActivityDeploymentManager remoteActivityDeploymentManager) {
     this.remoteActivityDeploymentManager = remoteActivityDeploymentManager;
 
@@ -712,7 +712,7 @@ public class RosRemoteControllerClient implements RemoteControllerClient {
   }
 
   @Override
-  public RemoteControllerClientListenerHelper getRemoteControllerClientListeners() {
+  public RemoteSpaceControllerClientListenerHelper getRemoteControllerClientListeners() {
     return remoteControllerClientListeners;
   }
 

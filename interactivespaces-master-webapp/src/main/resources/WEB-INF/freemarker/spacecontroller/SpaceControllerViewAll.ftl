@@ -21,7 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body class="controller-view-all">
+<body class="admin-content controller-view-all">
 <script type="text/javascript">
 function doAjaxCommand(command) {
   $.ajax({
@@ -81,8 +81,6 @@ function shutdownAllActivitiesAllControllers() {
 }
 </script>
 
-<#include "/allpages_body_header.ftl">
-
 <h1>Space Controllers</h1>
 
 <table class="commandBar">
@@ -118,31 +116,31 @@ function shutdownAllActivitiesAllControllers() {
     <th></th>
   </tr>
 
-  <#list lspacecontrollers as lspacecontroller>
-    <#assign trCss = (lspacecontroller_index % 2 == 0)?string("even","odd")>
+  <#list spacecontrollers as spacecontroller>
+    <#assign trCss = (spacecontroller_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
       <td class="controller-name">
-        <a href="${lspacecontroller.controller.id}/view.html">${lspacecontroller.controller.name}</a>
+        <a class="uglylink" onclick="ugly.changePage('/interactivespaces/spacecontroller/${spacecontroller.id}/view.html')">${spacecontroller.name}</a>
       </td>
       <td class="mode-value">
-        <#if lspacecontroller.controller.getMode()??>
+        <#if spacecontroller.mode??>
           <div class="status-box">
-            <div class="status-box-inner spacecontroller-mode spacecontroller-mode-${lspacecontroller.controller.getMode().name()}">
-              <@spring.message lspacecontroller.controller.getMode().description />
+            <div class="status-box-inner spacecontroller-mode spacecontroller-mode-${spacecontroller.mode}">
+              <@spring.message spacecontroller.modeDescription />
             </div>
           </div>
         </#if>
       </td>
       <td class="status-value">
         <div class="status-box">
-          <div class="status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.state.name()}">
-            <@spring.message lspacecontroller.state.description />
+          <div class="status-box-inner spacecontroller-status spacecontroller-status-${spacecontroller.state.name()}">
+            <@spring.message spacecontroller.state.description />
           </div>
         </div>
       </td>
       <td>
-        <#if lspacecontroller.lastStateUpdate??>
-          <#assign t  = lspacecontroller.lastStateUpdateDate?datetime>
+        <#if spacecontroller.lastStateUpdate??>
+          <#assign t  = spacecontroller.lastStateUpdate>
         <#else>
           <#assign t = 'Unknown'>
         </#if>
@@ -150,14 +148,14 @@ function shutdownAllActivitiesAllControllers() {
       </td>
       <td class="databundle-value">
         <div class="status-box">
-          <div class="status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.dataBundleState.name()}">
-            <@spring.message lspacecontroller.dataBundleState.description />
+          <div class="status-box-inner spacecontroller-status spacecontroller-status-${spacecontroller.dataBundleState}">
+            <@spring.message spacecontroller.dataBundleStateDescription />
           </div>
         </div>
       </td>
       <td>
-        <#if lspacecontroller.lastDataBundleStateUpdate??>
-          <#assign t  = lspacecontroller.lastDataBundleStateUpdateDate?datetime>
+        <#if spacecontroller.lastDataBundleStateUpdate??>
+          <#assign t  = spacecontroller.lastDataBundleStateUpdateDate>
         <#else>
           <#assign t = 'Unknown'>
         </#if>

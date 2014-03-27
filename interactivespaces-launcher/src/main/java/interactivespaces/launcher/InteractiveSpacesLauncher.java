@@ -32,11 +32,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An OSGI launcher for Interactive Spaces.
+ * The initial launcher for Interactive Spaces.
  *
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesLauncher {
+
+  /**
+   * The name of the class which bootstraps the Interactoive Spaces framework.
+   */
+  private static final String CLASSNAME_INTERACTIVESPACES_FRAMEWORK_BOOTSTRAP =
+      "interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap";
+
+  /**
+   * The run folder in the directory where the container is installed.
+   */
+  private static final String FOLDER_RUN = "run";
+
+  /**
+   * The name of the PID file for the container.
+   */
+  private static final String FILENAME_INTERACTIVESPACES_PID = "interactivespaces.pid";
 
   /**
    * The file extension used for files which give container extensions.
@@ -56,20 +72,25 @@ public class InteractiveSpacesLauncher {
   /**
    * The subdirectory which contains the system files.
    */
-  private static final String SPACES_LIB_JAVA_SYSTEM = "lib/system/java";
+  private static final String SPACES_LIB_SYSTEM_JAVA = "lib/system/java";
 
   /**
-   * The classloader for starting Interactive Spaces
+   * The subdirectory which contains the environment files.
+   */
+  private static final String SPACES_CONFIG_ENVIRONMENT = "config/environment";
+
+  /**
+   * The classloader for starting Interactive Spaces.
    */
   private ClassLoader classLoader;
 
   /**
-   * The file which gives the process ID for the IS process.
+   * The file which gives the process ID for the Interactive Spaces process.
    */
   private File pidFile;
 
   /**
-   * The main method for IS.
+   * The main method for Interactive Spaces.
    *
    * @param args
    *          the command line arguments
@@ -101,10 +122,10 @@ public class InteractiveSpacesLauncher {
    * Create the classloader to use to start the system.
    */
   private void createClassLoader() {
-    File systemDirectory = new File(SPACES_LIB_JAVA_SYSTEM);
+    List<URL> urls = new ArrayList<URL>();
 
-    List<URL> urls = collectSystemLibClasspath(systemDirectory);
-    addExtensionsToClasspath(systemDirectory, urls);
+    collectSystemLibClasspath(urls);
+    addExtensionsToClasspath(urls);
 
     classLoader = new URLClassLoader(urls.toArray(new URL[0]));
   }
@@ -112,10 +133,12 @@ public class InteractiveSpacesLauncher {
   /**
    * Get the classpath to be used for starting the system.
    *
-   * @return
+   * @param classpath
+   *          the classpath list
    */
-  private List<URL> collectSystemLibClasspath(File systemDirectory) {
-    List<URL> urls = new ArrayList<URL>();
+  private void collectSystemLibClasspath(List<URL> classpath) {
+    File systemDirectory = new File(SPACES_LIB_SYSTEM_JAVA);
+
     File[] files = systemDirectory.listFiles();
     if (files != null) {
       for (File file : files) {
@@ -125,31 +148,27 @@ public class InteractiveSpacesLauncher {
 
         try {
           URL url = file.toURI().toURL();
-          urls.add(url);
+          classpath.add(url);
         } catch (MalformedURLException e) {
           e.printStackTrace();
         }
       }
     }
 
-    if (urls.isEmpty()) {
+    if (classpath.isEmpty()) {
       System.err.format("No bootstrap files found in %s", systemDirectory.getAbsolutePath());
     }
-
-    return urls;
   }
 
   /**
-   * If the {@link #SYSTEMJARS_CONF} exists in the system directory, extend the
-   * classpath.
+   * Add any extension classpath additions to the classpath.
    *
-   * @param systemDirectory
-   *          the system directory
-   * @param urls
-   *          the collection of URLs for the classpath.
+   * @param classpath
+   *          the classpath
    */
-  private void addExtensionsToClasspath(File systemDirectory, List<URL> urls) {
-    File[] extensionFiles = systemDirectory.listFiles(new FilenameFilter() {
+  private void addExtensionsToClasspath(List<URL> classpath) {
+    File extensionsDirectory = new File(SPACES_CONFIG_ENVIRONMENT);
+    File[] extensionFiles = extensionsDirectory.listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {
         return name.endsWith(EXTENSION_FILE_EXTENSION);
@@ -161,7 +180,7 @@ public class InteractiveSpacesLauncher {
     }
 
     for (File extensionFile : extensionFiles) {
-      processExtensionFile(urls, extensionFile);
+      processExtensionFile(classpath, extensionFile);
     }
 
   }
@@ -207,11 +226,13 @@ public class InteractiveSpacesLauncher {
 
   /**
    * Bootstrap the framework.
+   *
+   * @param args
+   *          the command line arguments
    */
   private void boostrap(String[] args) {
     try {
-      Class<?> bootstrapClass =
-          classLoader.loadClass("interactivespaces.launcher.bootstrap.InteractiveSpacesFrameworkBootstrap");
+      Class<?> bootstrapClass = classLoader.loadClass(CLASSNAME_INTERACTIVESPACES_FRAMEWORK_BOOTSTRAP);
 
       Object bootstrapInstance = bootstrapClass.newInstance();
 
@@ -235,7 +256,7 @@ public class InteractiveSpacesLauncher {
    *         be written.
    */
   private boolean writePid() {
-    File runDirectory = new File("run");
+    File runDirectory = new File(FOLDER_RUN);
     if (!runDirectory.exists()) {
       if (!runDirectory.mkdir()) {
         System.err.format("Could not create run directory %s\n", runDirectory);
@@ -243,7 +264,7 @@ public class InteractiveSpacesLauncher {
       }
     }
 
-    pidFile = new File(runDirectory, "interactivespaces.pid");
+    pidFile = new File(runDirectory, FILENAME_INTERACTIVESPACES_PID);
 
     try {
       RandomAccessFile pidRaf = new RandomAccessFile(pidFile, "rw");

@@ -20,12 +20,16 @@
 <#include "/allpages_head.ftl" >
 </head>
 
-<body class="liveactivity-view">
+<body class="admin-content">
 
 <script type="text/javascript">
+function doApiCommand(command) {
+  ugly.executeApi("/liveactivity/" + command, {'id':'${liveActivity.id}'});
+}
+
 function doAjaxCommand(command) {
   $.ajax({
-      url: '/interactivespaces/liveactivity/${liveactivity.activity.id}/' + command + '.json',
+      url: '/interactivespaces/liveactivity/${liveActivity.id}/' + command + '.json',
       success: function(data) {
         $('#commandResult').html(data.result);
       }
@@ -46,7 +50,7 @@ function cleanPermanentDataLiveActivity() {
 
 function deleteLiveActivity() {
     if (confirm("Are you sure you want to delete the activity?")) {
-        window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/delete.html'
+        window.location='/interactivespaces/liveactivity/${liveActivity.id}/delete.html'
     }
 }
 
@@ -57,29 +61,26 @@ function remoteDeleteLiveActivity() {
 }
 </script>
 
-
-<#include "/allpages_body_header.ftl">
-
-<h1>Live Activity: ${liveactivity.activity.name}</h1>
+<h1>Live Activity: ${liveActivity.name}</h1>
 
 <table class="commandBar">
   <tr>
-    <td><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></td>
-    <td><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></td>
-    <td><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></td>
-    <td><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></td>
-    <td><button type="button" id="statusButton" onclick="doAjaxCommand('status')">Status</button></td>
-    <td><button type="button" id="configureButton" onclick="doAjaxCommand('configure')" title="Configure activity on the controller">Configure</button></td>
-    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy activity to the controller">Deploy</button></td>
+    <td><button type="button" id="startupButton" onclick="doApiCommand('startup')">Startup</button></td>
+    <td><button type="button" id="activateButton" onclick="doApiCommand('activate')">Activate</button></td>
+    <td><button type="button" id="deactivateButton" onclick="doApiCommand('deactivate')">Deactivate</button></td>
+    <td><button type="button" id="shutdownButton" onclick="doApiCommand('shutdown')">Shutdown</button></td>
+    <td><button type="button" id="statusButton" onclick="doApiCommand('status')">Status</button></td>
+    <td><button type="button" id="configureButton" onclick="doApiCommand('configure')" title="Configure activity on the controller">Configure</button></td>
+    <td><button type="button" id="deployButton" onclick="doApiCommand('deploy')" title="Deploy activity to the controller">Deploy</button></td>
   </tr>
   <tr>
-    <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/edit.html'" title="Edit the activity details">Edit</button></td>
-    <td><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/config/edit.html'" title="Edit the activity configuration">Edit Config</button></td>
-    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/liveactivity/${liveactivity.activity.id}/metadata/edit.html'" title="Edit the live activity metadata">Metadata</button></td>
+    <td><button type="button" id="editButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveActivity.id}/edit.html')" title="Edit the activity details">Edit</button></td>
+    <td><button type="button" id="editConfigButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveActivity.id}/config/edit.html')" title="Edit the activity configuration">Edit Config</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveActivity.id}/metadata/edit.html')" title="Edit the live activity metadata">Metadata</button></td>
     <td><button type="button" onclick="cleanTempDataLiveActivity()" title="Delete temp data for live activity">Clean Tmp</button></td>
     <td><button type="button" onclick="cleanPermanentDataLiveActivity()" title="Delete permanent data for live activity">Clean Permanent</button></td>
     <td><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></td>
-    <#if liveactivitygroups?has_content>
+    <#if liveActivityGroups?has_content>
       <#assign disabledAttribute = 'disabled'>
       <#assign title = 'Can not delete a live activity contained in a group'>
     <#else>
@@ -93,46 +94,46 @@ function remoteDeleteLiveActivity() {
 <div id="commandResult">
 </div>
 
-<#if liveactivity.activity.description?has_content><p>
-${liveactivity.activity.description}
+<#if liveActivity.description?has_content><p>
+${liveActivity.description}
 </p></#if>
 
 <table class="liveactivity-details">
 <tr>
 <th>ID</th>
-<td>${liveactivity.activity.id}</td>
+<td>${liveActivity.id}</td>
 </tr>
 <tr>
 <th>UUID</th>
-<td>${liveactivity.activity.uuid}</td>
+<td>${liveActivity.uuid}</td>
 </tr>
 <tr>
 <th>Activity</th>
-<td><a href="/interactivespaces/activity/${liveactivity.activity.activity.id}/view.html">${liveactivity.activity.activity.name} - ${liveactivity.activity.activity.version}</a></td>
+<td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/${liveActivity.activity.id}/view.html')">${liveActivity.activity.name} - ${liveActivity.activity.version}</a></td>
 </tr>
 <th>Controller</th>
-<td><#if liveactivity.activity.controller?has_content>
-<a href="/interactivespaces/spacecontroller/${liveactivity.activity.controller.id}/view.html">${liveactivity.activity.controller.name}</a>
+<td><#if liveActivity.controller?has_content>
+<a class="uglylink" onclick="ugly.changePage('/interactivespaces/spacecontroller/${liveActivity.controller.id}/view.html')">${liveActivity.controller.name}</a>
 <#else>
 <span style="color: red;">No controller assigned!</span>
 </#if>
 </td>
 </tr>
 <tr>
-<th>Deployement</th>
+<th>Deployment</th>
 <td>
-Last: <#if liveactivity.activity.lastDeployDate??>
-      ${liveactivity.activity.lastDeployDate?datetime}
+Last: <#if liveActivity.lastDeployDate??>
+      ${liveActivity.lastDeployDate}
     <#else>
       Unknown
     </#if>
-<#if liveactivity.activity.outOfDate>
+<#if liveActivity.outOfDate>
 <span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
-<#if liveactivity.active.deployState != "READY">
+<#if liveActivity.active.deployState != "READY">
 &bull;
 <span>
-<@spring.message liveactivity.active.deployState.description />
+<@spring.message liveActivity.active.deployStateDescription />
 </span>
 </#if>
 
@@ -141,12 +142,12 @@ Last: <#if liveactivity.activity.lastDeployDate??>
 <tr>
 <th>Status</th>
 <td>
-<#if liveactivity.active?has_content>
-  <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<#if liveActivity.active?has_content>
+  <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveActivity.active.runtimeState}"><@spring.message liveActivity.active.runtimeStateDescription /></span>
   <span class="as-of-timestamp">
     as of
-    <#if liveactivity.active.lastStateUpdate??>
-      ${liveactivity.active.lastStateUpdateDate?datetime}
+    <#if liveActivity.active.lastStateUpdate??>
+      ${liveActivity.active.lastStateUpdate}
     <#else>
       Unknown
     </#if>
@@ -157,38 +158,39 @@ Last: <#if liveactivity.activity.lastDeployDate??>
 <tr>
 <th>&nbsp;</th>
 <td>
-<#if liveactivity.active.directRunning>
+<#if liveActivity.active.directRunning>
 Directly Running
 <#else>
 Not Directly Running
 </#if>
 &bull;
-<#if liveactivity.active.directActivated>
+<#if liveActivity.active.directActivated>
 Directly Activated
 <#else>
 Not Directly Activated
 </#if>
 &bull;
-running from ${liveactivity.active.numberLiveActivityGroupRunning} groups
+running from ${liveActivity.active.numberLiveActivityGroupRunning} groups
 &bull;
-activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
+activated from ${liveActivity.active.numberLiveActivityGroupActivated} groups
 </td>
 </tr>
 <tr>
 <th valign="top">Metadata</th>
-<td><table><#list metadata as item>
-<tr><th>${item.label}</th><td>${item.value}</td></tr>
+<#assign metadataKeys = liveActivity.metadata?keys?sort>
+<td><table><#list metadataKeys as metadataKey>
+<tr><th>${metadataKey}</th><td>${liveActivity.metadata[metadataKey]}</td></tr>
 </#list></table></td>
 </tr>
 </table>
 
 <h2>Containing Live Activity Groups</h2>
 
-<#if liveactivitygroups?has_content>
+<#if liveActivityGroups?has_content>
 
 <ul>
-<#list liveactivitygroups as liveactivitygroup>
-    <li><a href="/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/view.html">${liveactivitygroup.name}</a></li>
+<#list liveActivityGroups as liveActivityGroup>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html')">${liveActivityGroup.name}</a></li>
 </#list>
 </ul>
 <#else>
@@ -197,11 +199,11 @@ None
 </p>
 </#if>
 
-<#if runtimeStateDetail?has_content>
+<#if liveActivity.active.runtimeStateDetail?has_content>
 <h2>Runtime State Details</h2>
 
 <pre>
-${runtimeStateDetail}
+${liveActivity.active.runtimeStateDetail}
 </pre>
 
 </#if>

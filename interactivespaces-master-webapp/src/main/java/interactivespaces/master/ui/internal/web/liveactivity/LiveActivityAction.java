@@ -21,7 +21,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
@@ -45,7 +45,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
   /**
    * Repository for controllers.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   /**
    * Get a new controller model.
@@ -110,7 +110,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 

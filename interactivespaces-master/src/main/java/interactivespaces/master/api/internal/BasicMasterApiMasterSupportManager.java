@@ -17,6 +17,7 @@
 package interactivespaces.master.api.internal;
 
 import interactivespaces.master.api.MasterApiMasterSupportManager;
+import interactivespaces.master.api.MasterApiMessage;
 import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.util.io.FileSupport;
@@ -58,7 +59,7 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Error while writing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -73,7 +74,7 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Error while importing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 

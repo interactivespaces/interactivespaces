@@ -21,9 +21,9 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.service.script.FileScriptSource;
 import interactivespaces.service.script.ScriptService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -58,7 +58,7 @@ public class OsgiMasterShell {
   /**
    * Master API manager for operations on controllers.
    */
-  private MasterApiControllerManager masterApiControllerManager;
+  private MasterApiSpaceControllerManager masterApiSpaceControllerManager;
 
   /**
    * Repository for activities.
@@ -68,7 +68,7 @@ public class OsgiMasterShell {
   /**
    * Repository for controllers.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * The script engine to use.
@@ -186,7 +186,7 @@ public class OsgiMasterShell {
    *          the args for the command
    */
   public void listControllers(CommandSession session, String[] args) {
-    List<SpaceController> controllers = controllerRepository.getAllSpaceControllers();
+    List<SpaceController> controllers = spaceControllerRepository.getAllSpaceControllers();
 
     System.out.format("Number of controllers: %d\n", controllers.size());
 
@@ -211,7 +211,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Shutting down all apps on controller %s\n", id);
-      masterApiControllerManager.shutdownAllActivities(id);
+      masterApiSpaceControllerManager.shutdownAllActivities(id);
     }
   }
 
@@ -257,7 +257,7 @@ public class OsgiMasterShell {
       }
 
       String controllerId = console.readLine("Controller ID: ");
-      SpaceController controller = controllerRepository.getSpaceControllerById(controllerId);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerById(controllerId);
       if (controller == null) {
         console.printf("Could not find controller with id %s\n", controllerId);
         return;
@@ -294,7 +294,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Deploying activity %s\n", id);
-      masterApiControllerManager.deployLiveActivity(id);
+      masterApiSpaceControllerManager.deployLiveActivity(id);
     }
   }
 
@@ -313,7 +313,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Starting up activity %s\n", id);
-      masterApiControllerManager.startupLiveActivity(id);
+      masterApiSpaceControllerManager.startupLiveActivity(id);
     }
   }
 
@@ -332,7 +332,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Activating activity %s\n", id);
-      masterApiControllerManager.activateLiveActivity(id);
+      masterApiSpaceControllerManager.activateLiveActivity(id);
     }
   }
 
@@ -351,7 +351,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Deactivating activity %s\n", id);
-      masterApiControllerManager.deactivateLiveActivity(id);
+      masterApiSpaceControllerManager.deactivateLiveActivity(id);
     }
   }
 
@@ -370,7 +370,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Shutting down activity %s\n", id);
-      masterApiControllerManager.shutdownLiveActivity(id);
+      masterApiSpaceControllerManager.shutdownLiveActivity(id);
     }
   }
 
@@ -438,7 +438,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Deploying activity group %s\n", id);
-      masterApiControllerManager.deployLiveActivityGroup(id);
+      masterApiSpaceControllerManager.deployLiveActivityGroup(id);
     }
   }
 
@@ -457,7 +457,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Starting up activity group %s\n", id);
-      masterApiControllerManager.startupLiveActivityGroup(id);
+      masterApiSpaceControllerManager.startupLiveActivityGroup(id);
     }
   }
 
@@ -476,7 +476,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Activating activity group %s\n", id);
-      masterApiControllerManager.activateLiveActivityGroup(id);
+      masterApiSpaceControllerManager.activateLiveActivityGroup(id);
     }
   }
 
@@ -495,7 +495,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Deactivating live activity group %s\n", id);
-      masterApiControllerManager.deactivateLiveActivityGroup(id);
+      masterApiSpaceControllerManager.deactivateLiveActivityGroup(id);
     }
   }
 
@@ -514,7 +514,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Shutting down activity group %s\n", id);
-      masterApiControllerManager.shutdownLiveActivityGroup(id);
+      masterApiSpaceControllerManager.shutdownLiveActivityGroup(id);
     }
   }
 
@@ -533,7 +533,7 @@ public class OsgiMasterShell {
 
     for (String id : args) {
       System.out.format("Deleting activity group %s\n", id);
-      masterApiActivityManager.deleteActivityGroup(id);
+      masterApiActivityManager.deleteLiveActivityGroup(id);
     }
   }
 
@@ -551,7 +551,7 @@ public class OsgiMasterShell {
     }
 
     Map<String, Object> bindings = Maps.newHashMap();
-    bindings.put("controllerManager", masterApiControllerManager);
+    bindings.put("controllerManager", masterApiSpaceControllerManager);
 
     try {
       for (int i = 0; i < args.length; i++) {
@@ -587,8 +587,8 @@ public class OsgiMasterShell {
    * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
-    this.masterApiControllerManager = masterApiControllerManager;
+  public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
+    this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 
   /**
@@ -600,11 +600,11 @@ public class OsgiMasterShell {
   }
 
   /**
-   * @param controllerRepository
+   * @param spaceControllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**

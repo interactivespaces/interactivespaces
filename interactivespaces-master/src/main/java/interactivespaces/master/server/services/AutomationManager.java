@@ -17,32 +17,23 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.domain.system.NamedScript;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
  * A manager for various types of extensions an automations, such as running
- * scripts, scheduling actions, etc..
+ * scripts, scheduling actions, etc.
  *
  * @author Keith M. Hughes
  */
-public interface AutomationManager {
-
-  /**
-   * Start the automation manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the automation manager down.
-   */
-  void shutdown();
+public interface AutomationManager extends ManagedResource {
 
   /**
    * Get a set of all scripting languages which can be used.
    *
-   * @return
+   * @return the set of scripting languages available
    */
   Set<String> getScriptingLanguages();
 
@@ -56,10 +47,8 @@ public interface AutomationManager {
   /**
    * Run the specified script.
    *
-   * @param id
-   *          ID of the script
-   *
-   * @return the script manager which performed the operation.
+   * @param script
+   *          the script
    */
   void runScript(NamedScript script);
 }

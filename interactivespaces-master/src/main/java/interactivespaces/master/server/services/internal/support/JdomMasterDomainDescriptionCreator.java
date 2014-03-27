@@ -31,7 +31,7 @@ import interactivespaces.domain.space.Space;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 
 import org.jdom.CDATA;
 import org.jdom.Document;
@@ -67,7 +67,7 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
    * @return the XML description
    */
   public String createDescription(ActivityRepository activityRepository,
-      ControllerRepository controllerRepository, AutomationRepository automationRepository) {
+      SpaceControllerRepository controllerRepository, AutomationRepository automationRepository) {
 
     try {
       Element rootElement = new Element(ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT);
@@ -100,7 +100,7 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
    *
    * @return the element for all controllers
    */
-  private Element createSpaceControllerEntries(ControllerRepository controllerRepository) {
+  private Element createSpaceControllerEntries(SpaceControllerRepository controllerRepository) {
     Element controllersElement = new Element(ELEMENT_NAME_ROOT_SPACE_CONTROLLERS);
 
     for (SpaceController controller : controllerRepository.getAllSpaceControllers()) {

@@ -22,8 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import interactivespaces.master.api.MasterApiAutomationManager;
-import interactivespaces.master.api.MasterApiControllerManager;
-import interactivespaces.master.api.MasterApiSpaceManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 
@@ -42,11 +41,9 @@ public class MasterFileControlTest {
 
   private InteractiveSpacesSystemControl spaceSystemControl;
 
-  private MasterApiControllerManager uiControllerManager;
+  private MasterApiSpaceControllerManager masterApiControllerManager;
 
-  private MasterApiSpaceManager uiSpaceManager;
-
-  private MasterApiAutomationManager uiAutomationManager;
+  private MasterApiAutomationManager masterApiAutomationManager;
 
   private MasterFileControl fileControl;
 
@@ -59,16 +56,14 @@ public class MasterFileControlTest {
     when(spaceEnvironment.getLog()).thenReturn(log);
 
     spaceSystemControl = mock(InteractiveSpacesSystemControl.class);
-    uiControllerManager = mock(MasterApiControllerManager.class);
-    uiSpaceManager = mock(MasterApiSpaceManager.class);
-    uiAutomationManager = mock(MasterApiAutomationManager.class);
+    masterApiControllerManager = mock(MasterApiSpaceControllerManager.class);
+    masterApiAutomationManager = mock(MasterApiAutomationManager.class);
 
     fileControl = new MasterFileControl();
     fileControl.setSpaceEnvironment(spaceEnvironment);
     fileControl.setSpaceSystemControl(spaceSystemControl);
-    fileControl.setMasterApiControllerManager(uiControllerManager);
-    fileControl.setMasterApiSpaceManager(uiSpaceManager);
-    fileControl.setMasterApiAutomationManager(uiAutomationManager);
+    fileControl.setMasterApiSpaceControllerManager(masterApiControllerManager);
+    fileControl.setMasterApiAutomationManager(masterApiAutomationManager);
   }
 
   /**
@@ -89,7 +84,7 @@ public class MasterFileControlTest {
   public void testShutdownAllControllersCall() {
     fileControl.handleCommand(MasterFileControl.COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL);
 
-    verify(uiControllerManager, times(1)).shutdownAllControllers();
+    verify(masterApiControllerManager, times(1)).shutdownAllSpaceControllers();
   }
 
   /**
@@ -100,7 +95,7 @@ public class MasterFileControlTest {
   public void testShutdownAllActivitiesAllControllersCall() {
     fileControl.handleCommand(MasterFileControl.COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES);
 
-    verify(uiControllerManager, times(1)).shutdownAllActivitiesAllControllers();
+    verify(masterApiControllerManager, times(1)).shutdownAllActivitiesAllSpaceControllers();
   }
 
   /**
@@ -111,7 +106,7 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP + id);
 
-    verify(uiControllerManager, times(1)).startupLiveActivityGroup(id);
+    verify(masterApiControllerManager, times(1)).startupLiveActivityGroup(id);
   }
 
   /**
@@ -122,7 +117,7 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE + id);
 
-    verify(uiControllerManager, times(1)).activateLiveActivityGroup(id);
+    verify(masterApiControllerManager, times(1)).activateLiveActivityGroup(id);
   }
 
   /**
@@ -133,7 +128,7 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SPACE_STARTUP + id);
 
-    verify(uiSpaceManager, times(1)).startupSpace(id);
+    verify(masterApiControllerManager, times(1)).startupSpace(id);
   }
 
   /**
@@ -144,7 +139,7 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SPACE_ACTIVATE + id);
 
-    verify(uiSpaceManager, times(1)).activateSpace(id);
+    verify(masterApiControllerManager, times(1)).activateSpace(id);
   }
 
   /**
@@ -155,6 +150,6 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SCRIPT_RUN + id);
 
-    verify(uiAutomationManager, times(1)).runScript(id);
+    verify(masterApiAutomationManager, times(1)).runScript(id);
   }
 }

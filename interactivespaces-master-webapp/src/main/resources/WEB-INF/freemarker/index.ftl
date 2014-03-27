@@ -19,11 +19,20 @@
 <title>Interactive Spaces Admin</title>
 
 <#include "/allpages_head.ftl">
+<script type="text/javascript" src="/interactivespaces/js/is-ugly.js"></script>
+<script type="text/javascript" src="/interactivespaces/js/main.js"></script>
+
+
+<script type="text/javascript">
+</script>
+
 </head>
 
-<body>
+<body style="overflow: hidden">
 
 <#include "/allpages_body_header.ftl">
+
+<iframe id="mainContent"></iframe>
 
 </body>
 <html>

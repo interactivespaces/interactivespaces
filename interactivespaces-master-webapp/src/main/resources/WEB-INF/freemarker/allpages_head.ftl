@@ -15,4 +15,5 @@
  -->
 <#import "/spring.ftl" as spring />
 <link rel="stylesheet" type="text/css" href="/interactivespaces/css/interactivespaces_master.css" />
-<script type="text/javascript" src="/interactivespaces/js/jquery-1.6.4.js"></script>
+<link rel="shortcut icon" href="/interactivespaces/img/favicon.ico" type="image/x-icon" />
+<script type="text/javascript" src="/interactivespaces/js/jquery-2.1.0.min.js"></script>

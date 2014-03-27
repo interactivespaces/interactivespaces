@@ -32,7 +32,7 @@ import interactivespaces.domain.space.Space;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.time.TimeProvider;
 
 import org.jdom.Document;
@@ -95,7 +95,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    *          the time provider to use
    */
   public void importDescription(String description, ActivityRepository activityRepository,
-      ControllerRepository controllerRepository, AutomationRepository automationRepository,
+      SpaceControllerRepository controllerRepository, AutomationRepository automationRepository,
       TimeProvider timeProvider) {
     Element rootElement = readDescription(description);
 
@@ -121,7 +121,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param controllerRepository
    *          repository for controller entities
    */
-  private void getSpaceControllers(Element rootElement, ControllerRepository controllerRepository) {
+  private void getSpaceControllers(Element rootElement, SpaceControllerRepository controllerRepository) {
     Element spaceControllersElement = rootElement.getChild(ELEMENT_NAME_ROOT_SPACE_CONTROLLERS);
 
     if (spaceControllersElement != null) {
@@ -142,7 +142,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    *          repository for controller entities
    */
   private void getSpaceController(Element controllerElement,
-      ControllerRepository controllerRepository) {
+      SpaceControllerRepository controllerRepository) {
     String id = controllerElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
     SpaceController controller = controllerRepository.newSpaceController();

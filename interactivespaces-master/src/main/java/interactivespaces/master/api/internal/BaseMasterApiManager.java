@@ -17,7 +17,11 @@
 package interactivespaces.master.api.internal;
 
 import interactivespaces.expression.ExpressionFactory;
+import interactivespaces.master.api.MasterApiMessage;
+import interactivespaces.master.api.MasterApiMessageSupport;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import java.util.Map;
 
 /**
  * A base manager with support for Master API managers.
@@ -35,6 +39,33 @@ public class BaseMasterApiManager {
    * The space environment to use.
    */
   protected InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * Get the Master API response for no such live activity.
+   *
+   * @return the API response
+   */
+  protected Map<String, Object> noSuchLiveActivityResult() {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+  }
+
+  /**
+   * Get the Master API response for no such live activity group.
+   *
+   * @return the API response
+   */
+  protected Map<String, Object> noSuchLiveActivityGroupResult() {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+  }
+
+  /**
+   * Get a no such space API response.
+   *
+   * @return a no such space API response
+   */
+  protected Map<String, Object> getNoSuchSpaceResponse() {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
+  }
 
   /**
    * Set the expression factory for this manager.

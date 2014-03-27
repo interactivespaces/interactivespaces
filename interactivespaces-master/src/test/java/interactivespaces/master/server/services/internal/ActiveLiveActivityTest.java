@@ -22,7 +22,7 @@ import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.time.TimeProvider;
 
 import org.junit.Before;
@@ -36,7 +36,7 @@ import org.mockito.Mockito;
  */
 public class ActiveLiveActivityTest extends BaseSpaceTest {
 
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteControllerClient;
 
   private ActiveSpaceController activeSpaceController;
 
@@ -58,7 +58,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
   public void setup() {
     baseSetup();
 
-    remoteControllerClient = Mockito.mock(RemoteControllerClient.class);
+    remoteControllerClient = Mockito.mock(RemoteSpaceControllerClient.class);
 
     activeSpaceController = Mockito.mock(ActiveSpaceController.class);
 

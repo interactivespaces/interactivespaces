@@ -18,10 +18,10 @@ package interactivespaces.master.server.ui.internal;
 
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.api.internal.BasicMasterApiControllerManager;
-import interactivespaces.master.server.services.ActiveControllerManager;
+import interactivespaces.master.api.internal.BasicMasterApiSpaceControllerManager;
+import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.collect.Lists;
@@ -34,16 +34,16 @@ import org.mockito.Mockito;
 import java.util.List;
 
 /**
- * Do some tests of the {@link BasicMasterApiControllerManager}.
+ * Do some tests of the {@link BasicMasterApiSpaceControllerManager}.
  *
  * @author Keith M. Hughes
  */
 public class BasicMasterApiControllerManagerTest {
 
-  private BasicMasterApiControllerManager manager;
-  private ControllerRepository controllerRepository;
+  private BasicMasterApiSpaceControllerManager manager;
+  private SpaceControllerRepository controllerRepository;
   private ActivityRepository activityRepository;
-  private ActiveControllerManager activeControllerManager;
+  private ActiveSpaceControllerManager activeSpaceControllerManager;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private Log log;
 
@@ -54,15 +54,15 @@ public class BasicMasterApiControllerManagerTest {
     log = Mockito.mock(Log.class);
     Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
 
-    controllerRepository = Mockito.mock(ControllerRepository.class);
+    controllerRepository = Mockito.mock(SpaceControllerRepository.class);
     activityRepository = Mockito.mock(ActivityRepository.class);
-    activeControllerManager = Mockito.mock(ActiveControllerManager.class);
+    activeSpaceControllerManager = Mockito.mock(ActiveSpaceControllerManager.class);
 
-    manager = new BasicMasterApiControllerManager();
+    manager = new BasicMasterApiSpaceControllerManager();
 
-    manager.setControllerRepository(controllerRepository);
+    manager.setSpaceControllerRepository(controllerRepository);
     manager.setActivityRepository(activityRepository);
-    manager.setActiveControllerManager(activeControllerManager);
+    manager.setActiveSpaceControllerManager(activeSpaceControllerManager);
   }
 
   /**
@@ -76,7 +76,7 @@ public class BasicMasterApiControllerManagerTest {
 
     manager.cleanLiveActivityTempData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1)).cleanLiveActivityTempData(controller);
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanLiveActivityTempData(controller);
   }
 
   /**
@@ -90,7 +90,7 @@ public class BasicMasterApiControllerManagerTest {
 
     manager.cleanLiveActivityPermanentData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1)).cleanLiveActivityPermanentData(
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanLiveActivityPermanentData(
         controller);
   }
 
@@ -103,9 +103,9 @@ public class BasicMasterApiControllerManagerTest {
     SpaceController controller = Mockito.mock(SpaceController.class);
     Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
 
-    manager.cleanControllerTempData(id);
+    manager.cleanSpaceControllerTempData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerTempData(controller);
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerTempData(controller);
   }
 
   /**
@@ -117,10 +117,10 @@ public class BasicMasterApiControllerManagerTest {
     SpaceController controller = Mockito.mock(SpaceController.class);
     Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
 
-    manager.cleanControllerActivitiesTempData(id);
+    manager.cleanSpaceControllerActivitiesTempData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1))
-        .cleanControllerActivitiesTempData(controller);
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1))
+        .cleanSpaceControllerActivitiesTempData(controller);
   }
 
   /**
@@ -132,9 +132,9 @@ public class BasicMasterApiControllerManagerTest {
     SpaceController controller = Mockito.mock(SpaceController.class);
     Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
 
-    manager.cleanControllerPermanentData(id);
+    manager.cleanSpaceControllerPermanentData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerPermanentData(
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerPermanentData(
         controller);
   }
 
@@ -147,9 +147,9 @@ public class BasicMasterApiControllerManagerTest {
     SpaceController controller = Mockito.mock(SpaceController.class);
     Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
 
-    manager.cleanControllerActivitiesPermanentData(id);
+    manager.cleanSpaceControllerActivitiesPermanentData(id);
 
-    Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerActivitiesPermanentData(
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerActivitiesPermanentData(
         controller);
   }
 
@@ -163,10 +163,10 @@ public class BasicMasterApiControllerManagerTest {
             .newArrayList(Mockito.mock(SpaceController.class), Mockito.mock(SpaceController.class));
     Mockito.when(controllerRepository.getAllSpaceControllers()).thenReturn(controllers);
 
-    manager.cleanControllerTempDataAllControllers();
+    manager.cleanSpaceControllerTempDataAllSpaceControllers();
 
     for (SpaceController controller : controllers) {
-      Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerTempData(controller);
+      Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerTempData(controller);
     }
   }
 
@@ -180,10 +180,10 @@ public class BasicMasterApiControllerManagerTest {
             .newArrayList(Mockito.mock(SpaceController.class), Mockito.mock(SpaceController.class));
     Mockito.when(controllerRepository.getAllSpaceControllers()).thenReturn(controllers);
 
-    manager.cleanControllerActivitiesTempDataAllControllers();
+    manager.cleanSpaceControllerActivitiesTempDataAllSpaceControllers();
 
     for (SpaceController controller : controllers) {
-      Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerActivitiesTempData(
+      Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerActivitiesTempData(
           controller);
     }
   }
@@ -198,10 +198,10 @@ public class BasicMasterApiControllerManagerTest {
             .newArrayList(Mockito.mock(SpaceController.class), Mockito.mock(SpaceController.class));
     Mockito.when(controllerRepository.getAllSpaceControllers()).thenReturn(controllers);
 
-    manager.cleanControllerPermanentDataAllControllers();
+    manager.cleanSpaceControllerPermanentDataAllSpaceControllers();
 
     for (SpaceController controller : controllers) {
-      Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerPermanentData(
+      Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerPermanentData(
           controller);
     }
   }
@@ -216,10 +216,10 @@ public class BasicMasterApiControllerManagerTest {
             .newArrayList(Mockito.mock(SpaceController.class), Mockito.mock(SpaceController.class));
     Mockito.when(controllerRepository.getAllSpaceControllers()).thenReturn(controllers);
 
-    manager.cleanControllerActivitiesPermanentDataAllControllers();
+    manager.cleanSpaceControllerActivitiesPermanentDataAllSpaceControllers();
 
     for (SpaceController controller : controllers) {
-      Mockito.verify(activeControllerManager, Mockito.times(1)).cleanControllerActivitiesPermanentData(
+      Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).cleanSpaceControllerActivitiesPermanentData(
           controller);
     }
   }

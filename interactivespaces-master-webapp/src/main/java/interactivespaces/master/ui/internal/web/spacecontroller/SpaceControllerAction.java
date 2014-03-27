@@ -18,7 +18,7 @@ package interactivespaces.master.ui.internal.web.spacecontroller;
 
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.webflow.core.collection.MutableAttributeMap;
@@ -34,7 +34,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
   /**
    * Repository for controllers.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   /**
    * Get a new controller model.
@@ -74,7 +74,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 

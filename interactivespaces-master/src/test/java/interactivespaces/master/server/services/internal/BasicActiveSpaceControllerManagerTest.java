@@ -27,7 +27,7 @@ import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
@@ -40,17 +40,17 @@ import org.mockito.Mockito;
 import java.util.Date;
 
 /**
- * Tests for the {@link BasicActiveControllerManager}.
+ * Tests for the {@link BasicActiveSpaceControllerManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicActiveControllerManagerTest {
+public class BasicActiveSpaceControllerManagerTest {
 
-  private BasicActiveControllerManager controllerManager;
+  private BasicActiveSpaceControllerManager controllerManager;
   private SpaceControllerListener listener;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private TimeProvider timeProvider;
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteControllerClient;
   private final long timestamp = 4321;
   private Log log;
 
@@ -69,13 +69,13 @@ public class BasicActiveControllerManagerTest {
 
     listener = Mockito.mock(SpaceControllerListener.class);
 
-    remoteControllerClient = Mockito.mock(RemoteControllerClient.class);
+    remoteControllerClient = Mockito.mock(RemoteSpaceControllerClient.class);
 
-    controllerManager = new BasicActiveControllerManager();
+    controllerManager = new BasicActiveSpaceControllerManager();
     controllerManager.setSpaceEnvironment(spaceEnvironment);
-    controllerManager.setRemoteControllerClient(remoteControllerClient);
+    controllerManager.setRemoteSpaceControllerClient(remoteControllerClient);
 
-    controllerManager.addControllerListener(listener);
+    controllerManager.addSpaceControllerListener(listener);
   }
 
   /**
@@ -231,7 +231,7 @@ public class BasicActiveControllerManagerTest {
     SpaceController controller = new SimpleSpaceController();
     controller.setUuid(controllerUuid);
 
-    controllerManager.cleanControllerPermanentData(controller);
+    controllerManager.cleanSpaceControllerPermanentData(controller);
 
     ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
     Mockito.verify(remoteControllerClient).cleanControllerPermanentData(acontroller);
@@ -246,7 +246,7 @@ public class BasicActiveControllerManagerTest {
     SpaceController controller = new SimpleSpaceController();
     controller.setUuid(controllerUuid);
 
-    controllerManager.cleanControllerActivitiesPermanentData(controller);
+    controllerManager.cleanSpaceControllerActivitiesPermanentData(controller);
 
     ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
     Mockito.verify(remoteControllerClient).cleanControllerActivitiesPermanentData(acontroller);
@@ -261,7 +261,7 @@ public class BasicActiveControllerManagerTest {
     SpaceController controller = new SimpleSpaceController();
     controller.setUuid(controllerUuid);
 
-    controllerManager.cleanControllerTempData(controller);
+    controllerManager.cleanSpaceControllerTempData(controller);
 
     ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
     Mockito.verify(remoteControllerClient).cleanControllerTempData(acontroller);
@@ -276,7 +276,7 @@ public class BasicActiveControllerManagerTest {
     SpaceController controller = new SimpleSpaceController();
     controller.setUuid(controllerUuid);
 
-    controllerManager.cleanControllerActivitiesTempData(controller);
+    controllerManager.cleanSpaceControllerActivitiesTempData(controller);
 
     ActiveSpaceController acontroller = controllerManager.getActiveControllerByUuid(controllerUuid);
     Mockito.verify(remoteControllerClient).cleanControllerActivitiesTempData(acontroller);

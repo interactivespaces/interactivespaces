@@ -27,8 +27,8 @@ import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
-import interactivespaces.master.server.services.RemoteControllerClient;
-import interactivespaces.master.server.services.internal.RemoteControllerClientListenerHelper;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
+import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerHelper;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.ResourceDependencyReference;
 import interactivespaces.resource.Version;
@@ -61,7 +61,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
   /**
    * The client for making calls to a remote space controller.
    */
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteSpaceControllerClient;
 
   /**
    * Server for activity repository.
@@ -86,7 +86,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
   /**
    * The listeners for remote events.
    */
-  private RemoteControllerClientListenerHelper remoteControllerClientListeners;
+  private RemoteSpaceControllerClientListenerHelper remoteSpaceControllerClientListeners;
 
   /**
    * {@code true} if should send dependencies every time.
@@ -170,7 +170,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
 
     deploymentRequests.remove(response.getTransactionId());
 
-    remoteControllerClientListeners.signalActivityDeployStatus(response.getUuid(), response);
+    remoteSpaceControllerClientListeners.signalActivityDeployStatus(response.getUuid(), response);
   }
 
   /**
@@ -262,13 +262,13 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
   @Override
   public void deleteLiveActivity(ActiveLiveActivity activeLiveActivity) {
     LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
-    LiveActivityDeleteRequest request = remoteControllerClient.newLiveActivityDeleteRequest();
+    LiveActivityDeleteRequest request = remoteSpaceControllerClient.newLiveActivityDeleteRequest();
     request.setUuid(liveActivity.getUuid());
     request.setIdentifyingName(liveActivity.getActivity().getIdentifyingName());
     request.setVersion(liveActivity.getActivity().getVersion());
     request.setForce(1);
 
-    remoteControllerClient.deleteActivity(activeLiveActivity, request);
+    remoteSpaceControllerClient.deleteActivity(activeLiveActivity, request);
   }
 
   /**
@@ -292,7 +292,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
       } else {
         // Has dependencies so must query them.
         updateDeploymentStatus(request, MasterActivityDeploymentRequestStatus.QUERYING_DEPENDENCIES);
-        remoteControllerClient.queryResourceDeployment(request.getLiveActivity().getActiveController(), query);
+        remoteSpaceControllerClient.queryResourceDeployment(request.getLiveActivity().getActiveController(), query);
       }
     } else {
       // No dependencies so can start.
@@ -321,7 +321,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
    */
   private void deployActivity(MasterActivityDeploymentRequest request) {
     updateDeploymentStatus(request, MasterActivityDeploymentRequestStatus.DEPLOYING_ACTIVITY);
-    remoteControllerClient.deployActivity(request.getLiveActivity(), request);
+    remoteSpaceControllerClient.deployActivity(request.getLiveActivity(), request);
   }
 
   /**
@@ -340,9 +340,9 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
    * @param remoteControllerClient
    *          the remote controller client to use
    */
-  public void setRemoteControllerClient(RemoteControllerClient remoteControllerClient) {
-    this.remoteControllerClient = remoteControllerClient;
-    remoteControllerClientListeners = remoteControllerClient.registerRemoteActivityDeploymentManager(this);
+  public void setRemoteSpaceControllerClient(RemoteSpaceControllerClient remoteControllerClient) {
+    this.remoteSpaceControllerClient = remoteControllerClient;
+    remoteSpaceControllerClientListeners = remoteControllerClient.registerRemoteActivityDeploymentManager(this);
   }
 
   /**

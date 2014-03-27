@@ -19,12 +19,12 @@ package interactivespaces.master.server.services.internal;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.MasterApiMasterSupportManager;
-import interactivespaces.master.server.services.ActiveControllerManager;
+import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.ScriptingNames;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.script.ScriptService;
@@ -78,7 +78,7 @@ public class BasicAutomationManager implements AutomationManager {
   /**
    * The controller repository to use for the automation master.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * The activity repository to use for the automation master.
@@ -88,7 +88,7 @@ public class BasicAutomationManager implements AutomationManager {
   /**
    * The activity controller manager to use for the automation master.
    */
-  private ActiveControllerManager activeControllerManager;
+  private ActiveSpaceControllerManager activeSpaceControllerManager;
 
   /**
    * The Master API activity manager to use for the automation master.
@@ -98,7 +98,7 @@ public class BasicAutomationManager implements AutomationManager {
   /**
    * The Master API controller manager to use for the automation master.
    */
-  private MasterApiControllerManager masterApiControllerManager;
+  private MasterApiSpaceControllerManager masterApiSpaceControllerManager;
 
   /**
    * The Master API master support manager to use for the automation master.
@@ -180,13 +180,13 @@ public class BasicAutomationManager implements AutomationManager {
   private void prepareAutomationBindings() {
     automationBindings = Maps.newHashMap();
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVITY_REPOSITORY, activityRepository);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_CONTROLLER_REPOSITORY, controllerRepository);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_CONTROLLER_REPOSITORY, spaceControllerRepository);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCRIPT_SERVICE, scriptService);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCHEDULER_SERVICE, schedulerService);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER, activeControllerManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, masterApiActivityManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, masterApiControllerManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_SPACE_CONTROLLER_MANAGER, activeSpaceControllerManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_ACTIVITY_MANAGER, masterApiActivityManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_SPACE_CONTROLLER_MANAGER, masterApiSpaceControllerManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_ENVIRONMENT, spaceEnvironment);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_AUTOMATION_MANAGER, this);
   }
@@ -207,7 +207,7 @@ public class BasicAutomationManager implements AutomationManager {
 
       String watchedFolder = file.getParent();
       if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
-        masterApiControllerManager.deployAllActivityInstances(activity.getId());
+        masterApiSpaceControllerManager.deployAllActivityInstances(activity.getId());
       }
     } catch (Exception e) {
       spaceEnvironment.getLog().error(String.format("Could not read imported activity file %s", file), e);
@@ -244,8 +244,8 @@ public class BasicAutomationManager implements AutomationManager {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository controllerRepository) {
+    this.spaceControllerRepository = controllerRepository;
   }
 
   /**
@@ -260,8 +260,8 @@ public class BasicAutomationManager implements AutomationManager {
    * @param activeControllerManager
    *          the activeControllerManager to set
    */
-  public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
-    this.activeControllerManager = activeControllerManager;
+  public void setActiveSpaceControllerManager(ActiveSpaceControllerManager activeControllerManager) {
+    this.activeSpaceControllerManager = activeControllerManager;
   }
 
   /**
@@ -276,8 +276,8 @@ public class BasicAutomationManager implements AutomationManager {
    * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
-    this.masterApiControllerManager = masterApiControllerManager;
+  public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
+    this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 
   /**

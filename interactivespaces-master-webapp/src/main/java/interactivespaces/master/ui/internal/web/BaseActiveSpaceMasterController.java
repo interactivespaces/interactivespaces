@@ -17,9 +17,7 @@
 package interactivespaces.master.ui.internal.web;
 
 import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiControllerManager;
-import interactivespaces.master.api.MasterApiSpaceManager;
-import interactivespaces.master.server.services.ActiveControllerManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 
 /**
  * Base support for Spring MVC controllers for the space master who have live
@@ -30,32 +28,14 @@ import interactivespaces.master.server.services.ActiveControllerManager;
 public class BaseActiveSpaceMasterController extends BaseSpaceMasterController {
 
   /**
-   * Manager for activity operations.
-   */
-  private ActiveControllerManager activeControllerManager;
-
-  /**
    * The UI manager for activities.
    */
   protected MasterApiActivityManager masterApiActivityManager;
 
   /**
-   * The UI manager for spaces.
-   */
-  protected MasterApiSpaceManager masterApiSpaceManager;
-
-  /**
    * The UI manager for controllers.
    */
-  protected MasterApiControllerManager masterApiControllerManager;
-
-  /**
-   * @param activeControllerManager
-   *          the activeControllerManager to set
-   */
-  public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
-    this.activeControllerManager = activeControllerManager;
-  }
+  protected MasterApiSpaceControllerManager masterApiSpaceControllerManager;
 
   /**
    * @param masterApiActivityManager
@@ -66,20 +46,12 @@ public class BaseActiveSpaceMasterController extends BaseSpaceMasterController {
   }
 
   /**
-   * @param masterApiSpaceManager
-   *          the masterApiSpaceManager to set
-   */
-  public void setMasterApiSpaceManager(MasterApiSpaceManager masterApiSpaceManager) {
-    this.masterApiSpaceManager = masterApiSpaceManager;
-  }
-
-  /**
    * Set the Master API controller manager.
    *
    * @param masterApiControllerManager
    *          the Master API controller manager to use
    */
-  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
-    this.masterApiControllerManager = masterApiControllerManager;
+  public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
+    this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 }

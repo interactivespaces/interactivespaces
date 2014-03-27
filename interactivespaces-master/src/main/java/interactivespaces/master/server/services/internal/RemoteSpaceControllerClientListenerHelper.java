@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class RemoteControllerClientListenerHelper {
+public class RemoteSpaceControllerClientListenerHelper {
 
   /**
    * Listeners registered with helper.
@@ -55,7 +55,7 @@ public class RemoteControllerClientListenerHelper {
    * @param log
    *          the logger to use
    */
-  public RemoteControllerClientListenerHelper(Log log) {
+  public RemoteSpaceControllerClientListenerHelper(Log log) {
     this.log = log;
   }
 
@@ -143,7 +143,7 @@ public class RemoteControllerClientListenerHelper {
    * Send the on deployment message to all listeners.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
    * @param result
    *          the result of the deployment
    */

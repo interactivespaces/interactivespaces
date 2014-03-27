@@ -39,9 +39,7 @@ function importMasterDomainModel() {
 
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h2>Support</h2>
 

@@ -28,66 +28,6 @@ import java.util.Map;
 public class MasterApiMessageSupport {
 
   /**
-   * Field in the Master API response giving the result.
-   */
-  public static final String MASTER_API_FIELD_RESULT = "result";
-
-  /**
-   * The result given for a successful Master API call.
-   */
-  public static final String MASTER_API_RESULT_SUCCESS = "success";
-
-  /**
-   * The result given for a failed Master API call.
-   */
-  public static final String MASTER_API_RESULT_FAILURE = "failure";
-
-  /**
-   * Field in the Master API response giving the reason for a response.
-   */
-  public static final String MASTER_API_FIELD_REASON = "reason";
-
-  /**
-   * The field in a Master API command map giving the name of the command field.
-   */
-  public static final String MASTER_API_PARAMETER_COMMAND = "command";
-
-  /**
-   * The field in a Master API command map giving the name of the data field.
-   */
-  public static final String MASTER_API_PARAMETER_DATA = "data";
-
-  /**
-   * The JSON metadata command for replacing all of the metadata.
-   */
-  public static final String MASTER_API_COMMAND_METADATA_REPLACE = "replace";
-
-  /**
-   * The JSON metadata command for modifying the metadata.
-   */
-  public static final String MASTER_API_COMMAND_METADATA_MODIFY = "modify";
-
-  /**
-   * The JSON metadata command for seleting some of the metadata.
-   */
-  public static final String MASTER_API_COMMAND_METADATA_DELETE = "delete";
-
-  /**
-   * Message key for unknown commands.
-   */
-  public static final String MESSAGE_SPACE_COMMAND_UNKNOWN = "space.command.unknown";
-
-  /**
-   * Message key for a call failing.
-   */
-  public static final String MESSAGE_SPACE_CALL_FAILURE = "space.command.failure";
-
-  /**
-   * Message key for a call failing.
-   */
-  public static final String MESSAGE_SPACE_CALL_ARGS_NOMAP = "space.command.args.notmap";
-
-  /**
    * Get the simple version of a Master API success response.
    *
    * @return a success API response
@@ -95,7 +35,7 @@ public class MasterApiMessageSupport {
   public static Map<String, Object> getSimpleSuccessResponse() {
     Map<String, Object> response = Maps.newHashMap();
 
-    response.put(MASTER_API_FIELD_RESULT, MASTER_API_RESULT_SUCCESS);
+    response.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessage.MASTER_API_RESULT_SUCCESS);
 
     return response;
   }
@@ -126,8 +66,8 @@ public class MasterApiMessageSupport {
    */
   public static Map<String, Object> getFailureResponse(String reason) {
     Map<String, Object> result = Maps.newHashMap();
-    result.put(MASTER_API_FIELD_RESULT, MASTER_API_RESULT_FAILURE);
-    result.put(MASTER_API_FIELD_REASON, reason);
+    result.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessage.MASTER_API_RESULT_FAILURE);
+    result.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_REASON, reason);
 
     return result;
   }
@@ -141,7 +81,7 @@ public class MasterApiMessageSupport {
    * @return {@code true} if the response was a success
    */
   public static boolean isSuccessResponse(Map<String, Object> response) {
-    return MASTER_API_RESULT_SUCCESS.equals(response.get(MASTER_API_FIELD_RESULT));
+    return MasterApiMessage.MASTER_API_RESULT_SUCCESS.equals(response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT));
   }
 
   /**
@@ -155,6 +95,20 @@ public class MasterApiMessageSupport {
    * @return {@code true} if the reason given is the reason in the response
    */
   public static boolean isResponseReason(Map<String, Object> response, String reason) {
-    return reason.equals(response.get(MASTER_API_FIELD_REASON));
+    return reason.equals(response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_REASON));
+  }
+
+  /**
+   * Get the data field as a map from a response object.
+   *
+   * @param response
+   *          the response object
+   *
+   * @return the data map
+   */
+  public static Map<String, Object> getResponseDataMap(Map<String, Object> response) {
+    @SuppressWarnings("unchecked")
+    Map<String, Object> data = (Map<String, Object>) response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA);
+    return data;
   }
 }

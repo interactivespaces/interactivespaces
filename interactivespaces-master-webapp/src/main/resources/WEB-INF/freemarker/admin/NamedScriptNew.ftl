@@ -21,102 +21,9 @@
 
 <#include "/allpages_head.ftl">
 
-
-<link type="text/css" href="/interactivespaces/css/jquery.ui.all.css" rel="stylesheet" />
-<link type="text/css" href="/interactivespaces/css/jquery-gentleSelect.css" rel="stylesheet" />
-<link type="text/css" href="/interactivespaces/css/jquery-cron.css" rel="stylesheet" />
-
-<style type="text/css"> 
-/* css for timepicker */
-.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
-.ui-timepicker-div dl { text-align: left; }
-.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
-.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
-.ui-timepicker-div td { font-size: 90%; }
-.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
-</style>
-<script type="text/javascript" src="/interactivespaces/js/jquery-ui-1.8.21.custom.min.js"></script>
-<script type="text/javascript" src="/interactivespaces/js/jquery-ui-timepicker-addon.js"></script>
-<script type="text/javascript" src="/interactivespaces/js/jquery-gentleSelect-min.js"></script>
-<script type="text/javascript" src="/interactivespaces/js/jquery-cron.js"></script>
-
-<script type="text/javascript">
-function showScheduleNone() {
-    $('#schedule-repeat').hide();
-    $('#schedule-once').hide();
-}
-
-function showScheduleRepeat() {
-    $('#schedule-repeat').show();
-    $('#schedule-once').hide();
-}
-
-function showScheduleOnce() {
-    $('#schedule-repeat').hide();
-    $('#schedule-once').show();
-}
-
-$(document).ready(function() {
-    
-$('#schedule-repeat').cron().hide();
-$('#schedule-once').datetimepicker({
-    ampm: true
-}).hide();
-
-$('form').submit(function() {
-    var type = $('#schedule-type').val();
-    var val = "";
-    if (type == '1') {
-        val = 'once:' + $('#schedule-once').val();
-    } else if (type == '2') {
-        val = 'repeat:' + $('#schedule-repeat').cron('value');
-    }
-    
-    $('#schedule').val(val);
-    return true;
-});
-
-var schedule = $('#schedule').val();
-if (schedule.indexOf('repeat:') == 0) {
-    $('#schedule-type').val(2);
-    var cur = schedule.substring(7);
-    if (cur == '') {
-        cur = '* * * * *';
-    }
-    $('#schedule-repeat').cron('value', cur);
-    showScheduleRepeat();
-} else if (schedule.indexOf('once:') == 0) {
-    $('#schedule-type').val(1);
-    var cur = schedule.substring(5);
-    $('#schedule-once').val(cur);
-    showScheduleOnce();
-} else {
-    $('#schedule-type').val(0);
-    showScheduleNone();
-}
-
-$('#schedule-type')
-    .gentleSelect({
-        title: "Select a schedule type",
-    })
-    .change(function() {
-        var type = $('#schedule-type').val();
-        if (type == '1') {
-            showScheduleOnce();
-        } else if (type == '2') {
-            showScheduleRepeat();
-        } else {
-            showScheduleNone();
-        }
-    });
-});
-
-</script>
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h2>New Named Script</h2>
 
@@ -132,22 +39,16 @@ $('#schedule-type')
 <td>Language</td><td><@spring.formInput path="script.language" /></td>
 </tr>
 <tr>
-<td>Scheduled?</td><td><@spring.formCheckbox path="script.scheduled" attributes="size='128'" /></td>
+<td>Scheduled?</td><td><@spring.formCheckbox path="script.scheduled" attributes="size='128' disabled" /></td>
 </tr>
 <tr>
 <td>Schedule</td>
 <td>
 <div>
-<select id="schedule-type">
+<select id="schedule-type" disabled>
 <option value="0">None</option>
-<option value="1">Once</option>
-<option value="2">Repeating</option>
 </select>
-<span id='schedule-repeat'></span>
-<input type="text" id="schedule-once">
 </div>
-<@spring.formHiddenInput path="script.schedule" attributes="size='128'" />
-<@spring.showErrors '<br>', 'fieldError' />
 </td>
 </tr>
 <tr>

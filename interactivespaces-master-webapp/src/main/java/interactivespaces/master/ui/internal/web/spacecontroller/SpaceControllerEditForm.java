@@ -18,7 +18,7 @@ package interactivespaces.master.ui.internal.web.spacecontroller;
 
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.support.SpaceControllerUtils;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 
@@ -46,7 +46,7 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
   /**
    * The controller repository.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   /**
    * Set the allowed fields for the given data binder.
@@ -117,7 +117,7 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 }

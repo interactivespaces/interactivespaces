@@ -16,23 +16,25 @@
 
 package interactivespaces.master.api;
 
-import interactivespaces.domain.basic.LiveActivity;
-import interactivespaces.domain.basic.SpaceController;
-
 import java.util.List;
 import java.util.Map;
 
 /**
- * Manager for the UI control of controllers.
+ * Manager for the Master API control of space controllers.
  *
  * @author Keith M. Hughes
  */
-public interface MasterApiControllerManager {
+public interface MasterApiSpaceControllerManager {
 
   /**
-   * Message key for non-existent controllers.
+   * Get all activities in the repository that match the filter.
+   *
+   * @param filter
+   *          the filter expression
+   *
+   * @return all activities in the repository matching the filter
    */
-  String MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN = "space.domain.controller.unknown";
+  Map<String, Object> getSpaceControllers(String filter);
 
   /**
    * Get the view of all space controllers.
@@ -40,6 +42,16 @@ public interface MasterApiControllerManager {
    * @return the Master API view of all space controllers
    */
   Map<String, Object> getSpaceControllerAllView();
+
+  /**
+   * Get the full view of a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   *
+   * @return the Master API view of the space controller
+   */
+  Map<String, Object> getSpaceControllerFullView(String id);
 
   /**
    * Get the view of a space controller.
@@ -52,6 +64,29 @@ public interface MasterApiControllerManager {
   Map<String, Object> getSpaceControllerView(String id);
 
   /**
+   * Modify a space's metadata.
+   *
+   * <p>
+   * The command map contains a field called command. This field will be one of
+   *
+   * <ul>
+   * <li>replace - data contains a map, replace the entire metadata map with the
+   * map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map
+   * with the values found in the map</li>
+   * <li>delete - data contains a list of keys, remove all keys found in data</li>
+   * </ul>
+   *
+   * @param id
+   *          ID of the activity
+   * @param metadataCommandObj
+   *          the modification command
+   *
+   * @return the master API response
+   */
+  Map<String, Object> updateSpaceControllerMetadata(String id, Object metadataCommandObj);
+
+  /**
    * Delete a controller from the controller repository.
    *
    * @param id
@@ -59,7 +94,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> deleteController(String id);
+  Map<String, Object> deleteSpaceController(String id);
 
   /**
    * Shut down a set of controllers controller.
@@ -69,28 +104,28 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> shutdownControllers(List<String> ids);
+  Map<String, Object> shutdownSpaceControllers(List<String> ids);
 
   /**
    * Connect to all controllers in the repository.
    *
    * @return the Master API response
    */
-  Map<String, Object> connectToAllControllers();
+  Map<String, Object> connectToAllSpaceControllers();
 
   /**
    * Disconnect to all controllers in the repository.
    *
    * @return the Master API response
    */
-  Map<String, Object> disconnectFromAllControllers();
+  Map<String, Object> disconnectFromAllSpaceControllers();
 
   /**
    * Shut down all controllers in the repository.
    *
    * @return the Master API response
    */
-  Map<String, Object> shutdownAllControllers();
+  Map<String, Object> shutdownAllSpaceControllers();
 
   /**
    * Get the status from all controllers in the repository that are not marked
@@ -98,7 +133,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> statusFromAllControllers();
+  Map<String, Object> statusFromAllSpaceControllers();
 
   /**
    * Get the status from all controllers in the repository, whether or not they
@@ -106,7 +141,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> forceStatusFromAllControllers();
+  Map<String, Object> forceStatusFromAllSpaceControllers();
 
   /**
    * Connect to all controllers listed.
@@ -119,7 +154,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> connectToControllers(List<String> ids);
+  Map<String, Object> connectToSpaceControllers(List<String> ids);
 
   /**
    * Disconnect from all controllers listed.
@@ -132,7 +167,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> disconnectFromControllers(List<String> ids);
+  Map<String, Object> disconnectFromSpaceControllers(List<String> ids);
 
   /**
    * Get a status from all controllers listed.
@@ -145,7 +180,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> statusControllers(List<String> ids);
+  Map<String, Object> statusSpaceControllers(List<String> ids);
 
   /**
    * Clean the temp data folder for the specified controller.
@@ -155,14 +190,14 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerTempData(String id);
+  Map<String, Object> cleanSpaceControllerTempData(String id);
 
   /**
    * Clean the temp data folder for all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerTempDataAllControllers();
+  Map<String, Object> cleanSpaceControllerTempDataAllSpaceControllers();
 
   /**
    * Clean the permanent data folder for the controller.
@@ -172,14 +207,14 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerPermanentData(String id);
+  Map<String, Object> cleanSpaceControllerPermanentData(String id);
 
   /**
    * Clean the permanent data folder for all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerPermanentDataAllControllers();
+  Map<String, Object> cleanSpaceControllerPermanentDataAllSpaceControllers();
 
   /**
    * Clean the temp data folder for all live activities on a controller.
@@ -189,14 +224,14 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerActivitiesTempData(String id);
+  Map<String, Object> cleanSpaceControllerActivitiesTempData(String id);
 
   /**
    * Clean the temp data folder for all live activities on all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerActivitiesTempDataAllControllers();
+  Map<String, Object> cleanSpaceControllerActivitiesTempDataAllSpaceControllers();
 
   /**
    * Clean the permanent data folder for all live activities on a controller.
@@ -206,14 +241,14 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerActivitiesPermanentData(String id);
+  Map<String, Object> cleanSpaceControllerActivitiesPermanentData(String id);
 
   /**
    * Clean the permanent data folder all live activities on all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> cleanControllerActivitiesPermanentDataAllControllers();
+  Map<String, Object> cleanSpaceControllerActivitiesPermanentDataAllSpaceControllers();
 
   /**
    * Capture the data bundle for the given controller ID.
@@ -223,7 +258,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> captureControllerDataBundle(String id);
+  Map<String, Object> captureSpaceControllerDataBundle(String id);
 
   /**
    * Restore the data bundle for the given controller ID.
@@ -233,21 +268,21 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> restoreControllerDataBundle(String id);
+  Map<String, Object> restoreSpaceControllerDataBundle(String id);
 
   /**
    * Capture the data bundle for all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> captureDataAllControllers();
+  Map<String, Object> captureDataAllSpaceControllers();
 
   /**
    * Restore the data bundles for all controllers.
    *
    * @return the Master API response
    */
-  Map<String, Object> restoreDataAllControllers();
+  Map<String, Object> restoreDataAllSpaceControllers();
 
   /**
    * Shut down all activities on the specified controller.
@@ -264,7 +299,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> shutdownAllActivitiesAllControllers();
+  Map<String, Object> shutdownAllActivitiesAllSpaceControllers();
 
   /**
    * Deploy all activities which are on the specified controller.
@@ -274,7 +309,7 @@ public interface MasterApiControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> deployAllControllerActivityInstances(String id);
+  Map<String, Object> deployAllSpaceControllerActivityInstances(String id);
 
   /**
    * Deploy all out of date live activities which are based on the specified
@@ -479,53 +514,72 @@ public interface MasterApiControllerManager {
   Map<String, Object> liveActivityStatusSpace(String id);
 
   /**
-   * Get a list of all live activities and, if any, the associated active
-   * counterpart.
-   *
-   * <p>
-   * The latter won't be there if the live activity isn't associated with a
-   * controller.
-   *
-   * @return all UI live activities
-   */
-  List<MasterApiLiveActivity> getAllUiLiveActivities();
-
-  /**
-   * Get a list of all live activities and, if any, the associated active
-   * counterpart, which are on the specified controller.
-   *
-   * <p>
-   * The latter won't be there if the live activity isn't associated with a
-   * controller.
-   *
-   * @param controller
-   *          the controller which contains the activities
-   *
-   * @return all UI live activities for the controller
-   */
-  List<MasterApiLiveActivity> getAllUiLiveActivitiesByController(SpaceController controller);
-
-  /**
-   * Get a live activity and, if any, the associated active counterpart.
-   *
-   * <p>
-   * The latter won't be there if the live activity isn't associated with a
-   * controller.
+   * Deploy everything needed a space.
    *
    * @param id
-   *          ID of the live activity
+   *          ID of the space
    *
-   * @return the UI live activity
+   * @return the master API response
    */
-  MasterApiLiveActivity getUiLiveActivity(String id);
+  Map<String, Object> deploySpace(String id);
 
   /**
-   * Get the UI live activity component for all given live activities.
+   * Configure all components in a space.
    *
-   * @param activities
-   *          the activities
+   * @param id
+   *          ID of the space
    *
-   * @return list of the UI live activities
+   * @return the Master API response
    */
-  List<MasterApiLiveActivity> getUiLiveActivities(List<LiveActivity> activities);
+  Map<String, Object> configureSpace(String id);
+
+  /**
+   * Start the given space.
+   *
+   * @param id
+   *          ID of the space
+   *
+   * @return the master API response
+   */
+  Map<String, Object> startupSpace(String id);
+
+  /**
+   * Shut a given space down. Child spaces will be shut down first.
+   *
+   * @param id
+   *          ID of the space
+   *
+   * @return the master API response
+   */
+  Map<String, Object> shutdownSpace(String id);
+
+  /**
+   * Activate a space.
+   *
+   * @param id
+   *          ID of the space
+   *
+   * @return the master API response
+   */
+  Map<String, Object> activateSpace(String id);
+
+  /**
+   * Deactivate a space.
+   *
+   * @param id
+   *          ID of the space
+   *
+   * @return the master API response
+   */
+  Map<String, Object> deactivateSpace(String id);
+
+  /**
+   * Get the status for a space.
+   *
+   * @param id
+   *          ID of the space
+   *
+   * @return the master API response
+   */
+  Map<String, Object> statusSpace(String id);
 }

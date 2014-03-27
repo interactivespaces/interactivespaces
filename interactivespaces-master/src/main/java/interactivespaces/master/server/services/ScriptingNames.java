@@ -23,23 +23,53 @@ package interactivespaces.master.server.services;
  */
 public class ScriptingNames {
 
+  /**
+   * The scripting name for the automation manager.
+   */
   public static final String SCRIPTING_NAME_AUTOMATION_MANAGER = "automationManager";
 
+  /**
+   * The scripting name for the space environment.
+   */
   public static final String SCRIPTING_NAME_SPACE_ENVIRONMENT = "spaceEnvironment";
 
-  public static final String SCRIPTING_NAME_UI_CONTROLLER_MANAGER = "uiControllerManager";
+  /**
+   * The scripting name for the Master API Space Controller Manager.
+   */
+  public static final String SCRIPTING_NAME_MASTER_API_SPACE_CONTROLLER_MANAGER = "masterApiSpaceControllerManager";
 
-  public static final String SCRIPTING_NAME_UI_ACTIVITY_MANAGER = "uiActivityManager";
+  /**
+   * The scripting name for the Master API Space Controller Manager.
+   */
+  public static final String SCRIPTING_NAME_MASTER_API_ACTIVITY_MANAGER = "masterApiActivityManager";
 
-  public static final String SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER = "uiMasterSupportManager";
+  /**
+   * The scripting name for the Master API Support Manager.
+   */
+  public static final String SCRIPTING_NAME_MASTER_API_MASTER_SUPPORT_MANAGER = "masterApiMasterSupportManager";
 
-  public static final String SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER = "activeControllerManager";
+  /**
+   * The scripting name for the active space controller manager.
+   */
+  public static final String SCRIPTING_NAME_ACTIVE_SPACE_CONTROLLER_MANAGER = "activeSpaceControllerManager";
 
+  /**
+   * The scripting name for the scheduler service.
+   */
   public static final String SCRIPTING_NAME_SCHEDULER_SERVICE = "schedulerService";
 
+  /**
+   * The scripting name for the scripting service.
+   */
   public static final String SCRIPTING_NAME_SCRIPT_SERVICE = "scriptService";
 
-  public static final String SCRIPTING_NAME_CONTROLLER_REPOSITORY = "controllerRepository";
+  /**
+   * The scripting name for the space controller repository.
+   */
+  public static final String SCRIPTING_NAME_SPACE_CONTROLLER_REPOSITORY = "spaceControllerRepository";
 
+  /**
+   * The scripting name for the activity repository.
+   */
   public static final String SCRIPTING_NAME_ACTIVITY_REPOSITORY = "activityRepository";
 }

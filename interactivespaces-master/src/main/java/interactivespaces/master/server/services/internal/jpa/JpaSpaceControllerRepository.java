@@ -15,14 +15,16 @@
  */
 package interactivespaces.master.server.services.internal.jpa;
 
-import com.google.common.collect.Maps;
-
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController;
 import interactivespaces.util.uuid.UuidGenerator;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.orm.jpa.JpaTemplate;
 
@@ -30,11 +32,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A JPA implementation of {@link ControllerRepository}.
+ * A JPA implementation of {@link SpaceControllerRepository}.
  *
  * @author Keith M. Hughes
  */
-public class JpaControllerRepository implements ControllerRepository {
+public class JpaSpaceControllerRepository implements SpaceControllerRepository {
 
   /**
    * The repository for activity entities.
@@ -97,6 +99,26 @@ public class JpaControllerRepository implements ControllerRepository {
   }
 
   @Override
+  public List<SpaceController> getSpaceControllers(FilterExpression filter) {
+    @SuppressWarnings("unchecked")
+    List<SpaceController> controllers = template.findByNamedQuery("spaceControllerAll");
+
+    List<SpaceController> results = Lists.newArrayList();
+
+    if (filter != null) {
+      for (SpaceController controller : controllers) {
+        if (filter.accept(controller)) {
+          results.add(controller);
+        }
+      }
+    } else {
+      results.addAll(controllers);
+    }
+
+    return results;
+  }
+
+  @Override
   public SpaceController getSpaceControllerById(String id) {
     return template.find(JpaSpaceController.class, id);
   }
@@ -106,8 +128,7 @@ public class JpaControllerRepository implements ControllerRepository {
     Map<String, String> params = Maps.newHashMap();
     params.put("uuid", uuid);
     @SuppressWarnings("unchecked")
-    List<SpaceController> results =
-        template.findByNamedQueryAndNamedParams("spaceControllerByUuid", params);
+    List<SpaceController> results = template.findByNamedQueryAndNamedParams("spaceControllerByUuid", params);
     if (!results.isEmpty()) {
       return results.get(0);
     } else {
@@ -132,9 +153,8 @@ public class JpaControllerRepository implements ControllerRepository {
     if (count == 0) {
       template.remove(controller);
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "Cannot delete space controller %s, it is in %d live activities", controller.getId(),
-          count));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Cannot delete space controller %s, it is in %d live activities", controller.getId(), count));
     }
   }
 

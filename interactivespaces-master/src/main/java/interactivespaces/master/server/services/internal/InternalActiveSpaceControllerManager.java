@@ -17,18 +17,18 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.domain.basic.LiveActivityGroup;
-import interactivespaces.master.server.services.ActiveControllerManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
+import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 
 import java.util.Set;
 
 /**
- * An internal active controller manager which exposes more methods.
+ * An internal active space controller manager which exposes more methods.
  *
  * @author Keith M. Hughes
  */
-public interface InternalActiveControllerManager extends ActiveControllerManager {
+public interface InternalActiveSpaceControllerManager extends ActiveSpaceControllerManager {
 
   /**
    * Get the active activity group for a given activity group.
@@ -156,11 +156,11 @@ public interface InternalActiveControllerManager extends ActiveControllerManager
   void configureActiveActivityGroup(ActiveLiveActivityGroup activeLiveActivityGroup);
 
   /**
-   * Deploy a active activity group on a controller.
+   * Configure a active activity group on a controller.
    *
    * <p>
    * Live activities in the set will not be configured. Also, any Live
-   * Activities deployed will be added to the set.
+   * Activities configured will be added to the set.
    *
    * @param activeLiveActivityGroup
    *          the active activity group to configure

@@ -17,13 +17,13 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiControllerManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.MasterApiMasterSupportManager;
 import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.server.services.ActiveControllerManager;
+import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.ScriptingNames;
 import interactivespaces.service.scheduler.SchedulerService;
@@ -84,7 +84,7 @@ public class BasicExtensionManager implements ExtensionManager {
   /**
    * The controller repository to use for the extension master.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * The activity repository to use for the extension master.
@@ -94,7 +94,7 @@ public class BasicExtensionManager implements ExtensionManager {
   /**
    * The activity controller manager to use for the extension master.
    */
-  private ActiveControllerManager activeControllerManager;
+  private ActiveSpaceControllerManager activeSpaceControllerManager;
 
   /**
    * The Master API activity manager to use for the extension master.
@@ -104,7 +104,7 @@ public class BasicExtensionManager implements ExtensionManager {
   /**
    * The Master API controller manager to use for the extension master.
    */
-  private MasterApiControllerManager masterApiControllerManager;
+  private MasterApiSpaceControllerManager masterApiSpaceControllerManager;
 
   /**
    * The Master API master support manager to use for the extension master.
@@ -193,13 +193,13 @@ public class BasicExtensionManager implements ExtensionManager {
   private void initializeBindings() {
     bindings = Maps.newHashMap();
     bindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVITY_REPOSITORY, activityRepository);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_CONTROLLER_REPOSITORY, controllerRepository);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_CONTROLLER_REPOSITORY, spaceControllerRepository);
     bindings.put(ScriptingNames.SCRIPTING_NAME_SCRIPT_SERVICE, scriptService);
     bindings.put(ScriptingNames.SCRIPTING_NAME_SCHEDULER_SERVICE, schedulerService);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_CONTROLLER_MANAGER, activeControllerManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_ACTIVITY_MANAGER, masterApiActivityManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_CONTROLLER_MANAGER, masterApiControllerManager);
-    bindings.put(ScriptingNames.SCRIPTING_NAME_UI_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_SPACE_CONTROLLER_MANAGER, activeSpaceControllerManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_ACTIVITY_MANAGER, masterApiActivityManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_SPACE_CONTROLLER_MANAGER, masterApiSpaceControllerManager);
+    bindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
     bindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_ENVIRONMENT, spaceEnvironment);
     bindings.put(ScriptingNames.SCRIPTING_NAME_AUTOMATION_MANAGER, automationManager);
   }
@@ -323,11 +323,11 @@ public class BasicExtensionManager implements ExtensionManager {
   }
 
   /**
-   * @param controllerRepository
+   * @param spaceControllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**
@@ -342,8 +342,8 @@ public class BasicExtensionManager implements ExtensionManager {
    * @param activeControllerManager
    *          the activeControllerManager to set
    */
-  public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
-    this.activeControllerManager = activeControllerManager;
+  public void setActiveSpaceControllerManager(ActiveSpaceControllerManager activeControllerManager) {
+    this.activeSpaceControllerManager = activeControllerManager;
   }
 
   /**
@@ -358,8 +358,8 @@ public class BasicExtensionManager implements ExtensionManager {
    * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
-    this.masterApiControllerManager = masterApiControllerManager;
+  public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
+    this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 
   /**

@@ -22,6 +22,8 @@
   background-image: url('/interactivespaces/img/navmain_bg.gif');
   background-position: bottom;
   background-repeat: repeat-x;
+  position: relative;
+  z-index: 10;
 }
 
 #navMain ul {
@@ -57,6 +59,41 @@
   display: inline;
 }
 
+#mainContent {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 100px 0 0;
+  box-sizing: border-box;
+}
+
+a.uglylink  {
+  color: #0000FF;
+  text-decoration: underline;
+}
+
+a.uglylink  img {
+  border: 0;
+}
+
+a.uglylink:hover,a.uglylink:focus:hover {
+  color: #cff;
+  background: black;
+}
+
+a.uglylink:active, a.uglylink:focus {
+  color: #fff;
+  background-color: red;
+}
+
+.admin-content {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
 .commandBar td {
   padding: 2px;
 }
@@ -71,6 +108,13 @@
 
 .as-of-timestamp {
   padding-right: 0.5em;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #body {
@@ -110,12 +154,8 @@ tr.form-row {
   padding-top: 10px;
 }
 
-.liveactivity-list .liveactivity-name,
-.liveactivity-details th,
-.activity-details th,
-.activity-list th,
-.activity-list td,
-.controller-details th {
+.liveactivity-list .liveactivity-name,.liveactivity-details th,.activity-details th,.activity-list th,.activity-list td,.controller-details th
+  {
   padding-right: 10px;
 }
 
@@ -154,10 +194,11 @@ div.form-row span.form-errors {
 }
 
 tr.even {
+  
 }
 
 tr.odd {
-  background-color: rgba(0,0,0,0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .all-controllers-table {
@@ -192,6 +233,7 @@ tr.odd {
 }
 
 .liveactivity-status {
+  
 }
 
 .liveactivity-status-RUNNING {
@@ -207,27 +249,26 @@ tr.odd {
 }
 
 .spacecontroller-status {
+  
 }
 
-.spacecontroller-status-CONNECT_ATTEMPT,
-.spacecontroller-status-CAPTURE_REQUESTED,
-.spacecontroller-status-RESTORE_REQUESTED {
+.spacecontroller-status-CONNECT_ATTEMPT,.spacecontroller-status-CAPTURE_REQUESTED,.spacecontroller-status-RESTORE_REQUESTED
+  {
   background-color: #88F;
 }
 
-.spacecontroller-status-CONNECT_FAILURE,
-.spacecontroller-status-CAPTURE_ERROR,
-.spacecontroller-status-RESTORE_ERROR {
+.spacecontroller-status-CONNECT_FAILURE,.spacecontroller-status-CAPTURE_ERROR,.spacecontroller-status-RESTORE_ERROR
+  {
   background-color: #F88;
 }
 
-.spacecontroller-status-RUNNING,
-.spacecontroller-status-RESTORE_RECEIVED,
-.spacecontroller-status-CAPTURE_RECEIVED {
+.spacecontroller-status-RUNNING,.spacecontroller-status-RESTORE_RECEIVED,.spacecontroller-status-CAPTURE_RECEIVED
+  {
   background-color: #8F8;
 }
 
 .spacecontroller-mode {
+  
 }
 
 .spacecontroller-mode-ENABLED {

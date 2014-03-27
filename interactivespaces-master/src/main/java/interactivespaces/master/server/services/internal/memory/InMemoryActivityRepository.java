@@ -16,8 +16,6 @@
 
 package interactivespaces.master.server.services.internal.memory;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ActivityDependency;
@@ -35,10 +33,12 @@ import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.apache.openjpa.util.UnsupportedException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,23 +52,22 @@ public class InMemoryActivityRepository implements ActivityRepository {
   /**
    * A map of activities keyed by their ID.
    */
-  private Map<String, Activity> activitiesById = new HashMap<String, Activity>();
+  private final Map<String, Activity> activitiesById = Maps.newHashMap();
 
   /**
    * A map of installed activities keyed by their ID.
    */
-  private Map<String, LiveActivity> liveActivitiesById = new HashMap<String, LiveActivity>();
+  private final Map<String, LiveActivity> liveActivitiesById = Maps.newHashMap();
 
   /**
    * A map of installed activities keyed by their UUID.
    */
-  private Map<String, LiveActivity> liveActivitiesByUuid = new HashMap<String, LiveActivity>();
+  private final Map<String, LiveActivity> liveActivitiesByUuid = Maps.newHashMap();
 
   /**
    * A map of activity groups keyed by their ID.
    */
-  private Map<String, LiveActivityGroup> activityGroupsById =
-      new HashMap<String, LiveActivityGroup>();
+  private final Map<String, LiveActivityGroup> activityGroupsById = Maps.newHashMap();
 
   @Override
   public Activity newActivity() {
@@ -93,7 +92,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
   @Override
   public List<Activity> getAllActivities() {
     synchronized (activitiesById) {
-      return new ArrayList<Activity>(activitiesById.values());
+      return Lists.newArrayList(activitiesById.values());
     }
   }
 
@@ -103,7 +102,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
     List<Activity> toBeFiltered;
 
     synchronized (activitiesById) {
-      toBeFiltered = new ArrayList<Activity>(activitiesById.values());
+      toBeFiltered = Lists.newArrayList(activitiesById.values());
     }
 
     for (Activity activity : toBeFiltered) {
@@ -126,9 +125,9 @@ public class InMemoryActivityRepository implements ActivityRepository {
   public Activity getActivityByNameAndVersion(String identifyingName, String version) {
     synchronized (activitiesById) {
       for (Activity activity : activitiesById.values()) {
-        if (activity.getIdentifyingName().equals(identifyingName)
-            && activity.getVersion().equals(version))
+        if (activity.getIdentifyingName().equals(identifyingName) && activity.getVersion().equals(version)) {
           return activity;
+        }
       }
       return null;
     }
