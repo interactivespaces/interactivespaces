@@ -53,6 +53,8 @@ InteractiveSpacesUgly.prototype = {
     this.ws.onclose = (function(event) {
       this.onWebSocketClose();
     }).bind(this);
+    
+    this.requestId = 0;
   },
 
   'onWebSocketOpen' : function() {
@@ -84,7 +86,8 @@ InteractiveSpacesUgly.prototype = {
   'executeApi' : function(type, data) {
     var message = {
       'type' : type,
-      'data' : data
+      'data' : data,
+      'requestId' : (this.requestId++).toString(16)
     };
 
     this.ws.send(JSON.stringify(message));
