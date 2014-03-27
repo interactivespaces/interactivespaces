@@ -81,6 +81,16 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
    * TODO(keith): Eventually deprecate these and have only 1 set of parameters
    * but will require changing all masters.
    */
+  public static final String DEFAULT_REPOSITORY_ACTIVITY_STAGING_LOCATION =
+      "master/repository/interactivespaces/activitystaging";
+
+  /**
+   * Default value for the location of the activities repository.
+   *
+   * <p>
+   * TODO(keith): Eventually deprecate these and have only 1 set of parameters
+   * but will require changing all masters.
+   */
   public static final String DEFAULT_REPOSITORY_ACTIVITY_LOCATION = "master/repository/interactivespaces/activities";
 
   /**
@@ -178,8 +188,8 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     File baseInstallDir = spaceEnvironment.getFilesystem().getInstallDirectory();
 
     stagingDirectory =
-        new File(baseInstallDir,
-            systemConfiguration.getRequiredPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION));
+        new File(baseInstallDir, systemConfiguration.getPropertyString(CONFIGURATION_REPOSITORY_STAGING_LOCATION,
+            DEFAULT_REPOSITORY_ACTIVITY_STAGING_LOCATION));
     ensureWriteableDirectory("staging", stagingDirectory);
 
     // TODO(keith): Check repository base same way as above.
