@@ -17,7 +17,7 @@
 package interactivespaces.master.ui.internal.web.editor;
 
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 
 import java.beans.PropertyEditorSupport;
 
@@ -31,12 +31,12 @@ public class SpaceControllerEditor extends PropertyEditorSupport {
   /**
    * Repository for activities.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   public SpaceControllerEditor() {
   }
 
-  public SpaceControllerEditor(ControllerRepository controllerRepository) {
+  public SpaceControllerEditor(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 
@@ -66,7 +66,7 @@ public class SpaceControllerEditor extends PropertyEditorSupport {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 }

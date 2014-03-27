@@ -21,7 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
+<body class="admin-content">
 
 <script type="text/javascript">
 function doAjaxCommand(command) {
@@ -39,8 +39,6 @@ function deleteScript() {
     }
 }
 </script>
-
-<#include "/allpages_body_header.ftl">
 
 <h1>Named Script: ${script.name}</h1>
 

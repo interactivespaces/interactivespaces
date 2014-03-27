@@ -17,7 +17,7 @@
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
 
@@ -48,13 +48,29 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
   /**
    * The Controller repository.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
+  /**
+   * Set the fields which allowed and which are disallowed.
+   *
+   * @param dataBinder
+   *          the data binder
+   */
   @InitBinder
   public void setAllowedFields(WebDataBinder dataBinder) {
     dataBinder.setDisallowedFields("id");
   }
 
+  /**
+   * Set up the editting form.
+   *
+   * @param id
+   *          ID for the space controller
+   * @param model
+   *          the data model
+   *
+   * @return the name of the page to show
+   */
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
     SpaceController controller = controllerRepository.getSpaceControllerById(id);
@@ -70,10 +86,23 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
     return "spacecontroller/SpaceControllerMetadataEdit";
   }
 
+  /**
+   * Process the form submission.
+   *
+   * @param id
+   *          ID of the space controller
+   * @param metadataForm
+   *          the form
+   * @param result
+   *          the result from the post
+   * @param status
+   *          the session status
+   *
+   * @return the page to show
+   */
   @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
   public String processSubmit(@PathVariable("id") String id,
-      @ModelAttribute("meatadata") ConfigurationForm metadataForm, BindingResult result,
-      SessionStatus status) {
+      @ModelAttribute("meatadata") ConfigurationForm metadataForm, BindingResult result, SessionStatus status) {
     metadataForm.validate(result, false, "space.metadata");
     if (result.hasErrors()) {
       return "spacecontroller/SpaceControllerMetadataEdit";
@@ -91,7 +120,7 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
   }
 
   /**
-   * Save the metadata form
+   * Save the metadata form.
    *
    * @param form
    *          the metadata form
@@ -105,7 +134,7 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
   }
 
   /**
-   * save the metadata.
+   * Save the metadata.
    *
    * @param controller
    *          the space controller being reconfigured
@@ -127,8 +156,9 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
     } else {
       // No configuration. If nothing in submission, nothing has changed.
       // Otherwise add everything.
-      if (map.isEmpty())
+      if (map.isEmpty()) {
         return false;
+      }
 
       controller.setMetadata(map);
 
@@ -140,7 +170,7 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository spaceRepository) {
-    this.controllerRepository = spaceRepository;
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
+    this.controllerRepository = controllerRepository;
   }
 }

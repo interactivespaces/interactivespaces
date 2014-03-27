@@ -17,7 +17,7 @@
 package interactivespaces.master.api.internal;
 
 import interactivespaces.master.api.RemoteActivityManager;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 
 /**
  * A simple remote activity manager.
@@ -29,13 +29,13 @@ public class BasicRemoteActivityManager implements RemoteActivityManager {
   /**
    * Handle operations on remote controllers.
    */
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteControllerClient;
 
   /**
    * @param remoteControllerClient
    *          the remoteControllerClient to set
    */
-  public void setRemoteControllerClient(RemoteControllerClient remoteControllerClient) {
+  public void setRemoteControllerClient(RemoteSpaceControllerClient remoteControllerClient) {
     this.remoteControllerClient = remoteControllerClient;
   }
 

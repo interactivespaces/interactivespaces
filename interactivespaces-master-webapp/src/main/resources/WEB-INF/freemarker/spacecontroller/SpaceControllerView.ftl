@@ -25,14 +25,14 @@
 <script type="text/javascript">
 $(document).ready(function() {
 <#list liveactivities as liveactivity>
-$('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
-  .ispopup("#liveactivity-info-${liveactivity.activity.uuid}-popup");
+$('${"#liveactivity-info-${liveactivity.uuid}"}')
+  .ispopup("#liveactivity-info-${liveactivity.uuid}-popup");
 </#list>
 });
 </script>
 </head>
 
-<body>
+<body class="admin-content">
 
 <script type="text/javascript">
 function doAjaxCommand(command) {
@@ -94,8 +94,6 @@ function shutdownActivities() {
 }
 </script>
 
-<#include "/allpages_body_header.ftl">
-
 <h1>Space Controller: ${spacecontroller.name}</h1>
 
 <table class="commandBar">
@@ -150,9 +148,9 @@ ${spacecontroller.description}
 <tr>
   <th>Mode</th>
   <td>
-    <#if spacecontroller.getMode()??>
-      <span class="status-box status-box-inner spacecontroller-mode spacecontroller-mode-${spacecontroller.getMode().name()}">
-        <@spring.message spacecontroller.getMode().description />
+    <#if spacecontroller.mode??>
+      <span class="status-box status-box-inner spacecontroller-mode spacecontroller-mode-${spacecontroller.mode}">
+        <@spring.message spacecontroller.modeDescription />
       </span>
     </#if>
   </td>
@@ -160,21 +158,21 @@ ${spacecontroller.description}
 <tr>
   <th>Status</th>
   <td>
-    <#if lspacecontroller.lastStateUpdate??>
-      <#assign t  = lspacecontroller.lastStateUpdateDate?datetime>
+    <#if spacecontroller.lastStateUpdate??>
+      <#assign t  = spacecontroller.lastStateUpdate>
     <#else>
       <#assign t = 'Unknown'>
     </#if>
-    <span class="status-box status-box-inner spacecontroller-status spacecontroller-status-${lspacecontroller.state.name()}">
-      <@spring.message lspacecontroller.state.description />
+    <span class="status-box status-box-inner spacecontroller-status spacecontroller-status-${spacecontroller.state}">
+      <@spring.message spacecontroller.stateDescription />
     </span>
     <span class="as-of-timestamp">as of ${t}</span>
   </td>
 </tr>
 <tr>
 <th valign="top">Metadata</th>
-<td><table><#list metadata as item>
-<tr><th>${item.label}</th><td>${item.value}</td></tr>
+<td><table><#assign metadataKeys = spacecontroller.metadata?keys?sort><#list metadataKeys as metadataKey>
+<tr><th>${metadataKey}</th><td>${spacecontroller.metadata[metadataKey]}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -190,16 +188,16 @@ ${spacecontroller.description}
     <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
       <td class="liveactivity-name">
-        <a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a>
+        <a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a>
       </td>
       <td>
         <#if liveactivity.active?has_content>
-          <div class="status-box" id="liveactivity-info-${liveactivity.activity.uuid}">
-            <div class="status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}">
-              <@spring.message liveactivity.active.runtimeState.description />
+          <div class="status-box" id="liveactivity-info-${liveactivity.uuid}">
+            <div class="status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}">
+              <@spring.message liveactivity.active.runtimeStateDescription />
             </div>
           </div>
-          <div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
+          <div id="liveactivity-info-${liveactivity.uuid}-popup" class="liveactivity-info-popup">
             <div>
               <#if liveactivity.active.directRunning>
                 Directly Running
@@ -230,7 +228,7 @@ ${spacecontroller.description}
           <span class="as-of-timestamp">
            as of
             <#if liveactivity.active.lastStateUpdate??>
-              ${liveactivity.active.lastStateUpdateDate?datetime}
+              ${liveactivity.active.lastStateUpdate}
             <#else>
               Unknown
             </#if>
@@ -238,14 +236,14 @@ ${spacecontroller.description}
         </#if>
       </td>
       <td>
-        <#if liveactivity.activity.outOfDate>
+        <#if liveactivity.outOfDate>
         <span title="Live Activity is out of date" class="out-of-date-indicator">
           <img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" />
         </span>
         </#if>
         <#if liveactivity.active.deployState != "READY">
           <span>
-            <@spring.message liveactivity.active.deployState.description />
+            <@spring.message liveactivity.active.deployStateDescription />
           </span>
         </#if>
       </td>
@@ -262,13 +260,13 @@ ${spacecontroller.description}
   <tr>
     <td class="databundle-header">Data Bundle State</td>
     <td class="databundle-value">
-      <#if lspacecontroller.lastDataBundleStateUpdate??>
-        <#assign t  = lspacecontroller.lastDataBundleStateUpdateDate?datetime>
+      <#if spacecontroller.lastDataBundleStateUpdate??>
+        <#assign t  = spacecontroller.lastDataBundleStateUpdateDate?datetime>
       <#else>
         <#assign t = 'Unknown'>
       </#if>
       <span class="as-of-timestamp">
-        <@spring.message lspacecontroller.dataBundleState.description /> as of ${t}
+        <@spring.message spacecontroller.dataBundleStateDescription /> as of ${t}
       </span>
     </td>
   </tr>

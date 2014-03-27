@@ -16,15 +16,9 @@
 
 package interactivespaces.master.ui.internal.web.activity;
 
-import interactivespaces.domain.basic.Activity;
-import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessage;
 import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.api.MasterApiUtilities;
-import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
-import interactivespaces.master.ui.internal.web.UiUtilities;
-
-import com.google.common.collect.Lists;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -50,50 +42,35 @@ import javax.servlet.http.HttpServletResponse;
 public class ActivityController extends BaseActiveSpaceMasterController {
 
   /**
-   * Repository for activity entities.
-   */
-  private ActivityRepository activityRepository;
-
-  /**
    * Display a list of all activities.
    *
    * @return Model and view for controller list display.
    */
   @RequestMapping("/activity/all.html")
   public ModelAndView listActivities() {
-    List<Activity> activities = Lists.newArrayList(activityRepository.getAllActivities());
-    Collections.sort(activities, MasterApiUtilities.ACTIVITY_BY_NAME_AND_VERSION_COMPARATOR);
+    Map<String, Object> response = masterApiActivityManager.getActivitiesByFilter(null);
 
     ModelAndView mav = getModelAndView();
 
     mav.setViewName("activity/ActivityViewAll");
-    mav.addObject("activities", activities);
+    mav.addObject("activities", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }
 
   @RequestMapping(value = "/activity/{id}/view.html", method = RequestMethod.GET)
   public ModelAndView viewActivity(@PathVariable String id) {
-    Activity activity = activityRepository.getActivityById(id);
-    if (activity != null) {
-      List<MasterApiLiveActivity> liveactivities =
-          masterApiControllerManager.getUiLiveActivities(activityRepository.getLiveActivitiesByActivity(activity));
-      Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+    ModelAndView mav = getModelAndView();
 
-      ModelAndView mav = getModelAndView();
+    Map<String, Object> response = masterApiActivityManager.getActivityFullView(id);
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.setViewName("activity/ActivityView");
-      mav.addObject("activity", activity);
-      mav.addObject("liveactivities", liveactivities);
-
-      mav.addObject("metadata", UiUtilities.getMetadataView(activity.getMetadata()));
-
-      return mav;
+      mav.addAllObjects(MasterApiMessageSupport.getResponseDataMap(response));
     } else {
-      ModelAndView mav = getModelAndView();
       mav.setViewName("activity/ActivityNonexistent");
-
-      return mav;
     }
+
+    return mav;
   }
 
   @RequestMapping(value = "/activity/{id}/delete.html", method = RequestMethod.GET)
@@ -120,29 +97,13 @@ public class ActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/activity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployActivities(@PathVariable String id) {
-    return masterApiControllerManager.deployAllActivityInstances(id);
+    return masterApiSpaceControllerManager.deployAllActivityInstances(id);
   }
 
   @RequestMapping(value = "/activity/{id}/metadata.json", method = RequestMethod.POST)
   public @ResponseBody
   Map<String, ? extends Object> modifyLiveActivityMetadata(@PathVariable String id,
       @RequestBody Object metadataCommandObj, HttpServletResponse response) {
-
-    if (Map.class.isAssignableFrom(metadataCommandObj.getClass())) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
-
-      return masterApiActivityManager.updateActivityMetadata(id, metadataCommand);
-    } else {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
-    }
-  }
-
-  /**
-   * @param activityRepository
-   *          the activityRepository to set
-   */
-  public void setActivityRepository(ActivityRepository activityRepository) {
-    this.activityRepository = activityRepository;
+    return masterApiActivityManager.updateActivityMetadata(id, metadataCommandObj);
   }
 }

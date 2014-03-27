@@ -16,15 +16,9 @@
 
 package interactivespaces.master.ui.internal.web.liveactivity;
 
-import interactivespaces.domain.basic.LiveActivityGroup;
-import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessage;
 import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.api.MasterApiUtilities;
-import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
-import interactivespaces.master.ui.internal.web.UiUtilities;
-
-import com.google.common.collect.Lists;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -50,43 +42,29 @@ import javax.servlet.http.HttpServletResponse;
 public class LiveActivityController extends BaseActiveSpaceMasterController {
 
   /**
-   * Repository for activity entities.
-   */
-  private ActivityRepository activityRepository;
-
-  /**
    * Display a list of all installed activities.
    *
    * @return Model and view for controller list display.
    */
   @RequestMapping("/liveactivity/all.html")
   public ModelAndView listActivities() {
-    List<MasterApiLiveActivity> liveactivities = masterApiControllerManager.getAllUiLiveActivities();
-    Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
+    Map<String, Object> response = masterApiActivityManager.getLiveActivitiesByFilter(null);
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("liveactivity/LiveActivityViewAll");
-    mav.addObject("liveactivities", liveactivities);
+    mav.addObject("liveactivities", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }
 
   @RequestMapping(value = "/liveactivity/{id}/view.html", method = RequestMethod.GET)
   public ModelAndView viewActivity(@PathVariable String id) {
+    Map<String, Object> response = masterApiActivityManager.getLiveActivityFullView(id);
+
     ModelAndView mav = getModelAndView();
-
-    MasterApiLiveActivity liveactivity = masterApiControllerManager.getUiLiveActivity(id);
-    if (liveactivity != null) {
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.setViewName("liveactivity/LiveActivityView");
-      mav.addObject("liveactivity", liveactivity);
-      mav.addObject("metadata", UiUtilities.getMetadataView(liveactivity.getActivity().getMetadata()));
-      mav.addObject("runtimeStateDetail", liveactivity.getActive().getRuntimeStateDetail());
-
-      List<LiveActivityGroup> groups =
-          Lists.newArrayList(activityRepository.getLiveActivityGroupsByLiveActivity(liveactivity.getActivity()));
-      Collections.sort(groups, MasterApiUtilities.LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR);
-      mav.addObject("liveactivitygroups", groups);
-
+      mav.addAllObjects(MasterApiMessageSupport.getResponseDataMap(response));
     } else {
       mav.setViewName("liveactivity/LiveActivityNonexistent");
     }
@@ -109,13 +87,13 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/liveactivity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployLiveActivity(@PathVariable String id) {
-    return masterApiControllerManager.deployLiveActivity(id);
+    return masterApiSpaceControllerManager.deployLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/configure.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> configureLiveActivity(@PathVariable String id) {
-    return masterApiControllerManager.configureLiveActivity(id);
+    return masterApiSpaceControllerManager.configureLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/configuration.json", method = RequestMethod.GET)
@@ -135,7 +113,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 
       return masterApiActivityManager.configureLiveActivity(id, map);
     } else {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
 
   }
@@ -143,58 +121,51 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/liveactivity/{id}/metadata.json", method = RequestMethod.POST)
   public @ResponseBody
   Map<String, ? extends Object> modifyLiveActivityMetadata(@PathVariable String id,
-      @RequestBody Object metadataCommandObj, HttpServletResponse response) {
+      @RequestBody Object metadataCommand, HttpServletResponse response) {
 
-    if (Map.class.isAssignableFrom(metadataCommandObj.getClass())) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
-
-      return masterApiActivityManager.updateLiveActivityMetadata(id, metadataCommand);
-    } else {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessageSupport.MESSAGE_SPACE_CALL_ARGS_NOMAP);
-    }
+    return masterApiActivityManager.updateMetadataLiveActivity(id, metadataCommand);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/startup.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> startupActivity(@PathVariable String id) {
-    return masterApiControllerManager.startupLiveActivity(id);
+    return masterApiSpaceControllerManager.startupLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/activate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> activateActivity(@PathVariable String id) {
-    return masterApiControllerManager.activateLiveActivity(id);
+    return masterApiSpaceControllerManager.activateLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/deactivate.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deactivateActivity(@PathVariable String id) {
-    return masterApiControllerManager.deactivateLiveActivity(id);
+    return masterApiSpaceControllerManager.deactivateLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownActivity(@PathVariable String id) {
-    return masterApiControllerManager.shutdownLiveActivity(id);
+    return masterApiSpaceControllerManager.shutdownLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/status.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusLiveActivity(@PathVariable String id) {
-    return masterApiControllerManager.statusLiveActivity(id);
+    return masterApiSpaceControllerManager.statusLiveActivity(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/cleantmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanTempDataActivity(@PathVariable String id) {
-    return masterApiControllerManager.cleanLiveActivityTempData(id);
+    return masterApiSpaceControllerManager.cleanLiveActivityTempData(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/cleanpermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanPermanentDataActivity(@PathVariable String id) {
-    return masterApiControllerManager.cleanLiveActivityPermanentData(id);
+    return masterApiSpaceControllerManager.cleanLiveActivityPermanentData(id);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/delete.html", method = RequestMethod.GET)
@@ -215,14 +186,6 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/liveactivity/{id}/remotedelete.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> remoteDeleteActivity(@PathVariable String id) {
-    return masterApiControllerManager.deleteLiveActivity(id);
-  }
-
-  /**
-   * @param activityRepository
-   *          the activityRepository to set
-   */
-  public void setActivityRepository(ActivityRepository activityRepository) {
-    this.activityRepository = activityRepository;
+    return masterApiSpaceControllerManager.deleteLiveActivity(id);
   }
 }

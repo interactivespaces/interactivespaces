@@ -39,7 +39,7 @@ public class ActiveLiveActivity {
   /**
    * The client for interacting with a controller remotely.
    */
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteControllerClient;
 
   /**
    * Controller the active activity is directRunning on.
@@ -117,7 +117,7 @@ public class ActiveLiveActivity {
    *          time source
    */
   public ActiveLiveActivity(ActiveSpaceController activeController, LiveActivity activity,
-      RemoteControllerClient remoteControllerClient, TimeProvider timeProvider) {
+      RemoteSpaceControllerClient remoteControllerClient, TimeProvider timeProvider) {
     this.activeController = activeController;
     this.activity = activity;
     this.remoteControllerClient = remoteControllerClient;

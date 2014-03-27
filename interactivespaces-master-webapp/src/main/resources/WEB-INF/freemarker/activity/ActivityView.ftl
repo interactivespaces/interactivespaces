@@ -26,14 +26,14 @@
 
 $(document).ready(function() {
 <#list liveactivities as liveactivity>
-$('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
-  .ispopup("#liveactivity-info-${liveactivity.activity.uuid}-popup");
+$('${"#liveactivity-info-${liveactivity.uuid}"}')
+  .ispopup("#liveactivity-info-${liveactivity.uuid}-popup");
 </#list>
 });
 </script>
 </head>
 
-<body>
+<body class="admin-content">
 
 <script type="text/javascript">
 function doAjaxCommand(command) {
@@ -51,8 +51,6 @@ function deleteActivity() {
     }
 }
 </script>
-
-<#include "/allpages_body_header.ftl">
 
 <h1>Activity: ${activity.name}</h1>
 
@@ -102,8 +100,9 @@ ${activity.description}
   </tr>
 <tr>
 <th valign="top">Metadata</th>
-<td><table><#list metadata as item>
-<tr><th>${item.label}</th><td>${item.value}</td></tr>
+<#assign metadataKeys = activity.metadata?keys?sort>
+<td><table><#list metadataKeys as metadataKey>
+<tr><th>${metadataKey}</th><td>${activity.metadata[metadataKey]}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -118,19 +117,19 @@ ${activity.description}
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-    <td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
-<td><#if liveactivity.active?has_content><div id="liveactivity-${liveactivity.activity.uuid}">
-<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+    <td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a></td>
+<td><#if liveactivity.active?has_content><div id="liveactivity-${liveactivity.uuid}">
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
 <span class="as-of-timestamp">
  as of 
   <#if liveactivity.active.lastStateUpdate??>
-    ${liveactivity.active.lastStateUpdateDate?datetime}
+    ${liveactivity.active.lastStateUpdate}
   <#else>
     Unknown
   </#if>
 </span>
 </div>
-<div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
+<div id="liveactivity-info-${liveactivity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
 Directly Running
 <#else>
@@ -152,12 +151,12 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </#if>
 </td>
 <td>
-<#if liveactivity.activity.outOfDate>
+<#if liveactivity.outOfDate>
 <span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>
-<@spring.message liveactivity.active.deployState.description />
+<@spring.message liveactivity.active.deployStateDescription />
 </span>
 </#if>
 </td>

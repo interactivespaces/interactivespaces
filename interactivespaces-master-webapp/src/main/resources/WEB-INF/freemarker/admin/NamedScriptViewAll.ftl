@@ -22,9 +22,7 @@
 
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h2>Scripts</h2>
 
@@ -40,7 +38,7 @@
 <table>
 <#list scripts as script>
     <tr>
-      <td><a href="${script.id}/view.html">View</a></td>
+      <td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/admin/namedscript/${script.id}/view.html')">View</a></td>
       <td>${script.name}</td>
 </#list>
 </table>

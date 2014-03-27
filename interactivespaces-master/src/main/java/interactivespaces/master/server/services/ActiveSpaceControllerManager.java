@@ -19,19 +19,16 @@ package interactivespaces.master.server.services;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.space.Space;
 
 import java.util.List;
 
 /**
- * A manager for controllers running on nodes on the network.
- *
- * <p>
- * This manager should not be usually used directly, but should instead be used
- * through a {@link ActiveSpaceManager}.
+ * A manager for space controllers running on nodes on the network.
  *
  * @author Keith M. Hughes
  */
-public interface ActiveControllerManager {
+public interface ActiveSpaceControllerManager {
 
   /**
    * Connect to the specified controller.
@@ -44,7 +41,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller to connect to
    */
-  void connectController(SpaceController controller);
+  void connectSpaceController(SpaceController controller);
 
   /**
    * Disconnect from the specified controller.
@@ -57,7 +54,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller to disconnect
    */
-  void disconnectController(SpaceController controller);
+  void disconnectSpaceController(SpaceController controller);
 
   /**
    * Restart a controller.
@@ -68,7 +65,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller to restart
    */
-  void restartController(SpaceController controller);
+  void restartSpaceController(SpaceController controller);
 
   /**
    * Shutdown a controller.
@@ -76,7 +73,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller to shutdown
    */
-  void shutdownController(SpaceController controller);
+  void shutdownSpaceController(SpaceController controller);
 
   /**
    * Request a status from a controller.
@@ -88,7 +85,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller
    */
-  void statusController(SpaceController controller);
+  void statusSpaceController(SpaceController controller);
 
   /**
    * Force request a status from a controller.
@@ -96,7 +93,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller
    */
-  void forceStatusController(SpaceController controller);
+  void forceStatusSpaceController(SpaceController controller);
 
   /**
    * Clean the temp data folder for the controller.
@@ -104,7 +101,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerTempData(SpaceController controller);
+  void cleanSpaceControllerTempData(SpaceController controller);
 
   /**
    * Clean the permanent data folder for the controller.
@@ -112,7 +109,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerPermanentData(SpaceController controller);
+  void cleanSpaceControllerPermanentData(SpaceController controller);
 
   /**
    * Clean the temp data folder for all live activities on the controller.
@@ -120,7 +117,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerActivitiesTempData(SpaceController controller);
+  void cleanSpaceControllerActivitiesTempData(SpaceController controller);
 
   /**
    * Clean the permanent data folder for all live activities on the controller.
@@ -128,7 +125,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerActivitiesPermanentData(SpaceController controller);
+  void cleanSpaceControllerActivitiesPermanentData(SpaceController controller);
 
   /**
    * Capture the data bundle from the controller.
@@ -136,7 +133,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller
    */
-  void captureControllerDataBundle(SpaceController controller);
+  void captureSpaceControllerDataBundle(SpaceController controller);
 
   /**
    * Restore a previously captured data bundle to the controller.
@@ -144,7 +141,7 @@ public interface ActiveControllerManager {
    * @param controller
    *          the controller
    */
-  void restoreControllerDataBundle(SpaceController controller);
+  void restoreSpaceControllerDataBundle(SpaceController controller);
 
   /**
    * Shutdown all activities on a controller.
@@ -287,7 +284,7 @@ public interface ActiveControllerManager {
    * up.
    *
    * @param activityGroup
-   *          The activity group to shut down.
+   *          the activity group to shut down
    */
   void shutdownLiveActivityGroup(LiveActivityGroup activityGroup);
 
@@ -295,9 +292,9 @@ public interface ActiveControllerManager {
    * Get the active activity associated with a given activity.
    *
    * @param activity
-   *          The activity.
+   *          the live activity
    *
-   * @return The active activity for the activity.
+   * @return the active live activity for the live activity
    */
   ActiveLiveActivity getActiveLiveActivity(LiveActivity activity);
 
@@ -305,19 +302,68 @@ public interface ActiveControllerManager {
    * Get the active activities associated with the given activities.
    *
    * @param activities
-   *          the activities
+   *          the live activities
    *
    * @return the active activities for the activities
    */
   List<ActiveLiveActivity> getActiveLiveActivities(List<LiveActivity> activities);
 
   /**
+   * Deploy all assets for the space.
+   *
+   * @param space
+   *          the space
+   */
+  void deploySpace(Space space);
+
+  /**
+   * Configure all assets in the space.
+   *
+   * @param space
+   *          the space
+   */
+  void configureSpace(Space space);
+
+  /**
+   * Start the given space. This will start all required activities needed by
+   * the space. Child spaces will be started first.
+   *
+   * @param space
+   *          the space to start
+   */
+  void startupSpace(Space space);
+
+  /**
+   * Shut a given space down. Child spaces will be shut down first.
+   *
+   * @param space
+   *          the space to shut down
+   */
+  void shutdownSpace(Space space);
+
+  /**
+   * Activate a space. Child spaces will be activated first.
+   *
+   * @param space
+   *          the space to activate
+   */
+  void activateSpace(Space space);
+
+  /**
+   * Deactivate a space. Child spaces will be deactivated first.
+   *
+   * @param space
+   *          the space to deactivate
+   */
+  void deactivateSpace(Space space);
+
+  /**
    * Get the active controller associated with a given controller.
    *
    * @param controller
-   *          The controller.
+   *          the space controller
    *
-   * @return The active controller for the controller.
+   * @return the active space controller for the space controller
    */
   ActiveSpaceController getActiveSpaceController(SpaceController controller);
 
@@ -337,7 +383,7 @@ public interface ActiveControllerManager {
    * @param listener
    *          the new listener
    */
-  void addControllerListener(SpaceControllerListener listener);
+  void addSpaceControllerListener(SpaceControllerListener listener);
 
   /**
    * Remove a controller listener.
@@ -348,5 +394,5 @@ public interface ActiveControllerManager {
    * @param listener
    *          the listener to remove
    */
-  void removeControllerListener(SpaceControllerListener listener);
+  void removeSpaceControllerListener(SpaceControllerListener listener);
 }

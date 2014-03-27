@@ -21,7 +21,7 @@ import interactivespaces.container.resource.deployment.ContainerResourceDeployme
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentItem;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
@@ -62,7 +62,7 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
   /**
    * The remote controller client for sending container deployment requests.
    */
-  private RemoteControllerClient remoteControllerClient;
+  private RemoteSpaceControllerClient remoteSpaceControllerClient;
 
   /**
    * The space environment to run under.
@@ -124,17 +124,17 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
               resource.getVersion())));
     }
 
-    remoteControllerClient.commitResourceDeployment(controller, commitRequest);
+    remoteSpaceControllerClient.commitResourceDeployment(controller, commitRequest);
   }
 
   /**
    * Set the remote controller client to use.
    *
-   * @param remoteControllerClient
-   *          the remote controller client to use
+   * @param remoteSpaceControllerClient
+   *          the remote space controller client to use
    */
-  public void setRemoteControllerClient(RemoteControllerClient remoteControllerClient) {
-    this.remoteControllerClient = remoteControllerClient;
+  public void setRemoteSpaceControllerClient(RemoteSpaceControllerClient remoteSpaceControllerClient) {
+    this.remoteSpaceControllerClient = remoteSpaceControllerClient;
   }
 
   /**
@@ -166,5 +166,4 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
-
 }

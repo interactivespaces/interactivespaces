@@ -84,7 +84,7 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.server.services.internal.jpa.JpaControllerRepository">
+        class="interactivespaces.master.server.services.internal.jpa.JpaSpaceControllerRepository">
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
@@ -139,7 +139,7 @@
   </bean>
 
   <bean id="interactivespaces.controller.remote.client"
-    class="interactivespaces.master.server.services.internal.ros.RosRemoteControllerClient"
+    class="interactivespaces.master.server.services.internal.ros.RosRemoteSpaceControllerClient"
     destroy-method="shutdown" init-method="startup">
 
     <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
@@ -154,7 +154,7 @@
     class="interactivespaces.master.server.services.internal.ros.RosMasterDataBundleManager"
     destroy-method="shutdown" init-method="startup">
 
-    <property name="rosRemoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="rosRemoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
 
     <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
 
@@ -197,7 +197,7 @@
       ref="interactivespaces.resource.repository.storage" />
     <property name="repositoryServer"
       ref="interactivespaces.resource.repository.server" />
-    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
@@ -224,7 +224,7 @@
     class="interactivespaces.controller.client.master.internal.BasicRemoteActivityDeploymentManager"
     destroy-method="shutdown" init-method="startup">
 
-    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
     <property name="containerResourceDeploymentManager"
       ref="interactivespaces.resource.deployment.manager" />
     <property name="repositoryServer"
@@ -234,30 +234,24 @@
   </bean>
 
   <bean id="interactivespaces.master.controller.active"
-    class="interactivespaces.master.server.services.internal.BasicActiveControllerManager">
+    class="interactivespaces.master.server.services.internal.BasicActiveSpaceControllerManager">
 
-    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
 
     <property name="remoteActivityDeploymentManager" ref="interactivespaces.activity.deployer.remote" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
-  <bean id="interactivespaces.master.space.active"
-    class="interactivespaces.master.server.services.internal.BasicActiveSpaceManager">
-
-    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
-  </bean>
-
   <bean id="interactivespaces.master.space.alert"
     class="interactivespaces.master.server.services.internal.BasicMasterAlertManager"
     destroy-method="shutdown" init-method="startup">
 
-    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+    <property name="activeSpaceControllerManager" ref="interactivespaces.master.controller.active" />
 
     <property name="alertService" ref="interactivespaces.service.alert" />
 
-    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
@@ -268,7 +262,7 @@
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="automationRepository" ref="interactivespaces.repository.automation" />
 
@@ -279,13 +273,13 @@
     class="interactivespaces.master.server.services.internal.BasicAutomationManager"
     destroy-method="shutdown" init-method="startup">
 
-    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+    <property name="activeSpaceControllerManager" ref="interactivespaces.master.controller.active" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="schedulerService" ref="interactivespaces.service.scheduler" />
 
@@ -293,7 +287,7 @@
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
   </bean>
@@ -302,13 +296,13 @@
     class="interactivespaces.master.server.services.internal.BasicExtensionManager"
     destroy-method="shutdown" init-method="startup">
 
-    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
+    <property name="activeSpaceControllerManager" ref="interactivespaces.master.controller.active" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="schedulerService" ref="interactivespaces.service.scheduler" />
 
@@ -316,7 +310,7 @@
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
 
@@ -341,7 +335,7 @@
         <property name="activityRepositoryManager"
           ref="interactivespaces.resource.repository.manager" />
 
-        <property name="activeControllerManager"
+        <property name="activeSpaceControllerManager"
           ref="interactivespaces.master.controller.active" />
       </bean>
     </property>
@@ -352,38 +346,18 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiControllerManager"
+        class="interactivespaces.master.api.internal.BasicMasterApiSpaceControllerManager"
         parent="abstractMasterApiManager">
 
-        <property name="controllerRepository"
+        <property name="spaceControllerRepository"
           ref="interactivespaces.repository.controller" />
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-        <property name="activeControllerManager"
+        <property name="activeSpaceControllerManager"
           ref="interactivespaces.master.controller.active" />
 
         <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
-      </bean>
-    </property>
-  </bean>
-
-  <bean id="interactivespaces.master.api.space" parent="txProxyTemplate">
-
-    <property name="target">
-
-      <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiSpaceManager"
-        parent="abstractMasterApiManager">
-
-        <property name="activityRepository" ref="interactivespaces.repository.activity" />
-
-        <property name="activeSpaceManager" ref="interactivespaces.master.space.active" />
-
-        <property name="activeControllerManager"
-          ref="interactivespaces.master.controller.active" />
-
-        <property name="uiActivityManager" ref="interactivespaces.master.api.activity" />
       </bean>
     </property>
   </bean>
@@ -425,11 +399,8 @@
         class="interactivespaces.master.server.services.internal.RemoteMasterServerBridge"
         destroy-method="shutdown" init-method="startup">
 
-        <property name="controllerRepository"
+        <property name="spaceControllerRepository"
           ref="interactivespaces.repository.controller" />
-
-        <property name="activeControllerManager"
-          ref="interactivespaces.master.controller.active" />
 
         <property name="remoteMasterServer" ref="interactivespaces.master.server" />
 
@@ -446,13 +417,13 @@
 
     <property name="extensionManager" ref="interactivespaces.master.extension" />
 
-    <property name="remoteControllerClient" ref="interactivespaces.controller.remote.client" />
+    <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
   </bean>
 
   <context:component-scan base-package="interactivespaces" />
@@ -463,11 +434,11 @@
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="controllerRepository" ref="interactivespaces.repository.controller" />
+    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="scriptService" ref="interactivespaces.service.script" />
 
@@ -484,15 +455,14 @@
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
-    <property name="activityRepositoryManager" ref="interactivespaces.resource.repository.manager" />
+    <property name="activityRepositoryManager"
+      ref="interactivespaces.resource.repository.manager" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="spaceSystemControl" ref="interactivespaces.systemctl" />
 
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
-
-    <property name="masterApiSpaceManager" ref="interactivespaces.master.api.space" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
@@ -501,11 +471,8 @@
     ref="interactivespaces.master.api.activity" />
 
   <osgi:service
-    interface="interactivespaces.master.api.MasterApiControllerManager"
+    interface="interactivespaces.master.api.MasterApiSpaceControllerManager"
     ref="interactivespaces.master.api.controller" />
-
-  <osgi:service interface="interactivespaces.master.api.MasterApiSpaceManager"
-    ref="interactivespaces.master.api.space" />
 
   <osgi:service
     interface="interactivespaces.master.api.MasterApiAutomationManager"
@@ -516,11 +483,7 @@
     ref="interactivespaces.master.api.support" />
 
   <osgi:service
-    interface="interactivespaces.master.server.services.ActiveSpaceManager"
-    ref="interactivespaces.master.space.active" />
-
-  <osgi:service
-    interface="interactivespaces.master.server.services.ActiveControllerManager"
+    interface="interactivespaces.master.server.services.ActiveSpaceControllerManager"
     ref="interactivespaces.master.controller.active" />
 
   <osgi:service
@@ -532,7 +495,7 @@
     ref="interactivespaces.master.extension" />
 
   <osgi:service
-    interface="interactivespaces.master.server.services.ControllerRepository"
+    interface="interactivespaces.master.server.services.SpaceControllerRepository"
     ref="interactivespaces.repository.controller" />
 
   <osgi:service

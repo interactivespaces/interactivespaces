@@ -18,7 +18,7 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionCreator;
 import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionImporter;
@@ -39,7 +39,7 @@ public class BasicMasterSupportManager implements MasterSupportManager {
   /**
    * Repository for controller entities.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Repository for automation entities.
@@ -66,14 +66,14 @@ public class BasicMasterSupportManager implements MasterSupportManager {
     JdomMasterDomainDescriptionCreator creator = new JdomMasterDomainDescriptionCreator();
 
     return creator
-        .createDescription(activityRepository, controllerRepository, automationRepository);
+        .createDescription(activityRepository, spaceControllerRepository, automationRepository);
   }
 
   @Override
   public void importMasterDomainDescription(String description) {
     JdomMasterDomainDescriptionImporter importer = new JdomMasterDomainDescriptionImporter();
 
-    importer.importDescription(description, activityRepository, controllerRepository,
+    importer.importDescription(description, activityRepository, spaceControllerRepository,
         automationRepository, spaceEnvironment.getTimeProvider());
   }
 
@@ -86,11 +86,11 @@ public class BasicMasterSupportManager implements MasterSupportManager {
   }
 
   /**
-   * @param controllerRepository
+   * @param spaceControllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**

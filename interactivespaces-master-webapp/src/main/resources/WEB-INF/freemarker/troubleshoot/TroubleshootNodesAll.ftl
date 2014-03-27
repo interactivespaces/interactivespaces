@@ -21,9 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h1>Troubleshoot Nodes</h1>
 

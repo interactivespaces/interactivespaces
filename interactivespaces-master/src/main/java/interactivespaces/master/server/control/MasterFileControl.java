@@ -18,8 +18,7 @@ package interactivespaces.master.server.control;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.master.api.MasterApiAutomationManager;
-import interactivespaces.master.api.MasterApiControllerManager;
-import interactivespaces.master.api.MasterApiSpaceManager;
+import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -117,12 +116,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
   /**
    * Master API manager for control of space controllers.
    */
-  private MasterApiControllerManager masterApiControllerManager;
-
-  /**
-   * Master API manager for control of spaces.
-   */
-  private MasterApiSpaceManager masterApiSpaceManager;
+  private MasterApiSpaceControllerManager masterApiSpaceControllerManager;
 
   /**
    * Master API manager for automation control, e.g. running scripts.
@@ -203,25 +197,25 @@ public class MasterFileControl implements DirectoryWatcherListener {
       } else if (COMMAND_CALCULATE_ACTIVITY_HASHES.equalsIgnoreCase(command)) {
         calculateActivityHashes();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL.equalsIgnoreCase(command)) {
-        masterApiControllerManager.shutdownAllControllers();
+        masterApiSpaceControllerManager.shutdownAllSpaceControllers();
       } else if (COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL_ACTIVITIES.equalsIgnoreCase(command)) {
-        masterApiControllerManager.shutdownAllActivitiesAllControllers();
+        masterApiSpaceControllerManager.shutdownAllActivitiesAllSpaceControllers();
       } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP)) {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP.length());
 
-        masterApiControllerManager.startupLiveActivityGroup(id);
+        masterApiSpaceControllerManager.startupLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE.length());
 
-        masterApiControllerManager.activateLiveActivityGroup(id);
+        masterApiSpaceControllerManager.activateLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_STARTUP.length());
 
-        masterApiSpaceManager.startupSpace(id);
+        masterApiSpaceControllerManager.startupSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_ACTIVATE.length());
 
-        masterApiSpaceManager.activateSpace(id);
+        masterApiSpaceControllerManager.activateSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SCRIPT_RUN)) {
         String id = command.substring(COMMAND_PREFIX_SCRIPT_RUN.length());
 
@@ -270,16 +264,8 @@ public class MasterFileControl implements DirectoryWatcherListener {
    * @param masterApiControllerManager
    *          the uiControllerManager to set
    */
-  public void setMasterApiControllerManager(MasterApiControllerManager masterApiControllerManager) {
-    this.masterApiControllerManager = masterApiControllerManager;
-  }
-
-  /**
-   * @param masterApiSpaceManager
-   *          the uiSpaceManager to set
-   */
-  public void setMasterApiSpaceManager(MasterApiSpaceManager masterApiSpaceManager) {
-    this.masterApiSpaceManager = masterApiSpaceManager;
+  public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
+    this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 
   /**

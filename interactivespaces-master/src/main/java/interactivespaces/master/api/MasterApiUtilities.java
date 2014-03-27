@@ -61,18 +61,6 @@ public class MasterApiUtilities {
   public static final SpaceByNameComparator SPACE_BY_NAME_COMPARATOR = new SpaceByNameComparator();
 
   /**
-   * A comparator for active activities which orders by name.
-   */
-  public static final MasterApiLiveActivityByNameComparator UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR =
-      new MasterApiLiveActivityByNameComparator();
-
-  /**
-   * A comparator for space live activity groups which orders by name.
-   */
-  public static final MasterApiSpaceLiveActivityGroupByNameComparator UI_SPACE_LIVE_ACTIVITY_GROUP_BY_NAME_COMPARATOR =
-      new MasterApiSpaceLiveActivityGroupByNameComparator();
-
-  /**
    * A comparator for active controllers which orders by name.
    */
   public static final ActiveControllerByNameComparator ACTIVE_CONTROLLER_BY_NAME_COMPARATOR =
@@ -148,32 +136,6 @@ public class MasterApiUtilities {
     @Override
     public int compare(Space o1, Space o2) {
       return o1.getName().compareToIgnoreCase(o2.getName());
-    }
-  }
-
-  /**
-   * A comparator for active activities which orders by name.
-   *
-   * @author Keith M. Hughes
-   */
-  private static class MasterApiLiveActivityByNameComparator implements Comparator<MasterApiLiveActivity> {
-    @Override
-    public int compare(MasterApiLiveActivity o1, MasterApiLiveActivity o2) {
-      return o1.getActivity().getName().compareToIgnoreCase(o2.getActivity().getName());
-    }
-  }
-
-  /**
-   * A comparator for UI live activity groups which orders by name.
-   *
-   * @author Keith M. Hughes
-   */
-  private static class MasterApiSpaceLiveActivityGroupByNameComparator implements
-      Comparator<MasterApiSpaceLiveActivityGroup> {
-    @Override
-    public int compare(MasterApiSpaceLiveActivityGroup o1, MasterApiSpaceLiveActivityGroup o2) {
-      return o1.getLiveActivityGroup().getName()
-          .compareToIgnoreCase(o2.getLiveActivityGroup().getName());
     }
   }
 

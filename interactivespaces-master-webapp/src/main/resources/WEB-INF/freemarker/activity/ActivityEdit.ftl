@@ -21,9 +21,7 @@
 <#include "/allpages_head.ftl" >
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h1>Edit Activity: ${activity.name}</h1>
 
@@ -46,7 +44,7 @@
 <th>&nbsp;</th>
 <td>
 <input type="submit" value="Save" />
-<button type="button" id="cancelButton" onclick="window.location='/interactivespaces/activity/${id}/view.html'" title="Cancel the edit">Cancel</button>
+<button type="button" id="cancelButton" onclick="ugly.changePage('/interactivespaces/activity/${id}/view.html')" title="Cancel the edit">Cancel</button>
 </td>
 </table>
 

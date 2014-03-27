@@ -20,20 +20,20 @@
 
 <div id="navMain">
 <ul>
-<li><a href="/interactivespaces/activity/all.html">Activity</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/all.html')">Activity</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/liveactivity/all.html">Live Activity</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/all.html')">Live Activity</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/liveactivitygroup/all.html">Live Activity Group</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/all.html')">Live Activity Group</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/space/all.html">Space</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/all.html')">Space</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/spacecontroller/all.html">Space Controller</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/spacecontroller/all.html')">Space Controller</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/troubleshoot/all.html">Troubleshoot</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/troubleshoot/all.html')">Troubleshoot</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/admin/namedscript/all.html">Scripts</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/admin/namedscript/all.html')">Scripts</a></li>
 <li>&bull;</li>
-<li><a href="/interactivespaces/admin/support/index.html">Support</a></li>
+<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/admin/support/index.html')">Support</a></li>
 </ul>
 </div>

@@ -22,15 +22,13 @@
 
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h2>Activities</h2>
 
 <table class="commandBar">
   <tr>
-    <td><button type="button" id="uploadButton" onclick="window.location='upload.html?mode=embedded'" title="Upload an activity">Upload</button></td>
+    <td><button type="button" id="uploadButton" onclick="ugly.changePage('/interactivespaces/activity/upload.html?mode=embedded')" title="Upload an activity">Upload</button></td>
   </tr>
 </table>
 
@@ -49,7 +47,7 @@
 <#list activities as activity>
     <#assign trCss = (activity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-      <td><a href="${activity.id}/view.html">View</a></td>
+      <td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/${activity.id}/view.html')">View</a></td>
       <td>${activity.name}</td>
       <td>${activity.version}</td>
       <td>${activity.lastUploadDate?datetime}</td>

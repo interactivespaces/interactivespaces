@@ -21,7 +21,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.support.LiveActivityUtils;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 import interactivespaces.master.ui.internal.web.editor.ActivityEditor;
@@ -57,7 +57,7 @@ public class LiveActivityEditForm extends BaseSpaceMasterController {
   /**
    * The controller repository.
    */
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   @InitBinder
   public void initBinder(WebDataBinder dataBinder) {
@@ -127,7 +127,7 @@ public class LiveActivityEditForm extends BaseSpaceMasterController {
    * @param controllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
+  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
 }

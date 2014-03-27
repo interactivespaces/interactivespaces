@@ -17,8 +17,9 @@ package interactivespaces.master.server.services.internal.ros;
 
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.internal.BasicMasterDataBundleManager;
-import interactivespaces_msgs.ControllerRequest;
+
 import interactivespaces_msgs.ControllerDataRequest;
+import interactivespaces_msgs.ControllerRequest;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.message.MessageSerializer;
 import org.ros.node.ConnectedNode;
@@ -29,9 +30,9 @@ import org.ros.node.ConnectedNode;
 public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
 
   /**
-   * Remote controller client for communication.
+   * Remote space controller client for communication.
    */
-  private RosRemoteControllerClient rosRemoteControllerClient;
+  private RosRemoteSpaceControllerClient rosRemoteSpaceControllerClient;
 
   /**
    * The ROS environment the client is running in.
@@ -70,6 +71,30 @@ public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
     return getMasterNode().getTopicMessageFactory().newFromType(ControllerDataRequest._TYPE);
   }
 
+  @Override
+  protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller,
+      String destinationUri) {
+    ControllerDataRequest request = newControllerDataRequest();
+    request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
+    request.setTransferUri(destinationUri);
+
+    ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
+    rosRemoteSpaceControllerClient.sendControllerRequest(controller,
+        ControllerRequest.OPERATION_CAPTURE_DATA, serialize);
+  }
+
+  @Override
+  protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller,
+      String sourceUri) {
+    ControllerDataRequest request = newControllerDataRequest();
+    request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
+    request.setTransferUri(sourceUri);
+
+    ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
+    rosRemoteSpaceControllerClient.sendControllerRequest(controller,
+        ControllerRequest.OPERATION_RESTORE_DATA, serialize);
+  }
+
   /**
    * @param masterRosContext
    *          the rosEnvironment to set
@@ -82,31 +107,7 @@ public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
    * @param rosRemoteControllerClient
    *           the remote controller client to set
    */
-  public void setRosRemoteControllerClient(RosRemoteControllerClient rosRemoteControllerClient) {
-    this.rosRemoteControllerClient = rosRemoteControllerClient;
-  }
-
-  @Override
-  protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller,
-      String destinationUri) {
-    ControllerDataRequest request = newControllerDataRequest();
-    request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
-    request.setTransferUri(destinationUri);
-
-    ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
-    rosRemoteControllerClient.sendControllerRequest(controller,
-        ControllerRequest.OPERATION_CAPTURE_DATA, serialize);
-  }
-
-  @Override
-  protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller,
-      String sourceUri) {
-    ControllerDataRequest request = newControllerDataRequest();
-    request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
-    request.setTransferUri(sourceUri);
-
-    ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
-    rosRemoteControllerClient.sendControllerRequest(controller,
-        ControllerRequest.OPERATION_RESTORE_DATA, serialize);
+  public void setRosRemoteSpaceControllerClient(RosRemoteSpaceControllerClient rosRemoteControllerClient) {
+    this.rosRemoteSpaceControllerClient = rosRemoteControllerClient;
   }
 }

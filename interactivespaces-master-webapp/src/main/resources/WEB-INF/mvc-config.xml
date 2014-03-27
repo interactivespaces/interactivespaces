@@ -53,10 +53,8 @@
 
   <bean id="abstractLiveControllerClass" abstract="true"
     parent="abstractControllerClass">
-    <property name="activeControllerManager" ref="interactivespaces.master.controller.active" />
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
-    <property name="masterApiSpaceManager" ref="interactivespaces.master.api.space" />
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
   </bean>
 
   <bean
@@ -67,10 +65,7 @@
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity"
     class="interactivespaces.master.ui.internal.web.activity.ActivityController"
-    parent="abstractControllerClass">
-    <property name="activityRepository" ref="activityRepository" />
-    <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
-    <property name="masterApiControllerManager" ref="interactivespaces.master.api.controller" />
+    parent="abstractLiveControllerClass">
   </bean>
 
   <bean id="activityAction"
@@ -141,9 +136,7 @@
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerController"
-    parent="abstractLiveControllerClass">
-    <property name="controllerRepository" ref="controllerRepository" />
-  </bean>
+    parent="abstractLiveControllerClass" />
 
   <bean id="spaceControllerAction"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerAction"
@@ -173,9 +166,7 @@
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity"
     class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityController"
-    parent="abstractLiveControllerClass">
-    <property name="activityRepository" ref="activityRepository" />
-  </bean>
+    parent="abstractLiveControllerClass" />
 
   <bean id="liveActivityAction"
     class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityAction"
@@ -214,9 +205,7 @@
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupController"
-    parent="abstractLiveControllerClass">
-    <property name="activityRepository" ref="activityRepository" />
-  </bean>
+    parent="abstractLiveControllerClass" />
 
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.edit"
@@ -246,10 +235,7 @@
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space"
     class="interactivespaces.master.ui.internal.web.space.SpaceController"
-    parent="abstractLiveControllerClass">
-    <property name="activityRepository" ref="activityRepository" />
-    <property name="activeSpaceManager" ref="interactivespaces.master.space.active" />
-  </bean>
+    parent="abstractLiveControllerClass" />
 
   <bean id="spaceAction"
     class="interactivespaces.master.ui.internal.web.space.SpaceAction"

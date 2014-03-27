@@ -17,69 +17,79 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.expression.FilterExpression;
 
 import java.util.List;
 
 /**
- * A repository which stores information about controllers.
+ * A repository which stores the domain model for space controllers.
  *
  * @author Keith M. Hughes
  */
-public interface ControllerRepository {
+public interface SpaceControllerRepository {
 
   /**
-   * Create a new controller.
+   * Create a new controller. It will not be saved in the repository.
    *
    * <p>
    * The controller will be assigned a UUID.
    *
-   * @return The new controller instance. It will not be saved in the
-   *         repository.
+   * @return the new controller instance
    */
   SpaceController newSpaceController();
 
   /**
-   * Create a new controller from a template.
+   * Create a new controller from a template. It will not be saved in the
+   * repository.
    *
    * <p>
    * The controller will be assigned a UUID.
    *
    * @param template
-   *          the template controller whose values will be copied in.
+   *          the template controller whose values will be copied in
    *
-   * @return The new controller instance. It will not be saved in the
-   *         repository.
+   * @return the new controller instance
    */
   SpaceController newSpaceController(SpaceController template);
 
   /**
-   * Create a new controller from a template object with a specified UUID.
+   * Create a new controller from a template object with a specified UUID. It
+   * will not be saved in the repository.
    *
    * @param uuid
    *          the UUID to give to the controller
    * @param template
-   *          the template controller whose values will be copied in.
+   *          the template controller whose values will be copied in
    *
-   * @return The new controller instance. It will not be saved in the
-   *         repository.
+   * @return the new controller instance
    */
   SpaceController newSpaceController(String uuid, SpaceController template);
 
   /**
    * Get all controllers in the repository.
    *
-   * @return Get all controllers in the repository.
+   * @return all controllers in the repository
    */
   List<SpaceController> getAllSpaceControllers();
+
+  /**
+   * Get all controllers in the repository matching a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return all controllers in the repository matching the given filter
+   */
+  List<SpaceController> getSpaceControllers(FilterExpression filter);
 
   /**
    * Get a controller by its ID.
    *
    * @param id
-   *          The id of the desired controller.
+   *          the id of the desired controller
    *
-   * @return The controller with the given id or {@code null} if no such
-   *         controller.
+   * @return the controller with the given id or {@code null} if no such
+   *         controller
    */
   SpaceController getSpaceControllerById(String id);
 
@@ -89,8 +99,8 @@ public interface ControllerRepository {
    * @param uuid
    *          The UUID of the desired controller.
    *
-   * @return The controller with the given UUID or {@code null} if no such
-   *         controller.
+   * @return the controller with the given UUID or {@code null} if no such
+   *         controller
    */
   SpaceController getSpaceControllerByUuid(String uuid);
 
@@ -102,9 +112,9 @@ public interface ControllerRepository {
    * time or to update edits to the controller.
    *
    * @param controller
-   *          The controller to save.
+   *          the controller to save
    *
-   * @return The persisted controller. use this one going forward.
+   * @return the persisted controller, use this one going forward
    */
   SpaceController saveSpaceController(SpaceController controller);
 
@@ -112,10 +122,7 @@ public interface ControllerRepository {
    * Delete a controller in the repository.
    *
    * @param controller
-   *          The controller to delete.
-   *
-   * @return
+   *          the controller to delete
    */
   void deleteSpaceController(SpaceController controller);
-
 }

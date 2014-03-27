@@ -19,8 +19,7 @@ package interactivespaces.master.server.services.internal;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
 import interactivespaces.master.server.remote.master.RemoteMasterServerListener;
-import interactivespaces.master.server.services.ActiveControllerManager;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 
 import org.apache.commons.logging.Log;
 
@@ -34,12 +33,7 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
   /**
    * The repository for controllers.
    */
-  private ControllerRepository controllerRepository;
-
-  /**
-   * The active controller manager.
-   */
-  private ActiveControllerManager activeControllerManager;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * The remote master server this is bridging.
@@ -69,7 +63,7 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
   public void onControllerRegistration(SpaceController registeringController) {
     String registeringUuid = registeringController.getUuid();
     SpaceController existingController =
-        controllerRepository.getSpaceControllerByUuid(registeringUuid);
+        spaceControllerRepository.getSpaceControllerByUuid(registeringUuid);
     if (existingController == null) {
       if (log.isInfoEnabled()) {
         log.info(String.format("Controller %s was unrecognized. Creating new record.",
@@ -80,26 +74,18 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
       }
 
       SpaceController newController =
-          controllerRepository.newSpaceController(registeringUuid, registeringController);
+          spaceControllerRepository.newSpaceController(registeringUuid, registeringController);
 
-      controllerRepository.saveSpaceController(newController);
+      spaceControllerRepository.saveSpaceController(newController);
     }
   }
 
   /**
-   * @param controllerRepository
+   * @param spaceControllerRepository
    *          the controllerRepository to set
    */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
-  }
-
-  /**
-   * @param activeControllerManager
-   *          the activeControllerManager to set
-   */
-  public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
-    this.activeControllerManager = activeControllerManager;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**

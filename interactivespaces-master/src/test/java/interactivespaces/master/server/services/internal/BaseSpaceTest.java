@@ -35,7 +35,7 @@ import interactivespaces.domain.space.pojo.SimpleSpace;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpace;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.RemoteControllerClient;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.time.LocalTimeProvider;
 import interactivespaces.time.TimeProvider;
 
@@ -62,7 +62,7 @@ public class BaseSpaceTest {
 
   protected TimeProvider timeProvider;
 
-  protected RemoteControllerClient remoteControllerClient;
+  protected RemoteSpaceControllerClient remoteControllerClient;
 
   /**
 	 *
@@ -78,7 +78,7 @@ public class BaseSpaceTest {
 
     installedAppsByUuid.clear();
 
-    remoteControllerClient = Mockito.mock(RemoteControllerClient.class);
+    remoteControllerClient = Mockito.mock(RemoteSpaceControllerClient.class);
   }
 
   /**

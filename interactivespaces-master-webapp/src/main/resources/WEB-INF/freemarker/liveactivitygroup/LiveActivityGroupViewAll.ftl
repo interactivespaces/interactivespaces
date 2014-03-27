@@ -21,9 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h1>Live Activity Groups</h1>
 
@@ -38,7 +36,7 @@
 
 <ul>
 <#list liveactivitygroups as liveactivitygroup>
-    <li><a href="${liveactivitygroup.id}/view.html">${liveactivitygroup.name}</a></li>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/view.html')">${liveactivitygroup.name}</a></li>
 </#list>
 </ul>
 

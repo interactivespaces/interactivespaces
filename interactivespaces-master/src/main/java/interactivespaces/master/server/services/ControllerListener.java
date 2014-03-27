@@ -21,7 +21,7 @@ import interactivespaces.domain.basic.LiveActivity;
 
 /**
  * A listener for events from controllers which are controlled by a
- * {@link ActiveControllerManager}.
+ * {@link ActiveSpaceControllerManager}.
  *
  * @author Keith M. Hughes
  */

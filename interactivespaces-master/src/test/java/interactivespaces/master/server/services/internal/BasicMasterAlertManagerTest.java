@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ControllerRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.MasterAlertManager;
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -48,7 +48,7 @@ public class BasicMasterAlertManagerTest {
 
   private AlertService alertService;
 
-  private ControllerRepository controllerRepository;
+  private SpaceControllerRepository controllerRepository;
 
   @Before
   public void setup() {
@@ -56,13 +56,13 @@ public class BasicMasterAlertManagerTest {
     timeProvider = new SettableTimeProvider();
     when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
-    controllerRepository = Mockito.mock(ControllerRepository.class);
+    controllerRepository = Mockito.mock(SpaceControllerRepository.class);
 
     alertService = Mockito.mock(AlertService.class);
     alertManager = new BasicMasterAlertManager();
     alertManager.setSpaceEnvironment(spaceEnvironment);
     alertManager.setAlertService(alertService);
-    alertManager.setControllerRepository(controllerRepository);
+    alertManager.setSpaceControllerRepository(controllerRepository);
   }
 
   /**

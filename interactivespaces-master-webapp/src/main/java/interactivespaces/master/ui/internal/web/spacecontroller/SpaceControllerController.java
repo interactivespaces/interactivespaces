@@ -16,16 +16,9 @@
 
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
-import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.api.MasterApiControllerManager;
-import interactivespaces.master.api.MasterApiLiveActivity;
+import interactivespaces.master.api.MasterApiMessage;
 import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.api.MasterApiUtilities;
-import interactivespaces.master.server.services.ActiveControllerManager;
-import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
-import interactivespaces.master.ui.internal.web.UiUtilities;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,51 +41,30 @@ import java.util.Map;
 public class SpaceControllerController extends BaseActiveSpaceMasterController {
 
   /**
-   * Repository for controller entities.
-   */
-  private ControllerRepository controllerRepository;
-
-  /**
-   * Manager for controller operations.
-   */
-  private ActiveControllerManager activeControllerManager;
-
-  /**
    * Display a list of all controllers.
    *
    * @return model and view for controller list display
    */
   @RequestMapping("/spacecontroller/all.html")
   public ModelAndView listControllers() {
-    List<ActiveSpaceController> controllers =
-        activeControllerManager.getActiveSpaceControllers(controllerRepository.getAllSpaceControllers());
-    Collections.sort(controllers, MasterApiUtilities.ACTIVE_CONTROLLER_BY_NAME_COMPARATOR);
+    Map<String, Object> response = masterApiSpaceControllerManager.getSpaceControllerAllView();
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("spacecontroller/SpaceControllerViewAll");
-    mav.addObject("lspacecontrollers", controllers);
+    mav.addObject("spacecontrollers", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/view.html", method = RequestMethod.GET)
   public ModelAndView viewController(@PathVariable String id) {
+    Map<String, Object> response = masterApiSpaceControllerManager.getSpaceControllerFullView(id);
+
     ModelAndView mav = getModelAndView();
 
-    SpaceController controller = controllerRepository.getSpaceControllerById(id);
-    if (controller != null) {
-      ActiveSpaceController lcontroller = activeControllerManager.getActiveSpaceController(controller);
-
-      List<MasterApiLiveActivity> liveactivities =
-          masterApiControllerManager.getAllUiLiveActivitiesByController(controller);
-      Collections.sort(liveactivities, MasterApiUtilities.UI_LIVE_ACTIVITY_BY_NAME_COMPARATOR);
-      mav.addObject("metadata", UiUtilities.getMetadataView(controller.getMetadata()));
-
+    if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.setViewName("spacecontroller/SpaceControllerView");
-
-      mav.addObject("spacecontroller", controller);
-      mav.addObject("lspacecontroller", lcontroller);
-      mav.addObject("liveactivities", liveactivities);
+      mav.addAllObjects(MasterApiMessageSupport.getResponseDataMap(response));
     } else {
       mav.setViewName("spacecontroller/SpaceControllerNonexistent");
     }
@@ -104,13 +75,13 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/spacecontroller/{id}/delete.html", method = RequestMethod.GET)
   public ModelAndView deleteController(@PathVariable String id) {
     ModelAndView mav = getModelAndView();
-    Map<String, Object> response = masterApiControllerManager.deleteController(id);
+    Map<String, Object> response = masterApiSpaceControllerManager.deleteSpaceController(id);
 
     if (MasterApiMessageSupport.isSuccessResponse(response)) {
       mav.clear();
       mav.setViewName("redirect:/spacecontroller/all.html");
     } else if (MasterApiMessageSupport.isResponseReason(response,
-        MasterApiControllerManager.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN)) {
+        MasterApiMessage.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN)) {
       mav.setViewName("spacecontroller/SpaceControllerNonexistent");
     }
 
@@ -120,104 +91,104 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/spacecontroller/all.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> listAllControllersJson() {
-    return masterApiControllerManager.getSpaceControllerAllView();
+    return masterApiSpaceControllerManager.getSpaceControllerAllView();
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/view.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> viewControllerJson(@PathVariable String id) {
-    return masterApiControllerManager.getSpaceControllerView(id);
+    return masterApiSpaceControllerManager.getSpaceControllerView(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/connect.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> connectController(@PathVariable String id) {
-    return masterApiControllerManager.connectToControllers(Collections.singletonList(id));
+    return masterApiSpaceControllerManager.connectToSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/disconnect.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> disconnectController(@PathVariable String id) {
-    return masterApiControllerManager.disconnectFromControllers(Collections.singletonList(id));
+  Map<String, ? extends Object> disconnectSpaceController(@PathVariable String id) {
+    return masterApiSpaceControllerManager.disconnectFromSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleantmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanTempData(@PathVariable String id) {
-    return masterApiControllerManager.cleanControllerTempData(id);
+    return masterApiSpaceControllerManager.cleanSpaceControllerTempData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiestmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanActivitiesTempData(@PathVariable String id) {
-    return masterApiControllerManager.cleanControllerActivitiesTempData(id);
+    return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanpermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanPermanentData(@PathVariable String id) {
-    return masterApiControllerManager.cleanControllerPermanentData(id);
+    return masterApiSpaceControllerManager.cleanSpaceControllerPermanentData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiespermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanActivitiesPermanentData(@PathVariable String id) {
-    return masterApiControllerManager.cleanControllerActivitiesPermanentData(id);
+    return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/restoredata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> restoreData(@PathVariable String id) {
-    return masterApiControllerManager.restoreControllerDataBundle(id);
+    return masterApiSpaceControllerManager.restoreSpaceControllerDataBundle(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/capturedata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> captureData(@PathVariable String id) {
-    return masterApiControllerManager.captureControllerDataBundle(id);
+    return masterApiSpaceControllerManager.captureSpaceControllerDataBundle(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownController(@PathVariable String id) {
-    return masterApiControllerManager.shutdownControllers(Lists.newArrayList(id));
+    return masterApiSpaceControllerManager.shutdownSpaceControllers(Lists.newArrayList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/activities/shutdown.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> shutdownAllAppsController(@PathVariable String id) {
-    return masterApiControllerManager.shutdownAllActivities(id);
+    return masterApiSpaceControllerManager.shutdownAllActivities(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/status.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusController(@PathVariable String id) {
-    return masterApiControllerManager.statusControllers(Collections.singletonList(id));
+    return masterApiSpaceControllerManager.statusSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployLiveActivities(@PathVariable String id) {
-    return masterApiControllerManager.deployAllControllerActivityInstances(id);
+    return masterApiSpaceControllerManager.deployAllSpaceControllerActivityInstances(id);
   }
 
   @RequestMapping(value = "/spacecontroller/all/connect.html", method = RequestMethod.GET)
   public String connectAllControllers() {
-    masterApiControllerManager.connectToAllControllers();
+    masterApiSpaceControllerManager.connectToAllSpaceControllers();
 
     return "redirect:/spacecontroller/all.html";
   }
 
   @RequestMapping(value = "/spacecontroller/all/disconnect.html", method = RequestMethod.GET)
   public String disconnectAllControllers() {
-    masterApiControllerManager.disconnectFromAllControllers();
+    masterApiSpaceControllerManager.disconnectFromAllSpaceControllers();
 
     return "redirect:/spacecontroller/all.html";
   }
 
   @RequestMapping(value = "/spacecontroller/all/shutdown.html", method = RequestMethod.GET)
   public String shutdownAllControllers() {
-    masterApiControllerManager.shutdownAllControllers();
+    masterApiSpaceControllerManager.shutdownAllSpaceControllers();
 
     return "redirect:/spacecontroller/all.html";
   }
@@ -225,72 +196,55 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/spacecontroller/all/cleantmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanTempDataAllControllers() {
-    return masterApiControllerManager.cleanControllerTempDataAllControllers();
+    return masterApiSpaceControllerManager.cleanSpaceControllerTempDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanactivitiestmpdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanActivitiesTempDataAllControllers() {
-    return masterApiControllerManager.cleanControllerActivitiesTempDataAllControllers();
+    return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanpermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanPermanentDataAllControllers() {
-    return masterApiControllerManager.cleanControllerPermanentDataAllControllers();
+    return masterApiSpaceControllerManager.cleanSpaceControllerPermanentDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanactivitiespermanentdata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> cleanActivitiesPermanentDataAllControllers() {
-    return masterApiControllerManager.cleanControllerActivitiesPermanentDataAllControllers();
+    return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/capturedata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> captureDataAllControllers() {
-    return masterApiControllerManager.captureDataAllControllers();
+    return masterApiSpaceControllerManager.captureDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/restoredata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> restoreDataAllControllers() {
-    return masterApiControllerManager.restoreDataAllControllers();
+    return masterApiSpaceControllerManager.restoreDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/status.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> statusAllControllers() {
-    return masterApiControllerManager.statusFromAllControllers();
+    return masterApiSpaceControllerManager.statusFromAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/forcestatus.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> forceStatusAllControllers() {
-    return masterApiControllerManager.forceStatusFromAllControllers();
+    return masterApiSpaceControllerManager.forceStatusFromAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/activities/shutdown.html", method = RequestMethod.GET)
   public String shutdownAllActivitiesAllControllers() {
-    masterApiControllerManager.shutdownAllActivitiesAllControllers();
+    masterApiSpaceControllerManager.shutdownAllActivitiesAllSpaceControllers();
 
     return "redirect:/spacecontroller/all.html";
-  }
-
-  /**
-   * @param controllerRepository
-   *          the controllerRepository to set
-   */
-  public void setControllerRepository(ControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
-  }
-
-  /**
-   * @param activeControllerManager
-   *          the activeControllerManager to set
-   */
-  @Override
-  public void setActiveControllerManager(ActiveControllerManager activeControllerManager) {
-    this.activeControllerManager = activeControllerManager;
   }
 }

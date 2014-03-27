@@ -243,17 +243,17 @@ The Controller Repository
 
 The Controller Repository contains all known space controllers.
 
-The service will be called *controllerRepository* in your script.
+The service will be called *spaceControllerRepository* in your script.
 
 You can find detailed documentation in the
-:javadoc:`interactivespaces.master.server.services.ControllerRepository` Javadoc.
+:javadoc:`interactivespaces.master.server.services.SpaceControllerRepository` Javadoc.
 
 
 The Activity Repository
 ~~~~~~~
 
 The Activity Repository contains all known activities, live activities,
-and live activity groups.
+live activity groups, and spaces.
 
 The service will be called *activityRepository* in your script.
 
@@ -270,55 +270,55 @@ The service will be called *spaceRepository* in your script.
 You can find detailed documentation in the
 :javadoc:`interactivespaces.master.server.services.SpaceRepository` Javadoc.
 
-The Active Controller Manager
+The Active Space Controller Manager
 ~~~~~~~
 
-The Active Controller manager is used to control the Alive Activities
+The Active Space Controller manager is used to control the Live Activities
 on a remote Space Controller.
 
-The service will be called *activeControllerManager* in your script.
+The service will be called *activeSpaceControllerManager* in your script.
 
 You can find detailed documentation in the
-:javadoc:`interactivespaces.master.server.services.ActiveControllerManager` Javadoc.
+:javadoc:`interactivespaces.master.server.services.ActiveSpaceControllerManager` Javadoc.
 
-The UI Activity Manager
+The Master Api Activity Manager
 ~~~~~~~
 
-The UI Activity Manager is used to perform various operations on
-Activities. It is a UI Manager as it only requires a few arguments, like
+The Master API Activity Manager is used to perform various operations on
+Activities. It is a Master API Manager as it only requires a few arguments, like
 an Activity ID, rather than an actual domain object.
 
-The service will be called *uiActivityManager* in your script.
+The service will be called *masterApiActivityManager* in your script.
 
 You can find detailed documentation in the
-:javadoc:`interactivespaces.master.server.ui.UiActivityManager` Javadoc.
+:javadoc:`interactivespaces.master.api.MasterApiActivityManager` Javadoc.
 
 
-The UI Controller Manager
+The Master API Controller Manager
 ~~~~~~~
 
-The UI Controller Manager is used to perform various operations on
-Space Controllers, including the Live Activities they contain. It is a UI 
+The Master API Controller Manager is used to perform various operations on
+Space Controllers, including the Live Activities they contain. It is a Master API 
 Manager as it only requires a few arguments, like a Space Controller ID or
 a Live Activity ID, rather than an actual domain object.
 
-The service will be called *uiControllerManager* in your script.
+The service will be called *masterApiControllerManager* in your script.
 
 You can find detailed documentation in the
-:javadoc:`interactivespaces.master.server.ui.UiControllerManager` Javadoc.
+:javadoc:`interactivespaces.master.server.ui.MasterApiControllerManager` Javadoc.
 
 
-The UI Master Support Manager
+The Master API Master Support Manager
 ~~~~~~~
 
-The UI Master Support Manager is used for advanced support of the manager. This
+The Master API Master Support Manager is used for advanced support of the manager. This
 includes such operations as getting and importing a Master Domain model which
 describes every aspect of the space.
 
-The service will be called *uiMasterSupportManager* in your script.
+The service will be called *masterApiMasterSupportManager* in your script.
 
 You can find detailed documentation in the
-:javadoc:`interactivespaces.master.server.ui.UiMasterSupportManager` Javadoc.
+:javadoc:`interactivespaces.master.api.MasterApiMasterSupportManager` Javadoc.
 
 
 The Interactive Spaces Environment
@@ -383,6 +383,15 @@ the Master Web Application. The port for this websocket server can be changed wi
 configuration property `interactivespaces.master.api.websocket.port`. The default value of
 `8090` is used if this property doesn't exist. This configuration property should be set
 in `config/interactivespaces/master.conf`.
+
+If you change the port for the Master websocket server, you must call the Interactive Spaces Master Web Admin
+with a query parameter of `?isport=port` where `port` is the new port. As an example, if the websocket
+port is changed to `8091`, the Master Web Admin would be addressed as
+
+
+::
+
+  http://masterhost:8080/interactivespaces?isport=8091
 
 Notification for Issues
 =======================

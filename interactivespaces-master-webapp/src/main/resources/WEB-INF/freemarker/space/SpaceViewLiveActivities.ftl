@@ -25,43 +25,41 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-<#list liveactivitygroups as liveactivitygroup>
-<#list liveactivitygroup.liveActivities as liveactivity>
-$('${"#liveactivity-info-${liveactivity.activity.uuid}"}')
-  .ispopup("#liveactivity-info-${liveactivity.activity.uuid}-popup");
+<#list liveActivityGroups as liveActivityGroup>
+<#list liveActivityGroup.liveActivities as liveactivity>
+$('${"#liveactivity-info-${liveactivity.uuid}"}')
+  .ispopup("#liveactivity-info-${liveactivity.uuid}-popup");
 </#list></#list>
 });
 </script>
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h1>Live Activities for Space: ${space.name}</h1>
 
-<p><a href="view.html">Back to main space page</a></p>
+<p><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${space.id}/view.html')">Back to main space page</a></p>
 
 <table>
 <tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></td>
-<#list liveactivitygroups as liveactivitygroup>
-<tr style="background-color: #e0e0e0; font-weight: bold"><td colspan="3">Live Activity Group: <a href="/interactivespaces/liveactivitygroup/${liveactivitygroup.liveActivityGroup.id}/view.html">${liveactivitygroup.liveActivityGroup.name}</a></td></tr>
-<#list liveactivitygroup.liveActivities as liveactivity>
+<#list liveActivityGroups as liveActivityGroup>
+<tr style="background-color: #e0e0e0; font-weight: bold"><td colspan="3">Live Activity Group: <a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html')">${liveActivityGroup.name}</a></td></tr>
+<#list liveActivityGroup.liveActivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">
-<td><a href="/interactivespaces/liveactivity/${liveactivity.activity.id}/view.html">${liveactivity.activity.name}</a></td>
-<td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.activity.uuid}">
-<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState.name()}"><@spring.message liveactivity.active.runtimeState.description /></span>
+<td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a></td>
+<td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.uuid}">
+<span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
 <span class="as-of-timestamp">
  as of
   <#if liveactivity.active.lastStateUpdate??>
-    ${liveactivity.active.lastStateUpdateDate?datetime}
+    ${liveactivity.active.lastStateUpdate}
   <#else>
     Unknown
   </#if>
 </span>
 </div>
-<div id="liveactivity-info-${liveactivity.activity.uuid}-popup" class="liveactivity-info-popup">
+<div id="liveactivity-info-${liveactivity.uuid}-popup" class="liveactivity-info-popup">
 <div><#if liveactivity.active.directRunning>
 Directly Running
 <#else>
@@ -83,12 +81,12 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </#if>
 </td>
 <td>
-<#if liveactivity.activity.outOfDate>
+<#if liveactivity.outOfDate>
 <span title="Live Activity is out of date" class="out-of-date-indicator"><img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" /></span>
 </#if>
 <#if liveactivity.active.deployState != "READY">
 <span>
-<@spring.message liveactivity.active.deployState.description />
+<@spring.message liveactivity.active.deployStateDescription />
 </span>
 </#if>
 </td>

@@ -21,9 +21,7 @@
 <#include "/allpages_head.ftl">
 </head>
 
-<body>
-
-<#include "/allpages_body_header.ftl">
+<body class="admin-content">
 
 <h1>Spaces</h1>
 
@@ -38,7 +36,7 @@
 
 <ul>
 <#list spaces as space>
-    <li><a href="${space.id}/view.html">${space.name}</a></li>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${space.id}/view.html')">${space.name}</a></li>
 </#list>
 </ul>
 
