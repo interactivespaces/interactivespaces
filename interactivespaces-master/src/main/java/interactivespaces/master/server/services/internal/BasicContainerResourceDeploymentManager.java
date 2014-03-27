@@ -91,11 +91,11 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
       if (resource != null) {
         results.add(resource);
       } else {
-        // TODO(keith): Get a detailed message into Ugly somehow. Probably place
-        // in ActiveLiveActivity for activity deployment, could make exception
-        // take a pile of complaints so could get all in.
-        throw new SimpleInteractiveSpacesException(String.format("Could not find a resource for the dependency %s %s",
-            dependency.getName(), dependency.getVersionRange()));
+        String location = resourceRepositoryStorageManager.getBaseLocation(
+            ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE).getAbsolutePath();
+        throw new SimpleInteractiveSpacesException(
+            String.format("Could not find a resource for the dependency %s %s from the master repository %s",
+            dependency.getName(), dependency.getVersionRange(), location));
       }
     }
 

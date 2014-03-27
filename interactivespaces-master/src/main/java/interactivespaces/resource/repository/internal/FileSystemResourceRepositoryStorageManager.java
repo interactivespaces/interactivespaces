@@ -363,15 +363,8 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
     return new File(baseLocation, getRepositoryResourceName(category, name, version));
   }
 
-  /**
-   * Get the base location for files from a give category.
-   *
-   * @param category
-   *          the category
-   *
-   * @return the base location
-   */
-  private File getBaseLocation(String category) {
+  @Override
+  public File getBaseLocation(String category) {
     // TODO(keith): Fix, cheesy
     File baseLocation = resourceRepositoryBaseLocation;
     if (RESOURCE_CATEGORY_ACTIVITY.equals(category)) {
