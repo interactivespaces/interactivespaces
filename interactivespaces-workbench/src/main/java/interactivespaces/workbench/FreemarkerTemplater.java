@@ -23,7 +23,6 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.service.template.Templater;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
@@ -106,7 +105,6 @@ public class FreemarkerTemplater implements ManagedResource {
   /**
    * Process a string template.
    *
-   *
    * @param data
    *          data for template
    * @param templateContent
@@ -128,7 +126,6 @@ public class FreemarkerTemplater implements ManagedResource {
 
   /**
    * Process a string template.
-   *
    *
    * @param data
    *          data for template
