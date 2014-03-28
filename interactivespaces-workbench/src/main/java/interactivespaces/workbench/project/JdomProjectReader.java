@@ -212,7 +212,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Project definition file element name for a configuration item.
    */
-  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM = ActivityProjectConstituent.PROPERTY_ELEMENT_NAME;
+  private static final String PROJECT_ELEMENT_NAME_PROPERTY = ActivityProjectConstituent.PROPERTY_ELEMENT_NAME;
 
   /**
    * Project definition file element name for configurations.
@@ -432,7 +432,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     if (configurationElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> propertyElements = configurationElement.getChildren(PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM);
+      List<Element> propertyElements = configurationElement.getChildren(PROJECT_ELEMENT_NAME_PROPERTY);
 
       Configuration configuration = project.getConfiguration();
       for (Element propertyElement : propertyElements) {

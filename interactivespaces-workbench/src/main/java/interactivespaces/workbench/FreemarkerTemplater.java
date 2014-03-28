@@ -59,6 +59,9 @@ public class FreemarkerTemplater {
    */
   private Configuration freemarkerConfig;
 
+  /**
+   * Number of evaluation passes to apply to template output.
+   */
   private int evaluationPasses = 1;
 
   /**
@@ -76,6 +79,12 @@ public class FreemarkerTemplater {
     }
   }
 
+  /**
+   * Set the number of evaluation passes to apply.
+   *
+   * @param evaluationPasses
+   *          number of passes to apply
+   */
   public void setEvaluationPasses(int evaluationPasses) {
     this.evaluationPasses = evaluationPasses;
   }
@@ -89,7 +98,7 @@ public class FreemarkerTemplater {
    * @param templateContent
    *          string template to process
    * @param defineResult
-   *          target value to define with new value
+   *          target value to define with new value, or {@code null} if no definition should take place
    *
    * @return processed template
    */
@@ -103,6 +112,17 @@ public class FreemarkerTemplater {
     return templateContent;
   }
 
+  /**
+   * Process a string template.
+   *
+   *
+   * @param data
+   *          data for template
+   * @param templateContent
+   *          string template to process
+   *
+   * @return processed template
+   */
   public String processStringTemplateCore(Map<String, Object> data, String templateContent) {
     try {
       Template temp = new Template("generator for " + templateContent,
@@ -153,7 +173,17 @@ public class FreemarkerTemplater {
     }
   }
 
-  public void writeTemplateCore(Map<String, Object> data, File outputFile, String template) {
+  /**
+   * Write out the template.
+   *
+   * @param data
+   *          data for the template
+   * @param outputFile
+   *          file where the template will be written
+   * @param template
+   *          which template to use
+   */
+  private void writeTemplateCore(Map<String, Object> data, File outputFile, String template) {
     Writer out = null;
     Reader in = null;
     try {

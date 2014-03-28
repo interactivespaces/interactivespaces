@@ -22,18 +22,34 @@ public abstract class JdomReader {
    */
   protected final Log log;
 
-  private InteractiveSpacesWorkbench workbench;
-
-
   /**
    * {@code true} if read was successful.
    */
   protected boolean failure;
 
+  /**
+   * Interactive spaces workbench used by this reader.
+   */
+  private InteractiveSpacesWorkbench workbench;
+
+  /**
+   * Create a new jdom reader.
+   *
+   * @param log
+   *          logger for error messages
+   */
   public JdomReader(Log log) {
     this.log = log;
   }
 
+  /**
+   * Get the root element for a given input file.
+   *
+   * @param projectFile
+   *          input project file
+   *
+   * @return top-level element
+   */
   protected static Element getRootElement(File projectFile) {
     Document doc;
     FileInputStream inputStream = null;
@@ -50,9 +66,17 @@ public abstract class JdomReader {
     return doc.getRootElement();
   }
 
-  protected TemplateVar getTemplateVarFromElement(Element child) {
-    String name = getRequiredAttributeValue(child, TemplateVar.NAME_ATTRIBUTE_NAME);
-    String value = getRequiredAttributeValue(child, TemplateVar.VALUE_ATTRIBUTE_NAME);
+  /**
+   * Get a template variable from a given element.
+   *
+   * @param element
+   *          element to parse
+   *
+   * @return template variable for the element
+   */
+  protected TemplateVar getTemplateVarFromElement(Element element) {
+    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
+    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
     return new TemplateVar(name, value);
   }
 
@@ -142,15 +166,32 @@ public abstract class JdomReader {
     return getAttributeValue(element, key, null);
   }
 
+  /**
+   * Get the children of the given element.
+   *
+   * @param element
+   *          element to return the children of
+   *
+   * @return element children
+   */
   @SuppressWarnings("unchecked")
   protected List<Element> getChildren(Element element) {
     return element.getChildren();
   }
 
+  /**
+   * @return workbench used by this reader
+   */
   public InteractiveSpacesWorkbench getWorkbench() {
     return workbench;
   }
 
+  /**
+   * Set the workbench in use.
+   *
+   * @param workbench
+   *          workbench to use
+   */
   public void setWorkbench(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
   }

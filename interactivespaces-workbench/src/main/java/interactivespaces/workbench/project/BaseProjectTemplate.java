@@ -15,32 +15,51 @@ import java.util.Map;
  */
 public class BaseProjectTemplate implements ProjectTemplate {
 
-  public static final String TEMPLATE_VARIABLES_TMP = "template_variables.tmp";
-
-  public static final String BASE_DIRECTORY_VARIABLE = "baseDirectory";
   /**
-   * Map of file/template pairs to add to the created project.
+   * Output file for temporarily writing variables.
+   */
+  public static final File TEMPLATE_VARIABLES_TMP = new File("template_variables.tmp");
+
+  /**
+   * Template variable name to use for holding the base directory.
+   */
+  public static final String BASE_DIRECTORY_VARIABLE = "baseDirectory";
+
+  /**
+   * List of file/template pairs to add to the created project.
    */
   private final List<TemplateFile> fileTemplates = Lists.newLinkedList();
 
+  /**
+   * List of template variables to add to the project.
+   */
   private final List<TemplateVar> templateVars = Lists.newArrayList();
 
+  /**
+   * Templater to use for constructing the template.
+   */
   private FreemarkerTemplater templater;
 
+  /**
+   * Process the given creation specificaiton.
+   *
+   * @param spec
+   *          specification to process.
+   */
   public void process(ProjectCreationSpecification spec) {
     try {
       onTemplateSetup(spec);
       onTemplateWrite(spec);
     } catch (Exception e) {
-      File variableDump = new File(TEMPLATE_VARIABLES_TMP);
-      dumpVariables(variableDump, spec.getTemplateData());
+      dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
       throw new SimpleInteractiveSpacesException(
           "Template variables can be found in " + variableDump.getAbsolutePath(), e);
     }
   }
 
   /**
-   * Template is being set up.
+   * Template is being set up. Can be overridden in a project-type specific project template, but the subclass
+   * should be sure to call {@code super} to make sure the basic are set up.
    *
    * @param spec
    *          spec for the project
@@ -60,20 +79,35 @@ public class BaseProjectTemplate implements ProjectTemplate {
     }
   }
 
-  protected void onTemplateWrite(ProjectCreationSpecification spec) {
+  /**
+   * Function called on template write. Can be overridden to provide different functionality for other project
+   * types, but the subclass should call {@code super} to make sure the base template writes are performed.
+   *
+   * @param spec
+   *          specification that is being written
+   */
+  public void onTemplateWrite(ProjectCreationSpecification spec) {
     writeTemplateList(spec);
   }
 
-  private void dumpVariables(File variableDump, Map<String, Object> variables) {
+  /**
+   * Dump the given variables to an output file.
+   *
+   * @param outputFile
+   *          variable dump output file
+   * @param variables
+   *          variables to dump
+   */
+  private void dumpVariables(File outputFile, Map<String, Object> variables) {
     PrintWriter variableWriter = null;
     try {
-      variableWriter = new PrintWriter(variableDump);
+      variableWriter = new PrintWriter(outputFile);
       for (Map.Entry<String, Object> entry : variables.entrySet()) {
         variableWriter.println(String.format("%s=%s", entry.getKey(), entry.getValue()));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(
-          "Error writing variable dump file " + variableDump.getAbsolutePath(), e);
+          "Error writing variable dump file " + outputFile.getAbsolutePath(), e);
     } finally {
       Closeables.closeQuietly(variableWriter);
     }
@@ -107,14 +141,29 @@ public class BaseProjectTemplate implements ProjectTemplate {
     fileTemplates.add(new TemplateFile(dest, source));
   }
 
+  /**
+   * Add all the indicated template files to the template.
+   *
+   * @param addFileTemplate
+   *          project template files to add
+   */
   public void addAllFileTemplates(List<TemplateFile> addFileTemplate) {
     fileTemplates.addAll(addFileTemplate);
   }
 
+  /**
+   * @return list of template variables
+   */
   public List<TemplateVar> getTemplateVars() {
     return templateVars;
   }
 
+  /**
+   * Add all the indicated variables.
+   *
+   * @param addTemplateVars
+   *          variables to add
+   */
   public void addAllTemplateVars(List<TemplateVar> addTemplateVars) {
     templateVars.addAll(addTemplateVars);
   }
@@ -149,10 +198,21 @@ public class BaseProjectTemplate implements ProjectTemplate {
     }
   }
 
+  /**
+   * Get the templater used by this template.
+   *
+   * @return templater in use
+   */
   public FreemarkerTemplater getTemplater() {
     return templater;
   }
 
+  /**
+   * Set the templater to use for this project.
+   *
+   * @param templater
+   *          templater to use
+   */
   public void setTemplater(FreemarkerTemplater templater) {
     this.templater = templater;
   }

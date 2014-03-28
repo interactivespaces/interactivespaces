@@ -183,6 +183,9 @@ public class InteractiveSpacesWorkbench {
    */
   private final ProjectCreator activityProjectCreator;
 
+  /**
+   * Create to use for project groups.
+   */
   private final ProjectGroupCreator projectGroupCreator;
 
   /**
@@ -650,6 +653,12 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
+  /**
+   * Create output from a specification, could be a project or a group of projects.
+   *
+   * @param commands
+   *          specific creation commands
+   */
   private void createFromSpecification(List<String> commands) {
     File specFile = new File(removeArgument(commands, "specification file"));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
@@ -669,6 +678,16 @@ public class InteractiveSpacesWorkbench {
     }
   }
 
+  /**
+   * Remove one argument from the list.
+   *
+   * @param commands
+   *          list of input commands
+   * @param description
+   *          description to use on error
+   *
+   * @return command string removed from the list
+   */
   private String removeArgument(List<String> commands, String description) {
     if (commands.size() <= 0) {
       throw new SimpleInteractiveSpacesException("Missing argument " + description);
@@ -676,6 +695,16 @@ public class InteractiveSpacesWorkbench {
     return commands.remove(0);
   }
 
+  /**
+   * Create a confederacy output from a given element.
+   *
+   * @param rootElement
+   *          input element
+   * @param specFile
+   *          specification file
+   * @param baseDirectory
+   *          base output directory
+   */
   private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
     ProjectGroup projectGroup = new ProjectGroup();
     projectGroup.setSpecificationSource(specFile);
@@ -688,6 +717,14 @@ public class InteractiveSpacesWorkbench {
     projectGroupCreator.create(projectGroup);
   }
 
+  /**
+   * Create an output project from a project specification element.
+   *
+   * @param rootElement
+   *          input root element
+   * @param baseDirectory
+   *          output base directory
+   */
   private void createProjectFromElement(Element rootElement, File baseDirectory) {
     JdomProjectReader projectReader = new JdomProjectReader(log);
     projectReader.setWorkbench(this);
@@ -876,6 +913,11 @@ public class InteractiveSpacesWorkbench {
     throw new SimpleInteractiveSpacesException(message, e);
   }
 
+  /**
+   * Get the project type registry for creating new projects.
+   *
+   * @return project type registry
+   */
   public ProjectTypeRegistry getProjectTypeRegistry() {
     return projectTypeRegistry;
   }
