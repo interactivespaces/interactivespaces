@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -40,6 +40,9 @@ public class ProjectGroupCreator {
    */
   private final InteractiveSpacesWorkbench workbench;
 
+  /**
+   * The project creator used for projects in the group.
+   */
   private final ProjectCreator projectCreator;
 
   /**
@@ -57,6 +60,12 @@ public class ProjectGroupCreator {
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
+  /**
+   * Create a new group of projects.
+   *
+   * @param spec
+   *          spec for which to create
+   */
   public void create(ProjectGroup spec) {
     int projectIndex = 0;
     try {
@@ -70,6 +79,16 @@ public class ProjectGroupCreator {
     }
   }
 
+  /**
+   * Make a creation specification for the given project in the group.
+   *
+   * @param projectGroup
+   *          specification group
+   * @param project
+   *          individual project
+   *
+   * @return project creation specification
+   */
   private ProjectCreationSpecification makeCreationSpecification(ProjectGroup projectGroup, Project project) {
     ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -33,13 +33,13 @@ public class ProjectGroup {
 
   private final List<Project> projectList = Lists.newArrayList();
 
-  private File baseDirectory;
-
-  private File specificationSource;
-
   private final List<TemplateFile> templateFiles = Lists.newArrayList();
 
   private final List<TemplateVar> templateVars = Lists.newArrayList();
+
+  private File baseDirectory;
+
+  private File specificationSource;
 
   public List<Project> getProjectList() {
     return projectList;

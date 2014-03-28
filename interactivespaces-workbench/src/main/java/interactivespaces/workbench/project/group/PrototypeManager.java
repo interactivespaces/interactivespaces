@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package interactivespaces.workbench.project.group;
 
 import com.google.common.base.Preconditions;
@@ -13,16 +29,37 @@ import java.util.Map;
  */
 public class PrototypeManager {
 
-  private Map<String, Element> prototypeMap = Maps.newHashMap();
-
+  /**
+   * Attribute name for inhterriting-from.
+   */
   public static final String INHERITS_FROM_ATTRIBUTE = "inheritsFrom";
 
+  /**
+   * Attribute name for name of this prototype.
+   */
   public static final String PROTOTYPE_NAME_ATTRIBUTE = "prototypeName";
 
+  /**
+   * Element name for a prototype element.
+   */
   public static final String ELEMENT_NAME = "prototype";
 
+  /**
+   * Element name for a gorup of prototypes.
+   */
   public static final String GROUP_ELEMENT_NAME = "prototypes";
 
+  /**
+   * Map of prototype names to generating elements.
+   */
+  private Map<String, Element> prototypeMap = Maps.newHashMap();
+
+  /**
+   * Add a prototype record for the given element.
+   *
+   * @param element
+   *          element to add a prototype for
+   */
   public void addPrototypeElement(Element element) {
     Preconditions.checkArgument(ELEMENT_NAME.equals(element.getName()),
         "Invalid prototype element name " + element.getName());
@@ -34,12 +71,28 @@ public class PrototypeManager {
     prototypeMap.put(name, element);
   }
 
+  /**
+   * Get a prototype chain for the given element.
+   *
+   * @param element
+   *          element to generate a prototype chain for.
+   *
+   * @return prototype chain (ordered list of elements to process)
+   */
   public List<Element> getPrototypeChain(Element element) {
     List<Element> prototypeChain = Lists.newArrayList();
     followPrototypeChain(element, prototypeChain);
     return prototypeChain;
   }
 
+  /**
+   * Recursively construct the prototype chain for the given element.
+   *
+   * @param element
+   *          root element
+   * @param prototypeChain
+   *          prototype chain to augment
+   */
   private void followPrototypeChain(Element element, List<Element> prototypeChain) {
     if (element == null) {
       return;
