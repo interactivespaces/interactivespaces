@@ -22,8 +22,8 @@
       <description>Auto-generated activity for ${fullName}</description>
     </prototype>
 
-    <prototype prototypeName="activityProject" inheritsFrom="baseProject" type="activity">
-      <activity type="interactivespaces_native">
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="script">
+      <activity type="script">
         <name>${fullName}</name>
         <executable>${javascriptExecutable}</executable>
         <configuration>
@@ -36,9 +36,8 @@
     </prototype>
   </prototypes>
 
-  <!-- TODO: Need to specify the activity type (script) and then executable name as configuration value -->
   <projects>
-    <project inheritsFrom="activityProject">
+    <project inheritsFrom="activityProject" type="activity">
       <templates>
         <template destinationFile="${resourceDir}/${javascriptExecutable}" sourceFile="SimpleJavascriptActivity.js.ftl" />
       </templates>

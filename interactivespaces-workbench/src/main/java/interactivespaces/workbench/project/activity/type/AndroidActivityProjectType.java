@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type.android;
+package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
@@ -23,6 +23,7 @@ import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.activity.type.AndroidJavaProjectExtension;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
@@ -37,9 +38,9 @@ import com.google.common.collect.Lists;
 public class AndroidActivityProjectType extends JavaProjectType {
 
   /**
-   * Name for the type.
+   * Name for the buildertype.
    */
-  public static final String NAME = "android";
+  public static final String BUILDER_TYPE = "android";
 
   @Override
   public String getProjectTypeName() {
@@ -53,7 +54,7 @@ public class AndroidActivityProjectType extends JavaProjectType {
 
   @Override
   public boolean isProperType(Project project) {
-    return "activity".equals(project.getType()) && NAME.equals(project.getBuilderType());
+    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_TYPE.equals(project.getBuilderType());
   }
 
   @Override

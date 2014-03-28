@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type.java;
+package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
@@ -39,7 +39,7 @@ public class JavaActivityProjectType extends JavaProjectType {
   /**
    * Name for the builder.
    */
-  public static final String NAME = "java";
+  public static final String BUILDER_NAME = "java";
 
   @Override
   public String getProjectTypeName() {
@@ -48,7 +48,7 @@ public class JavaActivityProjectType extends JavaProjectType {
 
   @Override
   public boolean isProperType(Project project) {
-    return "activity".equals(project.getType()) && NAME.equals(project.getBuilderType());
+    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_NAME.equals(project.getBuilderType());
   }
 
   @Override

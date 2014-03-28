@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -53,7 +54,12 @@ public class ProjectCreatorImpl implements ProjectCreator {
   @Override
   public void instantiate(ProjectCreationSpecification spec) {
     try {
-      ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(spec.getProject());
+      Project project = spec.getProject();
+      ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);
+      if (projectType == null) {
+        throw new SimpleInteractiveSpacesException(String.format("Invalid type for project type/builder %s/%s",
+            project.getType(), project.getBuilderType()));
+      }
       ProjectTemplate projectTemplate = projectType.newProjectTemplate();
       projectTemplate.setTemplater(templater);
       projectTemplate.process(spec);

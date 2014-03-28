@@ -25,7 +25,7 @@
       <description>Auto-generated activity for ${fullName}</description>
     </prototype>
 
-    <prototype prototypeName="activityProject" inheritsFrom="baseProject" type="activity">
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="java">
       <activity type="interactivespaces_native">
         <name>${fullName}</name>
         <class>${activityClassPackage}.${javaClassName}</class>
@@ -40,7 +40,7 @@
   </prototypes>
 
   <projects>
-    <project inheritsFrom="activityProject" builder="java">
+    <project inheritsFrom="activityProject" type="activity">
       <templates>
         <template destinationFile="${javaSrcDir}/SimpleJavaActivity.java" sourceFile="SimpleJavaActivity.java.ftl" />
       </templates>

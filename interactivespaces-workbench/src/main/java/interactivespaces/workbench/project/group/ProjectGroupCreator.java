@@ -58,12 +58,15 @@ public class ProjectGroupCreator {
   }
 
   public void create(ProjectGroup spec) {
+    int projectIndex = 0;
     try {
       for (Project project : spec.getProjectList()) {
+        projectIndex++;
         projectCreator.instantiate(makeCreationSpecification(spec, project));
       }
     } catch (Exception e) {
-      workbench.handleError("Error while creating projectGroup", e);
+      workbench.handleError(String.format(
+          "Error while creating projectGroup, project #%d/%d", projectIndex, spec.getProjectList().size()), e);
     }
   }
 
