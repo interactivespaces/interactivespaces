@@ -80,6 +80,11 @@ public interface ProjectConstituent {
    */
   interface ProjectConstituentFactory {
 
+    /**
+     * Get the type name of this project constituent.
+     *
+     * @return constituent type name
+     */
     String getName();
 
     /**

@@ -47,6 +47,23 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   }
 
   /**
+   * Convenience function to help more easily build constituent parts.
+   *
+   * @param resourceElement
+   *          input element
+   * @param propertyName
+   *          property name to extract
+   * @param fallback
+   *          fallback value to use if none supplied
+   *
+   * @return property value, else fallback
+   */
+  public static String getChildTextNormalize(Element resourceElement, String propertyName, String fallback) {
+    String value = resourceElement.getChildTextNormalize(propertyName);
+    return (value == null || (value.isEmpty() && fallback != null)) ? fallback : value;
+  }
+
+  /**
    * Add an error to the builder.
    *
    * @param message
@@ -74,10 +91,5 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    */
   protected boolean hasErrors() {
     return errors;
-  }
-
-  public String getChildTextNormalize(Element resourceElement, String propertyName, String fallback) {
-    String value = resourceElement.getChildTextNormalize(propertyName);
-    return (value == null || (value.isEmpty() && fallback != null)) ? fallback : value;
   }
 }

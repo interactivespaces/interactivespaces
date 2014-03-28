@@ -23,13 +23,25 @@ package interactivespaces.workbench.project;
  */
 public class TemplateVar {
 
+  /**
+   * Group name for a group of template vars.
+   */
   public static final String GROUP_ELEMENT_NAME = "templateVars";
 
+  /**
+   * Individual element for a single template var.
+    */
   public static final String ELEMENT_NAME = "var";
 
-  public static final String NAME_KEY = "name";
+  /**
+   * Attribute name for a name.
+   */
+  public static final String NAME_ATTRIBUTE_NAME = "name";
 
-  public static final String VALUE_KEY = "value";
+  /**
+   * Attribute name for a value.
+   */
+  public static final String VALUE_ATTRIBUTE_NAME = "value";
 
   /**
    * The variable name.
@@ -61,6 +73,13 @@ public class TemplateVar {
   }
 
   /**
+   * @return output path
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
    * Set the name part of this variable.
    *
    * @param name
@@ -71,10 +90,10 @@ public class TemplateVar {
   }
 
   /**
-   * @return output path
+   * @return file input template path
    */
-  public String getName() {
-    return name;
+  public String getValue() {
+    return value;
   }
 
   /**
@@ -85,12 +104,5 @@ public class TemplateVar {
    */
   public void setValue(String value) {
     this.value = value;
-  }
-
-  /**
-   * @return file input template path
-   */
-  public String getValue() {
-    return value;
   }
 }

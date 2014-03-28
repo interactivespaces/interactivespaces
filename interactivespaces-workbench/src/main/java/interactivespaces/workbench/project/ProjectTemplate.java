@@ -37,5 +37,11 @@ public interface ProjectTemplate {
    */
   void process(ProjectCreationSpecification spec);
 
+  /**
+   * Set the templater to use for this project template.
+   *
+   * @param templater
+   *          templater to use
+   */
   void setTemplater(FreemarkerTemplater templater);
 }

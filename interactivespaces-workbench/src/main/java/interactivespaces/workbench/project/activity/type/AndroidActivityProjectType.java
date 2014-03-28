@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.activity.type;
 
+import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
@@ -23,12 +24,8 @@ import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.project.activity.type.AndroidJavaProjectExtension;
-import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
-
-import com.google.common.collect.Lists;
 
 /**
  * An Android activity project type.

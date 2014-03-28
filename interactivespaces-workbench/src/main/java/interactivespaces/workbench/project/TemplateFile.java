@@ -23,8 +23,14 @@ package interactivespaces.workbench.project;
  */
 public class TemplateFile {
 
+  /**
+   * Element name for a group of template files.
+   */
   public static final String GROUP_ELEMENT_NAME = "templates";
 
+  /**
+   * Element name for a single file template.
+   */
   public static final String ELEMENT_NAME = "template";
 
   /**
@@ -57,6 +63,13 @@ public class TemplateFile {
   }
 
   /**
+   * @return file input template path
+   */
+  public String getTemplate() {
+    return template;
+  }
+
+  /**
    * Set the template source for this template.
    *
    * @param template
@@ -67,10 +80,10 @@ public class TemplateFile {
   }
 
   /**
-   * @return file input template path
+   * @return output path
    */
-  public String getTemplate() {
-    return template;
+  public String getOutput() {
+    return output;
   }
 
   /**
@@ -81,12 +94,5 @@ public class TemplateFile {
    */
   public void setOutput(String output) {
     this.output = output;
-  }
-
-  /**
-   * @return output path
-   */
-  public String getOutput() {
-    return output;
   }
 }

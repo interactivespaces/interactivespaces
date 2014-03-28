@@ -18,8 +18,6 @@ package interactivespaces.workbench.project.group;
 
 import com.google.common.collect.Lists;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.TemplateFile;
-import interactivespaces.workbench.project.TemplateVar;
 
 import java.io.File;
 import java.util.List;

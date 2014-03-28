@@ -51,8 +51,8 @@ public abstract class JdomReader {
   }
 
   protected TemplateVar getTemplateVarFromElement(Element child) {
-    String name = getRequiredAttributeValue(child, TemplateVar.NAME_KEY);
-    String value = getRequiredAttributeValue(child, TemplateVar.VALUE_KEY);
+    String name = getRequiredAttributeValue(child, TemplateVar.NAME_ATTRIBUTE_NAME);
+    String value = getRequiredAttributeValue(child, TemplateVar.VALUE_ATTRIBUTE_NAME);
     return new TemplateVar(name, value);
   }
 

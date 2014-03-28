@@ -31,8 +31,14 @@ import java.util.List;
  */
 public class JdomProjectGroupReader extends JdomReader {
 
+  /**
+   * Element name for a project group.
+   */
   public static final String PROJECT_GROUP_ELEMENT_NAME = "projectGroup";
 
+  /**
+   * Prototype manager to use for this project group specification.
+   */
   private final PrototypeManager prototypeManager = new PrototypeManager();
 
   /**
@@ -45,6 +51,14 @@ public class JdomProjectGroupReader extends JdomReader {
     super(log);
   }
 
+  /**
+   * Process the given specification.
+   *
+   * @param projectGroup
+   *          target for processed input
+   * @param rootElement
+   *          input element
+   */
   public void processSpecification(ProjectGroup projectGroup, Element rootElement) {
     if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
@@ -56,6 +70,14 @@ public class JdomProjectGroupReader extends JdomReader {
     }
   }
 
+  /**
+   * Add the given element to the spec.
+   *
+   * @param spec
+   *          spec to add to
+   * @param child
+   *          child element to add
+   */
   private void addElementToSpec(ProjectGroup spec, Element child) {
     String name = child.getName();
 
@@ -72,6 +94,14 @@ public class JdomProjectGroupReader extends JdomReader {
     }
   }
 
+  /**
+   * Add all prototypes to the spec.
+   *
+   * @param spec
+   *          spec to add
+   * @param group
+   *          prototype group to add
+   */
   private void addPrototypes(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
@@ -79,6 +109,14 @@ public class JdomProjectGroupReader extends JdomReader {
     }
   }
 
+  /**
+   * Add all projects to the spec.
+   *
+   * @param spec
+   *          spec to add
+   * @param group
+   *          projects group to add
+   */
   private void addProjects(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
