@@ -52,7 +52,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void instantiate(ProjectCreationSpecification spec) {
+  public void create(ProjectCreationSpecification spec) {
     try {
       Project project = spec.getProject();
       ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);

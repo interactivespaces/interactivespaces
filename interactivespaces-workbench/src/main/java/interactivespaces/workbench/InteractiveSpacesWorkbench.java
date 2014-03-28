@@ -31,20 +31,14 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
-import interactivespaces.workbench.project.group.ProjectGroup;
-import interactivespaces.workbench.project.group.JdomProjectGroupReader;
-import interactivespaces.workbench.project.group.ProjectGroupCreator;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectCreator;
+import interactivespaces.workbench.project.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.ProjectCreator;
-import interactivespaces.workbench.project.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
@@ -52,6 +46,7 @@ import interactivespaces.workbench.project.activity.packager.ActivityProjectPack
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
+import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
@@ -61,7 +56,6 @@ import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 import org.apache.commons.logging.Log;
-import org.jdom.Element;
 
 import java.io.BufferedReader;
 import java.io.Console;
@@ -184,11 +178,6 @@ public class InteractiveSpacesWorkbench {
   private final ProjectCreator activityProjectCreator;
 
   /**
-   * Create to use for project groups.
-   */
-  private final ProjectGroupCreator projectGroupCreator;
-
-  /**
    * A packager for activities.
    */
   private final ActivityProjectPackager activityProjectPackager;
@@ -230,6 +219,11 @@ public class InteractiveSpacesWorkbench {
   private final Log log;
 
   /**
+   * Creator to use for jdom-oriented projects.
+   */
+  private final JdomProjectCreator jdomProjectCreator;
+
+  /**
    * Construct a workbench.
    *
    * @param workbenchConfig
@@ -248,13 +242,13 @@ public class InteractiveSpacesWorkbench {
         .getAbsolutePath());
 
     this.templater = new FreemarkerTemplater();
-    templater.initialize();
+    templater.startup();
 
     projectTypeRegistry = new SimpleProjectTypeRegistry();
     activityProjectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
-    projectGroupCreator = new ProjectGroupCreator(this);
+    jdomProjectCreator = new JdomProjectCreator(this);
   }
 
   /**
@@ -566,7 +560,9 @@ public class InteractiveSpacesWorkbench {
 
     if (COMMAND_CREATE.equals(command)) {
       System.out.println("Creating from template...");
-      createFromSpecification(commands);
+      File specFile = new File(removeArgument(commands, "specification file"));
+      File baseDirectory = new File(removeArgument(commands, "base output directory"));
+      jdomProjectCreator.createProjectsFromSpecification(commands, specFile, baseDirectory);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(removeArgument(commands, "osgi file"));
     } else {
@@ -654,31 +650,6 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Create output from a specification, could be a project or a group of projects.
-   *
-   * @param commands
-   *          specific creation commands
-   */
-  private void createFromSpecification(List<String> commands) {
-    File specFile = new File(removeArgument(commands, "specification file"));
-    File baseDirectory = new File(removeArgument(commands, "base output directory"));
-    try {
-      Element rootElement = JdomReader.getRootElement(specFile);
-      String type = rootElement.getName();
-      if (JdomProjectGroupReader.PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
-        createConfederacyFromElement(rootElement, specFile, baseDirectory);
-      } else if (JdomProjectReader.ELEMENT_NAME.equals(type)) {
-        createProjectFromElement(rootElement, baseDirectory);
-      } else {
-        throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
-      }
-    } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(
-          "While processing specification file " + specFile.getAbsolutePath(), e);
-    }
-  }
-
-  /**
    * Remove one argument from the list.
    *
    * @param commands
@@ -689,54 +660,10 @@ public class InteractiveSpacesWorkbench {
    * @return command string removed from the list
    */
   private String removeArgument(List<String> commands, String description) {
-    if (commands.size() <= 0) {
+    if (commands.isEmpty()) {
       throw new SimpleInteractiveSpacesException("Missing argument " + description);
     }
     return commands.remove(0);
-  }
-
-  /**
-   * Create a confederacy output from a given element.
-   *
-   * @param rootElement
-   *          input element
-   * @param specFile
-   *          specification file
-   * @param baseDirectory
-   *          base output directory
-   */
-  private void createConfederacyFromElement(Element rootElement, File specFile, File baseDirectory) {
-    ProjectGroup projectGroup = new ProjectGroup();
-    projectGroup.setSpecificationSource(specFile);
-    projectGroup.setBaseDirectory(baseDirectory);
-
-    JdomProjectGroupReader projectGroupReader = new JdomProjectGroupReader(log);
-    projectGroupReader.setWorkbench(this);
-    projectGroupReader.processSpecification(projectGroup, rootElement);
-
-    projectGroupCreator.create(projectGroup);
-  }
-
-  /**
-   * Create an output project from a project specification element.
-   *
-   * @param rootElement
-   *          input root element
-   * @param baseDirectory
-   *          output base directory
-   */
-  private void createProjectFromElement(Element rootElement, File baseDirectory) {
-    JdomProjectReader projectReader = new JdomProjectReader(log);
-    projectReader.setWorkbench(this);
-
-    Project project = projectReader.processSpecification(rootElement);
-    project.setType(ActivityProject.PROJECT_TYPE_NAME);
-    project.setBaseDirectory(baseDirectory);
-
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
-    spec.setProject(project);
-
-    activityProjectCreator.instantiate(spec);
   }
 
   /**

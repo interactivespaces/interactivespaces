@@ -53,7 +53,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
     } catch (Exception e) {
       dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
       throw new SimpleInteractiveSpacesException(
-          "Template variables can be found in " + variableDump.getAbsolutePath(), e);
+          "Template variables can be found in " + TEMPLATE_VARIABLES_TMP.getAbsolutePath(), e);
     }
   }
 

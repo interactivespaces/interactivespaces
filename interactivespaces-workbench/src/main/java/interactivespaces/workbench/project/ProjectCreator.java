@@ -24,10 +24,10 @@ package interactivespaces.workbench.project;
 public interface ProjectCreator {
 
   /**
-   * Instantiate a project.
+   * Create a project.
    *
    * @param spec
    *          specification for the new project
    */
-  void instantiate(ProjectCreationSpecification spec);
+  void create(ProjectCreationSpecification spec);
 }

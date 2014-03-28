@@ -56,7 +56,7 @@ public class ProjectGroupCreator {
     this.workbench = workbench;
     templater = new FreemarkerTemplater();
     templater.setEvaluationPasses(2);
-    templater.initialize();
+    templater.startup();
     projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
@@ -71,7 +71,7 @@ public class ProjectGroupCreator {
     try {
       for (Project project : spec.getProjectList()) {
         projectIndex++;
-        projectCreator.instantiate(makeCreationSpecification(spec, project));
+        projectCreator.create(makeCreationSpecification(spec, project));
       }
     } catch (Exception e) {
       workbench.handleError(String.format(

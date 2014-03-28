@@ -23,8 +23,10 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.service.template.Templater;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 import java.io.FileReader;
@@ -40,9 +42,17 @@ import java.util.Map;
 /**
  * A templater using Freemarker.
  *
+ * <p>
+ * This implementation supports the concpet of multiple evaluation passes. This is
+ * useful when cascading defintitions need to be resolved in the output.  Say, for a project defintiion, there is
+ * a concept of {@code packageName=${directoryName}.${className}} and then the template itself outputs
+ * {@code <packageName>${packageName}</packageName>}, then the first pass will resolve packageName, and the second
+ * pass will resolve {$directoryName} and ${className}. Since this is a templating language, evaluations are not
+ * recursive, and so this is necessary to properly handle the output.
+ *
  * @author Keith M. Hughes
  */
-public class FreemarkerTemplater {
+public class FreemarkerTemplater implements ManagedResource {
 
   /**
    * Base directory where templates are kept.
@@ -60,14 +70,13 @@ public class FreemarkerTemplater {
   private Configuration freemarkerConfig;
 
   /**
-   * Number of evaluation passes to apply to template output.
+   * Number of evaluation passes to apply to template output. See class documentation for an explanation of what
+   * this field is fore.
    */
   private int evaluationPasses = 1;
 
-  /**
-   * Initialize the templater.
-   */
-  public void initialize() {
+  @Override
+  public void startup() {
     try {
       freemarkerConfig = new Configuration();
       freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);
@@ -79,8 +88,13 @@ public class FreemarkerTemplater {
     }
   }
 
+  @Override
+  public void shutdown() {
+    // Nothing to be done on shutdown.
+  }
+
   /**
-   * Set the number of evaluation passes to apply.
+   * Set the number of evaluation passes to apply. See class documentation for details about this feature.
    *
    * @param evaluationPasses
    *          number of passes to apply
