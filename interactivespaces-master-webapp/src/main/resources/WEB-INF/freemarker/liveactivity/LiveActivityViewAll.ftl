@@ -70,7 +70,7 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
   <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
   <tr class="${trCss}">
     <td class="liveactivity-name">
-      <a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a>
+      <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a>
     </td>
     <td>
       <#if liveactivity.active?has_content>

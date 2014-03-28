@@ -36,7 +36,7 @@
 
 <ul>
 <#list spaces as space>
-    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${space.id}/view.html')">${space.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">${space.name}</a></li>
 </#list>
 </ul>
 

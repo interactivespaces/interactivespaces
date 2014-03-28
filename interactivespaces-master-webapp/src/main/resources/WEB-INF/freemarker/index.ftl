@@ -34,5 +34,7 @@
 
 <iframe id="mainContent"></iframe>
 
+<a id="uglyTabPopper" style="display: none" target="_blank"></a>
+
 </body>
 <html>

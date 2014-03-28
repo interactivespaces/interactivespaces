@@ -20,20 +20,20 @@
 
 <div id="navMain">
 <ul>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/all.html')">Activity</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/all.html', event);">Activity</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/all.html')">Live Activity</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/all.html', event);">Live Activity</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/all.html')">Live Activity Group</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/all.html', event);">Live Activity Group</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/all.html')">Space</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/all.html', event);">Space</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/spacecontroller/all.html')">Space Controller</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/all.html', event);">Space Controller</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/troubleshoot/all.html')">Troubleshoot</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/troubleshoot/all.html', event);">Troubleshoot</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/admin/namedscript/all.html')">Scripts</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/admin/namedscript/all.html', event);">Scripts</a></li>
 <li>&bull;</li>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/admin/support/index.html')">Support</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/admin/support/index.html', event);">Support</a></li>
 </ul>
 </div>

@@ -109,11 +109,11 @@ ${liveactivity.description}
 </tr>
 <tr>
 <th>Activity</th>
-<td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html')">${liveactivity.activity.name} - ${liveactivity.activity.version}</a></td>
+<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html', event)">${liveactivity.activity.name} - ${liveactivity.activity.version}</a></td>
 </tr>
 <th>Controller</th>
 <td><#if liveactivity.controller?has_content>
-<a class="uglylink" onclick="ugly.changePage('/interactivespaces/spacecontroller/${liveactivity.controller.id}/view.html')">${liveactivity.controller.name}</a>
+<a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/${liveactivity.controller.id}/view.html', event);">${liveactivity.controller.name}</a>
 <#else>
 <span style="color: red;">No controller assigned!</span>
 </#if>
@@ -191,7 +191,7 @@ activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 
 <ul>
 <#list liveactivityGroups as liveactivityGroup>
-    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivityGroup.id}/view.html')">${liveactivityGroup.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivityGroup.id}/view.html', event);">${liveactivityGroup.name}</a></li>
 </#list>
 </ul>
 <#else>

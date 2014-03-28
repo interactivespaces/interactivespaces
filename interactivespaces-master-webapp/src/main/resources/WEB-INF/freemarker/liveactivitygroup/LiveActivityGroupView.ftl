@@ -107,7 +107,7 @@ ${liveactivitygroup.description}
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">
-<td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a></td>
+<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a></td>
 <td>
 <#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.uuid}">
   <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
@@ -165,7 +165,7 @@ None
 
 <ul>
 <#list spaces as space>
-<li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${space.id}/view.html')">${space.name}</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">${space.name}</a></li>
 </#list>
 </ul>
 <#else>
