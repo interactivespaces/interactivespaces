@@ -25,6 +25,9 @@ import java.util.Map;
  */
 public class ProjectCreationSpecification {
 
+  /**
+   * Map of the template data for this project creation.
+   */
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
   /**
@@ -36,6 +39,7 @@ public class ProjectCreationSpecification {
    * The template for the project.
    */
   private File specificationBase;
+
   /**
    * Base directory where output files should be rooted.
    */
@@ -83,22 +87,50 @@ public class ProjectCreationSpecification {
     this.specificationBase = specification;
   }
 
+  /**
+   * @return base directory for creating a project
+   */
   public File getBaseDirectory() {
     return baseDirectory;
   }
 
+  /**
+   * Set the base directory.
+   *
+   * @param baseDirectory
+   *          base directory where to create the project
+   */
   public void setBaseDirectory(File baseDirectory) {
     this.baseDirectory = baseDirectory;
   }
 
+  /**
+   * Get the template data to use for creation.
+   *
+   * @return template data to use
+   */
   public Map<String, Object> getTemplateData() {
     return templateData;
   }
 
+  /**
+   * Add all from a set of template data to this template data.
+   *
+   * @param addData
+   *          data to add
+   */
   public void addTemplateData(Map<String, Object> addData) {
     templateData.putAll(addData);
   }
 
+  /**
+   * Add a single template data entry to this creation specification.
+   *
+   * @param key
+   *          data key
+   * @param value
+   *          data value
+   */
   public void addTemplateDataEntry(String key, Object value) {
     templateData.put(key, value);
   }

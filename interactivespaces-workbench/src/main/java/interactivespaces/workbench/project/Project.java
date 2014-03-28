@@ -177,10 +177,21 @@ public abstract class Project {
     return baseDirectory;
   }
 
+  /**
+   * Get the specification source for this project.
+   *
+   * @return specification source
+   */
   public File getSpecificationSource() {
     return specificationSource;
   }
 
+  /**
+   * Set the specification source for this project.
+   *
+   * @param specificationSource
+   *          specification source
+   */
   public void setSpecificationSource(File specificationSource) {
     this.specificationSource = specificationSource;
   }
@@ -409,10 +420,21 @@ public abstract class Project {
     return Lists.newArrayList(templates);
   }
 
+  /**
+   * Add a template var to this project.
+   *
+   * @param templateVar
+   *          template var to add
+   */
   public void addTemplateVar(TemplateVar templateVar) {
     templateVars.add(templateVar);
   }
 
+  /**
+   * Get the list of template vars for this project.
+   *
+   * @return template var list
+   */
   public List<TemplateVar> getTemplateVars() {
     return templateVars;
   }
