@@ -92,7 +92,7 @@ ${space.description}
 <#if liveActivityGroups?has_content>
 <ul>
 <#list liveActivityGroups as group>
-    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${group.id}/view.html')">${group.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${group.id}/view.html', event);">${group.name}</a></li>
 </#list>
 </ul>
 <#else>
@@ -117,7 +117,7 @@ None
 <#if containingSpaces?has_content>
 <ul>
 <#list containingSpaces as containingSpace>
-    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${containingSpace.id}/view.html')">${containingSpace.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${containingSpace.id}/view.html', event);">${containingSpace.name}</a></li>
 </#list>
 </ul>
 <#else>

@@ -38,16 +38,16 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
 
 <h1>Live Activities for Space: ${space.name}</h1>
 
-<p><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${space.id}/view.html')">Back to main space page</a></p>
+<p><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">Back to main space page</a></p>
 
 <table>
 <tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></td>
 <#list liveActivityGroups as liveActivityGroup>
-<tr style="background-color: #e0e0e0; font-weight: bold"><td colspan="3">Live Activity Group: <a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html')">${liveActivityGroup.name}</a></td></tr>
+<tr style="background-color: #e0e0e0; font-weight: bold"><td colspan="3">Live Activity Group: <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html', event);">${liveActivityGroup.name}</a></td></tr>
 <#list liveActivityGroup.liveActivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">
-<td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html')">${liveactivity.name}</a></td>
+<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a></td>
 <td><#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.uuid}">
 <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
 <span class="as-of-timestamp">

@@ -53,7 +53,7 @@ InteractiveSpacesUgly.prototype = {
     this.ws.onclose = (function(event) {
       this.onWebSocketClose();
     }).bind(this);
-    
+
     this.requestId = 0;
   },
 
@@ -77,10 +77,28 @@ InteractiveSpacesUgly.prototype = {
     window.location.hash = iframeWindow.location.pathname;
   },
 
-  'changePage' : function(page) {
+  'changePage' : function(page, event) {
     var url = window.location.origin + page;
 
-    $('#mainContent').attr('src', url);
+    // If came from a click event and was control key we pop a new window
+    if (event && event.ctrlKey) {
+      // This works by modifying the original anchor tag and allowing the normal
+      // browser process to complete the click event. If this method returns
+      // true, the browser will/ process the click event as normal, which in a browser
+      // means "open this window in how I have the browser configured (tab or new window),
+      // if it returns false, my method has full control.
+      var fullUrl = window.location.origin + window.location.pathname
+          + window.location.search + "#" + page;
+
+      var target = event.target || event.srcElement || event.originalTarget;
+      target.href = fullUrl;
+
+      return true;
+    } else {
+      $('#mainContent').attr('src', url);
+
+      return false;
+    }
   },
 
   'executeApi' : function(type, data) {

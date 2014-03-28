@@ -47,7 +47,7 @@
 <#list activities as activity>
     <#assign trCss = (activity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-      <td><a class="uglylink" onclick="ugly.changePage('/interactivespaces/activity/${activity.id}/view.html')">View</a></td>
+      <td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${activity.id}/view.html', event);">View</a></td>
       <td>${activity.name}</td>
       <td>${activity.version}</td>
       <td>${activity.lastUploadDate?datetime}</td>

@@ -45,7 +45,7 @@
 
 #navMain a:hover {
   text-decoration: underline;
-  color: red;
+  color: blue;
 }
 
 #navRegion ul {
@@ -80,13 +80,14 @@ a.uglylink  img {
 }
 
 a.uglylink:hover,a.uglylink:focus:hover {
-  color: #cff;
-  background: black;
+  color: black;
+  background: #ccc;
+  cursor: pointer;
 }
 
 a.uglylink:active, a.uglylink:focus {
   color: #fff;
-  background-color: red;
+  background-color: #999;
 }
 
 .admin-content {

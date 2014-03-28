@@ -36,7 +36,7 @@
 
 <ul>
 <#list liveactivitygroups as liveactivitygroup>
-    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/view.html')">${liveactivitygroup.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/view.html', event);">${liveactivitygroup.name}</a></li>
 </#list>
 </ul>
 
