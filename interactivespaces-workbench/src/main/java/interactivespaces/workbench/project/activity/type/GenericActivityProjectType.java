@@ -34,12 +34,22 @@ import interactivespaces.workbench.project.java.JavaProjectType;
  *
  * @author Keith M. Hughes
  */
-public class ScriptActivityProjectType implements ProjectType {
+public class GenericActivityProjectType implements ProjectType {
 
   /**
-   * Name for the builder type.
+   * Builder type of this generic activity project type.
    */
-  public static final String BUILDER_TYPE = "script";
+  private final String builderType;
+
+  /**
+   * Construct a new instance.
+   *
+   * @param builderType
+   *          the builder type for this activity
+   */
+  public GenericActivityProjectType(String builderType) {
+    this.builderType = builderType;
+  }
 
   @Override
   public String getProjectTypeName() {
@@ -48,7 +58,7 @@ public class ScriptActivityProjectType implements ProjectType {
 
   @Override
   public boolean isProperType(Project project) {
-    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_TYPE.equals(project.getBuilderType());
+    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && builderType.equals(project.getBuilderType());
   }
 
   @Override

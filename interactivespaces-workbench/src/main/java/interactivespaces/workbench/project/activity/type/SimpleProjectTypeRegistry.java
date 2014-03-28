@@ -45,7 +45,20 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
    */
   private final List<ProjectType> projectTypes = Lists.newArrayList();
 
+  /**
+   * Map containing project creator factories, by project type.
+   */
   private final Map<String, Class<? extends Project>> projectCreatorMap = Maps.newHashMap();
+
+  /**
+   * Name for the builder type of script activities.
+   */
+  public static final String SCRIPT_ACTIVITY_BUILDER_TYPE = "script";
+
+  /**
+   * Name for the builder type of native activities.
+   */
+  public static final String NATIVE_ACTIVITY_BUILDER_TYPE = "native";
 
   /**
    * Create a basic registry for project types.
@@ -53,7 +66,8 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
   public SimpleProjectTypeRegistry() {
     registerProjectType(new JavaActivityProjectType());
     registerProjectType(new AndroidActivityProjectType());
-    registerProjectType(new ScriptActivityProjectType());
+    registerProjectType(new GenericActivityProjectType(SCRIPT_ACTIVITY_BUILDER_TYPE));
+    registerProjectType(new GenericActivityProjectType(NATIVE_ACTIVITY_BUILDER_TYPE));
     registerProjectType(new LibraryProjectType());
     registerProjectType(new AssemblyProjectType());
     registerProjectType(new BlankProjectType());
