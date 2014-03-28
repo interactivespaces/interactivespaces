@@ -41,16 +41,6 @@ import java.util.Map;
 public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
 
   /**
-   * The mapping of names to project types.
-   */
-  private final List<ProjectType> projectTypes = Lists.newArrayList();
-
-  /**
-   * Map containing project creator factories, by project type.
-   */
-  private final Map<String, Class<? extends Project>> projectCreatorMap = Maps.newHashMap();
-
-  /**
    * Name for the builder type of script activities.
    */
   public static final String SCRIPT_ACTIVITY_BUILDER_TYPE = "script";
@@ -59,6 +49,16 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
    * Name for the builder type of native activities.
    */
   public static final String NATIVE_ACTIVITY_BUILDER_TYPE = "native";
+
+  /**
+   * The mapping of names to project types.
+   */
+  private final List<ProjectType> projectTypes = Lists.newArrayList();
+
+  /**
+   * Map containing project creator factories, by project type.
+   */
+  private final Map<String, Class<? extends Project>> projectCreatorMap = Maps.newHashMap();
 
   /**
    * Create a basic registry for project types.

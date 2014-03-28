@@ -53,12 +53,25 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       new Version(2, 0, 0), false);
 
   /**
+   * Element name for a JDOM project specification.
+   */
+  public static final String ELEMENT_NAME = "project";
+
+  /**
+   * Element name for a group of projects.
+   */
+  public static final String GROUP_ELEMENT_NAME = "projects";
+
+  /**
    * Map of resource types to resource builders.
    */
   private static final Map<String, ProjectConstituent.ProjectConstituentFactory> PROJECT_CONSTITUENT_FACTORY_MAP =
       Maps.newHashMap();
 
-  {
+  /**
+   * Add all the base constituent types to the static map.
+   */
+  static {
     addConstituentType(new ProjectResourceConstituent.ProjectResourceBuilderFactory());
     addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
     addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
@@ -66,14 +79,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     addConstituentType(new ProjectTemplateConstituent.ProjectTemplateConstituentFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
   }
-
-  private static void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
-    PROJECT_CONSTITUENT_FACTORY_MAP.put(constituentFactory.getName(), constituentFactory);
-  }
-
-  public static final String ELEMENT_NAME = "project";
-
-  public static final String GROUP_ELEMENT_NAME = "projects";
 
   /**
    * The name of the project.
@@ -225,6 +230,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
+  /**
+   * Prototype manager to use when reading/constructing projects.
+   */
   private PrototypeManager prototypeManager;
 
   /**
@@ -238,6 +246,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     super(log);
   }
 
+  /**
+   * Add a constituent type to the factory.
+   *
+   * @param constituentFactory
+   *          factory to add
+   */
+  private static void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
+    PROJECT_CONSTITUENT_FACTORY_MAP.put(constituentFactory.getName(), constituentFactory);
+  }
+
   @Override
   public Project readProject(File projectFile) {
     Element rootElement = getRootElement(projectFile);
@@ -246,6 +264,14 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     return project;
   }
 
+  /**
+   * Process an element and return a new project.
+   *
+   * @param projectElement
+   *          element to process
+   *
+   * @return project representing the element
+   */
   public Project processSpecification(Element projectElement) {
     if (!ELEMENT_NAME.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
@@ -275,6 +301,14 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     return project;
   }
 
+  /**
+   * Configure a project given an element.
+   *
+   * @param project
+   *          project to configure
+   * @param projectElement
+   *          input element
+   */
   private void configureProjectFromElement(Project project, Element projectElement) {
     getProjectAttributes(project, projectElement);
     getMainData(project, projectElement);
@@ -611,13 +645,23 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     return new ProjectDeployment(type, method, location);
   }
 
+  /**
+   * Get the prototype manager for this reader.
+   *
+   * @return prototype manager
+   */
   public PrototypeManager getPrototypeManager() {
     return prototypeManager;
   }
 
+  /**
+   * Set the prototype manager used by this reader.
+   *
+   * @param prototypeManager
+   *          prototype manager to use
+   */
   public void setPrototypeManager(PrototypeManager prototypeManager) {
     this.prototypeManager = prototypeManager;
   }
-
 
 }
