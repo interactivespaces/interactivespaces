@@ -5,18 +5,15 @@
       <templateVars>
         <var name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
         <var name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
-        <var name="groupPackage" value="${groupName?replace('.', '/')}" />
       </templateVars>
     </prototype>
 
     <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
       <templateVars>
         <var name="idName" value="${groupName}" />
-        <var name="activityClassPackage" value="${groupName}" />
-        <var name="packagePath" value="${activityClassPackage?replace('.', '/')}" />
         <var name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
-        <var name="javaClassName" value="${fullName?replace(' ', '')}" />
-        <var name="javaSrcDir" value="${activity.getActivitySourceDirectory()}" />
+        <var name="resourceDir" value="${activity.getActivityResourceDirectory()}" />
+        <var name="javascriptExecutable" value="SimpleJavascriptActivity.js" />
       </templateVars>
 
       <version>0.0.1</version>
@@ -28,7 +25,7 @@
     <prototype prototypeName="activityProject" inheritsFrom="baseProject" type="activity">
       <activity type="interactivespaces_native">
         <name>${fullName}</name>
-        <class>${activityClassPackage}.${javaClassName}</class>
+        <executable>${javascriptExecutable}</executable>
         <configuration>
           <property name="space.activity.log.level" value="info" required="false" />
         </configuration>
@@ -39,10 +36,11 @@
     </prototype>
   </prototypes>
 
+  <!-- TODO: Need to specify the activity type (script) and then executable name as configuration value -->
   <projects>
-    <project inheritsFrom="activityProject" builder="java">
+    <project inheritsFrom="activityProject">
       <templates>
-        <template destinationFile="${javaSrcDir}/SimpleJavaActivity.java" sourceFile="SimpleJavaActivity.java.ftl" />
+        <template destinationFile="${resourceDir}/${javascriptExecutable}" sourceFile="SimpleJavascriptActivity.js.ftl" />
       </templates>
     </project>
   </projects>

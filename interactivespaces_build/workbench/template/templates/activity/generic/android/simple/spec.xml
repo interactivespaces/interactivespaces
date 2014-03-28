@@ -40,9 +40,9 @@
   </prototypes>
 
   <projects>
-    <project inheritsFrom="activityProject" builder="java">
+    <project inheritsFrom="activityProject" builder="android">
       <templates>
-        <template destinationFile="${javaSrcDir}/SimpleJavaActivity.java" sourceFile="SimpleJavaActivity.java.ftl" />
+        <template destinationFile="${javaSrcDir}/SimpleAndroidActivity.java" sourceFile="SimpleAndroidActivity.java.ftl" />
       </templates>
     </project>
   </projects>
