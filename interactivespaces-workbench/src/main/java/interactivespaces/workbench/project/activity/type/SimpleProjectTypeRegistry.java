@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project.activity.type;
 
 import com.google.common.collect.Lists;
-
 import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -27,6 +26,8 @@ import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectType;
 import interactivespaces.workbench.project.group.BlankProject;
 import interactivespaces.workbench.project.group.BlankProjectType;
+import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectType;
 import interactivespaces.workbench.project.library.LibraryProject;
 import interactivespaces.workbench.project.library.LibraryProjectType;
 
@@ -51,7 +52,7 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
   public static final String NATIVE_ACTIVITY_BUILDER_TYPE = "native";
 
   /**
-   * The mapping of names to project types.
+   * The mapping of names to pFreemarkerroject types.
    */
   private final List<ProjectType> projectTypes = Lists.newArrayList();
 
@@ -70,11 +71,13 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
     registerProjectType(new GenericActivityProjectType(NATIVE_ACTIVITY_BUILDER_TYPE));
     registerProjectType(new LibraryProjectType());
     registerProjectType(new AssemblyProjectType());
+    registerProjectType(new GroupProjectType());
     registerProjectType(new BlankProjectType());
 
     projectCreatorMap.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
     projectCreatorMap.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
     projectCreatorMap.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
+    projectCreatorMap.put(GroupProject.PROJECT_TYPE_NAME, GroupProject.class);
     projectCreatorMap.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
   }
 

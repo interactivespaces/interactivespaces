@@ -27,22 +27,17 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class ProjectGroup {
+public class GroupProject extends Project {
+
+  /**
+   * Name of the project type.
+   */
+  public static final String PROJECT_TYPE_NAME = "group";
 
   /**
    * List of projects in this group.
    */
   private final List<Project> projectList = Lists.newArrayList();
-
-  /**
-   * Base directory for the output files when generating this project group.
-   */
-  private File baseDirectory;
-
-  /**
-   * Source specification file for this project group.
-   */
-  private File specificationSource;
 
   /**
    * Get the project list.
@@ -61,40 +56,6 @@ public class ProjectGroup {
    */
   public void addProject(Project project) {
     projectList.add(project);
-  }
-
-  /**
-   * @return base directory for this group.
-   */
-  public File getBaseDirectory() {
-    return baseDirectory;
-  }
-
-  /**
-   * Set the base directory for this group.
-   *
-   * @param baseDirectory
-   *          base directory for this group
-   */
-  public void setBaseDirectory(File baseDirectory) {
-    this.baseDirectory = baseDirectory;
-  }
-
-  /**
-   * @return specification source file for this project group
-   */
-  public File getSpecificationSource() {
-    return specificationSource;
-  }
-
-  /**
-   * Set the specification source for this group.
-   *
-   * @param specDirectory
-   *          directory to set for the specification
-   */
-  public void setSpecificationSource(File specDirectory) {
-    this.specificationSource = specDirectory;
   }
 
 }

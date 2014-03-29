@@ -68,12 +68,6 @@ public class FreemarkerTemplater implements ManagedResource {
    */
   private Configuration freemarkerConfig;
 
-  /**
-   * Number of evaluation passes to apply to template output. See class documentation for an explanation of what
-   * this field is fore.
-   */
-  private int evaluationPasses = 1;
-
   @Override
   public void startup() {
     try {
@@ -93,17 +87,8 @@ public class FreemarkerTemplater implements ManagedResource {
   }
 
   /**
-   * Set the number of evaluation passes to apply. See class documentation for details about this feature.
-   *
-   * @param evaluationPasses
-   *          number of passes to apply
-   */
-  public void setEvaluationPasses(int evaluationPasses) {
-    this.evaluationPasses = evaluationPasses;
-  }
-
-  /**
    * Process a string template.
+   *
    *
    * @param data
    *          data for template
@@ -112,11 +97,13 @@ public class FreemarkerTemplater implements ManagedResource {
    * @param defineResult
    *          target value to define with new value, or {@code null} if no definition should take place
    *
+   * @param evaluationPasses
    * @return processed template
    */
-  public String processStringTemplate(Map<String, Object> data, String templateContent, String defineResult) {
+  public String processStringTemplate(Map<String, Object> data, String templateContent,
+      String defineResult, int evaluationPasses) {
     for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
-      templateContent = processStringTemplateCore(data, templateContent);
+      templateContent = processStringTemplate(data, templateContent);
       if (defineResult != null) {
         data.put(defineResult, templateContent);
       }
@@ -134,7 +121,7 @@ public class FreemarkerTemplater implements ManagedResource {
    *
    * @return processed template
    */
-  public String processStringTemplateCore(Map<String, Object> data, String templateContent) {
+  public String processStringTemplate(Map<String, Object> data, String templateContent) {
     try {
       Template temp = new Template("generator for " + templateContent,
           new StringReader(templateContent), freemarkerConfig);
@@ -155,9 +142,9 @@ public class FreemarkerTemplater implements ManagedResource {
    * @param outputFile
    *          file where the template will be written
    * @param template
-   *          which template to use
+   * @param evaluationPasses
    */
-  public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
+  public void writeTemplate(Map<String, Object> data, File outputFile, String template, int evaluationPasses) {
     fileSupport.directoryExists(outputFile.getParentFile());
 
     List<File> deleteList = Lists.newArrayList();
@@ -171,9 +158,9 @@ public class FreemarkerTemplater implements ManagedResource {
       tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), passesRemaining - 1));
       deleteList.add(tempFile);
       if (passesRemaining == 1) {
-        writeTemplateCore(data, outputFile, template);
+        writeTemplate(data, outputFile, template);
       } else {
-        writeTemplateCore(data, tempFile, template);
+        writeTemplate(data, tempFile, template);
         template = tempFile.getAbsolutePath();
       }
     }
@@ -194,7 +181,7 @@ public class FreemarkerTemplater implements ManagedResource {
    * @param template
    *          which template to use
    */
-  private void writeTemplateCore(Map<String, Object> data, File outputFile, String template) {
+  public void writeTemplate(Map<String, Object> data, File outputFile, String template) {
     Writer out = null;
     Reader in = null;
     try {

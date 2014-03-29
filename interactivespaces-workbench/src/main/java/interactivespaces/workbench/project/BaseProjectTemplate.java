@@ -113,8 +113,10 @@ public class BaseProjectTemplate implements ProjectTemplate {
    */
   private void processTemplateVariables(ProjectCreationSpecification spec) {
     FreemarkerTemplater templater = getTemplater();
+    int evaluationPasses = 2;
     for (TemplateVar templateVar : spec.getProject().getTemplateVars()) {
-      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
+      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(),
+          templateVar.getName(), evaluationPasses);
     }
   }
 
@@ -193,14 +195,14 @@ public class BaseProjectTemplate implements ProjectTemplate {
       FreemarkerTemplater templater = getTemplater();
       Map<String, Object> templateData = spec.getTemplateData();
 
-      String outPath = templater.processStringTemplate(templateData, template.getOutput(), null);
+      String outPath = templater.processStringTemplate(templateData, template.getOutput());
       File outFile = new File(outPath);
       if (!outFile.isAbsolute()) {
         String newBasePath = (String) templateData.get(BASE_DIRECTORY_VARIABLE);
         outFile = new File(newBasePath, outFile.getPath());
       }
 
-      String inPath = templater.processStringTemplate(templateData, template.getTemplate(), null);
+      String inPath = templater.processStringTemplate(templateData, template.getTemplate());
       File inFile = new File(inPath);
       if (!inFile.isAbsolute()) {
         inPath = new File(spec.getSpecificationBase(), inPath).getAbsolutePath();

@@ -57,19 +57,19 @@ public class JdomProjectGroupReader extends JdomReader {
   /**
    * Process the given specification.
    *
-   * @param projectGroup
+   * @param groupProject
    *          target for processed input
    * @param rootElement
    *          input element
    */
-  public void processSpecification(ProjectGroup projectGroup, Element rootElement) {
+  public void processSpecification(GroupProject groupProject, Element rootElement) {
     if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }
 
     List<Element> children = getChildren(rootElement);
     for (Element child : children) {
-      addElementToSpec(projectGroup, child);
+      addElementToSpec(groupProject, child);
     }
   }
 
@@ -81,7 +81,7 @@ public class JdomProjectGroupReader extends JdomReader {
    * @param child
    *          child element to add
    */
-  private void addElementToSpec(ProjectGroup spec, Element child) {
+  private void addElementToSpec(GroupProject spec, Element child) {
     String name = child.getName();
 
     try {
@@ -105,7 +105,7 @@ public class JdomProjectGroupReader extends JdomReader {
    * @param group
    *          prototype group to add
    */
-  private void addPrototypes(ProjectGroup spec, Element group) {
+  private void addPrototypes(GroupProject spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       jdomPrototypeManager.addPrototypeElement(entry);
@@ -120,7 +120,7 @@ public class JdomProjectGroupReader extends JdomReader {
    * @param group
    *          projects group to add
    */
-  private void addProjects(ProjectGroup spec, Element group) {
+  private void addProjects(GroupProject spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());

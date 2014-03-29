@@ -25,25 +25,25 @@ import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 
 /**
- * A project type for blank projects, which have no default output generated.
+ * A project type for group projects, which are essentially a collection of other projects.
  *
  * @author Trevor Pering
  */
-public class BlankProjectType implements ProjectType {
+public class GroupProjectType implements ProjectType {
 
   @Override
   public String getProjectTypeName() {
-    return BlankProject.PROJECT_TYPE_NAME;
+    return GroupProject.PROJECT_TYPE_NAME;
   }
 
   @Override
   public boolean isProperType(Project project) {
-    return BlankProject.PROJECT_TYPE_NAME.equals(project.getType());
+    return GroupProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new BlankProjectBuilder();
+    return new GroupProjectBuilder();
   }
 
   @Override

@@ -22,8 +22,7 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.group.JdomProjectGroupReader;
-import interactivespaces.workbench.project.group.ProjectGroup;
-import interactivespaces.workbench.project.group.ProjectGroupCreator;
+import interactivespaces.workbench.project.group.GroupProject;
 import org.jdom.Element;
 
 import java.io.File;
@@ -42,11 +41,6 @@ public class JdomProjectCreator {
   private final InteractiveSpacesWorkbench interactiveSpacesWorkbench;
 
   /**
-   * Creator to use for project groups.
-   */
-  private final ProjectGroupCreator projectGroupCreator;
-
-  /**
    * XML reader used for parsing input specification.
    */
   private final JdomReader jdomReader;
@@ -59,7 +53,6 @@ public class JdomProjectCreator {
    */
   public JdomProjectCreator(InteractiveSpacesWorkbench interactiveSpacesWorkbench) {
     this.interactiveSpacesWorkbench = interactiveSpacesWorkbench;
-    projectGroupCreator = new ProjectGroupCreator(interactiveSpacesWorkbench);
     jdomReader = new JdomReader(interactiveSpacesWorkbench);
   }
 
@@ -96,14 +89,19 @@ public class JdomProjectCreator {
    * @param baseDirectory
    */
   private void createProjectGroupFromElement(Element rootElement, File specFile, File baseDirectory) {
-    ProjectGroup projectGroup = new ProjectGroup();
-    projectGroup.setSpecificationSource(specFile);
-    projectGroup.setBaseDirectory(baseDirectory);
+
+    GroupProject groupProject =
+        interactiveSpacesWorkbench.getProjectTypeRegistry().newProject(GroupProject.PROJECT_TYPE_NAME);
+    groupProject.setSpecificationSource(specFile);
+    groupProject.setBaseDirectory(baseDirectory);
 
     JdomProjectGroupReader projectGroupReader = new JdomProjectGroupReader(interactiveSpacesWorkbench);
-    projectGroupReader.processSpecification(projectGroup, rootElement);
+    projectGroupReader.processSpecification(groupProject, rootElement);
 
-    projectGroupCreator.create(projectGroup);
+    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    spec.setProject(groupProject);
+
+    interactiveSpacesWorkbench.getProjectCreator().create(spec);
   }
 
   /**
@@ -123,6 +121,6 @@ public class JdomProjectCreator {
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(project);
 
-    interactiveSpacesWorkbench.getActivityProjectCreator().create(spec);
+    interactiveSpacesWorkbench.getProjectCreator().create(spec);
   }
 }

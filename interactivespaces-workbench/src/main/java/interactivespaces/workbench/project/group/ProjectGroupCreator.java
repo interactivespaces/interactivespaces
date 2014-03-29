@@ -31,19 +31,9 @@ import interactivespaces.workbench.project.ProjectCreatorImpl;
 public class ProjectGroupCreator {
 
   /**
-   * Templater to use.
-   */
-  private final FreemarkerTemplater templater;
-
-  /**
    * The workbench used by the creator.
    */
   private final InteractiveSpacesWorkbench workbench;
-
-  /**
-   * The project creator used for projects in the group.
-   */
-  private final ProjectCreator projectCreator;
 
   /**
    * Create a basic instance.
@@ -54,10 +44,6 @@ public class ProjectGroupCreator {
    */
   public ProjectGroupCreator(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
-    templater = new FreemarkerTemplater();
-    templater.setEvaluationPasses(2);
-    templater.startup();
-    projectCreator = new ProjectCreatorImpl(workbench, templater);
   }
 
   /**
@@ -66,12 +52,12 @@ public class ProjectGroupCreator {
    * @param spec
    *          spec for which to create
    */
-  public void create(ProjectGroup spec) {
+  public void create(GroupProject spec) {
     int projectIndex = 0;
     try {
       for (Project project : spec.getProjectList()) {
         projectIndex++;
-        projectCreator.create(makeCreationSpecification(spec, project));
+        workbench.getProjectCreator().create(makeCreationSpecification(spec, project));
       }
     } catch (Exception e) {
       workbench.handleError(String.format(
@@ -82,19 +68,19 @@ public class ProjectGroupCreator {
   /**
    * Make a creation specification for the given project in the group.
    *
-   * @param projectGroup
+   * @param groupProject
    *          specification group
    * @param project
    *          individual project
    *
    * @return project creation specification
    */
-  private ProjectCreationSpecification makeCreationSpecification(ProjectGroup projectGroup, Project project) {
+  private ProjectCreationSpecification makeCreationSpecification(GroupProject groupProject, Project project) {
     ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);
-    creationSpecification.setBaseDirectory(projectGroup.getBaseDirectory());
-    creationSpecification.setSpecificationBase(projectGroup.getSpecificationSource().getParentFile());
-    creationSpecification.addTemplateDataEntry("baseDirectory", projectGroup.getBaseDirectory());
+    creationSpecification.setBaseDirectory(groupProject.getBaseDirectory());
+    creationSpecification.setSpecificationBase(groupProject.getSpecificationSource().getParentFile());
+    creationSpecification.addTemplateDataEntry("baseDirectory", groupProject.getBaseDirectory());
     return creationSpecification;
   }
 

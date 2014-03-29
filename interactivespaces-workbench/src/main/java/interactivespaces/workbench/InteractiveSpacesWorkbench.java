@@ -175,7 +175,7 @@ public class InteractiveSpacesWorkbench {
   /**
    * The creator for new projects.
    */
-  private final ProjectCreator activityProjectCreator;
+  private final ProjectCreator projectCreator;
 
   /**
    * A packager for activities.
@@ -245,7 +245,7 @@ public class InteractiveSpacesWorkbench {
     templater.startup();
 
     projectTypeRegistry = new SimpleProjectTypeRegistry();
-    activityProjectCreator = new ProjectCreatorImpl(this, templater);
+    projectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
     jdomProjectCreator = new JdomProjectCreator(this);
@@ -793,8 +793,8 @@ public class InteractiveSpacesWorkbench {
   /**
    * @return the activityProjectCreator
    */
-  public ProjectCreator getActivityProjectCreator() {
-    return activityProjectCreator;
+  public ProjectCreator getProjectCreator() {
+    return projectCreator;
   }
 
   /**
