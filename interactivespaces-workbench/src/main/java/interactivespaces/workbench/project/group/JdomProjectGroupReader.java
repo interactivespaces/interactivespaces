@@ -132,17 +132,4 @@ public class JdomProjectGroupReader extends JdomReader {
     }
   }
 
-  /**
-   * Get a template variable from a given element.
-   *
-   * @param element
-   *          element to parse
-   *
-   * @return template variable for the element
-   */
-  protected TemplateVar getTemplateVarFromElement(Element element) {
-    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
-    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
-    return new TemplateVar(name, value);
-  }
 }

@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Maps;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 
 import java.io.File;
 import java.util.Map;
@@ -48,6 +49,11 @@ public class ProjectCreationSpecification {
    * Base directory where output files should be rooted.
    */
   private File baseDirectory;
+
+  /**
+   * Containing workbench.
+   */
+  private InteractiveSpacesWorkbench workbench;
 
   /**
    * Get the project description associated with the spec.
@@ -139,4 +145,11 @@ public class ProjectCreationSpecification {
     templateData.put(key, value);
   }
 
+  public InteractiveSpacesWorkbench getWorkbench() {
+    return workbench;
+  }
+
+  public void setWorkbench(InteractiveSpacesWorkbench workbench) {
+    this.workbench = workbench;
+  }
 }

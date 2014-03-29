@@ -100,6 +100,9 @@ public class JdomProjectCreator {
 
     ProjectCreationSpecification spec = new ProjectCreationSpecification();
     spec.setProject(groupProject);
+    spec.setBaseDirectory(baseDirectory);
+    spec.setSpecificationBase(specFile.getParentFile());
+    spec.setWorkbench(interactiveSpacesWorkbench);
 
     interactiveSpacesWorkbench.getProjectCreator().create(spec);
   }

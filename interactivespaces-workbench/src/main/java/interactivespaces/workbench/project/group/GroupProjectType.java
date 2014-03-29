@@ -48,7 +48,7 @@ public class GroupProjectType implements ProjectType {
 
   @Override
   public ProjectTemplate newProjectTemplate() {
-    return new BaseProjectTemplate();
+    return new GroupProjectTemplate();
   }
 
   @Override

@@ -586,7 +586,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   }
 
   /**
-   * Get the deployments from the document.
+   * Get the template vars from the document.
    *
    * @param project
    *          the project description whose data is being read
