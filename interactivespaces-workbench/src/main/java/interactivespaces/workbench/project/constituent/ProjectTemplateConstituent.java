@@ -37,34 +37,6 @@ public class ProjectTemplateConstituent extends ContainerConstituent {
    */
   public static final String TYPE_NAME = TemplateFile.ELEMENT_NAME;
 
-  /**
-   * Get a template file froma given element.
-   *
-   * @param element
-   *          element providing the template file
-   *
-   * @return constituent representing the template file
-   */
-  public static TemplateFile getTemplateFileFromElement(Element element) {
-    if (!TemplateFile.ELEMENT_NAME.equals(element.getName())) {
-      throw new SimpleInteractiveSpacesException("Bad element name " + element.getName());
-    }
-    TemplateFile templateFile = new TemplateFile();
-
-    String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
-    if (sourcePath == null) {
-      throw new SimpleInteractiveSpacesException("Template specification has no sourceFile");
-    }
-    templateFile.setTemplate(sourcePath);
-
-    String destinationFile = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
-    if (destinationFile == null) {
-      throw new SimpleInteractiveSpacesException("Template specification has no destinationFile");
-    }
-    templateFile.setOutput(destinationFile);
-    return templateFile;
-  }
-
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
     // Nothing to do.
@@ -89,6 +61,34 @@ public class ProjectTemplateConstituent extends ContainerConstituent {
    * Builder class for new templates..
    */
   private static class ProjectTemplateConstituentBuilder extends BaseProjectConstituentBuilder {
+
+    /**
+     * Get a template file from given element.
+     *
+     * @param element
+     *          element providing the template file
+     *
+     * @return constituent representing the template file
+     */
+    private TemplateFile getTemplateFileFromElement(Element element) {
+      if (!TemplateFile.ELEMENT_NAME.equals(element.getName())) {
+        throw new SimpleInteractiveSpacesException("Bad element name " + element.getName());
+      }
+      TemplateFile templateFile = new TemplateFile();
+
+      String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
+      if (sourcePath == null) {
+        throw new SimpleInteractiveSpacesException("Template specification has no sourceFile");
+      }
+      templateFile.setTemplate(sourcePath);
+
+      String destinationFile = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
+      if (destinationFile == null) {
+        throw new SimpleInteractiveSpacesException("Template specification has no destinationFile");
+      }
+      templateFile.setOutput(destinationFile);
+      return templateFile;
+    }
 
     /**
      * Construct the new builder.

@@ -30,7 +30,7 @@ import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
-import interactivespaces.workbench.project.group.PrototypeManager;
+import interactivespaces.workbench.project.group.JdomPrototypeManager;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -218,7 +218,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Prototype manager to use when reading/constructing projects.
    */
-  private PrototypeManager prototypeManager;
+  private JdomPrototypeManager jdomPrototypeManager;
 
   /**
    * Construct a project reader.
@@ -257,8 +257,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     String projectType = getProjectType(projectElement);
     Project project = getWorkbench().getProjectTypeRegistry().newProject(projectType);
 
-    if (prototypeManager != null) {
-      List<Element> prototypeChain = prototypeManager.getPrototypeChain(projectElement);
+    if (jdomPrototypeManager != null) {
+      List<Element> prototypeChain = jdomPrototypeManager.getPrototypeChain(projectElement);
       for (Element prototype : prototypeChain) {
         configureProjectFromElement(project, prototype);
       }
@@ -643,18 +643,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @return prototype manager
    */
-  public PrototypeManager getPrototypeManager() {
-    return prototypeManager;
+  public JdomPrototypeManager getJdomPrototypeManager() {
+    return jdomPrototypeManager;
   }
 
   /**
    * Set the prototype manager used by this reader.
    *
-   * @param prototypeManager
+   * @param jdomPrototypeManager
    *          prototype manager to use
    */
-  public void setPrototypeManager(PrototypeManager prototypeManager) {
-    this.prototypeManager = prototypeManager;
+  public void setJdomPrototypeManager(JdomPrototypeManager jdomPrototypeManager) {
+    this.jdomPrototypeManager = jdomPrototypeManager;
   }
 
 }

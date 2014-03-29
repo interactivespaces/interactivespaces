@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.List;
 
 /**
+ * Reader for a XML-based project group using jdom.
+ *
  * @author Trevor Pering
  */
 public class JdomProjectGroupReader extends JdomReader {
@@ -40,7 +42,7 @@ public class JdomProjectGroupReader extends JdomReader {
   /**
    * Prototype manager to use for this project group specification.
    */
-  private final PrototypeManager prototypeManager = new PrototypeManager();
+  private final JdomPrototypeManager jdomPrototypeManager = new JdomPrototypeManager();
 
   /**
    * Construct a project reader.
@@ -85,10 +87,10 @@ public class JdomProjectGroupReader extends JdomReader {
     try {
       if (JdomProjectReader.GROUP_ELEMENT_NAME.equals(name)) {
         addProjects(spec, child);
-      } else if (PrototypeManager.GROUP_ELEMENT_NAME.equals(name)) {
+      } else if (JdomPrototypeManager.GROUP_ELEMENT_NAME.equals(name)) {
         addPrototypes(spec, child);
       } else {
-        throw new SimpleInteractiveSpacesException("Unrecognized element");
+        throw new SimpleInteractiveSpacesException("Unrecognized element name: " + name);
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("While processing projectGroup element: " + name, e);
@@ -106,7 +108,7 @@ public class JdomProjectGroupReader extends JdomReader {
   private void addPrototypes(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
-      prototypeManager.addPrototypeElement(entry);
+      jdomPrototypeManager.addPrototypeElement(entry);
     }
   }
 
@@ -122,7 +124,7 @@ public class JdomProjectGroupReader extends JdomReader {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
-      projectReader.setPrototypeManager(prototypeManager);
+      projectReader.setJdomPrototypeManager(jdomPrototypeManager);
       Project project = projectReader.makeProjectFromElement(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
       project.setBaseDirectory(new File("."));

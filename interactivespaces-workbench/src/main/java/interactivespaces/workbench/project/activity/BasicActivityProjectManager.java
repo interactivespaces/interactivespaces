@@ -138,6 +138,7 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
       ActivityDescription activity = reader.readDescription(activityDescriptionStream);
 
       Project project = new ActivityProject();
+      project.setBaseDirectory(activityFile.getParentFile());
       project.setName(activity.getName());
       project.setDescription(activity.getDescription());
       project.setBuilderType(activity.getBuilderType());

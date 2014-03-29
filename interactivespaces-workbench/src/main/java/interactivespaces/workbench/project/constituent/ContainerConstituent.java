@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
@@ -36,7 +36,7 @@ public abstract class ContainerConstituent implements ProjectConstituent {
   protected final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
+  public String getSourceDirectory() throws InteractiveSpacesException {
     return null;
   }
 

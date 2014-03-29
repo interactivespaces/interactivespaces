@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.activity;
 
 import com.google.common.collect.Maps;
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -110,7 +110,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   }
 
   @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
+  public String getSourceDirectory() throws InteractiveSpacesException {
     return null;
   }
 

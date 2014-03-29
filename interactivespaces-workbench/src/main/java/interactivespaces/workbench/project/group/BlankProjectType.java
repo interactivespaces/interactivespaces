@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,7 +25,7 @@ import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 
 /**
- * A project type for assembly projects.
+ * A project type for blank projects,m which have no default output generated.
  *
  * @author Trevor Pering
  */

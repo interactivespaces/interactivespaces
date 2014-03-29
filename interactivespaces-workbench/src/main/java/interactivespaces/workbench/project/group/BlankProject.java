@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,9 +19,10 @@ package interactivespaces.workbench.project.group;
 import interactivespaces.workbench.project.Project;
 
 /**
- * A project for a meta-project.
+ * A project specification for a blank project that has no automatic output, specifically, no project.xml file. Any
+ * desired output for the project needs to be specified explicitly.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
 public class BlankProject extends Project {
 

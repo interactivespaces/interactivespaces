@@ -54,7 +54,7 @@ public interface ProjectTypeRegistry {
    * @param typeName
    *          the type name
    * @param <T>
-   *          project type for the project, e.g. LibraryProject, ActivityProject
+   *          project type for the project, e.g. {@link LibraryProject}, {@link ActivityProject}
    *
    * @return a newly constructed project of the appropriate type.
    *

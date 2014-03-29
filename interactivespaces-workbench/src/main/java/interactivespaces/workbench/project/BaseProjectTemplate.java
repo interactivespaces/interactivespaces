@@ -18,9 +18,7 @@ package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 
 import java.io.File;
@@ -140,23 +138,6 @@ public class BaseProjectTemplate implements ProjectTemplate {
           "Error writing variable dump file " + outputFile.getAbsolutePath(), e);
     } finally {
       Closeables.closeQuietly(variableWriter);
-    }
-  }
-
-  /**
-   * Make a directory, including all needed parent directories.
-   *
-   * @param directory
-   *          the directory to create
-   *
-   * @throws InteractiveSpacesException
-   *           could not create directory
-   */
-  public void makeDirectory(File directory) throws InteractiveSpacesException {
-    FileSupportImpl.INSTANCE.directoryExists(directory);
-    if (!directory.isDirectory() && !directory.mkdirs()) {
-      throw new SimpleInteractiveSpacesException(String.format("Cannot create directory %s",
-          directory.getAbsolutePath()));
     }
   }
 

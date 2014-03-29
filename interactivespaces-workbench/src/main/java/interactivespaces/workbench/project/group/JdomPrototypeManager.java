@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Manager for the project prototypes in a project group.
+ *
+ * @author Trevor Pering
  */
-public class PrototypeManager {
+public class JdomPrototypeManager {
 
   /**
    * Attribute name for inhterriting-from.
@@ -65,10 +68,9 @@ public class PrototypeManager {
         "Invalid prototype element name " + element.getName());
     String name = element.getAttributeValue(PROTOTYPE_NAME_ATTRIBUTE);
     Preconditions.checkNotNull(name, "Missing prototype name attribute from prototype");
-    if (prototypeMap.containsKey(name)) {
+    if (prototypeMap.put(name, element) != null) {
       throw new SimpleInteractiveSpacesException("Duplicate prototype name " + name);
     }
-    prototypeMap.put(name, element);
   }
 
   /**
