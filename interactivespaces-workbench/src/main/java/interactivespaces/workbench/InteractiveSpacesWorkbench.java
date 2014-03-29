@@ -31,7 +31,9 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.jdom.JdomProjectCreator;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectCreator;
 import interactivespaces.workbench.project.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -219,11 +221,6 @@ public class InteractiveSpacesWorkbench {
   private final Log log;
 
   /**
-   * Creator to use for jdom-oriented projects.
-   */
-  private final JdomProjectCreator jdomProjectCreator;
-
-  /**
    * Construct a workbench.
    *
    * @param workbenchConfig
@@ -248,7 +245,6 @@ public class InteractiveSpacesWorkbench {
     projectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
-    jdomProjectCreator = new JdomProjectCreator(this);
   }
 
   /**
@@ -562,7 +558,9 @@ public class InteractiveSpacesWorkbench {
       System.out.println("Creating from template...");
       File specFile = new File(removeArgument(commands, "specification file"));
       File baseDirectory = new File(removeArgument(commands, "base output directory"));
+      JdomProjectCreator jdomProjectCreator = new JdomProjectCreator(this);
       jdomProjectCreator.createProjectsFromSpecification(specFile, baseDirectory);
+      projectCreator.create(creationSpecification);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(removeArgument(commands, "osgi file"));
     } else {

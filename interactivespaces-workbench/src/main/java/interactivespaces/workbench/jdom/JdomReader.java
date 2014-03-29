@@ -14,11 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench;
+package interactivespaces.workbench.jdom;
 
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import org.apache.commons.logging.Log;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -63,7 +64,7 @@ public class JdomReader {
    *
    * @return top-level element
    */
-  public Element getRootElement(File inputFile) {
+  Element getRootElement(File inputFile) {
     Document doc;
     FileInputStream inputStream = null;
     try {

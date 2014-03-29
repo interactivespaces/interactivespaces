@@ -14,14 +14,13 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.group;
+package interactivespaces.workbench.jdom;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.resource.Version;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.JdomReader;
-import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.group.GroupProject;
 import org.jdom.Element;
 
 import java.io.File;
@@ -62,7 +61,7 @@ public class JdomProjectGroupReader extends JdomReader {
    * @param rootElement
    *          input element
    */
-  public void processSpecification(GroupProject groupProject, Element rootElement) {
+  void processSpecification(GroupProject groupProject, Element rootElement) {
     if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project;
+package interactivespaces.workbench.jdom;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,14 +23,20 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.JdomReader;
+import interactivespaces.workbench.jdom.JdomReader;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectDeployment;
+import interactivespaces.workbench.project.ProjectReader;
+import interactivespaces.workbench.project.TemplateFile;
+import interactivespaces.workbench.project.TemplateVar;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
-import interactivespaces.workbench.project.group.JdomPrototypeManager;
+import interactivespaces.workbench.jdom.JdomPrototypeManager;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -39,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A {@link ProjectReader} based on JDOM.
+ * A {@link interactivespaces.workbench.project.ProjectReader} based on JDOM.
  *
  * @author Keith M. Hughes
  */
@@ -248,8 +254,15 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     return project;
   }
 
-  @Override
-  public Project makeProjectFromElement(Element projectElement) {
+  /**
+   * Process an element and return a new project.
+   *
+   * @param projectElement
+   *          element to process
+   *
+   * @return project representing the element
+   */
+  Project makeProjectFromElement(Element projectElement) {
     if (!ELEMENT_NAME.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
@@ -643,7 +656,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @return prototype manager
    */
-  public JdomPrototypeManager getJdomPrototypeManager() {
+  JdomPrototypeManager getJdomPrototypeManager() {
     return jdomPrototypeManager;
   }
 
@@ -653,7 +666,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * @param jdomPrototypeManager
    *          prototype manager to use
    */
-  public void setJdomPrototypeManager(JdomPrototypeManager jdomPrototypeManager) {
+  void setJdomPrototypeManager(JdomPrototypeManager jdomPrototypeManager) {
     this.jdomPrototypeManager = jdomPrototypeManager;
   }
 

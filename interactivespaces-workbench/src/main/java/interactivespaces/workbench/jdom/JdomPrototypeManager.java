@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.group;
+package interactivespaces.workbench.jdom;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class JdomPrototypeManager {
+class JdomPrototypeManager {
 
   /**
    * Attribute name for inhterriting-from.

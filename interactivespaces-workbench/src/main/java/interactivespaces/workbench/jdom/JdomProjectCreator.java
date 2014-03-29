@@ -14,15 +14,14 @@
  * the License.
  */
 
-package interactivespaces.workbench;
+package interactivespaces.workbench.jdom;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.project.JdomProjectReader;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.group.GroupProject;
-import interactivespaces.workbench.project.group.JdomProjectGroupReader;
 import org.jdom.Element;
 
 import java.io.File;
@@ -63,7 +62,7 @@ public class JdomProjectCreator {
    * @param baseDirectory
    *          base directory for creating a project
    */
-  void createProjectsFromSpecification(File specFile, File baseDirectory) {
+  public void createProjectsFromSpecification(File specFile, File baseDirectory) {
     try {
       Element rootElement = jdomReader.getRootElement(specFile);
       String type = rootElement.getName();

@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
-import org.jdom.Element;
 
 import java.io.File;
 
@@ -41,15 +40,5 @@ public interface ProjectReader {
    *           an error happened during the project file processing
    */
   Project readProject(File projectFile) throws InteractiveSpacesException;
-
-  /**
-   * Process an element and return a new project.
-   *
-   * @param projectElement
-   *          element to process
-   *
-   * @return project representing the element
-   */
-  Project makeProjectFromElement(Element projectElement);
 
 }
