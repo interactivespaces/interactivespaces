@@ -145,10 +145,21 @@ public class ProjectCreationSpecification {
     templateData.put(key, value);
   }
 
+  /**
+   * Get the workbench used for creating projects.
+   *
+   * @return workbench
+   */
   public InteractiveSpacesWorkbench getWorkbench() {
     return workbench;
   }
 
+  /**
+   * Set the workbench used for creating projects.
+   *
+   * @param workbench
+   *          workbench used
+   */
   public void setWorkbench(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
   }

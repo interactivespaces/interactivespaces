@@ -562,7 +562,7 @@ public class InteractiveSpacesWorkbench {
       System.out.println("Creating from template...");
       File specFile = new File(removeArgument(commands, "specification file"));
       File baseDirectory = new File(removeArgument(commands, "base output directory"));
-      jdomProjectCreator.createProjectsFromSpecification(commands, specFile, baseDirectory);
+      jdomProjectCreator.createProjectsFromSpecification(specFile, baseDirectory);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(removeArgument(commands, "osgi file"));
     } else {

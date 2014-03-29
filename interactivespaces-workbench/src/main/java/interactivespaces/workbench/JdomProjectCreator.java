@@ -21,12 +21,11 @@ import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.group.JdomProjectGroupReader;
 import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.JdomProjectGroupReader;
 import org.jdom.Element;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Create projects given input specifications in XML.
@@ -59,10 +58,12 @@ public class JdomProjectCreator {
   /**
    * Create projects from a specification, could be a project or a group of projects.
    *
-   * @param commands
-   *          specific creation commands
+   * @param specFile
+   *          input specification file for creating projects
+   * @param baseDirectory
+   *          base directory for creating a project
    */
-  void createProjectsFromSpecification(List<String> commands, File specFile, File baseDirectory) {
+  void createProjectsFromSpecification(File specFile, File baseDirectory) {
     try {
       Element rootElement = jdomReader.getRootElement(specFile);
       String type = rootElement.getName();
@@ -87,6 +88,7 @@ public class JdomProjectCreator {
    * @param specFile
    *          specification file
    * @param baseDirectory
+   *          base directory of the new project group
    */
   private void createProjectGroupFromElement(Element rootElement, File specFile, File baseDirectory) {
 
@@ -113,6 +115,7 @@ public class JdomProjectCreator {
    * @param rootElement
    *          input root element
    * @param baseDirectory
+   *          base directory for creating a project
    */
   private void createProjectFromElement(Element rootElement, File baseDirectory) {
     JdomProjectReader projectReader = new JdomProjectReader(interactiveSpacesWorkbench);

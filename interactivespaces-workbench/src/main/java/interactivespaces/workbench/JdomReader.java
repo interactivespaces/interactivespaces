@@ -19,7 +19,6 @@ package interactivespaces.workbench;
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.project.TemplateVar;
 import org.apache.commons.logging.Log;
 import org.jdom.Document;
 import org.jdom.Element;

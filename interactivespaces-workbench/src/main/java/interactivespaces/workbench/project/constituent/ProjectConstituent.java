@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project.constituent;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import org.apache.commons.logging.Log;
@@ -69,7 +68,7 @@ public interface ProjectConstituent {
    *
    * @return source directory
    *
-   * @throws SimpleInteractiveSpacesException
+   * @throws InteractiveSpacesException
    *           if constituent type does not provide a source directory
    */
   String getSourceDirectory() throws InteractiveSpacesException;

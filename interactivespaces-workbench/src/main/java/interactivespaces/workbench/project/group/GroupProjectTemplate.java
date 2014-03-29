@@ -40,7 +40,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
     try {
       for (Project project : groupProject.getProjectList()) {
         projectIndex++;
-        spec.getWorkbench().getProjectCreator().create(makeCreationSpecification(spec, project, groupProject));
+        spec.getWorkbench().getProjectCreator().create(makeCreationSpecification(project, spec));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format(
@@ -51,21 +51,21 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
   /**
    * Make a creation specification for the given project in the group.
    *
-   *
    * @param project
-   *          individual project
+   *          individual project to make a specification for
+   * @param groupCreationSpec
+   *          containing creation spec for the overall group
    *
-   * @param groupProject
    * @return project creation specification
    */
   private ProjectCreationSpecification makeCreationSpecification(
-      ProjectCreationSpecification groupCreationSpec, Project project, Project groupProject) {
+      Project project, ProjectCreationSpecification groupCreationSpec) {
     ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());
-    creationSpecification.addTemplateDataEntry("group", groupProject);
+    creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getProject());
     return creationSpecification;
   }
 }

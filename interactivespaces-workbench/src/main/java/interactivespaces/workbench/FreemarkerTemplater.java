@@ -42,11 +42,11 @@ import java.util.Map;
  * A templater using Freemarker.
  *
  * <p>
- * This implementation supports the concpet of multiple evaluation passes. This is
- * useful when cascading defintitions need to be resolved in the output.  Say, for a project defintiion, there is
- * a concept of {@code packageName=${directoryName}.${className}} and then the template itself outputs
- * {@code <packageName>${packageName}</packageName>}, then the first pass will resolve packageName, and the second
- * pass will resolve {$directoryName} and ${className}. Since this is a templating language, evaluations are not
+ * This implementation supports the concepet of multiple evaluation passes. This is
+ * useful when cascading definitions need to be resolved in the output.  Say, for a project definition, there is
+ * a concept of {@code packageName=${directoryName}.${className}} and then the template itself references
+ * {@code ${packageName}}, then the first pass will resolve packageName, and the second
+ * pass will resolve ${directoryName} and ${className}. Since this is a templating language, evaluations are not
  * recursive, and so this is necessary to properly handle the output.
  *
  * @author Keith M. Hughes
@@ -96,8 +96,9 @@ public class FreemarkerTemplater implements ManagedResource {
    *          string template to process
    * @param defineResult
    *          target value to define with new value, or {@code null} if no definition should take place
-   *
    * @param evaluationPasses
+   *          number of evaluation passes to perform on the processing
+   *
    * @return processed template
    */
   public String processStringTemplate(Map<String, Object> data, String templateContent,
@@ -142,7 +143,9 @@ public class FreemarkerTemplater implements ManagedResource {
    * @param outputFile
    *          file where the template will be written
    * @param template
+   *          which template to use
    * @param evaluationPasses
+   *          number of evaluation passes to perform on the processing
    */
   public void writeTemplate(Map<String, Object> data, File outputFile, String template, int evaluationPasses) {
     List<File> deleteList = Lists.newArrayList();

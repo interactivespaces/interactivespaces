@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.group;
 
-import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;

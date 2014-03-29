@@ -22,7 +22,6 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.TemplateVar;
 import org.jdom.Element;
 
 import java.io.File;
