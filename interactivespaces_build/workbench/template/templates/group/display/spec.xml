@@ -1,4 +1,23 @@
+<!--
+    Copyright (C) 2014 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not
+    use this file except in compliance with the License. You may obtain a copy of
+    the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+    License for the specific language governing permissions and limitations under
+    the License.
+-->
+
 <projectGroup>
+  <name>Display Project Group</name>
+  <description>Auto-generated activity for a display group</description>
+  <version>0.0.1</version>
 
   <prototypes>
     <prototype prototypeName="commonVars">
@@ -12,16 +31,16 @@
 
     <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
       <templateVars>
-        <var name="shard" value="${project.getAttribute('shard')}" />
-        <var name="idName" value="${groupName}.${shard}" />
-        <var name="package" value="${groupName}.${shard}" />
+        <var name="facet" value="${project.getAttribute('facet')}" />
+        <var name="idName" value="${groupName}.${facet}" />
+        <var name="package" value="${groupName}.${facet}" />
         <var name="packagePath" value="${package?replace('.', '/')}" />
         <var name="baseDirectory" value="${baseDirectory}/${idName}" />
         <var name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
         <var name="javaClassName" value="${fullName?replace(' ', '')}" />
         <var name="webAppFileBase" value="${idName?replace('.', '-')}" />
-        <var name="webSrcDir" value="${activity.getActivityResourceDirectory()}/webapp" />
-        <var name="javaSrcDir" value="${activity.getActivitySourceDirectory()}" />
+        <var name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
+        <var name="javaSrcDir" value="${activity.activitySourceDirectory}" />
       </templateVars>
 
       <version>0.0.1</version>
@@ -67,7 +86,7 @@
       </templates>
     </project>
 
-    <project shard="display" inheritsFrom="webActivity" type="activity">
+    <project facet="display" inheritsFrom="webActivity" type="activity">
       <activity type="interactivespaces_native">
         <configuration>
           <property name="space.activity.enable.display" value="true" required="true" />
@@ -75,7 +94,7 @@
       </activity>
     </project>
 
-    <project shard="admin" inheritsFrom="webActivity" type="activity">
+    <project facet="admin" inheritsFrom="webActivity" type="activity">
     </project>
   </projects>
 </projectGroup>

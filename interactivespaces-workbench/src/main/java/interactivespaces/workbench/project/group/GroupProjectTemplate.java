@@ -17,14 +17,9 @@
 package interactivespaces.workbench.project.group;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.java.JavaProjectType;
-
-import java.io.File;
 
 /**
  * A base implementation of a project template for activities.
@@ -45,7 +40,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
     try {
       for (Project project : groupProject.getProjectList()) {
         projectIndex++;
-        spec.getWorkbench().getProjectCreator().create(makeCreationSpecification(spec, project));
+        spec.getWorkbench().getProjectCreator().create(makeCreationSpecification(spec, project, groupProject));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format(
@@ -56,18 +51,21 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
   /**
    * Make a creation specification for the given project in the group.
    *
+   *
    * @param project
    *          individual project
    *
+   * @param groupProject
    * @return project creation specification
    */
   private ProjectCreationSpecification makeCreationSpecification(
-      ProjectCreationSpecification groupCreationSpec, Project project) {
+      ProjectCreationSpecification groupCreationSpec, Project project, Project groupProject) {
     ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
     creationSpecification.setProject(project);
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());
+    creationSpecification.addTemplateDataEntry("group", groupProject);
     return creationSpecification;
   }
 }

@@ -83,12 +83,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * The name of the project.
    */
-  private static final String PROJECT_ELEMENT_NAME_NAME = "name";
+  public static final String PROJECT_ELEMENT_NAME_NAME = "name";
 
   /**
    * The description of the project.
    */
-  private static final String PROJECT_ELEMENT_NAME_DESCRIPTION = "description";
+  public static final String PROJECT_ELEMENT_NAME_DESCRIPTION = "description";
 
   /**
    * The identifying name of the project.
@@ -114,7 +114,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * The version of the project.
    */
-  private static final String PROJECT_ELEMENT_NAME_VERSION = "version";
+  public static final String PROJECT_ELEMENT_NAME_VERSION = "version";
 
   /**
    * The base directory of the project.

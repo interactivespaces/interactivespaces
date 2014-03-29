@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.group;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.resource.Version;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
@@ -89,6 +90,12 @@ public class JdomProjectGroupReader extends JdomReader {
         addProjects(spec, child);
       } else if (JdomPrototypeManager.GROUP_ELEMENT_NAME.equals(name)) {
         addPrototypes(spec, child);
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_NAME.equals(name)) {
+        spec.setName(child.getTextTrim());
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_DESCRIPTION.equals(name)) {
+        spec.setDescription(child.getTextTrim());
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_VERSION.equals(name)) {
+        spec.setVersion(Version.parseVersion(child.getTextTrim()));
       } else {
         throw new SimpleInteractiveSpacesException("Unrecognized element name: " + name);
       }

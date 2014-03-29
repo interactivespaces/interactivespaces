@@ -1,3 +1,5 @@
 <projectGroup>
-  Overview description for ${baseDirectory}
+  Group: ${group.name}
+  Description: ${group.description}
+  Version: ${group.version}
 </projectGroup>
