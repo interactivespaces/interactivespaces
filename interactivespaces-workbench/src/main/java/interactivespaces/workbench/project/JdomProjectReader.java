@@ -31,7 +31,6 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
 import interactivespaces.workbench.project.group.PrototypeManager;
-import org.apache.commons.logging.Log;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -244,20 +243,13 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   @Override
   public Project readProject(File projectFile) {
     Element rootElement = getRootElement(projectFile);
-    Project project = processSpecification(rootElement);
+    Project project = makeProjectFromElement(rootElement);
     project.setBaseDirectory(projectFile.getParentFile());
     return project;
   }
 
-  /**
-   * Process an element and return a new project.
-   *
-   * @param projectElement
-   *          element to process
-   *
-   * @return project representing the element
-   */
-  public Project processSpecification(Element projectElement) {
+  @Override
+  public Project makeProjectFromElement(Element projectElement) {
     if (!ELEMENT_NAME.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
@@ -280,7 +272,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     if (failure) {
-      throw new SimpleInteractiveSpacesException(String.format("Project specification had errors"));
+      throw new SimpleInteractiveSpacesException("Project specification had errors");
     }
 
     return project;

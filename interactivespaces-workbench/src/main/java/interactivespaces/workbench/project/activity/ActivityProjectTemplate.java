@@ -32,7 +32,6 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
   @Override
   protected void onTemplateSetup(ProjectCreationSpecification spec) {
     spec.addTemplateDataEntry("activity", spec.getProject());
-    super.onTemplateSetup(spec);
   }
 
   /**

@@ -116,7 +116,7 @@ public class JdomProjectCreator {
   private void createProjectFromElement(Element rootElement, File baseDirectory) {
     JdomProjectReader projectReader = new JdomProjectReader(interactiveSpacesWorkbench);
 
-    Project project = projectReader.processSpecification(rootElement);
+    Project project = projectReader.makeProjectFromElement(rootElement);
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
     project.setBaseDirectory(baseDirectory);
 

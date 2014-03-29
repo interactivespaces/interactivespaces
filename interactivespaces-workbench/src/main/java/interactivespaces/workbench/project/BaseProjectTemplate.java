@@ -1,9 +1,26 @@
+/*
+ * Copyright (C) 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package interactivespaces.workbench.project;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 
 import java.io.File;
@@ -12,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Base template for any kind of project.
+ *
+ * @author Keith M. Hughes
  */
 public class BaseProjectTemplate implements ProjectTemplate {
 
@@ -48,7 +68,10 @@ public class BaseProjectTemplate implements ProjectTemplate {
    */
   public void process(ProjectCreationSpecification spec) {
     try {
+      templateSetup(spec);
       onTemplateSetup(spec);
+      processTemplateVariables(spec);
+      templateWrite(spec);
       onTemplateWrite(spec);
     } catch (Exception e) {
       dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
@@ -58,36 +81,43 @@ public class BaseProjectTemplate implements ProjectTemplate {
   }
 
   /**
-   * Template is being set up. Can be overridden in a project-type specific project template, but the subclass
-   * should be sure to call {@code super} to make sure the basic are set up.
+   * Template is being set up. Can be overridden in a project-type specific project template.
+   *
+   * @param spec
+   *          spec for the project
+   */
+  protected void onTemplateSetup(ProjectCreationSpecification spec) {
+    // Default is to do nothing.
+  }
+
+  /**
+   * Setup the template as necessary for basic operation.
    *
    * @param spec
    *          spec for the project
    *
    */
-  protected void onTemplateSetup(ProjectCreationSpecification spec) {
+  private void templateSetup(ProjectCreationSpecification spec) {
     Project project = spec.getProject();
 
     spec.addTemplateDataEntry("baseDirectory", spec.getBaseDirectory().getAbsolutePath());
     spec.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
     spec.addTemplateDataEntry("spec", spec);
     spec.addTemplateDataEntry("project", project);
-
-    FreemarkerTemplater templater = getTemplater();
-    for (TemplateVar templateVar : project.getTemplateVars()) {
-      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
-    }
   }
 
   /**
-   * Function called on template write. Can be overridden to provide different functionality for other project
-   * types, but the subclass should call {@code super} to make sure the base template writes are performed.
+   * Process the defined template variables.
    *
    * @param spec
-   *          specification that is being written
+   *          spec for the project
+   *
    */
-  public void onTemplateWrite(ProjectCreationSpecification spec) {
-    writeTemplateList(spec);
+  private void processTemplateVariables(ProjectCreationSpecification spec) {
+    FreemarkerTemplater templater = getTemplater();
+    for (TemplateVar templateVar : spec.getProject().getTemplateVars()) {
+      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(), templateVar.getName());
+    }
   }
 
   /**
@@ -123,8 +153,9 @@ public class BaseProjectTemplate implements ProjectTemplate {
    *           could not create directory
    */
   public void makeDirectory(File directory) throws InteractiveSpacesException {
+    FileSupportImpl.INSTANCE.directoryExists(directory);
     if (!directory.isDirectory() && !directory.mkdirs()) {
-      throw new InteractiveSpacesException(String.format("Cannot create directory %s",
+      throw new SimpleInteractiveSpacesException(String.format("Cannot create directory %s",
           directory.getAbsolutePath()));
     }
   }
@@ -175,7 +206,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
    *          specification for the project
    *
    */
-  public void writeTemplateList(ProjectCreationSpecification spec) {
+  private void templateWrite(ProjectCreationSpecification spec) {
     for (TemplateFile template : spec.getProject().getTemplates()) {
 
       FreemarkerTemplater templater = getTemplater();
@@ -196,6 +227,17 @@ public class BaseProjectTemplate implements ProjectTemplate {
 
       templater.writeTemplate(templateData, outFile, inPath);
     }
+  }
+
+  /**
+   * Function called on template write. Can be overridden to provide different functionality for other project
+   * types.
+   *
+   * @param spec
+   *          specification that is being written
+   */
+  public void onTemplateWrite(ProjectCreationSpecification spec) {
+    // Default is to do nothing.
   }
 
   /**

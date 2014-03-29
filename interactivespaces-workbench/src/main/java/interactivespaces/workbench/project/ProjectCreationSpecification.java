@@ -22,6 +22,10 @@ import java.io.File;
 import java.util.Map;
 
 /**
+ * Encapsulates the data necessary to create a project. Used in conjunction with the project specification and
+ * project creator to ultimately create a project.
+ *
+ * @author Trevor Pering
  */
 public class ProjectCreationSpecification {
 

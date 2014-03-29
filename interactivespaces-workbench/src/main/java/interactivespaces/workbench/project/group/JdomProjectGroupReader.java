@@ -22,7 +22,6 @@ import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.TemplateVar;
-import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
@@ -124,7 +123,7 @@ public class JdomProjectGroupReader extends JdomReader {
     for (Element entry : children) {
       JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
       projectReader.setPrototypeManager(prototypeManager);
-      Project project = projectReader.processSpecification(entry);
+      Project project = projectReader.makeProjectFromElement(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
       project.setBaseDirectory(new File("."));
       spec.addProject(project);
