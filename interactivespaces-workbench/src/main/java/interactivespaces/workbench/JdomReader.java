@@ -131,7 +131,7 @@ public class JdomReader {
   protected String getRequiredAttributeValue(Element element, String key) {
     String value = getAttributeValue(element, key);
     if (value == null) {
-      workbench.getLog().error("Missing required attribute " + key);
+      getLog().error("Missing required attribute " + key);
     }
     return value;
   }
@@ -193,7 +193,16 @@ public class JdomReader {
    *          text of the error message
    */
   protected void addError(String error) {
-    workbench.getLog().error(error);
+    getLog().error(error);
     failure = true;
+  }
+
+  /**
+   * Logger to use while reading.
+   *
+   * @return logger
+   */
+  public Log getLog() {
+    return workbench.getLog();
   }
 }

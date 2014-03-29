@@ -211,21 +211,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_CONFIGURATION = "configuration";
 
   /**
-   * Project definition file element name for a configuration item.
-   */
-  private static final String PROJECT_ELEMENT_NAME_PROPERTY = ActivityProjectConstituent.PROPERTY_ELEMENT_NAME;
-
-  /**
-   * Project definition file element name for configurations.
-   */
-  private static final String PROJECT_ELEMENT_NAME_TEMPLATES = TemplateFile.GROUP_ELEMENT_NAME;
-
-  /**
-   * Project definition file element name for configurations.
-   */
-  private static final String PROJECT_ELEMENT_NAME_TEMPLATE_VARS = TemplateVar.GROUP_ELEMENT_NAME;
-
-  /**
    * Project definition file attribute name for the name of a configuration
    * item.
    */
@@ -289,7 +274,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     configureProjectFromElement(project, projectElement);
 
     if (project.getInteractiveSpacesVersionRange() == null) {
-      log.warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
+      getLog().warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
           + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
       project.setInteractiveSpacesVersionRange(INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
     }
@@ -319,7 +304,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
     project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
 
-    getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_TEMPLATES), project);
+    getContainerConstituents(projectElement.getChild(TemplateFile.GROUP_ELEMENT_NAME), project);
 
     project.addExtraConstituents(getIndividualConstituent(
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
@@ -432,7 +417,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     if (configurationElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> propertyElements = configurationElement.getChildren(PROJECT_ELEMENT_NAME_PROPERTY);
+      List<Element> propertyElements =
+          configurationElement.getChildren(ActivityProjectConstituent.PROPERTY_ELEMENT_NAME);
 
       Configuration configuration = project.getConfiguration();
       for (Element propertyElement : propertyElements) {
@@ -575,7 +561,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     if (factory == null) {
       addError(String.format("Unknown resource type '%s'", type));
     } else {
-      ProjectConstituent constituent = factory.newBuilder(log).buildConstituentFromElement(constituentElement, project);
+      ProjectConstituent constituent =
+          factory.newBuilder(getLog()).buildConstituentFromElement(constituentElement, project);
       if (constituent != null) {
         constituents.add(constituent);
       }
