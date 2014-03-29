@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.jdom;
+package interactivespaces.workbench.project.jdom;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -23,7 +23,6 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.jdom.JdomReader;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectDeployment;
@@ -36,7 +35,6 @@ import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
-import interactivespaces.workbench.jdom.JdomPrototypeManager;
 import org.jdom.Attribute;
 import org.jdom.Element;
 

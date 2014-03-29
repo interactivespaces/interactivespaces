@@ -148,6 +148,7 @@ public class FreemarkerTemplater implements ManagedResource {
    *          number of evaluation passes to perform on the processing
    */
   public void writeTemplate(Map<String, Object> data, File outputFile, String template, int evaluationPasses) {
+    fileSupport.directoryExists(outputFile.getParentFile());
     List<File> deleteList = Lists.newArrayList();
     File tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), evaluationPasses));
     deleteList.add(tempFile);

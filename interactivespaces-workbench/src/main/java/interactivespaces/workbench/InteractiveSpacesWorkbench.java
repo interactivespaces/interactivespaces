@@ -31,12 +31,12 @@ import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.jdom.JdomProjectCreator;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectCreationSpecification;
 import interactivespaces.workbench.project.ProjectCreator;
 import interactivespaces.workbench.project.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
+import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
@@ -55,6 +55,7 @@ import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
 import interactivespaces.workbench.project.java.OsgiBundleCreator;
+import interactivespaces.workbench.project.jdom.JdomProjectGroupReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 import org.apache.commons.logging.Log;
@@ -555,12 +556,7 @@ public class InteractiveSpacesWorkbench {
     String command = removeArgument(commands, "command");
 
     if (COMMAND_CREATE.equals(command)) {
-      System.out.println("Creating from template...");
-      File specFile = new File(removeArgument(commands, "specification file"));
-      File baseDirectory = new File(removeArgument(commands, "base output directory"));
-      JdomProjectCreator jdomProjectCreator = new JdomProjectCreator(this);
-      jdomProjectCreator.createProjectsFromSpecification(specFile, baseDirectory);
-      projectCreator.create(creationSpecification);
+      createProject(commands);
     } else if (COMMAND_OSGI.equals(command)) {
       createOsgi(removeArgument(commands, "osgi file"));
     } else {
@@ -583,6 +579,29 @@ public class InteractiveSpacesWorkbench {
     if (!commands.isEmpty()) {
       throw new SimpleInteractiveSpacesException("Extra command line arguments: " + commands);
     }
+  }
+
+  /**
+   * Process a project create command.
+   *
+   * @param commands
+   *          command input to inform project creation
+   */
+  private void createProject(List<String> commands) {
+    System.out.println("Creating from specificaiton...");
+    File specFile = new File(removeArgument(commands, "specification file"));
+    File baseDirectory = new File(removeArgument(commands, "base output directory"));
+
+    ProjectReader projectReader = new JdomProjectGroupReader(this);
+    Project project = projectReader.readProject(specFile);
+
+    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification(specFile.getAbsolutePath());
+    creationSpecification.setProject(project);
+    creationSpecification.setSpecificationBase(specFile.getParentFile());
+    creationSpecification.setBaseDirectory(baseDirectory);
+    creationSpecification.setWorkbench(this);
+
+    projectCreator.create(creationSpecification);
   }
 
   /**

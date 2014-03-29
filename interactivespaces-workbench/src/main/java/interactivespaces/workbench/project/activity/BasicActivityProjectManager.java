@@ -25,7 +25,7 @@ import interactivespaces.resource.Version;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.jdom.JdomProjectReader;
+import interactivespaces.workbench.project.jdom.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
 import org.apache.commons.logging.Log;
 

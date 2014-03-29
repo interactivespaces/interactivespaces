@@ -65,7 +65,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
       projectTemplate.process(spec);
 
     } catch (Exception e) {
-      workbench.handleError("Error while creating project", e);
+      workbench.handleError("Error while creating project " + spec.getDescription(), e);
     }
   }
 }

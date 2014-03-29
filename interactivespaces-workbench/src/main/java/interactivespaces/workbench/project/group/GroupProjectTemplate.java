@@ -60,7 +60,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
    */
   private ProjectCreationSpecification makeCreationSpecification(
       Project project, ProjectCreationSpecification groupCreationSpec) {
-    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification();
+    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification("sub-project");
     creationSpecification.setProject(project);
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());

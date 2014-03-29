@@ -81,7 +81,7 @@ public class NewProjectWizard extends WizardCollection {
   public void completeWizard() {
     super.completeWizard();
 
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
+    ProjectCreationSpecification spec = new ProjectCreationSpecification("from wizard");
 
     Project project = activityDescriptionWizard.getProject();
 

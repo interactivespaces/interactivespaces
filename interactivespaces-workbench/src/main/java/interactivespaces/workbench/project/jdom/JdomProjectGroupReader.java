@@ -14,12 +14,14 @@
  * the License.
  */
 
-package interactivespaces.workbench.jdom;
+package interactivespaces.workbench.project.jdom;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.resource.Version;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectReader;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.group.GroupProject;
 import org.jdom.Element;
 
@@ -31,7 +33,7 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class JdomProjectGroupReader extends JdomReader {
+public class JdomProjectGroupReader extends JdomReader implements ProjectReader {
 
   /**
    * Element name for a project group.
@@ -53,15 +55,68 @@ public class JdomProjectGroupReader extends JdomReader {
     super(workbench);
   }
 
+  @Override
+  public Project readProject(File specFile) {
+    try {
+      Element rootElement = getRootElement(specFile);
+      String type = rootElement.getName();
+      Project project;
+      if (JdomProjectGroupReader.PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
+        project =  makeGroupProjectFromElement(rootElement);
+      } else if (JdomProjectReader.ELEMENT_NAME.equals(type)) {
+        project = makeSimpleProjectFromElement(rootElement);
+      } else {
+        throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
+      }
+      project.setSpecificationSource(specFile);
+      return project;
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(
+          "While processing specification file " + specFile.getAbsolutePath(), e);
+    }
+  }
+
   /**
-   * Process the given specification.
+   * Create a project group from a given element.
+   *
+   * @param rootElement
+   *          input element
+   *
+   * @return new project
+   */
+  private Project makeGroupProjectFromElement(Element rootElement) {
+    GroupProject groupProject = new GroupProject();
+    groupProject.setType(GroupProject.PROJECT_TYPE_NAME);
+    addElementToProject(groupProject, rootElement);
+    return groupProject;
+  }
+
+  /**
+   * Create an output project from a project specification element.
+   *
+   * @param rootElement
+   *          input root element
+   *
+   * @return new project
+   */
+  private Project makeSimpleProjectFromElement(Element rootElement) {
+    JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
+
+    Project project = projectReader.makeProjectFromElement(rootElement);
+    project.setType(ActivityProject.PROJECT_TYPE_NAME);
+
+    return project;
+  }
+
+  /**
+   * Add the contents of the given element to the project.
    *
    * @param groupProject
    *          target for processed input
    * @param rootElement
    *          input element
    */
-  void processSpecification(GroupProject groupProject, Element rootElement) {
+  void addElementToProject(GroupProject groupProject, Element rootElement) {
     if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
     }

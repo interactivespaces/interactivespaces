@@ -36,6 +36,11 @@ public class ProjectCreationSpecification {
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
   /**
+   * Description of this specificaiton.
+   */
+  private final String description;
+
+  /**
    * The project itself.
    */
   private Project project;
@@ -54,6 +59,16 @@ public class ProjectCreationSpecification {
    * Containing workbench.
    */
   private InteractiveSpacesWorkbench workbench;
+
+  /**
+   * Create a project creation specification with the given description.
+   *
+   * @param description
+   *          description of this specification
+   */
+  public ProjectCreationSpecification(String description) {
+    this.description = description;
+  }
 
   /**
    * Get the project description associated with the spec.
@@ -162,5 +177,12 @@ public class ProjectCreationSpecification {
    */
   public void setWorkbench(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
+  }
+
+  /**
+   * @return description of this specification
+   */
+  public String getDescription() {
+    return description;
   }
 }

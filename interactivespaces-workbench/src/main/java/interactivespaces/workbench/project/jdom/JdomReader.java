@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.jdom;
+package interactivespaces.workbench.project.jdom;
 
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;

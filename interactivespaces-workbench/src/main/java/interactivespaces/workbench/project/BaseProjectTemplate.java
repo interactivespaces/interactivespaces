@@ -113,7 +113,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
    */
   private void processTemplateVariables(ProjectCreationSpecification spec) {
     FreemarkerTemplater templater = getTemplater();
-    int evaluationPasses = 2;
+    int evaluationPasses = 1;
     for (TemplateVar templateVar : spec.getProject().getTemplateVars()) {
       templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(),
           templateVar.getName(), evaluationPasses);
@@ -208,7 +208,8 @@ public class BaseProjectTemplate implements ProjectTemplate {
         inPath = new File(spec.getSpecificationBase(), inPath).getAbsolutePath();
       }
 
-      templater.writeTemplate(templateData, outFile, inPath);
+      int evaluationPasses = 2;
+      templater.writeTemplate(templateData, outFile, inPath, evaluationPasses);
     }
   }
 
