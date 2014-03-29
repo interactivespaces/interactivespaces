@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package interactivespaces.workbench;
 
 import com.google.common.io.Closeables;
@@ -14,13 +30,11 @@ import java.io.FileInputStream;
 import java.util.List;
 
 /**
+ * Base-class for facilitating reading XML documents using jdom.
+ *
+ * @author Trevor pering
  */
-public abstract class JdomReader {
-
-  /**
-   * Log for errors.
-   */
-  protected final Log log;
+public class JdomReader {
 
   /**
    * {@code true} if read was successful.
@@ -30,54 +44,40 @@ public abstract class JdomReader {
   /**
    * Interactive spaces workbench used by this reader.
    */
-  private InteractiveSpacesWorkbench workbench;
+  private final InteractiveSpacesWorkbench workbench;
 
   /**
    * Create a new jdom reader.
    *
-   * @param log
-   *          logger for error messages
+   * @param workbench
+   *          containing workbench instance
    */
-  public JdomReader(Log log) {
-    this.log = log;
+  public JdomReader(InteractiveSpacesWorkbench workbench) {
+    this.workbench = workbench;
   }
 
   /**
    * Get the root element for a given input file.
    *
-   * @param projectFile
+   * @param inputFile
    *          input project file
    *
    * @return top-level element
    */
-  protected static Element getRootElement(File projectFile) {
+  public Element getRootElement(File inputFile) {
     Document doc;
     FileInputStream inputStream = null;
     try {
-      inputStream = new FileInputStream(projectFile);
+      inputStream = new FileInputStream(inputFile);
       SAXBuilder builder = new SAXBuilder();
       doc = builder.build(inputStream);
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Exception while processing project file %s",
-          projectFile.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Exception while processing %s",
+          inputFile.getAbsolutePath()), e);
     } finally {
       Closeables.closeQuietly(inputStream);
     }
     return doc.getRootElement();
-  }
-
-  /**
-   * Get a template variable from a given element.
-   *
-   * @param element
-   *          element to parse
-   *
-   * @return template variable for the element
-   */
-  protected TemplateVar getTemplateVarFromElement(Element element) {
-    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
-    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
-    return new TemplateVar(name, value);
   }
 
   /**
@@ -90,10 +90,10 @@ public abstract class JdomReader {
    *
    * @return trimmed element text
    *
-   * @throws SimpleInteractiveSpacesException
+   * @throws InteractiveSpacesException
    *           if the child element is not provided
    */
-  protected String getChildTextTrimmed(Element element, String key) throws SimpleInteractiveSpacesException {
+  protected String getChildTextTrimmed(Element element, String key) throws InteractiveSpacesException {
     try {
       return element.getChildTextTrim(key);
     } catch (Exception e) {
@@ -131,7 +131,7 @@ public abstract class JdomReader {
   protected String getRequiredAttributeValue(Element element, String key) {
     String value = getAttributeValue(element, key);
     if (value == null) {
-      log.error("Missing required attribute " + key);
+      workbench.getLog().error("Missing required attribute " + key);
     }
     return value;
   }
@@ -187,23 +187,13 @@ public abstract class JdomReader {
   }
 
   /**
-   * Set the workbench in use.
-   *
-   * @param workbench
-   *          workbench to use
-   */
-  public void setWorkbench(InteractiveSpacesWorkbench workbench) {
-    this.workbench = workbench;
-  }
-
-  /**
    * An error has occurred.
    *
    * @param error
    *          text of the error message
    */
   protected void addError(String error) {
-    log.error(error);
+    workbench.getLog().error(error);
     failure = true;
   }
 }

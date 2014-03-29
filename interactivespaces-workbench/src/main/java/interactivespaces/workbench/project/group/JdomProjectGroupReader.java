@@ -17,9 +17,11 @@
 package interactivespaces.workbench.project.group;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.TemplateVar;
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
@@ -44,11 +46,11 @@ public class JdomProjectGroupReader extends JdomReader {
   /**
    * Construct a project reader.
    *
-   * @param log
-   *          the logger to use
+   * @param workbench
+   *          the workbench to use
    */
-  public JdomProjectGroupReader(Log log) {
-    super(log);
+  public JdomProjectGroupReader(InteractiveSpacesWorkbench workbench) {
+    super(workbench);
   }
 
   /**
@@ -120,8 +122,7 @@ public class JdomProjectGroupReader extends JdomReader {
   private void addProjects(ProjectGroup spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
-      JdomProjectReader projectReader = new JdomProjectReader(log);
-      projectReader.setWorkbench(getWorkbench());
+      JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
       projectReader.setPrototypeManager(prototypeManager);
       Project project = projectReader.processSpecification(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
@@ -130,4 +131,17 @@ public class JdomProjectGroupReader extends JdomReader {
     }
   }
 
+  /**
+   * Get a template variable from a given element.
+   *
+   * @param element
+   *          element to parse
+   *
+   * @return template variable for the element
+   */
+  protected TemplateVar getTemplateVarFromElement(Element element) {
+    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
+    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
+    return new TemplateVar(name, value);
+  }
 }

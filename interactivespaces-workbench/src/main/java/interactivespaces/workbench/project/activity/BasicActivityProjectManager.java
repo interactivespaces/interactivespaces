@@ -105,7 +105,7 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
    * @return the project
    */
   public Project readProjectFile(File projectFile, Log log) {
-    JdomProjectReader jdomProjectReader = new JdomProjectReader(log);
+    JdomProjectReader jdomProjectReader = new JdomProjectReader(workbench);
     jdomProjectReader.setWorkbench(workbench);
     Project project = jdomProjectReader.readProject(projectFile);
     postProcessProject(project);

@@ -22,6 +22,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.JdomReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
@@ -238,12 +239,11 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Construct a project reader.
    *
-   * @param log
-   *          the logger to use
-   *
+   * @param workbench
+   *          containing workbench instance
    */
-  public JdomProjectReader(Log log) {
-    super(log);
+  public JdomProjectReader(InteractiveSpacesWorkbench workbench) {
+    super(workbench);
   }
 
   /**
@@ -625,6 +625,20 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         project.addTemplateVar(getTemplateVarFromElement(varElement));
       }
     }
+  }
+
+  /**
+   * Get a template variable from a given element.
+   *
+   * @param element
+   *          element to parse
+   *
+   * @return template variable for the element
+   */
+  private TemplateVar getTemplateVarFromElement(Element element) {
+    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
+    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
+    return new TemplateVar(name, value);
   }
 
   /**
