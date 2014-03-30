@@ -34,7 +34,6 @@ public interface ProjectContext {
    *
    * @return project type for the context
    */
-  @SuppressWarnings("unchecked")
   <T extends ProjectType> T getProjectType();
 
   /**

@@ -596,10 +596,10 @@ public class InteractiveSpacesWorkbench {
     Project project = projectReader.readProject(specFile);
 
     ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
+    creationSpecification.setWorkbench(this);
     creationSpecification.setProject(project);
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);
-    creationSpecification.setWorkbench(this);
 
     projectCreator.create(creationSpecification);
   }

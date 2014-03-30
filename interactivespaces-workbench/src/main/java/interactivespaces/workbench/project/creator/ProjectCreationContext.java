@@ -175,18 +175,19 @@ public class ProjectCreationContext implements ProjectContext {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
   }
 
   @Override
   public File getProjectTarget(File rootDirectory, String target) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    throw new UnsupportedOperationException("getProjectTarget not supported for creation context");
   }
 
   @Override
   public Map<File, File> getResourceSourceMap() {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    throw new UnsupportedOperationException("getResourceSourceMap not supported for creation context");
   }
 
   /**

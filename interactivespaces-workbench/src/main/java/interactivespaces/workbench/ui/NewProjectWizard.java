@@ -70,7 +70,6 @@ public class NewProjectWizard extends WizardCollection {
     this.workbench = workbench;
 
     chooseDirectoryWizard = new ChooseDirectoryWizard();
-    // TODO(keith): Fix this so a project is handed in or some sort of spec is created
     activityProjectTemplateChooserWizard  = new ChooseFileWizard();
     activityDescriptionWizard = new ProjectDescriptionWizard(null);
 
