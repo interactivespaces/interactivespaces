@@ -19,7 +19,7 @@ package interactivespaces.workbench.project.group;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
 
 /**
  * A base implementation of a project template for activities.
@@ -29,14 +29,9 @@ import interactivespaces.workbench.project.ProjectCreationSpecification;
 public class GroupProjectTemplate extends BaseProjectTemplate {
 
   @Override
-  protected void onTemplateSetup(ProjectCreationSpecification spec) {
-    System.out.println("Setup template");
-  }
-
-  @Override
-  public void onTemplateWrite(ProjectCreationSpecification spec) {
+  public void onTemplateWrite(ProjectCreationContext spec) {
+    GroupProject groupProject = (GroupProject) spec.getProject();
     int projectIndex = 0;
-    GroupProject groupProject = spec.getProject();
     try {
       for (Project project : groupProject.getProjectList()) {
         projectIndex++;
@@ -58,9 +53,9 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
    *
    * @return project creation specification
    */
-  private ProjectCreationSpecification makeCreationSpecification(
-      Project project, ProjectCreationSpecification groupCreationSpec) {
-    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification("sub-project");
+  private ProjectCreationContext makeCreationSpecification(
+      Project project, ProjectCreationContext groupCreationSpec) {
+    ProjectCreationContext creationSpecification = new ProjectCreationContext("sub-project");
     creationSpecification.setProject(project);
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());

@@ -16,10 +16,12 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.project.creator.ProjectTemplate;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -44,32 +46,21 @@ public class BaseProjectTemplate implements ProjectTemplate {
   public static final String BASE_DIRECTORY_VARIABLE = "baseDirectory";
 
   /**
-   * List of file/template pairs to add to the created project.
-   */
-  private final List<TemplateFile> fileTemplates = Lists.newLinkedList();
-
-  /**
-   * List of template variables to add to the project.
-   */
-  private final List<TemplateVar> templateVars = Lists.newArrayList();
-
-  /**
    * Templater to use for constructing the template.
    */
   private FreemarkerTemplater templater;
 
   /**
-   * Process the given creation specificaiton.
+   * Process the given creation specification.
    *
    * @param spec
    *          specification to process.
    */
-  public void process(ProjectCreationSpecification spec) {
+  public void process(ProjectCreationContext spec) {
     try {
       templateSetup(spec);
       onTemplateSetup(spec);
-      processTemplateVariables(spec);
-      templateWrite(spec);
+      processTemplateConstituents(spec);
       onTemplateWrite(spec);
     } catch (Exception e) {
       dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
@@ -79,45 +70,55 @@ public class BaseProjectTemplate implements ProjectTemplate {
   }
 
   /**
-   * Template is being set up. Can be overridden in a project-type specific project template.
-   *
-   * @param spec
-   *          spec for the project
-   */
-  protected void onTemplateSetup(ProjectCreationSpecification spec) {
-    // Default is to do nothing.
-  }
-
-  /**
    * Setup the template as necessary for basic operation.
    *
    * @param spec
    *          spec for the project
    *
    */
-  private void templateSetup(ProjectCreationSpecification spec) {
+  private void templateSetup(ProjectCreationContext spec) {
     Project project = spec.getProject();
 
-    spec.addTemplateDataEntry("baseDirectory", spec.getBaseDirectory().getAbsolutePath());
+    spec.addTemplateDataEntry(BASE_DIRECTORY_VARIABLE, spec.getBaseDirectory().getAbsolutePath());
     spec.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
     spec.addTemplateDataEntry("spec", spec);
     spec.addTemplateDataEntry("project", project);
   }
 
   /**
-   * Process the defined template variables.
+   * Template is being set up. Can be overridden in a project-type specific project template.
+   *
+   * @param spec
+   *          spec for the project
+   */
+  protected void onTemplateSetup(ProjectCreationContext spec) {
+    // Default is to do nothing.
+  }
+
+  /**
+   * Process the defined template constituents.
    *
    * @param spec
    *          spec for the project
    *
    */
-  private void processTemplateVariables(ProjectCreationSpecification spec) {
-    FreemarkerTemplater templater = getTemplater();
-    int evaluationPasses = 1;
-    for (TemplateVar templateVar : spec.getProject().getTemplateVars()) {
-      templater.processStringTemplate(spec.getTemplateData(), templateVar.getValue(),
-          templateVar.getName(), evaluationPasses);
+  private void processTemplateConstituents(ProjectCreationContext spec) {
+    Project project = spec.getProject();
+    List<ProjectConstituent> projectConstituents = project.getExtraConstituents();
+    for (ProjectConstituent constituent : projectConstituents) {
+      constituent.processConstituent(project, null, spec);
     }
+  }
+
+  /**
+   * Function called on template write. Can be overridden to provide different functionality for other project
+   * types.
+   *
+   * @param spec
+   *          specification that is being written
+   */
+  public void onTemplateWrite(ProjectCreationContext spec) {
+    // Default is to do nothing.
   }
 
   /**
@@ -141,87 +142,6 @@ public class BaseProjectTemplate implements ProjectTemplate {
     } finally {
       Closeables.closeQuietly(variableWriter);
     }
-  }
-
-  /**
-   * Add a file template to the common collection.
-   *
-   * @param dest
-   *          output destination
-   * @param source
-   *          template source
-   */
-  public void addFileTemplate(String dest, String source) {
-    fileTemplates.add(new TemplateFile(dest, source));
-  }
-
-  /**
-   * Add all the indicated template files to the template.
-   *
-   * @param addFileTemplate
-   *          project template files to add
-   */
-  public void addAllFileTemplates(List<TemplateFile> addFileTemplate) {
-    fileTemplates.addAll(addFileTemplate);
-  }
-
-  /**
-   * @return list of template variables
-   */
-  public List<TemplateVar> getTemplateVars() {
-    return templateVars;
-  }
-
-  /**
-   * Add all the indicated variables.
-   *
-   * @param addTemplateVars
-   *          variables to add
-   */
-  public void addAllTemplateVars(List<TemplateVar> addTemplateVars) {
-    templateVars.addAll(addTemplateVars);
-  }
-
-  /**
-   * Write templates common to all projects of a given type.
-   *
-   * @param spec
-   *          specification for the project
-   *
-   */
-  private void templateWrite(ProjectCreationSpecification spec) {
-    for (TemplateFile template : spec.getProject().getTemplates()) {
-
-      FreemarkerTemplater templater = getTemplater();
-      Map<String, Object> templateData = spec.getTemplateData();
-
-      String outPath = templater.processStringTemplate(templateData, template.getOutput());
-      File outFile = new File(outPath);
-      if (!outFile.isAbsolute()) {
-        String newBasePath = (String) templateData.get(BASE_DIRECTORY_VARIABLE);
-        outFile = new File(newBasePath, outFile.getPath());
-      }
-
-      String inPath = templater.processStringTemplate(templateData, template.getTemplate());
-      File inFile = new File(inPath);
-      if (!inFile.isAbsolute()) {
-        inPath = new File(spec.getSpecificationBase(), inPath).getAbsolutePath();
-      }
-
-      int evaluationPasses = 2;
-      templater.writeTemplate(templateData, outFile, inPath, evaluationPasses);
-    }
-  }
-
-  /**
-   * Function called on template write. Can be overridden to provide different functionality for other project
-   * types.
-   *
-   * @param spec
-   *          specification that is being written
-   */
-  public void onTemplateWrite(ProjectCreationSpecification spec) {
-    // Default is to do nothing.
   }
 
   /**

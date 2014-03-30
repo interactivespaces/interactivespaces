@@ -21,6 +21,7 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 
 import com.google.common.collect.Lists;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class ProjectBuildContext {
+public class ProjectBuildContext implements ProjectContext {
 
   /**
    * Where things are being built.
@@ -117,20 +118,12 @@ public class ProjectBuildContext {
     return artifactsToAdd;
   }
 
-  /**
-   * Get the project being built.
-   *
-   * @return the project being built
-   */
+  @Override
   public Project getProject() {
     return project;
   }
 
-  /**
-   * Get the workbench the project is being built under.
-   *
-   * @return the workbench
-   */
+  @Override
   public InteractiveSpacesWorkbench getWorkbench() {
     return workbench;
   }
@@ -152,6 +145,7 @@ public class ProjectBuildContext {
    *
    * @return the project type
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
     return (T) projectType;
@@ -176,6 +170,7 @@ public class ProjectBuildContext {
    *
    * @return appropriate file to use
    */
+  @Override
   public File getProjectTarget(File rootDirectory, String target) {
     String targetPath = project.getConfiguration().evaluate(target);
     File targetFile = new File(targetPath);
@@ -193,6 +188,7 @@ public class ProjectBuildContext {
    *
    * @return mutable resource source map, stored as {dest, source} key/value pairs
    */
+  @Override
   public Map<File, File> getResourceSourceMap() {
     return sourceMap;
   }

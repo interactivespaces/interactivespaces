@@ -19,8 +19,7 @@ package interactivespaces.workbench.project.constituent;
 import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import org.apache.commons.logging.Log;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
@@ -63,7 +62,7 @@ public class ProjectBundleConstituent extends ContainerConstituent {
   private final List<String> sourcePaths = Lists.newArrayList();
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     OutputStream outputStream = null;
     InputStream inputStream = null;
 
@@ -104,8 +103,8 @@ public class ProjectBundleConstituent extends ContainerConstituent {
     }
 
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectBundleConstituentBuilder(log);
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectBundleConstituentBuilder();
     }
   }
 
@@ -113,16 +112,6 @@ public class ProjectBundleConstituent extends ContainerConstituent {
    * Builder class for new bundle resources.
    */
   private static class ProjectBundleConstituentBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct the new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectBundleConstituentBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element element, Project project) {

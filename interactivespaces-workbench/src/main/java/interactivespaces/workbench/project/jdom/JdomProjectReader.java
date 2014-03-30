@@ -27,14 +27,13 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.ProjectReader;
-import interactivespaces.workbench.project.TemplateFile;
-import interactivespaces.workbench.project.TemplateVar;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
-import interactivespaces.workbench.project.constituent.ProjectTemplateConstituent;
+import interactivespaces.workbench.project.creator.TemplateAssignConstituent;
+import interactivespaces.workbench.project.creator.TemplateFileConstituent;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -80,7 +79,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
     addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
     addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
-    addConstituentType(new ProjectTemplateConstituent.ProjectTemplateConstituentFactory());
+    addConstituentType(new TemplateFileConstituent.TemplateFileConstituentFactory());
+    addConstituentType(new TemplateAssignConstituent.TemplateAssignConstituentFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
   }
 
@@ -134,6 +134,11 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * Project definition file element name for sources.
    */
   private static final String PROJECT_ELEMENT_NAME_SOURCES = "sources";
+
+  /**
+   * Project definition file element name for templates.
+   */
+  private static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
 
   /**
    * Project definition file element name for metadata.
@@ -303,11 +308,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     getMetadata(project, projectElement);
     getDependencies(project, projectElement);
     getConfiguration(project, projectElement);
-    getTemplateVars(project, projectElement);
+
     project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
     project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
 
-    getContainerConstituents(projectElement.getChild(TemplateFile.GROUP_ELEMENT_NAME), project);
+    project.addExtraConstituents(getContainerConstituents(
+        projectElement.getChild(PROJECT_ELEMENT_NAME_TEMPLATES), project));
 
     project.addExtraConstituents(getIndividualConstituent(
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
@@ -516,8 +522,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     List<ProjectConstituent> constituents = Lists.newArrayList();
-    @SuppressWarnings("unchecked")
-    List<Element> childElements = containerElement.getChildren();
+    List<Element> childElements = getChildren(containerElement);
 
     for (Element childElement : childElements) {
       getConstituent(childElement, project, constituents);
@@ -564,8 +569,10 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     if (factory == null) {
       addError(String.format("Unknown resource type '%s'", type));
     } else {
+      ProjectConstituent.ProjectConstituentBuilder projectConstituentBuilder = factory.newBuilder();
+      projectConstituentBuilder.setLog(getLog());
       ProjectConstituent constituent =
-          factory.newBuilder(getLog()).buildConstituentFromElement(constituentElement, project);
+          projectConstituentBuilder.buildConstituentFromElement(constituentElement, project);
       if (constituent != null) {
         constituents.add(constituent);
       }
@@ -594,41 +601,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         }
       }
     }
-  }
-
-  /**
-   * Get the template vars from the document.
-   *
-   * @param project
-   *          the project description whose data is being read
-   * @param rootElement
-   *          root element of the XML DOM containing the project data
-   */
-  private void getTemplateVars(Project project, Element rootElement) {
-    Element varsElement = rootElement.getChild(TemplateVar.GROUP_ELEMENT_NAME);
-
-    if (varsElement != null) {
-      @SuppressWarnings("unchecked")
-      List<Element> varElements = varsElement.getChildren(TemplateVar.ELEMENT_NAME);
-
-      for (Element varElement : varElements) {
-        project.addTemplateVar(getTemplateVarFromElement(varElement));
-      }
-    }
-  }
-
-  /**
-   * Get a template variable from a given element.
-   *
-   * @param element
-   *          element to parse
-   *
-   * @return template variable for the element
-   */
-  private TemplateVar getTemplateVarFromElement(Element element) {
-    String name = getRequiredAttributeValue(element, TemplateVar.NAME_ATTRIBUTE_NAME);
-    String value = getRequiredAttributeValue(element, TemplateVar.VALUE_ATTRIBUTE_NAME);
-    return new TemplateVar(name, value);
   }
 
   /**

@@ -32,9 +32,9 @@ import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.project.ProjectCreator;
-import interactivespaces.workbench.project.ProjectCreatorImpl;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.project.creator.ProjectCreator;
+import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProject;
@@ -595,7 +595,7 @@ public class InteractiveSpacesWorkbench {
     ProjectReader projectReader = new JdomProjectGroupReader(this);
     Project project = projectReader.readProject(specFile);
 
-    ProjectCreationSpecification creationSpecification = new ProjectCreationSpecification(specFile.getAbsolutePath());
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
     creationSpecification.setProject(project);
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);

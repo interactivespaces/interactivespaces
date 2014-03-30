@@ -29,22 +29,12 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   /**
    * The logger for this builder.
    */
-  private final Log log;
+  private Log log;
 
   /**
    * {@code true} if the builder had errors.
    */
   private boolean errors;
-
-  /**
-   * Construct the base builder.
-   *
-   * @param log
-   *          the log to use
-   */
-  public BaseProjectConstituentBuilder(Log log) {
-    this.log = log;
-  }
 
   /**
    * Convenience function to help more easily build constituent parts.
@@ -91,5 +81,15 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    */
   protected boolean hasErrors() {
     return errors;
+  }
+
+  /**
+   * Set the logging provider.
+   *
+   * @param log
+   *          logging provider
+   */
+  public void setLog(Log log) {
+    this.log = log;
   }
 }

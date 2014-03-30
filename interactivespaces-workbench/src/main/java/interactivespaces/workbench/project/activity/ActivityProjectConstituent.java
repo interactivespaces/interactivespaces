@@ -20,10 +20,9 @@ import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
@@ -105,7 +104,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   public static final String CONFIGURATION_PROPERTY_VALUE = "value";
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     // Nothing to do
   }
 
@@ -126,8 +125,8 @@ public class ActivityProjectConstituent implements ProjectConstituent {
     }
 
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ActivityProjectBuilder(log);
+    public ProjectConstituentBuilder newBuilder() {
+      return new ActivityProjectBuilder();
     }
   }
 
@@ -135,16 +134,6 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    * Builder class for creating new activity instances.
    */
   private static class ActivityProjectBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ActivityProjectBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {

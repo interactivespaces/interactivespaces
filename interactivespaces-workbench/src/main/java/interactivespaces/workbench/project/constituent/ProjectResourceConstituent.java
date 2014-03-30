@@ -20,8 +20,7 @@ import com.google.common.collect.Maps;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import org.apache.commons.logging.Log;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
@@ -144,7 +143,7 @@ public class ProjectResourceConstituent extends ContainerConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     if (getDestinationDirectory() != null) {
       File destDir = context.getProjectTarget(stagingDirectory, getDestinationDirectory());
@@ -183,8 +182,8 @@ public class ProjectResourceConstituent extends ContainerConstituent {
     }
 
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectResourceBuilder(log);
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectResourceBuilder();
     }
   }
 
@@ -200,8 +199,8 @@ public class ProjectResourceConstituent extends ContainerConstituent {
     }
 
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectResourceBuilder(log);
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectResourceBuilder();
     }
   }
 
@@ -209,16 +208,6 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    * Builder class for creating new resource instances.
    */
   private static class ProjectResourceBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectResourceBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {

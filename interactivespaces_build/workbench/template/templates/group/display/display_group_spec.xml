@@ -21,27 +21,27 @@
 
   <prototypes>
     <prototype prototypeName="commonVars">
-      <templateVars>
-        <var name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
-        <var name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
-        <var name="groupPackage" value="${groupName?replace('.', '/')}" />
-        <var name="origBaseDirectory" value="${baseDirectory}" />
-      </templateVars>
+      <templates>
+        <assign name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
+        <assign name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
+        <assign name="groupPackage" value="${groupName?replace('.', '/')}" />
+        <assign name="origBaseDirectory" value="${baseDirectory}" />
+      </templates>
     </prototype>
 
     <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
-      <templateVars>
-        <var name="facet" value="${project.getAttribute('facet')}" />
-        <var name="idName" value="${groupName}.${facet}" />
-        <var name="package" value="${groupName}.${facet}" />
-        <var name="packagePath" value="${package?replace('.', '/')}" />
-        <var name="baseDirectory" value="${baseDirectory}/${idName}" />
-        <var name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
-        <var name="javaClassName" value="${fullName?replace(' ', '')}" />
-        <var name="webAppFileBase" value="${idName?replace('.', '-')}" />
-        <var name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
-        <var name="javaSrcDir" value="${activity.activitySourceDirectory}" />
-      </templateVars>
+      <templates>
+        <assign name="facet" value="${project.getAttribute('facet')}" />
+        <assign name="idName" value="${groupName}.${facet}" />
+        <assign name="package" value="${groupName}.${facet}" />
+        <assign name="packagePath" value="${package?replace('.', '/')}" />
+        <assign name="baseDirectory" value="${baseDirectory}/${idName}" />
+        <assign name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <assign name="javaClassName" value="${fullName?replace(' ', '')}" />
+        <assign name="webAppFileBase" value="${idName?replace('.', '-')}" />
+        <assign name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
+        <assign name="javaSrcDir" value="${activity.activitySourceDirectory}" />
+      </templates>
 
       <version>0.0.1</version>
       <name>${fullName}</name>

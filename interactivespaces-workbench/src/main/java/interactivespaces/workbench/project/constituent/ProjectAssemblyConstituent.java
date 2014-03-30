@@ -21,8 +21,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-import org.apache.commons.logging.Log;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
@@ -70,7 +69,7 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   private String destinationDirectory;
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
     File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
@@ -116,8 +115,8 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
     }
 
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectAssemblyBuilder(log);
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectAssemblyBuilder();
     }
   }
 
@@ -145,16 +144,6 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
    * Builder class for creating new assembly resources.
    */
   private static class ProjectAssemblyBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectAssemblyBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {

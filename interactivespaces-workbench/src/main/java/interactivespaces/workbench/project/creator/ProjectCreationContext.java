@@ -14,10 +14,13 @@
  * the License.
  */
 
-package interactivespaces.workbench.project;
+package interactivespaces.workbench.project.creator;
 
 import com.google.common.collect.Maps;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectContext;
+import interactivespaces.workbench.project.activity.type.ProjectType;
 
 import java.io.File;
 import java.util.Map;
@@ -28,7 +31,7 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class ProjectCreationSpecification {
+public class ProjectCreationContext implements ProjectContext {
 
   /**
    * Map of the template data for this project creation.
@@ -66,21 +69,13 @@ public class ProjectCreationSpecification {
    * @param description
    *          description of this specification
    */
-  public ProjectCreationSpecification(String description) {
+  public ProjectCreationContext(String description) {
     this.description = description;
   }
 
-  /**
-   * Get the project description associated with the spec.
-   *
-   * @param <T>
-   *          the project type
-   *
-   * @return the project
-   */
-  @SuppressWarnings("unchecked")
-  public <T extends Project> T getProject() {
-    return (T) project;
+  @Override
+  public Project getProject() {
+    return project;
   }
 
   /**
@@ -177,6 +172,21 @@ public class ProjectCreationSpecification {
    */
   public void setWorkbench(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
+  }
+
+  @Override
+  public <T extends ProjectType> T getProjectType() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public File getProjectTarget(File rootDirectory, String target) {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
+  public Map<File, File> getResourceSourceMap() {
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
   }
 
   /**

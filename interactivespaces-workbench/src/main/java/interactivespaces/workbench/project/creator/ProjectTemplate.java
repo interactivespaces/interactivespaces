@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2012 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,20 +14,34 @@
  * the License.
  */
 
-package interactivespaces.workbench.project;
+package interactivespaces.workbench.project.creator;
+
+import interactivespaces.workbench.FreemarkerTemplater;
 
 /**
- * Creator for new activity projects.
+ * A template for a project.
  *
  * @author Keith M. Hughes
  */
-public interface ProjectCreator {
+public interface ProjectTemplate {
 
   /**
-   * Create a project.
+   * Process the source description.
+   *
+   * <p>
+   * This may fill in portions of the specification
    *
    * @param spec
-   *          specification for the new project
+   *          the build specification
+   *
    */
-  void create(ProjectCreationSpecification spec);
+  void process(ProjectCreationContext spec);
+
+  /**
+   * Set the templater to use for this project template.
+   *
+   * @param templater
+   *          templater to use
+   */
+  void setTemplater(FreemarkerTemplater templater);
 }

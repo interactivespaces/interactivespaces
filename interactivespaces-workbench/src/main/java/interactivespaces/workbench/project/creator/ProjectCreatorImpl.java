@@ -14,11 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench.project;
+package interactivespaces.workbench.project.creator;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 
 /**
@@ -52,7 +53,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void create(ProjectCreationSpecification spec) {
+  public void create(ProjectCreationContext spec) {
     try {
       Project project = spec.getProject();
       ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);

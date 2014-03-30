@@ -18,7 +18,7 @@ package interactivespaces.workbench.project.library;
 
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectTemplate;
+import interactivespaces.workbench.project.creator.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.builder.ProjectBuilder;

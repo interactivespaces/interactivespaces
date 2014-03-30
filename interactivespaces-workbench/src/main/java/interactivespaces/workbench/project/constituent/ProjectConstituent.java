@@ -18,7 +18,7 @@ package interactivespaces.workbench.project.constituent;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectContext;
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
@@ -59,9 +59,9 @@ public interface ProjectConstituent {
    * @param stagingDirectory
    *          where the items will be copied
    * @param context
-   *          context for the build
+   *          project context in which to process the constituent
    */
-  void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
+  void processConstituent(Project project, File stagingDirectory, ProjectContext context);
 
   /**
    * Return the source directory for this constituent.
@@ -90,12 +90,9 @@ public interface ProjectConstituent {
     /**
      * Create a new builder.
      *
-     * @param log
-     *          the logger to use
-     *
      * @return the new builder
      */
-    ProjectConstituentBuilder newBuilder(Log log);
+    ProjectConstituentBuilder newBuilder();
   }
 
   /**
@@ -114,5 +111,13 @@ public interface ProjectConstituent {
      * @return new project object or {@code null} if there were errors
      */
     ProjectConstituent buildConstituentFromElement(Element constituentElement, Project project);
+
+    /**
+     * Set the logging provider for use by the builder.
+     *
+     * @param log
+     *          logging provider to use
+     */
+    void setLog(Log log);
   }
 }
