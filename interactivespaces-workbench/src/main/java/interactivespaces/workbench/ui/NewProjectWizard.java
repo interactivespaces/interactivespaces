@@ -82,6 +82,7 @@ public class NewProjectWizard extends WizardCollection {
     super.completeWizard();
 
     ProjectCreationContext spec = new ProjectCreationContext("from wizard");
+    spec.setWorkbench(workbench);
 
     Project project = activityDescriptionWizard.getProject();
 
