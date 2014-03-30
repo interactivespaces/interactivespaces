@@ -21,7 +21,6 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
-import interactivespaces.workbench.project.creator.ProjectTemplate;
 
 import java.io.File;
 import java.io.PrintWriter;

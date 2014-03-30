@@ -20,6 +20,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 
 /**

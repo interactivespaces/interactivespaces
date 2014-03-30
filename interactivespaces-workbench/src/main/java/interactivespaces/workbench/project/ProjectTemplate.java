@@ -14,9 +14,10 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.creator;
+package interactivespaces.workbench.project;
 
 import interactivespaces.workbench.FreemarkerTemplater;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
 
 /**
  * A template for a project.

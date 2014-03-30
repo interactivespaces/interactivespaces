@@ -137,14 +137,6 @@ public class ProjectBuildContext implements ProjectContext {
     return buildDirectory;
   }
 
-  /**
-   * Get the project type for the build.
-   *
-   * @param <T>
-   *          the actual project type
-   *
-   * @return the project type
-   */
   @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
@@ -159,17 +151,6 @@ public class ProjectBuildContext implements ProjectContext {
         project.getBaseDirectory().getAbsolutePath());
   }
 
-  /**
-   * Return the appropriate file path depending on evaluate and default root directory.
-   *
-   *
-   * @param rootDirectory
-   *          root directory to use in case of default
-   * @param target
-   *          target path desired
-   *
-   * @return appropriate file to use
-   */
   @Override
   public File getProjectTarget(File rootDirectory, String target) {
     String targetPath = project.getConfiguration().evaluate(target);
@@ -180,14 +161,6 @@ public class ProjectBuildContext implements ProjectContext {
     return new File(rootDirectory, targetPath);
   }
 
-  /**
-   * The resource source map is a map that can be used at runtime to link project files
-   * back to their original source, for enabling live editing of javascript or other resources.
-   * This map is constructed during the build process (by adding to the map), and then can be
-   * written to a file or other construct as part of the resulting build.
-   *
-   * @return mutable resource source map, stored as {dest, source} key/value pairs
-   */
   @Override
   public Map<File, File> getResourceSourceMap() {
     return sourceMap;

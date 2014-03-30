@@ -52,7 +52,7 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
   public static final String NATIVE_ACTIVITY_BUILDER_TYPE = "native";
 
   /**
-   * The mapping of names to pFreemarkerroject types.
+   * The mapping of names to project types.
    */
   private final List<ProjectType> projectTypes = Lists.newArrayList();
 
