@@ -25,3 +25,16 @@ task installDev(type: Exec, dependsOn: [assembleContainers]) {
   def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
   commandLine "bash", "../install_container.bash", version, project.ext.containerType , containerDir, stagingDir
 }
+
+task createImage(type: Copy, dependsOn: [assembleContainers]) {
+  // TODO(keith): get the common parts into a generic task available to all
+  def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+  def containerDir = getProperty("imageHome") + "/" + project.ext.containerType
+
+  from stagingDir
+  into containerDir
+  exclude 'config'
+  exclude 'install.xml'
+  exclude 'userInputLang.xml_eng'
+  exclude 'user_input_spec.xml'
+}

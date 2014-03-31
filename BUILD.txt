@@ -52,3 +52,10 @@ system Sphinx. It uses Latex for building the PDF documentation. On Linux, make
 sure you install texlive, textlive-latex-extra, and texlive-fonts-*. You also
 need pygments.
 
+Building an Image:
+
+gradle -PimageHome=path createImage
+
+where path is the root folder which will receive the image.
+
+The image will contain a master, controller, and workbench.
