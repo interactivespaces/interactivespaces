@@ -225,9 +225,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
   /**
-   * Prototype manager to use when reading/constructing projects.
+   * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
    */
-  private JdomPrototypeManager jdomPrototypeManager;
+  private JdomPrototypeProcessor jdomPrototypeProcessor;
 
   /**
    * Construct a project reader.
@@ -298,13 +298,13 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *          prototype chain root to follow
    */
   void processPrototypeChain(Project project, Element projectElement) {
-    if (jdomPrototypeManager != null) {
-      List<Element> prototypeChain = jdomPrototypeManager.getPrototypeChain(projectElement);
+    if (jdomPrototypeProcessor != null) {
+      List<Element> prototypeChain = jdomPrototypeProcessor.getPrototypeChain(projectElement);
       for (Element prototype : prototypeChain) {
         configureProjectFromElement(project, prototype);
       }
       // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
-      project.getAttributes().remove(JdomPrototypeManager.PROTOTYPE_NAME_ATTRIBUTE);
+      project.getAttributes().remove(JdomPrototypeProcessor.PROTOTYPE_NAME_ATTRIBUTE);
     }
   }
 
@@ -640,18 +640,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @return prototype manager
    */
-  JdomPrototypeManager getJdomPrototypeManager() {
-    return jdomPrototypeManager;
+  JdomPrototypeProcessor getJdomPrototypeProcessor() {
+    return jdomPrototypeProcessor;
   }
 
   /**
    * Set the prototype manager used by this reader.
    *
-   * @param jdomPrototypeManager
+   * @param jdomPrototypeProcessor
    *          prototype manager to use
    */
-  void setJdomPrototypeManager(JdomPrototypeManager jdomPrototypeManager) {
-    this.jdomPrototypeManager = jdomPrototypeManager;
+  void setJdomPrototypeProcessor(JdomPrototypeProcessor jdomPrototypeProcessor) {
+    this.jdomPrototypeProcessor = jdomPrototypeProcessor;
   }
 
 }

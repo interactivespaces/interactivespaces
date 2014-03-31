@@ -32,11 +32,11 @@ public interface ProjectTemplate {
    * <p>
    * This may fill in portions of the specification
    *
-   * @param spec
-   *          the build specification
+   * @param context
+   *          the creation context
    *
    */
-  void process(ProjectCreationContext spec);
+  void process(ProjectCreationContext context);
 
   /**
    * Set the templater to use for this project template.

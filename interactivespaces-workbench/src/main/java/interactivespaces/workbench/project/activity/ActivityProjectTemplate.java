@@ -30,31 +30,31 @@ import java.io.File;
 public class ActivityProjectTemplate extends BaseProjectTemplate {
 
   @Override
-  protected void onTemplateSetup(ProjectCreationContext spec) {
-    spec.addTemplateDataEntry("activity", spec.getProject());
+  protected void onTemplateSetup(ProjectCreationContext context) {
+    context.addTemplateDataEntry("activity", context.getProject());
   }
 
   /**
    * Get the activity source directory.
    *
-   * @param spec
+   * @param context
    *          specification for the build
    *
    * @return the source directory for activity sources
    */
-  public File getActivitySourceDirectory(ProjectCreationContext spec) {
-    return new File(spec.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+  public File getActivitySourceDirectory(ProjectCreationContext context) {
+    return new File(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
   /**
    * Get the activity resource directory.
    *
-   * @param spec
+   * @param context
    *          specification for the build
    *
    * @return the resource directory for activity components
    */
-  public File getActivityResourceDirectory(ProjectCreationContext spec) {
-    return new File(spec.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+  public File getActivityResourceDirectory(ProjectCreationContext context) {
+    return new File(context.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 }

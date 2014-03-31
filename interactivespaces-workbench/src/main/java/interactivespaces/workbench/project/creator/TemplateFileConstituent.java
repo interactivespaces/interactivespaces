@@ -37,9 +37,14 @@ import java.util.Map;
 public class TemplateFileConstituent extends ContainerConstituent {
 
   /**
-   * Project type for a bundle resource.
+   * Project type for a template file constituent.
    */
-  public static final String TYPE_NAME = "template";
+  public static final String TYPE_NAME = "fileTemplate";
+
+  /**
+   * THe number of evaluation passes used for writing project templates.
+   */
+  public static final int TEMPLATE_WRITE_EVALUATION_PASSES = 2;
 
   /**
    * The input path.
@@ -123,8 +128,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
       inPath = new File(projectCreationContext.getSpecificationBase(), inPath).getAbsolutePath();
     }
 
-    int evaluationPasses = 2;
-    templater.writeTemplate(templateData, outFile, inPath, evaluationPasses);
+    templater.writeTemplate(templateData, outFile, inPath, TEMPLATE_WRITE_EVALUATION_PASSES);
   }
 
   /**

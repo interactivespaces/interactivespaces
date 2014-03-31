@@ -52,17 +52,17 @@ public class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Process the given creation specification.
    *
-   * @param spec
+   * @param context
    *          specification to process.
    */
-  public void process(ProjectCreationContext spec) {
+  public void process(ProjectCreationContext context) {
     try {
-      templateSetup(spec);
-      onTemplateSetup(spec);
-      onTemplateWrite(spec);
-      processTemplateConstituents(spec);
+      templateSetup(context);
+      onTemplateSetup(context);
+      onTemplateWrite(context);
+      processTemplateConstituents(context);
     } catch (Exception e) {
-      dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
+      dumpVariables(TEMPLATE_VARIABLES_TMP, context.getTemplateData());
       throw new SimpleInteractiveSpacesException(
           "Template variables can be found in " + TEMPLATE_VARIABLES_TMP.getAbsolutePath(), e);
     }
@@ -71,41 +71,41 @@ public class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Setup the template as necessary for basic operation.
    *
-   * @param spec
+   * @param context
    *          spec for the project
    *
    */
-  private void templateSetup(ProjectCreationContext spec) {
-    Project project = spec.getProject();
+  private void templateSetup(ProjectCreationContext context) {
+    Project project = context.getProject();
 
-    spec.addTemplateDataEntry(BASE_DIRECTORY_VARIABLE, spec.getBaseDirectory().getAbsolutePath());
-    spec.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
-    spec.addTemplateDataEntry("spec", spec);
-    spec.addTemplateDataEntry("project", project);
+    context.addTemplateDataEntry(BASE_DIRECTORY_VARIABLE, context.getBaseDirectory().getAbsolutePath());
+    context.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
+    context.addTemplateDataEntry("spec", context);
+    context.addTemplateDataEntry("project", project);
   }
 
   /**
    * Template is being set up. Can be overridden in a project-type specific project template.
    *
-   * @param spec
+   * @param context
    *          spec for the project
    */
-  protected void onTemplateSetup(ProjectCreationContext spec) {
+  protected void onTemplateSetup(ProjectCreationContext context) {
     // Default is to do nothing.
   }
 
   /**
    * Process the defined template constituents.
    *
-   * @param spec
+   * @param context
    *          spec for the project
    *
    */
-  private void processTemplateConstituents(ProjectCreationContext spec) {
-    Project project = spec.getProject();
+  private void processTemplateConstituents(ProjectCreationContext context) {
+    Project project = context.getProject();
     List<ProjectConstituent> projectConstituents = project.getExtraConstituents();
     for (ProjectConstituent constituent : projectConstituents) {
-      constituent.processConstituent(project, null, spec);
+      constituent.processConstituent(project, null, context);
     }
   }
 
@@ -113,10 +113,10 @@ public class BaseProjectTemplate implements ProjectTemplate {
    * Function called on template write. Can be overridden to provide different functionality for other project
    * types.
    *
-   * @param spec
+   * @param context
    *          specification that is being written
    */
-  public void onTemplateWrite(ProjectCreationContext spec) {
+  public void onTemplateWrite(ProjectCreationContext context) {
     // Default is to do nothing.
   }
 

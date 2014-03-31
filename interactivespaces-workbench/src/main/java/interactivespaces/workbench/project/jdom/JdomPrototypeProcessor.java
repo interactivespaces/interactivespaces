@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manager for the project prototypes in a project group.
+ * Processor for project prototypes in a project group.
  *
  * @author Trevor Pering
  */
-class JdomPrototypeManager {
+class JdomPrototypeProcessor {
 
   /**
    * Attribute name for inhterriting-from.

@@ -54,9 +54,9 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void create(ProjectCreationContext spec) {
+  public void create(ProjectCreationContext context) {
     try {
-      Project project = spec.getProject();
+      Project project = context.getProject();
       ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);
       if (projectType == null) {
         throw new SimpleInteractiveSpacesException(String.format("Invalid type for project type/builder %s/%s",
@@ -64,10 +64,10 @@ public class ProjectCreatorImpl implements ProjectCreator {
       }
       ProjectTemplate projectTemplate = projectType.newProjectTemplate();
       projectTemplate.setTemplater(templater);
-      projectTemplate.process(spec);
+      projectTemplate.process(context);
 
     } catch (Exception e) {
-      workbench.handleError("Error while creating project " + spec.getDescription(), e);
+      workbench.handleError("Error while creating project " + context.getDescription(), e);
     }
   }
 }

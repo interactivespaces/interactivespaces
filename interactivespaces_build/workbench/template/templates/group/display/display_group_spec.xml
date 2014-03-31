@@ -58,7 +58,7 @@
         </configuration>
       </activity>
       <templates>
-        <template destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
       </templates>
     </prototype>
 
@@ -71,10 +71,10 @@
         </configuration>
       </activity>
       <templates>
-        <template destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
-        <template destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
-        <template destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
-        <template destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="Activity.java.ftl" />
+        <templateFile destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
+        <templateFile destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
+        <templateFile destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
+        <templateFile destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="Activity.java.ftl" />
       </templates>
     </prototype>
   </prototypes>
@@ -93,6 +93,6 @@
   </projects>
 
   <templates inheritsFrom="commonVars" >
-    <template destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
+    <templateFile destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
   </templates>
 </projectGroupTemplateSpecification>

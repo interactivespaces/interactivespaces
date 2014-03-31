@@ -588,7 +588,7 @@ public class InteractiveSpacesWorkbench {
    *          command input to inform project creation
    */
   private void createProject(List<String> commands) {
-    System.out.println("Creating from specificaiton...");
+    getLog().info("Creating project from specification...");
     File specFile = new File(removeArgument(commands, "specification file"));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 

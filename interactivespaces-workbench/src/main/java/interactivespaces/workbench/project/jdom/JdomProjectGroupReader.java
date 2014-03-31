@@ -53,7 +53,7 @@ public class JdomProjectGroupReader extends JdomProjectReader implements Project
    */
   public JdomProjectGroupReader(InteractiveSpacesWorkbench workbench) {
     super(workbench);
-    setJdomPrototypeManager(new JdomPrototypeManager());
+    setJdomPrototypeProcessor(new JdomPrototypeProcessor());
   }
 
   @Override
@@ -130,7 +130,7 @@ public class JdomProjectGroupReader extends JdomProjectReader implements Project
     try {
       if (JdomProjectReader.GROUP_ELEMENT_NAME.equals(name)) {
         addProjects(spec, child);
-      } else if (JdomPrototypeManager.GROUP_ELEMENT_NAME.equals(name)) {
+      } else if (JdomPrototypeProcessor.GROUP_ELEMENT_NAME.equals(name)) {
         addPrototypes(spec, child);
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_NAME.equals(name)) {
         spec.setName(child.getTextTrim());
@@ -162,7 +162,7 @@ public class JdomProjectGroupReader extends JdomProjectReader implements Project
   private void addPrototypes(GroupProject spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
-      getJdomPrototypeManager().addPrototypeElement(entry);
+      getJdomPrototypeProcessor().addPrototypeElement(entry);
     }
   }
 
@@ -178,7 +178,7 @@ public class JdomProjectGroupReader extends JdomProjectReader implements Project
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
-      projectReader.setJdomPrototypeManager(getJdomPrototypeManager());
+      projectReader.setJdomPrototypeProcessor(getJdomPrototypeProcessor());
       Project project = projectReader.makeProjectFromElement(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
       project.setBaseDirectory(new File("."));

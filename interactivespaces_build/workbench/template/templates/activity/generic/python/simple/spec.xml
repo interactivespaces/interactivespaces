@@ -1,4 +1,4 @@
-<projectGroup>
+<projectGroupTemplateSpecification>
 
   <prototypes>
     <prototype prototypeName="commonVars">
@@ -31,7 +31,7 @@
         </configuration>
       </activity>
       <templates>
-        <template destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
       </templates>
     </prototype>
   </prototypes>
@@ -40,8 +40,8 @@
   <projects>
     <project inheritsFrom="activityProject" type="activity">
       <templates>
-        <template destinationFile="${resourceDir}/${pythonExecutable}" sourceFile="SimplePythonActivity.py.ftl" />
+        <templateFile destinationFile="${resourceDir}/${pythonExecutable}" sourceFile="SimplePythonActivity.py.ftl" />
       </templates>
     </project>
   </projects>
-</projectGroup>
+</projectGroupTemplateSpecification>

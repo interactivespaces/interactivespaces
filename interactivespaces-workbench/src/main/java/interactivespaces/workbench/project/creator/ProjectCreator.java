@@ -26,8 +26,8 @@ public interface ProjectCreator {
   /**
    * Create a project.
    *
-   * @param spec
-   *          specification for the new project
+   * @param context
+   *          creation context for the new project
    */
-  void create(ProjectCreationContext spec);
+  void create(ProjectCreationContext context);
 }

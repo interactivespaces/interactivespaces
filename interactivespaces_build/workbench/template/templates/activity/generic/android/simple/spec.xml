@@ -1,4 +1,4 @@
-<projectGroup>
+<projectGroupTemplateSpecification>
 
   <prototypes>
     <prototype prototypeName="commonVars">
@@ -34,7 +34,7 @@
         </configuration>
       </activity>
       <templates>
-        <template destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
       </templates>
     </prototype>
   </prototypes>
@@ -42,8 +42,8 @@
   <projects>
     <project inheritsFrom="activityProject" type="activity">
       <templates>
-        <template destinationFile="${javaSrcDir}/SimpleAndroidActivity.java" sourceFile="SimpleAndroidActivity.java.ftl" />
+        <templateFile destinationFile="${javaSrcDir}/SimpleAndroidActivity.java" sourceFile="SimpleAndroidActivity.java.ftl" />
       </templates>
     </project>
   </projects>
-</projectGroup>
+</projectGroupTemplateSpecification>

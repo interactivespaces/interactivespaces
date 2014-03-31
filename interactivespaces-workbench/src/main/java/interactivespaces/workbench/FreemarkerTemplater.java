@@ -89,7 +89,6 @@ public class FreemarkerTemplater implements ManagedResource {
   /**
    * Process a string template.
    *
-   *
    * @param data
    *          data for template
    * @param templateContent
@@ -154,7 +153,7 @@ public class FreemarkerTemplater implements ManagedResource {
     deleteList.add(tempFile);
     File inputFile = new File(template);
     if (inputFile.isAbsolute()) {
-      FileSupportImpl.INSTANCE.copyFile(inputFile, tempFile);
+      fileSupport.copyFile(inputFile, tempFile);
     }
     for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
       tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), passesRemaining - 1));
@@ -169,7 +168,7 @@ public class FreemarkerTemplater implements ManagedResource {
 
     // By design. if there are any errors processing the templates, these files will remain.
     for (File toDelete : deleteList) {
-      FileSupportImpl.INSTANCE.delete(toDelete);
+      fileSupport.delete(toDelete);
     }
   }
 

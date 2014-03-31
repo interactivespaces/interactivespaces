@@ -29,18 +29,18 @@ import interactivespaces.workbench.project.creator.ProjectCreationContext;
 public class GroupProjectTemplate extends BaseProjectTemplate {
 
   @Override
-  protected void onTemplateSetup(ProjectCreationContext spec) {
-    spec.addTemplateDataEntry("group", spec.getProject());
+  protected void onTemplateSetup(ProjectCreationContext context) {
+    context.addTemplateDataEntry("group", context.getProject());
   }
 
   @Override
-  public void onTemplateWrite(ProjectCreationContext spec) {
-    GroupProject groupProject = (GroupProject) spec.getProject();
+  public void onTemplateWrite(ProjectCreationContext context) {
+    GroupProject groupProject = (GroupProject) context.getProject();
     int projectIndex = 0;
     try {
       for (Project project : groupProject.getProjectList()) {
         projectIndex++;
-        spec.getWorkbench().getProjectCreator().create(makeCreationSpecification(project, spec));
+        context.getWorkbench().getProjectCreator().create(makeCreationSpecification(project, context));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format(

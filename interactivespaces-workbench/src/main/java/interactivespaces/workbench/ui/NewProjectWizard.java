@@ -80,8 +80,8 @@ public class NewProjectWizard extends WizardCollection {
   public void completeWizard() {
     super.completeWizard();
 
-    ProjectCreationContext spec = new ProjectCreationContext("from wizard");
-    spec.setWorkbench(workbench);
+    ProjectCreationContext context = new ProjectCreationContext("from wizard");
+    context.setWorkbench(workbench);
 
     Project project = activityDescriptionWizard.getProject();
 
@@ -89,11 +89,11 @@ public class NewProjectWizard extends WizardCollection {
     String identifyingName = project.getIdentifyingName();
     project.setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
 
-    spec.setProject(project);
+    context.setProject(project);
 
-    spec.setSpecificationBase(activityProjectTemplateChooserWizard.getSelectedFile().getParentFile());
+    context.setSpecificationBase(activityProjectTemplateChooserWizard.getSelectedFile().getParentFile());
 
-    workbench.getProjectCreator().create(spec);
+    workbench.getProjectCreator().create(context);
 
     workbenchUi.setCurrentProject(project);
   }
