@@ -59,8 +59,8 @@ public class BaseProjectTemplate implements ProjectTemplate {
     try {
       templateSetup(spec);
       onTemplateSetup(spec);
-      processTemplateConstituents(spec);
       onTemplateWrite(spec);
+      processTemplateConstituents(spec);
     } catch (Exception e) {
       dumpVariables(TEMPLATE_VARIABLES_TMP, spec.getTemplateData());
       throw new SimpleInteractiveSpacesException(

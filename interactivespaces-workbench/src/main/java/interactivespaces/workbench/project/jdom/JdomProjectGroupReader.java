@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class JdomProjectGroupReader extends JdomReader implements ProjectReader {
+public class JdomProjectGroupReader extends JdomProjectReader implements ProjectReader {
 
   /**
    * Element name for a project group.
@@ -46,11 +46,6 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
   public static final String PROJECT_GROUP_ELEMENT_NAME = "projectGroup";
 
   /**
-   * Prototype manager to use for this project group specification.
-   */
-  private final JdomPrototypeManager jdomPrototypeManager = new JdomPrototypeManager();
-
-  /**
    * Construct a project reader.
    *
    * @param workbench
@@ -58,6 +53,7 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
    */
   public JdomProjectGroupReader(InteractiveSpacesWorkbench workbench) {
     super(workbench);
+    setJdomPrototypeManager(new JdomPrototypeManager());
   }
 
   @Override
@@ -140,6 +136,11 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
         spec.setName(child.getTextTrim());
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_DESCRIPTION.equals(name)) {
         spec.setDescription(child.getTextTrim());
+      } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_TEMPLATES.equals(name)) {
+        // This is really a prototype chain for the entire group project, but we need to control when it is
+        // processed, so instead snarf the attribute from the templates element when it is processed.
+        processPrototypeChain(spec, child);
+        spec.addExtraConstituents(getContainerConstituents(child, spec));
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_VERSION.equals(name)) {
         spec.setVersion(Version.parseVersion(child.getTextTrim()));
       } else {
@@ -161,7 +162,7 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
   private void addPrototypes(GroupProject spec, Element group) {
     List<Element> children = getChildren(group);
     for (Element entry : children) {
-      jdomPrototypeManager.addPrototypeElement(entry);
+      getJdomPrototypeManager().addPrototypeElement(entry);
     }
   }
 
@@ -177,7 +178,7 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
     List<Element> children = getChildren(group);
     for (Element entry : children) {
       JdomProjectReader projectReader = new JdomProjectReader(getWorkbench());
-      projectReader.setJdomPrototypeManager(jdomPrototypeManager);
+      projectReader.setJdomPrototypeManager(getJdomPrototypeManager());
       Project project = projectReader.makeProjectFromElement(entry);
       project.setSpecificationSource(spec.getSpecificationSource());
       project.setBaseDirectory(new File("."));

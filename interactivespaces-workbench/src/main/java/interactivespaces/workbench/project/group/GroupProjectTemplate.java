@@ -29,6 +29,11 @@ import interactivespaces.workbench.project.creator.ProjectCreationContext;
 public class GroupProjectTemplate extends BaseProjectTemplate {
 
   @Override
+  protected void onTemplateSetup(ProjectCreationContext spec) {
+    spec.addTemplateDataEntry("group", spec.getProject());
+  }
+
+  @Override
   public void onTemplateWrite(ProjectCreationContext spec) {
     GroupProject groupProject = (GroupProject) spec.getProject();
     int projectIndex = 0;

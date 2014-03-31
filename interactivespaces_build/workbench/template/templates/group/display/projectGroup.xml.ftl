@@ -5,6 +5,7 @@
   </description>
 
   <version>${group.version}</version>
+  <groupName>${groupName}</groupName>
 
 <#if group.projectList?has_content>
   <projects>

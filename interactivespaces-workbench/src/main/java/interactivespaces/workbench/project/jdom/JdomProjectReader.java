@@ -138,7 +138,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Project definition file element name for templates.
    */
-  private static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
+  public static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
 
   /**
    * Project definition file element name for metadata.
@@ -273,14 +273,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     String projectType = getProjectType(projectElement);
     Project project = getWorkbench().getProjectTypeRegistry().newProject(projectType);
 
-    if (jdomPrototypeManager != null) {
-      List<Element> prototypeChain = jdomPrototypeManager.getPrototypeChain(projectElement);
-      for (Element prototype : prototypeChain) {
-        configureProjectFromElement(project, prototype);
-      }
-      // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
-      project.getAttributes().remove(JdomPrototypeManager.PROTOTYPE_NAME_ATTRIBUTE);
-    }
+    processPrototypeChain(project, projectElement);
     configureProjectFromElement(project, projectElement);
 
     if (project.getInteractiveSpacesVersionRange() == null) {
@@ -294,6 +287,25 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     return project;
+  }
+
+  /**
+   * Process the prototype chain for the given element.
+   *
+   * @param project
+   *          project where the results go
+   * @param projectElement
+   *          prototype chain root to follow
+   */
+  void processPrototypeChain(Project project, Element projectElement) {
+    if (jdomPrototypeManager != null) {
+      List<Element> prototypeChain = jdomPrototypeManager.getPrototypeChain(projectElement);
+      for (Element prototype : prototypeChain) {
+        configureProjectFromElement(project, prototype);
+      }
+      // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
+      project.getAttributes().remove(JdomPrototypeManager.PROTOTYPE_NAME_ATTRIBUTE);
+    }
   }
 
   /**
@@ -518,7 +530,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @return the constituents for the project
    */
-  private List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
+  protected List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
     if (containerElement == null) {
       return null;
     }
