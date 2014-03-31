@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * A simple input/output pair specification.
+ * A simple variable assignment constituent for projects.
  *
  * @author Trevor Pering
  */

@@ -14,59 +14,55 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.type.java;
 
 import com.google.common.collect.Lists;
-import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.activity.ActivityProjectTemplate;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.JavaEclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
 /**
- * An Android activity project type.
+ * A Simple Java activity project type.
  *
  * @author Keith M. Hughes
  */
-public class AndroidActivityProjectType extends JavaProjectType {
+public class JavaActivityProjectType extends JavaProjectType {
 
   /**
-   * Name for the buildertype.
+   * Name for the builder.
    */
-  public static final String BUILDER_TYPE = "android";
+  public static final String BUILDER_NAME = "java";
 
   @Override
   public String getProjectTypeName() {
     return ActivityProject.PROJECT_TYPE_NAME;
   }
 
-  /**
-   * The extension for android projects.
-   */
-  private final AndroidJavaProjectExtension extension = new AndroidJavaProjectExtension();
-
   @Override
   public boolean isProperType(Project project) {
-    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_TYPE.equals(project.getBuilderType());
+    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_NAME.equals(project.getBuilderType());
   }
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new JavaActivityProjectBuilder(extension);
+    return new JavaActivityProjectBuilder();
   }
 
   @Override
   public ProjectTemplate newProjectTemplate() {
-    return new BaseProjectTemplate();
+    return new ActivityProjectTemplate();
   }
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
     return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(JavaProjectType.SOURCE_MAIN_JAVA,
-        ProjectType.SOURCE_MAIN_RESOURCES), Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS), extension);
+        ProjectType.SOURCE_MAIN_RESOURCES), Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS));
   }
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.type;
+package interactivespaces.workbench.project.activity.type.android;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;

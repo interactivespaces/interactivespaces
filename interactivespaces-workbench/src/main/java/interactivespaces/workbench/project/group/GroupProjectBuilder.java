@@ -28,6 +28,6 @@ import interactivespaces.workbench.project.builder.ProjectBuildContext;
 public class GroupProjectBuilder extends BaseProjectBuilder<GroupProject> {
   @Override
   public boolean build(GroupProject project, ProjectBuildContext context) {
-    throw new SimpleInteractiveSpacesException("Can't build group projects");
+    throw new SimpleInteractiveSpacesException("Can't build group projects (yet)");
   }
 }

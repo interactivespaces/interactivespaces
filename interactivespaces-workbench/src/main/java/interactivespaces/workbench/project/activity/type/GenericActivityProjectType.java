@@ -28,7 +28,7 @@ import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
 /**
- * A script activity project type.
+ * A generic activity project type with a configurable builder type.
  *
  * @author Keith M. Hughes
  */

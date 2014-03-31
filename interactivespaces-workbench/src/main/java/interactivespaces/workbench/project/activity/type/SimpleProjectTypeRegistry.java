@@ -22,6 +22,8 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
+import interactivespaces.workbench.project.activity.type.android.AndroidActivityProjectType;
+import interactivespaces.workbench.project.activity.type.java.JavaActivityProjectType;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectType;
 import interactivespaces.workbench.project.group.GroupProject;

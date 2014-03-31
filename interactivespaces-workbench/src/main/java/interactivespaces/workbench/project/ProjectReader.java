@@ -40,5 +40,4 @@ public interface ProjectReader {
    *           an error happened during the project file processing
    */
   Project readProject(File projectFile) throws InteractiveSpacesException;
-
 }
