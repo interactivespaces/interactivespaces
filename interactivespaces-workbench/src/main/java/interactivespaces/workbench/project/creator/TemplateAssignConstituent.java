@@ -26,6 +26,7 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * A simple input/output pair specification.
@@ -111,9 +112,11 @@ public class TemplateAssignConstituent extends ContainerConstituent {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
     FreemarkerTemplater templater = context.getWorkbench().getTemplater();
     int evaluationPasses = 1;
-    templater.processStringTemplate(projectCreationContext.getTemplateData(), getValue(), getName(), evaluationPasses);
+    Map<String, Object> templateData = projectCreationContext.getTemplateData();
+    templater.processStringTemplate(templateData, getValue(), getName(), evaluationPasses);
     if (getExport() != null) {
-      project.addAttribute(getExport(), getValue());
+      // Query the template data since it will then export the resolved data (without variable references).
+      project.addAttribute(getExport(), (String) templateData.get(getName()));
     }
   }
 
