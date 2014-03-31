@@ -39,7 +39,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
   /**
    * Project type for a template file constituent.
    */
-  public static final String TYPE_NAME = "fileTemplate";
+  public static final String TYPE_NAME = "templateFile";
 
   /**
    * THe number of evaluation passes used for writing project templates.

@@ -569,7 +569,9 @@ public class InteractiveSpacesWorkbench {
       } else {
         String commandModifier = removeArgument(commands, "command modifier");
         if (!COMMAND_RECURSIVE.equals(commandModifier)) {
-          doCommandsOnTree(baseDir, commands);
+          if (doCommandsOnTree(baseDir, commands)) {
+            throw new SimpleInteractiveSpacesException("Previous errors encountered");
+          }
         } else {
           throw new SimpleInteractiveSpacesException("Unknown command modifier " + commandModifier);
         }
@@ -622,11 +624,12 @@ public class InteractiveSpacesWorkbench {
    *
    * @param baseDir
    *          base file to start looking for projects in
-   *
    * @param commands
    *          commands to run on all project files
+   *
+   * @return {@code true} if errors were encountered walking the tree
    */
-  private void doCommandsOnTree(File baseDir, List<String> commands) {
+  private boolean doCommandsOnTree(File baseDir, List<String> commands) {
     FileFilter filter = new FileFilter() {
 
       @Override
@@ -635,11 +638,13 @@ public class InteractiveSpacesWorkbench {
       }
     };
     File[] files = baseDir.listFiles(filter);
+    boolean hadErrors = false;
     if (files != null) {
       for (File possible : files) {
-        doCommandsOnTree(possible, commands, filter);
+        hadErrors |= doCommandsOnTree(possible, commands, filter);
       }
     }
+    return hadErrors;
   }
 
   /**
@@ -652,18 +657,28 @@ public class InteractiveSpacesWorkbench {
    *          commands to run on all project files
    * @param filter
    *          file filter to identify which files in the tree to execute on
+   *
+   * @return {@code true} if errors were encountered walking the tree
    */
-  private void doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
+  private boolean doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
+    boolean hadErrors = false;
+
     if (projectManager.isProjectFolder(baseDir)) {
-      doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+      try {
+        doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+      } catch (Exception e) {
+        getLog().error("Error encountered performing commands on project", e);
+        hadErrors = true;
+      }
     } else {
       File[] files = baseDir.listFiles(filter);
       if (files != null) {
         for (File possible : files) {
-          doCommandsOnTree(possible, commands, filter);
+          hadErrors |= doCommandsOnTree(possible, commands, filter);
         }
       }
     }
+    return hadErrors;
   }
 
   /**
