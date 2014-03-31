@@ -33,17 +33,17 @@
           <property name="space.activity.log.level" value="info" required="false" />
         </configuration>
       </activity>
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
-      </templates>
+      </templateComponents>
     </prototype>
   </prototypes>
 
   <projects>
     <project inheritsFrom="activityProject" type="activity">
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="${javaSrcDir}/SimpleAndroidActivity.java" sourceFile="SimpleAndroidActivity.java.ftl" />
-      </templates>
+      </templateComponents>
     </project>
   </projects>
 </projectGroupTemplateSpecification>

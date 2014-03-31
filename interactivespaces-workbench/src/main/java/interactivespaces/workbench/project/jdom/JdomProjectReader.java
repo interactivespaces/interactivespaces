@@ -138,7 +138,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Project definition file element name for templates.
    */
-  public static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templates";
+  public static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templateComponents";
 
   /**
    * Project definition file element name for metadata.

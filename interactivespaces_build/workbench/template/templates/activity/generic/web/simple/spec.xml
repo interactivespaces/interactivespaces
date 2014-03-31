@@ -30,17 +30,17 @@
           <property name="space.activity.log.level" value="info" required="false" />
         </configuration>
       </activity>
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
-      </templates>
+      </templateComponents>
     </prototype>
   </prototypes>
 
   <projects>
     <project inheritsFrom="activityProject" type="activity">
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="${resourceDir}/${javascriptExecutable}" sourceFile="SimpleJavascriptActivity.js.ftl" />
-      </templates>
+      </templateComponents>
     </project>
   </projects>
 </projectGroupTemplateSpecification>

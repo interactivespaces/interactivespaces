@@ -597,9 +597,8 @@ public class InteractiveSpacesWorkbench {
     ProjectReader projectReader = new JdomProjectGroupReader(this);
     Project project = projectReader.readProject(specFile);
 
-    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(project, specFile.getAbsolutePath());
     creationSpecification.setWorkbench(this);
-    creationSpecification.setProject(project);
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);
 

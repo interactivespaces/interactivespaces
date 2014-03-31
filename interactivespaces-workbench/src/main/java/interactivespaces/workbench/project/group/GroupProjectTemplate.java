@@ -60,9 +60,8 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
    */
   private ProjectCreationContext makeCreationSpecification(
       Project project, ProjectCreationContext groupCreationSpec) {
-    ProjectCreationContext creationSpecification = new ProjectCreationContext("sub-project");
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(project, "sub-project");
     creationSpecification.setWorkbench(groupCreationSpec.getWorkbench());
-    creationSpecification.setProject(project);
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());

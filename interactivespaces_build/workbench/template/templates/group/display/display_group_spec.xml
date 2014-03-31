@@ -21,16 +21,16 @@
 
   <prototypes>
     <prototype prototypeName="commonVars" inheritsFrom="base">
-      <templates>
+      <templateComponents>
         <assign name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
         <assign name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
         <assign name="groupPackage" value="${groupName?replace('.', '/')}" />
         <assign name="origBaseDirectory" value="${baseDirectory}" />
-      </templates>
+      </templateComponents>
     </prototype>
 
     <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0" >
-      <templates>
+      <templateComponents>
         <assign name="facet" value="${project.getAttribute('facet')}" />
         <assign name="idName" value="${groupName}.${facet}" export="relDirectory" />
         <assign name="package" value="${groupName}.${facet}" />
@@ -41,7 +41,7 @@
         <assign name="webAppFileBase" value="${idName?replace('.', '-')}" />
         <assign name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
         <assign name="javaSrcDir" value="${activity.activitySourceDirectory}" />
-      </templates>
+      </templateComponents>
 
       <version>0.0.1</version>
       <name>${fullName}</name>
@@ -57,9 +57,9 @@
           <property name="space.activity.log.level" value="info" required="false" />
         </configuration>
       </activity>
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
-      </templates>
+      </templateComponents>
     </prototype>
 
     <prototype prototypeName="webActivity" inheritsFrom="activityProject">
@@ -70,12 +70,12 @@
           <property name="space.activity.webapp.content.location" value="webapp" description="Content location" />
         </configuration>
       </activity>
-      <templates>
+      <templateComponents>
         <templateFile destinationFile="${webSrcDir}/js/${webAppFileBase}.js" sourceFile="activity.js.ftl" />
         <templateFile destinationFile="${webSrcDir}/css/${webAppFileBase}.css" sourceFile="activity.css.ftl" />
         <templateFile destinationFile="${webSrcDir}/index.html" sourceFile="index.html.ftl" />
         <templateFile destinationFile="${javaSrcDir}/${packagePath}/${javaClassName}.java" sourceFile="Activity.java.ftl" />
-      </templates>
+      </templateComponents>
     </prototype>
   </prototypes>
 
@@ -94,5 +94,5 @@
 
   <templates inheritsFrom="commonVars" >
     <templateFile destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
-  </templates>
+  </templateComponents>
 </projectGroupTemplateSpecification>

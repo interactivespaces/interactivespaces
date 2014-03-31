@@ -46,7 +46,7 @@ public class ProjectCreationContext implements ProjectContext {
   /**
    * The project itself.
    */
-  private Project project;
+  private final Project project;
 
   /**
    * The template for the project.
@@ -66,26 +66,19 @@ public class ProjectCreationContext implements ProjectContext {
   /**
    * Create a project creation specification with the given description.
    *
+   * @param project
+   *          the project this context represents
    * @param description
    *          description of this specification
    */
-  public ProjectCreationContext(String description) {
+  public ProjectCreationContext(Project project, String description) {
     this.description = description;
+    this.project = project;
   }
 
   @Override
   public Project getProject() {
     return project;
-  }
-
-  /**
-   * Set the project description for the spec.
-   *
-   * @param project
-   *          the project to set
-   */
-  public void setProject(Project project) {
-    this.project = project;
   }
 
   /**
