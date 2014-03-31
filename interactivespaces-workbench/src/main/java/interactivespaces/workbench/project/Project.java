@@ -447,6 +447,15 @@ public abstract class Project {
   }
 
   /**
+   * Get the attributes for this project.
+   *
+   * @return attribute map
+   */
+  public Map<String, String> getAttributes() {
+    return attributes;
+  }
+
+  /**
    * Add an extra constituent to the project.
    *
    * @param constituent

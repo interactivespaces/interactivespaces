@@ -21,13 +21,13 @@ import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
- * Builder for a blank project. These can not be built so it simply throws an exception.
+ * Builder for a {@link MetaProject}.
  *
  * @author Trevor Pering
  */
-public class BlankProjectBuilder extends BaseProjectBuilder<BlankProject> {
+public class MetaProjectBuilder extends BaseProjectBuilder<MetaProject> {
   @Override
-  public boolean build(BlankProject project, ProjectBuildContext context) {
-    throw new SimpleInteractiveSpacesException("Can't build blank projects");
+  public boolean build(MetaProject project, ProjectBuildContext context) {
+    throw new SimpleInteractiveSpacesException("Can't build meta projects (yet)");
   }
 }

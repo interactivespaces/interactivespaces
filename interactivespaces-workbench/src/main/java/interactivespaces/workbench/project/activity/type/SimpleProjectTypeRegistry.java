@@ -24,8 +24,8 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.assembly.AssemblyProject;
 import interactivespaces.workbench.project.assembly.AssemblyProjectType;
-import interactivespaces.workbench.project.group.BlankProject;
-import interactivespaces.workbench.project.group.BlankProjectType;
+import interactivespaces.workbench.project.group.MetaProject;
+import interactivespaces.workbench.project.group.MetaProjectType;
 import interactivespaces.workbench.project.group.GroupProject;
 import interactivespaces.workbench.project.group.GroupProjectType;
 import interactivespaces.workbench.project.library.LibraryProject;
@@ -72,13 +72,13 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
     registerProjectType(new LibraryProjectType());
     registerProjectType(new AssemblyProjectType());
     registerProjectType(new GroupProjectType());
-    registerProjectType(new BlankProjectType());
+    registerProjectType(new MetaProjectType());
 
     projectCreatorMap.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
     projectCreatorMap.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
     projectCreatorMap.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
     projectCreatorMap.put(GroupProject.PROJECT_TYPE_NAME, GroupProject.class);
-    projectCreatorMap.put(BlankProject.PROJECT_TYPE_NAME, BlankProject.class);
+    projectCreatorMap.put(MetaProject.PROJECT_TYPE_NAME, MetaProject.class);
   }
 
   @Override

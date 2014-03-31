@@ -50,6 +50,11 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   public static final String VALUE_ATTRIBUTE_NAME = "value";
 
   /**
+   * Attribute name for an export clause.
+   */
+  public static final String EXPORT_ATTRIBUTE_NAME = "export";
+
+  /**
    * The variable name.
    */
   private final String name;
@@ -60,16 +65,24 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   private final String value;
 
   /**
+   * The variable export target.
+   */
+  private final String export;
+
+  /**
    * Create a new template variable entry.
    *
    * @param name
    *          var name
    * @param value
-   *          var value
+   *          assign value
+   * @param export
+   *          export target
    */
-  public TemplateAssignConstituent(String name, String value) {
+  public TemplateAssignConstituent(String name, String value, String export) {
     this.name = name;
     this.value = value;
+    this.export = export;
   }
 
   /**
@@ -86,12 +99,22 @@ public class TemplateAssignConstituent extends ContainerConstituent {
     return value;
   }
 
+  /**
+   * @return export target
+   */
+  public String getExport() {
+    return export;
+  }
+
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
     FreemarkerTemplater templater = context.getWorkbench().getTemplater();
     int evaluationPasses = 1;
     templater.processStringTemplate(projectCreationContext.getTemplateData(), getValue(), getName(), evaluationPasses);
+    if (getExport() != null) {
+      project.addAttribute(getExport(), getValue());
+    }
   }
 
   /**
@@ -118,11 +141,12 @@ public class TemplateAssignConstituent extends ContainerConstituent {
     public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
       String name = element.getAttributeValue(NAME_ATTRIBUTE_NAME);
       String value = element.getAttributeValue(VALUE_ATTRIBUTE_NAME);
+      String export = element.getAttributeValue(EXPORT_ATTRIBUTE_NAME);
       if (name == null || value == null) {
         throw new SimpleInteractiveSpacesException(
             String.format("Assignment has missing name/value %s/%s", name, value));
       }
-      return new TemplateAssignConstituent(name, value);
+      return new TemplateAssignConstituent(name, value, export);
     }
   }
 }

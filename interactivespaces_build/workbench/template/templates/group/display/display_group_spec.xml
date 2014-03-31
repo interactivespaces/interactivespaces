@@ -14,13 +14,13 @@
     the License.
 -->
 
-<projectGroup>
+<projectGroupTemplateSpecification>
   <name>Display Project Group</name>
   <description>Auto-generated activity for a display group</description>
   <version>0.0.1</version>
 
   <prototypes>
-    <prototype prototypeName="commonVars">
+    <prototype prototypeName="commonVars" inheritsFrom="base">
       <templates>
         <assign name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
         <assign name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
@@ -29,10 +29,10 @@
       </templates>
     </prototype>
 
-    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
+    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0" >
       <templates>
         <assign name="facet" value="${project.getAttribute('facet')}" />
-        <assign name="idName" value="${groupName}.${facet}" />
+        <assign name="idName" value="${groupName}.${facet}" export="relDirectory" />
         <assign name="package" value="${groupName}.${facet}" />
         <assign name="packagePath" value="${package?replace('.', '/')}" />
         <assign name="baseDirectory" value="${baseDirectory}/${idName}" />
@@ -80,7 +80,7 @@
   </prototypes>
 
   <projects>
-    <project inheritsFrom="commonVars" type="blank">
+    <project inheritsFrom="commonVars" type="meta">
       <templates>
         <template destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
       </templates>
@@ -97,4 +97,4 @@
     <project facet="admin" inheritsFrom="webActivity" type="activity">
     </project>
   </projects>
-</projectGroup>
+</projectGroupTemplateSpecification>

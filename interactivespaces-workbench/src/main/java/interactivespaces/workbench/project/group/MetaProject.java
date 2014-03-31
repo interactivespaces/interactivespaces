@@ -19,15 +19,15 @@ package interactivespaces.workbench.project.group;
 import interactivespaces.workbench.project.Project;
 
 /**
- * A project specification for a blank project that has no automatic output, specifically, no project.xml file. Any
- * desired output for the project needs to be specified explicitly.
+ * A project specification for a meta project that represents the group of projects (therefore meta).
+ * This is different from a {@link GroupProject}, in that it doesn't directly encompass the other projects.
  *
  * @author Trevor Pering
  */
-public class BlankProject extends Project {
+public class MetaProject extends Project {
 
   /**
    * Name of the project type.
    */
-  public static final String PROJECT_TYPE_NAME = "blank";
+  public static final String PROJECT_TYPE_NAME = "meta";
 }

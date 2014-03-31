@@ -53,6 +53,11 @@ class JdomPrototypeManager {
   public static final String GROUP_ELEMENT_NAME = "prototypes";
 
   /**
+   * Prototype name for the base prototype, which can be null to allow custom base variables.
+   */
+  public static final String BASE_PROTOTYPE_NAME = "base";
+
+  /**
    * Map of prototype names to generating elements.
    */
   private Map<String, Element> prototypeMap = Maps.newHashMap();
@@ -108,6 +113,12 @@ class JdomPrototypeManager {
     String[] prototypeNameList = prototypeNameAttributeValue.split(",");
     for (String prototypeName : prototypeNameList) {
       Element parent = prototypeMap.get(prototypeName);
+
+      // The base prototype is a special case that is allowed to be used without being defined. This allows it
+      // to be a base prototype for everything, if desired, and will not cause an error if not manually defined.
+      if (BASE_PROTOTYPE_NAME.equals(prototypeName) && parent == null) {
+        continue;
+      }
       Preconditions.checkNotNull(parent, "Could not find prototype named " + prototypeName);
       followPrototypeChain(parent, prototypeChain);
       prototypeChain.add(parent);

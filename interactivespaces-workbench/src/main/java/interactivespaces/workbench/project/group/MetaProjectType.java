@@ -25,25 +25,25 @@ import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 
 /**
- * A project type for blank projects, which have no default output generated.
+ * A project type for a {@link MetaProject}.
  *
  * @author Trevor Pering
  */
-public class BlankProjectType implements ProjectType {
+public class MetaProjectType implements ProjectType {
 
   @Override
   public String getProjectTypeName() {
-    return BlankProject.PROJECT_TYPE_NAME;
+    return MetaProject.PROJECT_TYPE_NAME;
   }
 
   @Override
   public boolean isProperType(Project project) {
-    return BlankProject.PROJECT_TYPE_NAME.equals(project.getType());
+    return MetaProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new BlankProjectBuilder();
+    return new MetaProjectBuilder();
   }
 
   @Override

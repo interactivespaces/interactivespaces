@@ -278,6 +278,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       for (Element prototype : prototypeChain) {
         configureProjectFromElement(project, prototype);
       }
+      // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
+      project.getAttributes().remove(JdomPrototypeManager.PROTOTYPE_NAME_ATTRIBUTE);
     }
     configureProjectFromElement(project, projectElement);
 

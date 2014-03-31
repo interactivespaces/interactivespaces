@@ -38,6 +38,11 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
   /**
    * Element name for a project group.
    */
+  public static final String PROJECT_GROUP_TEMPLATE_SPECIFICATION_ELEMENT_NAME = "projectGroupTemplateSpecification";
+
+  /**
+   * Element name for a project group.
+   */
   public static final String PROJECT_GROUP_ELEMENT_NAME = "projectGroup";
 
   /**
@@ -61,7 +66,9 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
       Element rootElement = getRootElement(specFile);
       String type = rootElement.getName();
       Project project;
-      if (JdomProjectGroupReader.PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
+      if (PROJECT_GROUP_TEMPLATE_SPECIFICATION_ELEMENT_NAME.equals(type)) {
+        project =  makeGroupProjectFromElement(rootElement);
+      } else if (PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
         project =  makeGroupProjectFromElement(rootElement);
       } else if (JdomProjectReader.ELEMENT_NAME.equals(type)) {
         project = makeSimpleProjectFromElement(rootElement);
@@ -87,7 +94,12 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
   private Project makeGroupProjectFromElement(Element rootElement) {
     GroupProject groupProject = new GroupProject();
     groupProject.setType(GroupProject.PROJECT_TYPE_NAME);
-    addElementToProject(groupProject, rootElement);
+
+    List<Element> children = getChildren(rootElement);
+    for (Element child : children) {
+      addElementToSpec(groupProject, child);
+    }
+
     return groupProject;
   }
 
@@ -106,25 +118,6 @@ public class JdomProjectGroupReader extends JdomReader implements ProjectReader 
     project.setType(ActivityProject.PROJECT_TYPE_NAME);
 
     return project;
-  }
-
-  /**
-   * Add the contents of the given element to the project.
-   *
-   * @param groupProject
-   *          target for processed input
-   * @param rootElement
-   *          input element
-   */
-  void addElementToProject(GroupProject groupProject, Element rootElement) {
-    if (!PROJECT_GROUP_ELEMENT_NAME.equals(rootElement.getName())) {
-      throw new SimpleInteractiveSpacesException("Illegal root element name " + rootElement.getName());
-    }
-
-    List<Element> children = getChildren(rootElement);
-    for (Element child : children) {
-      addElementToSpec(groupProject, child);
-    }
   }
 
   /**

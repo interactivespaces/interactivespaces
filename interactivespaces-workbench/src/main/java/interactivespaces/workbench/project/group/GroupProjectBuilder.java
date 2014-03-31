@@ -21,13 +21,13 @@ import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 /**
- * Builder for a blank project. These can not be built so it simply throws an exception.
+ * Builder for a group project. These can not be built directly so it simply throws an exception.
  *
  * @author Trevor Pering
  */
 public class GroupProjectBuilder extends BaseProjectBuilder<GroupProject> {
   @Override
   public boolean build(GroupProject project, ProjectBuildContext context) {
-    throw new SimpleInteractiveSpacesException("Can't build blank projects");
+    throw new SimpleInteractiveSpacesException("Can't build group projects");
   }
 }
