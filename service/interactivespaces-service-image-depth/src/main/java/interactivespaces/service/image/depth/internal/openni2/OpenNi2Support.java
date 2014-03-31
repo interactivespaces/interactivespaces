@@ -45,10 +45,23 @@ public class OpenNi2Support {
    */
   public static void throwExtendedOpenNIError(String baseMessage, IntValuedEnum<OniStatus> status)
       throws InteractiveSpacesException {
+    throw new SimpleInteractiveSpacesException(getFullOpenNIMessage(baseMessage, status));
+  }
+
+  /**
+   * Get the extended message from an OpenNI status.
+   *
+   * @param baseMessage
+   *          the base message
+   * @param status
+   *          the status from the OpenNI call
+   *
+   * @return the formatted error string
+   */
+  public static String getFullOpenNIMessage(String baseMessage, IntValuedEnum<OniStatus> status) {
     Pointer<Byte> errorPointer = OpenNI2Library.oniGetExtendedError();
 
-    throw new SimpleInteractiveSpacesException(String.format("%s, status was %s: %s", baseMessage, status,
-        errorPointer.getCString()));
+    return String.format("%s, status was %s: %s", baseMessage, status, errorPointer.getCString());
   }
 
   /**
@@ -64,9 +77,22 @@ public class OpenNi2Support {
    */
   public static void throwExtendedNiteError(String baseMessage, IntValuedEnum<NiteStatus> status)
       throws InteractiveSpacesException {
+    throw new SimpleInteractiveSpacesException(getFullNiteMessage(baseMessage, status));
+  }
+
+  /**
+   * Get the extended message from a NiTE status.
+   *
+   * @param baseMessage
+   *          the base message
+   * @param status
+   *          the status from the OpenNI call
+   *
+   * @return the formatted error string
+   */
+  public static String getFullNiteMessage(String baseMessage, IntValuedEnum<NiteStatus> status) {
     Pointer<Byte> errorPointer = OpenNI2Library.oniGetExtendedError();
 
-    throw new SimpleInteractiveSpacesException(String.format("%s, status was %s: %s", baseMessage, status,
-        errorPointer.getCString()));
+    return String.format("%s, status was %s: %s", baseMessage, status, errorPointer.getCString());
   }
 }
