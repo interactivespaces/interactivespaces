@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 import groovy.text.SimpleTemplateEngine
 import groovy.util.BuilderSupport
 import java.util.List
@@ -37,6 +53,9 @@ class Machine {
 }
 
 abstract class MachineOperator {
+  // Comes from the class UuidGenerator in InteractiveSpaces Core.
+  final UUID UUID_NAMESPACE_SPACECONTROLLER = UUID.fromString('d06715fb-3529-31a7-9d50-f8bc98a98dc')
+
   def deploy(controller, space, options, errors) {
     def machine = controller.machine
     println "Deploying controller ${controller.name} to ${machine.host}"
@@ -54,12 +73,42 @@ abstract class MachineOperator {
 
     doRecursiveCopy(machine, "${controller.image}/controller", controller.folder, options, errors)
 
-    if (options.initial)
+    if (options.initial || options.uuid) {
       sendConfigurations(controller, space, options, errors)
+    }
   }
 
   def setupAutostart(controller, space, options, errors) {
     println "Autostart unsupported"
+  }
+
+  def generateSpaceControllerUuid(controller) {
+    def name = controller.hostId
+
+    // TODO(keith): Once SpaceOperations is moved into master, use the
+    // UuidGenerator class directly.
+    long msb = UUID_NAMESPACE_SPACECONTROLLER.getMostSignificantBits();
+    long lsb = UUID_NAMESPACE_SPACECONTROLLER.getLeastSignificantBits();
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    int position = 56;
+    for (int i = 0; i < 8; i++) {
+      outputStream.write((byte) (msb >>> position));
+      position -= 8;
+    }
+    position = 56;
+    for (int i = 0; i < 8; i++) {
+      outputStream.write((byte) (lsb >>> position));
+      position -= 8;
+    }
+    outputStream.write(name.getBytes());
+
+    return UUID.nameUUIDFromBytes(outputStream.toByteArray()).toString();
+  }
+
+  def printUuid(controller, space, options, errors) {
+    println controller.name + ": " + generateSpaceControllerUuid(controller)
   }
 
   def startControllers(controller, space, options, errors) {
@@ -78,6 +127,10 @@ abstract class MachineOperator {
     def machine = controller.machine
     def templateEngine = new SimpleTemplateEngine()
     def binding = [controller: controller, machine: machine, space: space]
+
+    if (options.uuid) {
+      controller.uuid = generateSpaceControllerUuid(controller)
+    }
 
     def container = renderTemplate("${controller.image}/configs/container.conf", binding, templateEngine)
     def f1 = File.createTempFile('container-', '.conf')
