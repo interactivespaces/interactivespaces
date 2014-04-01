@@ -21,6 +21,7 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.group.GroupProject;
 
 import java.io.File;
 import java.util.Map;
@@ -46,7 +47,12 @@ public class ProjectCreationContext implements ProjectContext {
   /**
    * The project itself.
    */
-  private final Project project;
+  private Project project;
+
+  /**
+   * The project itself.
+   */
+  private GroupProject groupProject;
 
   /**
    * The template for the project.
@@ -66,19 +72,31 @@ public class ProjectCreationContext implements ProjectContext {
   /**
    * Create a project creation specification with the given description.
    *
-   * @param project
-   *          the project this context represents
    * @param description
-   *          description of this specification
    */
-  public ProjectCreationContext(Project project, String description) {
+  public ProjectCreationContext(String description) {
     this.description = description;
+  }
+
+  public void setProject(Project project) {
     this.project = project;
+  }
+
+  public GroupProject getGroupProject() {
+    return groupProject;
+  }
+
+  public void setGroupProject(GroupProject groupProject) {
+    this.groupProject = groupProject;
   }
 
   @Override
   public Project getProject() {
     return project;
+  }
+
+  public GroupProject getProjectGroup() {
+    return groupProject;
   }
 
   /**
@@ -170,7 +188,7 @@ public class ProjectCreationContext implements ProjectContext {
   @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
-    return (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
+    return null;//  (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
   }
 
   @Override

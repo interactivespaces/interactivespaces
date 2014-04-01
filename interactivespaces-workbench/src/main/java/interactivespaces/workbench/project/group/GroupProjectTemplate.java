@@ -30,12 +30,12 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
 
   @Override
   protected void onTemplateSetup(ProjectCreationContext context) {
-    context.addTemplateDataEntry("group", context.getProject());
+    context.addTemplateDataEntry("group", context.getProjectGroup());
   }
 
   @Override
   public void onTemplateWrite(ProjectCreationContext context) {
-    GroupProject groupProject = (GroupProject) context.getProject();
+    GroupProject groupProject = (GroupProject) context.getProjectGroup();
     int projectIndex = 0;
     try {
       for (Project project : groupProject.getProjectList()) {
@@ -60,12 +60,13 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
    */
   private ProjectCreationContext makeCreationSpecification(
       Project project, ProjectCreationContext groupCreationSpec) {
-    ProjectCreationContext creationSpecification = new ProjectCreationContext(project, "sub-project");
+    ProjectCreationContext creationSpecification = new ProjectCreationContext("sub-project");
+    creationSpecification.setProject(project);
     creationSpecification.setWorkbench(groupCreationSpec.getWorkbench());
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());
-    creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getProject());
+    creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getProjectGroup());
     return creationSpecification;
   }
 }

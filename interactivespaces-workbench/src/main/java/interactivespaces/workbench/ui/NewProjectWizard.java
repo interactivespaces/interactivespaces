@@ -82,7 +82,8 @@ public class NewProjectWizard extends WizardCollection {
 
     Project project = activityDescriptionWizard.getProject();
 
-    ProjectCreationContext context = new ProjectCreationContext(project, "from wizard");
+    ProjectCreationContext context = new ProjectCreationContext("from wizard");
+    context.setProject(project);
     context.setWorkbench(workbench);
 
     // Folder will be by identifying name in the folder selected in the directory choose dialog

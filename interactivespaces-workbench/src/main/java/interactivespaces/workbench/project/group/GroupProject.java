@@ -17,21 +17,60 @@
 package interactivespaces.workbench.project.group;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import interactivespaces.resource.Version;
+import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.jdom.JdomProjectReader;
+import org.jdom.Element;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A group of projects.
  *
  * @author Trevor Pering
  */
-public class GroupProject extends Project {
+public class GroupProject {
 
   /**
    * Name of the project type.
    */
   public static final String PROJECT_TYPE_NAME = "group";
+
+  /**
+   * The descriptive name of the project.
+   */
+  private String name;
+
+  /**
+   * The description of the project.
+   */
+  private String description;
+
+  /**
+   * Version of the project.
+   */
+  private Version version;
+  /**
+   * The source specification directory for the project.
+   */
+  private File specificationSource;
+
+  /**
+   * An extra set of project constituents. Some constituents are common to all
+   * projects, these will be specific to an actual project type and will be
+   * processed by the specific project type builder as that builder needs.
+   */
+  private final List<ProjectConstituent> extraConstituents = Lists.newArrayList();
+
+  /**
+   * Attributes for this project.
+   */
+  private final Map<String, String> attributes = Maps.newHashMap();
 
   /**
    * List of projects in this group.
@@ -55,6 +94,101 @@ public class GroupProject extends Project {
    */
   public void addProject(Project project) {
     projectList.add(project);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Version getVersion() {
+    return version;
+  }
+
+  public void setVersion(Version version) {
+    this.version = version;
+  }
+
+  public File getSpecificationSource() {
+    return specificationSource;
+  }
+
+  public void setSpecificationSource(File specificationSource) {
+    this.specificationSource = specificationSource;
+  }
+  /**
+   * Add an extra constituent to the project.
+   *
+   * @param constituent
+   *          the constituent to add
+   */
+  public void addExtraConstituent(ProjectConstituent constituent) {
+    extraConstituents.add(constituent);
+  }
+
+  /**
+   * Add extra constituents to the project.
+   *
+   * @param constituents
+   *          the constituents to add, can be {@code null}
+   */
+  public void addExtraConstituents(List<ProjectConstituent> constituents) {
+    if (constituents != null) {
+      extraConstituents.addAll(constituents);
+    }
+  }
+
+  /**
+   * Get the list of extra constituents.
+   *
+   * @return the list of extra constituents
+   */
+  public List<ProjectConstituent> getExtraConstituents() {
+    return extraConstituents;
+  }
+
+  /**
+   * Add an attribute to this project.
+   *
+   * @param key
+   *          attribute name
+   * @param value
+   *          attribute value
+   */
+  public void addAttribute(String key, String value) {
+    attributes.put(key, value);
+  }
+
+  /**
+   * Get an attribute from this project.
+   *
+   * @param key
+   *          attribute key
+   *
+   * @return attribute value or {@code null} if no value
+   */
+  public String getAttribute(String key) {
+    return attributes.get(key);
+  }
+
+  /**
+   * Get the attributes for this project.
+   *
+   * @return attribute map
+   */
+  public Map<String, String> getAttributes() {
+    return attributes;
   }
 
 }

@@ -76,11 +76,15 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
     projectCreatorMap.put(ActivityProject.PROJECT_TYPE_NAME, ActivityProject.class);
     projectCreatorMap.put(LibraryProject.PROJECT_TYPE_NAME, LibraryProject.class);
     projectCreatorMap.put(AssemblyProject.PROJECT_TYPE_NAME, AssemblyProject.class);
-    projectCreatorMap.put(GroupProject.PROJECT_TYPE_NAME, GroupProject.class);
+    //projectCreatorMap.put(GroupProject.PROJECT_TYPE_NAME, GroupProject.class);
   }
 
   @Override
   public ProjectType getProjectType(Project project) {
+    if (project == null) {
+      return null;
+    }
+
     for (ProjectType type : projectTypes) {
       if (type.isProperType(project)) {
         return type;

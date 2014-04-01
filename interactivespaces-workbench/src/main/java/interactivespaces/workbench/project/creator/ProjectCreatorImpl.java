@@ -22,6 +22,8 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectTemplate;
 
 /**
  * A {@link ProjectCreator} implementation.
@@ -57,17 +59,35 @@ public class ProjectCreatorImpl implements ProjectCreator {
   public void create(ProjectCreationContext context) {
     try {
       Project project = context.getProject();
-      ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);
-      if (projectType == null) {
-        throw new SimpleInteractiveSpacesException(String.format("Invalid type for project type/builder %s/%s",
-            project.getType(), project.getBuilderType()));
+      GroupProject groupProject = context.getGroupProject();
+
+      if (project != null) {
+        createProject(context, project);
+      } else if (groupProject != null) {
+        createGroupProject(context);
+      } else {
+        throw new SimpleInteractiveSpacesException("Context has neither Project nor GroupProject");
       }
-      ProjectTemplate projectTemplate = projectType.newProjectTemplate();
-      projectTemplate.setTemplater(templater);
-      projectTemplate.process(context);
 
     } catch (Exception e) {
       workbench.handleError("Error while creating project " + context.getDescription(), e);
     }
+  }
+
+  private void createProject(ProjectCreationContext context, Project project) {
+    ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);
+    if (projectType == null) {
+      throw new SimpleInteractiveSpacesException(String.format("Invalid type for project type/builder %s/%s",
+          project.getType(), project.getBuilderType()));
+    }
+    ProjectTemplate projectTemplate = projectType.newProjectTemplate();
+    projectTemplate.setTemplater(templater);
+    projectTemplate.process(context);
+  }
+
+  private void createGroupProject(ProjectCreationContext context) {
+    ProjectTemplate projectTemplate = new GroupProjectTemplate();
+    projectTemplate.setTemplater(templater);
+    projectTemplate.process(context);
   }
 }

@@ -92,7 +92,7 @@
     </project>
   </projects>
 
-  <templates inheritsFrom="commonVars" >
+  <templateComponents inheritsFrom="commonVars" >
     <templateFile destinationFile="projectGroup.xml" sourceFile="projectGroup.xml.ftl" />
   </templateComponents>
 </projectGroupTemplateSpecification>

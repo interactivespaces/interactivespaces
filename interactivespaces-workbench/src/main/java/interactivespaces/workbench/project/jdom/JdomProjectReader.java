@@ -66,15 +66,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   public static final String GROUP_ELEMENT_NAME = "projects";
 
   /**
-   * Map of resource types to resource builders.
-   */
-  private static final Map<String, ProjectConstituent.ProjectConstituentFactory> PROJECT_CONSTITUENT_FACTORY_MAP =
-      Maps.newHashMap();
-
-  /**
    * Add all the base constituent types to the static map.
    */
-  static {
+  {
     addConstituentType(new ProjectResourceConstituent.ProjectResourceBuilderFactory());
     addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
     addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
@@ -97,7 +91,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * The identifying name of the project.
    */
-  private static final String PROJECT_ELEMENT_NAME_IDENTIFYING_NAME = "identifyingName";
+  public static final String PROJECT_ELEMENT_NAME_IDENTIFYING_NAME = "identifyingName";
 
   /**
    * The project attribute for the project type.
@@ -107,13 +101,13 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * The project attribute for the project builder.
    */
-  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER = "builder";
+  public static final String PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER = "builder";
 
   /**
    * The project attribute for the version of Interactive Spaces which is
    * required.
    */
-  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION = "interactiveSpacesVersion";
+  public static final String PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION = "interactiveSpacesVersion";
 
   /**
    * The version of the project.
@@ -123,7 +117,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * The base directory of the project.
    */
-  private static final String PROJECT_ELEMENT_NAME_BASE_DIRECTORY = "baseDirectory";
+  public static final String PROJECT_ELEMENT_NAME_BASE_DIRECTORY = "baseDirectory";
 
   /**
    * Project definition file element name for resources.
@@ -225,11 +219,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
   /**
-   * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
-   */
-  private JdomPrototypeProcessor jdomPrototypeProcessor;
-
-  /**
    * Construct a project reader.
    *
    * @param workbench
@@ -237,16 +226,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   public JdomProjectReader(InteractiveSpacesWorkbench workbench) {
     super(workbench);
-  }
-
-  /**
-   * Add a constituent type to the factory.
-   *
-   * @param constituentFactory
-   *          factory to add
-   */
-  private static void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
-    PROJECT_CONSTITUENT_FACTORY_MAP.put(constituentFactory.getName(), constituentFactory);
   }
 
   @Override
@@ -297,9 +276,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * @param projectElement
    *          prototype chain root to follow
    */
-  void processPrototypeChain(Project project, Element projectElement) {
-    if (jdomPrototypeProcessor != null) {
-      List<Element> prototypeChain = jdomPrototypeProcessor.getPrototypeChain(projectElement);
+  private void processPrototypeChain(Project project, Element projectElement) {
+    if (getJdomPrototypeProcessor() != null) {
+      List<Element> prototypeChain = getJdomPrototypeProcessor().getPrototypeChain(projectElement);
       for (Element prototype : prototypeChain) {
         configureProjectFromElement(project, prototype);
       }
@@ -521,79 +500,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   }
 
   /**
-   * Add the constituents from a container in the document the document.
-   *
-   * @param containerElement
-   *          root element of the XML DOM containing the project data
-   * @param project
-   *          the project being read
-   *
-   * @return the constituents for the project
-   */
-  protected List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
-    if (containerElement == null) {
-      return null;
-    }
-
-    List<ProjectConstituent> constituents = Lists.newArrayList();
-    List<Element> childElements = getChildren(containerElement);
-
-    for (Element childElement : childElements) {
-      getConstituent(childElement, project, constituents);
-    }
-
-    return constituents;
-  }
-
-  /**
-   * Add the constituents from a container in the document the document.
-   *
-   * @param constituentElement
-   *          XML element containing the constituent data
-   * @param project
-   *          the project being read
-   *
-   * @return the constituents for the element
-   */
-  private List<ProjectConstituent> getIndividualConstituent(Element constituentElement, Project project) {
-    if (constituentElement == null) {
-      return null;
-    }
-
-    List<ProjectConstituent> constituents = Lists.newArrayList();
-
-    getConstituent(constituentElement, project, constituents);
-
-    return constituents;
-  }
-
-  /**
-   * Get the constituent from the element which describes it..
-   *
-   * @param constituentElement
-   *          the element containing the constituent
-   * @param project
-   *          the project being built
-   * @param constituents
-   *          the list of constituents currently being extracted
-   */
-  private void getConstituent(Element constituentElement, Project project, List<ProjectConstituent> constituents) {
-    String type = constituentElement.getName();
-    ProjectConstituent.ProjectConstituentFactory factory = PROJECT_CONSTITUENT_FACTORY_MAP.get(type);
-    if (factory == null) {
-      addError(String.format("Unknown resource type '%s'", type));
-    } else {
-      ProjectConstituent.ProjectConstituentBuilder projectConstituentBuilder = factory.newBuilder();
-      projectConstituentBuilder.setLog(getLog());
-      ProjectConstituent constituent =
-          projectConstituentBuilder.buildConstituentFromElement(constituentElement, project);
-      if (constituent != null) {
-        constituents.add(constituent);
-      }
-    }
-  }
-
-  /**
    * Get the deployments from the document.
    *
    * @param project
@@ -633,25 +539,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     // TODO(keith): Enumerate all possible errors
 
     return new ProjectDeployment(type, method, location);
-  }
-
-  /**
-   * Get the prototype manager for this reader.
-   *
-   * @return prototype manager
-   */
-  JdomPrototypeProcessor getJdomPrototypeProcessor() {
-    return jdomPrototypeProcessor;
-  }
-
-  /**
-   * Set the prototype manager used by this reader.
-   *
-   * @param jdomPrototypeProcessor
-   *          prototype manager to use
-   */
-  void setJdomPrototypeProcessor(JdomPrototypeProcessor jdomPrototypeProcessor) {
-    this.jdomPrototypeProcessor = jdomPrototypeProcessor;
   }
 
 }

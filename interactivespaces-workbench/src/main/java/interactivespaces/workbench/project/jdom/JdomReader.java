@@ -16,10 +16,14 @@
 
 package interactivespaces.workbench.project.jdom;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import org.apache.commons.logging.Log;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -28,6 +32,7 @@ import org.jdom.input.SAXBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base-class for facilitating reading XML documents using jdom.
@@ -35,6 +40,12 @@ import java.util.List;
  * @author Trevor pering
  */
 public class JdomReader {
+
+  /**
+   * Map of resource types to resource builders.
+   */
+  private final Map<String, ProjectConstituent.ProjectConstituentFactory> projectConstituentFactoryMap =
+      Maps.newHashMap();
 
   /**
    * {@code true} if read was successful.
@@ -47,6 +58,11 @@ public class JdomReader {
   private final InteractiveSpacesWorkbench workbench;
 
   /**
+   * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
+   */
+  private JdomPrototypeProcessor jdomPrototypeProcessor;
+
+  /**
    * Create a new jdom reader.
    *
    * @param workbench
@@ -54,6 +70,16 @@ public class JdomReader {
    */
   public JdomReader(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
+  }
+
+  /**
+   * Add a constituent type to the factory.
+   *
+   * @param constituentFactory
+   *          factory to add
+   */
+  protected void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
+    projectConstituentFactoryMap.put(constituentFactory.getName(), constituentFactory);
   }
 
   /**
@@ -204,5 +230,90 @@ public class JdomReader {
    */
   public Log getLog() {
     return workbench.getLog();
+  }
+
+  public JdomPrototypeProcessor getJdomPrototypeProcessor() {
+    return jdomPrototypeProcessor;
+  }
+
+  public void setJdomPrototypeProcessor(JdomPrototypeProcessor jdomPrototypeProcessor) {
+    this.jdomPrototypeProcessor = jdomPrototypeProcessor;
+  }
+
+  public Map<String, ProjectConstituent.ProjectConstituentFactory> getProjectConstituentFactoryMap() {
+    return projectConstituentFactoryMap;
+  }
+
+  /**
+   * Add the constituents from a container in the document the document.
+   *
+   * @param containerElement
+   *          root element of the XML DOM containing the project data
+   * @param project
+   *          the project being read
+   *
+   * @return the constituents for the project
+   */
+  protected List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
+    if (containerElement == null) {
+      return null;
+    }
+
+    List<ProjectConstituent> constituents = Lists.newArrayList();
+    List<Element> childElements = getChildren(containerElement);
+
+    for (Element childElement : childElements) {
+      getConstituent(childElement, project, constituents);
+    }
+
+    return constituents;
+  }
+
+  /**
+   * Add the constituents from a container in the document the document.
+   *
+   * @param constituentElement
+   *          XML element containing the constituent data
+   * @param project
+   *          the project being read
+   *
+   * @return the constituents for the element
+   */
+  protected List<ProjectConstituent> getIndividualConstituent(Element constituentElement, Project project) {
+    if (constituentElement == null) {
+      return null;
+    }
+
+    List<ProjectConstituent> constituents = Lists.newArrayList();
+
+    getConstituent(constituentElement, project, constituents);
+
+    return constituents;
+  }
+
+  /**
+   * Get the constituent from the element which describes it..
+   *
+   * @param constituentElement
+   *          the element containing the constituent
+   * @param project
+   *          the project being built
+   * @param constituents
+   *          the list of constituents currently being extracted
+   */
+  private void getConstituent(Element constituentElement, Project project, List<ProjectConstituent> constituents) {
+    String type = constituentElement.getName();
+    ProjectConstituent.ProjectConstituentFactory factory = getProjectConstituentFactoryMap().get(type);
+    if (factory == null) {
+      addError(String.format("Unknown resource type '%s'", type));
+    } else {
+      ProjectConstituent.ProjectConstituentBuilder projectConstituentBuilder = factory.newBuilder();
+      projectConstituentBuilder.setLog(getLog());
+      ProjectConstituent constituent =
+          projectConstituentBuilder.buildConstituentFromElement(constituentElement, project);
+      if (constituent != null) {
+        constituents.add(constituent);
+      }
+    }
   }
 }

@@ -51,6 +51,7 @@ import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.group.GroupProject;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
@@ -594,10 +595,11 @@ public class InteractiveSpacesWorkbench {
     File specFile = new File(removeArgument(commands, "specification file"));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 
-    ProjectReader projectReader = new JdomProjectGroupReader(this);
-    Project project = projectReader.readProject(specFile);
+    JdomProjectGroupReader projectReader = new JdomProjectGroupReader(this);
+    GroupProject project = projectReader.readProject(specFile);
 
-    ProjectCreationContext creationSpecification = new ProjectCreationContext(project, specFile.getAbsolutePath());
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
+    creationSpecification.setGroupProject(project);
     creationSpecification.setWorkbench(this);
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);

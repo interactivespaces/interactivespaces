@@ -42,7 +42,7 @@ public class GroupProjectType implements ProjectType {
 
   @Override
   public ProjectBuilder newBuilder() {
-    return new GroupProjectBuilder();
+    return null; // new GroupProjectBuilder();
   }
 
   @Override
