@@ -36,7 +36,6 @@ import interactivespaces.workbench.project.creator.ProjectCreationContext;
 import interactivespaces.workbench.project.creator.ProjectCreator;
 import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
-import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
@@ -51,12 +50,12 @@ import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
-import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
 import interactivespaces.workbench.project.java.OsgiBundleCreator;
-import interactivespaces.workbench.project.jdom.JdomProjectGroupReader;
+import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 import org.apache.commons.logging.Log;
@@ -595,11 +594,11 @@ public class InteractiveSpacesWorkbench {
     File specFile = new File(removeArgument(commands, "specification file"));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 
-    JdomProjectGroupReader projectReader = new JdomProjectGroupReader(this);
-    GroupProject project = projectReader.readProject(specFile);
+    JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
+    GroupProjectTemplateSpecification project = projectReader.readProject(specFile);
 
     ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
-    creationSpecification.setGroupProject(project);
+    creationSpecification.setGroupProjectTemplateSpecification(project);
     creationSpecification.setWorkbench(this);
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);

@@ -21,7 +21,7 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
-import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 
 import java.io.File;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class ProjectCreationContext implements ProjectContext {
   /**
    * The project itself.
    */
-  private GroupProject groupProject;
+  private GroupProjectTemplateSpecification groupProjectTemplateSpecification;
 
   /**
    * The template for the project.
@@ -73,30 +73,43 @@ public class ProjectCreationContext implements ProjectContext {
    * Create a project creation specification with the given description.
    *
    * @param description
+   *          context description
    */
   public ProjectCreationContext(String description) {
     this.description = description;
   }
 
+  /**
+   * Set the project.
+   *
+   * @param project
+   *          project to set
+   */
   public void setProject(Project project) {
     this.project = project;
   }
 
-  public GroupProject getGroupProject() {
-    return groupProject;
+  /**
+   * @return get the group project template specification
+   */
+  public GroupProjectTemplateSpecification getGroupProjectTemplateSpecification() {
+    return groupProjectTemplateSpecification;
   }
 
-  public void setGroupProject(GroupProject groupProject) {
-    this.groupProject = groupProject;
+  /**
+   * Set the group project template specification.
+   *
+   * @param groupProjectTemplateSpecification
+   *          thing to set
+   */
+  public void setGroupProjectTemplateSpecification(
+      GroupProjectTemplateSpecification groupProjectTemplateSpecification) {
+    this.groupProjectTemplateSpecification = groupProjectTemplateSpecification;
   }
 
   @Override
   public Project getProject() {
     return project;
-  }
-
-  public GroupProject getProjectGroup() {
-    return groupProject;
   }
 
   /**
@@ -188,7 +201,7 @@ public class ProjectCreationContext implements ProjectContext {
   @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
-    return null;//  (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
+    return (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
   }
 
   @Override

@@ -22,7 +22,7 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.type.ProjectType;
-import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 import interactivespaces.workbench.project.group.GroupProjectTemplate;
 
 /**
@@ -59,11 +59,12 @@ public class ProjectCreatorImpl implements ProjectCreator {
   public void create(ProjectCreationContext context) {
     try {
       Project project = context.getProject();
-      GroupProject groupProject = context.getGroupProject();
+      GroupProjectTemplateSpecification groupProjectTemplateSpecification =
+          context.getGroupProjectTemplateSpecification();
 
       if (project != null) {
         createProject(context, project);
-      } else if (groupProject != null) {
+      } else if (groupProjectTemplateSpecification != null) {
         createGroupProject(context);
       } else {
         throw new SimpleInteractiveSpacesException("Context has neither Project nor GroupProject");
@@ -74,6 +75,14 @@ public class ProjectCreatorImpl implements ProjectCreator {
     }
   }
 
+  /**
+   * Create a project.
+   *
+   * @param context
+   *          context for creation
+   * @param project
+   *          project to create
+   */
   private void createProject(ProjectCreationContext context, Project project) {
     ProjectType projectType = workbench.getProjectTypeRegistry().getProjectType(project);
     if (projectType == null) {
@@ -85,6 +94,12 @@ public class ProjectCreatorImpl implements ProjectCreator {
     projectTemplate.process(context);
   }
 
+  /**
+   * Create a group project.
+   *
+   * @param context
+   *          context for creation
+   */
   private void createGroupProject(ProjectCreationContext context) {
     ProjectTemplate projectTemplate = new GroupProjectTemplate();
     projectTemplate.setTemplater(templater);

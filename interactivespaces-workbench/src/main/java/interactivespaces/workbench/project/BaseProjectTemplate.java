@@ -21,7 +21,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
-import interactivespaces.workbench.project.group.GroupProject;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -105,9 +105,10 @@ public class BaseProjectTemplate implements ProjectTemplate {
    */
   private void processTemplateConstituents(ProjectCreationContext context) {
     Project project = context.getProject();
-    GroupProject groupProject = context.getGroupProject();
+    GroupProjectTemplateSpecification groupProjectTemplateSpecification =
+        context.getGroupProjectTemplateSpecification();
     List<ProjectConstituent> projectConstituents = project != null
-        ? project.getExtraConstituents() : groupProject.getExtraConstituents();
+        ? project.getExtraConstituents() : groupProjectTemplateSpecification.getExtraConstituents();
     for (ProjectConstituent constituent : projectConstituents) {
       constituent.processConstituent(project, null, context);
     }

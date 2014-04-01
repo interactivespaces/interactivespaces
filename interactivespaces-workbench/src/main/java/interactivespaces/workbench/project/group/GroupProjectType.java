@@ -32,12 +32,12 @@ public class GroupProjectType implements ProjectType {
 
   @Override
   public String getProjectTypeName() {
-    return GroupProject.PROJECT_TYPE_NAME;
+    return GroupProjectTemplateSpecification.PROJECT_TYPE_NAME;
   }
 
   @Override
   public boolean isProperType(Project project) {
-    return GroupProject.PROJECT_TYPE_NAME.equals(project.getType());
+    return GroupProjectTemplateSpecification.PROJECT_TYPE_NAME.equals(project.getType());
   }
 
   @Override

@@ -42,6 +42,11 @@ import java.util.Map;
 public class JdomReader {
 
   /**
+   * Project definition file element name for templates.
+   */
+  public static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templateComponents";
+
+  /**
    * Map of resource types to resource builders.
    */
   private final Map<String, ProjectConstituent.ProjectConstituentFactory> projectConstituentFactoryMap =
@@ -232,14 +237,26 @@ public class JdomReader {
     return workbench.getLog();
   }
 
+  /**
+   * @return the prototype processor
+   */
   public JdomPrototypeProcessor getJdomPrototypeProcessor() {
     return jdomPrototypeProcessor;
   }
 
+  /**
+   * Set the prototype processor.
+   *
+   * @param jdomPrototypeProcessor
+   *          prototype processor
+   */
   public void setJdomPrototypeProcessor(JdomPrototypeProcessor jdomPrototypeProcessor) {
     this.jdomPrototypeProcessor = jdomPrototypeProcessor;
   }
 
+  /**
+   * @return constituent factory map
+   */
   public Map<String, ProjectConstituent.ProjectConstituentFactory> getProjectConstituentFactoryMap() {
     return projectConstituentFactoryMap;
   }

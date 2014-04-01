@@ -19,11 +19,8 @@ package interactivespaces.workbench.project.group;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.resource.Version;
-import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-import interactivespaces.workbench.project.jdom.JdomProjectReader;
-import org.jdom.Element;
 
 import java.io.File;
 import java.util.List;
@@ -34,7 +31,7 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class GroupProject {
+public class GroupProjectTemplateSpecification {
 
   /**
    * Name of the project type.
@@ -55,6 +52,7 @@ public class GroupProject {
    * Version of the project.
    */
   private Version version;
+
   /**
    * The source specification directory for the project.
    */
@@ -96,37 +94,71 @@ public class GroupProject {
     projectList.add(project);
   }
 
+  /**
+   * @return group name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets name.
+   *
+   * @param name group name
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * @return group description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * Sets description.
+   *
+   * @param description group description
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
+  /**
+   * @return group version
+   */
   public Version getVersion() {
     return version;
   }
 
+  /**
+   * Sets version.
+   *
+   * @param version group version
+   */
   public void setVersion(Version version) {
     this.version = version;
   }
 
+  /**
+   * @return specification source file
+   */
   public File getSpecificationSource() {
     return specificationSource;
   }
 
+  /**
+   * Sets source.
+   *
+   * @param specificationSource
+   *          specification source file
+   */
   public void setSpecificationSource(File specificationSource) {
     this.specificationSource = specificationSource;
   }
+
   /**
    * Add an extra constituent to the project.
    *

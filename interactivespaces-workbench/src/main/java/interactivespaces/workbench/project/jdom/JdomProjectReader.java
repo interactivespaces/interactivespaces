@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.jdom;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
@@ -30,10 +29,7 @@ import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
-import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
-import interactivespaces.workbench.project.creator.TemplateAssignConstituent;
-import interactivespaces.workbench.project.creator.TemplateFileConstituent;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -73,8 +69,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
     addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
     addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
-    addConstituentType(new TemplateFileConstituent.TemplateFileConstituentFactory());
-    addConstituentType(new TemplateAssignConstituent.TemplateAssignConstituentFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
   }
 
@@ -128,11 +122,6 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * Project definition file element name for sources.
    */
   private static final String PROJECT_ELEMENT_NAME_SOURCES = "sources";
-
-  /**
-   * Project definition file element name for templates.
-   */
-  public static final String PROJECT_ELEMENT_NAME_TEMPLATES = "templateComponents";
 
   /**
    * Project definition file element name for metadata.

@@ -30,21 +30,23 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
 
   @Override
   protected void onTemplateSetup(ProjectCreationContext context) {
-    context.addTemplateDataEntry("group", context.getProjectGroup());
+    context.addTemplateDataEntry("group", context.getGroupProjectTemplateSpecification());
   }
 
   @Override
   public void onTemplateWrite(ProjectCreationContext context) {
-    GroupProject groupProject = (GroupProject) context.getProjectGroup();
+    GroupProjectTemplateSpecification groupProjectTemplateSpecification =
+        context.getGroupProjectTemplateSpecification();
     int projectIndex = 0;
     try {
-      for (Project project : groupProject.getProjectList()) {
+      for (Project project : groupProjectTemplateSpecification.getProjectList()) {
         projectIndex++;
         context.getWorkbench().getProjectCreator().create(makeCreationSpecification(project, context));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format(
-          "Error while creating projectGroup, project #%d/%d", projectIndex, groupProject.getProjectList().size()), e);
+          "Error while creating projectGroup, project #%d/%d", projectIndex,
+          groupProjectTemplateSpecification.getProjectList().size()), e);
     }
   }
 
@@ -66,7 +68,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());
-    creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getProjectGroup());
+    creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getGroupProjectTemplateSpecification());
     return creationSpecification;
   }
 }
