@@ -40,7 +40,7 @@ allprojects {
     //
     // Final versions should set the qualifier to null.
     interactiveSpacesVersion = '1.6.0'
-    interactiveSpacesVersionQualifier = null // 'SNAPSHOT'
+    interactiveSpacesVersionQualifier = 'RC1' // 'SNAPSHOT'
 
     nonjavaProjects = [ 
       'interactivespaces_docs', 
