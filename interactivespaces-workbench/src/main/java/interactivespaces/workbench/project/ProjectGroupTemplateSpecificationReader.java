@@ -17,7 +17,7 @@ public interface ProjectGroupTemplateSpecificationReader {
    * @param specFile
    *          file to read
    *
-   * @return specificaiton
+   * @return specification
    */
   GroupProjectTemplateSpecification readProject(File specFile);
 }

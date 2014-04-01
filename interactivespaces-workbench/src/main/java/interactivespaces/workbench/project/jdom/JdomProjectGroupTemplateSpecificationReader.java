@@ -74,9 +74,9 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
       String type = rootElement.getName();
       GroupProjectTemplateSpecification project;
       if (PROJECT_GROUP_TEMPLATE_SPECIFICATION_ELEMENT_NAME.equals(type)) {
-        project =  makeGroupProjectFromElement(rootElement);
+        project =  makeFromElement(rootElement);
       } else if (PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
-        project =  makeGroupProjectFromElement(rootElement);
+        project =  makeFromElement(rootElement);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
       }
@@ -96,9 +96,8 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
    *
    * @return new project
    */
-  private GroupProjectTemplateSpecification makeGroupProjectFromElement(Element rootElement) {
+  private GroupProjectTemplateSpecification makeFromElement(Element rootElement) {
     GroupProjectTemplateSpecification groupProjectTemplateSpecification = new GroupProjectTemplateSpecification();
-    //groupProject.setType(GroupProject.PROJECT_TYPE_NAME);
 
     List<Element> children = getChildren(rootElement);
     for (Element child : children) {
