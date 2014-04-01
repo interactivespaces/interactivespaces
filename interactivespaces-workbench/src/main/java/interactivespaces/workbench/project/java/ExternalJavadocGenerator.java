@@ -77,12 +77,12 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
 
       waitForEnd(process, context);
     } catch (IOException e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     }
   }
 
   /**
-   * Get the root subpackages into the Javadoc command being built
+   * Get the root subpackages into the Javadoc command being built.
    *
    * @param classesFolder
    *          the folder containing the packages
@@ -119,20 +119,21 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         System.out.println(result.toString());
       }
     } catch (InterruptedException e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     }
   }
 
   /**
-   * Get the stream contents
+   * Get the stream contents.
    *
    * @param result
    *          where the contents will be written
    * @param stream
    *          the stream to read the contents from
+   * @param context
+   *          project build context
    */
-  private void getStreamContents(StringBuilder result, InputStream stream,
-      ProjectBuildContext context) {
+  private void getStreamContents(StringBuilder result, InputStream stream, ProjectBuildContext context) {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
     String line = null;
     try {
@@ -140,7 +141,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         result.append(line);
       }
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while creating project", e);
+      context.getWorkbench().handleError("Error while creating project", e);
     } finally {
       Closeables.closeQuietly(reader);
     }

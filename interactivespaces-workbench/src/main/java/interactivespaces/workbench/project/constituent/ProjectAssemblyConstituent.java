@@ -16,16 +16,16 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
-import org.apache.commons.logging.Log;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * An assembly resource for a
@@ -33,12 +33,12 @@ import java.io.File;
  *
  * @author Trevor Pering
  */
-public class ProjectAssemblyConstituent implements ProjectConstituent {
+public class ProjectAssemblyConstituent extends ContainerConstituent {
 
   /**
    * Project type for an assembly resource.
    */
-  public static final String PROJECT_TYPE = "assembly";
+  public static final String TYPE_NAME = "assembly";
 
   /**
    * Pack format attribute name.
@@ -69,7 +69,7 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
   private String destinationDirectory;
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
     File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
@@ -78,8 +78,31 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
   }
 
   @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    throw new SimpleInteractiveSpacesException("Source directory not supported for Assembly constituents");
+  public Map<String, String> getAttributeMap() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put(PACK_FORMAT_ATTRIBUTE, ZIP_PACK_FORMAT);
+    map.put(SOURCE_FILE_ATTRIBUTE, sourceFile);
+    map.put(DESTINATION_DIRECTORY_ATTRIBUTE, destinationDirectory);
+    return map;
+  }
+
+  /**
+   * Create a new project assembly constituent from a string.
+   *
+   * @param input
+   *          specification string
+   *
+   * @return parsed constituent
+   */
+  public static ProjectAssemblyConstituent fromString(String input) {
+    String[] parts = input.split(",");
+    if (parts.length > 2) {
+      throw new SimpleInteractiveSpacesException("Extra parts when parsing assembly: " + input);
+    }
+    ProjectAssemblyConstituent constituent = new ProjectAssemblyConstituent();
+    constituent.sourceFile = parts[0];
+    constituent.destinationDirectory = parts.length > 1 ? parts[1] : null;
+    return constituent;
   }
 
   /**
@@ -87,25 +110,40 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
    */
   public static class ProjectAssemblyConstituentFactory implements ProjectConstituentFactory {
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectAssemblyBuilder(log);
+    public String getName() {
+      return TYPE_NAME;
     }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectAssemblyBuilder();
+    }
+  }
+
+  /**
+   * Set the assembly source file.
+   *
+   * @param sourceFile
+   *          assembly source path
+   */
+  public void setSourceFile(String sourceFile) {
+    this.sourceFile = sourceFile;
+  }
+
+  /**
+   * Set the destination directory for assembly expansion.
+   *
+   * @param destinationDirectory
+   *          directory to receive contents
+   */
+  public void setDestinationDirectory(String destinationDirectory) {
+    this.destinationDirectory = destinationDirectory;
   }
 
   /**
    * Builder class for creating new assembly resources.
    */
   private static class ProjectAssemblyBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectAssemblyBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
@@ -129,8 +167,8 @@ public class ProjectAssemblyConstituent implements ProjectConstituent {
       } else {
         ProjectAssemblyConstituent assembly = new ProjectAssemblyConstituent();
 
-        assembly.destinationDirectory = destinationDirectory;
-        assembly.sourceFile = sourceFile;
+        assembly.setDestinationDirectory(destinationDirectory);
+        assembly.setSourceFile(sourceFile);
 
         return assembly;
       }

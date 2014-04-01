@@ -16,14 +16,14 @@
 
 package interactivespaces.workbench.project;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
 
 import java.io.File;
 import java.util.List;
@@ -37,9 +37,14 @@ import java.util.Map;
 public abstract class Project {
 
   /**
-   * The base directory for the file.
+   * The base directory for the project.
    */
   private File baseDirectory;
+
+  /**
+   * The source specification directory for the project.
+   */
+  private File specificationSource;
 
   /**
    * The type of builder for the project.
@@ -160,6 +165,25 @@ public abstract class Project {
    */
   public File getBaseDirectory() {
     return baseDirectory;
+  }
+
+  /**
+   * Get the specification source for this project.
+   *
+   * @return specification source
+   */
+  public File getSpecificationSource() {
+    return specificationSource;
+  }
+
+  /**
+   * Set the specification source for this project.
+   *
+   * @param specificationSource
+   *          specification source
+   */
+  public void setSpecificationSource(File specificationSource) {
+    this.specificationSource = specificationSource;
   }
 
   /**
@@ -340,7 +364,7 @@ public abstract class Project {
    * Add sources to the project.
    *
    * @param addSources
-   *          the resources to add
+   *          the sources to add
    */
   public void addSources(List<ProjectConstituent> addSources) {
     if (addSources != null) {
@@ -355,6 +379,16 @@ public abstract class Project {
    */
   public List<ProjectConstituent> getSources() {
     return Lists.newArrayList(sources);
+  }
+
+  /**
+   * Add a project resource to this project.
+   *
+   * @param resource
+   *          the project resource
+   */
+  public void addResource(ProjectResourceConstituent resource) {
+    resources.add(resource);
   }
 
   /**
@@ -410,6 +444,15 @@ public abstract class Project {
    */
   public String getAttribute(String key) {
     return attributes.get(key);
+  }
+
+  /**
+   * Get the attributes for this project.
+   *
+   * @return attribute map
+   */
+  public Map<String, String> getAttributes() {
+    return attributes;
   }
 
   /**

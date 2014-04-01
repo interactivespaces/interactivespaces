@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.constituent;
 
 import org.apache.commons.logging.Log;
+import org.jdom.Element;
 
 /**
  * Base implementation of a project constituent builder.
@@ -28,7 +29,7 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   /**
    * The logger for this builder.
    */
-  private final Log log;
+  private Log log;
 
   /**
    * {@code true} if the builder had errors.
@@ -36,13 +37,20 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
   private boolean errors;
 
   /**
-   * Construct the base builder.
+   * Convenience function to help more easily build constituent parts.
    *
-   * @param log
-   *          the log to use
+   * @param resourceElement
+   *          input element
+   * @param propertyName
+   *          property name to extract
+   * @param fallback
+   *          fallback value to use if none supplied
+   *
+   * @return property value, else fallback
    */
-  public BaseProjectConstituentBuilder(Log log) {
-    this.log = log;
+  public static String getChildTextNormalize(Element resourceElement, String propertyName, String fallback) {
+    String value = resourceElement.getChildTextNormalize(propertyName);
+    return (value == null || (value.isEmpty() && fallback != null)) ? fallback : value;
   }
 
   /**
@@ -73,5 +81,15 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    */
   protected boolean hasErrors() {
     return errors;
+  }
+
+  /**
+   * Set the logging provider.
+   *
+   * @param log
+   *          logging provider
+   */
+  public void setLog(Log log) {
+    this.log = log;
   }
 }

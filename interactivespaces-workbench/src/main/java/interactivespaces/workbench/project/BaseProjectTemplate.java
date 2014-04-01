@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,14 +16,15 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import interactivespaces.InteractiveSpacesException;
+import com.google.common.io.Closeables;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -32,149 +33,137 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseProjectTemplate implements ProjectTemplate {
+public class BaseProjectTemplate implements ProjectTemplate {
 
   /**
-   * The display name for the template.
+   * Output file for temporarily writing variables.
    */
-  private String displayName;
+  public static final String TEMPLATE_VARIABLES_DUMP = "template_variables.tmp";
 
   /**
-   * List of all source directories needed.
+   * Template variable name to use for holding the base directory.
    */
-  private List<String> sourceDirectories = Lists.newArrayList();
-
-  public BaseProjectTemplate(String displayName) {
-    this.displayName = displayName;
-  }
-
-  @Override
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  @Override
-  public String toString() {
-    return displayName;
-  }
+  public static final String BASE_DIRECTORY_VARIABLE = "baseDirectory";
 
   /**
-   * Add a source directory to the project.
+   * Templater to use for constructing the template.
+   */
+  private FreemarkerTemplater templater;
+
+  /**
+   * Process the given creation specification.
    *
-   * @param directory
-   *          the directory to add
+   * @param context
+   *          specification to process.
    */
-  public void addSourceDirectory(String directory) {
-    sourceDirectories.add(directory);
-  }
-
-  public List<String> getSourceDirectories() {
-    return sourceDirectories;
-  }
-
-  @Override
-  public void process(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> templateData) {
-    Project project = spec.getProject();
-
-    Map<String, Object> fullTemplateData = Maps.newHashMap(templateData);
-
-    onTemplateSetup(spec, fullTemplateData);
-
-    createProjectStructure(project);
-
-    writeSpecificTemplates(spec, workbench, templater, fullTemplateData);
-    writeCommonTemplates(spec, workbench, templater, fullTemplateData);
-    writeProjectXml(templater, spec, fullTemplateData);
-  }
-
-  /**
-   * Create all common directory structures for the project.
-   *
-   * @param project
-   *          the project being created.
-   */
-  private void createProjectStructure(Project project) {
-    File baseDirectory = project.getBaseDirectory();
-    makeDirectory(baseDirectory);
-
-    for (String srcDir : getSourceDirectories()) {
-      makeDirectory(new File(baseDirectory, srcDir));
+  public void process(ProjectCreationContext context) {
+    try {
+      templateSetup(context);
+      onTemplateSetup(context);
+      onTemplateWrite(context);
+      processTemplateConstituents(context);
+    } catch (Exception e) {
+      File outputFile = new File(context.getBaseDirectory(), TEMPLATE_VARIABLES_DUMP);
+      dumpVariables(outputFile, context.getTemplateData());
+      throw new SimpleInteractiveSpacesException(
+          "Template variables can be found in " + outputFile.getAbsolutePath(), e);
     }
   }
 
   /**
-   * Make a directory, including all needed parent directories.
+   * Setup the template as necessary for basic operation.
    *
-   * @param directory
-   *          the directory to create
-   *
-   * @throws InteractiveSpacesException
-   *           could not create directory
-   */
-  public void makeDirectory(File directory) throws InteractiveSpacesException {
-    if (!directory.mkdirs()) {
-      throw new InteractiveSpacesException(String.format("Cannot create directory %s",
-          directory.getAbsolutePath()));
-    }
-  }
-
-  /**
-   * Template is being set up.
-   *
-   * @param spec
+   * @param context
    *          spec for the project
-   * @param fullTemplateData
-   *          the template data to be handed to this template
-   */
-  public abstract void onTemplateSetup(ProjectCreationSpecification spec,
-      Map<String, Object> fullTemplateData);
-
-  /**
-   * Write out all templates specific for the template type.
    *
-   * @param spec
-   *          specification for the project
-   * @param workbench
-   *          the workbench the project is being built under
-   * @param templater
-   *          the templater to use
-   * @param fullTemplateData
-   *          the full data to be used for the template
    */
-  public abstract void writeSpecificTemplates(ProjectCreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData);
+  private void templateSetup(ProjectCreationContext context) {
+    Project project = context.getProject();
 
-  /**
-   * Write templates common to all projects of a given type.
-   *
-   * @param spec
-   *          specification for the project
-   * @param workbench
-   *          the workbench the project is being built under
-   * @param templater
-   *          the templater to use
-   * @param fullTemplateData
-   *          the full data to be used for the template
-   */
-  public void writeCommonTemplates(ProjectCreationSpecification spec,
-      InteractiveSpacesWorkbench workbench, FreemarkerTemplater templater,
-      Map<String, Object> fullTemplateData) {
-    // Default is none.
+    context.addTemplateDataEntry(BASE_DIRECTORY_VARIABLE, context.getBaseDirectory().getAbsolutePath());
+    context.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
+    context.addTemplateDataEntry("spec", context);
+    context.addTemplateDataEntry("project", project);
   }
 
   /**
-   * Write out the project.xml file.
+   * Template is being set up. Can be overridden in a project-type specific project template.
    *
-   * @param spec
-   *          the build specification
-   * @param templateData
-   *          data for any templates
+   * @param context
+   *          spec for the project
    */
-  private void writeProjectXml(FreemarkerTemplater templater, ProjectCreationSpecification spec,
-      Map<String, Object> templateData) {
-    templater.writeTemplate(templateData, new File(spec.getProject().getBaseDirectory(),
-        "project.xml"), "project.xml.ftl");
+  protected void onTemplateSetup(ProjectCreationContext context) {
+    // Default is to do nothing.
+  }
+
+  /**
+   * Process the defined template constituents.
+   *
+   * @param context
+   *          spec for the project
+   *
+   */
+  private void processTemplateConstituents(ProjectCreationContext context) {
+    Project project = context.getProject();
+    GroupProjectTemplateSpecification groupProjectTemplateSpecification =
+        context.getGroupProjectTemplateSpecification();
+    List<ProjectConstituent> projectConstituents = project != null
+        ? project.getExtraConstituents() : groupProjectTemplateSpecification.getExtraConstituents();
+    for (ProjectConstituent constituent : projectConstituents) {
+      constituent.processConstituent(project, null, context);
+    }
+  }
+
+  /**
+   * Function called on template write. Can be overridden to provide different functionality for other project
+   * types.
+   *
+   * @param context
+   *          specification that is being written
+   */
+  public void onTemplateWrite(ProjectCreationContext context) {
+    // Default is to do nothing.
+  }
+
+  /**
+   * Dump the given variables to an output file.
+   *
+   * @param outputFile
+   *          variable dump output file
+   * @param variables
+   *          variables to dump
+   */
+  private void dumpVariables(File outputFile, Map<String, Object> variables) {
+    PrintWriter variableWriter = null;
+    try {
+      variableWriter = new PrintWriter(outputFile);
+      for (Map.Entry<String, Object> entry : variables.entrySet()) {
+        variableWriter.println(String.format("%s=%s", entry.getKey(), entry.getValue()));
+      }
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(
+          "Error writing variable dump file " + outputFile.getAbsolutePath(), e);
+    } finally {
+      Closeables.closeQuietly(variableWriter);
+    }
+  }
+
+  /**
+   * Get the templater used by this template.
+   *
+   * @return templater in use
+   */
+  public FreemarkerTemplater getTemplater() {
+    return templater;
+  }
+
+  /**
+   * Set the templater to use for this project.
+   *
+   * @param templater
+   *          templater to use
+   */
+  public void setTemplater(FreemarkerTemplater templater) {
+    this.templater = templater;
   }
 }

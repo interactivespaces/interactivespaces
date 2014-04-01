@@ -18,10 +18,10 @@ package interactivespaces.workbench.ui;
 
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
-import interactivespaces.workbench.ui.wizard.Wizard;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
+import interactivespaces.workbench.ui.wizard.component.ChooseFileWizard;
 
 import java.io.File;
 
@@ -45,7 +45,7 @@ public class NewProjectWizard extends WizardCollection {
   /**
    * Wizard for choosing the project template.
    */
-  private final ActivityProjectTemplateChooserWizard activityProjectTemplateChooserWizard;
+  private final ChooseFileWizard activityProjectTemplateChooserWizard;
 
   /**
    * The workbench UI.
@@ -70,36 +70,29 @@ public class NewProjectWizard extends WizardCollection {
     this.workbench = workbench;
 
     chooseDirectoryWizard = new ChooseDirectoryWizard();
-    // TODO(keith): Fix this so a project is handed in or some sort of spec is created
+    activityProjectTemplateChooserWizard  = new ChooseFileWizard();
     activityDescriptionWizard = new ProjectDescriptionWizard(null);
-    activityProjectTemplateChooserWizard =
-        new ActivityProjectTemplateChooserWizard(workbench.getActivityProjectCreator()
-            .getActivityProjectTemplates());
 
-    addWizards(chooseDirectoryWizard, activityDescriptionWizard,
-        activityProjectTemplateChooserWizard);
+    addWizards(chooseDirectoryWizard, activityProjectTemplateChooserWizard, activityDescriptionWizard);
   }
 
   @Override
   public void completeWizard() {
     super.completeWizard();
 
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
-
     Project project = activityDescriptionWizard.getProject();
 
-    // Folder will be by identifying name in the folder selected in the
-    // directory choose dialog
+    ProjectCreationContext context = new ProjectCreationContext("from wizard");
+    context.setProject(project);
+    context.setWorkbench(workbench);
+
+    // Folder will be by identifying name in the folder selected in the directory choose dialog
     String identifyingName = project.getIdentifyingName();
-    project
-        .setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
+    project.setBaseDirectory(new File(chooseDirectoryWizard.getSelectedDirectory(), identifyingName));
 
-    spec.setProject(project);
+    context.setSpecificationBase(activityProjectTemplateChooserWizard.getSelectedFile().getParentFile());
 
-    spec.setTemplate(activityProjectTemplateChooserWizard.getSelectedTemplate());
-    spec.setLanguage("java");
-
-    workbench.getActivityProjectCreator().createProject(spec);
+    workbench.getProjectCreator().create(context);
 
     workbenchUi.setCurrentProject(project);
   }

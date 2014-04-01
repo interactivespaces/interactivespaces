@@ -85,7 +85,7 @@ public class EclipseIdeProjectCreator {
 
       return true;
     } catch (Exception e) {
-      context.getWorkbench().logError("Error while creating eclipse project", e);
+      context.getWorkbench().handleError("Error while creating eclipse project", e);
 
       return false;
     }
@@ -94,8 +94,8 @@ public class EclipseIdeProjectCreator {
   /**
    * Write the project file.
    *
-   * @param freemarkerConfig
-   *          the Freemarker configuration
+   * @param project
+   *          project to write
    * @param freemarkerContext
    *          the Freemarker context
    *

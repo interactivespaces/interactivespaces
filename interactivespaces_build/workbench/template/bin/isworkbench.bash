@@ -9,6 +9,8 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 # Get to the directory above the bin directory.
 cd $DIR/..
 
+CONTAINER_TYPE=workbench
+
 # Read user configuration file, if present.
 RCFILE=$HOME/.interactivespaces.rc
 if [ -f $RCFILE ]; then
@@ -16,4 +18,4 @@ if [ -f $RCFILE ]; then
   source $RCFILE
 fi
 
-java $INTERACTIVESPACES_JAVA_DEBUG -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar ${@}
+java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar ${@}

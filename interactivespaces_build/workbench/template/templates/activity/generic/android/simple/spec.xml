@@ -1,0 +1,49 @@
+<projectGroupTemplateSpecification>
+
+  <prototypes>
+    <prototype prototypeName="commonVars">
+      <templateVars>
+        <var name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
+        <var name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
+        <var name="groupPackage" value="${groupName?replace('.', '/')}" />
+      </templateVars>
+    </prototype>
+
+    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
+      <templateVars>
+        <var name="idName" value="${groupName}" />
+        <var name="activityClassPackage" value="${groupName}" />
+        <var name="packagePath" value="${activityClassPackage?replace('.', '/')}" />
+        <var name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <var name="javaClassName" value="${fullName?replace(' ', '')}" />
+        <var name="javaSrcDir" value="${activity.getActivitySourceDirectory()}" />
+      </templateVars>
+
+      <version>0.0.1</version>
+      <name>${fullName}</name>
+      <identifyingName>${idName}</identifyingName>
+      <description>Auto-generated activity for ${fullName}</description>
+    </prototype>
+
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="java">
+      <activity type="interactivespaces_native">
+        <name>${fullName}</name>
+        <class>${activityClassPackage}.${javaClassName}</class>
+        <configuration>
+          <property name="space.activity.log.level" value="info" required="false" />
+        </configuration>
+      </activity>
+      <templateComponents>
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+      </templateComponents>
+    </prototype>
+  </prototypes>
+
+  <projects>
+    <project inheritsFrom="activityProject" type="activity">
+      <templateComponents>
+        <templateFile destinationFile="${javaSrcDir}/SimpleAndroidActivity.java" sourceFile="SimpleAndroidActivity.java.ftl" />
+      </templateComponents>
+    </project>
+  </projects>
+</projectGroupTemplateSpecification>

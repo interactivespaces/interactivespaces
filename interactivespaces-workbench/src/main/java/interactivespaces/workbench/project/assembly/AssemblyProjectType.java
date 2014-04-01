@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.assembly;
 
+import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
@@ -31,6 +32,11 @@ import interactivespaces.workbench.project.builder.ProjectBuilder;
 public class AssemblyProjectType implements ProjectType {
 
   @Override
+  public String getProjectTypeName() {
+    return AssemblyProject.PROJECT_TYPE_NAME;
+  }
+
+  @Override
   public boolean isProperType(Project project) {
     return AssemblyProject.PROJECT_TYPE_NAME.equals(project.getType());
   }
@@ -42,7 +48,7 @@ public class AssemblyProjectType implements ProjectType {
 
   @Override
   public ProjectTemplate newProjectTemplate() {
-    return new AssemblyProjectTemplate();
+    return new BaseProjectTemplate();
   }
 
   @Override

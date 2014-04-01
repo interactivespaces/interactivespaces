@@ -25,10 +25,8 @@ import interactivespaces.resource.Version;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.JdomProjectReader;
+import interactivespaces.workbench.project.jdom.JdomProjectReader;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectReader;
-
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -107,9 +105,8 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
    * @return the project
    */
   public Project readProjectFile(File projectFile, Log log) {
-    ProjectReader reader = new JdomProjectReader(log);
-
-    Project project = reader.readProject(projectFile);
+    JdomProjectReader jdomProjectReader = new JdomProjectReader(workbench);
+    Project project = jdomProjectReader.readProject(projectFile);
     postProcessProject(project);
 
     return project;

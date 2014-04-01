@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,12 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.creator;
-
-import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
-
-import java.util.List;
+package interactivespaces.workbench.project.creator;
 
 /**
  * Creator for new activity projects.
@@ -29,17 +24,10 @@ import java.util.List;
 public interface ProjectCreator {
 
   /**
-   * Get all activity project templates.
+   * Create a project.
    *
-   * @return the templates ordered by their display name.
+   * @param context
+   *          creation context for the new project
    */
-  List<ProjectTemplate> getActivityProjectTemplates();
-
-  /**
-   * Create an activity project.
-   *
-   * @param spec
-   *          specification for the new project
-   */
-  void createProject(ProjectCreationSpecification spec);
+  void create(ProjectCreationContext context);
 }

@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.activity.type;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 
 /**
@@ -46,4 +47,19 @@ public interface ProjectTypeRegistry {
    *          the project type to register
    */
   void registerProjectType(ProjectType type);
+
+  /**
+   * Get an instance of a project associated with a given type name.
+   *
+   * @param typeName
+   *          the type name
+   * @param <T>
+   *          project type for the project, e.g. {@link LibraryProject}, {@link ActivityProject}
+   *
+   * @return a newly constructed project of the appropriate type.
+   *
+   * @throws InteractiveSpacesException
+   *           either couldn't create the requested class or unknown project type
+   */
+  <T extends Project> T newProject(String typeName) throws InteractiveSpacesException;
 }

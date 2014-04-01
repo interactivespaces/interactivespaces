@@ -22,6 +22,7 @@ import interactivespaces.domain.support.DomainValidationResult.DomainValidationR
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionValidator;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
 import interactivespaces.workbench.ui.validation.ValidationMessageType;
 import interactivespaces.workbench.ui.validation.ValidationResult;
@@ -173,8 +174,6 @@ public class ProjectDescriptionPanel extends JPanel {
     projectVersionInput.addKeyListener(verifyingKeyListener);
     add(projectVersionInput, gbc);
 
-    setProject(project);
-
     identifyingNameValidator = new ActivityIdentifyingNameValidator();
     versionValidator = new VersionValidator();
   }
@@ -212,7 +211,7 @@ public class ProjectDescriptionPanel extends JPanel {
   /**
    * Synchronize the activity description to what is in the edit boxes.
    */
-  public void syncProjectDescription() {
+  private void syncProjectDescription() {
     project.setName(projectNameInput.getText());
     project.setDescription(projectDescriptionInput.getText());
     project.setIdentifyingName(projectIdentifyingNameInput.getText());
@@ -225,6 +224,10 @@ public class ProjectDescriptionPanel extends JPanel {
    * @return the activity description
    */
   public Project getProjectDescription() {
+    if (project == null) {
+      project = new ActivityProject();
+    }
+
     syncProjectDescription();
 
     return project;

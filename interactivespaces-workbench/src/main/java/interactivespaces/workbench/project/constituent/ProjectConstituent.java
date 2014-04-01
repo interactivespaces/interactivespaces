@@ -16,10 +16,9 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
+import interactivespaces.workbench.project.ProjectContext;
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
@@ -28,7 +27,7 @@ import java.io.File;
 /**
  * Interface for project constituents.
  *
- * @author peringknife@google.com (Trevor Pering)
+ * @author Trevor Pering
  */
 public interface ProjectConstituent {
 
@@ -60,20 +59,19 @@ public interface ProjectConstituent {
    * @param stagingDirectory
    *          where the items will be copied
    * @param context
-   *          context for the build
+   *          project context in which to process the constituent
    */
-  void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context);
+  void processConstituent(Project project, File stagingDirectory, ProjectContext context);
 
   /**
    * Return the source directory for this constituent.
    *
    * @return source directory
    *
-   * @throws SimpleInteractiveSpacesException
+   * @throws InteractiveSpacesException
    *           if constituent type does not provide a source directory
    */
-  String getSourceDirectory() throws SimpleInteractiveSpacesException;
-
+  String getSourceDirectory() throws InteractiveSpacesException;
 
   /**
    * Factory for project constituent builders.
@@ -83,14 +81,18 @@ public interface ProjectConstituent {
   interface ProjectConstituentFactory {
 
     /**
-     * Create a new builder.
+     * Get the type name of this project constituent.
      *
-     * @param log
-     *          the logger to use
+     * @return constituent type name
+     */
+    String getName();
+
+    /**
+     * Create a new builder.
      *
      * @return the new builder
      */
-    ProjectConstituentBuilder newBuilder(Log log);
+    ProjectConstituentBuilder newBuilder();
   }
 
   /**
@@ -109,5 +111,13 @@ public interface ProjectConstituent {
      * @return new project object or {@code null} if there were errors
      */
     ProjectConstituent buildConstituentFromElement(Element constituentElement, Project project);
+
+    /**
+     * Set the logging provider for use by the builder.
+     *
+     * @param log
+     *          logging provider to use
+     */
+    void setLog(Log log);
   }
 }

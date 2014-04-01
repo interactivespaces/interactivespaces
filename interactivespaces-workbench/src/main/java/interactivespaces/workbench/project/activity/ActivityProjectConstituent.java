@@ -16,20 +16,19 @@
 
 package interactivespaces.workbench.project.activity;
 
-import interactivespaces.SimpleInteractiveSpacesException;
+import com.google.common.collect.Maps;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-
-import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The project file constituent for activity projects.
@@ -41,7 +40,7 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   /**
    * Element type for a resource.
    */
-  public static final String PROJECT_TYPE = "activity";
+  public static final String TYPE_NAME = "activity";
 
   /**
    * XML entity name for an activity.
@@ -94,19 +93,23 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   public static final String CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT = "description";
 
   /**
+   * Project definition file element name for a configuration item.
+   */
+  public static final String PROPERTY_ELEMENT_NAME = "property";
+
+  /**
    * XML element or attribute (can be either) name giving the value of a
    * configuration property.
    */
   public static final String CONFIGURATION_PROPERTY_VALUE = "value";
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     // Nothing to do
   }
 
   @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    // TODO Auto-generated method stub
+  public String getSourceDirectory() throws InteractiveSpacesException {
     return null;
   }
 
@@ -117,8 +120,13 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    */
   public static class ActivityProjectBuilderFactory implements ProjectConstituentFactory {
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ActivityProjectBuilder(log);
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder() {
+      return new ActivityProjectBuilder();
     }
   }
 
@@ -127,35 +135,22 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    */
   private static class ActivityProjectBuilder extends BaseProjectConstituentBuilder {
 
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ActivityProjectBuilder(Log log) {
-      super(log);
-    }
-
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
-      String activityType = resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE);
-      String activityName = resourceElement.getChildTextNormalize(ACTIVITY_NAME_ELEMENT);
-      String activityExecutable = resourceElement.getChildTextNormalize(ACTIVITY_EXECUTABLE_ELEMENT);
-      String activityClass = resourceElement.getChildTextNormalize(ACTIVITY_CLASS_ELEMENT);
+      ActivityProject aproject = (ActivityProject) project;
+
+      aproject.setActivityType(
+          resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE, aproject.getActivityType()));
+      aproject.setActivityRuntimeName(
+          getChildTextNormalize(resourceElement, ACTIVITY_NAME_ELEMENT, aproject.getActivityRuntimeName()));
+      aproject.setActivityExecutable(
+          getChildTextNormalize(resourceElement, ACTIVITY_EXECUTABLE_ELEMENT, aproject.getActivityExecutable()));
+      aproject.setActivityClass(
+          getChildTextNormalize(resourceElement, ACTIVITY_CLASS_ELEMENT, aproject.getActivityClass()));
 
       List<ProjectConfigurationProperty> configurationProperties =
           getProjectConfigurationProperty(resourceElement.getChild(ACTIVITY_CONFIGURATION_ELEMENT));
-
-      if (!hasErrors()) {
-        // TODO(keith): Check that it is really an activity project.
-        ActivityProject aproject = (ActivityProject) project;
-        aproject.setActivityType(activityType);
-        aproject.setActivityRuntimeName(activityName);
-        aproject.setActivityExecutable(activityExecutable);
-        aproject.setActivityClass(activityClass);
-        aproject.setConfigurationProperties(configurationProperties);
-      }
+      aproject.addConfigurationProperties(configurationProperties);
 
       return null;
     }
@@ -170,15 +165,19 @@ public class ActivityProjectConstituent implements ProjectConstituent {
      */
     @SuppressWarnings("unchecked")
     private List<ProjectConfigurationProperty> getProjectConfigurationProperty(Element configurationElement) {
-      List<ProjectConfigurationProperty> properties = Lists.newArrayList();
+
+      // Use a map internally, but return a list, to coalesce multiple properties with the same name together
+      // into one item (e.g., if one comes from a prototype). Also use a tree map so the output is sorted, just for
+      // convenience.
+      Map<String, ProjectConfigurationProperty> properties = Maps.newTreeMap();
 
       if (configurationElement != null) {
-        for (Element propertyElement : (List<Element>) configurationElement.getChildren("property")) {
+        for (Element propertyElement : (List<Element>) configurationElement.getChildren(PROPERTY_ELEMENT_NAME)) {
           processConfigurationPropertyElement(propertyElement, properties);
         }
       }
 
-      return properties;
+      return new ArrayList(properties.values());
     }
 
     /**
@@ -187,10 +186,10 @@ public class ActivityProjectConstituent implements ProjectConstituent {
      * @param propertyElement
      *          the property element
      * @param properties
-     *          the list of properties being built
+     *          the properties map to populate
      */
     private void processConfigurationPropertyElement(Element propertyElement,
-        List<ProjectConfigurationProperty> properties) {
+        Map<String, ProjectConfigurationProperty> properties) {
       String name = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_NAME_ATTRIBUTE);
       String description = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT);
       String requiredAttribute = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_REQUIRED_ATTRIBUTE);
@@ -201,17 +200,16 @@ public class ActivityProjectConstituent implements ProjectConstituent {
       String value = valueAttribute;
       if (valueAttribute != null) {
         if (valueChild != null) {
-          addWarn(String
-              .format(
-                  "Configuration property %s has both an attribute and child element giving the value. The child element is being used.",
-                  name));
+          addWarn(String.format(
+              "Configuration property %s has both an attribute and child element giving the value. "
+                  + "The child element is being used.", name));
           value = valueChild;
         }
       } else {
         value = valueChild;
       }
 
-      properties.add(new ProjectConfigurationProperty(name, description, required, value));
+      properties.put(name, new ProjectConfigurationProperty(name, description, required, value));
     }
   }
 }

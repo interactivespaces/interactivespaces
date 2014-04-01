@@ -37,6 +37,13 @@ public interface ProjectType {
   String SOURCE_MAIN_RESOURCES = "src/main/resources";
 
   /**
+   * Get the project type name for this project types.
+   *
+   * @return project type name
+   */
+  String getProjectTypeName();
+
+  /**
    * Can this project type handle the given project?
    *
    * @param project

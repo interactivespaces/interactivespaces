@@ -21,6 +21,7 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 
 import com.google.common.collect.Lists;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class ProjectBuildContext {
+public class ProjectBuildContext implements ProjectContext {
 
   /**
    * Where things are being built.
@@ -117,20 +118,12 @@ public class ProjectBuildContext {
     return artifactsToAdd;
   }
 
-  /**
-   * Get the project being built.
-   *
-   * @return the project being built
-   */
+  @Override
   public Project getProject() {
     return project;
   }
 
-  /**
-   * Get the workbench the project is being built under.
-   *
-   * @return the workbench
-   */
+  @Override
   public InteractiveSpacesWorkbench getWorkbench() {
     return workbench;
   }
@@ -144,14 +137,7 @@ public class ProjectBuildContext {
     return buildDirectory;
   }
 
-  /**
-   * Get the project type for the build.
-   *
-   * @param <T>
-   *          the actual project type
-   *
-   * @return the project type
-   */
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
     return (T) projectType;
@@ -165,17 +151,7 @@ public class ProjectBuildContext {
         project.getBaseDirectory().getAbsolutePath());
   }
 
-  /**
-   * Return the appropriate file path depending on evaluate and default root directory.
-   *
-   *
-   * @param rootDirectory
-   *          root directory to use in case of default
-   * @param target
-   *          target path desired
-   *
-   * @return appropriate file to use
-   */
+  @Override
   public File getProjectTarget(File rootDirectory, String target) {
     String targetPath = project.getConfiguration().evaluate(target);
     File targetFile = new File(targetPath);
@@ -185,14 +161,7 @@ public class ProjectBuildContext {
     return new File(rootDirectory, targetPath);
   }
 
-  /**
-   * The resource source map is a map that can be used at runtime to link project files
-   * back to their original source, for enabling live editing of javascript or other resources.
-   * This map is constructed during the build process (by adding to the map), and then can be
-   * written to a file or other construct as part of the resulting build.
-   *
-   * @return mutable resource source map, stored as {dest, source} key/value pairs
-   */
+  @Override
   public Map<File, File> getResourceSourceMap() {
     return sourceMap;
   }

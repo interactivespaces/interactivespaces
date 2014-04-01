@@ -17,9 +17,7 @@
 package interactivespaces.workbench.project;
 
 import interactivespaces.workbench.FreemarkerTemplater;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
-
-import java.util.Map;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
 
 /**
  * A template for a project.
@@ -29,27 +27,22 @@ import java.util.Map;
 public interface ProjectTemplate {
 
   /**
-   * Get the display name for the template.
-   *
-   * @return display name for the template
-   */
-  String getDisplayName();
-
-  /**
    * Process the source description.
    *
    * <p>
    * This may fill in portions of the specification
    *
-   * @param spec
-   *          the build specification
-   * @param workbench
-   *          the workbench for the project
-   * @param templater
-   *          the templater to use
-   * @param templateData
-   *          the template data to use
+   * @param context
+   *          the creation context
+   *
    */
-  void process(ProjectCreationSpecification spec, InteractiveSpacesWorkbench workbench,
-      FreemarkerTemplater templater, Map<String, Object> templateData);
+  void process(ProjectCreationContext context);
+
+  /**
+   * Set the templater to use for this project template.
+   *
+   * @param templater
+   *          templater to use
+   */
+  void setTemplater(FreemarkerTemplater templater);
 }

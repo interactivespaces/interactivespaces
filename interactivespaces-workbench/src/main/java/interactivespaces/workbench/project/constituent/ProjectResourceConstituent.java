@@ -16,32 +16,32 @@
 
 package interactivespaces.workbench.project.constituent;
 
+import com.google.common.collect.Maps;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
-import org.apache.commons.logging.Log;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * A simple resource for a {@link interactivespaces.workbench.project.Project}.
  *
  * @author Keith M. Hughes
  */
-public class ProjectResourceConstituent implements ProjectConstituent {
+public class ProjectResourceConstituent extends ContainerConstituent {
 
   /**
    * Element type for a resource.
    */
-  public static final String PROJECT_TYPE = "resource";
+  public static final String TYPE_NAME = "resource";
 
   /**
    * Element type for a source, which is functionally equivalent to a resource.
    */
-  public static final String PROJECT_TYPE_ALTERNATE = "source";
+  public static final String ALTERNATE_NAME = "source";
 
   /**
    * A directory from which all contents will be copied.
@@ -74,9 +74,6 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
-  /**
-   * @return the sourceDirectory
-   */
   @Override
   public String getSourceDirectory() {
     return sourceDirectory;
@@ -88,6 +85,16 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    */
   public void setSourceDirectory(String sourceDirectory) {
     this.sourceDirectory = sourceDirectory;
+  }
+
+  @Override
+  public Map<String, String> getAttributeMap() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put(SOURCE_FILE_ATTRIBUTE, sourceFile);
+    map.put(SOURCE_DIRECTORY_ATTRIBUTE, sourceDirectory);
+    map.put(DESTINATION_FILE_ATTRIBUTE, destinationFile);
+    map.put(DESTINATION_DIRECTORY_ATTRIBUTE, destinationDirectory);
+    return map;
   }
 
   /**
@@ -136,7 +143,7 @@ public class ProjectResourceConstituent implements ProjectConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     if (getDestinationDirectory() != null) {
       File destDir = context.getProjectTarget(stagingDirectory, getDestinationDirectory());
@@ -170,8 +177,30 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    */
   public static class ProjectResourceBuilderFactory implements ProjectConstituentFactory {
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-     return new ProjectResourceBuilder(log);
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectResourceBuilder();
+    }
+  }
+
+  /**
+   * Factory for building the constituent builder.
+   *
+   * @author Keith M. Hughes
+   */
+  public static class ProjectSourceBuilderFactory implements ProjectConstituentFactory {
+    @Override
+    public String getName() {
+      return ALTERNATE_NAME;
+    }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectResourceBuilder();
     }
   }
 
@@ -179,16 +208,6 @@ public class ProjectResourceConstituent implements ProjectConstituent {
    * Builder class for creating new resource instances.
    */
   private static class ProjectResourceBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct a new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectResourceBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {

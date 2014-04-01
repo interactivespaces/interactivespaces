@@ -16,17 +16,10 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import static com.google.common.io.Closeables.closeQuietly;
-
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupport;
-import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
-
 import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectContext;
 import org.jdom.Element;
 
 import java.io.File;
@@ -36,22 +29,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import static com.google.common.io.Closeables.closeQuietly;
+
 /**
  * A bundle resource for a {@link interactivespaces.workbench.project.Project}.
  *
  * @author Trevor Pering
  */
-public class ProjectBundleConstituent implements ProjectConstituent {
+public class ProjectBundleConstituent extends ContainerConstituent {
 
   /**
    * Project type for a bundle resource.
    */
-  public static final String PROJECT_TYPE = "bundle";
-
-  /**
-   * File support instance for file operations.
-   */
-  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+  public static final String TYPE_NAME = "bundle";
 
   /**
    * Marker file to use for bundle source recording.
@@ -72,7 +62,7 @@ public class ProjectBundleConstituent implements ProjectConstituent {
   private final List<String> sourcePaths = Lists.newArrayList();
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectBuildContext context) {
+  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     OutputStream outputStream = null;
     InputStream inputStream = null;
 
@@ -103,18 +93,18 @@ public class ProjectBundleConstituent implements ProjectConstituent {
     }
   }
 
-  @Override
-  public String getSourceDirectory() throws SimpleInteractiveSpacesException {
-    throw new SimpleInteractiveSpacesException("Source directory not supported for Bundle constituents");
-  }
-
   /**
    * Factory for the constituent components.
    */
   public static class ProjectBundleConstituentFactory implements ProjectConstituentFactory {
     @Override
-    public ProjectConstituentBuilder newBuilder(Log log) {
-      return new ProjectBundleConstituentBuilder(log);
+    public String getName() {
+      return TYPE_NAME;
+    }
+
+    @Override
+    public ProjectConstituentBuilder newBuilder() {
+      return new ProjectBundleConstituentBuilder();
     }
   }
 
@@ -122,16 +112,6 @@ public class ProjectBundleConstituent implements ProjectConstituent {
    * Builder class for new bundle resources.
    */
   private static class ProjectBundleConstituentBuilder extends BaseProjectConstituentBuilder {
-
-    /**
-     * Construct the new builder.
-     *
-     * @param log
-     *          logger for the builder
-     */
-    ProjectBundleConstituentBuilder(Log log) {
-      super(log);
-    }
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Element element, Project project) {

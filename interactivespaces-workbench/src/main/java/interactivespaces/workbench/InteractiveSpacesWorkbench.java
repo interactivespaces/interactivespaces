@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
@@ -30,14 +32,14 @@ import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectCreationSpecification;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.project.creator.ProjectCreator;
+import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
 import interactivespaces.workbench.project.activity.BasicActivityProjectManager;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.creator.ProjectCreator;
-import interactivespaces.workbench.project.activity.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreator;
 import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
@@ -45,19 +47,17 @@ import interactivespaces.workbench.project.activity.packager.ActivityProjectPack
 import interactivespaces.workbench.project.activity.packager.ActivityProjectPackagerImpl;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
-import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistery;
+import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
 import interactivespaces.workbench.project.java.OsgiBundleCreator;
+import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
@@ -178,7 +178,7 @@ public class InteractiveSpacesWorkbench {
   /**
    * The creator for new projects.
    */
-  private final ProjectCreator activityProjectCreator;
+  private final ProjectCreator projectCreator;
 
   /**
    * A packager for activities.
@@ -242,8 +242,8 @@ public class InteractiveSpacesWorkbench {
     this.templater = new FreemarkerTemplater();
     templater.startup();
 
-    projectTypeRegistry = new SimpleProjectTypeRegistery();
-    activityProjectCreator = new ProjectCreatorImpl(this, templater);
+    projectTypeRegistry = new SimpleProjectTypeRegistry();
+    projectCreator = new ProjectCreatorImpl(this, templater);
     activityProjectPackager = new ActivityProjectPackagerImpl();
     ideProjectCreator = new EclipseIdeProjectCreator(templater);
   }
@@ -276,7 +276,7 @@ public class InteractiveSpacesWorkbench {
         return true;
       }
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     }
 
     return false;
@@ -349,7 +349,7 @@ public class InteractiveSpacesWorkbench {
 
       return true;
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
 
       return false;
     }
@@ -390,7 +390,7 @@ public class InteractiveSpacesWorkbench {
     try {
       osgiBundleCreator.createBundle(new File(file), null, null);
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     }
   }
 
@@ -540,7 +540,7 @@ public class InteractiveSpacesWorkbench {
         }
       }
     } catch (Exception e) {
-      logError("Error while creating project", e);
+      handleError("Error while creating project", e);
     } finally {
       Closeables.closeQuietly(reader);
     }
@@ -553,28 +553,57 @@ public class InteractiveSpacesWorkbench {
    *          the commands to run
    */
   public void doCommands(List<String> commands) {
-    String command = commands.remove(0);
+    String command = removeArgument(commands, "command");
 
     if (COMMAND_CREATE.equals(command)) {
-      System.out.println("Creating project");
       createProject(commands);
     } else if (COMMAND_OSGI.equals(command)) {
-      createOsgi(commands.remove(0));
+      createOsgi(removeArgument(commands, "osgi file"));
     } else {
       File baseDir = new File(command);
       if (projectManager.isProjectFolder(baseDir)) {
         doCommandsOnProject(baseDir, commands);
+      } else if (commands.isEmpty()) {
+        throw new SimpleInteractiveSpacesException(
+            String.format("%s is not a project directory", baseDir.getAbsolutePath()));
       } else {
-        if (!commands.isEmpty() && COMMAND_RECURSIVE.equals(commands.get(0))) {
-          commands.remove(0);
-
-          doCommandsOnTree(baseDir, commands);
+        String commandModifier = removeArgument(commands, "command modifier");
+        if (!COMMAND_RECURSIVE.equals(commandModifier)) {
+          if (doCommandsOnTree(baseDir, commands)) {
+            throw new SimpleInteractiveSpacesException("Previous errors encountered");
+          }
         } else {
-          throw new SimpleInteractiveSpacesException(String.format("%s is not a project directory",
-              baseDir.getAbsolutePath()));
+          throw new SimpleInteractiveSpacesException("Unknown command modifier " + commandModifier);
         }
       }
     }
+
+    if (!commands.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("Extra command line arguments: " + commands);
+    }
+  }
+
+  /**
+   * Process a project create command.
+   *
+   * @param commands
+   *          command input to inform project creation
+   */
+  private void createProject(List<String> commands) {
+    getLog().info("Creating project from specification...");
+    File specFile = new File(removeArgument(commands, "specification file"));
+    File baseDirectory = new File(removeArgument(commands, "base output directory"));
+
+    JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
+    GroupProjectTemplateSpecification project = projectReader.readProject(specFile);
+
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
+    creationSpecification.setGroupProjectTemplateSpecification(project);
+    creationSpecification.setWorkbench(this);
+    creationSpecification.setSpecificationBase(specFile.getParentFile());
+    creationSpecification.setBaseDirectory(baseDirectory);
+
+    projectCreator.create(creationSpecification);
   }
 
   /**
@@ -595,11 +624,12 @@ public class InteractiveSpacesWorkbench {
    *
    * @param baseDir
    *          base file to start looking for projects in
-   *
    * @param commands
    *          commands to run on all project files
+   *
+   * @return {@code true} if errors were encountered walking the tree
    */
-  private void doCommandsOnTree(File baseDir, List<String> commands) {
+  private boolean doCommandsOnTree(File baseDir, List<String> commands) {
     FileFilter filter = new FileFilter() {
 
       @Override
@@ -608,11 +638,13 @@ public class InteractiveSpacesWorkbench {
       }
     };
     File[] files = baseDir.listFiles(filter);
+    boolean hadErrors = false;
     if (files != null) {
       for (File possible : files) {
-        doCommandsOnTree(possible, commands, filter);
+        hadErrors |= doCommandsOnTree(possible, commands, filter);
       }
     }
+    return hadErrors;
   }
 
   /**
@@ -625,51 +657,45 @@ public class InteractiveSpacesWorkbench {
    *          commands to run on all project files
    * @param filter
    *          file filter to identify which files in the tree to execute on
+   *
+   * @return {@code true} if errors were encountered walking the tree
    */
-  private void doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
+  private boolean doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
+    boolean hadErrors = false;
+
     if (projectManager.isProjectFolder(baseDir)) {
-      doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+      try {
+        doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+      } catch (Exception e) {
+        getLog().error("Error encountered performing commands on project", e);
+        hadErrors = true;
+      }
     } else {
       File[] files = baseDir.listFiles(filter);
       if (files != null) {
         for (File possible : files) {
-          doCommandsOnTree(possible, commands, filter);
+          hadErrors |= doCommandsOnTree(possible, commands, filter);
         }
       }
     }
+    return hadErrors;
   }
 
   /**
-   * Create a project.
+   * Remove one argument from the list.
    *
    * @param commands
-   *          the commands to execute
+   *          list of input commands
+   * @param description
+   *          description to use on error
+   *
+   * @return command string removed from the list
    */
-  private void createProject(List<String> commands) {
-    ProjectCreationSpecification spec = new ProjectCreationSpecification();
-
-    ActivityProject project = new ActivityProject();
-    project.setType(ActivityProject.PROJECT_TYPE_NAME);
-    populateProjectFromConsole(project);
-    project.setBaseDirectory(new File(project.getIdentifyingName()));
-
-    spec.setProject(project);
-
-    String command = commands.remove(0);
-    if ("language".equals(command)) {
-      spec.setLanguage(commands.remove(0));
-    } else if ("template".equals(command)) {
-      String source = commands.remove(0);
-      if ("example".equals(source)) {
-        log.error("Not implemented yet");
-        return;
-      } else if ("site".equals(source)) {
-        log.error("Not implemented yet");
-        return;
-      }
+  private String removeArgument(List<String> commands, String description) {
+    if (commands.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("Missing argument " + description);
     }
-
-    activityProjectCreator.createProject(spec);
+    return commands.remove(0);
   }
 
   /**
@@ -737,7 +763,7 @@ public class InteractiveSpacesWorkbench {
 
     boolean noErrors = true;
     while (!commands.isEmpty() && noErrors) {
-      String command = commands.remove(0);
+      String command = removeArgument(commands, "workbench command");
 
       if (COMMAND_BUILD.equals(command)) {
         System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
@@ -750,10 +776,10 @@ public class InteractiveSpacesWorkbench {
         noErrors = generateDocs(project);
       } else if (COMMAND_IDE.equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = generateIdeActivityProject(project, commands.remove(0));
+        noErrors = generateIdeActivityProject(project, removeArgument(commands, "ide type"));
       } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = deployProject(project, commands.remove(0));
+        noErrors = deployProject(project, removeArgument(commands, "deployment type"));
       }
     }
   }
@@ -799,8 +825,8 @@ public class InteractiveSpacesWorkbench {
   /**
    * @return the activityProjectCreator
    */
-  public ProjectCreator getActivityProjectCreator() {
-    return activityProjectCreator;
+  public ProjectCreator getProjectCreator() {
+    return projectCreator;
   }
 
   /**
@@ -842,14 +868,17 @@ public class InteractiveSpacesWorkbench {
    * @param e
    *          the exception
    */
-  public void logError(String message, Exception e) {
-    System.err.println(message);
+  public void handleError(String message, Exception e) {
+    throw new SimpleInteractiveSpacesException(message, e);
+  }
 
-    if (e instanceof SimpleInteractiveSpacesException) {
-      getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
-    } else {
-      getLog().error(message, e);
-    }
+  /**
+   * Get the project type registry for creating new projects.
+   *
+   * @return project type registry
+   */
+  public ProjectTypeRegistry getProjectTypeRegistry() {
+    return projectTypeRegistry;
   }
 
   /**
