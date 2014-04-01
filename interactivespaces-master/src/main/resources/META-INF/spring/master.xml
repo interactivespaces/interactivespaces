@@ -424,6 +424,8 @@
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 
     <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
+
+    <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
   <context:component-scan base-package="interactivespaces" />

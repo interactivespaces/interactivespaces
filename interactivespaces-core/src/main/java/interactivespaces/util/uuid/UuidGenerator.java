@@ -16,6 +16,8 @@
 
 package interactivespaces.util.uuid;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * A generator for UUIDs.
  *
@@ -24,23 +26,31 @@ package interactivespaces.util.uuid;
  *
  * @author Keith M. Hughes
  */
-public interface UuidGenerator {
+public interface UuidGenerator extends ManagedResource {
 
   /**
-   * Start the generator.
-   */
-  void startup();
-
-  /**
-   * Shut the generator down.
-   */
-  void shutdown();
-
-  /**
-   * Create a UUID.
+   * The UUID namespace for space controllers.
    *
-   * @return The new UUID.
+   * <p>
+   * Comes from generating the name based UUID from
+   * {@code http://interactive-spaces.org/objects/spacecontroller}.
+   */
+  String NAMESPACE_SPACE_CONTROLLER = "d06715fb-3529-31a7-9d50-f8bc98a98dc";
+
+  /**
+   * Create a UUID. This UUID will be a random one.
+   *
+   * @return the new UUID
    */
   String newUuid();
 
+  /**
+   * Create a new name based UUID.
+   *
+   * @param name
+   *        the name for the UUID
+   *
+   * @return
+   */
+  String newNameUuid(String namespace, String name);
 }

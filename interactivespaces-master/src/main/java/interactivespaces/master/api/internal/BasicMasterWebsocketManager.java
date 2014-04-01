@@ -22,6 +22,7 @@ import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.MasterApiAutomationManager;
 import interactivespaces.master.api.MasterApiMessage;
 import interactivespaces.master.api.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.MasterWebsocketManager;
@@ -95,6 +96,11 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
    * The Master API manager for controllers.
    */
   private MasterApiSpaceControllerManager masterApiSpaceControllerManager;
+
+  /**
+   * The Master API manager for automation.
+   */
+  private MasterApiAutomationManager masterApiAutomationManager;
 
   /**
    * A mapping of command name to the handler for that command.
@@ -354,6 +360,14 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         return masterApiSpaceControllerManager.statusSpace(id);
       }
     });
+
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessage.MASTER_API_COMMAND_NAMEDSCRIPT_RUN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        return masterApiAutomationManager.runScript(id);
+      }
+    });
   }
 
   @Override
@@ -556,7 +570,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
 
   /**
    * @param masterApiActivityManager
-   *          the uiActivityManager to set
+   *          activity manager to set
    */
   public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
     this.masterApiActivityManager = masterApiActivityManager;
@@ -564,13 +578,26 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
 
   /**
    * @param masterApiControllerManager
-   *          the uiControllerManager to set
+   *          the controller manager to set
    */
   public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
     this.masterApiSpaceControllerManager = masterApiControllerManager;
   }
 
-  public static abstract class MasterApiWebSocketCommandHandler {
+  /**
+   * @param masterApiAutomationManager
+   *          the automation manager to set
+   */
+  public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
+    this.masterApiAutomationManager = masterApiAutomationManager;
+  }
+
+  /**
+   * Command handler for a web socket command.
+   *
+   * @author Keith M. Hughes
+   */
+  public abstract static class MasterApiWebSocketCommandHandler {
 
     /**
      * The name of the command.

@@ -123,7 +123,7 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
   }
 
   @Override
-  public void startup() {
+  public synchronized void startup() {
     camera = Pointer.allocate(OniDeviceHandle.class);
     IntValuedEnum<OniStatus> cameraStatus = OpenNI2Library.oniDeviceOpen(Pointer.pointerToCString(cameraId), camera);
     if (cameraStatus != OniStatus.ONI_STATUS_OK) {
@@ -151,7 +151,7 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
   }
 
   @Override
-  public void shutdown() {
+  public synchronized void shutdown() {
     if (frameReaderLoop != null) {
       frameReaderLoop.cancel(true);
     }
@@ -184,34 +184,40 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
    * A new NiTE User Track frame is available. Process it.
    */
   private void processUserTrackFrame() {
-    IntValuedEnum<NiteStatus> niteStatus =
-        NiTE2Library.niteReadUserTrackerFrame(userTracker.get(), pointerTrackerFrame);
-
     List<TrackedEntity<Vector3>> entities = Lists.newArrayList();
 
-    try {
+    synchronized (this) {
+      IntValuedEnum<NiteStatus> niteStatus =
+          NiTE2Library.niteReadUserTrackerFrame(userTracker.get(), pointerTrackerFrame);
 
-      NiteUserTrackerFrame frame = pointerTrackerFrame.get().get();
-
-      int numUsers = frame.userCount();
-      Pointer<NiteUserData> users = frame.pUser();
-
-      for (int user = 0; user < numUsers; user++) {
-        NiteUserData userData = users.get(user);
-
-        NitePoint3f com = userData.centerOfMass();
-
-        int state = userData.state();
-
-        SimpleTrackedEntity<Vector3> entity =
-            new SimpleTrackedEntity<Vector3>(Integer.toString(userData.id()), new Vector3(com.x(), com.y(), com.z()),
-                (state & NiTE2Library.NiteUserState.NITE_USER_STATE_NEW.value) != 0,
-                (state & NiTE2Library.NiteUserState.NITE_USER_STATE_VISIBLE.value) != 0,
-                (state & NiTE2Library.NiteUserState.NITE_USER_STATE_LOST.value) != 0);
-        entities.add(entity);
+      if (niteStatus != NiteStatus.NITE_STATUS_OK) {
+        log.error(OpenNi2Support.getFullNiteMessage("Error while reading a user tracking frame", niteStatus));
+        return;
       }
-    } finally {
-      niteStatus = NiTE2Library.niteUserTrackerFrameRelease(userTracker.get(), pointerTrackerFrame.get());
+
+      try {
+        NiteUserTrackerFrame frame = pointerTrackerFrame.get().get();
+
+        int numUsers = frame.userCount();
+        Pointer<NiteUserData> users = frame.pUser();
+
+        for (int user = 0; user < numUsers; user++) {
+          NiteUserData userData = users.get(user);
+
+          NitePoint3f com = userData.centerOfMass();
+
+          int state = userData.state();
+
+          SimpleTrackedEntity<Vector3> entity =
+              new SimpleTrackedEntity<Vector3>(Integer.toString(userData.id()), new Vector3(com.x(), com.y(), com.z()),
+                  (state & NiTE2Library.NiteUserState.NITE_USER_STATE_NEW.value) != 0,
+                  (state & NiTE2Library.NiteUserState.NITE_USER_STATE_VISIBLE.value) != 0,
+                  (state & NiTE2Library.NiteUserState.NITE_USER_STATE_LOST.value) != 0);
+          entities.add(entity);
+        }
+      } finally {
+        niteStatus = NiTE2Library.niteUserTrackerFrameRelease(userTracker.get(), pointerTrackerFrame.get());
+      }
     }
 
     sendTrackedEntityUpdate(entities);

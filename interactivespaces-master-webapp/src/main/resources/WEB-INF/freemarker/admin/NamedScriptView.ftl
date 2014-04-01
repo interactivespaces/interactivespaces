@@ -24,6 +24,10 @@
 <body class="admin-content">
 
 <script type="text/javascript">
+function doApiCommand(command) {
+  ugly.executeApi("/admin/namedscript/" + command, {'id':'${script.id}'});
+}
+
 function doAjaxCommand(command) {
   $.ajax({
       url: '/interactivespaces/admin/namedscript/${script.id}/' + command + '.json',
@@ -44,7 +48,7 @@ function deleteScript() {
 
 <table class="commandBar">
   <tr>
-    <td><button type="button" onclick="doAjaxCommand('run')" title="Run the named script">Run</button></td>
+    <td><button type="button" onclick="doApiCommand('run')" title="Run the named script">Run</button></td>
     <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/admin/namedscript/${script.id}/edit.html'" title="Edit the script">Edit</button></td>
     <td><button type="button" onclick="deleteScript()" title="Delete the script">Delete</button></td>
   </tr>
@@ -72,7 +76,7 @@ ${script.description}
 </tr>
 <tr>
 <th>Schedule</th>
-<td>${script.schedule}</td>
+<td><#if script.schedule?has_content>${script.schedule}<#else>None</#if></td>
 </tr>
 </table>
 

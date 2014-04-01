@@ -219,6 +219,11 @@ public class MasterApiMessage {
   public static final String MASTER_API_COMMAND_SPACE_STATUS = "/space/status";
 
   /**
+   * Web socket command for running a named script.
+   */
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_RUN = "/admin/namedscript/run";
+
+  /**
    * Parameter name for the ID of the entity in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_ID = "id";
