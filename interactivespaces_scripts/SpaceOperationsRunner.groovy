@@ -15,7 +15,7 @@
  */
 
 def cli = new CliBuilder(
-    usage:'SpaceOperationsRunner [options] description operation targets\noperation is one of list, deploy, startControllers, stopControllers, harshStopControllers, printUuids',
+    usage:'SpaceOperationsRunner [options] description operation targets\noperation is one of list, deploy, startControllers, stopControllers, harshStopControllers, printUuids, removeAllLiveActivities',
     )
 cli.t('Test the operation, just shows the commands what would be run')
 cli.v('Be verbose, showing commands as they are being done')

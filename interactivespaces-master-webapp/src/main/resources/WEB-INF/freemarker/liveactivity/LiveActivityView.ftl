@@ -65,13 +65,13 @@ function remoteDeleteLiveActivity() {
 
 <table class="commandBar">
   <tr>
-    <td><button type="button" id="startupButton" onclick="doApiCommand('startup')">Startup</button></td>
-    <td><button type="button" id="activateButton" onclick="doApiCommand('activate')">Activate</button></td>
-    <td><button type="button" id="deactivateButton" onclick="doApiCommand('deactivate')">Deactivate</button></td>
-    <td><button type="button" id="shutdownButton" onclick="doApiCommand('shutdown')">Shutdown</button></td>
-    <td><button type="button" id="statusButton" onclick="doApiCommand('status')">Status</button></td>
-    <td><button type="button" id="configureButton" onclick="doApiCommand('configure')" title="Configure activity on the controller">Configure</button></td>
-    <td><button type="button" id="deployButton" onclick="doApiCommand('deploy')" title="Deploy activity to the controller">Deploy</button></td>
+    <td><button type="button" id="startupButton" onclick="doAjaxCommand('startup')">Startup</button></td>
+    <td><button type="button" id="activateButton" onclick="doAjaxCommand('activate')">Activate</button></td>
+    <td><button type="button" id="deactivateButton" onclick="doAjaxCommand('deactivate')">Deactivate</button></td>
+    <td><button type="button" id="shutdownButton" onclick="doAjaxCommand('shutdown')">Shutdown</button></td>
+    <td><button type="button" id="statusButton" onclick="doAjaxCommand('status')">Status</button></td>
+    <td><button type="button" id="configureButton" onclick="doAjaxCommand('configure')" title="Configure activity on the controller">Configure</button></td>
+    <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy activity to the controller">Deploy</button></td>
   </tr>
   <tr>
     <td><button type="button" id="editButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/edit.html')" title="Edit the activity details">Edit</button></td>
@@ -187,11 +187,11 @@ activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 
 <h2>Containing Live Activity Groups</h2>
 
-<#if liveactivityGroups?has_content>
+<#if liveActivityGroups?has_content>
 
 <ul>
-<#list liveactivityGroups as liveactivityGroup>
-    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveactivityGroup.id}/view.html', event);">${liveactivityGroup.name}</a></li>
+<#list liveActivityGroups as liveActivityGroup>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html', event);">${liveActivityGroup.name}</a></li>
 </#list>
 </ul>
 <#else>

@@ -123,6 +123,10 @@ abstract class MachineOperator {
     println "Harsh stop controllers unsupported"
   }
 
+  def removeAllLiveActivities(controller, space, options, errors) {
+      doCommand(controller.machine, "rm -fR ${controller.folder}/controller/activities/installed/*", options, errors)
+  }
+
   def sendConfigurations(controller, space, options, errors) {
     def machine = controller.machine
     def templateEngine = new SimpleTemplateEngine()
