@@ -179,7 +179,7 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalActivityStateChange(String uuid, ActivityState newRuntimeState, String newRuntimeStateDetail) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
+      listener.onLiveActivityRuntimeStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
     }
   }
 

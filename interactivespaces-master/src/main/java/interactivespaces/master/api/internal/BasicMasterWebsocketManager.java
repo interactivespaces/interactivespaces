@@ -409,7 +409,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
   }
 
   @Override
-  public void onLiveActivityStateChange(String uuid, ActivityState state, String detail) {
+  public void onLiveActivityRuntimeStateChange(String uuid, ActivityState runtimeState, String detail) {
     LiveActivity liveActivity = activityRepository.getLiveActivityByUuid(uuid);
     if (liveActivity != null) {
       Map<String, Object> data = Maps.newHashMap();
@@ -418,7 +418,9 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
           MasterApiMessage.MASTER_API_PARAMETER_VALUE_TYPE_STATUS_LIVE_ACTIVITY);
       data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_UUID, uuid);
       data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
-      data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_STATUS_STATUS, state.getDescription());
+      data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE, runtimeState.name());
+      data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE_DESCRIPTION,
+          runtimeState.getDescription());
       data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_STATUS_DETAIL, detail);
 
       data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment.getTimeProvider()

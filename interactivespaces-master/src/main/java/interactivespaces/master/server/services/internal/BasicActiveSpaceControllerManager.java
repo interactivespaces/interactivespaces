@@ -936,7 +936,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   }
 
   @Override
-  public void onLiveActivityStateChange(String uuid, ActivityState newState, String newStateDetail) {
+  public void onLiveActivityRuntimeStateChange(String uuid, ActivityState newState, String newStateDetail) {
     ActiveLiveActivity active = getActiveActivityByUuid(uuid);
     if (active != null) {
       ActivityState oldState;

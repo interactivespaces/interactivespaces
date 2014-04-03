@@ -60,7 +60,7 @@ public class RemoteSpaceControllerClientListenerSupport implements RemoteSpaceCo
   }
 
   @Override
-  public void onLiveActivityStateChange(String uuid, ActivityState state, String detail) {
+  public void onLiveActivityRuntimeStateChange(String uuid, ActivityState state, String detail) {
     // Default is do nothing
   }
 
