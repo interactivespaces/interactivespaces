@@ -645,7 +645,7 @@
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${staging.dir}/extras</outputDirectory>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.comm.serial</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>interactivespaces</groupId>
@@ -653,7 +653,7 @@
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${staging.dir}/extras</outputDirectory>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.comm.usb</outputDirectory>
                 </artifactItem>
 
                 <!-- USB Service -->

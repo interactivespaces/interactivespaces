@@ -26,6 +26,22 @@ dependencies {
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
+task copyResources(type: Copy) {
+  from 'src/main/resources/extras'
+  into 'build/staging/controller/extras'
+}
+
+task copyExtrasJars(type: Copy) {
+  from "${project.getProperty('jsr80.home')}"
+  from "${project.getProperty('usb4java.home')}"
+  into 'build/staging/controller/extras/interactivespaces.service.comm.usb/jars'
+  include '**/*.jar'
+}
+
+task copyExtraComponents(dependsOn: [copyResources, copyExtrasJars])
+
+install.dependsOn.add copyExtraComponents
+
 jar {
   manifest {
     version = osgiVersion

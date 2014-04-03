@@ -19,16 +19,21 @@ dependencies {
 
 
   compile files(project.getProperty("rxtx.home"))
-  compile files(project.getProperty("jsr80.home"))
-  compile files(project.getProperty("usb4java.home"))
-
-  compile 'net.java.dev.jna:jna:3.5.1'
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
+
+task copyResources(type: Copy) {
+  from 'src/main/resources/extras'
+  into 'build/staging/controller/extras'
+}
+
+task copyExtraComponents(dependsOn: [copyResources])
+
+install.dependsOn.add copyExtraComponents
 
 jar {
   manifest {

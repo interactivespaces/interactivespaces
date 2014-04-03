@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A depth camera user tracking endpoint using OpenNI2 and NiTE2.
@@ -102,6 +103,11 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
   private int readerLoopRate = READER_LOOP_RATE_DEFAULT;
 
   /**
+   * Is the endpoint sampling the camera?
+   */
+  private final AtomicBoolean sampling = new AtomicBoolean(false);
+
+  /**
    * Construct a new endpoint.
    *
    * @param cameraId
@@ -148,22 +154,26 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
         processUserTrackFrame();
       }
     }, 0, readerLoopRate, TimeUnit.MILLISECONDS);
+
+    sampling.set(true);
   }
 
   @Override
   public synchronized void shutdown() {
+    sampling.set(false);
+
     if (frameReaderLoop != null) {
       frameReaderLoop.cancel(true);
     }
 
-    IntValuedEnum<NiteStatus> niteStatus = NiTE2Library.niteShutdownUserTracker();
+    IntValuedEnum<NiteStatus> niteStatus = NiTE2Library.niteShutdownUserTracker(userTracker.get());
     if (niteStatus != NiteStatus.NITE_STATUS_OK) {
-      OpenNi2Support.throwExtendedNiteError("Could not shut down NiTE user tracker", niteStatus);
+      log.error(OpenNi2Support.getFullNiteMessage("Could not shut down NiTE user tracker", niteStatus));
     }
 
     IntValuedEnum<OniStatus> openniStatus = OpenNI2Library.oniDeviceClose(camera.get());
     if (openniStatus != OniStatus.ONI_STATUS_OK) {
-      OpenNi2Support.throwExtendedOpenNIError("Could not shut down camera, status was %s", openniStatus);
+      log.error(OpenNi2Support.getFullOpenNIMessage("Could not shut down camera, status was %s", openniStatus));
     }
 
     // TODO(keith): release all allocated memory, make sure no matter what no
@@ -187,6 +197,10 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
     List<TrackedEntity<Vector3>> entities = Lists.newArrayList();
 
     synchronized (this) {
+      if (!sampling.get()) {
+        return;
+      }
+
       IntValuedEnum<NiteStatus> niteStatus =
           NiTE2Library.niteReadUserTrackerFrame(userTracker.get(), pointerTrackerFrame);
 
@@ -215,6 +229,10 @@ public class Openni2UserTrackerDepthCameraEndpoint implements UserTrackerDepthCa
                   (state & NiTE2Library.NiteUserState.NITE_USER_STATE_LOST.value) != 0);
           entities.add(entity);
         }
+      } catch (Exception e) {
+        log.error("Error during depth camera scan", e);
+
+        return;
       } finally {
         niteStatus = NiTE2Library.niteUserTrackerFrameRelease(userTracker.get(), pointerTrackerFrame.get());
       }
