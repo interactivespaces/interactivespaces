@@ -1,11 +1,11 @@
-package ${activityClassPackage};
+package ${package};
 
 import interactivespaces.activity.impl.BaseActivity;
 
 /**
  * A simple Interactive Spaces Java-based activity.
  */
-public class SimpleJavaActivity extends BaseActivity {
+public class ${javaClassName} extends BaseActivity {
 
     @Override
     public void onActivitySetup() {

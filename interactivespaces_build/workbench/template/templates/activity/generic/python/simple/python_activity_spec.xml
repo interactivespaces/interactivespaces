@@ -1,0 +1,72 @@
+<!--
+    Copyright (C) 2014 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not
+    use this file except in compliance with the License. You may obtain a copy of
+    the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+    License for the specific language governing permissions and limitations under
+    the License.
+-->
+
+<projectGroupTemplateSpecification>
+  <name>Python Activity Template</name>
+  <description>Auto-generated activity for a python script activity</description>
+  <version>0.0.1</version>
+
+  <prototypes>
+    <prototype prototypeName="commonVars">
+      <templateComponents>
+        <assign name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
+        <assign name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
+        <assign name="groupPackage" value="${groupName?replace('.', '/')}" />
+
+      </templateComponents>
+    </prototype>
+
+    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
+      <templateComponents>
+
+        <assign name="idName" value="${groupName}" />
+        <assign name="package" value="${idName}" />
+        <assign name="packagePath" value="${package?replace('.', '/')}" />
+        <assign name="baseDirectory" value="${baseDirectory}" />
+        <assign name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <assign name="resourceDir" value="${activity.activityResourceDirectory}" />
+        <assign name="scriptExecutable" value="SimplePythonActivity.py" />
+        <assign name="templateSource" value="SimplePythonActivity.py.ftl" />
+      </templateComponents>
+
+      <version>0.0.1</version>
+      <name>${fullName}</name>
+      <identifyingName>${idName}</identifyingName>
+      <description>Auto-generated activity for ${fullName}</description>
+    </prototype>
+
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="script">
+      <activity type="script">
+        <name>${idName}</name>
+        <executable>${scriptExecutable}</executable>
+        <configuration>
+          <property name="space.activity.log.level" value="info" required="false" />
+        </configuration>
+      </activity>
+      <templateComponents>
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+      </templateComponents>
+    </prototype>
+  </prototypes>
+
+  <projects>
+    <project inheritsFrom="activityProject" type="activity">
+      <templateComponents>
+        <templateFile destinationFile="${resourceDir}/${scriptExecutable}" sourceFile="${templateSource}" />
+      </templateComponents>
+    </project>
+  </projects>
+</projectGroupTemplateSpecification>

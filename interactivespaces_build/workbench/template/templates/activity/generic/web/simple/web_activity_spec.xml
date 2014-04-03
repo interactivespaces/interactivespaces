@@ -1,0 +1,67 @@
+<projectGroupTemplateSpecification>
+  <name>Java Activity Template</name>
+  <description>Auto-generated activity for a java-native activity</description>
+  <version>0.0.1</version>
+
+  <prototypes>
+    <prototype prototypeName="commonVars">
+      <templateComponents>
+        <assign name="groupSeparatorIndex" value="${baseDirectory?last_index_of('/')}" />
+        <assign name="groupName" value="${baseDirectory?substring(groupSeparatorIndex?number + 1)}" />
+        <assign name="groupPackage" value="${groupName?replace('.', '/')}" />
+
+      </templateComponents>
+    </prototype>
+
+    <prototype prototypeName="baseProject" inheritsFrom="commonVars" interactiveSpacesVersion="1.0.0">
+      <templateComponents>
+
+        <assign name="idName" value="${groupName}" />
+        <assign name="package" value="${idName}" />
+        <assign name="packagePath" value="${package?replace('.', '/')}" />
+        <assign name="baseDirectory" value="${baseDirectory}" />
+        <assign name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <assign name="resourceDir" value="${activity.activityResourceDirectory}" />
+        <assign name="javaClassName" value="${fullName?replace(' ', '')}Activity" />
+        <assign name="javaSrcDir" value="${activity.activitySourceDirectory}/${packagePath}" />
+        <assign name="webAppFileBase" value="${idName?replace('.', '-')}" />
+        <assign name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
+        <assign name="scriptExecutable" value="${webAppFileBase}.js" />
+      </templateComponents>
+
+      <version>0.0.1</version>
+      <name>${fullName}</name>
+      <identifyingName>${idName}</identifyingName>
+      <description>Auto-generated activity for ${fullName}</description>
+    </prototype>
+
+    <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="java">
+      <activity type="interactivespaces_native">
+        <name>${idName}</name>
+        <class>${package}.${javaClassName}</class>
+        <configuration>
+          <property name="space.activity.log.level" value="info" required="false" />
+        </configuration>
+      </activity>
+      <templateComponents>
+        <templateFile destinationFile="project.xml" sourceFile="${internalTemplates}/project.xml.ftl" />
+      </templateComponents>
+    </prototype>
+  </prototypes>
+
+  <projects>
+    <project inheritsFrom="activityProject" type="activity">
+      <templateComponents>
+        <templateFile destinationFile="${javaSrcDir}/${javaClassName}.java" sourceFile="SimpleWebActivity.java.ftl" />
+        <templateFile destinationFile="${resourceDir}/index.html" sourceFile="index.html.ftl" />
+        <templateFile destinationFile="${resourceDir}/js/${webAppFileBase}.js" sourceFile="SimpleWebActivity.js.ftl" />
+        <templateFile destinationFile="${resourceDir}/css/${webAppFileBase}.css" sourceFile="SimpleWebActivity.css.ftl" />
+      </templateComponents>
+      <activity>
+        <configuration>
+          <property name="space.activity.webapp.content.location" value="." required="true" />
+        </configuration>
+      </activity>
+    </project>
+  </projects>
+</projectGroupTemplateSpecification>

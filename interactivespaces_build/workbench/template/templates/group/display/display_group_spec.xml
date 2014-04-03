@@ -33,10 +33,11 @@
       <templateComponents>
         <assign name="facet" value="${project.getAttribute('facet')}" />
         <assign name="idName" value="${groupName}.${facet}" export="relDirectory" />
-        <assign name="package" value="${groupName}.${facet}" />
+        <assign name="package" value="${idName}" />
         <assign name="packagePath" value="${package?replace('.', '/')}" />
         <assign name="baseDirectory" value="${baseDirectory}/${idName}" />
         <assign name="fullName" value="${idName?replace('.', ' ')?capitalize}" />
+        <assign name="resourceDir" value="${activity.activityResourceDirectory}" />
         <assign name="javaClassName" value="${fullName?replace(' ', '')}" />
         <assign name="webAppFileBase" value="${idName?replace('.', '-')}" />
         <assign name="webSrcDir" value="${activity.activityResourceDirectory}/webapp" />
@@ -51,7 +52,7 @@
 
     <prototype prototypeName="activityProject" inheritsFrom="baseProject" builder="java">
       <activity type="interactivespaces_native">
-        <name>${fullName}</name>
+        <name>${idName}</name>
         <class>${package}.${javaClassName}</class>
         <configuration>
           <property name="space.activity.log.level" value="info" required="false" />
@@ -68,6 +69,7 @@
           <property name="space.activity.enable.web.server" value="true" required="true" />
           <property name="space.activity.webapp.url.initial" value="index.html"/>
           <property name="space.activity.webapp.content.location" value="webapp" description="Content location" />
+          <property name="space.activity.webapp.web.server.port" value="9001" />
         </configuration>
       </activity>
       <templateComponents>
@@ -89,6 +91,11 @@
     </project>
 
     <project facet="admin" inheritsFrom="webActivity" type="activity">
+      <activity type="interactivespaces_native">
+        <configuration>
+          <property name="space.activity.webapp.web.server.port" value="9002" />
+        </configuration>
+      </activity>
     </project>
   </projects>
 
