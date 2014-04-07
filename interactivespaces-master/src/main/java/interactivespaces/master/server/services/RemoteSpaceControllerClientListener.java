@@ -91,12 +91,12 @@ public interface RemoteSpaceControllerClientListener {
    *
    * @param uuid
    *          UUID of the activity
-   * @param state
-   *          state change status of the remote activity
+   * @param runtimeState
+   *          runtime state change status of the remote activity
    * @param detail
    *          detail associated with activity status change
    */
-  void onLiveActivityStateChange(String uuid, ActivityState state, String detail);
+  void onLiveActivityRuntimeStateChange(String uuid, ActivityState runtimeState, String detail);
 
   /**
    * Data bundle control has a status update.

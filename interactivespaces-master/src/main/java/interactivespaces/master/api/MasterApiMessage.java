@@ -251,12 +251,17 @@ public class MasterApiMessage {
   /**
    * Status parameter name for the status in the Master API message.
    */
-  public static final String MASTER_API_PARAMETER_NAME_STATUS_STATUS = "status";
+  public static final String MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE = "runtimeState";
+
+  /**
+   * Status parameter name for the status in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE_DESCRIPTION = "runtimeStateDescription";
 
   /**
    * Status parameter name for the detailed status in the Master API message.
    */
-  public static final String MASTER_API_PARAMETER_NAME_STATUS_DETAIL = "statusDetail";
+  public static final String MASTER_API_PARAMETER_NAME_STATUS_DETAIL = "runtimeStateDetail";
 
   /**
    * Status parameter name for the type of the entity in the Master API message.

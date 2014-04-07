@@ -93,6 +93,7 @@ a.uglylink:active, a.uglylink:focus {
 .admin-content {
   padding-left: 2em;
   padding-right: 2em;
+  box-sizing: border-box;
 }
 
 .commandBar td {
