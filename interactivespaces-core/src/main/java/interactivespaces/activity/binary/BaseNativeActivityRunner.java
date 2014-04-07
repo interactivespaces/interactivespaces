@@ -50,7 +50,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   public static final int RESTART_DURATION_MAXIMUM_DEFAULT = 10000;
 
   /**
-   * File support instance to use for this activity runner;
+   * File support instance to use for this activity runner.
    */
   private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
@@ -118,7 +118,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   private File executableFolder;
 
   /**
-   * Name of the application to run
+   * Name of the application to run.
    */
   private String appName;
 
@@ -151,7 +151,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
 
     commandFlags = (String) getConfig().get(FLAGS);
     if (commandFlags == null) {
-      throw new SimpleInteractiveSpacesException("Missing property " + ACTIVITYNAME);
+      throw new SimpleInteractiveSpacesException("Missing property " + FLAGS);
     }
   }
 

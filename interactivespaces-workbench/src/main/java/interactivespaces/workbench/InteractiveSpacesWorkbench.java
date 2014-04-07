@@ -568,7 +568,7 @@ public class InteractiveSpacesWorkbench {
             String.format("%s is not a project directory", baseDir.getAbsolutePath()));
       } else {
         String commandModifier = removeArgument(commands, "command modifier");
-        if (!COMMAND_RECURSIVE.equals(commandModifier)) {
+        if (COMMAND_RECURSIVE.equals(commandModifier)) {
           if (doCommandsOnTree(baseDir, commands)) {
             throw new SimpleInteractiveSpacesException("Previous errors encountered");
           }
@@ -644,6 +644,10 @@ public class InteractiveSpacesWorkbench {
         hadErrors |= doCommandsOnTree(possible, commands, filter);
       }
     }
+
+    // Walking the tree implicitly consumes all the commands, so clear them out here.
+    commands.clear();
+
     return hadErrors;
   }
 
