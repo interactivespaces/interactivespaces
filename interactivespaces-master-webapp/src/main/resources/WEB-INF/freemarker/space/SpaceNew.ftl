@@ -29,16 +29,52 @@
 <form action="${flowExecutionUrl}" method="post">
 <table>
 <tr>
-<td>Name</td><td><@spring.formInput path="form.space.name" /></td>
+<td>Name</td>
+<td>
+<@spring.formInput path="spaceForm.space.name" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td valign="top">Description</td><td><@spring.formTextarea path="form.space.description" attributes='rows="5" cols="40"' /></td>
+<td valign="top">Description</td>
+<td>
+<@spring.formTextarea path="spaceForm.space.description" attributes='rows="5" cols="40"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Live Activity Groups</td><td><@spring.formMultiSelect "form.liveActivityGroupIds", liveactivitygroups, "size='15'" /></td>
+<td>Live Activity Groups</td>
+<td>
+<@spring.bind "spaceForm.liveActivityGroupIds"/>
+<#if spring.status.value??>
+<#assign selectedGroups = spring.status.value>
+<#else>
+<#assign selectedGroups = []>
+</#if>
+<select multiple="multiple" id="${spring.status.expression}" name="${spring.status.expression}" size='15'>
+    <option value="--none--">-- None --</option>
+    <#list liveactivitygroups?keys as value>
+    <option value="${value?html}"<#if selectedGroups?seq_contains(value)> selected="selected"</#if>>${liveactivitygroups[value]?html}</option>
+    </#list>
+</select>
+</td>
 </tr>
 <#if spaces?has_content><tr>
-<td>Spaces</td><td><@spring.formMultiSelect "form.spaceIds", spaces, "size='15'" /></td>
+<td>Spaces</td>
+<td>
+<@spring.bind "spaceForm.spaceIds"/>
+<#if spring.status.value??>
+<#assign selectedSpaces = spring.status.value>
+<#else>
+<#assign selectedSpaces = []>
+</#if>
+<select multiple="multiple" id="${spring.status.expression}" name="${spring.status.expression}" size='15'>
+    <option value="--none--">-- None --</option>
+    <#list spaces?keys as value>
+    <option value="${value?html}"<#if selectedSpaces?seq_contains(value)> selected="selected"</#if>>${spaces[value]?html}</option>
+    </#list>
+</select>
+</td>
 </tr></#if>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

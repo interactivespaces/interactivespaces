@@ -30,16 +30,28 @@
 <form action="${flowExecutionUrl}" method="post">
 <table>
 <tr>
-<td>Name</td><td><@spring.formInput path="script.name" /></td>
+<td>Name</td>
+<td>
+<@spring.formInput path="namedScriptForm.name" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td valign="top">Description</td><td><@spring.formTextarea path="script.description" attributes='rows="5" cols="40"' /></td>
+<td valign="top">Description</td>
+<td>
+<@spring.formTextarea path="namedScriptForm.description" attributes='rows="5" cols="40"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Language</td><td><@spring.formInput path="script.language" /></td>
+<td>Language</td>
+<td>
+<@spring.formInput path="namedScriptForm.language" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Scheduled?</td><td><@spring.formCheckbox path="script.scheduled" attributes="size='128' disabled" /></td>
+<td>Scheduled?</td><td><@spring.formCheckbox path="namedScriptForm.scheduled" attributes="size='128' disabled" /></td>
 </tr>
 <tr>
 <td>Schedule</td>
@@ -52,7 +64,11 @@
 </td>
 </tr>
 <tr>
-<td valign="top">Content</td><td><@spring.formTextarea path="script.content" attributes='rows="30" cols="80"'/></td>
+<td valign="top">Content</td>
+<td>
+<@spring.formTextarea path="namedScriptForm.content" attributes='rows="30" cols="80"'/>
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

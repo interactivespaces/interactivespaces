@@ -40,7 +40,7 @@ public class AutomationAction extends BaseSpaceMasterController {
   /**
    * Get a new script model.
    *
-   * @return a blank script moel
+   * @return a blank script model
    */
   public SimpleNamedScript newNamedScript() {
     return new SimpleNamedScript();

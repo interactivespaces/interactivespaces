@@ -1,10 +1,21 @@
 <?xml version="1.0"?>
 <project type="activity">
-    <name>Simple Hello World Activity Example in Python</name>
-    <description>
-A very simple Python-based activity which just logs at INFO level its callback messages.
-    </description>
+  <name>Simple Hello World Activity Example in Python</name>
+  <description>
+    A very simple Python-based activity which just logs at INFO level its
+    callback messages.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.hello.python</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>interactivespaces.example.activity.hello.python
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="script">
+    <name>example_activity_hello_python</name>
+    <executable>HelloActivity.py</executable>
+
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

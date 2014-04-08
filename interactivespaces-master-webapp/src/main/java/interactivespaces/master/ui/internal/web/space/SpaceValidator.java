@@ -16,30 +16,29 @@
 
 package interactivespaces.master.ui.internal.web.space;
 
-import org.springframework.util.StringUtils;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
+
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 /**
  * A validator for {@link SpaceForm} instances.
  *
  * @author Keith M. Hughes
  */
-public class SpaceFormValidator implements Validator {
+public class SpaceValidator extends FormObjectValidator {
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return SpaceForm.class.isAssignableFrom(clazz);
-  }
-
-  @Override
-  public void validate(Object obj, Errors errors) {
-    SpaceForm form = (SpaceForm) obj;
-
-    String name = form.getSpace().getName();
-    if (!StringUtils.hasLength(name)) {
-      errors.rejectValue("liveActivityGroup.name", "required", "required");
+  /**
+   * Validate a space form.
+   *
+   * @param spaceForm
+   *          the space form
+   * @param errors
+   *          the errors
+   */
+ public void validate(SpaceForm spaceForm, Errors errors) {
+    String name = spaceForm.getSpace().getName();
+    if (!hasValue(name)) {
+      errors.rejectValue("space.name", "required", "required");
     }
   }
 }

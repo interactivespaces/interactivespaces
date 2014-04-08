@@ -76,7 +76,7 @@ public class SpaceEditForm extends BaseSpaceMasterController {
       @ModelAttribute("form") SpaceForm form, BindingResult result, SessionStatus status,
       Model model) {
     Space space = activityRepository.getSpaceById(id);
-    new SpaceFormValidator().validate(form, result);
+    new SpaceValidator().validate(form, result);
     if (result.hasErrors()) {
       addNeededEntities(model, space);
       return "space/SpaceEdit";

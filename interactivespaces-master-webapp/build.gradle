@@ -83,6 +83,7 @@ jar {
         'org.springframework.web.filter',
 		'org.springframework.transaction.config',
 		'org.apache.derby.jdbc',
+        'org.apache.commons.fileupload.disk',
 		//'javax.servlet;version=""',
         '*'
   }

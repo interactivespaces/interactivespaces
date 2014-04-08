@@ -29,13 +29,25 @@
 <form action="${flowExecutionUrl}" method="post">
 <table>
 <tr>
-<td>name</td><td><@spring.formInput path="spacecontroller.name" /></td>
+<td>name</td>
+<td>
+<@spring.formInput path="spaceControllerForm.name" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td valign="top">description</td><td><@spring.formTextarea path="spacecontroller.description" attributes='rows="5" cols="40"' /></td>
+<td valign="top">description</td>
+<td>
+<@spring.formTextarea path="spaceControllerForm.description" attributes='rows="5" cols="40"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Host ID</td><td><@spring.formInput path="spacecontroller.hostId" /></td>
+<td>Host ID</td>
+<td>
+<@spring.formInput path="spaceControllerForm.hostId" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

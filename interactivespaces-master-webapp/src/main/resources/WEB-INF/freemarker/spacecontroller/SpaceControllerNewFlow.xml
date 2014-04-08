@@ -1,40 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
-	2.0 (the "License"); you may not use this file except in compliance with 
-	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-	Unless required by applicable law or agreed to in writing, software distributed 
-	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-	OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
-	the specific language governing permissions and limitations under the License. -->
+  2.0 (the "License"); you may not use this file except in compliance with 
+  the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+  Unless required by applicable law or agreed to in writing, software distributed 
+  under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+  OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
+  the specific language governing permissions and limitations under the License. -->
 <flow xmlns="http://www.springframework.org/schema/webflow"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
-	<!-- <secured attributes="ROLE_USER" /> -->
+  <!-- <secured attributes="ROLE_USER" /> -->
 
-	<on-start>
-		<evaluate expression="spaceControllerAction.newSpaceController()"
-			result="flowScope.spacecontroller" />
-		<evaluate expression="new java.util.Date()" result="flowScope.now" />
-	</on-start>
+  <on-start>
+    <evaluate expression="spaceControllerAction.newSpaceController()"
+      result="flowScope.spaceControllerForm" />
+    <evaluate expression="new java.util.Date()" result="flowScope.now" />
+  </on-start>
 
-	<view-state id="newSpaceController" model="spacecontroller"
-		view="spacecontroller/SpaceControllerNew">
-		<on-render>
-			<evaluate
-				expression="spaceControllerAction.addNeededEntities(flowRequestContext)" />
-		</on-render>
-		<transition on="save" to="doneNewSpaceController">
-			<evaluate
-				expression="spaceControllerAction.saveSpaceController(spacecontroller)" />
-		</transition>
-		<transition on="cancel" to="cancel" bind="false" />
-	</view-state>
+  <view-state id="newSpaceController" model="spaceControllerForm"
+    view="spacecontroller/SpaceControllerNew">
+    <on-render>
+      <evaluate
+        expression="spaceControllerAction.addNeededEntities(flowRequestContext)" />
+    </on-render>
+    <transition on="save" to="saveNewSpaceController"
+      validate="true" />
+    <transition on="cancel" to="cancel" bind="false" />
+  </view-state>
 
-	<end-state id="doneNewSpaceController"
-		view="externalRedirect:contextRelative:/spacecontroller/#{spacecontroller.id}/view.html">
-		<output name="spaceControllerId" value="spacecontroller.id" />
-	</end-state>
+  <action-state id="saveNewSpaceController">
+    <evaluate
+      expression="spaceControllerAction.saveSpaceController(spaceControllerForm)" />
+    <transition on="success" to="doneNewSpaceController" />
+    <transition on="error" to="newSpaceController" />
+  </action-state>
 
-	<end-state id="cancel" />
+  <end-state id="doneNewSpaceController"
+    view="externalRedirect:contextRelative:/spacecontroller/#{spaceControllerForm.id}/view.html">
+    <output name="spaceControllerId" value="spaceControllerForm.id" />
+  </end-state>
+
+  <end-state id="cancel" />
 </flow>

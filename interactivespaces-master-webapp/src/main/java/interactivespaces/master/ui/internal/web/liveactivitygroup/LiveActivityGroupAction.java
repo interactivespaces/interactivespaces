@@ -40,7 +40,7 @@ public class LiveActivityGroupAction extends BaseSpaceMasterController {
   /**
    * Get a new activity group form.
    *
-   * @return
+   * @return a new activity group form
    */
   public LiveActivityGroupForm newLiveActivityGroup() {
     return new LiveActivityGroupForm();
@@ -50,7 +50,7 @@ public class LiveActivityGroupAction extends BaseSpaceMasterController {
    * Add entities to the flow context needed by the new entity page.
    *
    * @param context
-   *          The Webflow context.
+   *          the Webflow context
    */
   public void addNeededEntities(RequestContext context) {
     MutableAttributeMap viewScope = context.getViewScope();

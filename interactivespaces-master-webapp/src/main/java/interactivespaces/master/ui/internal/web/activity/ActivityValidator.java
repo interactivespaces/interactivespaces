@@ -17,29 +17,56 @@
 package interactivespaces.master.ui.internal.web.activity;
 
 import interactivespaces.domain.basic.Activity;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
+import interactivespaces.master.ui.internal.web.activity.ActivityAction.ActivityForm;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 /**
  * A validator for {@link Activity} instances.
  *
  * @author Keith M. Hughes
  */
-public class ActivityValidator implements Validator {
+public class ActivityValidator extends FormObjectValidator {
 
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return Activity.class.isAssignableFrom(clazz);
+  /**
+   * Validate an activity.
+   *
+   * @param activity
+   *          the activity
+   * @param errors
+   *          the errors
+   */
+  public void validate(Activity activity, Errors errors) {
+    validateActivityPortion(activity, "", errors);
   }
 
-  public void validate(Object obj, Errors errors) {
-    Activity activity = (Activity) obj;
+  /**
+   * Validate an activity form.
+   *
+   * @param activityForm
+   *          the activity form
+   * @param errors
+   *          the errors
+   */
+  public void validate(ActivityForm activityForm, Errors errors) {
+    // Nothing to do
+  }
 
+  /**
+   * Validate an activity portion of a Spring submission.
+   *
+   * @param activity
+   *          the activity
+   * @param pathPrefix
+   *          form path to get to the activity
+   * @param errors
+   *          the errors
+   */
+  private void validateActivityPortion(Activity activity, String pathPrefix, Errors errors) {
     String name = activity.getName();
-    if (!StringUtils.hasLength(name)) {
-      errors.rejectValue("name", "required", "required");
+    if (!hasValue(name)) {
+      errors.rejectValue(pathPrefix + "name", "required", "required");
     }
   }
 }

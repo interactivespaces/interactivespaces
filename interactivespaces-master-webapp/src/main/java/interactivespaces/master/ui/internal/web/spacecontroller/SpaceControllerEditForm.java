@@ -74,7 +74,7 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
     SpaceController controller = controllerRepository.getSpaceControllerById(id);
     model.addAttribute("spacecontroller", SpaceControllerUtils.toTemplate(controller));
     model.addAttribute("id", id);
-    model.addAttribute("modes", WebSupport.getControllerModes(messageSource, locale));
+    addNeededEntities(model);
 
     addGlobalModelItems(model);
 
@@ -97,10 +97,11 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
    */
   @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
   public String processSubmit(@PathVariable("id") String id,
-      @ModelAttribute("spacecontroller") SpaceController template, BindingResult result,
-      SessionStatus status) {
+      @ModelAttribute("spacecontroller") SpaceController template, BindingResult result, SessionStatus status,
+      Model model) {
     new SpaceControllerValidator().validate(template, result);
     if (result.hasErrors()) {
+      addNeededEntities(model);
       return "spacecontroller/SpaceControllerEdit";
     } else {
       SpaceController controller = controllerRepository.getSpaceControllerById(id);
@@ -111,6 +112,16 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
 
       return "redirect:/spacecontroller/" + controller.getId() + "/view.html";
     }
+  }
+
+  /**
+   * Add any additional needed entities to the model.
+   *
+   * @param model
+   *          the model
+   */
+  private void addNeededEntities(Model model) {
+    model.addAttribute("modes", WebSupport.getControllerModes(messageSource, locale));
   }
 
   /**

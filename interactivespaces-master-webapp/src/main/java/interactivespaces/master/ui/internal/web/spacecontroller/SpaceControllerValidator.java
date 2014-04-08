@@ -17,8 +17,9 @@
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 
 /**
@@ -26,23 +27,38 @@ import org.springframework.validation.Errors;
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerValidator {
+public class SpaceControllerValidator extends FormObjectValidator {
 
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return SpaceController.class.isAssignableFrom(clazz);
-  }
-
-  public void validate(Object obj, Errors errors) {
-    SpaceController controller = (SpaceController) obj;
-
-    String name = controller.getName();
-    if (!StringUtils.hasLength(name)) {
+  /**
+   * Validate a space controller.
+   *
+   * @param spaceController
+   *          the space controller
+   * @param errors
+   *          the errors
+   */
+  public void validate(SpaceController spaceController, Errors errors) {
+    String name = spaceController.getName();
+    if (!hasValue(name)) {
       errors.rejectValue("name", "required", "required");
     }
-    String hostId = controller.getHostId();
-    if (!StringUtils.hasLength(hostId)) {
+    String hostId = spaceController.getHostId();
+    if (!hasValue(hostId)) {
       errors.rejectValue("hostId", "required", "required");
     }
+  }
+
+  /**
+   * Validate a space controller.
+   *
+   * @param spaceController
+   *          the space controller
+   * @param errors
+   *          the errors
+   */
+  public void validate(SimpleSpaceController spaceController, Errors errors) {
+    // This little annoyance is because Spring wants to have direct class
+    // equality when finding which validation method to call.
+    validate((SpaceController) spaceController, errors);
   }
 }

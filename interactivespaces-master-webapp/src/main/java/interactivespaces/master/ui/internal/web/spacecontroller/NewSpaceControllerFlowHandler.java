@@ -33,14 +33,19 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
 
+  /**
+   * The default URL once the flow completes.
+   */
   private static final String DEFAULT_URL = "/spacecontroller/all.html";
 
+  /**
+   * The space controller repository to use.
+   */
   private SpaceControllerRepository controllerRepository;
 
   @Override
   public String handleExecutionOutcome(FlowExecutionOutcome outcome, HttpServletRequest request,
       HttpServletResponse response) {
-    System.out.println(outcome.getOutput().get("flowscope.controller"));
     return DEFAULT_URL;
   }
 
@@ -68,5 +73,4 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
   public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
-
 }

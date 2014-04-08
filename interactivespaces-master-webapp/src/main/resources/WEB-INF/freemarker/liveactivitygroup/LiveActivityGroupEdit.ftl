@@ -53,7 +53,8 @@
     <#list liveactivities?keys as value>
     <option value="${value?html}"<#if selectedActivities?seq_contains(value)> selected="selected"</#if>>${liveactivities[value]?html}</option>
     </#list>
-</select></td>
+</select>
+</td>
 
 </tr>
 

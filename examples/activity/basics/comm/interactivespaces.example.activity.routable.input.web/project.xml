@@ -11,7 +11,7 @@
   </identifyingName>
   <version>1.0.0</version>
 
-  <activity type="interactivespaces_native" logLevel="info">
+  <activity type="interactivespaces_native">
     <name>interactivespacesExampleActivityRoutableInputWeb</name>
     <class>interactivespaces.example.activity.routable.input.web.RoutableInputWebExampleActivity
     </class>
@@ -37,7 +37,7 @@
       </property>
       <property name="space.activity.webapp.browser.debug"
         value="true" />
-
+      <property name="space.activity.log.level" value="info" />
     </configuration>
   </activity>
 </project>

@@ -29,13 +29,35 @@
 <form action="${flowExecutionUrl}" method="post">
 <table>
 <tr>
-<td>Name</td><td><@spring.formInput path="form.liveActivityGroup.name" /></td>
+<td>Name</td>
+<td>
+<@spring.formInput path="liveActivityGroupForm.liveActivityGroup.name" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td valign="top">Description</td><td><@spring.formTextarea path="form.liveActivityGroup.description" attributes='rows="5" cols="40"' /></td>
+<td valign="top">Description</td>
+<td>
+<@spring.formTextarea path="liveActivityGroupForm.liveActivityGroup.description" attributes='rows="5" cols="40"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Live Activities</td><td><@spring.formMultiSelect "form.liveActivityIds", liveactivities, "size='15'" /></td>
+<td>Live Activities</td>
+<td>
+<@spring.bind "liveActivityGroupForm.liveActivityIds"/>
+<#if spring.status.value??>
+<#assign selectedLiveActivities = spring.status.value>
+<#else>
+<#assign selectedLiveActivities = []>
+</#if>
+<select multiple="multiple" id="${spring.status.expression}" name="${spring.status.expression}" size='15'>
+    <option value="--none--">-- None --</option>
+<#list liveactivities?keys as value>
+    <option value="${value?html}"<#if selectedLiveActivities?seq_contains(value)> selected="selected"</#if>>${liveactivities[value]?html}</option>
+</#list>
+</select>
+</td>
 </tr>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

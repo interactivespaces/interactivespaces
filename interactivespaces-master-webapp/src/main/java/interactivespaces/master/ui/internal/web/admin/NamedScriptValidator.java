@@ -17,8 +17,9 @@
 package interactivespaces.master.ui.internal.web.admin;
 
 import interactivespaces.domain.system.NamedScript;
+import interactivespaces.domain.system.pojo.SimpleNamedScript;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 
 /**
@@ -26,29 +27,44 @@ import org.springframework.validation.Errors;
  *
  * @author Keith M. Hughes
  */
-public class NamedScriptValidator {
+public class NamedScriptValidator extends FormObjectValidator {
 
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return NamedScript.class.isAssignableFrom(clazz);
-  }
-
-  public void validate(Object obj, Errors errors) {
-    NamedScript controller = (NamedScript) obj;
-
-    String name = controller.getName();
-    if (!StringUtils.hasLength(name)) {
+  /**
+   * Validate a named script.
+   *
+   * @param namedScript
+   *          the named script
+   * @param errors
+   *          the errors
+   */
+  public void validate(NamedScript namedScript, Errors errors) {
+    String name = namedScript.getName();
+    if (!hasValue(name)) {
       errors.rejectValue("name", "required", "required");
     }
-    String language = controller.getLanguage();
-    if (!StringUtils.hasLength(language)) {
+    String language = namedScript.getLanguage();
+    if (!hasValue(language)) {
       errors.rejectValue("language", "required", "required");
     }
-    if (controller.getScheduled()) {
-      String schedule = controller.getSchedule();
-      if (!StringUtils.hasLength(schedule)) {
+    if (namedScript.getScheduled()) {
+      String schedule = namedScript.getSchedule();
+      if (!hasValue(schedule)) {
         errors.rejectValue("schedule", "required", "required");
       }
     }
+  }
+
+  /**
+   * Validate a named script.
+   *
+   * @param namedScript
+   *          the named script
+   * @param errors
+   *          the errors
+   */
+  public void validate(SimpleNamedScript namedScript, Errors errors) {
+    // This little annoyance is because Spring wants to have direct class
+    // equality when finding which validation method to call.
+    validate((NamedScript) namedScript, errors);
   }
 }

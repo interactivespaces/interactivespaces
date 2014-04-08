@@ -17,30 +17,28 @@
 package interactivespaces.master.ui.internal.web.liveactivitygroup;
 
 import interactivespaces.domain.basic.LiveActivityGroup;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 /**
  * A validator for {@link LiveActivityGroup} instances.
  *
  * @author Keith M. Hughes
  */
-public class LiveActivityGroupFormValidator implements Validator {
+public class LiveActivityGroupValidator extends FormObjectValidator {
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return LiveActivityGroupForm.class.isAssignableFrom(clazz);
-  }
-
-  @Override
-  public void validate(Object obj, Errors errors) {
-    LiveActivityGroupForm form = (LiveActivityGroupForm) obj;
-
-    String name = form.getLiveActivityGroup().getName();
-    if (!StringUtils.hasLength(name)) {
+  /**
+   * Validate a live activity group form.
+   *
+   * @param liveActivityGroupForm
+   *          the live activity group form
+   * @param errors
+   *          the errors
+   */
+  public void validate(LiveActivityGroupForm liveActivityGroupForm, Errors errors) {
+    String name = liveActivityGroupForm.getLiveActivityGroup().getName();
+    if (!hasValue(name)) {
       errors.rejectValue("liveActivityGroup.name", "required", "required");
     }
   }

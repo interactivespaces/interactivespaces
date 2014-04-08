@@ -17,29 +17,56 @@
 package interactivespaces.master.ui.internal.web.liveactivity;
 
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.master.ui.internal.web.FormObjectValidator;
+import interactivespaces.master.ui.internal.web.liveactivity.LiveActivityAction.LiveActivityForm;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 
 /**
  * A validator for {@link LiveActivity} instances.
  *
  * @author Keith M. Hughes
  */
-public class LiveActivityValidator implements Validator {
+public class LiveActivityValidator extends FormObjectValidator {
 
-  @SuppressWarnings("unchecked")
-  public boolean supports(Class<?> clazz) {
-    return LiveActivity.class.isAssignableFrom(clazz);
+  /**
+   * Validate a live activity.
+   *
+   * @param liveActivity
+   *          the live activity
+   * @param errors
+   *          the errors
+   */
+  public void validate(LiveActivity liveActivity, Errors errors) {
+    validateLiveActivityPortion(liveActivity, "", errors);
   }
 
-  public void validate(Object obj, Errors errors) {
-    LiveActivity liveActivity = (LiveActivity) obj;
+  /**
+   * Validate a live activity form.
+   *
+   * @param liveActivityForm
+   *          the live activity form
+   * @param errors
+   *          the errors
+   */
+  public void validate(LiveActivityForm liveActivityForm, Errors errors) {
+    validateLiveActivityPortion(liveActivityForm.getLiveActivity(), "liveActivity.", errors);
+  }
 
+  /**
+   * Validate a live activity portion of a Spring submission.
+   *
+   * @param liveActivity
+   *          the live activity
+   * @param pathPrefix
+   *          form path to get to the live activity
+   * @param errors
+   *          the errors
+   */
+  private void validateLiveActivityPortion(LiveActivity liveActivity, String pathPrefix, Errors errors) {
     String name = liveActivity.getName();
-    if (!StringUtils.hasLength(name)) {
-      errors.rejectValue("name", "required", "required");
+    if (!hasValue(name)) {
+      errors.rejectValue(pathPrefix + "name", "required", "required");
     }
   }
 }

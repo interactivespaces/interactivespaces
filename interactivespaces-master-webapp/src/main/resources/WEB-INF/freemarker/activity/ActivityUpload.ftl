@@ -29,7 +29,11 @@
 <form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
 <table>
 <tr>
-<td>File</td><td><@spring.formInput path="form.activityFile" fieldType="file" attributes='style="width: 40em"' /></td>
+<td>File</td>
+<td>
+<@spring.formInput path="activityForm.activityFile" fieldType="file" attributes='style="width: 40em"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

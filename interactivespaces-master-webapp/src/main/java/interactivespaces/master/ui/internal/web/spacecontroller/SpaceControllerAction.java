@@ -32,14 +32,14 @@ import org.springframework.webflow.execution.RequestContext;
 public class SpaceControllerAction extends BaseSpaceMasterController {
 
   /**
-   * Repository for controllers.
+   * Repository for space controllers.
    */
   private SpaceControllerRepository controllerRepository;
 
   /**
-   * Get a new controller model.
+   * Get a new space controller model.
    *
-   * @return
+   * @return a new space controller model
    */
   public SimpleSpaceController newSpaceController() {
     return new SimpleSpaceController();
@@ -49,7 +49,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
    * Add entities to the flow context needed by the new entity page.
    *
    * @param context
-   *          The Webflow context.
+   *          the Webflow context
    */
   public void addNeededEntities(RequestContext context) {
     MutableAttributeMap viewScope = context.getViewScope();
@@ -57,9 +57,10 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
   }
 
   /**
-   * Save the new controller.
+   * Save the new space controller.
    *
    * @param controller
+   *          the controller form
    */
   public void saveSpaceController(SimpleSpaceController controller) {
     SpaceController finalController = controllerRepository.newSpaceController(controller);
@@ -77,5 +78,4 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
   public void setControllerRepository(SpaceControllerRepository controllerRepository) {
     this.controllerRepository = controllerRepository;
   }
-
 }

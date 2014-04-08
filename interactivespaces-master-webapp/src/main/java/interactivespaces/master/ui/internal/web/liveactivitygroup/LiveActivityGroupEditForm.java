@@ -73,7 +73,7 @@ public class LiveActivityGroupEditForm extends BaseSpaceMasterController {
   public String processSubmit(@PathVariable("id") String id,
       @ModelAttribute("form") LiveActivityGroupForm form, BindingResult result,
       SessionStatus status, Model model) {
-    new LiveActivityGroupFormValidator().validate(form, result);
+    new LiveActivityGroupValidator().validate(form, result);
     if (result.hasErrors()) {
       addNeededEntities(model);
       return "liveactivitygroup/LiveActivityGroupEdit";

@@ -600,6 +600,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         liveActivities.add(gla.getActivity());
       }
 
+      Collections.sort(liveActivities, MasterApiUtilities.LIVE_ACTIVITY_BY_NAME_COMPARATOR);
       responseData.put("liveactivities", extractLiveActivities(liveActivities));
 
       List<Space> spaces = Lists.newArrayList(activityRepository.getSpacesByLiveActivityGroup(liveActivityGroup));

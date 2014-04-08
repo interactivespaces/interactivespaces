@@ -74,6 +74,9 @@
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
   </bean>
 
+  <bean id="activityFormValidator"
+    class="interactivespaces.master.ui.internal.web.activity.ActivityValidator" />
+  
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.edit"
     class="interactivespaces.master.ui.internal.web.activity.ActivityEditForm"
@@ -133,6 +136,9 @@
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
+  <bean id="namedScriptFormValidator"
+    class="interactivespaces.master.ui.internal.web.admin.NamedScriptValidator" />
+  
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerController"
@@ -144,6 +150,9 @@
     <property name="controllerRepository" ref="controllerRepository" />
   </bean>
 
+  <bean id="spaceControllerFormValidator"
+    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerValidator" />
+  
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.edit"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerEditForm"
@@ -175,6 +184,9 @@
     <property name="controllerRepository" ref="controllerRepository" />
   </bean>
 
+  <bean id="liveActivityFormValidator"
+    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityValidator" />
+  
   <bean name="liveActivity/new"
     class="interactivespaces.master.ui.internal.web.liveactivity.NewLiveActivityFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
@@ -227,6 +239,9 @@
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
+  <bean id="liveActivityGroupFormValidator"
+    class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupValidator" />
+  
   <bean name="liveactivitygroup/new"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.NewLiveActivityGroupFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
@@ -243,6 +258,9 @@
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
+  <bean id="spaceFormValidator"
+    class="interactivespaces.master.ui.internal.web.space.SpaceValidator" />
+  
   <bean name="space/new"
     class="interactivespaces.master.ui.internal.web.space.NewSpaceFlowHandler">
     <property name="activityRepository" ref="activityRepository" />

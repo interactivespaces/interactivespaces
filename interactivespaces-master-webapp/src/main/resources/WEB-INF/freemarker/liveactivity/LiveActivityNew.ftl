@@ -29,16 +29,27 @@
 <form action="${flowExecutionUrl}" method="post">
 <table>
 <tr>
-<td>Name</td><td><@spring.formInput path="form.liveActivity.name" /></td>
+<td>Name</td><td><@spring.formInput path="liveActivityForm.liveActivity.name" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td valign="top">Description</td><td><@spring.formTextarea path="form.liveActivity.description" attributes='rows="5" cols="40"' /></td>
+<td valign="top">
+Description</td><td><@spring.formTextarea path="liveActivityForm.liveActivity.description" attributes='rows="5" cols="40"' />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Activity</td><td><@spring.formSingleSelect "form.activityId", activities, "" /></td>
+<td>Activity</td><td>
+<@spring.formSingleSelect "liveActivityForm.activityId", activities, "" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
-<td>Controller</td><td><@spring.formSingleSelect "form.controllerId", controllers, "" /></td>
+<td>Controller</td><td>
+<@spring.formSingleSelect "liveActivityForm.controllerId", controllers, "" />
+<@spring.showErrors '<br>', 'fieldError' />
+</td>
 </tr>
 <tr>
 <td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />

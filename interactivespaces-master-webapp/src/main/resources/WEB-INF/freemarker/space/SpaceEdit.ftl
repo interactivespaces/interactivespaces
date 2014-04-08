@@ -42,7 +42,7 @@
 <tr>
 <td>Live Activity Groups</td>
 <td>
- <@spring.bind "form.liveActivityGroupIds"/>
+<@spring.bind "form.liveActivityGroupIds"/>
 <#if spring.status.value??>
 <#assign selectedGroups = spring.status.value?split(",")>
 <#else>
@@ -53,12 +53,13 @@
     <#list liveactivitygroups?keys as value>
     <option value="${value?html}"<#if selectedGroups?seq_contains(value)> selected="selected"</#if>>${liveactivitygroups[value]?html}</option>
     </#list>
-</select></td>
+</select>
+</td>
 </tr>
 <tr>
 <td>Subspaces</td>
 <td>
- <@spring.bind "form.spaceIds"/>
+<@spring.bind "form.spaceIds"/>
 <#if spring.status.value??>
 <#assign selectedSpaces = spring.status.value?split(",")>
 <#else>
@@ -69,7 +70,8 @@
     <#list spaces?keys as value>
     <option value="${value?html}"<#if selectedSpaces?seq_contains(value)> selected="selected"</#if>>${spaces[value]?html}</option>
     </#list>
-</select></td>
+</select>
+</td>
 </tr>
 
 <tr>

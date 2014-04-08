@@ -20,22 +20,26 @@ the License.
     <!--  <secured attributes="ROLE_USER" /> -->
 
     <on-start>
-        <evaluate expression="liveActivityGroupAction.newLiveActivityGroup()" result="flowScope.form" />
+        <evaluate expression="liveActivityGroupAction.newLiveActivityGroup()" result="flowScope.liveActivityGroupForm" />
         <evaluate expression="new java.util.Date()" result="flowScope.now" />
     </on-start>
     
-    <view-state id="newLiveActivityGroup" model="form" view="liveactivitygroup/LiveActivityGroupNew">
+    <view-state id="newLiveActivityGroup" model="liveActivityGroupForm" view="liveactivitygroup/LiveActivityGroupNew">
         <on-render>
             <evaluate expression="liveActivityGroupAction.addNeededEntities(flowRequestContext)" />
         </on-render>
-        <transition on="save" to="doneNewLiveActivityGroup" >
-            <evaluate expression="liveActivityGroupAction.saveLiveActivityGroup(form)" />
-        </transition>
+        <transition on="save" to="saveNewLiveActivityGroup" validate="true" />
         <transition on="cancel" to="cancel" bind="false" />
     </view-state>
+
+  <action-state id="saveNewLiveActivityGroup">
+    <evaluate expression="liveActivityGroupAction.saveLiveActivityGroup(liveActivityGroupForm)" />
+    <transition on="success" to="doneNewLiveActivityGroup" />
+    <transition on="error" to="newLiveActivityGroup" />
+  </action-state>
     
-    <end-state id="doneNewLiveActivityGroup" view="externalRedirect:contextRelative:/liveactivitygroup/#{form.liveActivityGroup.id}/view.html">
-      <output name="liveActivityGroupId" value="form.liveActivityGroup.id" />
+    <end-state id="doneNewLiveActivityGroup" view="externalRedirect:contextRelative:/liveactivitygroup/#{liveActivityGroupForm.liveActivityGroup.id}/view.html">
+      <output name="liveActivityGroupId" value="liveActivityGroupForm.liveActivityGroup.id" />
     </end-state>
 
     <end-state id="cancel" />
