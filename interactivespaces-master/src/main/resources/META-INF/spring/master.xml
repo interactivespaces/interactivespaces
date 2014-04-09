@@ -331,7 +331,9 @@
         destroy-method="shutdown" init-method="startup" parent="abstractMasterApiManager">
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
-
+ 
+        <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
+        
         <property name="activityRepositoryManager"
           ref="interactivespaces.resource.repository.manager" />
 

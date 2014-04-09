@@ -90,6 +90,13 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
+  public long getNumberActivities() {
+    synchronized (activitiesById) {
+      return activitiesById.size();
+    }
+  }
+
+  @Override
   public List<Activity> getAllActivities() {
     synchronized (activitiesById) {
       return Lists.newArrayList(activitiesById.values());
@@ -301,17 +308,17 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public long getCountLiveActivitiesByController(SpaceController controller) {
+  public long getNumberLiveActivitiesByController(SpaceController controller) {
     throw new UnsupportedException("Not currently supported");
   }
 
   @Override
-  public long getCountLiveActivitiesByActivity(Activity activity) {
+  public long getNumberLiveActivitiesByActivity(Activity activity) {
     throw new UnsupportedException("Not currently supported");
   }
 
   @Override
-  public long getCountLiveActivityGroupsByLiveActivity(LiveActivity liveActivity) {
+  public long getNumberLiveActivityGroupsByLiveActivity(LiveActivity liveActivity) {
     throw new UnsupportedException("Not currently supported");
   }
 
@@ -346,7 +353,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public long getCountSpacesBySubspace(Space subspace) {
+  public long getNumberSpacesBySubspace(Space subspace) {
     throw new UnsupportedException("Not currently supported");
   }
 
@@ -361,7 +368,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public long getCountSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
+  public long getNumberSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
     throw new UnsupportedException("Not currently supported");
   }
 }

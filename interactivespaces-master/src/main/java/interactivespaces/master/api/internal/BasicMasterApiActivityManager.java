@@ -37,6 +37,7 @@ import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerSupport;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 
 import com.google.common.collect.Lists;
@@ -62,6 +63,11 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    * Repository for activities.
    */
   private ActivityRepository activityRepository;
+
+  /**
+   * Repository for activities.
+   */
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Repository server which gives activities.
@@ -306,6 +312,11 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   }
 
   @Override
+  public boolean canCreateLiveActivities() {
+    return activityRepository.getNumberActivities() > 0 && spaceControllerRepository.getNumberSpaceControllers() > 0;
+  }
+
+  @Override
   public Map<String, Object> deleteLiveActivity(String id) {
     LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
     if (liveActivity != null) {
@@ -547,8 +558,13 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     data.put("description", liveActivity.getDescription());
     data.put("metadata", liveActivity.getMetadata());
     data.put("outOfDate", liveActivity.isOutOfDate());
-    data.put("activity", extractBasicActivityApiData(liveActivity.getActivity()));
-    data.put("controller", getBasicSpaceControllerApiData(liveActivity.getController()));
+
+    Activity activity = liveActivity.getActivity();
+    data.put("activity", extractBasicActivityApiData(activity));
+
+    SpaceController controller = liveActivity.getController();
+    data.put("controller", getBasicSpaceControllerApiData(controller));
+
     Date lastDeployDate = liveActivity.getLastDeployDate();
     data.put("lastDeployDate", (lastDeployDate != null) ? lastDeployDate.toString() : null);
 
@@ -1142,6 +1158,14 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
+  }
+
+  /**
+   * @param spaceControllerRepository
+   *          the spaceControllerRepository to set
+   */
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**

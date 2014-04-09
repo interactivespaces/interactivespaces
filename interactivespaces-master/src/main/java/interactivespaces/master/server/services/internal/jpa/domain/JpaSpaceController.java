@@ -16,11 +16,11 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerMode;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
@@ -48,12 +48,11 @@ import javax.persistence.Version;
  * @author Keith M. Hughes
  */
 @Entity
-@Table(name = "space_controllers", uniqueConstraints = @UniqueConstraint(
-    name = "SPACE_CONTROLLER_UUID_CNSTR", columnNames = "UUID"))
-@NamedQueries({
-    @NamedQuery(name = "spaceControllerAll", query = "select c from JpaSpaceController c"),
-    @NamedQuery(name = "spaceControllerByUuid",
-        query = "select c from JpaSpaceController c where c.uuid = :uuid") })
+@Table(name = "space_controllers", uniqueConstraints = @UniqueConstraint(name = "SPACE_CONTROLLER_UUID_CNSTR",
+    columnNames = "UUID"))
+@NamedQueries({ @NamedQuery(name = "spaceControllerAll", query = "select c from JpaSpaceController c"),
+    @NamedQuery(name = "spaceControllerByUuid", query = "select c from JpaSpaceController c where c.uuid = :uuid"),
+    @NamedQuery(name = "countSpaceControllerAll", query = "select count(c) from JpaSpaceController c"), })
 public class JpaSpaceController implements SpaceController {
 
   /**
@@ -127,9 +126,9 @@ public class JpaSpaceController implements SpaceController {
   /**
    * The metadata.
    */
-  @OneToMany(targetEntity = JpaSpaceControllerMetadataItem.class, cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER, orphanRemoval = true)
-  private List<JpaSpaceControllerMetadataItem> metadata = Lists.newArrayList();
+  @OneToMany(targetEntity = JpaSpaceControllerMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
+  private final List<JpaSpaceControllerMetadataItem> metadata = Lists.newArrayList();
 
   /**
    * The database version. Used for detecting concurrent modifications.
@@ -189,8 +188,7 @@ public class JpaSpaceController implements SpaceController {
       metadata.clear();
 
       for (Entry<String, Object> entry : m.entrySet()) {
-        metadata.add(new JpaSpaceControllerMetadataItem(this, entry.getKey(), entry.getValue()
-            .toString()));
+        metadata.add(new JpaSpaceControllerMetadataItem(this, entry.getKey(), entry.getValue().toString()));
       }
     }
   }
@@ -220,8 +218,7 @@ public class JpaSpaceController implements SpaceController {
 
   @Override
   public String toString() {
-    return "JpaSpaceController [id=" + id + ", hostId=" + hostId + ", uuid=" + uuid
-        + ", name=" + name + ", description=" + description + ", metadata=" + getMetadata()
-        + ", mode=" + mode + "]";
+    return "JpaSpaceController [id=" + id + ", hostId=" + hostId + ", uuid=" + uuid + ", name=" + name
+        + ", description=" + description + ", metadata=" + getMetadata() + ", mode=" + mode + "]";
   }
 }

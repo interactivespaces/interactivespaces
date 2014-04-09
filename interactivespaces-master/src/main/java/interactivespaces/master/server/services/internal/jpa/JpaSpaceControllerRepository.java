@@ -92,6 +92,13 @@ public class JpaSpaceControllerRepository implements SpaceControllerRepository {
     return controller;
   }
 
+  @Override
+  public long getNumberSpaceControllers() {
+    @SuppressWarnings("unchecked")
+    List<Long> results = template.findByNamedQuery("countSpaceControllerAll");
+    return results.get(0);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public List<SpaceController> getAllSpaceControllers() {
@@ -149,7 +156,7 @@ public class JpaSpaceControllerRepository implements SpaceControllerRepository {
 
   @Override
   public void deleteSpaceController(SpaceController controller) {
-    long count = activityRepository.getCountLiveActivitiesByController(controller);
+    long count = activityRepository.getNumberLiveActivitiesByController(controller);
     if (count == 0) {
       template.remove(controller);
     } else {

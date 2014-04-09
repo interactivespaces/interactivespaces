@@ -33,7 +33,7 @@ function doAjaxCommandByUrl(url) {
 }
 
 function shutdownAllActivitiesAllControllers() {
-    if (confirm("Are you sure you want to shut down all applications on all controllers?")) {
+    if (confirm("Are you sure you want to shut down all live activities on all space controllers?")) {
         window.location='/interactivespaces/spacecontroller/all/activities/shutdown.html';
     }
 }
@@ -54,9 +54,17 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
 
 <table class="commandBar">
   <tr>
-    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="Create a new live activity">New</button></td>
+    <#if canCreateLiveActivities>
+      <#assign disabledAttribute = ''>
+      <#assign title = 'Create a new live activity'>
+    <#else>
+      <#assign disabledAttribute = 'disabled'>
+      <#assign title = 'Live activities cannot be created'>
+    </#if>
+  
+    <td><button type="button" id="newButton" onclick="window.location='/interactivespaces/liveactivity/new.html?mode=embedded'" title="${title}" ${disabledAttribute}>New</button></td>
     <td><button type="button" id="nstatusAllButton" onclick="doAjaxCommandByUrl('/interactivespaces/spacecontroller/all/status.json')" title="Get the status of all Live Activities on all Space Controllers">Status All</button></td>
-    <td><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected controllers">Shutdown All Activities</button></td>
+    <td><button type="button" id="shutdownActivitiesAllButton" onclick="shutdownAllActivitiesAllControllers();" title="Shutdown all activities on all connected space controllers">Shutdown All Activities</button></td>
   </tr>
 </table>
 

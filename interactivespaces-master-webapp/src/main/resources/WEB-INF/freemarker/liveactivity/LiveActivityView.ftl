@@ -37,25 +37,25 @@ function doAjaxCommand(command) {
 }
 
 function cleanTempDataLiveActivity() {
-    if (confirm("Are you sure you want to clean the tmp data for the activity?")) {
+    if (confirm("Are you sure you want to clean the tmp data for the live activity?")) {
         doAjaxCommand('cleantmpdata');
     }
 }
 
 function cleanPermanentDataLiveActivity() {
-    if (confirm("Are you sure you want to clean the permanent data for the activity?")) {
+    if (confirm("Are you sure you want to clean the permanent data for the live activity?")) {
         doAjaxCommand('cleanpermanentdata');
     }
 }
 
 function deleteLiveActivity() {
-    if (confirm("Are you sure you want to delete the activity?")) {
+    if (confirm("Are you sure you want to delete the live activity?")) {
         window.location='/interactivespaces/liveactivity/${liveactivity.id}/delete.html'
     }
 }
 
 function remoteDeleteLiveActivity() {
-    if (confirm("Are you sure you want to delete the activity from its controller?")) {
+    if (confirm("Are you sure you want to delete the live activity from its space controller?")) {
         doAjaxCommand('remotedelete');
     }
 }

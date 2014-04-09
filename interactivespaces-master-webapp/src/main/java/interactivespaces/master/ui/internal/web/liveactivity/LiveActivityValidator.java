@@ -51,6 +51,12 @@ public class LiveActivityValidator extends FormObjectValidator {
    */
   public void validate(LiveActivityForm liveActivityForm, Errors errors) {
     validateLiveActivityPortion(liveActivityForm.getLiveActivity(), "liveActivity.", errors);
+    if (!hasValue(liveActivityForm.getActivityId())) {
+      errors.rejectValue("activityId", "required", "required");
+    }
+    if (!hasValue(liveActivityForm.getControllerId())) {
+      errors.rejectValue("controllerId", "required", "required");
+    }
   }
 
   /**

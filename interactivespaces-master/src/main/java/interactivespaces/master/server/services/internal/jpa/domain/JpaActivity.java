@@ -16,11 +16,11 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.Date;
 import java.util.List;
@@ -49,9 +49,10 @@ import javax.persistence.Version;
 @Table(name = "activities")
 @NamedQueries({
     @NamedQuery(name = "activityAll", query = "select a from JpaActivity a"),
-    @NamedQuery(
-        name = "activityByNameAndVersion",
-        query = "select a from JpaActivity a where a.identifyingName = :identifyingName and a.version = :version") })
+    @NamedQuery(name = "activityByNameAndVersion",
+        query = "select a from JpaActivity a where a.identifyingName = :identifyingName and a.version = :version"),
+    @NamedQuery(name = "countActivityAll",
+        query = "select count(a) from JpaActivity a"), })
 public class JpaActivity implements Activity {
 
   /**
@@ -111,16 +112,16 @@ public class JpaActivity implements Activity {
   /**
    * The dependencies the activity has.
    */
-  @OneToMany(targetEntity = JpaActivityDependency.class, cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER, orphanRemoval = true)
-  private List<JpaActivityDependency> dependencies = Lists.newArrayList();
+  @OneToMany(targetEntity = JpaActivityDependency.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
+  private final List<JpaActivityDependency> dependencies = Lists.newArrayList();
 
   /**
    * The metadata.
    */
-  @OneToMany(targetEntity = JpaActivityMetadataItem.class, cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER, orphanRemoval = true)
-  private List<JpaActivityMetadataItem> metadata = Lists.newArrayList();
+  @OneToMany(targetEntity = JpaActivityMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
+  private final List<JpaActivityMetadataItem> metadata = Lists.newArrayList();
 
   /**
    * The database version. Used for detecting concurrent modifications.
@@ -229,8 +230,7 @@ public class JpaActivity implements Activity {
       metadata.clear();
 
       for (Entry<String, Object> entry : m.entrySet()) {
-        metadata
-            .add(new JpaActivityMetadataItem(this, entry.getKey(), entry.getValue().toString()));
+        metadata.add(new JpaActivityMetadataItem(this, entry.getKey(), entry.getValue().toString()));
       }
     }
   }
@@ -255,9 +255,9 @@ public class JpaActivity implements Activity {
    */
   @Override
   public String toString() {
-    return "JpaActivity [id=" + id + ", identifyingName=" + identifyingName + ", name=" + name
-        + ", description=" + description + ", version=" + version + ", lastUploadDate=" + lastUploadDate
-        + ", lastStartDate=" + lastStartDate + ", bundleContentHash=" + bundleContentHash
-        + ", dependencies=" + dependencies + ", metadata=" + getMetadata() + "]";
+    return "JpaActivity [id=" + id + ", identifyingName=" + identifyingName + ", name=" + name + ", description="
+        + description + ", version=" + version + ", lastUploadDate=" + lastUploadDate + ", lastStartDate="
+        + lastStartDate + ", bundleContentHash=" + bundleContentHash + ", dependencies=" + dependencies + ", metadata="
+        + getMetadata() + "]";
   }
 }

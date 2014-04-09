@@ -138,6 +138,13 @@ public interface MasterApiActivityManager extends ManagedResource {
   Map<String, Object> getLiveActivityFullView(String id);
 
   /**
+   * Can live activities be created?
+   *
+   * @return {@code true} if live activities can be created
+   */
+  boolean canCreateLiveActivities();
+
+  /**
    * Delete an installed activity from the activity repository.
    *
    * <p>

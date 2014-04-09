@@ -16,9 +16,6 @@
 
 package interactivespaces.master.server.services.internal.jpa;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
@@ -38,6 +35,9 @@ import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActiv
 import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroup;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpace;
 import interactivespaces.util.uuid.UuidGenerator;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.springframework.orm.jpa.JpaTemplate;
 
@@ -114,8 +114,7 @@ public class JpaActivityRepository implements ActivityRepository {
     params.put("identifyingName", identifyingName);
     params.put("version", version);
     @SuppressWarnings("unchecked")
-    List<Activity> results =
-        template.findByNamedQueryAndNamedParams("activityByNameAndVersion", params);
+    List<Activity> results = template.findByNamedQueryAndNamedParams("activityByNameAndVersion", params);
     if (!results.isEmpty()) {
       return results.get(0);
     } else {
@@ -135,12 +134,12 @@ public class JpaActivityRepository implements ActivityRepository {
 
   @Override
   public void deleteActivity(Activity activity) {
-    long count = getCountLiveActivitiesByActivity(activity);
+    long count = getNumberLiveActivitiesByActivity(activity);
     if (count == 0) {
       template.remove(activity);
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "Cannot delete activity %s, it is in %d live activities", activity.getId(), count));
+      throw new InteractiveSpacesException(String.format("Cannot delete activity %s, it is in %d live activities",
+          activity.getId(), count));
     }
   }
 
@@ -150,6 +149,13 @@ public class JpaActivityRepository implements ActivityRepository {
     lactivity.setUuid(uuidGenerator.newUuid());
 
     return lactivity;
+  }
+
+  @Override
+  public long getNumberActivities() {
+    @SuppressWarnings("unchecked")
+    List<Long> results = template.findByNamedQuery("countActivityAll");
+    return results.get(0);
   }
 
   @SuppressWarnings("unchecked")
@@ -184,18 +190,16 @@ public class JpaActivityRepository implements ActivityRepository {
     Map<String, String> params = Maps.newHashMap();
     params.put("controller_id", controller.getId());
     @SuppressWarnings("unchecked")
-    List<LiveActivity> results =
-        template.findByNamedQueryAndNamedParams("liveActivityByController", params);
+    List<LiveActivity> results = template.findByNamedQueryAndNamedParams("liveActivityByController", params);
     return results;
   }
 
   @Override
-  public long getCountLiveActivitiesByController(SpaceController controller) {
+  public long getNumberLiveActivitiesByController(SpaceController controller) {
     Map<String, String> params = Maps.newHashMap();
     params.put("controller_id", controller.getId());
     @SuppressWarnings("unchecked")
-    List<Long> results =
-        template.findByNamedQueryAndNamedParams("countLiveActivityByController", params);
+    List<Long> results = template.findByNamedQueryAndNamedParams("countLiveActivityByController", params);
     return results.get(0);
   }
 
@@ -204,18 +208,16 @@ public class JpaActivityRepository implements ActivityRepository {
     Map<String, String> params = Maps.newHashMap();
     params.put("activity_id", activity.getId());
     @SuppressWarnings("unchecked")
-    List<LiveActivity> results =
-        template.findByNamedQueryAndNamedParams("liveActivityByActivity", params);
+    List<LiveActivity> results = template.findByNamedQueryAndNamedParams("liveActivityByActivity", params);
     return results;
   }
 
   @Override
-  public long getCountLiveActivitiesByActivity(Activity activity) {
+  public long getNumberLiveActivitiesByActivity(Activity activity) {
     Map<String, String> params = Maps.newHashMap();
     params.put("activity_id", activity.getId());
     @SuppressWarnings("unchecked")
-    List<Long> results =
-        template.findByNamedQueryAndNamedParams("countLiveActivityByActivity", params);
+    List<Long> results = template.findByNamedQueryAndNamedParams("countLiveActivityByActivity", params);
     return results.get(0);
   }
 
@@ -224,8 +226,7 @@ public class JpaActivityRepository implements ActivityRepository {
     Map<String, String> params = Maps.newHashMap();
     params.put("uuid", uuid);
     @SuppressWarnings("unchecked")
-    List<LiveActivity> results =
-        template.findByNamedQueryAndNamedParams("liveActivityByUuid", params);
+    List<LiveActivity> results = template.findByNamedQueryAndNamedParams("liveActivityByUuid", params);
     if (!results.isEmpty()) {
       return results.get(0);
     } else {
@@ -245,13 +246,12 @@ public class JpaActivityRepository implements ActivityRepository {
 
   @Override
   public void deleteLiveActivity(LiveActivity activity) {
-    long count = getCountLiveActivityGroupsByLiveActivity(activity);
+    long count = getNumberLiveActivityGroupsByLiveActivity(activity);
     if (count == 0) {
       template.remove(activity);
     } else {
       throw new InteractiveSpacesException(String.format(
-          "Cannot delete live activity %s, it is in %d live activity groups", activity.getId(),
-          count));
+          "Cannot delete live activity %s, it is in %d live activity groups", activity.getId(), count));
     }
   }
 
@@ -298,12 +298,11 @@ public class JpaActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public long getCountLiveActivityGroupsByLiveActivity(LiveActivity liveActivity) {
+  public long getNumberLiveActivityGroupsByLiveActivity(LiveActivity liveActivity) {
     Map<String, String> params = Maps.newHashMap();
     params.put("activity_id", liveActivity.getId());
     @SuppressWarnings("unchecked")
-    List<Long> results =
-        template.findByNamedQueryAndNamedParams("countLiveActivityGroupByLiveActivity", params);
+    List<Long> results = template.findByNamedQueryAndNamedParams("countLiveActivityGroupByLiveActivity", params);
     return results.get(0);
   }
 
@@ -319,13 +318,12 @@ public class JpaActivityRepository implements ActivityRepository {
 
   @Override
   public void deleteLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
-    long count = getCountSpacesByLiveActivityGroup(liveActivityGroup);
+    long count = getNumberSpacesByLiveActivityGroup(liveActivityGroup);
     if (count == 0) {
       template.remove(liveActivityGroup);
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "Cannot delete live activity group %s, it is in %d spaces", liveActivityGroup.getId(),
-          count));
+      throw new InteractiveSpacesException(String.format("Cannot delete live activity group %s, it is in %d spaces",
+          liveActivityGroup.getId(), count));
     }
   }
 
@@ -365,19 +363,17 @@ public class JpaActivityRepository implements ActivityRepository {
     Map<String, String> params = Maps.newHashMap();
     params.put("live_activity_group_id", liveActivityGroup.getId());
     @SuppressWarnings("unchecked")
-    List<Space> results =
-        template.findByNamedQueryAndNamedParams("spaceByLiveActivityGroup", params);
+    List<Space> results = template.findByNamedQueryAndNamedParams("spaceByLiveActivityGroup", params);
 
     return results;
   }
 
   @Override
-  public long getCountSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
+  public long getNumberSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
     Map<String, String> params = Maps.newHashMap();
     params.put("live_activity_group_id", liveActivityGroup.getId());
     @SuppressWarnings("unchecked")
-    List<Long> results =
-        template.findByNamedQueryAndNamedParams("countSpaceByLiveActivityGroup", params);
+    List<Long> results = template.findByNamedQueryAndNamedParams("countSpaceByLiveActivityGroup", params);
 
     return results.get(0);
   }
@@ -393,7 +389,7 @@ public class JpaActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public long getCountSpacesBySubspace(Space subspace) {
+  public long getNumberSpacesBySubspace(Space subspace) {
     Map<String, String> params = Maps.newHashMap();
     params.put("subspace_id", subspace.getId());
     @SuppressWarnings("unchecked")
@@ -414,12 +410,12 @@ public class JpaActivityRepository implements ActivityRepository {
 
   @Override
   public void deleteSpace(Space space) {
-    long count = getCountSpacesBySubspace(space);
+    long count = getNumberSpacesBySubspace(space);
     if (count == 0) {
       template.remove(space);
     } else {
-      throw new InteractiveSpacesException(String.format(
-          "Cannot delete space %s, it is in %d subspaces", space.getId(), count));
+      throw new InteractiveSpacesException(String.format("Cannot delete space %s, it is in %d subspaces",
+          space.getId(), count));
     }
   }
 
@@ -432,9 +428,8 @@ public class JpaActivityRepository implements ActivityRepository {
   }
 
   /**
-   * @param jpaTemplate
-   *
-   *          the jpaTemplate to set
+   * @param template
+   *          the template to set
    */
   public void setTemplate(JpaTemplate template) {
     this.template = template;

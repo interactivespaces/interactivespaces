@@ -66,6 +66,13 @@ public interface SpaceControllerRepository {
   SpaceController newSpaceController(String uuid, SpaceController template);
 
   /**
+   * Get the number of space controllers in the repository.
+   *
+   * @return the number of space controllers in the repository
+   */
+  long getNumberSpaceControllers();
+
+  /**
    * Get all controllers in the repository.
    *
    * @return all controllers in the repository

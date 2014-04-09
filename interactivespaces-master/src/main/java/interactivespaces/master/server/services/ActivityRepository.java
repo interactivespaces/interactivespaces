@@ -38,38 +38,44 @@ public interface ActivityRepository {
   /**
    * Create a new activity.
    *
-   * @return The new activity instance. It will not be saved in the repository.
+   * @return the new activity instance, it will not be saved in the repository
    */
   Activity newActivity();
 
   /**
    * Create a new activity dependency.
    *
-   * @return The new activity dependency. It will not be saved in the
-   *         repository.
+   * @return the new activity dependency, it will not be saved in the repository
    */
   ActivityDependency newActivityDependency();
 
   /**
    * Create a new activity configuration.
    *
-   * @return The new activity configuration. It will not be saved in the
-   *         repository.
+   * @return the new activity configuration, it will not be saved in the
+   *         repository
    */
   ActivityConfiguration newActivityConfiguration();
 
   /**
    * Create a new activity configuration parameter.
    *
-   * @return The new activity configuration parameter. It will not be saved in
-   *         the repository.
+   * @return the new activity configuration parameter, it will not be saved in
+   *         the repository
    */
   ConfigurationParameter newConfigurationParameter();
 
   /**
+   * Get the number of activities in the repository.
+   *
+   * @return the number of activities in the repository
+   */
+  long getNumberActivities();
+
+  /**
    * Get all activities in the repository.
    *
-   * @return Get all activities in the repository.
+   * @return all activities in the repository
    */
   List<Activity> getAllActivities();
 
@@ -87,9 +93,9 @@ public interface ActivityRepository {
    * Get a activity by its ID.
    *
    * @param id
-   *          The ID of the desired activity.
+   *          the ID of the desired activity
    *
-   * @return The activity with the given ID or {@code null} if no such activity.
+   * @return the activity with the given ID or {@code null} if no such activity
    */
   Activity getActivityById(String id);
 
@@ -97,11 +103,12 @@ public interface ActivityRepository {
    * Get a activity by its identifying name and version.
    *
    * @param identifyingName
-   *          The identifying name of the desired activity.
+   *          the identifying name of the desired activity
    * @param version
-   *          The version of the desired activity.
+   *          the version of the desired activity
    *
-   * @return The activity with the given ID or {@code null} if no such activity.
+   * @return the activity with the given name and version or {@code null} if no
+   *         such activity
    */
   Activity getActivityByNameAndVersion(String identifyingName, String version);
 
@@ -113,9 +120,9 @@ public interface ActivityRepository {
    * or to update edits to the activity.
    *
    * @param activity
-   *          The activity to save.
+   *          the activity to save
    *
-   * @return The persisted activity. use this one going forward.
+   * @return the persisted activity, use this one going forward
    */
   Activity saveActivity(Activity activity);
 
@@ -123,9 +130,7 @@ public interface ActivityRepository {
    * Delete a activity in the repository.
    *
    * @param activity
-   *          The activity to save.
-   *
-   * @return
+   *          the activity to delete
    */
   void deleteActivity(Activity activity);
 
@@ -135,15 +140,15 @@ public interface ActivityRepository {
    * <p>
    * The installed activity will be assigned a UUID.
    *
-   * @return The new installed activity instance. It will not be saved in the
-   *         repository.
+   * @return the new installed activity instance, it will not be saved in the
+   *         repository
    */
   LiveActivity newLiveActivity();
 
   /**
    * Get all activities in the repository.
    *
-   * @return Get all activities in the repository.
+   * @return get all activities in the repository
    */
   List<LiveActivity> getAllLiveActivities();
 
@@ -161,9 +166,9 @@ public interface ActivityRepository {
    * Get a activity by its ID.
    *
    * @param id
-   *          The ID of the desired activity.
+   *          the ID of the desired activity
    *
-   * @return The activity with the given ID or {@code null} if no such activity.
+   * @return the activity with the given ID or {@code null} if no such activity
    */
   LiveActivity getLiveActivityById(String id);
 
@@ -178,14 +183,14 @@ public interface ActivityRepository {
   List<LiveActivity> getLiveActivitiesByController(SpaceController controller);
 
   /**
-   * Get the count of all live activities on a given controller.
+   * Get the number of all live activities on a given controller.
    *
    * @param controller
    *          the controller to check
    *
    * @return the count of all live activities on the controller
    */
-  long getCountLiveActivitiesByController(SpaceController controller);
+  long getNumberLiveActivitiesByController(SpaceController controller);
 
   /**
    * Get all live activities based on a given activity.
@@ -198,23 +203,23 @@ public interface ActivityRepository {
   List<LiveActivity> getLiveActivitiesByActivity(Activity activity);
 
   /**
-   * Get the count of all live activities based on a given activity.
+   * Get the number of all live activities based on a given activity.
    *
    * @param activity
    *          the activity to check
    *
-   * @return the count of all live activities which use the activity
+   * @return the number of all live activities which use the activity
    */
-  long getCountLiveActivitiesByActivity(Activity activity);
+  long getNumberLiveActivitiesByActivity(Activity activity);
 
   /**
    * Get a activity by its UUID.
    *
    * @param uuid
-   *          The UUID of the desired activity.
+   *          the UUID of the desired activity
    *
-   * @return The activity with the given UUID or {@code null} if no such
-   *         activity.
+   * @return the activity with the given UUID or {@code null} if no such
+   *         activity
    */
   LiveActivity getLiveActivityByUuid(String uuid);
 
@@ -226,9 +231,9 @@ public interface ActivityRepository {
    * or to update edits to the activity.
    *
    * @param activity
-   *          The activity to save.
+   *          the activity to save
    *
-   * @return The persisted activity. use this one going forward.
+   * @return the persisted activity, use this one going forward
    */
   LiveActivity saveLiveActivity(LiveActivity activity);
 
@@ -236,23 +241,21 @@ public interface ActivityRepository {
    * Delete an installed activity in the repository.
    *
    * @param activity
-   *          The activity to save.
-   *
-   * @return
+   *          the activity to delete
    */
   void deleteLiveActivity(LiveActivity activity);
 
   /**
    * Create a new live activity group.
    *
-   * @return
+   * @return create a new live activity group, it will not be persisted
    */
   LiveActivityGroup newLiveActivityGroup();
 
   /**
    * Get all live activity groups.
    *
-   * @return All persisted live activity groups.
+   * @return all persisted live activity groups
    */
   List<LiveActivityGroup> getAllLiveActivityGroups();
 
@@ -270,10 +273,10 @@ public interface ActivityRepository {
    * Get a live activity group by its ID.
    *
    * @param id
-   *          The ID of the desired activity group.
+   *          the ID of the desired activity group
    *
-   * @return The activity group with the given ID or {@code null} if no such
-   *         activity.
+   * @return the activity group with the given ID or {@code null} if no such
+   *         activity
    */
   LiveActivityGroup getLiveActivityGroupById(String id);
 
@@ -288,14 +291,15 @@ public interface ActivityRepository {
   List<LiveActivityGroup> getLiveActivityGroupsByLiveActivity(LiveActivity liveActivity);
 
   /**
-   * Get the count of all live activity groups containing a given live activity.
+   * Get the number of all live activity groups containing a given live
+   * activity.
    *
    * @param liveActivity
    *          the live activity to check
    *
-   * @return the count of all live activity groups which use the live activity
+   * @return the number of all live activity groups which use the live activity
    */
-  long getCountLiveActivityGroupsByLiveActivity(LiveActivity liveActivity);
+  long getNumberLiveActivityGroupsByLiveActivity(LiveActivity liveActivity);
 
   /**
    * Save a activity group in the repository.
@@ -305,9 +309,9 @@ public interface ActivityRepository {
    * time or to update edits to the activity group.
    *
    * @param liveActivityGroup
-   *          The activity group to save.
+   *          the activity group to save
    *
-   * @return The persisted activity group. use this one going forward.
+   * @return the persisted activity group, use this one going forward
    */
   LiveActivityGroup saveLiveActivityGroup(LiveActivityGroup liveActivityGroup);
 
@@ -315,16 +319,14 @@ public interface ActivityRepository {
    * Delete an activity group in the repository.
    *
    * @param liveActivityGroup
-   *          The activity group to delete.
-   *
-   * @return
+   *        the activity group to delete
    */
   void deleteLiveActivityGroup(LiveActivityGroup liveActivityGroup);
 
   /**
    * Create a new space.
    *
-   * @return The new space instance. It will not be saved in the repository.
+   * @return the new space instance, it will not be saved in the repository.
    */
   Space newSpace();
 
@@ -349,9 +351,9 @@ public interface ActivityRepository {
    * Get a space by its ID.
    *
    * @param id
-   *          The id of the desired space.
+   *          the id of the desired space
    *
-   * @return The space with the given id or {@code null} if no such space.
+   * @return the space with the given id or {@code null} if no such space
    */
   Space getSpaceById(String id);
 
@@ -366,16 +368,16 @@ public interface ActivityRepository {
   List<Space> getSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup);
 
   /**
-   * Get the count of all spaces which immediately contain a particular live
+   * Get the number of all spaces which immediately contain a particular live
    * activity group.
    *
    * @param liveActivityGroup
    *          the live activity group
    *
-   * @return the count of all spaces which directly contain the given live
+   * @return the number of all spaces which directly contain the given live
    *         activity group
    */
-  long getCountSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup);
+  long getNumberSpacesByLiveActivityGroup(LiveActivityGroup liveActivityGroup);
 
   /**
    * Get all spaces which immediately contain a particular subspace.
@@ -388,15 +390,15 @@ public interface ActivityRepository {
   List<Space> getSpacesBySubspace(Space subspace);
 
   /**
-   * Get a count of all spaces which immediately contain a particular subspace.
+   * Get a number of all spaces which immediately contain a particular subspace.
    *
    * @param subspace
    *          the subspace
    *
-   * @return the count of all spaces which directly contain the given space as a
-   *         subspace
+   * @return the number of all spaces which directly contain the given space as
+   *         a subspace
    */
-  long getCountSpacesBySubspace(Space subspace);
+  long getNumberSpacesBySubspace(Space subspace);
 
   /**
    * Save a space in the repository.
@@ -406,9 +408,9 @@ public interface ActivityRepository {
    * to update edits to the space.
    *
    * @param space
-   *          The space to save.
+   *          the space to save
    *
-   * @return The persisted space. use this one going forward.
+   * @return the persisted space, use this one going forward
    */
   Space saveSpace(Space space);
 
@@ -416,9 +418,7 @@ public interface ActivityRepository {
    * Delete a space in the repository.
    *
    * @param space
-   *          The space to delete.
-   *
-   * @return
+   *          the space to delete
    */
   void deleteSpace(Space space);
 }

@@ -53,6 +53,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
     ModelAndView mav = getModelAndView();
     mav.setViewName("liveactivity/LiveActivityViewAll");
     mav.addObject("liveactivities", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
+    mav.addObject("canCreateLiveActivities", masterApiActivityManager.canCreateLiveActivities());
 
     return mav;
   }
