@@ -48,7 +48,7 @@
   <bean id="abstractControllerClass" abstract="true">
     <property name="messageSource" ref="messageSource" />
     <property name="expressionFactory" ref="interactivespaces.expression.factory" />
-    <property name="spacesEnvironment" ref="interactivespaces.environment" />
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
   <bean id="abstractLiveControllerClass" abstract="true"

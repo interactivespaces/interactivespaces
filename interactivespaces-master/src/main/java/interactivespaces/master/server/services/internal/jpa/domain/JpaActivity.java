@@ -114,14 +114,14 @@ public class JpaActivity implements Activity {
    */
   @OneToMany(targetEntity = JpaActivityDependency.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
       orphanRemoval = true)
-  private final List<JpaActivityDependency> dependencies = Lists.newArrayList();
+  private List<JpaActivityDependency> dependencies = Lists.newArrayList();
 
   /**
    * The metadata.
    */
   @OneToMany(targetEntity = JpaActivityMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
       orphanRemoval = true)
-  private final List<JpaActivityMetadataItem> metadata = Lists.newArrayList();
+  private List<JpaActivityMetadataItem> metadata = Lists.newArrayList();
 
   /**
    * The database version. Used for detecting concurrent modifications.
@@ -248,11 +248,6 @@ public class JpaActivity implements Activity {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
     return "JpaActivity [id=" + id + ", identifyingName=" + identifyingName + ", name=" + name + ", description="

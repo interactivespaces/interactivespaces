@@ -72,7 +72,7 @@ public class BaseSpaceMasterController {
   /**
    * The spaces environment.
    */
-  protected InteractiveSpacesEnvironment spacesEnvironment;
+  protected InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
    * Get a Spring {@link ModelAndView} prepopulated with useful objects.
@@ -98,7 +98,7 @@ public class BaseSpaceMasterController {
 
     model.put(
         ATTRIBUTE_NAME_INTERACTIVESPACES_NAME,
-        spacesEnvironment.getSystemConfiguration().getPropertyString(
+        spaceEnvironment.getSystemConfiguration().getPropertyString(
             MasterConfigurations.CONFIGURATION_NAME_SPACE_NAME,
             MasterConfigurations.CONFIGURATION_VALUE_DEFAULT_SPACE_NAME));
   }
@@ -141,8 +141,8 @@ public class BaseSpaceMasterController {
    * @param spacesEnvironment
    *          the spacesEnvironment to set
    */
-  public void setSpacesEnvironment(InteractiveSpacesEnvironment spacesEnvironment) {
-    this.spacesEnvironment = spacesEnvironment;
+  public void setSpaceEnvironment(InteractiveSpacesEnvironment spacesEnvironment) {
+    this.spaceEnvironment = spacesEnvironment;
   }
 
   /**

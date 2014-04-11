@@ -128,7 +128,7 @@ public class JpaSpaceController implements SpaceController {
    */
   @OneToMany(targetEntity = JpaSpaceControllerMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
       orphanRemoval = true)
-  private final List<JpaSpaceControllerMetadataItem> metadata = Lists.newArrayList();
+  private List<JpaSpaceControllerMetadataItem> metadata = Lists.newArrayList();
 
   /**
    * The database version. Used for detecting concurrent modifications.

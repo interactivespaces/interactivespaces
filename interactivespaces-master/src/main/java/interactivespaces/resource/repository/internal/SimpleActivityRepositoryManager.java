@@ -16,8 +16,6 @@
 
 package interactivespaces.resource.repository.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
@@ -30,6 +28,9 @@ import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.util.data.resource.MessageDigestResourceSignature;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 
 import java.io.InputStream;
 import java.util.Date;

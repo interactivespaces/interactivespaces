@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.RequestContext;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -74,7 +73,8 @@ public class ActivityAction extends BaseSpaceMasterController {
 
       // So the ID gets copied out of the flow.
       form.getActivity().setId(activity.getId());
-    } catch (IOException e) {
+    } catch (Exception e) {
+      spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
       throw new InteractiveSpacesException("Could not get uploaded activity file", e);
     }
   }

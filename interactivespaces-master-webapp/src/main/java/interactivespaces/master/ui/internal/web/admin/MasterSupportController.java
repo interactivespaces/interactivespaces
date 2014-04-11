@@ -57,7 +57,7 @@ public class MasterSupportController extends BaseSpaceMasterController {
 
     mav.addObject(
         "interactivespacesVersion",
-        spacesEnvironment.getSystemConfiguration().getPropertyString(
+        spaceEnvironment.getSystemConfiguration().getPropertyString(
             InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION, INTERACTIVESPACES_VERSION_UNKNOWN));
     mav.setViewName("admin/SupportAll");
 

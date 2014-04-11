@@ -15,7 +15,7 @@
  */
 
 $(document).ready(function() {
-  window.ugly = new InteractiveSpacesUgly();
+  window.ugly = new InteractiveSpacesUgly(window);
   window.ugly.initialize();
 
   $('#mainContent').load(function() {

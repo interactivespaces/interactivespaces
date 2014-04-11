@@ -16,11 +16,11 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.space.Space;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 /**
@@ -110,12 +111,14 @@ public class JpaSpace implements Space {
   /**
    * Concurrency lock for the spaces collection.
    */
-  private Object spacesLock = new Object();
+  @Transient
+  private final Object spacesLock = new Object();
 
   /**
    * Concurrency lock for the groups collection.
    */
-  private Object groupsLock = new Object();
+  @Transient
+  private final Object groupsLock = new Object();
 
   @Override
   public String getId() {

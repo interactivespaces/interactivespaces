@@ -21,6 +21,7 @@ import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
+import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
@@ -105,9 +106,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
 
   @Override
   public Activity saveActivity(SimpleActivity activity, InputStream activityFile) {
-
     Activity finalActivity = activityRepositoryManager.addActivity(activityFile);
-
     return finalActivity;
   }
 
@@ -147,7 +146,10 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
       Map<String, Object> fullView = Maps.newHashMap();
-      fullView.put("activity", extractBasicActivityApiData(activity));
+
+      Map<String, Object> activityData = extractBasicActivityApiData(activity);
+      fullView.put("activity", activityData);
+      extractActivityDependencyData(activity, activityData);
       fullView.put("liveactivities", extractLiveActivities(activityRepository.getLiveActivitiesByActivity(activity)));
 
       return MasterApiMessageSupport.getSuccessResponse(fullView);
@@ -178,6 +180,32 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     data.put("bundleContentHash", activity.getBundleContentHash());
 
     return data;
+  }
+
+  /**
+   * Add in the activity dependency data.
+   *
+   * @param activity
+   *        the activity
+   * @param activityData
+   *        the dependencies
+   */
+  private void extractActivityDependencyData(Activity activity, Map<String, Object> activityData) {
+    List<Map<String, Object>> dependencies = Lists.newArrayList();
+    activityData.put("dependencies", dependencies);
+
+    List<? extends ActivityDependency> activityDependencies = activity.getDependencies();
+    if (activityDependencies != null) {
+      for (ActivityDependency activityDependency : activityDependencies) {
+        Map<String, Object> dependencyData = Maps.newHashMap();
+        dependencies.add(dependencyData);
+
+        dependencyData.put("name", activityDependency.getName());
+        dependencyData.put("minimumVersion", activityDependency.getMinimumVersion());
+        dependencyData.put("maximumVersion", activityDependency.getMaximumVersion());
+        dependencyData.put("required", activityDependency.isRequired());
+      }
+    }
   }
 
   @Override

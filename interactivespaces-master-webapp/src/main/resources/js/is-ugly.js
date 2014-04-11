@@ -14,7 +14,8 @@
  * the License.
  */
 
-function InteractiveSpacesUgly() {
+function InteractiveSpacesUgly(mainWindow) {
+  this.mainWindow = mainWindow;
 }
 
 InteractiveSpacesUgly.prototype = {
@@ -71,24 +72,27 @@ InteractiveSpacesUgly.prototype = {
   },
 
   'onIFrameLoad' : function() {
-    var iframeWindow = window.frames["mainContent"].window;
+    var iframeWindow = this.mainWindow.document.getElementById('mainContent').contentWindow;
+
     iframeWindow.ugly = this;
 
-    window.location.hash = iframeWindow.location.pathname;
+    this.mainWindow.location.hash = iframeWindow.location.pathname;
   },
 
   'changePage' : function(page, event) {
-    var url = window.location.origin + page;
+    var url = this.mainWindow.location.origin + page;
 
     // If came from a click event and was control key we pop a new window
     if (event && event.ctrlKey) {
       // This works by modifying the original anchor tag and allowing the normal
       // browser process to complete the click event. If this method returns
-      // true, the browser will/ process the click event as normal, which in a browser
-      // means "open this window in how I have the browser configured (tab or new window),
+      // true, the browser will/ process the click event as normal, which in a
+      // browser
+      // means "open this window in how I have the browser configured (tab or
+      // new window),
       // if it returns false, my method has full control.
-      var fullUrl = window.location.origin + window.location.pathname
-          + window.location.search + "#" + page;
+      var fullUrl = this.mainWindow.location.origin + this.mainWindow.location.pathname
+          + this.mainWindow.location.search + "#" + page;
 
       var target = event.target || event.srcElement || event.originalTarget;
       target.href = fullUrl;
@@ -112,7 +116,7 @@ InteractiveSpacesUgly.prototype = {
   },
 
   'setInitialPage' : function() {
-    var currentHash = window.location.hash;
+    var currentHash = this.mainWindow.location.hash;
 
     if (currentHash) {
       this.changePage(currentHash.substr(1));

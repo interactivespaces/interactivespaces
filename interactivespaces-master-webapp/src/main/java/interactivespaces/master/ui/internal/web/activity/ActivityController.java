@@ -94,6 +94,12 @@ public class ActivityController extends BaseActiveSpaceMasterController {
     return masterApiActivityManager.getActivitiesByFilter(filter);
   }
 
+  @RequestMapping(value = "/activity/{id}/view.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> viewActivityJson(@PathVariable String id) {
+    return masterApiActivityManager.getActivityFullView(id);
+  }
+
   @RequestMapping(value = "/activity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployActivities(@PathVariable String id) {
