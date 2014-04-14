@@ -53,5 +53,5 @@ class HelloActivity(BaseActivity):
         self.log.info("Hello Python Activity checking state")
         return True
 
-    def onActivityConfigurationUpdate(self, update):
+    def onActivityConfiguration(self, update):
         self.log.info("Hello Python Activity config update %s" % update)

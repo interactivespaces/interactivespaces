@@ -152,7 +152,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       onActivityConfiguration(update);
     } catch (Exception e) {
-      logException("Failure when calling onActivityConfigurationUpdate", e);
+      logException("Failure when calling onActivityConfiguration", e);
     } finally {
       getExecutionContext().exitMethod(invocation);
     }

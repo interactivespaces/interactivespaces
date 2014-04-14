@@ -56,7 +56,7 @@ interactivespaces.activity.impl.BaseActivity {
         return true;
     },
 
-    onActivityConfigurationUpdate: function(update) {
+    onActivityConfiguration: function(update) {
         this.getLog().info("Hello Javascript Activity config update " + update);
     },
 }
