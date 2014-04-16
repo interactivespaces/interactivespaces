@@ -69,7 +69,7 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
   public void start(BundleContext bundleContext) throws Exception {
     this.bundleContext = bundleContext;
 
-    getCoreServices(bundleContext);
+    getCoreServices();
 
     try {
       run();
@@ -92,24 +92,21 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    * are only destroyed when bundle 0 goes, which means the entire container is
    * being shut down.
    *
-   * @param context
-   *          the bundle context the workbench is running under
-   *
    * @throws Exception
    *           something bad happened
    */
-  private void getCoreServices(BundleContext context) throws Exception {
-    ServiceReference loggingProviderServiceReference = context.getServiceReference(LoggingProvider.class.getName());
-    loggingProvider = (LoggingProvider) context.getService(loggingProviderServiceReference);
+  private void getCoreServices() throws Exception {
+    ServiceReference<LoggingProvider> loggingProviderServiceReference =
+        bundleContext.getServiceReference(LoggingProvider.class);
+    loggingProvider = bundleContext.getService(loggingProviderServiceReference);
 
-    ServiceReference configurationProviderServiceReference =
-        context.getServiceReference(ConfigurationProvider.class.getName());
-    configurationProvider = (ConfigurationProvider) context.getService(configurationProviderServiceReference);
+    ServiceReference<ConfigurationProvider> configurationProviderServiceReference =
+        bundleContext.getServiceReference(ConfigurationProvider.class);
+    configurationProvider = bundleContext.getService(configurationProviderServiceReference);
 
-    ServiceReference containerCustomizerProviderServiceReference =
-        context.getServiceReference(ContainerCustomizerProvider.class.getName());
-    containerCustomizerProvider =
-        (ContainerCustomizerProvider) context.getService(containerCustomizerProviderServiceReference);
+    ServiceReference<ContainerCustomizerProvider> containerCustomizerProviderServiceReference =
+        bundleContext.getServiceReference(ContainerCustomizerProvider.class);
+    containerCustomizerProvider = bundleContext.getService(containerCustomizerProviderServiceReference);
   }
 
   /**
@@ -122,7 +119,6 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
     final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
     if (!commandLineArguments.isEmpty()) {
       new Thread(new Runnable() {
-
         @Override
         public void run() {
           try {

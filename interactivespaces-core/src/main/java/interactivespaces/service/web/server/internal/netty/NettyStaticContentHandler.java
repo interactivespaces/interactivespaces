@@ -18,11 +18,12 @@ package interactivespaces.service.web.server.internal.netty;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -33,8 +34,11 @@ import org.jboss.netty.channel.DefaultFileRegion;
 import org.jboss.netty.channel.FileRegion;
 import org.jboss.netty.handler.codec.http.CookieEncoder;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 
@@ -45,6 +49,8 @@ import java.io.RandomAccessFile;
 import java.net.HttpCookie;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Handle content for Netty.
@@ -57,6 +63,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
    * Chunk size to use for copying content.
    */
   private static final int COPY_CHUNK_SIZE = 8192;
+
+  /**
+   * Regex for an HTTP range header.
+   */
+  private static final Pattern RANGE_HEADER_REGEX = Pattern.compile("bytes=(\\d+)\\-(\\d+)?");
 
   /**
    * The parent content handler for this handler.
@@ -120,14 +131,19 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   }
 
   @Override
-  public boolean isHandledBy(HttpRequest req) {
-    return req.getUri().startsWith(uriPrefix);
+  public boolean isHandledBy(HttpRequest request) {
+    if (request.getUri().startsWith(uriPrefix)) {
+      HttpMethod method = request.getMethod();
+      return method == HttpMethod.GET || method == HttpMethod.HEAD;
+    } else {
+      return false;
+    }
   }
 
   @Override
-  public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req,
-      Set<HttpCookie> cookiesToAdd) throws IOException {
-    String url = req.getUri();
+  public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest request, Set<HttpCookie> cookiesToAdd)
+      throws IOException {
+    String url = request.getUri();
 
     // Strip off query parameters, if any, as we don't care.
     int pos = url.indexOf('?');
@@ -138,67 +154,169 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     int luriPrefixLength = uriPrefix.length();
     String filepath = url.substring(url.indexOf(uriPrefix) + luriPrefixLength);
 
-    // TODO(keith): Make sure this doesn't allow wandering outside of the
-    // file hierarchy rooted at baseDir (e.g. ../../.. type paths.
     File file = new File(baseDir, filepath);
+
+    // Refuse to process if the path wanders outside of the base directory.
+    if (!file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+      parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
+      return;
+    }
+
     RandomAccessFile raf;
     try {
       raf = new RandomAccessFile(file, "r");
     } catch (FileNotFoundException fnfe) {
       if (fallbackHandler != null) {
-        fallbackHandler.handleWebRequest(ctx, req, cookiesToAdd);
+        fallbackHandler.handleWebRequest(ctx, request, cookiesToAdd);
       } else {
-        parentHandler.sendError(ctx, NOT_FOUND);
+        parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
       }
       return;
     }
     long fileLength = raf.length();
 
-    HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+    // Start with an initial OK response which will be modified as needed.
+    HttpResponse response = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
+
     parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
+    parentHandler.addHeaderIfNotExists(response, HttpHeaders.Names.ACCEPT_RANGES, HttpHeaders.Values.BYTES);
+
     if (cookiesToAdd != null) {
       CookieEncoder encoder = new CookieEncoder(true);
       for (HttpCookie value : cookiesToAdd) {
         encoder.addCookie(NettyHttpResponse.createNettyCookie(value));
-        response.addHeader("Set-Cookie", encoder.encode());
+        response.addHeader(HttpHeaders.Names.SET_COOKIE, encoder.encode());
       }
     }
 
-    setContentLength(response, fileLength);
+    RangeRequest rangeRequest = null;
+    try {
+      rangeRequest = parseRangeRequest(request, fileLength);
+    } catch (Exception e) {
+      try {
+        parentHandler.getWebServer().getLog().error(e.getMessage());
+        response.setStatus(HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+        parentHandler.sendError(ctx, HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+      } finally {
+        Closeables.closeQuietly(raf);
+      }
+      return;
+    }
+
+    if (rangeRequest == null) {
+      setContentLength(response, fileLength);
+    } else {
+      setContentLength(response, rangeRequest.getRangeLength());
+      response.addHeader(HttpHeaders.Names.CONTENT_RANGE, "bytes " + rangeRequest.begin + "-" + rangeRequest.end + "/"
+          + fileLength);
+      response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
+    }
 
     Channel ch = ctx.getChannel();
 
     // Write the initial line and the header.
-    ch.write(response);
+    ChannelFuture writeFuture = ch.write(response);
 
-    // Write the content.
-    ChannelFuture writeFuture;
-    if (ch.getPipeline().get(SslHandler.class) != null) {
-      // Cannot use zero-copy with HTTPS.
-      writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, COPY_CHUNK_SIZE));
-    } else {
-      // No encryption - use zero-copy.
-      final FileRegion region = new DefaultFileRegion(raf.getChannel(), 0, fileLength);
-      writeFuture = ch.write(region);
-      writeFuture.addListener(new ChannelFutureProgressListener() {
-        @Override
-        public void operationComplete(ChannelFuture future) {
-          region.releaseExternalResources();
-        }
+    // Write the content if there have been no errors and we are a GET request.
+    if (HttpMethod.GET == request.getMethod()) {
+      if (ch.getPipeline().get(SslHandler.class) != null) {
+        // Cannot use zero-copy with HTTPS.
+        writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, COPY_CHUNK_SIZE));
+      } else {
+        // No encryption - use zero-copy.
+        final FileRegion region =
+            new DefaultFileRegion(raf.getChannel(), rangeRequest != null ? rangeRequest.begin : 0,
+                rangeRequest != null ? rangeRequest.getRangeLength() : fileLength);
+        writeFuture = ch.write(region);
+        writeFuture.addListener(new ChannelFutureProgressListener() {
+          @Override
+          public void operationComplete(ChannelFuture future) {
+            region.releaseExternalResources();
+          }
 
-        @Override
-        public void operationProgressed(ChannelFuture arg0, long arg1, long arg2, long arg3)
-            throws Exception {
-          // Do nothing
-        }
-
-      });
+          @Override
+          public void operationProgressed(ChannelFuture arg0, long arg1, long arg2, long arg3) throws Exception {
+            // Do nothing
+          }
+        });
+      }
     }
 
     // Decide whether to close the connection or not.
-    if (!isKeepAlive(req)) {
+    if (!isKeepAlive(request)) {
       // Close the connection when the whole content is written out.
       writeFuture.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  /**
+   * Get a range header from the request, if there is one.
+   *
+   * @param request
+   *          the request
+   * @param availableLength
+   *          the available number of bytes for the file requested
+   *
+   * @return a parsed range header, or {@code null} if there is no range request
+   *         header or there was some sort of error
+   */
+  private RangeRequest parseRangeRequest(HttpRequest request, long availableLength) {
+    String rangeHeader = request.getHeader(HttpHeaders.Names.RANGE);
+    if (rangeHeader == null || rangeHeader.trim().isEmpty()) {
+      return null;
+    }
+
+    Matcher m = RANGE_HEADER_REGEX.matcher(rangeHeader);
+    if (!m.matches()) {
+      throw new SimpleInteractiveSpacesException(String.format("Unsupported HTTP range header, illegal syntax: %s",
+          rangeHeader));
+    }
+
+    RangeRequest range = new RangeRequest();
+    range.begin = Long.parseLong(m.group(1));
+    String endMatch = m.group(2);
+    if (endMatch != null && !endMatch.trim().isEmpty()) {
+      range.end = Long.parseLong(endMatch);
+    } else {
+      range.end = availableLength - 1;
+    }
+
+    if (range.end < range.begin) {
+      return null;
+    }
+
+    if (range.end >= availableLength) {
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Unsupported HTTP range header, length requested is more than actual length: %s", rangeHeader));
+    }
+
+    return range;
+  }
+
+  /**
+   * An HTTP range request.
+   *
+   * @author Keith M. Hughes
+   */
+  public static class RangeRequest {
+
+    /**
+     * The position of the first byte in the request.
+     */
+    long begin;
+
+    /**
+     * The position of the last byte in the request.
+     */
+    long end;
+
+    /**
+     * Get the number of bytes in the range.
+     *
+     * @return the number of bytes in the range
+     */
+    long getRangeLength() {
+      return end - begin + 1;
     }
   }
 }

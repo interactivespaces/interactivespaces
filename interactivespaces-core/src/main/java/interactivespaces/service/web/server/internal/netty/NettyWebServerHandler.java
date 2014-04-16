@@ -20,13 +20,11 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static org.jboss.netty.handler.codec.http.HttpMethod.GET;
+import static org.jboss.netty.handler.codec.http.HttpMethod.HEAD;
 import static org.jboss.netty.handler.codec.http.HttpMethod.POST;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpAuthResponse;
@@ -34,6 +32,9 @@ import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -47,6 +48,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
@@ -84,7 +86,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * The factory will keep all in memory until it gets too big, then writes to
    * disk.
    */
-  private static final HttpDataFactory httpDataFactory = new DefaultHttpDataFactory(true);
+  private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
 
   /**
    * The web socket path used by this handler.
@@ -94,14 +96,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   /**
    * All content handlers handled by this instance.
    */
-  private List<NettyHttpContentHandler> httpContentHandlers =
-      new ArrayList<NettyHttpContentHandler>();
+  private List<NettyHttpContentHandler> httpContentHandlers = new ArrayList<NettyHttpContentHandler>();
 
   /**
    * Map of Netty channel IDs to web socket handlers.
    */
-  private Map<Integer, NettyWebServerWebSocketConnection> webSocketConnections = Maps
-      .newConcurrentMap();
+  private Map<Integer, NettyWebServerWebSocketConnection> webSocketConnections = Maps.newConcurrentMap();
 
   /**
    * Map of Netty channel IDs to file uploads.
@@ -114,8 +114,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * <p>
    * Not concurrent, so needs to be prote
    */
-  private Map<String, WebSocketServerHandshakerFactory> webSocketHandshakerFactories = Maps
-      .newHashMap();
+  private Map<String, WebSocketServerHandshakerFactory> webSocketHandshakerFactories = Maps.newHashMap();
 
   /**
    * Factory for web socket handlers.
@@ -138,10 +137,22 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   private NettyWebServer webServer;
 
+  /**
+   * The authentication provider.
+   */
   private HttpAuthProvider authProvider;
 
+  /**
+   * The access manager for determining who gets access to a resource.
+   */
   private WebResourceAccessManager accessManager;
 
+  /**
+   * Construct a new handler.
+   *
+   * @param webServer
+   *          the web server for the handler
+   */
   public NettyWebServerHandler(NettyWebServer webServer) {
     this.webServer = webServer;
     this.authProvider = null;
@@ -152,6 +163,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Register a new content handler to the server.
    *
    * @param handler
+   *          the handler to add
    */
   public void addHttpContentHandler(NettyHttpContentHandler handler) {
     httpContentHandlers.add(handler);
@@ -161,16 +173,15 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Set the factory for creating web socket handlers.
    *
    * @param webSocketUriPrefix
-   *          uri prefix for websocket handler (can be {@code null})
+   *          uri prefix for websocket handler, can be {@code null}
    * @param webSocketHandlerFactory
-   *          the factory to use (can be {@code null} if don't want to handle
-   *          web socket calls)
+   *          the factory to use, can be {@code null} if don't want to handle
+   *          web socket calls
    */
   public void setWebSocketHandlerFactory(String webSocketUriPrefix,
       WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
     this.fullWebSocketUriPrefix =
-        (webSocketUriPrefix != null) ? "/" + webSocketUriPrefix.trim() : "/"
-            + WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
+        (webSocketUriPrefix != null) ? "/" + webSocketUriPrefix.trim() : "/" + WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
     this.webSocketHandlerFactory = webSocketHandlerFactory;
   }
 
@@ -194,8 +205,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
     } else if (msg instanceof HttpChunk) {
       handleHttpChunk(ctx, (HttpChunk) msg);
     } else {
-      webServer.getLog().warn(
-          String.format("Web server received unknown frame %s", msg.getClass().getName()));
+      webServer.getLog().warn(String.format("Web server received unknown frame %s", msg.getClass().getName()));
     }
 
   }
@@ -221,11 +231,10 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    *          The HTTP request.
    *
    * @throws Exception
+   *           something bad happened
    */
   private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
-
-    // Before we actually allow handling of this http request, we will check
-    // to
+    // Before we actually allow handling of this http request, we will check to
     // see if it is properly authorized, if authorization is requested.
     HttpAuthResponse response = null;
     if (authProvider != null) {
@@ -234,8 +243,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
         if ((response == null) || response.redirectUrl() != null) {
           sendHttpResponse(ctx, req, createRedirect(response.redirectUrl()), false, false);
         } else {
-          webServer.getLog().warn(
-              String.format("Auth requested and no redict available for %s", req.getUri()));
+          webServer.getLog().warn(String.format("Auth requested and no redict available for %s", req.getUri()));
           sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, FORBIDDEN), false, false);
         }
         return;
@@ -255,8 +263,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       // The method handled the request if the return value was true.
     } else {
       // Nothing we handle.
-      webServer.getLog().warn(
-          String.format("Web server has no handlers for request %s", req.getUri()));
+      webServer.getLog().warn(String.format("Web server has no handlers for request %s", req.getUri()));
 
       sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, FORBIDDEN), false, false);
     }
@@ -266,17 +273,24 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Attempt to handle an HTTP request by scanning through all registered
    * handlers.
    *
-   * @param ctx
-   *          The context for the request.
-   * @param req
-   *          The request.
-   * @return True if the request was handled, false otherwise.
+   * @param context
+   *          the context for the request
+   * @param request
+   *          the request
+   * @param authResponse
+   *          the authentication response
+   *
+   * @return {@code true} if the request was handled
+   *
+   * @throws IOException
+   *           an IO exception happened
    */
-  private boolean handleWebGetRequest(ChannelHandlerContext ctx, HttpRequest req,
-      HttpAuthResponse authResponse) throws IOException {
-    if (req.getMethod() == GET) {
-
-      if (!userCanAccessResource(authResponse, req.getUri())) {
+  private boolean
+      handleWebGetRequest(ChannelHandlerContext context, HttpRequest request, HttpAuthResponse authResponse)
+          throws IOException {
+    HttpMethod method = request.getMethod();
+    if (method == GET || method == HEAD) {
+      if (!canUserAccessResource(authResponse, request.getUri())) {
         return false;
       }
 
@@ -286,12 +300,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       }
 
       for (NettyHttpContentHandler handler : httpContentHandlers) {
-        if (handler.isHandledBy(req)) {
+        if (handler.isHandledBy(request)) {
           try {
-            handler.handleWebRequest(ctx, req, cookies);
+            handler.handleWebRequest(context, request, cookies);
           } catch (Exception e) {
-            webServer.getLog().error(
-                String.format("Exception when handling web request %s", req.getUri()), e);
+            webServer.getLog().error(String.format("Exception when handling web request %s", request.getUri()), e);
           }
 
           return true;
@@ -304,40 +317,47 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   }
 
   /**
-   * Attempt to handle an HTTP PUT request
+   * Attempt to handle an HTTP PUT request.
    *
-   * @param ctx
-   *          The context for the request.
-   * @param req
-   *          The request.
-   * @return True if the request was handled, false otherwise.
+   * @param context
+   *          the context for the request
+   * @param request
+   *          the request
+   * @param authResponse
+   *          the authentication response
+   *
+   * @return {@code true} if the request was handled
+   *
+   * @throws IOException
+   *           an IO exception happened
    */
-  private boolean handleWebPutRequest(ChannelHandlerContext ctx, HttpRequest req,
-      HttpAuthResponse authResponse) throws IOException {
-    if (req.getMethod() != POST || fileUploadListener == null) {
+  private boolean
+      handleWebPutRequest(ChannelHandlerContext context, HttpRequest request, HttpAuthResponse authResponse)
+          throws IOException {
+    if (request.getMethod() != POST || fileUploadListener == null) {
       return false;
     }
 
-    if (!userCanAccessResource(authResponse, req.getUri())) {
+    if (!canUserAccessResource(authResponse, request.getUri())) {
       return false;
     }
 
     try {
       NettyHttpFileUpload fileUpload =
-          new NettyHttpFileUpload(req, new HttpPostRequestDecoder(httpDataFactory, req), webServer);
+          new NettyHttpFileUpload(request, new HttpPostRequestDecoder(HTTP_DATA_FACTORY, request), webServer);
 
-      if (req.isChunked()) {
+      if (request.isChunked()) {
         // Chunked data so more coming.
-        fileUploadHandlers.put(ctx.getChannel().getId(), fileUpload);
+        fileUploadHandlers.put(context.getChannel().getId(), fileUpload);
       } else {
         fileUpload.completeNonChunked();
         fileUploadComplete(fileUpload);
-        sendSuccessHttpResponse(ctx, req);
+        sendSuccessHttpResponse(context, request);
       }
     } catch (Exception e) {
       webServer.getLog().error("Could not start file upload", e);
 
-      sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+      sendError(context, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     }
 
     return true;
@@ -346,39 +366,42 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   /**
    * Is the HTTP request requesting a Web Socket protocol upgrade?
    *
-   * @param req
-   *          The HTTP request.
+   * @param context
+   *          the request context
+   * @param request
+   *          the HTTP request
+   * @param user
+   *          the user making the request
    *
-   * @return True if a Web Socket protocol upgrade, false otherwise.
+   * @return {@code true} if a Web Socket protocol upgrade
    */
-  private boolean tryWebSocketUpgradeRequest(final ChannelHandlerContext ctx, HttpRequest req,
-      final String user) {
-    if (!req.getUri().startsWith(fullWebSocketUriPrefix)) {
+  private boolean tryWebSocketUpgradeRequest(ChannelHandlerContext context, HttpRequest request, final String user) {
+    if (!request.getUri().startsWith(fullWebSocketUriPrefix)) {
       return false;
     }
 
     if (accessManager != null) {
-      if (!accessManager.userHasAccess(user, req.getUri())) {
+      if (!accessManager.userHasAccess(user, request.getUri())) {
         return false;
       }
     }
 
     // Handshake
-    WebSocketServerHandshakerFactory wsFactory = getWebSocketHandshakerFactory(req);
-    final Channel channel = ctx.getChannel();
-    final WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
+    WebSocketServerHandshakerFactory wsFactory = getWebSocketHandshakerFactory(request);
+    final Channel channel = context.getChannel();
+    final WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(request);
     if (handshaker == null) {
       wsFactory.sendUnsupportedWebSocketVersionResponse(channel);
     } else {
-      ChannelFuture handshake = handshaker.handshake(channel, req);
+      ChannelFuture handshake = handshaker.handshake(channel, request);
       handshake.addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
       handshake.addListener(new ChannelFutureListener() {
         @Override
         public void operationComplete(ChannelFuture arg0) throws Exception {
 
           NettyWebServerWebSocketConnection connection =
-              new NettyWebServerWebSocketConnection(channel, user, handshaker,
-                  webSocketHandlerFactory, webServer.getLog());
+              new NettyWebServerWebSocketConnection(channel, user, handshaker, webSocketHandlerFactory, webServer
+                  .getLog());
           webSocketConnections.put(channel.getId(), connection);
 
           connection.getHandler().onConnect();
@@ -487,8 +510,8 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    *          {@code true} if should ignore the HTTP keepalive aheader and close
    *          the connection anyway
    */
-  public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res,
-      boolean setContentLength, boolean ignoreKeepAlive) {
+  public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res, boolean setContentLength,
+      boolean ignoreKeepAlive) {
     try {
       // Generate an error page if response status code is not OK (200).
       if (res.getStatus().getCode() != HttpResponseStatus.OK.getCode()) {
@@ -501,8 +524,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       }
       ChannelFuture f = ctx.getChannel().write(res);
 
-      if ((ignoreKeepAlive || !isKeepAlive(req))
-          || res.getStatus().getCode() != HttpResponseStatus.OK.getCode()
+      if ((ignoreKeepAlive || !isKeepAlive(req)) || res.getStatus().getCode() != HttpResponseStatus.OK.getCode()
           || req.getMethod() == POST) {
         f.addListener(ChannelFutureListener.CLOSE);
       }
@@ -537,6 +559,23 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
     // overridden.
     addGlobalHttpResponseHeaders(res);
     addHttpResponseHeaderMap(res, headers);
+  }
+
+  /**
+   * Add in a response header if there isn't a header with that name already.
+   *
+   * @param response
+   *          the HTTP response
+   * @param name
+   *          the name of the header
+   * @param value
+   *          the value of the header
+   */
+  public void addHeaderIfNotExists(HttpResponse response, String name, Object value) {
+
+    if (!response.containsHeader(name)) {
+      response.addHeader(name, value);
+    }
   }
 
   /**
@@ -631,6 +670,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * A web socket channel is closing. Do any necessary cleanup.
    *
    * @param channel
+   *          the channel which is closing
    */
   private void webSocketChannelClosing(Channel channel) {
     NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
@@ -653,20 +693,40 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
     response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-    response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n",
-        CharsetUtil.UTF_8));
+    response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
 
     // Close the connection as soon as the error message is sent.
     ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
   }
 
   /**
-   * Set the URI prefix to be used for web socket connections.
+   * Create a HTTP redirect response.
    *
-   * @return the webSocketPath
+   * @param url
+   *          the redirection URL
+   *
+   * @return the redirection response
    */
-  public void setWebSocketUriPrefix() {
-    // return webSocketPath;
+  private DefaultHttpResponse createRedirect(String url) {
+    DefaultHttpResponse response = new DefaultHttpResponse(HTTP_1_1, FOUND);
+    response.addHeader("Location", url);
+    return response;
+  }
+
+  /**
+   * Can a user access a give resource?
+   *
+   * @param authResponse
+   *          the user
+   * @param resource
+   *          the resource to be accessed
+   *
+   * @return {@code true} if the user can access the resource
+   */
+  private boolean canUserAccessResource(HttpAuthResponse authResponse, String resource) {
+    // If no access manager is set on this handler, then all users are
+    // assumed to have access to all resources.
+    return accessManager == null || accessManager.userHasAccess(authResponse.getUser(), resource);
   }
 
   /**
@@ -678,27 +738,23 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
     return webServer;
   }
 
+  /**
+   * Set the authentication provider.
+   *
+   * @param authProvider
+   *          the authentication provider to use
+   */
   public void setAuthProvider(HttpAuthProvider authProvider) {
     this.authProvider = authProvider;
   }
 
+  /**
+   * Set the access manager.
+   *
+   * @param accessManager
+   *          the access manager to use
+   */
   public void setAccessManager(WebResourceAccessManager accessManager) {
     this.accessManager = accessManager;
-  }
-
-  private DefaultHttpResponse createRedirect(String url) {
-    DefaultHttpResponse response = new DefaultHttpResponse(HTTP_1_1, FOUND);
-    response.addHeader("Location", url);
-    return response;
-  }
-
-  private boolean userCanAccessResource(HttpAuthResponse authResponse, String resource) {
-    // If no access manager is set on this handler, then all users are
-    // assumed to
-    // have access to all resources.
-    if (accessManager == null) {
-      return true;
-    }
-    return accessManager.userHasAccess(authResponse.getUser(), resource);
   }
 }

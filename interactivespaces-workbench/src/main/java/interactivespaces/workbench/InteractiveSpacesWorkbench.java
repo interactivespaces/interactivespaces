@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
@@ -32,9 +30,6 @@ import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.creator.ProjectCreationContext;
-import interactivespaces.workbench.project.creator.ProjectCreator;
-import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.ActivityProjectManager;
@@ -50,6 +45,9 @@ import interactivespaces.workbench.project.activity.type.ProjectTypeRegistry;
 import interactivespaces.workbench.project.activity.type.SimpleProjectTypeRegistry;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.project.creator.ProjectCreator;
+import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
@@ -58,6 +56,10 @@ import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
@@ -561,20 +563,24 @@ public class InteractiveSpacesWorkbench {
       createOsgi(removeArgument(commands, "osgi file"));
     } else {
       File baseDir = new File(command);
-      if (projectManager.isProjectFolder(baseDir)) {
-        doCommandsOnProject(baseDir, commands);
-      } else if (commands.isEmpty()) {
-        throw new SimpleInteractiveSpacesException(
-            String.format("%s is not a project directory", baseDir.getAbsolutePath()));
-      } else {
-        String commandModifier = removeArgument(commands, "command modifier");
-        if (COMMAND_RECURSIVE.equals(commandModifier)) {
-          if (doCommandsOnTree(baseDir, commands)) {
-            throw new SimpleInteractiveSpacesException("Previous errors encountered");
-          }
+      if (baseDir.isDirectory()) {
+        if (projectManager.isProjectFolder(baseDir)) {
+          doCommandsOnProject(baseDir, commands);
+        } else if (commands.isEmpty()) {
+          log.warn(String.format("No commands to execute on the non-project directory %s", baseDir.getPath()));
         } else {
-          throw new SimpleInteractiveSpacesException("Unknown command modifier " + commandModifier);
+          String commandModifier = removeArgument(commands, "command modifier");
+          if (COMMAND_RECURSIVE.equals(commandModifier)) {
+            if (doCommandsOnTree(baseDir, commands)) {
+              throw new SimpleInteractiveSpacesException("Previous errors encountered");
+            }
+          } else {
+            throw new SimpleInteractiveSpacesException(String.format(
+                "Cannot run command %s on non-project directory %s", commandModifier, baseDir.getPath()));
+          }
         }
+      } else {
+        throw new SimpleInteractiveSpacesException(String.format("%s is not a directory", baseDir.getAbsolutePath()));
       }
     }
 
@@ -645,7 +651,8 @@ public class InteractiveSpacesWorkbench {
       }
     }
 
-    // Walking the tree implicitly consumes all the commands, so clear them out here.
+    // Walking the tree implicitly consumes all the commands, so clear them out
+    // here.
     commands.clear();
 
     return hadErrors;
