@@ -40,7 +40,7 @@ function deleteSpace() {
 }
 </script>
 
-<h1>Space: ${space.name}</h1>
+<h1>Space: ${space.name?html}</h1>
 
 <table class="commandBar">
   <tr>
@@ -71,7 +71,7 @@ function deleteSpace() {
 </div>
 
 <p>
-${space.description}
+${space.description?html}
 </p>
 
 <table>
@@ -82,7 +82,7 @@ ${space.description}
 <tr>
 <th valign="top">Metadata</th>
 <td><table><#assign metadataKeys = space.metadata?keys?sort><#list metadataKeys as metadataKey>
-<tr><th valign="top">${metadataKey}</th><td>${space.metadata[metadataKey]}</td></tr>
+<tr><th valign="top">${metadataKey}</th><td>${space.metadata[metadataKey]?html}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -92,7 +92,7 @@ ${space.description}
 <#if liveActivityGroups?has_content>
 <ul>
 <#list liveActivityGroups as group>
-    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${group.id}/view.html', event);">${group.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${group.id}/view.html', event);">${group.name?html}</a></li>
 </#list>
 </ul>
 <#else>
@@ -104,7 +104,7 @@ None
 <#if subspaces?has_content>
 <ul>
 <#list subspaces as subspace>
-    <li><a href=" onclick="ugly.changePage('/interactivespaces/space/${subspace.id}/view.html')">${subspace.name}</a></li>
+    <li><a href=" onclick="ugly.changePage('/interactivespaces/space/${subspace.id}/view.html')">${subspace.name?html}</a></li>
 </#list>
 </ul>
 <#else>
@@ -117,7 +117,7 @@ None
 <#if containingSpaces?has_content>
 <ul>
 <#list containingSpaces as containingSpace>
-    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${containingSpace.id}/view.html', event);">${containingSpace.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${containingSpace.id}/view.html', event);">${containingSpace.name?html}</a></li>
 </#list>
 </ul>
 <#else>

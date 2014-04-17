@@ -23,10 +23,10 @@
 
 <body class="admin-content">
 
-<h1>Edit Live Activity Config: ${liveactivity.name}</h1>
+<h1>Edit Live Activity Config: ${liveactivity.name?html}</h1>
 
 <p>
-${liveactivity.description}
+${liveactivity.description?html}
 </p>
 
 <form  method="post">

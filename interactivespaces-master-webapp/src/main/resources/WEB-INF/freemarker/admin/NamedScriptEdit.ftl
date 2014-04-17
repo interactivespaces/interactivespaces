@@ -23,7 +23,7 @@
 
 <body class="admin-content">
 
-<h1>Edit Named Script: ${script.name}</h1>
+<h1>Edit Named Script: ${script.name?html}</h1>
 
 <form  method="post">
 

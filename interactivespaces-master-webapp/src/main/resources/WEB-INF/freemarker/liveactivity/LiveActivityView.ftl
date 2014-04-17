@@ -61,7 +61,7 @@ function remoteDeleteLiveActivity() {
 }
 </script>
 
-<h1>Live Activity: ${liveactivity.name}</h1>
+<h1>Live Activity: ${liveactivity.name?html}</h1>
 
 <table class="commandBar">
   <tr>
@@ -95,7 +95,7 @@ function remoteDeleteLiveActivity() {
 </div>
 
 <#if liveactivity.description?has_content><p>
-${liveactivity.description}
+${liveactivity.description?html}
 </p></#if>
 
 <table class="liveactivity-details">
@@ -109,11 +109,11 @@ ${liveactivity.description}
 </tr>
 <tr>
 <th>Activity</th>
-<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html', event)">${liveactivity.activity.name} - ${liveactivity.activity.version}</a></td>
+<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html', event)">${liveactivity.activity.name?html} - ${liveactivity.activity.version}</a></td>
 </tr>
 <th>Controller</th>
 <td><#if liveactivity.controller?has_content>
-<a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/${liveactivity.controller.id}/view.html', event);">${liveactivity.controller.name}</a>
+<a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/${liveactivity.controller.id}/view.html', event);">${liveactivity.controller.name?html}</a>
 <#else>
 <span style="color: red;">No controller assigned!</span>
 </#if>
@@ -180,7 +180,7 @@ activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 <th valign="top">Metadata</th>
 <#assign metadataKeys = liveactivity.metadata?keys?sort>
 <td><table><#list metadataKeys as metadataKey>
-<tr><th>${metadataKey}</th><td>${liveactivity.metadata[metadataKey]}</td></tr>
+<tr><th>${metadataKey}</th><td>${liveactivity.metadata[metadataKey]?html}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -191,7 +191,7 @@ activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 
 <ul>
 <#list liveActivityGroups as liveActivityGroup>
-    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html', event);">${liveActivityGroup.name}</a></li>
+    <li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html', event);">${liveActivityGroup.name?html}</a></li>
 </#list>
 </ul>
 <#else>

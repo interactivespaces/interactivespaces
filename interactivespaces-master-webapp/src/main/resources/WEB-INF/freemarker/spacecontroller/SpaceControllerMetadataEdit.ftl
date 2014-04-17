@@ -23,10 +23,10 @@
 
 <body class="admin-content">
 
-<h1>Edit Space Controller Metadata: ${spacecontroller.name}</h1>
+<h1>Edit Space Controller Metadata: ${spacecontroller.name?html}</h1>
 
 <p>
-${spacecontroller.description}
+${spacecontroller.description?html}
 </p>
 
 <form  method="post">

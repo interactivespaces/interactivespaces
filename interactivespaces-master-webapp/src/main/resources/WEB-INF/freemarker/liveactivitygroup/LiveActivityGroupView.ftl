@@ -51,7 +51,7 @@ function deleteActivityGroup() {
 }
 </script>
 
-<h2>Live Activity Group: ${liveactivitygroup.name}</h2>
+<h2>Live Activity Group: ${liveactivitygroup.name?html}</h2>
 
 <table class="commandBar">
   <tr>
@@ -82,7 +82,7 @@ function deleteActivityGroup() {
 </div>
 
 <#if liveactivitygroup.description?has_content><p>
-${liveactivitygroup.description}
+${liveactivitygroup.description?html}
 </p></#if>
 
 <table>
@@ -94,7 +94,7 @@ ${liveactivitygroup.description}
 <th valign="top">Metadata</th>
 <#assign metadataKeys = liveactivitygroup.metadata?keys?sort>
 <td><table><#list metadataKeys as metadataKey>
-<tr><th valign="top">${metadataKey}</th><td>${liveactivitygroup.metadata[metadataKey]}</td></tr>
+<tr><th valign="top">${metadataKey}</th><td>${liveactivitygroup.metadata[metadataKey]?html}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -107,7 +107,7 @@ ${liveactivitygroup.description}
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">
-<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a></td>
+<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name?html}</a></td>
 <td>
 <#if liveactivity.active?has_content><div id="liveactivity-info-${liveactivity.uuid}">
   <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
@@ -165,7 +165,7 @@ None
 
 <ul>
 <#list spaces as space>
-<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">${space.name}</a></li>
+<li><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">${space.name?html}</a></li>
 </#list>
 </ul>
 <#else>

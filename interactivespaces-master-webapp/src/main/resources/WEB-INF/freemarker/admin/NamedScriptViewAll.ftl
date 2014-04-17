@@ -39,7 +39,7 @@
 <#list scripts as script>
     <tr>
       <td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/admin/namedscript/${script.id}/view.html', event);">View</a></td>
-      <td>${script.name}</td>
+      <td>${script.name?html}</td>
 </#list>
 </table>
 

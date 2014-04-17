@@ -52,7 +52,7 @@ function deleteActivity() {
 }
 </script>
 
-<h1>Activity: ${activity.name}</h1>
+<h1>Activity: ${activity.name?html}</h1>
 
 <table class="commandBar">
   <tr>
@@ -74,7 +74,7 @@ function deleteActivity() {
 </div>
 
 <#if activity.description?has_content><p>
-${activity.description}
+${activity.description?html}
 </p></#if>
 
 <table class="activity-details">
@@ -102,7 +102,7 @@ ${activity.description}
 <th valign="top">Metadata</th>
 <#assign metadataKeys = activity.metadata?keys?sort>
 <td><table><#list metadataKeys as metadataKey>
-<tr><th>${metadataKey}</th><td>${activity.metadata[metadataKey]}</td></tr>
+<tr><th>${metadataKey}</th><td>${activity.metadata[metadataKey]?html}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -117,7 +117,7 @@ ${activity.description}
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
-    <td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a></td>
+    <td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name?html}</a></td>
 <td><#if liveactivity.active?has_content><div id="liveactivity-${liveactivity.uuid}">
 <span class="status-box status-box-inner liveactivity-status liveactivity-status-${liveactivity.active.runtimeState}"><@spring.message liveactivity.active.runtimeStateDescription /></span>
 <span class="as-of-timestamp">

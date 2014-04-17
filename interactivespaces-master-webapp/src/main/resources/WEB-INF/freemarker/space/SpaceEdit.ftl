@@ -23,7 +23,7 @@
 
 <body class="admin-content">
 
-<h1>Edit Space: ${form.space.name}</h1>
+<h1>Edit Space: ${form.space.name?html}</h1>
 
 <form  method="post">
 

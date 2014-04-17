@@ -23,7 +23,7 @@
 
 <body class="admin-content">
 
-<h1>Edit Live Activity: ${liveactivity.name}</h1>
+<h1>Edit Live Activity: ${liveactivity.name?html}</h1>
 
 <form  method="post">
 

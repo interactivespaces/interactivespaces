@@ -16,12 +16,12 @@
 
 package interactivespaces.domain.support;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivityDependency;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -71,13 +71,14 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    * @param errors
    *          any errors found in the metadata
    */
-  private void getMainData(ActivityDescription adescription, Element rootElement,
-      List<String> errors) {
+  private void getMainData(ActivityDescription adescription, Element rootElement, List<String> errors) {
     String name = rootElement.getChildText("name");
     adescription.setName(new String(name.trim()));
 
     String description = rootElement.getChildText("description");
-    adescription.setDescription(new String(description.trim()));
+    if (description != null) {
+      adescription.setDescription(new String(description.trim()));
+    }
 
     String identifyingName = rootElement.getChildText("identifyingName");
     adescription.setIdentifyingName(new String(identifyingName.trim()));
@@ -99,8 +100,7 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    * @param errors
    *          any errors found in the metadata
    */
-  private void getMetadata(ActivityDescription adescription, Element rootElement,
-      List<String> errors) {
+  private void getMetadata(ActivityDescription adescription, Element rootElement, List<String> errors) {
     Element metadataElement = rootElement.getChild("metadata");
 
     if (metadataElement != null) {
@@ -128,8 +128,7 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    * @param errors
    *          any errors found in the metadata
    */
-  private void getDependencies(ActivityDescription adescription, Element rootElement,
-      List<String> errors) {
+  private void getDependencies(ActivityDescription adescription, Element rootElement, List<String> errors) {
     Element dependenciesElement = rootElement.getChild("dependencies");
 
     if (dependenciesElement != null) {

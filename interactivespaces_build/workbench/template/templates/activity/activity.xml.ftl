@@ -1,9 +1,9 @@
 <#ftl strip_whitespace=true>
 <?xml version="1.0"?>
 <activity interactiveSpacesVersion="${project.interactiveSpacesVersionRange}">
-  <name>${project.name}</name>
+  <name>${project.name?html}</name>
   <description>
-${project.description}
+${project.description?html}
   </description>
 
   <identifyingName>${project.identifyingName}</identifyingName>
@@ -12,11 +12,11 @@ ${project.description}
 <#if project.configurationProperties?has_content>
   <configuration>
 <#list project.configurationProperties as property>
-    <property name="${property.name}" required="${property.required?string}">
+    <property name="${property.name?html}" required="${property.required?string}">
       <#if property.descripton?has_content>
-      <description>${property.description}</description>
+      <description>${property.description?html}</description>
 </#if>
-      <value>${property.value}</value>
+      <value>${property.value?html}</value>
     </property>
 </#list>
   </configuration>
@@ -24,7 +24,7 @@ ${project.description}
 <#if project.dependencies?has_content>
   <dependencies>
   <#list project.dependencies as dependency>
-    <dependency name="${dependency.name}"
+    <dependency name="${dependency.name?html}"
     <#if dependency.minimumVersion?has_content>
           minimumVersion="${dependency.minimumVersion}"
     </#if>

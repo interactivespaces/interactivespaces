@@ -23,10 +23,10 @@
 
 <body class="admin-content">
 
-<h1>Edit Live Activity Group Metadata: ${liveactivitygroup.name}</h1>
+<h1>Edit Live Activity Group Metadata: ${liveactivitygroup.name?html}</h1>
 
 <p>
-${liveactivitygroup.description}
+${liveactivitygroup.description?html}
 </p>
 
 <form  method="post">

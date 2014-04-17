@@ -23,10 +23,10 @@
 
 <body class="admin-content">
 
-<h1>Edit Activity Metadata: ${activity.name}</h1>
+<h1>Edit Activity Metadata: ${activity.name?html}</h1>
 
 <p>
-${activity.description}
+${activity.description?html}
 </p>
 
 <form  method="post">

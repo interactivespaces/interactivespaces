@@ -23,7 +23,7 @@
 
 <body class="admin-content">
 
-<h1>Edit Space Controller: ${spacecontroller.name}</h1>
+<h1>Edit Space Controller: ${spacecontroller.name?html}</h1>
 
 <form  method="post">
 

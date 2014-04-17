@@ -23,10 +23,10 @@
 
 <body class="admin-content">
 
-<h1>Edit Space Metadata: ${space.name}</h1>
+<h1>Edit Space Metadata: ${space.name?html}</h1>
 
 <p>
-${space.description}
+${space.description?html}
 </p>
 
 <form  method="post">

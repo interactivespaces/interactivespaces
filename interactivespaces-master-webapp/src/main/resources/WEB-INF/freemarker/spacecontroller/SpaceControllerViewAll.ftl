@@ -120,7 +120,7 @@ function shutdownAllActivitiesAllControllers() {
     <#assign trCss = (spacecontroller_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
       <td class="controller-name">
-        <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/${spacecontroller.id}/view.html', event);">${spacecontroller.name}</a>
+        <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/spacecontroller/${spacecontroller.id}/view.html', event);">${spacecontroller.name?html}</a>
       </td>
       <td class="mode-value">
         <#if spacecontroller.mode??>

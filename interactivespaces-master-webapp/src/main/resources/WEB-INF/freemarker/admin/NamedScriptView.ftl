@@ -44,7 +44,7 @@ function deleteScript() {
 }
 </script>
 
-<h1>Named Script: ${script.name}</h1>
+<h1>Named Script: ${script.name?html}</h1>
 
 <table class="commandBar">
   <tr>
@@ -58,7 +58,7 @@ function deleteScript() {
 </div>
 
 <p>
-${script.description}
+${script.description?html}
 </p>
 
 <table>
@@ -68,7 +68,7 @@ ${script.description}
 </tr>
 <tr>
 <th>Language</th>
-<td>${script.language}</td>
+<td>${script.language?html}</td>
 </tr>
 <tr>
 <th>Scheduled?</th>
@@ -85,7 +85,7 @@ ${script.description}
 <#if script.content?has_content>
 
 <pre><code>
-${script.content}
+${script.content?html}
 </code></pre>
 </#if>
 

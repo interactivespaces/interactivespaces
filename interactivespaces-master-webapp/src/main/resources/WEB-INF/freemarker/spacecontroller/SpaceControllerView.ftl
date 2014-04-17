@@ -94,7 +94,7 @@ function shutdownActivities() {
 }
 </script>
 
-<h1>Space Controller: ${spacecontroller.name}</h1>
+<h1>Space Controller: ${spacecontroller.name?html}</h1>
 
 <table class="commandBar">
   <tr>
@@ -129,7 +129,7 @@ function shutdownActivities() {
 </div>
 
 <#if spacecontroller.description?has_content><p>
-${spacecontroller.description}
+${spacecontroller.description?html}
 </p></#if>
 
 <table class="controller-details">
@@ -172,7 +172,7 @@ ${spacecontroller.description}
 <tr>
 <th valign="top">Metadata</th>
 <td><table><#assign metadataKeys = spacecontroller.metadata?keys?sort><#list metadataKeys as metadataKey>
-<tr><th>${metadataKey}</th><td>${spacecontroller.metadata[metadataKey]}</td></tr>
+<tr><th>${metadataKey}</th><td>${spacecontroller.metadata[metadataKey]?html}</td></tr>
 </#list></table></td>
 </tr>
 </table>
@@ -188,7 +188,7 @@ ${spacecontroller.description}
     <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
     <tr class="${trCss}">
       <td class="liveactivity-name">
-        <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name}</a>
+        <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/view.html', event);">${liveactivity.name?html}</a>
       </td>
       <td>
         <#if liveactivity.active?has_content>
