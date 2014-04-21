@@ -14,6 +14,6 @@
  * the License.
  -->
 <#import "/spring.ftl" as spring />
-<link rel="stylesheet" type="text/css" href="/interactivespaces/css/interactivespaces_master.css" />
-<link rel="shortcut icon" href="/interactivespaces/img/favicon.ico" type="image/x-icon" />
-<script type="text/javascript" src="/interactivespaces/js/jquery-2.1.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/interactivespaces/static/css/interactivespaces_master.css" />
+<link rel="shortcut icon" href="/interactivespaces/static/img/favicon.ico" type="image/x-icon" />
+<script type="text/javascript" src="/interactivespaces/static/js/jquery-2.1.0.min.js"></script>

@@ -26,7 +26,8 @@
   http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
   <mvc:annotation-driven />
 
-  <mvc:default-servlet-handler />
+  <mvc:default-servlet-handler
+    default-servlet-name="default" />
 
   <bean id="messageSource"
     class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -58,11 +59,6 @@
   </bean>
 
   <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.admin"
-    class="interactivespaces.master.ui.internal.web.activity.AdminController">
-  </bean>
-
-  <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity"
     class="interactivespaces.master.ui.internal.web.activity.ActivityController"
     parent="abstractLiveControllerClass">
@@ -76,7 +72,7 @@
 
   <bean id="activityFormValidator"
     class="interactivespaces.master.ui.internal.web.activity.ActivityValidator" />
-  
+
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.edit"
     class="interactivespaces.master.ui.internal.web.activity.ActivityEditForm"
@@ -138,7 +134,7 @@
 
   <bean id="namedScriptFormValidator"
     class="interactivespaces.master.ui.internal.web.admin.NamedScriptValidator" />
-  
+
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerController"
@@ -152,7 +148,7 @@
 
   <bean id="spaceControllerFormValidator"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerValidator" />
-  
+
   <bean
     id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.edit"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerEditForm"
@@ -186,7 +182,7 @@
 
   <bean id="liveActivityFormValidator"
     class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityValidator" />
-  
+
   <bean name="liveActivity/new"
     class="interactivespaces.master.ui.internal.web.liveactivity.NewLiveActivityFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
@@ -241,7 +237,7 @@
 
   <bean id="liveActivityGroupFormValidator"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupValidator" />
-  
+
   <bean name="liveactivitygroup/new"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.NewLiveActivityGroupFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
@@ -260,7 +256,7 @@
 
   <bean id="spaceFormValidator"
     class="interactivespaces.master.ui.internal.web.space.SpaceValidator" />
-  
+
   <bean name="space/new"
     class="interactivespaces.master.ui.internal.web.space.NewSpaceFlowHandler">
     <property name="activityRepository" ref="activityRepository" />

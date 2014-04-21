@@ -19,8 +19,8 @@
 <title>Interactive Spaces Admin</title>
 
 <#include "/allpages_head.ftl">
-<script type="text/javascript" src="/interactivespaces/js/is-ugly.js"></script>
-<script type="text/javascript" src="/interactivespaces/js/main.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/is-ugly.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/main.js"></script>
 
 
 <script type="text/javascript">

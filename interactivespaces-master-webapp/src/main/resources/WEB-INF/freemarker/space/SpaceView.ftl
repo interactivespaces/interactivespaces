@@ -104,7 +104,7 @@ None
 <#if subspaces?has_content>
 <ul>
 <#list subspaces as subspace>
-    <li><a href=" onclick="ugly.changePage('/interactivespaces/space/${subspace.id}/view.html')">${subspace.name?html}</a></li>
+    <li><a class="uglylink" onclick="ugly.changePage('/interactivespaces/space/${subspace.id}/view.html')">${subspace.name}</a></li>
 </#list>
 </ul>
 <#else>

@@ -14,7 +14,7 @@
  * the License.
  -->
 <div>
-<img src="/interactivespaces/img/interactivespaces_logo_small.png" alt="Interactive Spaces logo" />
+<img src="/interactivespaces/static/img/interactivespaces_logo_small.png" alt="Interactive Spaces logo" />
 <span id="spaceName">${interactivespacesName}</span>
 </div>
 
