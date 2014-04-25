@@ -154,7 +154,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   /**
    * All service registrations put into place.
    */
-  private final List<ServiceRegistration> serviceRegistrations = Lists.newArrayList();
+  private final List<ServiceRegistration<?>> serviceRegistrations = Lists.newArrayList();
 
   /**
    * Host address to use if address lookup fails.
@@ -210,7 +210,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     managedResources.shutdownResourcesAndClear();
 
     // Remove all OSGi service registrations.
-    for (ServiceRegistration registration : serviceRegistrations) {
+    for (ServiceRegistration<?> registration : serviceRegistrations) {
       registration.unregister();
     }
   }
@@ -228,18 +228,17 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    *           something bad happened
    */
   private void getCoreServices() throws Exception {
-    ServiceReference loggingProviderServiceReference =
-        bundleContext.getServiceReference(LoggingProvider.class.getName());
-    loggingProvider = (LoggingProvider) bundleContext.getService(loggingProviderServiceReference);
+    ServiceReference<LoggingProvider> loggingProviderServiceReference =
+        bundleContext.getServiceReference(LoggingProvider.class);
+    loggingProvider = bundleContext.getService(loggingProviderServiceReference);
 
-    ServiceReference configurationProviderServiceReference =
-        bundleContext.getServiceReference(ConfigurationProvider.class.getName());
-    configurationProvider = (ConfigurationProvider) bundleContext.getService(configurationProviderServiceReference);
+    ServiceReference<ConfigurationProvider> configurationProviderServiceReference =
+        bundleContext.getServiceReference(ConfigurationProvider.class);
+    configurationProvider = bundleContext.getService(configurationProviderServiceReference);
 
-    ServiceReference containerCustomizerProviderServiceReference =
-        bundleContext.getServiceReference(ContainerCustomizerProvider.class.getName());
-    containerCustomizerProvider =
-        (ContainerCustomizerProvider) bundleContext.getService(containerCustomizerProviderServiceReference);
+    ServiceReference<ContainerCustomizerProvider> containerCustomizerProviderServiceReference =
+        bundleContext.getServiceReference(ContainerCustomizerProvider.class);
+    containerCustomizerProvider = bundleContext.getService(containerCustomizerProviderServiceReference);
   }
 
   /**

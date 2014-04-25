@@ -25,8 +25,10 @@ import interactivespaces.system.core.logging.LoggingProvider;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
@@ -156,6 +158,11 @@ public class InteractiveSpacesFrameworkBootstrap {
   private BundleContext rootBundleContext;
 
   /**
+   * The start level for the OSGi framework.
+   */
+  private FrameworkStartLevel frameworkStartLevel;
+
+  /**
    * Boot the framework.
    *
    * @param args
@@ -188,17 +195,18 @@ public class InteractiveSpacesFrameworkBootstrap {
         ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
         extensionsReader.processExtensionFiles(environmentFolder);
 
-        createAndStartFramework(extensionsReader);
+        createFramework(extensionsReader);
 
         registerCoreServices();
 
         loadClasses(extensionsReader.getLoadclasses());
 
+        framework.start();
+
         startBundles(initialBundles);
+        frameworkStartLevel.setStartLevel(STARTUP_LEVEL_LAST);
 
-        // Wait for framework to stop.
         framework.waitForStop(0);
-
         System.exit(0);
       } catch (Throwable ex) {
         loggingProvider.getLog().error("Error starting framework", ex);
@@ -310,8 +318,6 @@ public class InteractiveSpacesFrameworkBootstrap {
         startBundle(bundle);
       }
     }
-
-    framework.adapt(FrameworkStartLevel.class).setStartLevel(STARTUP_LEVEL_LAST);
   }
 
   /**
@@ -337,7 +343,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @throws Exception
    *           unable to create and/or start the framework
    */
-  private void createAndStartFramework(ExtensionsReader extensionsReader) throws Exception {
+  private void createFramework(ExtensionsReader extensionsReader) throws Exception {
     Map<String, String> m = new HashMap<String, String>();
 
     m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
@@ -379,8 +385,26 @@ public class InteractiveSpacesFrameworkBootstrap {
     m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
 
     framework = getFrameworkFactory().newFramework(m);
-    framework.start();
+    frameworkStartLevel = framework.adapt(FrameworkStartLevel.class);
+
+    framework.init();
     rootBundleContext = framework.getBundleContext();
+
+    rootBundleContext.addBundleListener(new SynchronousBundleListener() {
+      @Override
+      public void bundleChanged(BundleEvent event) {
+        try {
+          if (event.getType() == BundleEvent.STARTED) {
+            Bundle bundle = event.getBundle();
+            loggingProvider.getLog().info(
+                String.format("Bundle %s:%s started with start level %d", bundle.getSymbolicName(),
+                    bundle.getVersion(), bundle.adapt(BundleStartLevel.class).getStartLevel()));
+          }
+        } catch (Exception e) {
+          loggingProvider.getLog().error("Exception while responding to bundle change events", e);
+        }
+      }
+    });
   }
 
   /**
