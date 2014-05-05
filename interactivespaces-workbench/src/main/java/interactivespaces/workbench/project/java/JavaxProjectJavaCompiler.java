@@ -31,6 +31,11 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
    */
   private final String javaVersion = JAVA_VERSION_DEFAULT;
 
+  /**
+   * Filename postfix to indicate an editor backup file.
+   */
+  private static final String EDITOR_BACKUP_FILE_POSTFIX = "~";
+
   @Override
   public boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
       List<String> compilerOptions) {
@@ -105,8 +110,9 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     File[] directoryListing = directory.listFiles();
     if (directoryListing != null) {
       for (File file : directoryListing) {
-        // Check for hidden directories, we don't want those.
-        if (!file.isHidden()) {
+        // Check for hidden/backup files/directories, we don't want those.
+        boolean shouldIgnore = file.isHidden() || file.getName().endsWith(EDITOR_BACKUP_FILE_POSTFIX);
+        if (!shouldIgnore) {
           if (file.isDirectory()) {
             scanDirectory(file, files);
           } else {
