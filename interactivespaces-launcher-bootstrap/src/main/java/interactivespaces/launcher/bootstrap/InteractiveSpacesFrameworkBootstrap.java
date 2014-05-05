@@ -60,6 +60,18 @@ import java.util.jar.Manifest;
 public class InteractiveSpacesFrameworkBootstrap {
 
   /**
+   * Configuration parameter to specify if startup order of bundles should be
+   * logged.
+   */
+  public static final String CONFIG_PROPERTY_STARTUP_LOGGING = "interactivespaces.logging.container.startup";
+
+  /**
+   * Configuration parameter value to specify if startup order of bundles should
+   * be logged.
+   */
+  public static final String CONFIG_PROPERTY_VALUE_STARTUP_LOGGING = "true";
+
+  /**
    * The argument for saying the container should run with no shell access.
    */
   public static final String ARGS_NOSHELL = "--noshell";
@@ -390,21 +402,23 @@ public class InteractiveSpacesFrameworkBootstrap {
     framework.init();
     rootBundleContext = framework.getBundleContext();
 
-    rootBundleContext.addBundleListener(new SynchronousBundleListener() {
-      @Override
-      public void bundleChanged(BundleEvent event) {
-        try {
-          if (event.getType() == BundleEvent.STARTED) {
-            Bundle bundle = event.getBundle();
-            loggingProvider.getLog().info(
-                String.format("Bundle %s:%s started with start level %d", bundle.getSymbolicName(),
-                    bundle.getVersion(), bundle.adapt(BundleStartLevel.class).getStartLevel()));
+    if (CONFIG_PROPERTY_VALUE_STARTUP_LOGGING.equals(m.get(CONFIG_PROPERTY_STARTUP_LOGGING))) {
+      rootBundleContext.addBundleListener(new SynchronousBundleListener() {
+        @Override
+        public void bundleChanged(BundleEvent event) {
+          try {
+            if (event.getType() == BundleEvent.STARTED) {
+              Bundle bundle = event.getBundle();
+              loggingProvider.getLog().info(
+                  String.format("Bundle %s:%s started with start level %d", bundle.getSymbolicName(),
+                      bundle.getVersion(), bundle.adapt(BundleStartLevel.class).getStartLevel()));
+            }
+          } catch (Exception e) {
+            loggingProvider.getLog().error("Exception while responding to bundle change events", e);
           }
-        } catch (Exception e) {
-          loggingProvider.getLog().error("Exception while responding to bundle change events", e);
         }
-      }
-    });
+      });
+    }
   }
 
   /**
