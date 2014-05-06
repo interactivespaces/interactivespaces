@@ -238,7 +238,7 @@ ${spacecontroller.description?html}
       <td>
         <#if liveactivity.outOfDate>
         <span title="Live Activity is out of date" class="out-of-date-indicator">
-          <img src="/interactivespaces/img/outofdate.png" alt="Live Activity is out of date" />
+          <img src="/interactivespaces/static/img/outofdate.png" alt="Live Activity is out of date" />
         </span>
         </#if>
         <#if liveactivity.active.deployState != "READY">
