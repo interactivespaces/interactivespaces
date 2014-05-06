@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,15 +14,25 @@
  * the License.
  */
 
-package interactivespaces.service;
-
-import interactivespaces.util.resource.ManagedResource;
+package interactivespaces.service.comm.network.server;
 
 
 /**
- * An interactive spaces service which is more fully supported by the framework.
+ * Listener for events from a {@link TcpServerNetworkCommunicationEndpoint].
+ *
+ * @param <T>
  *
  * @author Keith M. Hughes
  */
-public interface SupportedService extends Service, ManagedResource {
+public interface TcpServerNetworkCommunicationEndpointListener<T> {
+
+  /**
+   * A request has come in.
+   *
+   * @param endpoint
+   *          endpoint the request came into
+   * @param request
+   *          the request which has been received
+   */
+  void onTcpRequest(TcpServerNetworkCommunicationEndpoint<T> endpoint, TcpServerRequest<T> request);
 }

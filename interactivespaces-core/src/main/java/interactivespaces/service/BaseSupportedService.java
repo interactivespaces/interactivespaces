@@ -39,6 +39,11 @@ public abstract class BaseSupportedService implements SupportedService {
   }
 
   @Override
+  public ServiceDescription getServiceDescription() {
+    return new MyServiceDescription();
+  }
+
+  @Override
   public void startup() {
     // Default is do nothing
   }
@@ -60,5 +65,27 @@ public abstract class BaseSupportedService implements SupportedService {
    */
   protected InteractiveSpacesEnvironment getSpaceEnvironment() {
     return spaceEnvironment;
+  }
+
+  /**
+   * A service description that delegates to the enclosing object.
+   *
+   * @author Keith M. Hughes
+   */
+  private class MyServiceDescription implements ServiceDescription {
+    @Override
+    public String getName() {
+      return BaseSupportedService.this.getName();
+    }
+
+    @Override
+    public Map<String, Object> getMetadata() {
+      return BaseSupportedService.this.getMetadata();
+    }
+
+    @Override
+    public String toString() {
+      return "MyServiceDescription [name=" + getName() + ", metadata=" + getMetadata() + "]";
+    }
   }
 }

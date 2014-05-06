@@ -16,16 +16,12 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
-import com.google.common.collect.Maps;
-
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeCommunicationEndpointService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
-
-import java.util.Map;
 
 /**
  * An XBee communications endpoint service using the Interactive Spaces XBee
@@ -33,23 +29,8 @@ import java.util.Map;
  *
  * @author Keith M. Hughes s
  */
-public class InteractiveSpacesXBeeCommunicationEndpointService implements
+public class InteractiveSpacesXBeeCommunicationEndpointService extends BaseSupportedService implements
     XBeeCommunicationEndpointService {
-
-  /**
-   * Space environment for this service.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
 
   @Override
   public String getName() {
@@ -57,27 +38,11 @@ public class InteractiveSpacesXBeeCommunicationEndpointService implements
   }
 
   @Override
-  public void startup() {
-    // Nothing to do yet.
-  }
-
-  @Override
-  public void shutdown() {
-    // Nothing to do yet.
-  }
-
-  @Override
   public XBeeCommunicationEndpoint newXBeeCommunicationEndpoint(String portName, Log log) {
     SerialCommunicationEndpointService serialService =
-        spaceEnvironment.getServiceRegistry().getRequiredService(
-            SerialCommunicationEndpointService.SERVICE_NAME);
+        getSpaceEnvironment().getServiceRegistry().getRequiredService(SerialCommunicationEndpointService.SERVICE_NAME);
 
-    return new InteractiveSpacesXBeeCommunicationEndpoint(
-        serialService.newSerialEndpoint(portName), spaceEnvironment.getExecutorService(), log);
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
+    return new InteractiveSpacesXBeeCommunicationEndpoint(serialService.newSerialEndpoint(portName),
+        getSpaceEnvironment().getExecutorService(), log);
   }
 }

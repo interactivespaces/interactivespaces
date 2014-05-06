@@ -17,10 +17,11 @@
 package interactivespaces.service.core.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
+import interactivespaces.service.comm.network.client.internal.netty.NettyTcpClientNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.network.client.internal.netty.NettyUdpClientNetworkCommunicationEndpointService;
+import interactivespaces.service.comm.network.server.internal.netty.NettyTcpServerNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.network.server.internal.netty.NettyUdpServerNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
 import interactivespaces.service.control.opensoundcontrol.internal.InteractiveSpacesOpenSoundControlClientCommunicationEndpointService;
 
 /**
@@ -30,39 +31,18 @@ import interactivespaces.service.control.opensoundcontrol.internal.InteractiveSp
  */
 public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
-  /**
-   * The XBee service created by this bundle.
-   */
-  private InteractiveSpacesXBeeCommunicationEndpointService xbeeCommEndpointService;
-
-  /**
-   * UDP Client service
-   */
-  private NettyUdpClientNetworkCommunicationEndpointService udpClientService;
-
-  /**
-   * UDP Client service
-   */
-  private NettyUdpServerNetworkCommunicationEndpointService udpServerService;
-
-  /**
-   * Open Sound Control service
-   */
-  private OpenSoundControlClientCommunicationEndpointService oscService;
-
   @Override
   protected void allRequiredServicesAvailable() {
-    xbeeCommEndpointService = new InteractiveSpacesXBeeCommunicationEndpointService();
+    registerNewInteractiveSpacesService(new InteractiveSpacesXBeeCommunicationEndpointService());
 
-    registerNewInteractiveSpacesService(xbeeCommEndpointService);
+    registerNewInteractiveSpacesService(new NettyUdpClientNetworkCommunicationEndpointService());
 
-    udpClientService = new NettyUdpClientNetworkCommunicationEndpointService();
-    registerNewInteractiveSpacesService(udpClientService);
+    registerNewInteractiveSpacesService(new NettyUdpServerNetworkCommunicationEndpointService());
 
-    udpServerService = new NettyUdpServerNetworkCommunicationEndpointService();
-    registerNewInteractiveSpacesService(udpServerService);
+    registerNewInteractiveSpacesService(new NettyTcpClientNetworkCommunicationEndpointService());
 
-    oscService = new InteractiveSpacesOpenSoundControlClientCommunicationEndpointService();
-    registerNewInteractiveSpacesService(oscService);
+    registerNewInteractiveSpacesService(new NettyTcpServerNetworkCommunicationEndpointService());
+
+    registerNewInteractiveSpacesService(new InteractiveSpacesOpenSoundControlClientCommunicationEndpointService());
   }
 }

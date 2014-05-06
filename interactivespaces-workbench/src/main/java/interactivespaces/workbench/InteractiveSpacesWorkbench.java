@@ -466,8 +466,7 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(getControllerDirectory(),
-            InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA)
+        new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT)
             .listFiles(new FilenameFilter() {
 
               @Override

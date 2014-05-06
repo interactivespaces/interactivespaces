@@ -17,11 +17,14 @@
 package interactivespaces.service;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A simple implementation of the {@link ServiceRegistry}.
@@ -36,16 +39,22 @@ public class SimpleServiceRegistry implements ServiceRegistry {
   private Map<String, ServiceEntry> services = Maps.newHashMap();
 
   /**
-   * The space environment for services
+   * The space environment for services.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * Construct a new registry.
+   *
+   * @param spaceEnvironment
+   *          the space environment to use
+   */
   public SimpleServiceRegistry(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public void registerService(Service service) {
+  public synchronized void registerService(Service service) {
 
     // TODO(keith): Support multiple services with the same name of the
     // service.
@@ -53,19 +62,29 @@ public class SimpleServiceRegistry implements ServiceRegistry {
 
     service.setSpaceEnvironment(spaceEnvironment);
 
-    spaceEnvironment.getLog().info(
-        String.format("Service registered with name %s", service.getName()));
+    spaceEnvironment.getLog().info(String.format("Service registered with name %s", service.getName()));
   }
 
   @Override
-  public void unregisterService(Service service) {
-    spaceEnvironment.getLog().info(
-        String.format("Service unregistering with name %s", service.getName()));
+  public synchronized void unregisterService(Service service) {
+    spaceEnvironment.getLog().info(String.format("Service unregistering with name %s", service.getName()));
     services.remove(service.getName());
   }
 
   @Override
-  public <T extends Service> T getService(String name) {
+  public synchronized Set<ServiceDescription> getAllServiceDescriptions() {
+    Set<ServiceDescription> allDescriptions = Sets.newHashSet();
+
+    // TODO(keith): Cache these as services are registered and unregistered.
+    for (ServiceEntry entry : services.values()) {
+      allDescriptions.add(entry.getService().getServiceDescription());
+    }
+
+    return allDescriptions;
+  }
+
+  @Override
+  public synchronized <T extends Service> T getService(String name) {
     ServiceEntry entry = services.get(name);
     if (entry != null) {
       @SuppressWarnings("unchecked")
@@ -78,7 +97,7 @@ public class SimpleServiceRegistry implements ServiceRegistry {
   }
 
   @Override
-  public <T extends Service> T getRequiredService(String name) {
+  public synchronized <T extends Service> T getRequiredService(String name) throws InteractiveSpacesException {
     ServiceEntry entry = services.get(name);
     if (entry != null) {
       @SuppressWarnings("unchecked")
@@ -86,7 +105,7 @@ public class SimpleServiceRegistry implements ServiceRegistry {
 
       return service;
     } else {
-      throw new InteractiveSpacesException(String.format("No service found with name %s", name));
+      throw new SimpleInteractiveSpacesException(String.format("No service found with name %s", name));
     }
   }
 
@@ -107,12 +126,22 @@ public class SimpleServiceRegistry implements ServiceRegistry {
      */
     private Map<String, Object> metadata;
 
+    /**
+     * Construct a new entry.
+     *
+     * @param service
+     *          the service
+     * @param metadata
+     *          any specialized metadata for the service
+     */
     public ServiceEntry(Service service, Map<String, Object> metadata) {
       this.service = service;
       this.metadata = metadata;
     }
 
     /**
+     * Get the service for this entry.
+     *
      * @return the service
      */
     public Service getService() {
@@ -120,11 +149,12 @@ public class SimpleServiceRegistry implements ServiceRegistry {
     }
 
     /**
+     * Get the metadata for this entry.
+     *
      * @return the metadata
      */
     public Map<String, Object> getMetadata() {
       return metadata;
     }
   }
-
 }

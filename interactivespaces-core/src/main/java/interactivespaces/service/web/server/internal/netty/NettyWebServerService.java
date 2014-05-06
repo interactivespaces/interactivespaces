@@ -16,15 +16,12 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
-import interactivespaces.service.web.server.internal.AbstractWebServerService;
+import interactivespaces.service.web.server.internal.BaseWebServerService;
 
 import org.apache.commons.logging.Log;
 
-import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -32,17 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class NettyWebServerService extends AbstractWebServerService {
-
-  /**
-   * The metadata for the service.
-   */
-  private Map<String, Object> metadata = Maps.newHashMap();
-
-  @Override
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
+public class NettyWebServerService extends BaseWebServerService {
 
   @Override
   public String getName() {

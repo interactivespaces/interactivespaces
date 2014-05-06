@@ -47,7 +47,8 @@ public class ImageOpenCvVisionFaceDetectActivity extends BaseRoutableRosActivity
   /**
    * Location in the controller filesystem for obtaining the classifiers.
    */
-  public static final String CASCADE_DATA_ROOT = "extras/interactivespaces.service.image.vision/data/haarcascades";
+  public static final String CASCADE_DATA_ROOT =
+      "extras/interactivespaces.service.image.vision.opencv/data/haarcascades";
 
   /**
    * Route channel to write on.

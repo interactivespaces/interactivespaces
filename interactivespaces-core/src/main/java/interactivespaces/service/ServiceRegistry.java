@@ -18,6 +18,8 @@ package interactivespaces.service;
 
 import interactivespaces.InteractiveSpacesException;
 
+import java.util.Set;
+
 /**
  * A registry of services which can be used.
  *
@@ -45,19 +47,30 @@ public interface ServiceRegistry {
   void unregisterService(Service service);
 
   /**
+   * Get all the service descriptions for all registered services.
+   *
+   * @return all the service descriptions for all registered services
+   */
+  Set<ServiceDescription> getAllServiceDescriptions();
+
+  /**
    * Get a given service from the registry.
    *
+   * @param <T>
+   *          type of the service the name of the desired service
    * @param name
    *          the name of the desired service
    *
    * @return the requested service, or {@code null} if there is no such service
-   *         registered
+   *         registered with the specified name
    */
   <T extends Service> T getService(String name);
 
   /**
    * Get a required service from the registry.
    *
+   * @param <T>
+   *          type of the service
    * @param name
    *          the name of the desired service
    *
@@ -66,5 +79,5 @@ public interface ServiceRegistry {
    * @throws InteractiveSpacesException
    *           no service with the given name was found
    */
-  <T extends Service> T getRequiredService(String name);
+  <T extends Service> T getRequiredService(String name) throws InteractiveSpacesException;
 }

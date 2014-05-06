@@ -17,35 +17,12 @@ dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-interaction')
-  
-  compile files("${project.getProperty('opencv.home')}/bin/opencv-247.jar")
-  
+
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
-
-task copyResources(type: Copy) {
-  from 'src/main/resources/extras'
-  into 'build/staging/controller/extras'
-}
-
-task copyExtrasJars(type: Copy) {
-  from "${project.getProperty('opencv.home')}/bin"
-  into 'build/staging/controller/extras/interactivespaces.service.image.vision/jars'
-  include '**/*.jar'
-}
-
-task copyExtrasNativeLibs(type: Copy) {
-  from "${project.getProperty('opencv.home')}/lib"
-  into 'build/staging/controller/extras/interactivespaces.service.image.vision/native/linux_x64'
-  exclude '**/*.a'
-}
-
-task copyExtraComponents(dependsOn: [copyResources, copyExtrasNativeLibs, copyExtrasJars])
-
-install.dependsOn.add copyExtraComponents
 
 jar {
   manifest {

@@ -40,6 +40,12 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
   public static final String PROPERTY_ANDROID_SDK_HOME = "android.sdk.home";
 
   /**
+   * The configuration property name for the buildtools to use, relative to
+   * {@link #PROPERTY_ANDROID_SDK_HOME}.
+   */
+  public static final String PROPERTY_ANDROID_SDK_BUILDTOOLS = "android.buildtools";
+
+  /**
    * The configuration property name for the Android platform version to use.
    */
   public static final String PROPERTY_ANDROID_PLATFORM = "android.platform";
@@ -64,9 +70,10 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
 
   @Override
   public void postProcessJar(ProjectBuildContext context, File jarFile) {
+    Configuration configuration = context.getProject().getConfiguration();
     String platformToolsDirectory =
-        context.getProject().getConfiguration().getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME)
-            + "/platform-tools/";
+        configuration.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/"
+            + configuration.getRequiredPropertyString(PROPERTY_ANDROID_SDK_BUILDTOOLS) + "/";
 
     List<String> dxCommand = Lists.newArrayList();
     dxCommand.add(platformToolsDirectory + "dx");

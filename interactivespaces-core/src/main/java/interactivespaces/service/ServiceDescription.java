@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,16 +16,14 @@
 
 package interactivespaces.service;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
-
 import java.util.Map;
 
 /**
- * An Interactive Spaces service.
+ * A description of a {@link Service}.
  *
  * @author Keith M. Hughes
  */
-public interface Service {
+public interface ServiceDescription {
 
   /**
    * Get the name of the service.
@@ -37,22 +35,7 @@ public interface Service {
   /**
    * Get the metadata for the service.
    *
-   * @return the metadata
+   * @return the metadata for the service
    */
   Map<String, Object> getMetadata();
-
-  /**
-   * Get the service description for this service.
-   *
-   * @return the service description for this service
-   */
-  ServiceDescription getServiceDescription();
-
-  /**
-   * Set the space environment for the service.
-   *
-   * @param spaceEnvironment
-   *          the environment to use
-   */
-  void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment);
 }

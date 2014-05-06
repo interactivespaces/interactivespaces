@@ -16,36 +16,26 @@
 
 package interactivespaces.service.web.server.internal;
 
+import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
-import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import java.util.HashMap;
+import com.google.common.collect.Maps;
+
 import java.util.Map;
 
 /**
- * Support for creating an instance of a {@link NettyWebServerService}.
+ * Support for creating an instance of a {@link WebServerService}.
  *
  * @author Keith M. Hughes
  */
-public abstract class AbstractWebServerService implements WebServerService {
+public abstract class BaseWebServerService extends BaseSupportedService implements WebServerService {
 
   /**
    * Map from server name to server.
    */
-  private Map<String, NettyWebServer> servers = new HashMap<String, NettyWebServer>();
-
-  /**
-   * Space environment for the web servers.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  @Override
-  public void startup() {
-    // Nothing to do right now.
-  }
+  private Map<String, NettyWebServer> servers = Maps.newHashMap();
 
   @Override
   public void shutdown() {
@@ -69,19 +59,5 @@ public abstract class AbstractWebServerService implements WebServerService {
 
       servers.remove(serverName);
     }
-  }
-
-  @Override
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
-  }
-
-  /**
-   * Get the space environment used by this service.
-   *
-   * @return the space environment
-   */
-  public InteractiveSpacesEnvironment getSpaceEnvironment() {
-    return spaceEnvironment;
   }
 }

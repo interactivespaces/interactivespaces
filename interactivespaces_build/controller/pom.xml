@@ -692,6 +692,14 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>interactivespaces</groupId>
+                  <artifactId>interactivespaces-service-image-vision-opencv</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.vision.opencv</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>interactivespaces</groupId>
                   <artifactId>interactivespaces-service-image-depth</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>

@@ -34,7 +34,7 @@ ${DO_CMD} rm ${CONTAINER_LIB_SYSTEM_JAVA}/*.jar
 ${DO_CMD} rm ${CONTAINER}/interactivespaces-launcher-*.jar
 
 if [ ${CONTAINER_TYPE} == "controller" ]; then
-  ${DO_CMD} rm ${CONTAINER_EXTRAS}/*
+  ${DO_CMD} rm -fR ${CONTAINER_EXTRAS}/*
 fi
 
 if [ ${CONTAINER_TYPE} == "workbench" ]; then

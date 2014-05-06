@@ -67,8 +67,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
   /**
    * The command for shutting down all space controllers.
    */
-  public static final String COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL =
-      "space-controllers-shutdown-all";
+  public static final String COMMAND_SPACE_CONTROLLERS_SHUTDOWN_ALL = "space-controllers-shutdown-all";
 
   /**
    * The command for shutting down all activities on all space controllers.
@@ -79,14 +78,22 @@ public class MasterFileControl implements DirectoryWatcherListener {
   /**
    * The command for starting up a live activity group.
    */
-  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP =
-      "live-activity-group-startup-";
+  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP = "live-activity-group-startup-";
 
   /**
    * The command for activating up a live activity group.
    */
-  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE =
-      "live-activity-group-activate-";
+  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE = "live-activity-group-activate-";
+
+  /**
+   * The command for shutting down a live activity group.
+   */
+  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_SHUTDOWN = "live-activity-group-shutdown-";
+
+  /**
+   * The command for activating up a live activity group.
+   */
+  public static final String COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_DEACTIVATE = "live-activity-group-deactivate-";
 
   /**
    * The command for starting up a space.
@@ -94,9 +101,19 @@ public class MasterFileControl implements DirectoryWatcherListener {
   public static final String COMMAND_PREFIX_SPACE_STARTUP = "space-startup-";
 
   /**
+   * The command for shutting down a space.
+   */
+  public static final String COMMAND_PREFIX_SPACE_SHUTDOWN = "space-shutdown-";
+
+  /**
    * The command for activating up a space.
    */
   public static final String COMMAND_PREFIX_SPACE_ACTIVATE = "space-activate-";
+
+  /**
+   * The command for deactivating up a space.
+   */
+  public static final String COMMAND_PREFIX_SPACE_DEACTIVATE = "space-deactivate-";
 
   /**
    * The command for running a script.
@@ -142,8 +159,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
    * Start up the controller.
    */
   public void startup() {
-    File controlDirectory =
-        new File(spaceEnvironment.getFilesystem().getInstallDirectory(), FOLDER_RUN_CONTROL);
+    File controlDirectory = new File(spaceEnvironment.getFilesystem().getInstallDirectory(), FOLDER_RUN_CONTROL);
     watcher = new SimpleDirectoryWatcher(true);
     watcher.addDirectory(controlDirectory);
     watcher.addDirectoryWatcherListener(this);
@@ -154,8 +170,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
     watcher.startup(spaceEnvironment, DIRECTORY_SCAN_TIME, TimeUnit.SECONDS);
 
     spaceEnvironment.getLog().info(
-        String.format("File control of master started, watching %s",
-            controlDirectory.getAbsolutePath()));
+        String.format("File control of master started, watching %s", controlDirectory.getAbsolutePath()));
   }
 
   /**
@@ -188,8 +203,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
    *          the command to be executed
    */
   void handleCommand(String command) {
-    spaceEnvironment.getLog().info(
-        String.format("Master file control received command %s", command));
+    spaceEnvironment.getLog().info(String.format("Master file control received command %s", command));
 
     try {
       if (COMMAND_SHUTDOWN.equalsIgnoreCase(command)) {
@@ -204,44 +218,59 @@ public class MasterFileControl implements DirectoryWatcherListener {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_STARTUP.length());
 
         masterApiSpaceControllerManager.startupLiveActivityGroup(id);
+      } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_SHUTDOWN)) {
+        String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_SHUTDOWN.length());
+
+        masterApiSpaceControllerManager.shutdownLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE.length());
 
         masterApiSpaceControllerManager.activateLiveActivityGroup(id);
+      } else if (command.startsWith(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_DEACTIVATE)) {
+        String id = command.substring(COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_DEACTIVATE.length());
+
+        masterApiSpaceControllerManager.deactivateLiveActivityGroup(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_STARTUP)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_STARTUP.length());
 
         masterApiSpaceControllerManager.startupSpace(id);
+      } else if (command.startsWith(COMMAND_PREFIX_SPACE_SHUTDOWN)) {
+        String id = command.substring(COMMAND_PREFIX_SPACE_SHUTDOWN.length());
+
+        masterApiSpaceControllerManager.shutdownSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SPACE_ACTIVATE)) {
         String id = command.substring(COMMAND_PREFIX_SPACE_ACTIVATE.length());
 
         masterApiSpaceControllerManager.activateSpace(id);
+      } else if (command.startsWith(COMMAND_PREFIX_SPACE_DEACTIVATE)) {
+        String id = command.substring(COMMAND_PREFIX_SPACE_DEACTIVATE.length());
+
+        masterApiSpaceControllerManager.deactivateSpace(id);
       } else if (command.startsWith(COMMAND_PREFIX_SCRIPT_RUN)) {
         String id = command.substring(COMMAND_PREFIX_SCRIPT_RUN.length());
 
         masterApiAutomationManager.runScript(id);
       } else {
-        spaceEnvironment.getLog().warn(
-            String.format("Unknown command to master file control %s", command));
+        spaceEnvironment.getLog().warn(String.format("Unknown command to master file control %s", command));
       }
     } catch (Exception e) {
-      spaceEnvironment.getLog().error(
-          String.format("Exception while executing master file control %s", command), e);
+      spaceEnvironment.getLog().error(String.format("Exception while executing master file control %s", command), e);
     }
   }
 
   /**
-   * Calculate and update the hashes for all current activities. This is necessary for working with
-   * legacy systems that have already uploaded activities.
+   * Calculate and update the hashes for all current activities. This is
+   * necessary for working with legacy systems that have already uploaded
+   * activities.
    *
    * TODO(peringknife): Remove this after all centers have been upgraded.
    */
   private void calculateActivityHashes() {
-     List<Activity> activities = activityRepository.getAllActivities();
-     for (Activity activity : activities) {
-       activityRepositoryManager.calculateBundleContentHash(activity);
-       activityRepository.saveActivity(activity);
-     }
+    List<Activity> activities = activityRepository.getAllActivities();
+    for (Activity activity : activities) {
+      activityRepositoryManager.calculateBundleContentHash(activity);
+      activityRepository.saveActivity(activity);
+    }
   }
 
   /**

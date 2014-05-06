@@ -40,19 +40,33 @@ the Master knows about.
 Creating a file called `space-controllers-shutdown-all-activities` will shut down all Live 
 Activities running on all Space Controllers the Master knows about.
 
-Creating a file called `live-activity-group-startup-id` start up a Live Activity Group whose ID
+Creating a file called `live-activity-group-startup-id` will start up a Live Activity Group whose ID
 is `id`. For example, `live-activity-group-startup-652` will start up Live
 Activity Group `652`.
 
-Creating a file called `live-activity-group-activate-id` start up a Live Activity Group whose ID
+Creating a file called `live-activity-group-shutdown-id` will shut down a Live Activity Group whose ID
+is `id`. For example, `live-activity-group-shutdown-652` will shut down Live
+Activity Group `652`.
+
+Creating a file called `live-activity-group-activate-id` will activate a Live Activity Group whose ID
 is `id`. For example, `live-activity-group-activate-652` will activate Live
 Activity Group `652`.
 
-Creating a file called `space-startup-id` start up a Space whose ID
+Creating a file called `live-activity-group-deactivate-id` will deactivate a Live Activity Group whose ID
+is `id`. For example, `live-activity-group-deactivate-652` will deactivate Live
+Activity Group `652`.
+
+Creating a file called `space-startup-id` will start up a Space whose ID
 is `id`. For example, `space-startup-652` will start up Space `652`.
 
-Creating a file called `space-activate-id` start up a Space whose ID
+Creating a file called `space-shutdown-id` will shut down a Space whose ID
+is `id`. For example, `space-shutdown-652` will shut down Space `652`.
+
+Creating a file called `space-activate-id` will activate a Space whose ID
 is `id`. For example, `space-activate-652` will activate Space `652`.
+
+Creating a file called `space-deactivate-id` will deactivate a Space whose ID
+is `id`. For example, `space-activate-652` will deactivate Space `652`.
 
 Creating a file called `script-run-id` run a script whose ID
 is `id`. For example, `script-run-652` will run the script with ID `652`.

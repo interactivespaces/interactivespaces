@@ -1,4 +1,4 @@
-path:extras/opencv/jars/opencv-247.jar
+path:extras/interactivespaces.service.image.vision.opencv/jars/opencv-247.jar
 loadlibrary:opencv_java247
 package:org.opencv
 package:org.opencv.core

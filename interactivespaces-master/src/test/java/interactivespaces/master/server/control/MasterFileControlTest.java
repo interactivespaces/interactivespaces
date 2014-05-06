@@ -110,6 +110,17 @@ public class MasterFileControlTest {
   }
 
   /**
+   * Test shutting down a live activity group.
+   */
+  @Test
+  public void testShutdownLiveActivityCall() {
+    String id = "123454321";
+    fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_SHUTDOWN + id);
+
+    verify(masterApiControllerManager, times(1)).shutdownLiveActivityGroup(id);
+  }
+
+  /**
    * Test activating a live activity group.
    */
   @Test
@@ -118,6 +129,17 @@ public class MasterFileControlTest {
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_ACTIVATE + id);
 
     verify(masterApiControllerManager, times(1)).activateLiveActivityGroup(id);
+  }
+
+  /**
+   * Test deactivating a live activity group.
+   */
+  @Test
+  public void testDeactivateLiveActivityCall() {
+    String id = "123454321";
+    fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_LIVE_ACTIVITY_GROUP_DEACTIVATE + id);
+
+    verify(masterApiControllerManager, times(1)).deactivateLiveActivityGroup(id);
   }
 
   /**
@@ -132,6 +154,17 @@ public class MasterFileControlTest {
   }
 
   /**
+   * Test shut down a space.
+   */
+  @Test
+  public void testShutdownSpaceCall() {
+    String id = "123454321";
+    fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SPACE_SHUTDOWN + id);
+
+    verify(masterApiControllerManager, times(1)).shutdownSpace(id);
+  }
+
+  /**
    * Test activating a space.
    */
   @Test
@@ -140,6 +173,17 @@ public class MasterFileControlTest {
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SPACE_ACTIVATE + id);
 
     verify(masterApiControllerManager, times(1)).activateSpace(id);
+  }
+
+  /**
+   * Test deactivating a space.
+   */
+  @Test
+  public void testDectivateSpaceCall() {
+    String id = "123454321";
+    fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SPACE_DEACTIVATE + id);
+
+    verify(masterApiControllerManager, times(1)).deactivateSpace(id);
   }
 
   /**
