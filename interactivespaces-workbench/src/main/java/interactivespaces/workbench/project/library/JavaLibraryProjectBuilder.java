@@ -55,7 +55,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
     File compilationFolder = getOutputDirectory(buildDirectory);
     File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
 
-    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, context)) {
+    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getOsgiInfo(), context)) {
       return runTests(jarDestinationFile, context);
     }
 
@@ -87,8 +87,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
    * @return the output directory for building
    */
   private File getOutputDirectory(File buildDirectory) {
-    File outputDirectory =
-        new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    File outputDirectory = new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;

@@ -32,9 +32,12 @@ public interface ProjectContext {
   /**
    * Get the project being built.
    *
+   * @param <T>
+   *          type of the project
+   *
    * @return the project being built
    */
-  Project getProject();
+  <T extends Project> T getProject();
 
   /**
    * Get the workbench the project is being built under.
@@ -54,7 +57,8 @@ public interface ProjectContext {
   <T extends ProjectType> T getProjectType();
 
   /**
-   * Return the appropriate file path depending on evaluate and default root directory.
+   * Return the appropriate file path depending on evaluate and default root
+   * directory.
    *
    * @param rootDirectory
    *          root directory to use in case of default
@@ -66,12 +70,14 @@ public interface ProjectContext {
   File getProjectTarget(File rootDirectory, String target);
 
   /**
-   * The resource source map is a map that can be used at runtime to link project files
-   * back to their original source, for enabling live editing of javascript or other resources.
-   * This map is constructed during the build process (by adding to the map), and then can be
-   * written to a file or other construct as part of the resulting build.
+   * The resource source map is a map that can be used at runtime to link
+   * project files back to their original source, for enabling live editing of
+   * javascript or other resources. This map is constructed during the build
+   * process (by adding to the map), and then can be written to a file or other
+   * construct as part of the resulting build.
    *
-   * @return mutable resource source map, stored as {dest, source} key/value pairs
+   * @return mutable resource source map, stored as {dest, source} key/value
+   *         pairs
    */
   Map<File, File> getResourceSourceMap();
 }

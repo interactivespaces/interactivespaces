@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project.jdom;
 
-import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
@@ -30,6 +29,10 @@ import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
 import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+import interactivespaces.workbench.project.library.LibraryProjectConstituent;
+
+import com.google.common.collect.Maps;
+
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -70,7 +73,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
     addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
-  }
+    addConstituentType(new LibraryProjectConstituent.LibraryProjectBuilderFactory());
+ }
 
   /**
    * The name of the project.
@@ -271,6 +275,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       for (Element prototype : prototypeChain) {
         configureProjectFromElement(project, prototype);
       }
+
       // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
       project.getAttributes().remove(JdomPrototypeProcessor.PROTOTYPE_NAME_ATTRIBUTE);
     }
@@ -299,6 +304,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     project.addExtraConstituents(getIndividualConstituent(
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
+    project.addExtraConstituents(getIndividualConstituent(
+        projectElement.getChild(LibraryProjectConstituent.LIBRARY_ELEMENT), project));
 
     getDeployments(project, projectElement);
   }

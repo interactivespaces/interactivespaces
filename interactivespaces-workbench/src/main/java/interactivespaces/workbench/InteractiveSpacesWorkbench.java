@@ -414,7 +414,10 @@ public class InteractiveSpacesWorkbench {
           "Controller directory %s configured by %s does not appear to be valid.", controllerDirectory,
           CONFIGURATION_CONTROLLER_BASEDIR));
     }
+
+    // TODO(keith): Get these in a file somewhere.
     classpath.add(new File(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
+    classpath.add(new File(javaSystemDirectory, "org.apache.felix.framework-4.2.1.jar"));
 
     addControllerExtensionsClasspath(classpath);
 

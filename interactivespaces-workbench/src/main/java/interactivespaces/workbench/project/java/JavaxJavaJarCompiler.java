@@ -23,7 +23,9 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.java.OsgiInfo.ImportPackage;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
@@ -68,8 +70,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   private final ProjectJavaCompiler projectCompiler = new JavaxProjectJavaCompiler();
 
   @Override
-  public boolean buildJar(File jarDestinationFile, File compilationFolder,
-      JavaProjectExtension extensions, ProjectBuildContext context) {
+  public boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
+      OsgiInfo osgiInfo, ProjectBuildContext context) {
     try {
       JavaProjectType projectType = context.getProjectType();
 
@@ -80,16 +82,24 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
       List<File> compilationFiles = projectCompiler.getCompilationFiles(mainSourceDirectory);
       if (!project.getSources().isEmpty()) {
-        System.out.format("Found %d files for main source directory %s\n",
-            compilationFiles.size(), mainSourceDirectory.getAbsolutePath());
+        context
+            .getWorkbench()
+            .getLog()
+            .info(
+                String.format("Found %d files for main source directory %s\n", compilationFiles.size(),
+                    mainSourceDirectory.getAbsolutePath()));
       }
 
       for (ProjectConstituent constituent : project.getSources()) {
         File addedSource = context.getProjectTarget(project.getBaseDirectory(), constituent.getSourceDirectory());
         List<File> additionalSources = projectCompiler.getCompilationFiles(addedSource);
         compilationFiles.addAll(additionalSources);
-        System.out.format("Found %d files in added source directory %s\n",
-            additionalSources.size(), addedSource.getAbsolutePath());
+        context
+            .getWorkbench()
+            .getLog()
+            .info(
+                String.format("Found %d files in added source directory %s\n", additionalSources.size(),
+                    addedSource.getAbsolutePath()));
       }
 
       if (compilationFiles.isEmpty()) {
@@ -99,7 +109,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
       if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
-        createJarFile(project, jarDestinationFile, compilationFolder, classpath);
+        createJarFile(project, jarDestinationFile, compilationFolder, classpath, osgiInfo);
 
         if (extensions != null) {
           extensions.postProcessJar(context, jarDestinationFile);
@@ -129,13 +139,15 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          folder that the Java class files were compiled into
    * @param classpath
    *          class-path to use for jar manifest file
+   * @param osgiInfo
+   *          the OSGi info for the build
    */
-  private void createJarFile(Project project, File jarDestinationFile, File compilationFolder,
-      List<File> classpath) {
+  private void createJarFile(Project project, File jarDestinationFile, File compilationFolder, List<File> classpath,
+      OsgiInfo osgiInfo) {
     // Create a buffer for reading the files
     byte[] buf = new byte[IO_BUFFER_SIZE];
 
-    Manifest manifest = createManifest(project, compilationFolder, classpath);
+    Manifest manifest = createManifest(project, compilationFolder, classpath, osgiInfo);
     JarOutputStream out = null;
     try {
       // Create the ZIP file
@@ -162,10 +174,12 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          folder where the Java files were compiled to
    * @param classpath
    *          class-path to use for jar manifest file
+   * @param osgiInfo
+   *          any OSGi info for the build
    *
    * @return the manifest
    */
-  private Manifest createManifest(Project project, File compilationFolder, List<File> classpath) {
+  private Manifest createManifest(Project project, File compilationFolder, List<File> classpath, OsgiInfo osgiInfo) {
     // Map Java package names which are supplied by project dependencies to
     // those dependencies.
     Map<String, ProjectDependency> dependencyInfo = Maps.newHashMap();
@@ -183,12 +197,38 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       Version version = project.getVersion();
       analyzer.setProperty(Constants.BUNDLE_VERSION, version.toString());
 
-      // This will make sure all packages from the activity will export and will
-      // all be given the bundle version.
-      analyzer.setProperty(Constants.EXPORT_PACKAGE, "*;version=\"" + version + "\"");
+      String activatorClassname = osgiInfo.getActivatorClassname();
+      if (activatorClassname != null && !activatorClassname.trim().isEmpty()) {
+        analyzer.setProperty(Constants.BUNDLE_ACTIVATOR, activatorClassname);
+      }
+
+      List<String> exportPackages = Lists.newArrayList();
+
+      List<String> privatePackages = osgiInfo.getPrivatePackages();
+      if (!privatePackages.isEmpty()) {
+        // All private packages should be added as not being in the public
+        // packages. For some reason BND wants the NOT for private packages
+        // added to the export.
+        for (String privatePackage : privatePackages) {
+          exportPackages.add("!" + privatePackage);
+        }
+        analyzer.setProperty(Constants.PRIVATE_PACKAGE, Joiner.on(",").join(privatePackages));
+      }
+
+      // At this point exportPackages will have entries to avoid exporting
+      // private packages. This addition will make sure all packages from the
+      // activity will export and will all be given the bundle version.
+      exportPackages.add("*;version=\"" + version + "\"");
+      analyzer.setProperty(Constants.EXPORT_PACKAGE, Joiner.on(",").join(exportPackages));
 
       // This will make sure any imports we miss will be added to the imports.
-      analyzer.setProperty(Constants.IMPORT_PACKAGE, "*");
+      List<String> importPackages = Lists.newArrayList();
+      for (ImportPackage importPackage : osgiInfo.getImportPackages()) {
+        importPackages.add(importPackage.getOsgiHeader());
+      }
+      importPackages.add("*");
+      analyzer.setProperty(Constants.IMPORT_PACKAGE, Joiner.on(",").join(importPackages));
+
       analyzer.analyze();
 
       correctDependencyVersions(dependencyInfo, analyzer);
@@ -212,8 +252,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    * @param analyzer
    *          the analyzer for the bundle being created
    */
-  private void correctDependencyVersions(Map<String, ProjectDependency> dependencyInfo,
-      Analyzer analyzer) {
+  private void correctDependencyVersions(Map<String, ProjectDependency> dependencyInfo, Analyzer analyzer) {
     Map<String, Map<String, String>> importsInfo = analyzer.getImports();
     for (Entry<String, Map<String, String>> importInfo : importsInfo.entrySet()) {
       String importedPackageName = importInfo.getKey();
@@ -259,8 +298,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         if (analyze != null) {
           for (String pckage : analyze) {
             if (dependencyInfo.put(pckage, associatedDependency) != null) {
-              System.out.format("WARNING: Package %s found in multiple classpath entities\n",
-                  pckage);
+              System.out.format("WARNING: Package %s found in multiple classpath entities\n", pckage);
             }
           }
         }
@@ -280,10 +318,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    * @param parentPath
    *          path up to this point
    *
-   * @throws IOException for io access errors
+   * @throws IOException
+   *           for io access errors
    */
-  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream,
-      String parentPath) throws IOException {
+  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream, String parentPath)
+      throws IOException {
     File[] files = directory.listFiles();
     if (files == null || files.length == 0) {
       System.err.println("WARNING: No source files found in " + directory.getAbsolutePath());

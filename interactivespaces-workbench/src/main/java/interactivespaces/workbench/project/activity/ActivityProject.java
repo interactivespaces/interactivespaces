@@ -16,12 +16,13 @@
 
 package interactivespaces.workbench.project.activity;
 
-import com.google.common.collect.Lists;
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.java.JavaProjectType;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
@@ -84,7 +85,7 @@ public class ActivityProject extends Project {
   private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
 
   /**
-   * Configuration properies for the activity.
+   * Configuration properties for the activity.
    */
   private final List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
 
