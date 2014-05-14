@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,29 +14,24 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
-
-import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.process.LinuxNativeApplicationRunner;
+package interactivespaces.util.process;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link NativeActivityRunner} for Linux systems.
+ * A factory for creating native application runners.
  *
  * @author Keith M. Hughes
  */
-public class LinuxNativeActivityRunner extends LinuxNativeApplicationRunner implements NativeActivityRunner {
+public interface NativeApplicationRunnerFactory {
 
   /**
-   * Create a new activity runner for linux.
+   * Get a native app runner for the platform.
    *
-   * @param spaceEnvironment
-   *          environment to use
    * @param log
-   *          logger for logging
+   *          the log to use for the runner
+   *
+   * @return an appropriate activity runner for the current OS
    */
-  public LinuxNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
-  }
+  NativeApplicationRunner newPlatformNativeApplicationRunner(Log log);
 }

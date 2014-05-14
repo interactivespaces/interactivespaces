@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,29 +14,40 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
+package interactivespaces.util.process;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.process.LinuxNativeApplicationRunner;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link NativeActivityRunner} for Linux systems.
+ * A {@link NativeApplicationRunner} for Windows systems.
  *
  * @author Keith M. Hughes
  */
-public class LinuxNativeActivityRunner extends LinuxNativeApplicationRunner implements NativeActivityRunner {
+public class WindowsNativeApplicationRunner extends BaseNativeApplicationRunner {
 
   /**
-   * Create a new activity runner for linux.
+   * Tag this launcher identifies itself with.
+   */
+  public static final String OPERATING_SYSTEM_TAG = "windows";
+
+  /**
+   * Construct a new runner.
    *
    * @param spaceEnvironment
-   *          environment to use
+   *          the space environment for the runner
    * @param log
-   *          logger for logging
+   *          the logger to use
    */
-  public LinuxNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+  public WindowsNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
+  }
+
+  @Override
+  public boolean handleProcessExit(int exitValue, String[] command) {
+    getLog().info(String.format("Return value from process is %s for %s", UnixReturnValue.get(exitValue), command[0]));
+
+    return true;
   }
 }

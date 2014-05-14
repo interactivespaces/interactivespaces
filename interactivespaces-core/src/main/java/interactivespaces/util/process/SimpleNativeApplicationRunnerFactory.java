@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
+package interactivespaces.util.process;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SystemConfiguration;
@@ -23,11 +23,11 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import org.apache.commons.logging.Log;
 
 /**
- * A factory for receiving native activity launchers.
+ * A factory for receiving native application launchers.
  *
  * @author Keith M. Hughes
  */
-public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFactory {
+public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRunnerFactory {
 
   /**
    * The Interactive Spaces environment being run under.
@@ -40,20 +40,20 @@ public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFa
    * @param spaceEnvironment
    *          the space environment to use
    */
-  public SimpleNativeActivityRunnerFactory(InteractiveSpacesEnvironment spaceEnvironment) {
+  public SimpleNativeApplicationRunnerFactory(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public NativeActivityRunner newPlatformNativeActivityRunner(Log log) {
+  public NativeApplicationRunner newPlatformNativeApplicationRunner(Log log) {
     String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
-    if (LinuxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new LinuxNativeActivityRunner(spaceEnvironment, log);
-    } else if (OsxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new OsxNativeActivityRunner(spaceEnvironment, log);
-    } else if (WindowsNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new WindowsNativeActivityRunner(spaceEnvironment, log);
+    if (LinuxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+      return new LinuxNativeApplicationRunner(spaceEnvironment, log);
+    } else if (OsxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+      return new OsxNativeApplicationRunner(spaceEnvironment, log);
+    } else if (WindowsNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+      return new WindowsNativeApplicationRunner(spaceEnvironment, log);
     } else {
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);
     }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
+package interactivespaces.util.process;
 
 import com.google.common.collect.Maps;
 

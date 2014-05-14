@@ -16,6 +16,9 @@
 
 package interactivespaces.util.process;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import java.util.List;
 
 /**
@@ -30,15 +33,17 @@ public class NativeCommandsExecutor {
    *
    * @param commands
    *          a list of commands to run
+   *
+   * @throws InteractiveSpacesException
+   *           one of the commands failed
    */
-  public void executeCommands(List<List<String>> commands) {
+  public void executeCommands(List<List<String>> commands) throws InteractiveSpacesException {
     for (List<String> command : commands) {
       NativeCommandRunner runner = new NativeCommandRunner();
       runner.execute(command);
 
       if (!runner.isSuccess()) {
-        System.out.format("Command failed: %s\n", command);
-        break;
+        throw new SimpleInteractiveSpacesException(String.format("Command failed: %s", command));
       }
     }
   }

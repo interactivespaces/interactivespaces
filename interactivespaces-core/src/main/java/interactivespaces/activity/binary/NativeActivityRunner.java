@@ -16,11 +16,13 @@
 
 package interactivespaces.activity.binary;
 
+import interactivespaces.util.process.NativeApplicationRunner;
+
 /**
  * A launcher of activities native to the given system.
  *
  * <p>
- * The configuration needs a property with name {#ACTIVITYNAME} which gives the
+ * The configuration needs a property with name {#EXECUTABLE_PATHNAME} which gives the
  * full descriptor (e.g. path on a Linux system) to the application.
  *
  * @author Keith M. Hughes

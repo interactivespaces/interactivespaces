@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
+package interactivespaces.util.process;
 
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.Restartable;
@@ -34,15 +34,37 @@ import java.util.Map;
 public interface NativeApplicationRunner extends ManagedResource, Restartable {
 
   /**
+   * The escape character for the flags configuration.
+   */
+  char ESCAPE_CHARACTER = '\\';
+
+  /**
    * The name of the property which gives the fully qualified name for the
    * application.
    */
-  String ACTIVITYNAME = "activity";
+  String EXECUTABLE_PATHNAME = "executablePath";
 
   /**
    * A set of flags for the application.
    */
-  String FLAGS = "flags";
+  String EXECUTABLE_FLAGS = "executableFlags";
+
+  /**
+   * The name of the property which gives the fully qualified name for the
+   * application.
+   *
+   * @deprecated use {@link #EXECUTABLE_PATHNAME}
+   */
+  @Deprecated
+  String ACTIVITYNAME = EXECUTABLE_PATHNAME;
+
+  /**
+   * A set of flags for the application.
+   *
+   * @deprecated use {@link #EXECUTABLE_FLAGS}
+   */
+  @Deprecated
+  String FLAGS = EXECUTABLE_FLAGS;
 
   /**
    * Configure the launcher.

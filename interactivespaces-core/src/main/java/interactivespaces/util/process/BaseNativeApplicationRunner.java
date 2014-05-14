@@ -14,10 +14,11 @@
  * the License.
  */
 
-package interactivespaces.activity.binary;
+package interactivespaces.util.process;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -26,12 +27,12 @@ import interactivespaces.util.process.restart.RestartStrategyInstance;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -42,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
+public abstract class BaseNativeApplicationRunner implements NativeApplicationRunner {
 
   /**
    * The default number of milliseconds to attempt a restart.
@@ -135,7 +136,7 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
    * @param log
    *          logger for logging
    */
-  public BaseNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+  public BaseNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     this.spaceEnvironment = spaceEnvironment;
     this.log = log;
   }
@@ -144,14 +145,14 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
   public void configure(Map<String, Object> config) {
     this.config = config;
 
-    appName = (String) getConfig().get(ACTIVITYNAME);
+    appName = (String) getConfig().get(EXECUTABLE_PATHNAME);
     if (appName == null) {
-      throw new SimpleInteractiveSpacesException("Missing property " + ACTIVITYNAME);
+      throw new SimpleInteractiveSpacesException("Missing property " + EXECUTABLE_PATHNAME);
     }
 
-    commandFlags = (String) getConfig().get(FLAGS);
+    commandFlags = (String) getConfig().get(EXECUTABLE_FLAGS);
     if (commandFlags == null) {
-      throw new SimpleInteractiveSpacesException("Missing property " + FLAGS);
+      throw new SimpleInteractiveSpacesException("Missing property " + EXECUTABLE_FLAGS);
     }
   }
 
@@ -407,17 +408,42 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
    * @return the process command line
    */
   protected String[] getCommand() {
-    List<String> builder = new ArrayList<String>();
+    List<String> components = Lists.newArrayList();
 
-    builder.add(appName);
+    components.add(appName);
 
-    for (String arg : commandFlags.split("\\s")) {
-      builder.add(arg);
+    // Eat up intitial whitespace
+    int i = 0;
+    while (i < commandFlags.length() && Character.isWhitespace(commandFlags.charAt(i))) {
+      i++;
+    }
+
+    // Now collect the individual arguments. The escape character will always
+    // pass through the following character as part of the current token.
+    StringBuilder component = new StringBuilder();
+    for (; i < commandFlags.length(); i++) {
+      char ch = commandFlags.charAt(i);
+      if (Character.isWhitespace(ch)) {
+        if (component.length() != 0) {
+          components.add(component.toString());
+          component.setLength(0);
+        }
+      } else if (ch == ESCAPE_CHARACTER) {
+        i++;
+        if (i < commandFlags.length()) {
+          component.append(commandFlags.charAt(i));
+        }
+      } else {
+        component.append(ch);
+      }
+    }
+    if (component.length() != 0) {
+      components.add(component.toString());
     }
 
     // Build up the command line.
     for (Map.Entry<String, Object> entry : getConfig().entrySet()) {
-      if (ACTIVITYNAME.equals(entry.getKey()) || FLAGS.equals(entry.getKey())) {
+      if (EXECUTABLE_PATHNAME.equals(entry.getKey()) || EXECUTABLE_FLAGS.equals(entry.getKey())) {
         continue;
       }
 
@@ -427,10 +453,10 @@ public abstract class BaseNativeActivityRunner implements NativeActivityRunner {
         arg += "=" + value.toString();
       }
 
-      builder.add(arg);
+      components.add(arg);
     }
 
-    return builder.toArray(new String[builder.size()]);
+    return components.toArray(new String[components.size()]);
   }
 
   /**

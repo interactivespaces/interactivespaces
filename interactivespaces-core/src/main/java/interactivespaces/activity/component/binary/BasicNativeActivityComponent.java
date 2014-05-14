@@ -17,6 +17,7 @@
 package interactivespaces.activity.component.binary;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.binary.NativeActivityRunner;
@@ -105,7 +106,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
     if (activityFile.isAbsolute()) {
 
       if (!isAppAlowed(activityPath)) {
-        throw new InteractiveSpacesException(String.format("Not allowed to run %s", activityPath));
+        throw new SimpleInteractiveSpacesException(String.format("Not allowed to run %s", activityPath));
       }
     } else {
       ActivityFilesystem activityFilesystem = activity.getActivityFilesystem();
@@ -124,11 +125,11 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
       }
     }
 
-    appConfig.put(NativeActivityRunner.ACTIVITYNAME, activityFile.getAbsolutePath());
+    appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME, activityFile.getAbsolutePath());
 
     String commandFlags = configuration.getRequiredPropertyString(executableFlagsProperty + "." + os);
 
-    appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
+    appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
 
     nativeActivity = controller.getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
     nativeActivity.configure(appConfig);
@@ -173,11 +174,13 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   /**
    * Is the application file local to the application directory?
    *
+   * @param activityFilesystem
+   *          file system for the activity
    * @param applicationFile
    *          the application file being checked
    *
    * @return {@code true} if the file is local to the application install
-   *         directory.
+   *         directory
    */
   private boolean isLocalToActivityInstallDirectory(ActivityFilesystem activityFilesystem, File applicationFile) {
 
@@ -197,7 +200,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
    * @param applicationPath
    *          path to the application
    *
-   * @return
+   * @return {@code true} if allowed to run the app
    */
   private boolean isAppAlowed(String applicationPath) {
     // TODO(keith): Put a real check in here. May want a file containing

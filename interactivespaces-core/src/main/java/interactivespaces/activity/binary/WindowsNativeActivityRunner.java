@@ -17,6 +17,7 @@
 package interactivespaces.activity.binary;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.process.WindowsNativeApplicationRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -25,12 +26,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Keith M. Hughes
  */
-public class WindowsNativeActivityRunner extends BaseNativeActivityRunner {
-
-  /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "windows";
+public class WindowsNativeActivityRunner extends WindowsNativeApplicationRunner implements NativeActivityRunner {
 
   /**
    * Create a new activity runner for windows.
@@ -42,13 +38,5 @@ public class WindowsNativeActivityRunner extends BaseNativeActivityRunner {
    */
   public WindowsNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
-  }
-
-  @Override
-  public boolean handleProcessExit(int exitValue, String[] command) {
-    getLog().info(String.format("Return value from process is %s for %s",
-        UnixReturnValue.get(exitValue), command[0]));
-
-    return true;
   }
 }

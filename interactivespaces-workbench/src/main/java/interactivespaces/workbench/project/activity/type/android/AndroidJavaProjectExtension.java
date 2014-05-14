@@ -25,6 +25,7 @@ import interactivespaces.workbench.project.java.JavaProjectExtension;
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -75,17 +76,12 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
         configuration.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/"
             + configuration.getRequiredPropertyString(PROPERTY_ANDROID_SDK_BUILDTOOLS) + "/";
 
-    List<String> dxCommand = Lists.newArrayList();
-    dxCommand.add(platformToolsDirectory + "dx");
-    dxCommand.add("--dex");
-    dxCommand.add("--output=classes.dex");
-    dxCommand.add(jarFile.getAbsolutePath());
+    // TODO(keith): make configuration properties with the args interpolated in
+    List<String> dxCommand =
+        Arrays.asList(platformToolsDirectory + "dx", "--dex", "--output=classes.dex", jarFile.getAbsolutePath());
 
-    List<String> aaptCommand = Lists.newArrayList();
-    aaptCommand.add(platformToolsDirectory + "aapt");
-    aaptCommand.add("add");
-    aaptCommand.add(jarFile.getAbsolutePath());
-    aaptCommand.add("classes.dex");
+    List<String> aaptCommand =
+        Arrays.asList(platformToolsDirectory + "aapt", "add", jarFile.getAbsolutePath(), "classes.dex");
 
     @SuppressWarnings("unchecked")
     List<List<String>> commands = Lists.newArrayList(dxCommand, aaptCommand);

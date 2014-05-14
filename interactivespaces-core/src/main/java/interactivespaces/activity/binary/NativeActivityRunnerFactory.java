@@ -19,7 +19,7 @@ package interactivespaces.activity.binary;
 import org.apache.commons.logging.Log;
 
 /**
- * A factory for creating native app launchers.
+ * A factory for creating native activity launchers.
  *
  * @author Keith M. Hughes
  */
@@ -34,5 +34,4 @@ public interface NativeActivityRunnerFactory {
    * @return an appropriate activity runner for the current OS
    */
   NativeActivityRunner newPlatformNativeActivityRunner(Log log);
-
 }

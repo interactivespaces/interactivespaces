@@ -17,6 +17,7 @@
 package interactivespaces.activity.binary;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.process.OsxNativeApplicationRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -25,12 +26,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Keith M. Hughes
  */
-public class OsxNativeActivityRunner extends BaseNativeActivityRunner {
-
-  /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "osx";
+public class OsxNativeActivityRunner extends OsxNativeApplicationRunner implements NativeActivityRunner {
 
   /**
    * Create a new activity runner for osx.
@@ -42,19 +38,5 @@ public class OsxNativeActivityRunner extends BaseNativeActivityRunner {
    */
   public OsxNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
-  }
-
-  @Override
-  public boolean handleProcessExit(int exitValue, String[] commands) {
-    String returnValue = null;
-    UnixReturnValue unixReturnValue = UnixReturnValue.get(exitValue);
-    if (unixReturnValue != null) {
-      returnValue = unixReturnValue.toString();
-    } else {
-      returnValue = Integer.toString(exitValue);
-    }
-    getLog().info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
-
-    return true;
   }
 }

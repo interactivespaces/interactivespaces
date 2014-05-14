@@ -43,8 +43,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class FestivalSpeechSynthesisService extends BaseSupportedService implements
-    SpeechSynthesisService {
+public class FestivalSpeechSynthesisService extends BaseSupportedService implements SpeechSynthesisService {
 
   /**
    * The name of the configuration property giving the binary.
@@ -79,8 +78,7 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
   /**
    * The name of the configuration property saying when the binary should start.
    */
-  public static final String CONFIGURATION_PROPERTY_DEFAULT_STARTUP =
-      CONFIGURATION_PROPERTY_VALUE_ON_FIRST_USE;
+  public static final String CONFIGURATION_PROPERTY_DEFAULT_STARTUP = CONFIGURATION_PROPERTY_VALUE_ON_FIRST_USE;
 
   /**
    * The name of the configuration property for the host where Festival is
@@ -124,7 +122,7 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
   private int port;
 
   /**
-   * Handler for speech requests
+   * Handler for speech requests.
    */
   private RequestListener requestHandler;
 
@@ -140,20 +138,19 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
 
   @Override
   public void startup() {
-
     session = null;
 
     host =
-        getSpaceEnvironment().getSystemConfiguration().getPropertyString(
-            CONFIGURATION_PROPERTY_NAME_HOST, CONFIGURATION_PROPERTY_DEFAULT_HOST);
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_PROPERTY_NAME_HOST,
+            CONFIGURATION_PROPERTY_DEFAULT_HOST);
 
     port =
-        getSpaceEnvironment().getSystemConfiguration().getPropertyInteger(
-            CONFIGURATION_PROPERTY_NAME_PORT, CONFIGURATION_PROPERTY_DEFAULT_PORT);
+        getSpaceEnvironment().getSystemConfiguration().getPropertyInteger(CONFIGURATION_PROPERTY_NAME_PORT,
+            CONFIGURATION_PROPERTY_DEFAULT_PORT);
 
     String startupType =
-        getSpaceEnvironment().getSystemConfiguration().getPropertyString(
-            CONFIGURATION_PROPERTY_NAME_STARTUP, CONFIGURATION_PROPERTY_DEFAULT_STARTUP);
+        getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_PROPERTY_NAME_STARTUP,
+            CONFIGURATION_PROPERTY_DEFAULT_STARTUP);
 
     if (CONFIGURATION_PROPERTY_VALUE_ON_STARTUP.equals(startupType)) {
       startupServer(false);
@@ -180,16 +177,12 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
       speechServer = runnerFactory.newPlatformNativeActivityRunner(getSpaceEnvironment().getLog());
       Configuration configuration = getSpaceEnvironment().getSystemConfiguration();
       Map<String, Object> appConfig = Maps.newHashMap();
-      appConfig
-          .put(
-              NativeActivityRunner.ACTIVITYNAME,
-              configuration
-                  .getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_BINARY));
+      appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
+          configuration.getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_BINARY));
       String commandFlags =
-          configuration
-              .getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_FLAGS);
+          configuration.getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_FLAGS);
 
-      appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
+      appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
       speechServer.configure(appConfig);
       speechServer.startup();
 
@@ -249,14 +242,12 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
 
     @Override
     public void requestResult(Request request, Object result) {
-      getSpaceEnvironment().getLog().info(
-          String.format("Request %s, result %s\n", request.command, result.toString()));
+      getSpaceEnvironment().getLog().info(String.format("Request %s, result %s\n", request.command, result.toString()));
     }
 
     @Override
     public void requestError(Request request, String message) {
-      getSpaceEnvironment().getLog().info(
-          String.format("Request %s, Error %s\n", request.command, message));
+      getSpaceEnvironment().getLog().info(String.format("Request %s, Error %s\n", request.command, message));
     }
 
     @Override

@@ -88,7 +88,7 @@ public class NativeBrowserRunner {
     Configuration configuration = activity.getConfiguration();
 
     Map<String, Object> appConfig = Maps.newHashMap();
-    appConfig.put(NativeActivityRunner.ACTIVITYNAME,
+    appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
         ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
 
     String commandFlags =

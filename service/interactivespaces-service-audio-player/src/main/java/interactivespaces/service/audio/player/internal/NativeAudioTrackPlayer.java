@@ -16,13 +16,13 @@
 
 package interactivespaces.service.audio.player.internal;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
@@ -36,10 +36,16 @@ import java.util.Map;
  */
 public class NativeAudioTrackPlayer implements AudioTrackPlayer {
 
-  private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS =
+  /**
+   * The executable flags for running the audio player.
+   */
+  public static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS =
       "space.service.music.player.flags.linux";
 
-  private static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE =
+  /**
+   * The executable pathname for the audio player.
+   */
+  public static final String CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE =
       "space.service.music.player.executable.linux";
 
   /**
@@ -67,8 +73,20 @@ public class NativeAudioTrackPlayer implements AudioTrackPlayer {
    */
   private Log log;
 
-  public NativeAudioTrackPlayer(Configuration configuration,
-      NativeActivityRunnerFactory runnerFactory, PlayableAudioTrack ptrack, Log log) {
+  /**
+   * Construct a player.
+   *
+   * @param configuration
+   *          the configuration for the player
+   * @param runnerFactory
+   *          the factory for application runners
+   * @param ptrack
+   *          the track to play
+   * @param log
+   *          the logger to use
+   */
+  public NativeAudioTrackPlayer(Configuration configuration, NativeActivityRunnerFactory runnerFactory,
+      PlayableAudioTrack ptrack, Log log) {
     this.configuration = configuration;
     this.runnerFactory = runnerFactory;
     this.ptrack = ptrack;
@@ -83,15 +101,15 @@ public class NativeAudioTrackPlayer implements AudioTrackPlayer {
       // TODO(keith): This needs to get the OS, or it needs to be wrapped
       // so that can have
       // something else check for OS
-      appConfig.put(NativeActivityRunner.ACTIVITYNAME,
+      appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
           configuration.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
 
       String commandFlags =
           MessageFormat.format(configuration
-              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS),
-              ptrack.getFile().getAbsolutePath());
+              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS), ptrack.getFile()
+              .getAbsolutePath());
 
-      appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
+      appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
 
       runner.configure(appConfig);
       runner.startup();

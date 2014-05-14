@@ -11,5 +11,5 @@ space.activity.name=${project.activityRuntimeName}
 ${parameter.name}=${parameter.value}
 </#list>
 <#list project.configurationProperties as parameter>
-${parameter.name}=${parameter.value}
+${parameter.name}=${parameter.value?replace('\\','\\\\')}
 </#list>
