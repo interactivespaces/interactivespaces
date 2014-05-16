@@ -82,10 +82,14 @@ public class OsgiResourceAnalyzer implements ResourceAnalyzer {
           Attributes attributes = manifest.getMainAttributes();
           String name = attributes.getValue(OSGI_HEADER_SYMBOLIC_NAME);
           String version = attributes.getValue(OSGI_HEADER_VERSION);
+          if (name != null && version != null) {
           NamedVersionedResourceWithData<String> resource =
               new NamedVersionedResourceWithData<String>(name, Version.parseVersion(version), file.getAbsolutePath());
 
           resources.addResource(resource.getName(), resource.getVersion(), resource);
+          } else {
+            log.warn(String.format("Resource %s is not a proper OSGi bundle (missing symbolic name and/or version) and is being ignored.", file.getAbsolutePath()));
+          }
         } catch (IOException e) {
           log.error(String.format("Could not open resource file jar manifest for %s", file.getAbsolutePath()), e);
         } finally {
