@@ -95,10 +95,7 @@ public class JunitTestRunner {
       }
     } catch (Exception e) {
       context.getWorkbench().handleError("Error while running JUnit tests", e);
-
-      // Returning true here because JUnit failed to run, nothing to do with
-      // tests.
-      return true;
+      return false;
     }
   }
 

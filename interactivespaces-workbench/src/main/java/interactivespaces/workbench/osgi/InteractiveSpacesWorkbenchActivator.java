@@ -121,9 +121,11 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
       new Thread(new Runnable() {
         @Override
         public void run() {
+          boolean success = true;
           try {
             workbench.doCommands(commandLineArguments);
           } catch (Exception e) {
+            success = false;
             if (e instanceof SimpleInteractiveSpacesException) {
               workbench.getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
             } else {
@@ -134,6 +136,11 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
               bundleContext.getBundle(0).stop();
             } catch (BundleException e) {
               loggingProvider.getLog().error("Error stopping container", e);
+              success = false;
+            }
+
+            if (!success) {
+              System.exit(-1);
             }
           }
         }

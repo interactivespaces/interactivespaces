@@ -567,13 +567,15 @@ public class InteractiveSpacesWorkbench {
       File baseDir = new File(command);
       if (baseDir.isDirectory()) {
         if (projectManager.isProjectFolder(baseDir)) {
-          doCommandsOnProject(baseDir, commands);
+          if (!doCommandsOnProject(baseDir, commands)) {
+            throw new SimpleInteractiveSpacesException("Errors encountered processing project");
+          }
         } else if (commands.isEmpty()) {
           log.warn(String.format("No commands to execute on the non-project directory %s", baseDir.getPath()));
         } else {
           String commandModifier = removeArgument(commands, "command modifier");
           if (COMMAND_RECURSIVE.equals(commandModifier)) {
-            if (doCommandsOnTree(baseDir, commands)) {
+            if (!doCommandsOnTree(baseDir, commands)) {
               throw new SimpleInteractiveSpacesException("Previous errors encountered");
             }
           } else {
@@ -621,10 +623,12 @@ public class InteractiveSpacesWorkbench {
    *          base directory of the project
    * @param commands
    *          the commands to be done
+   *
+   * @return {@code true} if there were no command errors
    */
-  public void doCommandsOnProject(File baseDir, List<String> commands) {
+  public boolean doCommandsOnProject(File baseDir, List<String> commands) {
     Project project = projectManager.readProject(baseDir, log);
-    doCommandsOnProject(project, commands);
+    return doCommandsOnProject(project, commands);
   }
 
   /**
@@ -635,7 +639,7 @@ public class InteractiveSpacesWorkbench {
    * @param commands
    *          commands to run on all project files
    *
-   * @return {@code true} if errors were encountered walking the tree
+   * @return {@code true} if the tree was walked successfully
    */
   private boolean doCommandsOnTree(File baseDir, List<String> commands) {
     FileFilter filter = new FileFilter() {
@@ -646,10 +650,10 @@ public class InteractiveSpacesWorkbench {
       }
     };
     File[] files = baseDir.listFiles(filter);
-    boolean hadErrors = false;
+    boolean success = true;
     if (files != null) {
       for (File possible : files) {
-        hadErrors |= doCommandsOnTree(possible, commands, filter);
+        success &= doCommandsOnTree(possible, commands, filter);
       }
     }
 
@@ -657,7 +661,7 @@ public class InteractiveSpacesWorkbench {
     // here.
     commands.clear();
 
-    return hadErrors;
+    return success;
   }
 
   /**
@@ -671,27 +675,29 @@ public class InteractiveSpacesWorkbench {
    * @param filter
    *          file filter to identify which files in the tree to execute on
    *
-   * @return {@code true} if errors were encountered walking the tree
+   * @return {@code true} if the tree was walked successfully
    */
   private boolean doCommandsOnTree(File baseDir, List<String> commands, FileFilter filter) {
-    boolean hadErrors = false;
+    boolean success = true;
 
     if (projectManager.isProjectFolder(baseDir)) {
       try {
-        doCommandsOnProject(baseDir, Lists.newArrayList(commands));
+        if (!doCommandsOnProject(baseDir, Lists.newArrayList(commands))) {
+          success = false;
+        }
       } catch (Exception e) {
         getLog().error("Error encountered performing commands on project", e);
-        hadErrors = true;
+        success = false;
       }
     } else {
       File[] files = baseDir.listFiles(filter);
       if (files != null) {
         for (File possible : files) {
-          hadErrors |= doCommandsOnTree(possible, commands, filter);
+          success &= doCommandsOnTree(possible, commands, filter);
         }
       }
     }
-    return hadErrors;
+    return success;
   }
 
   /**
@@ -768,33 +774,37 @@ public class InteractiveSpacesWorkbench {
    *          the project being acted on
    * @param commands
    *          the commands to perform on the project
+   *
+   * @return {@code true} if there were no command errors
    */
-  private void doCommandsOnProject(Project project, List<String> commands) {
+  private boolean doCommandsOnProject(Project project, List<String> commands) {
     if (commands.isEmpty()) {
       commands.add(COMMAND_BUILD);
     }
 
-    boolean noErrors = true;
-    while (!commands.isEmpty() && noErrors) {
+    boolean success = true;
+    while (!commands.isEmpty() && success) {
       String command = removeArgument(commands, "workbench command");
 
       if (COMMAND_BUILD.equals(command)) {
         System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = buildProject(project);
+        success = buildProject(project);
       } else if (COMMAND_CLEAN.equals(command)) {
         System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = cleanActivityProject(project);
+        success = cleanActivityProject(project);
       } else if (COMMAND_DOCS.equals(command)) {
         System.out.format("Building Docs for project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = generateDocs(project);
+        success = generateDocs(project);
       } else if (COMMAND_IDE.equals(command)) {
         System.out.format("Building project IDE project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = generateIdeActivityProject(project, removeArgument(commands, "ide type"));
+        success = generateIdeActivityProject(project, removeArgument(commands, "ide type"));
       } else if (COMMAND_DEPLOY.equals(command)) {
         System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
-        noErrors = deployProject(project, removeArgument(commands, "deployment type"));
+        success = deployProject(project, removeArgument(commands, "deployment type"));
       }
     }
+
+    return success;
   }
 
   /**
