@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,43 +14,33 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.jukebox;
+package interactivespaces.service.audio.player;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
-import interactivespaces.service.audio.player.jukebox.support.JukeboxOperation;
 
 /**
- * A listener for {@link JukeboxOperation} events.
+ * A listener for {@link AudioTrackPlayer} events.
  *
  * @author Keith M. Hughes
  */
-public interface AudioJukeboxListener {
+public interface AudioTrackPlayerListener {
 
   /**
    * A track is being started.
    *
-   * @param jukebox
-   *          the jukebox playing the track
+   * @param player
+   *          the player which will play the track
    * @param track
    *          the track being started
    */
-  void onJukeboxTrackStart(AudioJukebox jukebox, PlayableAudioTrack track);
+  void onAudioTrackStart(AudioTrackPlayer player, PlayableAudioTrack track);
 
   /**
    * A track is done.
    *
-   * @param jukebox
-   *          the jukebox playing the track
+   * @param player
+   *          the player which completed playing the track
    * @param track
    *          the track being completed
    */
-  void onJukeboxTrackStop(AudioJukebox jukebox, PlayableAudioTrack track);
-
-  /**
-   * This operation is done running.
-   *
-   * @param jukebox
-   *          the jukebox which was running the operation
-   */
-  void onJukeboxOperationComplete(AudioJukebox jukebox);
+  void onAudioTrackStop(AudioTrackPlayer player, PlayableAudioTrack track);
 }

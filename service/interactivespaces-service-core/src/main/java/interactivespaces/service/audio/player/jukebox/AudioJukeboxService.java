@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,30 +14,34 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player;
+package interactivespaces.service.audio.player.jukebox;
 
-import interactivespaces.configuration.Configuration;
+import interactivespaces.service.SupportedService;
+import interactivespaces.service.audio.player.AudioRepository;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A factory for {@link AudioTrackPlayer} instances.
+ * A service for obtaining {@link AudioJukebox} instances.
  *
  * @author Keith M. Hughes
  */
-public interface AudioTrackPlayerFactory {
+public interface AudioJukeboxService extends SupportedService {
 
   /**
-   * Get a new track player.
-   *
-   * @param track
-   *          the track to be played
-   * @param configuration
-   *          the configuration for the track player
-   * @param log
-   *          a log for logging information
-   *
-   * @return a track player ready to work.
+   * Name for the service.
    */
-  AudioTrackPlayer newTrackPlayer(PlayableAudioTrack track, Configuration configuration, Log log);
+  String SERVICE_NAME = "audio.player.jukebox";
+
+  /**
+   * Create a new audio jukebox.
+   *
+   * @param audioRepository
+   *          the repository for audio
+   * @param log
+   *          the logger
+   *
+   * @return the new jukebox
+   */
+  AudioJukebox newAudioJukebox(AudioRepository audioRepository, Log log);
 }

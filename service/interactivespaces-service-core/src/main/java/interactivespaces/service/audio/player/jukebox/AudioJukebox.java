@@ -31,19 +31,26 @@ public interface AudioJukebox extends ManagedResource {
    * @param listener
    *          the listener to use
    */
-  void setListener(AudioJukeboxListener listener);
+  void addListener(AudioJukeboxListener listener);
+
+  /**
+   * Add a listener to the jukebox.
+   *
+   * <p>
+   * Does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeListener(AudioJukeboxListener listener);
 
   /**
    * Start playing a track.
    *
    * @param id
    *          ID of the track to play
-   * @param begin
-   *          the point to start playing at in milliseconds
-   * @param duration
-   *          how long to play in milliseconds
    */
-  void startPlayTrackOperation(String id, long begin, long duration);
+  void startPlayTrackOperation(String id);
 
   /**
    * Start a shuffle operation.

@@ -14,12 +14,14 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.internal;
+package interactivespaces.service.audio.player.internal.jlayer;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.service.audio.player.AudioTrackPlayer;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
+
+import com.google.common.io.Closeables;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
@@ -37,32 +39,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Keith M. Hughes
  */
-public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
-
-  /**
-   * The configuration to get track player info from.
-   */
-  private Configuration configuration;
-
-  /**
-   * The track to be played.
-   */
-  private PlayableAudioTrack ptrack;
-
-  /**
-   * The log to use.
-   */
-  private Log log;
+public class JLayerAudioTrackPlayer extends BaseAudioTrackPlayer {
 
   /**
    * The player.
    */
   private AdvancedPlayer player;
-
-  /**
-   * The file stream for the audio file.
-   */
-  private FileInputStream istream;
 
   /**
    * {@code true} if playing.
@@ -74,51 +56,69 @@ public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
    */
   private ScheduledExecutorService executorService;
 
-  public JLayerAudioTrackPlayer(Configuration configuration, PlayableAudioTrack ptrack,
-      ScheduledExecutorService executorService, Log log) {
-    this.configuration = configuration;
-    this.ptrack = ptrack;
+  /**
+   * Construct a new player.
+   *
+   * @param executorService
+   *          the executor service to use
+   * @param log
+   *          the logger to use
+   */
+  public JLayerAudioTrackPlayer(ScheduledExecutorService executorService, Log log) {
+    super(log);
     this.executorService = executorService;
-    this.log = log;
   }
 
   @Override
-  public void start(long begin, long duration) {
-    File file = ptrack.getFile();
+  public void shutdown() {
+    stop();
+  }
+
+  @Override
+  public synchronized void start(final PlayableAudioTrack track) {
+    if (playing.get()) {
+      throw new SimpleInteractiveSpacesException((String.format(
+          "Cannot start playing audio file %s: Already playing a track", track.getFile().getAbsolutePath())));
+    }
+
+    File file = track.getFile();
     if (!file.exists()) {
-      throw new InteractiveSpacesException((String.format("Cannot find audio file %s",
-          file.getAbsolutePath())));
+      throw new SimpleInteractiveSpacesException((String.format("Cannot find audio file %s", file.getAbsolutePath())));
     }
 
     try {
-      istream = new FileInputStream(file);
+      final FileInputStream trackStream = new FileInputStream(file);
 
-      player = new AdvancedPlayer(istream);
+      player = new AdvancedPlayer(trackStream);
       player.setPlayBackListener(new PlaybackListener() {
 
         @Override
         public void playbackFinished(PlaybackEvent event) {
           playing.set(false);
+
+          notifyTrackStop(track);
         }
 
         @Override
         public void playbackStarted(PlaybackEvent event) {
           playing.set(true);
-        }
 
+          notifyTrackStart(track);
+        }
       });
 
       // The JLayer play() method runs entirely in the calling thread,
-      // which means it blocks
-      // until the song is complete. So run in its own thread.
+      // which means it blocks until the song is complete. So run in its own
+      // thread.
       executorService.submit(new Runnable() {
-
         @Override
         public void run() {
           try {
             player.play();
           } catch (JavaLayerException e) {
             log.error("JLayer player failed during MP3 playback", e);
+          } finally {
+            Closeables.closeQuietly(trackStream);
           }
         }
       });
@@ -129,11 +129,14 @@ public class JLayerAudioTrackPlayer implements AudioTrackPlayer {
   }
 
   @Override
-  public void stop() {
-    try {
-      player.stop();
-    } catch (Exception e) {
-      e.printStackTrace();
+  public synchronized void stop() {
+    if (player != null) {
+      try {
+        player.stop();
+      } catch (Exception e) {
+        log.error("Error while stopping audio track playback", e);
+      }
+      player = null;
     }
   }
 

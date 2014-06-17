@@ -16,7 +16,6 @@
 
 package interactivespaces.service.audio.player;
 
-import interactivespaces.configuration.Configuration;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.util.Collection;
@@ -27,13 +26,6 @@ import java.util.Collection;
  * @author Keith M. Hughes
  */
 public interface AudioRepository extends ManagedResource {
-
-  /**
-   * Set the configuration for the repository to use.
-   *
-   * @param configuration
-   */
-  void setConfiguration(Configuration configuration);
 
   /**
    * Get information about a track from its ID.
@@ -47,28 +39,19 @@ public interface AudioRepository extends ManagedResource {
   AudioTrack getTrackData(String id);
 
   /**
-   * Get information about a track from its ID.
+   * Get all tracks in the repository.
+   *
+   * @return all tracks in the repository
+   */
+  Collection<PlayableAudioTrack> getAllPlayableTracks();
+
+  /**
+   * Get the track from its ID.
    *
    * @param id
    *          the id of the track
    *
-   * @return the information about the track, or {@code null} if there is no
-   *         track with the ID.
+   * @return the track, or {@code null} if there is no track with the ID
    */
   PlayableAudioTrack getPlayableTrack(String id);
-
-  /**
-   * Get a random track to play.
-   *
-   * <p>
-   * The returned track will not be found in the tracksPlayed and will not be
-   * added to the collection. If all tracks in the repository have been played,
-   * the collection will be cleared and all tracks become possible.
-   *
-   * @param tracksPlayed
-   *          tracks to ignore
-   *
-   * @return a new track to play
-   */
-  PlayableAudioTrack getRandomTrack(Collection<PlayableAudioTrack> tracksPlayed);
 }

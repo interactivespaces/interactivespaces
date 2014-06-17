@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,34 +14,22 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.jukebox;
+package interactivespaces.service.audio.player;
 
 /**
- * An operation happening within the jukebox.
+ * A base {@link AudioTrackPlayerListener} with blank methods for all callbacks.
  *
  * @author Keith M. Hughes
  */
-public interface JukeboxOperation {
+public class BaseAudioTrackPlayerListener implements AudioTrackPlayerListener {
 
-  /**
-   * Start the operation.
-   */
-  void start();
+  @Override
+  public void onAudioTrackStart(AudioTrackPlayer player, PlayableAudioTrack track) {
+    // Default is do nothing
+  }
 
-  /**
-   * Pause the operation.
-   */
-  void pause();
-
-  /**
-   * Stop the operation.
-   */
-  void stop();
-
-  /**
-   * Is the operation running?
-   *
-   * @return {@code true} if the operation is running.
-   */
-  boolean isRunning();
+  @Override
+  public void onAudioTrackStop(AudioTrackPlayer player, PlayableAudioTrack track) {
+    // Default is do nothing
+  }
 }

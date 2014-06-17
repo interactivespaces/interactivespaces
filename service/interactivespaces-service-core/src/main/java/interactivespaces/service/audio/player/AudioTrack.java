@@ -21,116 +21,65 @@ package interactivespaces.service.audio.player;
  *
  * @author Keith M. Hughes
  */
-public class AudioTrack {
+public interface AudioTrack {
 
   /**
-   * The track ID.
-   */
-  private String id;
-
-  /**
-   * Title of the song.
-   */
-  private String title;
-
-  /**
-   * Artist of the song.
+   * Get the track ID.
    *
-   * <p>
-   * Can be null.
+   * @return the track ID
    */
-  private String artist;
+  String getId();
 
   /**
-   * Album the song is on.
+   * Set the track ID.
    *
-   * <p>
-   * Can be null.
-   */
-  private String album;
-
-  public AudioTrack() {
-  }
-
-  /**
-   *
-   * @param title
-   *          the title, can be {@code null}
-   * @param artist
-   *          the artist, can be {@code null}
-   * @param album
-   *          the album, can be {@code null}
-   */
-  public AudioTrack(String id, String title, String artist, String album) {
-    this.id = id;
-    this.title = title;
-    this.artist = artist;
-    this.album = album;
-  }
-
-  /**
-   * @return the id
-   */
-  public String getId() {
-    return id;
-  }
-
-  /**
    * @param id
    *          the id to set
    */
-  public void setId(String id) {
-    this.id = id;
-  }
+  void setId(String id);
 
   /**
+   * Get the track title.
+   *
    * @return the title, can be {@code null}
    */
-  public String getTitle() {
-    return title;
-  }
+  String getTitle();
 
   /**
+   * Set the track title.
+   *
    * @param title
    *          the title to set, can be {@code null}
    */
-  public void setTitle(String title) {
-    this.title = title;
-  }
+  void setTitle(String title);
 
   /**
+   * Get the artist.
+   *
    * @return the artist, can be {@code null}
    */
-  public String getArtist() {
-    return artist;
-  }
+  String getArtist();
 
   /**
+   * Set the artist.
+   *
    * @param artist
    *          the artist to set, can be {@code null}
    */
-  public void setArtist(String artist) {
-    this.artist = artist;
-  }
+  void setArtist(String artist);
 
   /**
+   * Get the album.
+   *
    * @return the album, can be {@code null}
    */
-  public String getAlbum() {
-    return album;
-  }
+  String getAlbum();
 
   /**
+   * Set the album.
+   *
    * @param album
    *          the album to set, can be {@code null}
    */
-  public void setAlbum(String album) {
-    this.album = album;
-  }
-
-  @Override
-  public String toString() {
-    return "AudioTrack [id=" + id + ", title=" + title + ", artist=" + artist + ", album=" + album
-        + "]";
-  }
+  void setAlbum(String album);
 }

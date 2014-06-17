@@ -14,13 +14,15 @@
  * the License.
  */
 
-package interactivespaces.service.audio.player.internal;
+package interactivespaces.service.audio.player.internal.binary;
 
 import interactivespaces.activity.binary.NativeActivityRunner;
-import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
+import interactivespaces.util.process.NativeApplicationRunner;
+import interactivespaces.util.process.NativeApplicationRunnerFactory;
 
 import com.google.common.collect.Maps;
 
@@ -34,7 +36,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class NativeAudioTrackPlayer implements AudioTrackPlayer {
+public class NativeAudioTrackPlayer extends BaseAudioTrackPlayer {
 
   /**
    * The executable flags for running the audio player.
@@ -56,57 +58,46 @@ public class NativeAudioTrackPlayer implements AudioTrackPlayer {
   /**
    * The activity runner factory for running the activity.
    */
-  private NativeActivityRunnerFactory runnerFactory;
+  private NativeApplicationRunnerFactory runnerFactory;
 
   /**
    * The activity runner running the activity.
    */
-  private NativeActivityRunner runner;
+  private NativeApplicationRunner runner;
 
   /**
-   * The track to be played.
-   */
-  private PlayableAudioTrack ptrack;
-
-  /**
-   * The log to use.
-   */
-  private Log log;
-
-  /**
-   * Construct a player.
+   * Construct a new native player.
    *
-   * @param configuration
-   *          the configuration for the player
    * @param runnerFactory
-   *          the factory for application runners
-   * @param ptrack
-   *          the track to play
+   *          factory for runners
    * @param log
-   *          the logger to use
+   *          logger to use
    */
-  public NativeAudioTrackPlayer(Configuration configuration, NativeActivityRunnerFactory runnerFactory,
-      PlayableAudioTrack ptrack, Log log) {
-    this.configuration = configuration;
+  public NativeAudioTrackPlayer(NativeApplicationRunnerFactory runnerFactory, Log log) {
+    super(log);
     this.runnerFactory = runnerFactory;
-    this.ptrack = ptrack;
-    this.log = log;
   }
 
   @Override
-  public synchronized void start(long begin, long duration) {
+  public void shutdown() {
+    stop();
+  }
+
+  @Override
+  public synchronized void start(PlayableAudioTrack track) {
+    // TODO(keith): Fix once application runners have callbacks to not have all
+    // the threading crap here.
     if (runner == null) {
-      runner = runnerFactory.newPlatformNativeActivityRunner(log);
+      runner = runnerFactory.newPlatformNativeApplicationRunner(log);
       Map<String, Object> appConfig = Maps.newHashMap();
       // TODO(keith): This needs to get the OS, or it needs to be wrapped
-      // so that can have
-      // something else check for OS
+      // so that can have something else check for OS
       appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
           configuration.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
 
       String commandFlags =
           MessageFormat.format(configuration
-              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS), ptrack.getFile()
+              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS), track.getFile()
               .getAbsolutePath());
 
       appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);

@@ -17,34 +17,28 @@
 package interactivespaces.service.audio.player.internal;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrack;
 import interactivespaces.service.audio.player.PlayableAudioTrack;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import interactivespaces.service.audio.player.SimpleAudioTrack;
+import interactivespaces.service.audio.player.support.InMemoryAudioRepository;
 
 import org.farng.mp3.MP3File;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * An {@link AudioRepository} which just picks up all tracks from scanning
  * directories.
  *
+ * <p>
+ * At the moment this only handles MP3 files.
+ *
  * @author Keith M. Hughes
  */
-public class ScanningFileAudioRepository implements AudioRepository {
-
-  /**
-   * Configuration property giving the base directories of the music repository.
-   */
-  public static final String PROPERTY_MUSIC_REPOSITORY_BASE = "space.music.repository.base";
+public class ScanningFileAudioRepository extends InMemoryAudioRepository {
 
   /**
    * File extension for an MP3 file.
@@ -52,89 +46,32 @@ public class ScanningFileAudioRepository implements AudioRepository {
   private static final String MUSIC_FILE_EXTENSION_MP3 = ".mp3";
 
   /**
-   * The configuration for the repository.
+   * The bases for the repositories of audio.
    */
-  private Configuration configuration;
+  private Collection<File> repositoryBases;
 
   /**
-   * Map of track ID to playable tracks.
+   * Set all repository bases for this repository.
+   *
+   * @param repositoryBases
+   *          all repository bases
    */
-  private Map<String, PlayableAudioTrack> tracks;
-
-  /**
-   * The random number generator for shuffle play.
-   */
-  private Random random;
+  public void setRepositoryBases(Collection<File> repositoryBases) {
+    this.repositoryBases = repositoryBases;
+  }
 
   @Override
-  public void startup() {
-    tracks = Maps.newHashMap();
-    random = new Random(System.currentTimeMillis());
-
+  public void onStartup() {
     scanRepositories();
   }
 
-  @Override
-  public void shutdown() {
-    // Nothing to do.
-  }
-
-  @Override
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-  }
-
-  @Override
-  public AudioTrack getTrackData(String id) {
-    PlayableAudioTrack ptrack = getPlayableTrack(id);
-    if (ptrack != null) {
-      return ptrack.getTrack();
-    } else {
-      return null;
-    }
-  }
-
-  @Override
-  public PlayableAudioTrack getPlayableTrack(String id) {
-    return tracks.get(id);
-  }
-
-  @Override
-  public PlayableAudioTrack getRandomTrack(Collection<PlayableAudioTrack> tracksPlayed) {
-    List<PlayableAudioTrack> tracksToChoose = getListOfAllTracks();
-    tracksToChoose.removeAll(tracksPlayed);
-    if (tracksToChoose.isEmpty()) {
-      tracksPlayed.clear();
-      tracksToChoose = getListOfAllTracks();
-    }
-
-    int trackNumber = random.nextInt(tracksToChoose.size());
-    return tracksToChoose.get(trackNumber);
-  }
-
   /**
-   * Get a list of all tracks.
-   *
-   * @return a list of all tracks in no particular order
-   */
-  private List<PlayableAudioTrack> getListOfAllTracks() {
-    return Lists.newArrayList(tracks.values());
-  }
-
-  /**
-   * v Scan all base repositories.
+   * Scan all base repositories.
    */
   private void scanRepositories() {
-    String baseRepositories = configuration.getRequiredPropertyString(PROPERTY_MUSIC_REPOSITORY_BASE);
-
-    for (String baseRepository : baseRepositories.split("::")) {
-      if (baseRepository.trim().isEmpty()) {
-        continue;
-      }
-
-      File baseRepositoryFile = new File(baseRepository);
-      if (baseRepositoryFile.isDirectory()) {
-        scanRepositoryDir(baseRepositoryFile);
+    for (File repositoryBase : repositoryBases) {
+      if (repositoryBase.isDirectory()) {
+        scanRepositoryDir(repositoryBase);
       }
     }
   }
@@ -178,15 +115,14 @@ public class ScanningFileAudioRepository implements AudioRepository {
    */
   private void addMusicFile(File file) {
     if (!file.canRead()) {
-      throw new InteractiveSpacesException(String.format("Cannot read music file %s", file.getAbsolutePath()));
+      throw new SimpleInteractiveSpacesException(String.format("Cannot read music file %s", file.getAbsolutePath()));
     }
 
-    AudioTrack track = new AudioTrack();
+    AudioTrack track = new SimpleAudioTrack();
     track.setId(generateTrackId(file));
     getMusicMetadata(file, track);
 
-    PlayableAudioTrack playableTrack = new PlayableAudioTrack(track, file);
-    tracks.put(track.getId(), playableTrack);
+    addTrack(new PlayableAudioTrack(track, file));
   }
 
   /**

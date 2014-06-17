@@ -16,25 +16,49 @@
 
 package interactivespaces.service.audio.player;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.resource.ManagedResource;
+
 /**
- * Something which can play tracks.
+ * Something which can play audio tracks.
  *
  * @author Keith M. Hughes
  */
-public interface AudioTrackPlayer {
+public interface AudioTrackPlayer extends ManagedResource {
 
   /**
-   * Start playing the track.
+   * Add a listener to the jukebox.
    *
-   * @param begin
-   *          number of milliseconds into the track to start
-   * @param duration
-   *          number of milliseconds to play
+   * @param listener
+   *          the listener to use
    */
-  void start(long begin, long duration);
+  void addListener(AudioTrackPlayerListener listener);
 
   /**
-   * Stop playing the track.
+   * Add a listener to the jukebox.
+   *
+   * <p>
+   * Does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeListener(AudioTrackPlayerListener listener);
+
+  /**
+   * Playing a track.
+   *
+   * @param track
+   *          the audio track to play
+   *
+   * @throws InteractiveSpacesException
+   *           the player was playing a track already or the track could not be
+   *           found
+   */
+  void start(PlayableAudioTrack track) throws InteractiveSpacesException;
+
+  /**
+   * Stop playing the track if one is playing.
    */
   void stop();
 
