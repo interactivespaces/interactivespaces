@@ -67,34 +67,41 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
   String FLAGS = EXECUTABLE_FLAGS;
 
   /**
-   * Configure the launcher.
+   * Configure the runner.
    *
    * @param config
-   *          The configuration.
+   *          the configuration
    */
   void configure(Map<String, Object> config);
 
   /**
-   * Is the native app still running?
+   * Is the native application still running?
    *
-   * @return True if the app is still running, false otherwise.
+   * @return {@code true} if the application is still running
    */
   boolean isRunning();
+
+  /**
+   * Get the current state of the runner.
+   *
+   * @return the current state of the runner
+   */
+  NativeApplicationRunnerState getState();
 
   /**
    * Set the restart strategy for the runner.
    *
    * @param restartStrategy
-   *          the strategy to be used
+   *          the strategy to be used, can be {@code null}
    */
-  void setRestartStrategy(RestartStrategy restartStrategy);
+  void setRestartStrategy(RestartStrategy<NativeApplicationRunner> restartStrategy);
 
   /**
    * Get the restart strategy for the runner.
    *
-   * @return the strategy to be used
+   * @return the strategy being used, can be {@link null}
    */
-  RestartStrategy getRestartStrategy();
+  RestartStrategy<NativeApplicationRunner> getRestartStrategy();
 
   /**
    * Set how long to attempt a restart.
@@ -103,4 +110,75 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
    *          the restart attempt duration in milliseconds
    */
   void setRestartDurationMaximum(long restartDurationMaximum);
+
+  /**
+   * Add in a new application runner listener.
+   *
+   * <p>
+   * Any listeners added will be automatically added to any
+   * {@link RestartStrategy} no matter when the strategy is added.
+   *
+   * @param listener
+   *          the listener to add
+   */
+  void addNativeApplicationRunnerListener(NativeApplicationRunnerListener listener);
+
+  /**
+   * Remove application runner listener.
+   *
+   * <p>
+   * Does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeNativeApplicationRunnerListener(NativeApplicationRunnerListener listener);
+
+  /**
+   * The state of the native application runner.
+   *
+   * @author Keith M. Hughes
+   */
+  public enum NativeApplicationRunnerState {
+
+    /**
+     * The runner has never been started.
+     */
+    NOT_STARTED,
+
+    /**
+     * The runner is starting.
+     */
+    STARTING,
+
+    /**
+     * The application cannot be started.
+     */
+    STARTUP_FAILED,
+
+    /**
+     * The application is now running.
+     */
+    RUNNING,
+
+    /**
+     * The application is restarting.
+     */
+    RESTARTING,
+
+    /**
+     * The application restart has failed.
+     */
+    RESTART_FAILED,
+
+    /**
+     * The application is shut down.
+     */
+    SHUTDOWN,
+
+    /**
+     * The application crashed.
+     */
+    CRASHED,
+  }
 }

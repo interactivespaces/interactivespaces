@@ -302,19 +302,25 @@ public class InteractiveSpacesFrameworkBootstrap {
 
       Bundle bundle = rootBundleContext.installBundle(bundleUri);
 
-      int startLevel = STARTUP_LEVEL_DEFAULT;
       String symbolicName = bundle.getSymbolicName();
-      if (symbolicName.equals("interactivespaces.master.webapp")) {
-        startLevel = STARTUP_LEVEL_LAST;
-      } else if (symbolicName.equals("interactivespaces.master")) {
-        startLevel = STARTUP_LEVEL_PENULTIMATE;
-      }
+      if (symbolicName != null) {
+        int startLevel = STARTUP_LEVEL_DEFAULT;
+        if (symbolicName.equals("interactivespaces.master.webapp")) {
+          startLevel = STARTUP_LEVEL_LAST;
+        } else if (symbolicName.equals("interactivespaces.master")) {
+          startLevel = STARTUP_LEVEL_PENULTIMATE;
+        }
 
-      if (startLevel != 1) {
-        bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
-      }
+        if (startLevel != STARTUP_LEVEL_DEFAULT) {
+          bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
+        }
 
-      bundles.add(bundle);
+        bundles.add(bundle);
+      } else {
+        loggingProvider.getLog().error(
+            String.format("Bundle %s is not an OSGi bundle, skipping during Interactive Spaces startup",
+                bundle.getLocation()));
+      }
     }
 
     // Start all installed non-fragment bundles.
@@ -429,7 +435,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void loadLibraries(List<String> libraries) {
     for (String library : libraries) {
-      loggingProvider.getLog().info(String.format("Loading library %s", library));
+      loggingProvider.getLog().info(String.format("Loading system library %s", library));
       System.loadLibrary(library);
     }
   }

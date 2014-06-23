@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 public interface NativeApplicationRunnerFactory {
 
   /**
-   * Get a native app runner for the platform.
+   * Get a native application runner for the platform.
    *
    * @param log
    *          the log to use for the runner

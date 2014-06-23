@@ -35,6 +35,25 @@ public interface ActivityComponent {
   String getName();
 
   /**
+   * Get all base dependencies for this component.
+   *
+   * @return all base dependencies
+   */
+  List<String> getBaseDependencies();
+
+  /**
+   * Add more dependencies to this component.
+   *
+   * <p>
+   * Be careful with this, it is possible to make the dependency graph for this
+   * component unsatisfiable.
+   *
+   * @param dependencies
+   *          the additional dependencies
+   */
+  void addDependency(String... dependencies);
+
+  /**
    * Get all dependencies for this component.
    *
    * @return all dependencies

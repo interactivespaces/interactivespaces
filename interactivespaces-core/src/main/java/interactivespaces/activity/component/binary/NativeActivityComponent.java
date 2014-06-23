@@ -18,6 +18,8 @@ package interactivespaces.activity.component.binary;
 
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.util.process.NativeApplicationRunner;
+import interactivespaces.util.process.NativeApplicationRunnerListener;
 import interactivespaces.util.process.restart.RestartStrategy;
 
 /**
@@ -57,5 +59,14 @@ public interface NativeActivityComponent extends ActivityComponent {
    * @param restartStrategy
    *          the restart strategy to use
    */
-  void setRestartStrategy(RestartStrategy restartStrategy);
+  void setRestartStrategy(RestartStrategy<NativeApplicationRunner> restartStrategy);
+
+  /**
+   * Add in a new application runner listener to use when the runner is finally
+   * created.
+   *
+   * @param listener
+   *          the listener to add
+   */
+  void addNativeApplicationRunnerListener(NativeApplicationRunnerListener listener);
 }

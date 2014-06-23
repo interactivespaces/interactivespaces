@@ -19,9 +19,12 @@ package interactivespaces.util.process.restart;
 /**
  * The strategy for how to handle a restart.
  *
+ * @param <T>
+ *          the type of {@link Restartable}
+ *
  * @author Keith M. Hughes
  */
-public interface RestartStrategy {
+public interface RestartStrategy<T extends Restartable> {
 
   /**
    * Create a new restart instance.
@@ -31,7 +34,7 @@ public interface RestartStrategy {
    *
    * @return a restart instance which is already working
    */
-  RestartStrategyInstance newInstance(Restartable restartable);
+  RestartStrategyInstance<T> newInstance(T restartable);
 
   /**
    * Add a new listener to the restart strategy.
@@ -39,7 +42,7 @@ public interface RestartStrategy {
    * @param listener
    *          the new listener
    */
-  void addRestartStrategyListener(RestartStrategyListener listener);
+  void addRestartStrategyListener(RestartStrategyListener<T> listener);
 
   /**
    * Remove a listener from the restart strategy.
@@ -50,5 +53,5 @@ public interface RestartStrategy {
    * @param listener
    *          the listener to remove
    */
-  void removeRestartStrategyListener(RestartStrategyListener listener);
+  void removeRestartStrategyListener(RestartStrategyListener<T> listener);
 }

@@ -19,13 +19,16 @@ package interactivespaces.util.process.restart;
 /**
  * A restart strategy which refuses to try a restart within Interactive Spaces.
  *
+ * @param <T>
+ *          the type of {@link Restartable}
+ *
  * @author Keith M. Hughes
  */
-public class NoRestartRestartStrategy extends BaseRestartStrategy {
+public class NoRestartRestartStrategy<T extends Restartable> extends BaseRestartStrategy<T> {
 
   @Override
-  public RestartStrategyInstance newInstance(Restartable restartable) {
-    NoRestartRestartStrategyInstance instance = new NoRestartRestartStrategyInstance(restartable);
+  public RestartStrategyInstance<T> newInstance(T restartable) {
+    NoRestartRestartStrategyInstance<T> instance = new NoRestartRestartStrategyInstance<T>(restartable, this);
     instance.startRestartAttempts();
 
     return instance;
@@ -34,25 +37,30 @@ public class NoRestartRestartStrategy extends BaseRestartStrategy {
   /**
    * A {@link RestartStrategyInstance} which will never attempt a restart.
    *
+   * @param <U>
+   *          the type of {@link Restartable}
+   *
    * @author Keith M. Hughes
    */
-  private class NoRestartRestartStrategyInstance extends BaseRestartStrategyInstance {
+  private static class NoRestartRestartStrategyInstance<U extends Restartable> extends BaseRestartStrategyInstance<U> {
 
     /**
      * Construct a new instance.
      *
      * @param restartable
      *          the object being restarted
+     * @param strategy
+     *          the strategy this is an instance for
      */
-    public NoRestartRestartStrategyInstance(Restartable restartable) {
-      super(restartable, NoRestartRestartStrategy.this);
+    public NoRestartRestartStrategyInstance(U restartable, NoRestartRestartStrategy<U> strategy) {
+      super(restartable, strategy, strategy.getListeners());
     }
 
     /**
      * Attempt the restart.
      */
     public void startRestartAttempts() {
-      sendRestartFailure(getRestartable());
+      notifyRestartFailure();
       getRestartable().restartComplete(false);
     }
 

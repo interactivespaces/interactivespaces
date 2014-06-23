@@ -16,11 +16,9 @@
 
 package interactivespaces.activity.component.route.ros;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
@@ -29,6 +27,11 @@ import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+
 import org.apache.commons.logging.Log;
 import org.ros.message.MessageListener;
 
@@ -62,7 +65,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   /**
    * Dependencies for the component.
    */
-  public static final List<String> COMPONENT_DEPENDENCIES = ImmutableList.of(RosActivityComponent.COMPONENT_NAME);
+  public static final List<String> BASE_COMPONENT_DEPENDENCIES = ImmutableList.of(RosActivityComponent.COMPONENT_NAME);
 
   /**
    * The ROS activity component this component requires.
@@ -141,8 +144,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   }
 
   @Override
-  public List<String> getDependencies() {
-    return COMPONENT_DEPENDENCIES;
+  public List<String> getBaseDependencies() {
+    return BASE_COMPONENT_DEPENDENCIES;
   }
 
   @Override
@@ -209,7 +212,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     String outputNames = configuration.getPropertyString(CONFIGURATION_ROUTES_OUTPUTS);
     if (outputNames != null) {
       for (String outputName : outputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
-        outputName.trim();
+        outputName = outputName.trim();
         if (!outputName.isEmpty()) {
           String outputTopicNames =
               configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName);
@@ -401,12 +404,14 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     }
     String nodeName = rosActivityComponent.getNode().getName().toString();
     return String.format(StatusDetail.HEADER_FORMAT, "route-detail")
-        + makeRouteDetail("node-name", "Node Name", StatusDetail.ITEM_IS, nodeName)
-        + "\n" + Joiner.on("\n").join(sortedRoutes.values()) + StatusDetail.FOOTER;
+        + makeRouteDetail("node-name", "Node Name", StatusDetail.ITEM_IS, nodeName) + "\n"
+        + Joiner.on("\n").join(sortedRoutes.values()) + StatusDetail.FOOTER;
   }
 
   /**
-   * Function to format the various parts of a status row together into a single entity.
+   * Function to format the various parts of a status row together into a single
+   * entity.
+   *
    * @param className
    *          class name for the row
    * @param key

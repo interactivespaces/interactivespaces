@@ -23,7 +23,7 @@ import interactivespaces.activity.impl.BaseActivity;
 
 /**
  * An {@link Activity} which will just start up a native application from
- * information int the configuration file.
+ * information in the configuration file.
  *
  * @author Keith M. Hughes
  */

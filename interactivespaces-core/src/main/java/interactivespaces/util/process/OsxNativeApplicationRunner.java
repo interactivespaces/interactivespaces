@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
  *
  * @author Keith M. Hughes
  */
-public class OsxNativeApplicationRunner extends BaseNativeApplicationRunner {
+public class OsxNativeApplicationRunner extends UnixNativeApplicationRunner {
 
   /**
    * Tag this launcher identifies itself with.
@@ -42,19 +42,5 @@ public class OsxNativeApplicationRunner extends BaseNativeApplicationRunner {
    */
   public OsxNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
-  }
-
-  @Override
-  public boolean handleProcessExit(int exitValue, String[] commands) {
-    String returnValue = null;
-    UnixReturnValue unixReturnValue = UnixReturnValue.get(exitValue);
-    if (unixReturnValue != null) {
-      returnValue = unixReturnValue.toString();
-    } else {
-      returnValue = Integer.toString(exitValue);
-    }
-    getLog().info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
-
-    return true;
   }
 }

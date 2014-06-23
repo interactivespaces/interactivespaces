@@ -58,12 +58,4 @@ public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRu
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);
     }
   }
-
-  /**
-   * @param spaceEnvironment
-   *          the spaceEnvironment to set
-   */
-  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    this.spaceEnvironment = spaceEnvironment;
-  }
 }

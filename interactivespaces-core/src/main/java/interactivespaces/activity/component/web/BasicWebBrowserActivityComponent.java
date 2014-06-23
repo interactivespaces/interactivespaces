@@ -33,7 +33,7 @@ public class BasicWebBrowserActivityComponent extends BaseWebBrowserActivityComp
   /**
    * Dependencies for the component.
    */
-  public static final List<String> COMPONENT_DEPENDENCIES = ImmutableList.of(WebServerActivityComponent.COMPONENT_NAME);
+  public static final List<String> BASE_COMPONENT_DEPENDENCIES = ImmutableList.of(WebServerActivityComponent.COMPONENT_NAME);
 
   /**
    * The browser runner.
@@ -46,8 +46,8 @@ public class BasicWebBrowserActivityComponent extends BaseWebBrowserActivityComp
   }
 
   @Override
-  public List<String> getDependencies() {
-    return COMPONENT_DEPENDENCIES;
+  public List<String> getBaseDependencies() {
+    return BASE_COMPONENT_DEPENDENCIES;
   }
 
   @Override

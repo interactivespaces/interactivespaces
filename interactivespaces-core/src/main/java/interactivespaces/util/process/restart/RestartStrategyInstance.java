@@ -19,9 +19,12 @@ package interactivespaces.util.process.restart;
 /**
  * An instance for a restarting strategy.
  *
+ * @param <T>
+ *          the type of {@link Restartable}
+ *
  * @author Keith M. Hughes
  */
-public interface RestartStrategyInstance {
+public interface RestartStrategyInstance<T extends Restartable> {
 
   /**
    * Quit attempting a restart.
@@ -40,12 +43,12 @@ public interface RestartStrategyInstance {
    *
    * @return the strategy
    */
-  RestartStrategy getStrategy();
+  RestartStrategy<T> getStrategy();
 
   /**
    * Get the restartable from the instance.
    *
    * @return the restartable
    */
-  Restartable getRestartable();
+  T getRestartable();
 }

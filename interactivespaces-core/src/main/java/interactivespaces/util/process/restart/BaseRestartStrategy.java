@@ -23,86 +23,61 @@ import java.util.List;
 /**
  * Support for writing {@link RestartStrategy} classes.
  *
+ * @param <T>
+ *          the type of {@link Restartable}
+ *
  * @author Keith M. Hughes
  */
-public abstract class BaseRestartStrategy implements RestartStrategy {
+public abstract class BaseRestartStrategy<T extends Restartable> implements RestartStrategy<T> {
 
   /**
    * The listeners for the strategy.
    */
-  private final List<RestartStrategyListener> listeners = Lists.newCopyOnWriteArrayList();
+  private final List<RestartStrategyListener<T>> listeners = Lists.newCopyOnWriteArrayList();
 
   @Override
-  public void addRestartStrategyListener(RestartStrategyListener listener) {
+  public void addRestartStrategyListener(RestartStrategyListener<T> listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void removeRestartStrategyListener(RestartStrategyListener listener) {
+  public void removeRestartStrategyListener(RestartStrategyListener<T> listener) {
     listeners.remove(listener);
   }
 
   /**
-   * A restart is being attempted.
+   * Get the listener list from the strategy.
    *
-   * <p>
-   * All listeners will be called, even if someone voted to cancel the restart.
-   *
-   * @param restartable
-   *          the restartable needs to be restarted
-   *
-   * @return {@code true} if all of the listeners said it was OK to restart,
-   *         {@code false} if any said punt
+   * @return the listener list from the strategy
    */
-  protected boolean sendRestartAttempt(Restartable restartable) {
-    boolean continueRestart = true;
-    for (RestartStrategyListener listener : listeners) {
-      continueRestart &= listener.onRestartAttempt(this, restartable, continueRestart);
-    }
-
-    return continueRestart;
-  }
-
-  /**
-   * Restart has suceeeded.
-   *
-   * @param restartable
-   *          the restartable which has been restarted
-   */
-  protected void sendRestartSuccess(Restartable restartable) {
-    for (RestartStrategyListener listener : listeners) {
-      listener.onRestartSuccess(this, restartable);
-    }
-  }
-
-  /**
-   * Restart has failed.
-   *
-   * @param restartable
-   *          the restartable which has failed
-   */
-  protected void sendRestartFailure(Restartable restartable) {
-    for (RestartStrategyListener listener : listeners) {
-      listener.onRestartFailure(this, restartable);
-    }
+  protected List<RestartStrategyListener<T>> getListeners() {
+    return listeners;
   }
 
   /**
    * A base implementation of a {@link RestartStrategyInstance}.
    *
+   * @param <U>
+   *          the type of {@link Restartable}
+   *
    * @author Keith M. Hughes
    */
-  public abstract static class BaseRestartStrategyInstance implements RestartStrategyInstance {
+  public abstract static class BaseRestartStrategyInstance<U extends Restartable> implements RestartStrategyInstance<U> {
 
     /**
      * The object being restarted.
      */
-    private final Restartable restartable;
+    private final U restartable;
 
     /**
      * The strategy which created the instance.
      */
-    private final RestartStrategy strategy;
+    private final RestartStrategy<U> strategy;
+
+    /**
+     * The listeners for the strategy.
+     */
+    private final List<RestartStrategyListener<U>> listeners;
 
     /**
      * Construct a new base instance.
@@ -111,20 +86,64 @@ public abstract class BaseRestartStrategy implements RestartStrategy {
      *          the restartable being restarted
      * @param strategy
      *          the strategy being used
+     * @param listeners
+     *          the listeners to use
      */
-    public BaseRestartStrategyInstance(Restartable restartable, RestartStrategy strategy) {
+    public BaseRestartStrategyInstance(U restartable, RestartStrategy<U> strategy,
+        List<RestartStrategyListener<U>> listeners) {
       this.restartable = restartable;
       this.strategy = strategy;
+      this.listeners = listeners;
     }
 
     @Override
-    public RestartStrategy getStrategy() {
+    public RestartStrategy<U> getStrategy() {
       return strategy;
     }
 
     @Override
-    public Restartable getRestartable() {
+    public U getRestartable() {
       return restartable;
+    }
+
+    /**
+     * A restart is being attempted.
+     *
+     * <p>
+     * All listeners will be called, even if someone voted to cancel the
+     * restart.
+     *
+     * @param restartable
+     *          the restartable needs to be restarted
+     *
+     * @return {@code true} if all of the listeners said it was OK to restart,
+     *         {@code false} if any said punt
+     */
+    protected boolean notifyRestartAttempt(U restartable) {
+      boolean continueRestart = true;
+      for (RestartStrategyListener<U> listener : listeners) {
+        continueRestart &= listener.onRestartAttempt(strategy, restartable, continueRestart);
+      }
+
+      return continueRestart;
+    }
+
+    /**
+     * Restart has succeeded.
+     */
+    protected void notifyRestartSuccess() {
+      for (RestartStrategyListener<U> listener : listeners) {
+        listener.onRestartSuccess(strategy, restartable);
+      }
+    }
+
+    /**
+     * Restart has failed.
+     */
+    protected void notifyRestartFailure() {
+      for (RestartStrategyListener<U> listener : listeners) {
+        listener.onRestartFailure(strategy, restartable);
+      }
     }
   }
 }

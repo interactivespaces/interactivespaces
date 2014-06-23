@@ -26,12 +26,16 @@ import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
 import interactivespaces.controller.SpaceController;
+import interactivespaces.util.process.NativeApplicationRunner;
+import interactivespaces.util.process.NativeApplicationRunnerListener;
 import interactivespaces.util.process.restart.RestartStrategy;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,7 +63,12 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   /**
    * The restart strategy to use when the runner is finally created.
    */
-  private RestartStrategy restartStrategy;
+  private RestartStrategy<NativeApplicationRunner> restartStrategy;
+
+  /**
+   * The listeners to add to the runner when it is created.
+   */
+  private List<NativeApplicationRunnerListener> listeners = Lists.newArrayList();
 
   /**
    * Create the component which uses the properties
@@ -117,7 +126,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
             activityFile.setExecutable(true);
           }
         } else {
-          throw new InteractiveSpacesException(String.format("The native executable %s does not exist", activityPath));
+          throw new SimpleInteractiveSpacesException(String.format("The native executable %s does not exist", activityPath));
         }
       } else {
         throw new InteractiveSpacesException(String.format("The native executable %s is not local to the activity",
@@ -136,6 +145,10 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
 
     if (restartStrategy != null) {
       nativeActivity.setRestartStrategy(restartStrategy);
+    }
+
+    for (NativeApplicationRunnerListener listener: listeners) {
+      nativeActivity.addNativeApplicationRunnerListener(listener);
     }
   }
 
@@ -167,8 +180,13 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   }
 
   @Override
-  public void setRestartStrategy(RestartStrategy restartStrategy) {
+  public void setRestartStrategy(RestartStrategy<NativeApplicationRunner> restartStrategy) {
     this.restartStrategy = restartStrategy;
+  }
+
+  @Override
+  public void addNativeApplicationRunnerListener(NativeApplicationRunnerListener listener) {
+    listeners.add(listener);
   }
 
   /**

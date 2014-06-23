@@ -19,9 +19,12 @@ package interactivespaces.util.process.restart;
 /**
  * A listener for restart events.
  *
+ * @param <T>
+ *          the type of the restartable
+ *
  * @author Keith M. Hughes
  */
-public interface RestartStrategyListener {
+public interface RestartStrategyListener<T extends Restartable> {
 
   /**
    * The process has stopped running. A restart is about to be attempted.
@@ -36,7 +39,7 @@ public interface RestartStrategyListener {
    * @return {@code true} if a restart should be attempted according to the
    *         strategy, {@code false} if the restart should be abandoned.
    */
-  boolean onRestartAttempt(RestartStrategy strategy, Restartable restartable, boolean continueRestart);
+  boolean onRestartAttempt(RestartStrategy<T> strategy, T restartable, boolean continueRestart);
 
   /**
    * Restart has been successful.
@@ -46,7 +49,7 @@ public interface RestartStrategyListener {
    * @param restartable
    *          the item being restarted
    */
-  void onRestartSuccess(RestartStrategy strategy, Restartable restartable);
+  void onRestartSuccess(RestartStrategy<T> strategy, T restartable);
 
   /**
    * The restart has failed.
@@ -56,5 +59,5 @@ public interface RestartStrategyListener {
    * @param restartable
    *          the item being restarted
    */
-  void onRestartFailure(RestartStrategy strategy, Restartable restartable);
+  void onRestartFailure(RestartStrategy<T> strategy, T restartable);
 }

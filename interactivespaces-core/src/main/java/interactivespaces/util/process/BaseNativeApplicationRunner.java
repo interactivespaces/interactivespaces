@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -83,7 +84,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   /**
    * The strategy for restarting.
    */
-  private volatile RestartStrategy restartStrategy;
+  private volatile RestartStrategy<NativeApplicationRunner> restartStrategy;
 
   /**
    * The strategy instance being used to restart.
@@ -91,10 +92,11 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
    * <p>
    * Will be {@code null} if there is no restart being attempted.
    */
-  private RestartStrategyInstance restarter;
+  private RestartStrategyInstance<NativeApplicationRunner> restarter;
 
   /**
-   * Process for the restart.
+   * When attempting a restart, this is where the native application process
+   * will live until we know that startup has been successful.
    */
   private Process restartProcess;
 
@@ -129,6 +131,17 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   private String commandFlags;
 
   /**
+   * The application runner listeners.
+   */
+  private final List<NativeApplicationRunnerListener> listeners = Lists.newCopyOnWriteArrayList();
+
+  /**
+   * The current state of the runner.
+   */
+  private final AtomicReference<NativeApplicationRunnerState> runnerState =
+      new AtomicReference<NativeApplicationRunnerState>(NativeApplicationRunnerState.NOT_STARTED);
+
+  /**
    * Create a native activity runner.
    *
    * @param spaceEnvironment
@@ -160,17 +173,26 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   public void startup() {
     processLock.lock();
     try {
+      if (!runnerState.compareAndSet(NativeApplicationRunnerState.NOT_STARTED, NativeApplicationRunnerState.STARTING)) {
+        log.warn("Attempting to start native application runner which is already running");
+        return;
+      }
+
+      notifyApplicationStarting();
+
       commands = getCommand();
 
       String executable = commands[0];
       executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
 
-      if (spaceEnvironment.getLog().isInfoEnabled()) {
+      if (log.isInfoEnabled()) {
         String appLine = Joiner.on(' ').join(commands);
-        spaceEnvironment.getLog().info(String.format("Native activity starting up %s", appLine));
+        log.info(String.format("Native application starting up %s", appLine));
       }
 
-      process = attemptRun();
+      process = attemptRun(true);
+
+      handleApplicationRunning();
     } finally {
       processLock.unlock();
     }
@@ -179,19 +201,32 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   /**
    * Attempt the run.
    *
+   * @param firstTime
+   *          {@code true} if this is the first attempt
+   *
    * @return the process that was created
+   *
+   * @throws InteractiveSpacesException
+   *           was not able to start the process the first time
    */
-  private Process attemptRun() {
+  private Process attemptRun(boolean firstTime) throws InteractiveSpacesException {
     try {
       ProcessBuilder builder = new ProcessBuilder(commands);
       builder.directory(executableFolder);
 
-      spaceEnvironment.getLog().info(
-          String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
+      log.info(String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
 
       return builder.start();
     } catch (Exception e) {
-      throw new InteractiveSpacesException("Can't start up activity " + appName, e);
+      // Placed here so we can get the exception when thrown.
+      if (firstTime) {
+        runnerState.set(NativeApplicationRunnerState.STARTUP_FAILED);
+        handleApplicationStartupFailed();
+
+        throw new InteractiveSpacesException("Can't start up native application " + appName, e);
+      }
+
+      return null;
     }
   }
 
@@ -199,10 +234,19 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   public void shutdown() {
     processLock.lock();
     try {
+      NativeApplicationRunnerState currentState = runnerState.get();
+      if (currentState == NativeApplicationRunnerState.NOT_STARTED
+          || currentState == NativeApplicationRunnerState.SHUTDOWN) {
+        log.warn("Shutting down a native application runner which is either not started or is already shut down");
+        return;
+      }
+
       if (restarter != null) {
         restarter.quit();
         restarter = null;
 
+        // If there is a restarter, then there may have been an attempt at
+        // restart which hasn't made it into the process instance variable yet.
         if (restartProcess != null) {
           restartProcess.destroy();
           restartProcess = null;
@@ -210,10 +254,15 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       }
 
       if (process != null) {
+        // If the notifier is shutting the application down so we will wait for
+        // the next scan of isRunning().
+        // Otherwise we will kill the process the impolite way.
+        if (!handleApplicationShutdownRequested()) {
+          process.destroy();
 
-        process.destroy();
-
-        process = null;
+          process = null;
+          handleApplicationShutdown(NativeApplicationRunnerState.SHUTDOWN);
+        }
       }
     } finally {
       processLock.unlock();
@@ -225,18 +274,27 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     processLock.lock();
     try {
       if (process != null) {
+        // The process was running normally. Sample to see if it is still
+        // running.
         try {
           int exitValue = process.exitValue();
 
           logProcessResultStreams();
 
-          if (handleProcessExit(exitValue, commands)) {
-            // If restarter is working, the outside should be told
-            // that we are still "running" until the restarter punts.
-            return startRestarter();
-          } else {
-            spaceEnvironment.getLog().error("Activity stopped running, not attempting restart");
+          boolean successfulShutdown = handleProcessExit(exitValue, commands);
+
+          // If restarter is working, the outside should be told
+          // that we are still "running" until the restarter punts.
+          if (startRestarter()) {
+            runnerState.set(NativeApplicationRunnerState.RESTARTING);
+            return true;
           }
+
+          // No longer running, is OK that it isn't running or no restarter, so
+          // signal done.
+          handleApplicationShutdown(successfulShutdown ? NativeApplicationRunnerState.SHUTDOWN
+              : NativeApplicationRunnerState.CRASHED);
+          return false;
         } catch (IllegalThreadStateException e) {
           // Can't get exit value if process is still running.
 
@@ -248,10 +306,21 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
 
       // If here the process isn't there, so running is dependent on the
       // restarter, if any.
-      return isRestarterActive();
+      if (isRestarterActive()) {
+        return true;
+      } else {
+        handleApplicationShutdown(NativeApplicationRunnerState.CRASHED);
+
+        return false;
+      }
     } finally {
       processLock.unlock();
     }
+  }
+
+  @Override
+  public NativeApplicationRunnerState getState() {
+    return runnerState.get();
   }
 
   /**
@@ -263,16 +332,16 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream inputStream = process.getInputStream();
       String inputString = FILE_SUPPORT.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
-        spaceEnvironment.getLog().info(inputString);
+        log.info(inputString);
       }
 
       InputStream errorStream = process.getErrorStream();
       String errorString = FILE_SUPPORT.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
-        spaceEnvironment.getLog().error(errorString);
+        log.error(errorString);
       }
     } catch (Exception e) {
-      spaceEnvironment.getLog().error("Error reading process streams", e);
+      log.error("Error reading native application process streams", e);
     }
   }
 
@@ -285,16 +354,16 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     process = null;
 
     // make sure we only sample the restart strategy once in a threadsafe way
-    RestartStrategy rs = restartStrategy;
+    RestartStrategy<NativeApplicationRunner> rs = restartStrategy;
     if (rs != null) {
-      spaceEnvironment.getLog().error("Activity stopped running, attempting restart");
+      log.warn("Native application stopped running, attempting restart");
 
       restartBegin = spaceEnvironment.getTimeProvider().getCurrentTime();
       restarter = rs.newInstance(this);
 
       return true;
     } else {
-      spaceEnvironment.getLog().error("Activity stopped running, not attempting restart");
+      log.warn("Native application stopped running, not attempting restart");
     }
 
     return false;
@@ -314,7 +383,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         long restartDuration = spaceEnvironment.getTimeProvider().getCurrentTime() - restartBegin;
 
         if (restartDuration > restartDurationMaximum) {
-          spaceEnvironment.getLog().error("Activity would not restart. Maximum duration time passed.");
+          log.error(String.format("Native application would not restart. Maximum duration time %d passed.",
+              restartDurationMaximum));
           restarter.quit();
           restartComplete(false);
 
@@ -329,14 +399,15 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
-   * Respond to a given return value.
+   * Handle a process exit.
    *
    * @param exitValue
    *          the value returned by the process
    * @param commands
    *          the commands being run
    *
-   * @return {@code true} if should attempt a restart.
+   * @return {@code true} if was a successful exit, {@code false} if it was some
+   *         sort of error exit
    */
   public abstract boolean handleProcessExit(int exitValue, String[] commands);
 
@@ -344,7 +415,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   public void attemptRestart() {
     processLock.lock();
     try {
-      restartProcess = attemptRun();
+      restartProcess = attemptRun(false);
     } finally {
       processLock.unlock();
     }
@@ -378,8 +449,12 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     try {
       if (success) {
         process = restartProcess;
-        spaceEnvironment.getLog().info("Restart successful");
+        log.info("Native application restart successful");
+        handleApplicationRunning();
+      } else {
+        handleApplicationShutdown(NativeApplicationRunnerState.RESTART_FAILED);
       }
+
       restartProcess = null;
       restarter = null;
     } finally {
@@ -388,18 +463,37 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   @Override
-  public void setRestartStrategy(RestartStrategy restartStrategy) {
+  public void setRestartStrategy(RestartStrategy<NativeApplicationRunner> restartStrategy) {
     this.restartStrategy = restartStrategy;
+
+    // Add in all listeners that have been registered so far.
+    for (NativeApplicationRunnerListener listener : listeners) {
+      restartStrategy.addRestartStrategyListener(listener);
+    }
   }
 
   @Override
-  public RestartStrategy getRestartStrategy() {
+  public RestartStrategy<NativeApplicationRunner> getRestartStrategy() {
     return restartStrategy;
   }
 
   @Override
   public void setRestartDurationMaximum(long restartDurationMaximum) {
     this.restartDurationMaximum = restartDurationMaximum;
+  }
+
+  @Override
+  public void addNativeApplicationRunnerListener(NativeApplicationRunnerListener listener) {
+    listeners.add(listener);
+
+    if (restartStrategy != null) {
+      restartStrategy.addRestartStrategyListener(listener);
+    }
+  }
+
+  @Override
+  public void removeNativeApplicationRunnerListener(NativeApplicationRunnerListener listener) {
+    listeners.remove(listener);
   }
 
   /**
@@ -460,7 +554,86 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
-   * @return configuration for the activity
+   * Notify all listeners that the application is starting.
+   */
+  private void notifyApplicationStarting() {
+    for (NativeApplicationRunnerListener listener : listeners) {
+      try {
+        listener.onNativeApplicationRunnerStarting(this);
+      } catch (Exception e) {
+        log.error("Error while notifying a listener about native application starting", e);
+      }
+    }
+  }
+
+  /**
+   * The application is now running.
+   */
+  private void handleApplicationRunning() {
+    runnerState.set(NativeApplicationRunnerState.RUNNING);
+
+    for (NativeApplicationRunnerListener listener : listeners) {
+      try {
+        listener.onNativeApplicationRunnerRunning(this);
+      } catch (Exception e) {
+        log.error("Error while notifying a listener about native application start up", e);
+      }
+    }
+  }
+
+  /**
+   * Notify all listeners that a shutdown request has come along.
+   *
+   * @return {@code true} if some handler initiated the shutdown
+   */
+  private boolean handleApplicationShutdownRequested() {
+    boolean shutdownHandled = false;
+    for (NativeApplicationRunnerListener listener : listeners) {
+      try {
+        shutdownHandled |= listener.onNativeApplicationRunnerShutdownRequested(this);
+      } catch (Exception e) {
+        log.error("Error while notifying a listener about native application shutdown request", e);
+      }
+    }
+
+    return shutdownHandled;
+  }
+
+  /**
+   * Handle an application shutdown.
+   *
+   * @param finalState
+   *          the final state of the runner
+   */
+  private void handleApplicationShutdown(NativeApplicationRunnerState finalState) {
+    runnerState.set(finalState);
+
+    for (NativeApplicationRunnerListener listener : listeners) {
+      try {
+        listener.onNativeApplicationRunnerShutdown(this);
+      } catch (Exception e) {
+        log.error("Error while notifying a listener about native application shutdown", e);
+      }
+    }
+  }
+
+  /**
+   * Notify all listeners that the application startup failed.
+   */
+  private void handleApplicationStartupFailed() {
+    for (NativeApplicationRunnerListener listener : listeners) {
+      try {
+        listener.onNativeApplicationRunnerStartupFailed(this);
+      } catch (Exception e) {
+        log.error("Error while notifying a listener about native application starting", e);
+      }
+    }
+  }
+
+  /**
+   * Get the configuration for the runner.
+   *
+   * @return configuration for the runner
    */
   public Map<String, Object> getConfig() {
     return config;

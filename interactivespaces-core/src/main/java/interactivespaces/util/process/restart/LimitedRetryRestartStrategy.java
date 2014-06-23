@@ -25,9 +25,12 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * A {@link RestartStrategy} which will attempt a number of restarts.
  *
+ * @param <T>
+ *          the type of {@link Restartable}
+ *
  * @author Keith M. Hughes
  */
-public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
+public class LimitedRetryRestartStrategy<T extends Restartable> extends BaseRestartStrategy<T> {
 
   /**
    * The number of retries to attempt.
@@ -70,10 +73,10 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
   }
 
   @Override
-  public RestartStrategyInstance newInstance(Restartable restartable) {
-    LimitedRetryRestartStrategyInstance instance =
-        new LimitedRetryRestartStrategyInstance(restartable, numberRetries, sampleDelay, timeDurationSuccessfulRestart,
-            spaceEnvironment.getTimeProvider(), spaceEnvironment.getExecutorService());
+  public RestartStrategyInstance<T> newInstance(T restartable) {
+    LimitedRetryRestartStrategyInstance<T> instance =
+        new LimitedRetryRestartStrategyInstance<T>(restartable, this, numberRetries, sampleDelay,
+            timeDurationSuccessfulRestart, spaceEnvironment.getTimeProvider(), spaceEnvironment.getExecutorService());
     instance.startRestartAttempts();
 
     return instance;
@@ -83,9 +86,12 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
    * A {@link RestartStrategyInstance} which will attempt a given number of
    * retries.
    *
+   * @param <U>
+   *          the type of {@link Restartable}
+   *
    * @author Keith M. Hughes
    */
-  public class LimitedRetryRestartStrategyInstance extends BaseRestartStrategyInstance {
+  public static class LimitedRetryRestartStrategyInstance<U extends Restartable> extends BaseRestartStrategyInstance<U> {
 
     /**
      * The number of retries left.
@@ -126,6 +132,8 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
     /**
      * @param restartable
      *          the object being restarted
+     * @param strategy
+     *          the strategy the instance has supplied
      * @param numberRetries
      *          the total number of retries which can be attempted
      * @param sampleDelay
@@ -138,9 +146,10 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
      * @param executorService
      *          the thread pool to use
      */
-    public LimitedRetryRestartStrategyInstance(Restartable restartable, int numberRetries, long sampleDelay,
-        long timeDurationSuccessfulRestart, TimeProvider timeProvider, ScheduledExecutorService executorService) {
-      super(restartable, LimitedRetryRestartStrategy.this);
+    private LimitedRetryRestartStrategyInstance(U restartable, LimitedRetryRestartStrategy<U> strategy,
+        int numberRetries, long sampleDelay, long timeDurationSuccessfulRestart, TimeProvider timeProvider,
+        ScheduledExecutorService executorService) {
+      super(restartable, strategy, strategy.getListeners());
       this.numberRetriesLeft = numberRetries;
       this.sampleDelay = sampleDelay;
       this.timeDurationSuccessfulRestart = timeDurationSuccessfulRestart;
@@ -169,7 +178,7 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
      * Attempt a restart.
      */
     private void attemptRestart() {
-      if (sendRestartAttempt(getRestartable())) {
+      if (notifyRestartAttempt(getRestartable())) {
 
         numberRetriesLeft--;
         lastAttemptTime = timeProvider.getCurrentTime();
@@ -208,9 +217,9 @@ public class LimitedRetryRestartStrategy extends BaseRestartStrategy {
       getRestartable().restartComplete(success);
 
       if (success) {
-        sendRestartSuccess(getRestartable());
+        notifyRestartSuccess();
       } else {
-        sendRestartFailure(getRestartable());
+        notifyRestartFailure();
       }
     }
 

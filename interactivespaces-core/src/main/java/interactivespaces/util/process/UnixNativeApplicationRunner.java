@@ -21,26 +21,42 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link NativeApplicationRunner} for Linux systems.
+ * A base {@link NativeApplicationRunner} for unix-based operating systems.
  *
  * @author Keith M. Hughes
  */
-public class LinuxNativeApplicationRunner extends UnixNativeApplicationRunner {
+public abstract class UnixNativeApplicationRunner extends BaseNativeApplicationRunner {
 
   /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "linux";
-
-  /**
-   * Create a new activity runner for linux.
+   * Create a new activity runner for a unix-based operating system.
    *
    * @param spaceEnvironment
    *          environment to use
    * @param log
    *          logger for logging
    */
-  public LinuxNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+ public UnixNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
     super(spaceEnvironment, log);
+  }
+
+  @Override
+  public boolean handleProcessExit(int exitValue, String[] commands) {
+    String returnValue = null;
+    try {
+      UnixReturnValue unixReturnValue = UnixReturnValue.get(exitValue);
+      if (unixReturnValue != null) {
+        returnValue = unixReturnValue.toString();
+
+        if (unixReturnValue == UnixReturnValue.EXIT_NORMALLY) {
+          return true;
+        }
+      } else {
+        returnValue = Integer.toString(exitValue);
+      }
+
+      return false;
+    } finally {
+      getLog().info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
+    }
   }
 }

@@ -16,12 +16,13 @@
 
 package interactivespaces.activity.component;
 
-import com.google.common.collect.ImmutableList;
-
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.configuration.Configuration;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -38,14 +39,36 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   private static final List<String> NO_DEPENDENCIES = ImmutableList.of();
 
   /**
+   * Any additional dependencies for the component.
+   */
+  private final List<String> additionalDependencies = Lists.newArrayList();
+
+  /**
    * Component context this component is running under.
    */
   protected ActivityComponentContext componentContext;
 
   @Override
-  public List<String> getDependencies() {
+  public List<String> getBaseDependencies() {
     // Default is no dependencies
     return NO_DEPENDENCIES;
+  }
+
+  @Override
+  public void addDependency(String... dependencies) {
+    if (dependencies != null) {
+      for (String dependency : dependencies) {
+        additionalDependencies.add(dependency);
+      }
+    }
+  }
+
+  @Override
+  public List<String> getDependencies() {
+    List<String> dependencies = Lists.newArrayList(getBaseDependencies());
+    dependencies.addAll(additionalDependencies);
+
+    return dependencies;
   }
 
   @Override
@@ -74,8 +97,8 @@ public abstract class BaseActivityComponent implements ActivityComponent {
   }
 
   /**
-   * Handle an error for this component. Includes basic logging, and then passing off to the
-   * activity for any activity-specific processing.
+   * Handle an error for this component. Includes basic logging, and then
+   * passing off to the activity for any activity-specific processing.
    *
    * @param message
    *          error message text

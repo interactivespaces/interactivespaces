@@ -19,7 +19,9 @@ package interactivespaces.activity.binary;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivitySystemConfiguration;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.restart.LimitedRetryRestartStrategy;
+import interactivespaces.util.process.restart.RestartStrategy;
 
 import com.google.common.collect.Maps;
 
@@ -95,7 +97,7 @@ public class NativeBrowserRunner {
         MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
             initialUrl);
 
-    appConfig.put(NativeActivityRunner.FLAGS, commandFlags);
+    appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
 
     browserRunner.configure(appConfig);
     browserRunner.setRestartStrategy(getDefaultRestartStrategy());
@@ -108,9 +110,9 @@ public class NativeBrowserRunner {
    *
    * @return the restart strategy for the browser
    */
-  public LimitedRetryRestartStrategy getDefaultRestartStrategy() {
-    return new LimitedRetryRestartStrategy(RESTART_STRATEGY_NUMBER_RETRIES, RESTART_STRATEGY_SAMPLE_TIME,
-        RESTART_STRATEGY_SUCCESS_TIME, activity.getSpaceEnvironment());
+  public RestartStrategy<NativeApplicationRunner> getDefaultRestartStrategy() {
+    return new LimitedRetryRestartStrategy<NativeApplicationRunner>(RESTART_STRATEGY_NUMBER_RETRIES,
+        RESTART_STRATEGY_SAMPLE_TIME, RESTART_STRATEGY_SUCCESS_TIME, activity.getSpaceEnvironment());
   }
 
   /**
