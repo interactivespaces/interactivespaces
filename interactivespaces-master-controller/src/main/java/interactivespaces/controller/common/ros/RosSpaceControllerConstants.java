@@ -16,8 +16,6 @@
 
 package interactivespaces.controller.common.ros;
 
-import interactivespaces_msgs.ControllerActivityRuntimeRequest;
-import interactivespaces_msgs.ControllerActivityStatus;
 import interactivespaces_msgs.ControllerRequest;
 import interactivespaces_msgs.ControllerStatus;
 
@@ -48,27 +46,4 @@ public class RosSpaceControllerConstants {
    * Topic message type for controller status updates.
    */
   public static final String CONTROLLER_STATUS_MESSAGE_TYPE = ControllerStatus._TYPE;
-
-  /**
-   * Topic name for activity runtime requests.
-   */
-  public static final String ACTIVITY_RUNTIME_REQUEST_TOPIC_NAME =
-      "interactivespaces/controller/activity/runtime/request";
-
-  /**
-   * Topic message type for activity runtime requests.
-   */
-  public static final String ACTIVITY_RUNTIME_REQUEST_MESSAGE_TYPE =
-      ControllerActivityRuntimeRequest._TYPE;
-
-  /**
-   * Topic name for activity runtime status updates.
-   */
-  public static final String ACTIVITY_RUNTIME_STATUS_TOPIC_NAME =
-      "interactivespaces/controller/activity/runtime/status";
-
-  /**
-   * Topic message type for activity runtime status updates.
-   */
-  public static final String ACTIVITY_RUNTIME_STATUS_MESSAGE_TYPE = ControllerActivityStatus._TYPE;
 }

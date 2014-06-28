@@ -15,7 +15,7 @@
 ##
 
 # UUID of the activity.
-string uuid
+string live_activity_uuid
 
 # The operation to perform on the activity.
 int32 operation
@@ -25,31 +25,32 @@ int32 operation
 bool force
 
 # Force the activity to send its current status
-int32 OPERATION_STATUS = 0
+int32 OPERATION_LIVE_ACTIVITY_STATUS = 0
 
 # Start the activity up
-int32 OPERATION_STARTUP = 1
+int32 OPERATION_LIVE_ACTIVITY_STARTUP = 1
 
 # Activate the activity.
-int32 OPERATION_ACTIVATE = 2
+int32 OPERATION_LIVE_ACTIVITY_ACTIVATE = 2
 
 # Deactivate the activity.
-int32 OPERATION_DEACTIVATE = 3
+int32 OPERATION_LIVE_ACTIVITY_DEACTIVATE = 3
 
 # Shut the activity down.
-int32 OPERATION_SHUTDOWN = 4
+int32 OPERATION_LIVE_ACTIVITY_SHUTDOWN = 4
 
 # Configure the activity. The payload contains the
 # ActivityConfigurationRequest object.
-int32 OPERATION_CONFIGURE = 5
+int32 OPERATION_LIVE_ACTIVITY_CONFIGURE = 5
 
 # Delete the activity from the controller.
-int32 OPERATION_DELETE = 6
+int32 OPERATION_LIVE_ACTIVITY_DELETE = 6
 
 # Clean the activity's tmp data folder.
-int32 OPERATION_CLEAN_DATA_TMP = 7
+int32 OPERATION_LIVE_ACTIVITY_CLEAN_DATA_TMP = 7
 
 # Clean the activity's permanent data folder.
-int32 OPERATION_CLEAN_DATA_PERMANENT = 8
+int32 OPERATION_LIVE_ACTIVITY_CLEAN_DATA_PERMANENT = 8
 
-byte[] data
+# Any data/payload needed for the operation
+byte[] payload

@@ -79,13 +79,13 @@ public abstract class BaseSpaceController implements SpaceController {
    *
    * @param spaceEnvironment
    *          space environment to use
-   * @param nativeAppRunnerFactory
-   *          native app runner factory
+   * @param nativeActivityRunnerFactory
+   *          native activity runner factory
    */
   public BaseSpaceController(InteractiveSpacesEnvironment spaceEnvironment,
-      NativeActivityRunnerFactory nativeAppRunnerFactory) {
+      NativeActivityRunnerFactory nativeActivityRunnerFactory) {
     this.spaceEnvironment = spaceEnvironment;
-    this.nativeActivityRunnerFactory = nativeAppRunnerFactory;
+    this.nativeActivityRunnerFactory = nativeActivityRunnerFactory;
   }
 
   @Override

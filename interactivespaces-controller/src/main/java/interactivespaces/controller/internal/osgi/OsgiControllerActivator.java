@@ -178,7 +178,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
             nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
             spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
-            spaceEnvironment, dataBundleManager);
+            dataBundleManager, spaceEnvironment);
     addManagedResource(spaceController);
 
     controllerShell =

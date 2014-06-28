@@ -14,13 +14,14 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
 
-import org.ros.osgi.deployment.master.Feature;
-import org.ros.osgi.deployment.master.FeatureBundleResolver;
+import interactivespaces.master.resource.deployment.Feature;
+import interactivespaces.master.resource.deployment.ResourceDependencyResolver;
+
+import com.google.common.collect.Sets;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -28,22 +29,20 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class ObrFeatureBundleResolver implements FeatureBundleResolver {
-
-  // private RepositoryAdmin repositoryAdmin;
+public class ObrFeatureBundleResolver implements ResourceDependencyResolver {
 
   @Override
-  public Set<String> getBundles(Collection<Feature> features) {
-    Set<String> bundles = new HashSet<String>();
+  public Set<String> getDependencies(Collection<Feature> features) {
+    Set<String> dependencies = Sets.newHashSet();
 
     // TODO(keith): Eventually this should look inside the bundles and see what
     // they need
     // and figure out the whole graph.
     for (Feature feature : features) {
-      bundles.addAll(feature.getRootBundles());
+      dependencies.addAll(feature.getRootBundles());
     }
 
-    return bundles;
+    return dependencies;
   }
 
   // /**

@@ -80,7 +80,7 @@ public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
 
     ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
     rosRemoteSpaceControllerClient.sendControllerRequest(controller,
-        ControllerRequest.OPERATION_CAPTURE_DATA, serialize);
+        ControllerRequest.OPERATION_CONTROLLER_CAPTURE_DATA, serialize);
   }
 
   @Override
@@ -92,7 +92,7 @@ public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
 
     ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
     rosRemoteSpaceControllerClient.sendControllerRequest(controller,
-        ControllerRequest.OPERATION_RESTORE_DATA, serialize);
+        ControllerRequest.OPERATION_CONTROLLER_RESTORE_DATA, serialize);
   }
 
   /**

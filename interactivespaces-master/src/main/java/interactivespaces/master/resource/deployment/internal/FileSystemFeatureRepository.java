@@ -14,12 +14,13 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
+
+import interactivespaces.master.resource.deployment.Feature;
+import interactivespaces.master.resource.deployment.FeatureRepository;
 
 import org.ros.exception.RosRuntimeException;
 import org.ros.osgi.common.RosEnvironment;
-import org.ros.osgi.deployment.master.Feature;
-import org.ros.osgi.deployment.master.FeatureRepository;
 
 import java.io.File;
 import java.io.FileInputStream;

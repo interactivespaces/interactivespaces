@@ -14,9 +14,9 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
 
-import org.ros.osgi.deployment.master.Feature;
+import interactivespaces.master.resource.deployment.Feature;
 
 import java.util.ArrayList;
 import java.util.Collections;

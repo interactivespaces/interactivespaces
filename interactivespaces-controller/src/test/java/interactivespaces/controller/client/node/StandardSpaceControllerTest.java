@@ -122,14 +122,12 @@ public class StandardSpaceControllerTest {
     systemConfiguration.setValue(SpaceController.CONFIGURATION_CONTROLLER_NAME, "testcontroller");
     systemConfiguration.setValue(SpaceController.CONFIGURATION_CONTROLLER_DESCRIPTION, "yipee");
     systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID, "gloop");
-    systemConfiguration.setValue(
-        InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE, "false");
+    systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE, "false");
 
     controller =
-        new StandardSpaceController(activityInstallationManager, controllerRepository,
-            activeControllerActivityFactory, nativeAppRunnerFactory, configurationManager,
-            activityStorageManager, activityLogFactory, controllerCommunicator,
-            controllerInfoPersister, spaceSystemControl, spaceEnvironment, dataBundleManager);
+        new StandardSpaceController(activityInstallationManager, controllerRepository, activeControllerActivityFactory,
+            nativeAppRunnerFactory, configurationManager, activityStorageManager, activityLogFactory,
+            controllerCommunicator, controllerInfoPersister, spaceSystemControl, dataBundleManager, spaceEnvironment);
 
     fileSupport = mock(FileSupport.class);
     controller.setFileSupport(fileSupport);
@@ -203,8 +201,21 @@ public class StandardSpaceControllerTest {
     }, ActivityState.ACTIVE, ActivityState.ACTIVE);
   }
 
-  private void tryActivityStateAction(ActivityAction action, ActivityState startState,
-      ActivityState finishState) throws Exception {
+  /**
+   * Try doing an state action.
+   *
+   * @param action
+   *          the action
+   * @param startState
+   *          the start state
+   * @param finishState
+   *          the expected finish state
+   *
+   * @throws Exception
+   *           any exception thrown by the action
+   */
+  private void tryActivityStateAction(ActivityAction action, ActivityState startState, ActivityState finishState)
+      throws Exception {
     String activityUuid = "foop";
     InternalActivityFilesystem activityFilesystem = mock(InternalActivityFilesystem.class);
     when(activityStorageManager.getActivityFilesystem(activityUuid)).thenReturn(activityFilesystem);
@@ -212,13 +223,11 @@ public class StandardSpaceControllerTest {
     when(configurationManager.getConfiguration(activityFilesystem)).thenReturn(configuration);
 
     SimpleInstalledLiveActivity liveActivity = new SimpleInstalledLiveActivity();
-    when(controllerRepository.getInstalledLiveActivityByUuid(activityUuid))
-    .thenReturn(liveActivity);
+    when(controllerRepository.getInstalledLiveActivityByUuid(activityUuid)).thenReturn(liveActivity);
 
     ActiveControllerActivity expectedActive = mock(ActiveControllerActivity.class);
-    when(
-        activeControllerActivityFactory.newActiveActivity(liveActivity, activityFilesystem,
-            configuration, controller)).thenReturn(expectedActive);
+    when(activeControllerActivityFactory.newActiveActivity(liveActivity, activityFilesystem, configuration, controller))
+        .thenReturn(expectedActive);
     when(expectedActive.getCachedActivityStatus()).thenReturn(new ActivityStatus(startState, null));
     when(expectedActive.getActivityStatus()).thenReturn(new ActivityStatus(startState, null));
     when(expectedActive.getActivityState()).thenReturn(startState);
@@ -231,8 +240,7 @@ public class StandardSpaceControllerTest {
 
     ArgumentCaptor<ActivityStatus> activityStatus = ArgumentCaptor.forClass(ActivityStatus.class);
 
-    verify(controllerCommunicator, times(1)).publishActivityStatus(eq(activityUuid),
-        activityStatus.capture());
+    verify(controllerCommunicator, times(1)).publishActivityStatus(eq(activityUuid), activityStatus.capture());
     assertEquals(finishState, activityStatus.getValue().getState());
   }
 
@@ -271,7 +279,7 @@ public class StandardSpaceControllerTest {
   public void testCleanLiveActivityTempDataDir() {
     String uuid = "foo";
 
-    controller.cleanActivityTmpData(uuid);
+    controller.cleanLiveActivityTmpData(uuid);
 
     verify(activityStorageManager, times(1)).cleanTmpActivityDataDirectory(uuid);
   }
@@ -285,12 +293,11 @@ public class StandardSpaceControllerTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    ActiveControllerActivity active =
-        new ActiveControllerActivity(installedActivity, null, null, null, controller);
+    ActiveControllerActivity active = new ActiveControllerActivity(installedActivity, null, null, null, controller);
     controller.addActiveActivity(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
-    controller.cleanActivityTmpData(uuid);
+    controller.cleanLiveActivityTmpData(uuid);
 
     verify(activityStorageManager, times(0)).cleanTmpActivityDataDirectory(uuid);
   }
@@ -302,7 +309,7 @@ public class StandardSpaceControllerTest {
   public void testCleanLiveActivityPermanentDataDir() {
     String uuid = "foo";
 
-    controller.cleanActivityPermanentData(uuid);
+    controller.cleanLiveActivityPermanentData(uuid);
 
     verify(activityStorageManager, times(1)).cleanPermanentActivityDataDirectory(uuid);
   }
@@ -316,12 +323,11 @@ public class StandardSpaceControllerTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    ActiveControllerActivity active =
-        new ActiveControllerActivity(installedActivity, null, null, null, controller);
+    ActiveControllerActivity active = new ActiveControllerActivity(installedActivity, null, null, null, controller);
     controller.addActiveActivity(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
-    controller.cleanActivityPermanentData(uuid);
+    controller.cleanLiveActivityPermanentData(uuid);
 
     verify(activityStorageManager, times(0)).cleanPermanentActivityDataDirectory(uuid);
   }
@@ -334,7 +340,7 @@ public class StandardSpaceControllerTest {
   public interface ActivityAction {
 
     /**
-     * The operation to do for a given UUID
+     * The operation to do for a given UUID.
      *
      * @param uuid
      *          UUID of the activity

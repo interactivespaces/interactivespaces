@@ -14,9 +14,12 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
 
 import static org.jboss.netty.channel.Channels.pipeline;
+
+import interactivespaces.master.resource.deployment.FeatureRepository;
+import interactivespaces.master.resource.deployment.RemoteRepositoryMaster;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -31,8 +34,6 @@ import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.ros.osgi.common.RosEnvironment;
-import org.ros.osgi.deployment.master.FeatureRepository;
-import org.ros.osgi.deployment.master.RemoteRepositoryMaster;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
@@ -76,7 +77,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
   /**
    * The server handler for requests.
    */
-  private NettyWebServerHandler serverHandler;
+  private NettyHttpRemoteRepositoryMasterWebServerHandler serverHandler;
 
   /**
    * Server handler for web sockets.
@@ -131,7 +132,7 @@ public class NettyHttpRemoteRepositoryMaster implements RemoteRepositoryMaster {
     allChannels = new DefaultChannelGroup(serverName);
 
     serverHandler =
-        new NettyWebServerHandler(REPOSITORY_BUNDLE_URL_PREFIX, this, featureRepository, log);
+        new NettyHttpRemoteRepositoryMasterWebServerHandler(REPOSITORY_BUNDLE_URL_PREFIX, this, featureRepository, log);
     channelFactory = new NioServerSocketChannelFactory(executorService, executorService);
 
     serverBootstrap = new ServerBootstrap(channelFactory);

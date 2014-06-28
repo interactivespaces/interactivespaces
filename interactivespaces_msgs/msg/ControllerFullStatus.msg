@@ -14,8 +14,16 @@
 # the License.
 ##
 
+# Additional information that comes with a full status for a controller.
+
+# The name of the controller.
 string name
+
+#The controller description.
 string description
+
+# The host ID for the controller.
 string host_id
 
-interactivespaces_msgs/ControllerActivityStatus[] activities
+# Runtime statuses for all live activities on the controller.
+interactivespaces_msgs/LiveActivityRuntimeStatus[] liveActivityStatuses

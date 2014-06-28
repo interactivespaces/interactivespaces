@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
@@ -23,6 +23,8 @@ import static org.jboss.netty.handler.codec.http.HttpMethod.GET;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
+import interactivespaces.master.resource.deployment.FeatureRepository;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -44,7 +46,6 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
-import org.ros.osgi.deployment.master.FeatureRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,33 +58,46 @@ import java.io.RandomAccessFile;
  *
  * @author Keith M. Hughes
  */
-public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
+public class NettyHttpRemoteRepositoryMasterWebServerHandler extends SimpleChannelUpstreamHandler {
 
   /**
    * The web server we are attached to.
    */
-  private NettyHttpRemoteRepositoryMaster repositoryMaster;
+  private final NettyHttpRemoteRepositoryMaster repositoryMaster;
 
   /**
    * URI prefix for the server.
    */
-  private String uriPrefix;
+  private final String uriPrefix;
 
   /**
    * Repository which contains the ROS features.
    */
-  private FeatureRepository featureRepository;
+  private final FeatureRepository featureRepository;
 
   /**
    * Log to write on.
    */
-  private Log log;
+  private final Log log;
 
-  public NettyWebServerHandler(String uriPrefix, NettyHttpRemoteRepositoryMaster repositoryMaster,
-      FeatureRepository featureRepository, Log log) {
+  /**
+   * Construct the web server handler for the remote HTTP repository server.
+   *
+   * @param uriPrefix
+   *          URI prefix
+   * @param repositoryMaster
+   *          the repository master
+   * @param featureRepository
+   *          the repository for features
+   * @param log
+   *          the logger to use
+   */
+  public NettyHttpRemoteRepositoryMasterWebServerHandler(String uriPrefix,
+      NettyHttpRemoteRepositoryMaster repositoryMaster, FeatureRepository featureRepository, Log log) {
     this.uriPrefix = uriPrefix;
     this.repositoryMaster = repositoryMaster;
     this.featureRepository = featureRepository;
+    this.log = log;
   }
 
   @Override
@@ -109,11 +123,12 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Handle an HTTP request coming into the server.
    *
    * @param ctx
-   *          The channel context for the request.
+   *          the channel context for the request
    * @param req
-   *          The HTTP request.
+   *          the HTTP request
    *
    * @throws Exception
+   *           something bad happened during processing
    */
   private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
     // Allow only GET methods.
@@ -131,13 +146,16 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Attempt to handle an HTTP request by scanning through all registered
    * handlers.
    *
-   * @param ctx
-   *          The context for the request.
+   * @param context
+   *          the context for the request
    * @param req
-   *          The request.
-   * @return True if the request was handled, false otherwise.
+   *          the request
+   * @return {@code true} if the request was handled
+   *
+   * @throws IOException
+   *           something bad happened
    */
-  private boolean handleWebRequest(ChannelHandlerContext ctx, HttpRequest req) throws IOException {
+  private boolean handleWebRequest(ChannelHandlerContext context, HttpRequest req) throws IOException {
     String url = req.getUri();
     int pos = url.indexOf('?');
     if (pos != -1)
@@ -164,20 +182,20 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
     setContentLength(response, fileLength);
 
-    Channel ch = ctx.getChannel();
+    Channel channel = context.getChannel();
 
     // Write the initial line and the header.
-    ch.write(response);
+    channel.write(response);
 
     // Write the content.
     ChannelFuture writeFuture;
-    if (ch.getPipeline().get(SslHandler.class) != null) {
+    if (channel.getPipeline().get(SslHandler.class) != null) {
       // Cannot use zero-copy with HTTPS.
-      writeFuture = ch.write(new ChunkedFile(raf, 0, fileLength, 8192));
+      writeFuture = channel.write(new ChunkedFile(raf, 0, fileLength, 8192));
     } else {
       // No encryption - use zero-copy.
       final FileRegion region = new DefaultFileRegion(raf.getChannel(), 0, fileLength);
-      writeFuture = ch.write(region);
+      writeFuture = channel.write(region);
       writeFuture.addListener(new ChannelFutureProgressListener() {
         @Override
         public void operationComplete(ChannelFuture future) {
@@ -185,8 +203,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
         }
 
         @Override
-        public void operationProgressed(ChannelFuture arg0, long arg1, long arg2, long arg3)
-            throws Exception {
+        public void operationProgressed(ChannelFuture arg0, long arg1, long arg2, long arg3) throws Exception {
           // Do nothing
         }
 
@@ -205,21 +222,24 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   /**
    * Send an HTTP response to the client.
    *
-   * @param ctx
-   * @param req
-   * @param res
+   * @param context
+   *          the context for the channel handler handling the communication
+   * @param request
+   *          the http request
+   * @param response
+   *          the HTTP response
    */
-  private void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res) {
+  private void sendHttpResponse(ChannelHandlerContext context, HttpRequest request, HttpResponse response) {
     // Generate an error page if response status code is not OK (200).
-    if (res.getStatus().getCode() != 200) {
-      log.error(String.format("Error page for Repository server %s", req.getUri()));
-      res.setContent(ChannelBuffers.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
-      setContentLength(res, res.getContent().readableBytes());
+    if (response.getStatus().getCode() != 200) {
+      log.error(String.format("Error page for Repository server %s", request.getUri()));
+      response.setContent(ChannelBuffers.copiedBuffer(response.getStatus().toString(), CharsetUtil.UTF_8));
+      setContentLength(response, response.getContent().readableBytes());
     }
 
     // Send the response and close the connection if necessary.
-    ChannelFuture f = ctx.getChannel().write(res);
-    if (!isKeepAlive(req) || res.getStatus().getCode() != 200) {
+    ChannelFuture f = context.getChannel().write(response);
+    if (!isKeepAlive(request) || response.getStatus().getCode() != 200) {
       f.addListener(ChannelFutureListener.CLOSE);
     }
   }
@@ -231,18 +251,19 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   }
 
   /**
-   * Send an error to the remote machine.
+   * Send an error to the remote connection.
    *
-   * @param ctx
+   * @param context
+   *          the channel context for the communication
    * @param status
+   *          the HTTP response status
    */
-  void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+  void sendError(ChannelHandlerContext context, HttpResponseStatus status) {
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
     response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-    response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n",
-        CharsetUtil.UTF_8));
+    response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
 
     // Close the connection as soon as the error message is sent.
-    ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+    context.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
   }
 }

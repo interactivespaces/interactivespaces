@@ -14,25 +14,28 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master;
+package interactivespaces.master.resource.deployment;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 /**
- * Take a set of features and figure out all bundles needed.
+ * A ROS feature.
  *
  * @author Keith M. Hughes
  */
-public interface FeatureBundleResolver {
+public interface Feature {
 
   /**
-   * Take a set of features to deploy and figure out the bundles needed by them.
+   * The ID of the feature.
    *
-   * @param features
-   *          The features to deploy.
-   *
-   * @return Bundles needed for the features.
+   * @return the id
    */
-  Set<String> getBundles(Collection<Feature> features);
+  String getId();
+
+  /**
+   * Get the list of the root bundles for this feature.
+   *
+   * @return
+   */
+  List<String> getRootBundles();
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master;
+package interactivespaces.master.resource.deployment;
 
 import java.io.File;
 import java.io.InputStream;

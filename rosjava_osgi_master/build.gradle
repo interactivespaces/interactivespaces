@@ -16,10 +16,6 @@
 dependencies {
   compile project(':rosjava_osgi')
 
-  //compile 'org.apache.felix:org.apache.felix.bundlerepository:1.6.6'
-  //compile 'org.sat4j:org.sat4j.core:2.3.1'
-  //compile 'org.sat4j:org.sat4j.pb:2.3.1'
-
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -28,27 +24,20 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'org.ros.osgi.master'
-	
+
     instruction 'Export-Package',
-		'!org.ros.osgi.deployment.master.internal.*',
-		'!org.ros.osgi.master.core.internal.*',
-		'org.ros.osgi.master.*',
-		'org.ros.osgi.deployment.master.*'
- 
+        '!org.ros.osgi.master.core.internal.*',
+        'org.ros.osgi.master.*'
+
     instruction 'Private-Package',
-		'org.ros.osgi.deployment.master.internal.*',
-		'org.ros.osgi.master.core.internal.*'
- 
+        'org.ros.osgi.master.core.internal.*'
+
     instruction 'Import-Package',
-		'org.apache.felix.service.command;status=provisional',
-		'*'
+        'org.apache.felix.service.command;status=provisional',
+        '*'
 
     instruction 'Service-Component',
-		'OSGI-INF/master.xml'
-		// 'OSGI-INF/remote-repository.xml',
-		// 'OSGI-INF/feature-repository.xml',
-		// 'OSGI-INF/feature-bundle-resolver.xml',
-		// 'OSGI-INF/deployment-server.xml'
+        'OSGI-INF/master.xml'
   }
 }
 

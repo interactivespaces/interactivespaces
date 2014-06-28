@@ -14,16 +14,17 @@
  * the License.
  */
 
-package org.ros.osgi.deployment.master.internal;
+package interactivespaces.master.resource.deployment.internal;
+
+import interactivespaces.master.resource.deployment.DeploymentServer;
+import interactivespaces.master.resource.deployment.Feature;
+import interactivespaces.master.resource.deployment.ResourceDependencyResolver;
+import interactivespaces.master.resource.deployment.FeatureRepository;
+import interactivespaces.master.resource.deployment.RemoteRepositoryMaster;
 
 import com.google.common.collect.Lists;
 
 import org.ros.osgi.common.RosEnvironment;
-import org.ros.osgi.deployment.master.DeploymentServer;
-import org.ros.osgi.deployment.master.Feature;
-import org.ros.osgi.deployment.master.FeatureBundleResolver;
-import org.ros.osgi.deployment.master.FeatureRepository;
-import org.ros.osgi.deployment.master.RemoteRepositoryMaster;
 
 import java.util.List;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class RosDeploymentServer implements DeploymentServer {
   /**
    * Resolves all bundles needed for a feature.
    */
-  private FeatureBundleResolver featureBundleResolver;
+  private ResourceDependencyResolver featureBundleResolver;
 
   /**
    * The repository master which makes features and bundles available.
@@ -84,7 +85,7 @@ public class RosDeploymentServer implements DeploymentServer {
       }
     }
 
-    Set<String> allBundles = featureBundleResolver.getBundles(bundles);
+    Set<String> allBundles = featureBundleResolver.getDependencies(bundles);
 
     Set<String> bundleUris = repositoryMaster.getBundleUris(allBundles);
   }
@@ -102,7 +103,7 @@ public class RosDeploymentServer implements DeploymentServer {
    * @param featureBundleResolver
    *          the featureBundleResolver to set
    */
-  public void setFeatureBundleResolver(FeatureBundleResolver featureBundleResolver) {
+  public void setFeatureBundleResolver(ResourceDependencyResolver featureBundleResolver) {
     this.featureBundleResolver = featureBundleResolver;
   }
 
@@ -110,7 +111,7 @@ public class RosDeploymentServer implements DeploymentServer {
    * @param featureBundleResolver
    *          the featureBundleResolver to set
    */
-  public void unsetFeatureBundleResolver(FeatureBundleResolver featureBundleResolver) {
+  public void unsetFeatureBundleResolver(ResourceDependencyResolver featureBundleResolver) {
     this.featureBundleResolver = null;
   }
 

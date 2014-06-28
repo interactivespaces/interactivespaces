@@ -67,7 +67,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          uuid of the activity
    */
-  void cleanActivityTmpData(String uuid);
+  void cleanLiveActivityTmpData(String uuid);
 
   /**
    * Clean the permanent data folder for a given activity.
@@ -75,7 +75,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          uuid of the activity
    */
-  void cleanActivityPermanentData(String uuid);
+  void cleanLiveActivityPermanentData(String uuid);
 
   /**
    * Clean the temp data folder for the controller.
@@ -135,7 +135,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          UUID of the activity to get the status of
    */
-  void statusActivity(String uuid);
+  void statusLiveActivity(String uuid);
 
   /**
    * Capture data for the given controller from a URI.
