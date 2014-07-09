@@ -17,7 +17,14 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class TestRunnerBridge {
+public final class TestRunnerBridge {
+
+  /**
+   * Private constructor for utility class.
+   */
+  private TestRunnerBridge() {
+
+  }
 
   /**
    * Run the given tests in the given classLoader.
