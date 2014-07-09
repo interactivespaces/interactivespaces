@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.test;
 
+import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -25,19 +26,11 @@ import interactivespaces.workbench.project.java.JavaProjectType;
 import interactivespaces.workbench.project.java.JavaxProjectJavaCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
 
-import com.google.common.collect.Lists;
-
-import org.junit.runner.Description;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
-
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -144,98 +137,36 @@ public class JunitTestRunner {
     }
 
     if (!testClassNames.isEmpty()) {
-      URLClassLoader classloader =
-          new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
+      URLClassLoader classLoader =
+          new URLClassLoader(urls.toArray(new URL[urls.size()]), ClassLoader.getSystemClassLoader());
 
-      boolean allSuceeded = runTests(testClassNames, classloader);
-
-      return allSuceeded;
+      return runTests(testClassNames, classLoader);
     } else {
       // No tests classes, so we will get philosophical again...
       return true;
     }
   }
 
-  private static boolean runTests(List<String> testClassNames, URLClassLoader classloader) {
-    JUnitCore junit;
+  /**
+   * Run the given tests in the given class loader. This method is somewhat complicated, since it needs to
+   * use reflection to isolate the test runner in a separate class loader that does not derive from the
+   * current class.
+   *
+   * @param testClassNames
+   *          names of classes to test
+   * @param classLoader
+   *          classLoader to use for running tests
+   *
+   * @return {@code true} if all tests passed
+   */
+  private boolean runTests(List<String> testClassNames, URLClassLoader classLoader) {
     try {
-      Class jUnitClass = classloader.loadClass("org.junit.runner.JUnitCore");
-      junit = (JUnitCore) jUnitClass.newInstance();
+      Class<?> testRunner = classLoader.loadClass("interactivespaces.util.TestRunnerBridge");
+      Method runner = testRunner.getMethod("runTests", List.class, URLClassLoader.class);
+      Object result = runner.invoke(null, testClassNames, classLoader);
+      return (Boolean) result;
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("Creating jUnit", e);
+      throw new SimpleInteractiveSpacesException("Error running tests", e);
     }
-
-    junit.addListener(new RunListener() {
-
-      @Override
-      public void testRunStarted(Description description) throws Exception {
-        System.out.println("Starting JUnit tests");
-      }
-
-      @Override
-      public void testRunFinished(Result result) throws Exception {
-        System.out.println("Finished JUnit tests.");
-      }
-
-      @Override
-      public void testStarted(Description description) throws Exception {
-        System.out.format("Starting test %s \n", description.getDisplayName());
-      }
-
-      @Override
-      public void testFailure(Failure failure) throws Exception {
-        System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
-      }
-
-      @Override
-      public void testAssumptionFailure(Failure failure) {
-        System.out.format("Test %s failed\n%s\n", failure.getTestHeader(), trimStackTrace(failure));
-      }
-
-      @Override
-      public void testFinished(Description description) throws Exception {
-        System.out.format("Finished test %s \n", description.getDisplayName());
-      }
-
-      @Override
-      public void testIgnored(Description description) throws Exception {
-        System.out.format("Ignoring test %s\n", description.getDisplayName());
-      }
-
-      /**
-       * Trim stack trace to stop before everything about the fact that Java
-       * reflection called the test method.
-       *
-       * @param failure
-       *          the JUnit failure
-       *
-       * @return the trimmed stack trace
-       */
-      private String trimStackTrace(Failure failure) {
-        String trace = failure.getTrace();
-        String testclass = failure.getDescription().getClassName();
-        int lastIndexOf = trace.lastIndexOf(testclass);
-        int endOfLine = trace.indexOf("\n", lastIndexOf);
-
-        return trace.substring(0, endOfLine);
-      }
-    });
-
-    boolean allSuceeded = true;
-    for (String testClass : testClassNames) {
-      try {
-        Class<?> clazz = classloader.loadClass(testClass);
-        Result result = junit.run(clazz);
-
-        System.out.format("Ran %d tests in %d milliseconds\n\tFailed: %d, Ignored: %d\n", result.getRunCount(),
-            result.getRunTime(), result.getFailureCount(), result.getIgnoreCount());
-
-        allSuceeded &= result.wasSuccessful();
-      } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-    return allSuceeded;
   }
 }
