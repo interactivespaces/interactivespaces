@@ -18,6 +18,7 @@ package interactivespaces.workbench.project.test;
 
 import com.google.common.collect.Lists;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.TestRunnerBridge;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -161,8 +162,10 @@ public class JunitTestRunner {
    */
   private boolean runTests(List<String> testClassNames, URLClassLoader classLoader) {
     try {
-      Class<?> testRunner = classLoader.loadClass("interactivespaces.util.TestRunnerBridge");
-      Method runner = testRunner.getMethod("runTests", List.class, URLClassLoader.class);
+      // This code is equivalent to TestRunnerBridge.runTests(testClassNames, classLoader), except
+      // that it is sanitized through the test class loader.
+      Class<?> testRunner = classLoader.loadClass(TestRunnerBridge.class.getName());
+      Method runner = testRunner.getMethod(TestRunnerBridge.RUNNER_METHOD_NAME, List.class, URLClassLoader.class);
       Object result = runner.invoke(null, testClassNames, classLoader);
       return (Boolean) result;
     } catch (Exception e) {

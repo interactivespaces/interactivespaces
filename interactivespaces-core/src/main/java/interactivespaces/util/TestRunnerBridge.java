@@ -19,11 +19,11 @@ import java.util.List;
  */
 public final class TestRunnerBridge {
 
+  public static final String RUNNER_METHOD_NAME = "runTests";
   /**
    * Private constructor for utility class.
    */
   private TestRunnerBridge() {
-
   }
 
   /**
