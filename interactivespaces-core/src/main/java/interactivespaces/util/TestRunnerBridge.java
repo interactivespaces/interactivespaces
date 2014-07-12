@@ -44,8 +44,8 @@ public class TestRunnerBridge extends RunListener {
         Class<?> clazz = classLoader.loadClass(testClass);
         Result result = junit.run(clazz);
 
-        System.out.format("Ran %d tests in %d milliseconds\n\tFailed: %d, Ignored: %d\n", result.getRunCount(),
-            result.getRunTime(), result.getFailureCount(), result.getIgnoreCount());
+        System.out.format("Ran %2d tests in %4dms: %d failed, %d ignored. (%s)\n",
+            result.getRunCount(), result.getRunTime(), result.getFailureCount(), result.getIgnoreCount(), testClass);
 
         allSuceeded &= result.wasSuccessful();
       } catch (ClassNotFoundException e) {
@@ -58,17 +58,17 @@ public class TestRunnerBridge extends RunListener {
 
   @Override
   public void testRunStarted(Description description) throws Exception {
-    System.out.println("Starting JUnit tests");
+    //System.out.println("Starting JUnit tests");
   }
 
   @Override
   public void testRunFinished(Result result) throws Exception {
-    System.out.println("Finished JUnit tests.");
+    //System.out.println("Finished JUnit tests.");
   }
 
   @Override
   public void testStarted(Description description) throws Exception {
-    System.out.format("Starting test %s \n", description.getDisplayName());
+    //System.out.format("Starting test %s \n", description.getDisplayName());
   }
 
   @Override
@@ -83,12 +83,12 @@ public class TestRunnerBridge extends RunListener {
 
   @Override
   public void testFinished(Description description) throws Exception {
-    System.out.format("Finished test %s \n", description.getDisplayName());
+    //System.out.format("Finished test %s \n", description.getDisplayName());
   }
 
   @Override
   public void testIgnored(Description description) throws Exception {
-    System.out.format("Ignoring test %s\n", description.getDisplayName());
+    //System.out.format("Ignoring test %s\n", description.getDisplayName());
   }
 
   /**
