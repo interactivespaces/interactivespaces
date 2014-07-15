@@ -152,6 +152,12 @@ subprojects {
     maven {
       url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
+    maven {
+      url 'http://repo.spring.io/libs-release-remote'
+    }
+    maven {
+      url 'http://repository.pentaho.org/artifactory/repo/'
+    }
   }
 }
 

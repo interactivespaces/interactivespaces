@@ -34,7 +34,8 @@ dependencies {
 
   runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
 
-  compile('org.apache.commons:commons-ognl:4.0-SNAPSHOT') { transitive = false }
+  compile(files("${project.getProperty('interactivespaces.dependencies.home')}/expression/commons-ognl-4.0-SNAPSHOT.jar"))
+
   compile 'org.jboss.javassist:com.springsource.javassist:3.12.1.GA'
 
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
