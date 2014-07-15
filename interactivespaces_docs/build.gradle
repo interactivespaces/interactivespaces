@@ -32,6 +32,7 @@ task javadoc(type: Javadoc) {
 }
 
 task copySphinxConf(type: Copy) {
+  outputs.upToDateWhen { false }
   from('src/main/sphinx/conf.py.in') {
     filter(ReplaceTokens, tokens: ['version': rootProject.version])
   }

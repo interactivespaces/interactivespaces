@@ -300,26 +300,28 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (File bundleFile : jars) {
       String bundleUri = bundleFile.getAbsoluteFile().toURI().toString();
 
-      Bundle bundle = rootBundleContext.installBundle(bundleUri);
+      try {
+        Bundle bundle = rootBundleContext.installBundle(bundleUri);
 
-      String symbolicName = bundle.getSymbolicName();
-      if (symbolicName != null) {
-        int startLevel = STARTUP_LEVEL_DEFAULT;
-        if (symbolicName.equals("interactivespaces.master.webapp")) {
-          startLevel = STARTUP_LEVEL_LAST;
-        } else if (symbolicName.equals("interactivespaces.master")) {
-          startLevel = STARTUP_LEVEL_PENULTIMATE;
+        String symbolicName = bundle.getSymbolicName();
+        if (symbolicName != null) {
+          int startLevel = STARTUP_LEVEL_DEFAULT;
+          if (symbolicName.equals("interactivespaces.master.webapp")) {
+            startLevel = STARTUP_LEVEL_LAST;
+          } else if (symbolicName.equals("interactivespaces.master")) {
+            startLevel = STARTUP_LEVEL_PENULTIMATE;
+          }
+
+          if (startLevel != STARTUP_LEVEL_DEFAULT) {
+            bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
+          }
+
+          bundles.add(bundle);
+        } else {
+          logBadBundle(bundleUri);
         }
-
-        if (startLevel != STARTUP_LEVEL_DEFAULT) {
-          bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
-        }
-
-        bundles.add(bundle);
-      } else {
-        loggingProvider.getLog().error(
-            String.format("Bundle %s is not an OSGi bundle, skipping during Interactive Spaces startup",
-                bundle.getLocation()));
+      } catch (Exception e) {
+        logBadBundle(bundleUri);
       }
     }
 
@@ -336,6 +338,17 @@ public class InteractiveSpacesFrameworkBootstrap {
         startBundle(bundle);
       }
     }
+  }
+
+  /**
+   * Log that we had a bad bundle.
+   *
+   * @param bundleUri
+   *          URI for the bundle
+   */
+  private void logBadBundle(String bundleUri) {
+    loggingProvider.getLog().error(
+        String.format("Bundle %s is not an OSGi bundle, skipping during Interactive Spaces startup", bundleUri));
   }
 
   /**

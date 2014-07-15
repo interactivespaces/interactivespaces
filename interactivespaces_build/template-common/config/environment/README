@@ -1,0 +1,8 @@
+This folder is for shell environment variables which modify aspects of the Interactive Spaces runtime environment.
+
+IntercativeSpaces Extension Files (.ext) would be placed in this directory.
+
+The localenvironment.rc file can be used to declare environment variables for things like the classpath that
+Interactive Spaces starts with.
+
+container.args contains special command line flags for the Java Virtual Machine as Interactive Spaces starts up.

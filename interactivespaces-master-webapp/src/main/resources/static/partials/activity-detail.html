@@ -1,0 +1,41 @@
+<h1>Activity: {{activityInfo.activity.name}}</h1>
+
+<table class="activity-details">
+	<tr>
+		<th>ID</th>
+		<td>{{activityInfo.activity.id}}</td>
+	</tr>
+	<tr>
+		<th>Identifying Name</th>
+		<td>{{activityInfo.activity.identifyingName}}</td>
+	</tr>
+	<tr>
+		<th>Version</th>
+		<td>{{activityInfo.activity.version}}</td>
+	</tr>
+	<tr>
+		<th>Last Uploaded</th>
+		<td>{{activityInfo.activity.lastUploadDate | date:'medium'}}</td>
+	</tr>
+</table>
+
+<h2>Containing Live Activities</h2>
+
+<div ng-switch on="hasLiveActivities">
+	<div ng-switch-when="true">
+		<table>
+			<tr>
+				<th>Live Activity</th>
+				<th>Status</th>
+				<th>Up to date?</th>
+			</tr>
+
+			<tr ng-repeat="liveactivity in activityInfo.liveactivities"
+				ng-class-odd="'odd'">
+				<td><a class="uglylink"
+					href="#/liveactivity/{{liveactivity.id}}">{{liveactivity.name}}</a></td>
+			</tr>
+		</table>
+	</div>
+	<div ng-switch-default>None</div>
+</div>

@@ -17,9 +17,9 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'org.codehaus.groovy:groovy-all:2.0.6'
-  compile 'org.python:org.python:2.5.2'
-  compile 'org.mozilla:rhino:1.7R4'
+  expandedJars 'org.codehaus.groovy:groovy-all:2.0.6'
+  expandedJars files("${project.getProperty('interactivespaces.dependencies.home')}/python/jython/jython2.5.2/jython.jar")
+  expandedJars 'org.mozilla:rhino:1.7R4'
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
@@ -27,14 +27,10 @@ dependencies {
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
-def findArtifact(prefix) {
-  configurations.compile.find { it.name.startsWith(prefix) }
-}
-
 jar {
-  from zipTree(findArtifact("org.python-"))
-  from zipTree(findArtifact("groovy-all-"))
-  from zipTree(findArtifact("rhino-"))
+  configurations.expandedJars.asFileTree.each {
+    from zipTree(it)
+  }
 
   manifest {
     version = osgiVersion

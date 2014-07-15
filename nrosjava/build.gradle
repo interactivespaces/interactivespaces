@@ -22,11 +22,10 @@ dependencies {
   compile project(':apache_xmlrpc_server')
   compile project(':apache_xmlrpc_client')
 
-  compile('dnsjava:org.ros.rosjava.dnsjava:2.1.1') {
-	  transitive = false
-  }
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/net/org.ros.rosjava.dnsjava-2.1.1.jar")
 
   compile 'org.apache.commons:com.springsource.org.apache.commons.net:2.0.0'
+  compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

@@ -17,7 +17,10 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.quartz:2.1.2_1'
+  compile('org.apache.servicemix.bundles:org.apache.servicemix.bundles.quartz:2.1.2_1') {
+    exclude group: 'c3p0', module: 'c3p0'
+    transitive = false
+  }
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 

@@ -17,7 +17,9 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'org.freemarker:com.springsource.freemarker:2.3.18'
+  compile('org.freemarker:com.springsource.freemarker:2.3.15') {
+    exclude group: 'org.apache.log4j'
+  }
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 

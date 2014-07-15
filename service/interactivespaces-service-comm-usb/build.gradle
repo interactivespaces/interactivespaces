@@ -13,12 +13,17 @@
  * the License.
  */
 
+ ext {
+   serviceFolderName = "interactivespaces.service.comm.usb"
+   baseServiceBuildFolder = "${project.ext.extrasBuildFolder}/${project.ext.serviceFolderName}"
+ }
+ 
 dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile files(project.getProperty("jsr80.home"))
-  compile files(project.getProperty("usb4java.home"))
+  extrasCompile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/usb/jsr80-1.0.1.jar")
+  extrasCompile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/usb/usb4java-1.0.0.jar")
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
@@ -28,19 +33,23 @@ dependencies {
 
 task copyResources(type: Copy) {
   from 'src/main/resources/extras'
-  into 'build/staging/controller/extras'
+  into "${project.ext.baseServiceBuildFolder}"
 }
 
 task copyExtrasJars(type: Copy) {
-  from "${project.getProperty('jsr80.home')}"
-  from "${project.getProperty('usb4java.home')}"
-  into 'build/staging/controller/extras/interactivespaces.service.comm.usb/jars'
+  from configurations.extrasCompile
+  into "${project.ext.baseServiceBuildFolder}/jars"
   include '**/*.jar'
 }
 
 task copyExtraComponents(dependsOn: [copyResources, copyExtrasJars])
 
-install.dependsOn.add copyExtraComponents
+task copyServiceArtifacts(type: Copy, dependsOn: [install]) {
+  from configurations.archives.allArtifacts.files
+  into "${project.ext.baseServiceBuildFolder}"
+}
+
+task assembleExtras(dependsOn: [copyExtraComponents, copyServiceArtifacts])
 
 jar {
   manifest {

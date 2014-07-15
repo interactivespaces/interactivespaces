@@ -19,12 +19,6 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>org.codehaus.izpack</groupId>
-      <artifactId>izpack-standalone-compiler</artifactId>
-      <version>${izpack-standalone.version}</version>
-      <optional>true</optional>
-    </dependency>
 
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -576,29 +570,8 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-                <artifactItem>
-                  <groupId>interactivespaces</groupId>
-                  <artifactId>interactivespaces-activity-wrapper-script</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                </artifactItem>
 
                 <!--Interactive Spaces controller -->
-                <artifactItem>
-                  <groupId>interactivespaces</groupId>
-                  <artifactId>interactivespaces-controller</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>interactivespaces</groupId>
-                  <artifactId>interactivespaces-master-controller</artifactId>
-                  <version>${project.version}</version>
-                  <type>jar</type>
-                  <overWrite>true</overWrite>
-                </artifactItem>
 
                 <artifactItem>
                   <groupId>org.slf4j</groupId>
@@ -714,7 +687,7 @@
                   <overWrite>true</overWrite>
                   <outputDirectory>${staging.dir}/extras/interactivespaces.service.image.depth</outputDirectory>
                 </artifactItem>
-                
+
               </artifactItems>
 
               <outputDirectory>${staging.dir}/bootstrap</outputDirectory>
@@ -725,32 +698,6 @@
         </executions>
       </plugin>
 
-      <!-- see install.xml to see how MyHelloPanel is used -->
-      <plugin>
-        <groupId>org.codehaus.izpack</groupId>
-        <artifactId>izpack-maven-plugin</artifactId>
-        <version>1.0-alpha-5</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.izpack</groupId>
-            <artifactId>izpack-standalone-compiler</artifactId>
-            <version>${izpack-standalone.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <izpackBasedir>${staging.dir}</izpackBasedir>
-          <customPanelDirectory>${staging.dir}</customPanelDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>standard-installer</id>
-            <phase>package</phase>
-            <goals>
-              <goal>izpack</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 
     </plugins>
 
@@ -758,7 +705,6 @@
 
   <properties>
     <staging.dir>${project.build.directory}/staging</staging.dir>
-    <izpack-standalone.version>4.3.5</izpack-standalone.version>
   </properties>
 
   <repositories>

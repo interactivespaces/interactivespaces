@@ -1,0 +1,13 @@
+<h1>Live Activity Groups</h1>
+
+<table class="liveactivitygroup-list">
+	<tr>
+		<td>&nbsp;</td>
+		<th>Name</th>
+	</tr>
+
+	<tr ng-repeat="liveActivityGroup in liveActivityGroups | orderBy:'name'" ng-class-odd="'odd'">
+		<td><a href="#/liveactivitygroup/{{liveActivityGroup.id}}">View</a></td>
+		<td>{{liveActivityGroup.name}}</td>
+	</tr>
+</table>

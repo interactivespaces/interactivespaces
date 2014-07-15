@@ -1,0 +1,26 @@
+<h1>Live Activity: {{liveActivityInfo.name}}</h1>
+
+<p>{{liveActivityInfo.description}}</p>
+
+<table class="liveactivity-details">
+	<tr>
+		<th>ID</th>
+		<td>{{liveActivityInfo.id}}</td>
+	</tr>
+	<tr>
+		<th>UUID</th>
+		<td>{{liveActivityInfo.uuid}}</td>
+	</tr>
+	<tr>
+		<th>Activity</th>
+		<td><a class="uglylink"
+			href="#/activity/{{liveActivityInfo.activity.id}}">{{liveActivityInfo.activity.name}}
+				- {{liveActivityInfo.activity.version}}</a></td>
+	</tr>
+	<tr>
+		<th>Controller</th>
+		<td><a class="uglylink"
+			href="#/spacecontroller/{{liveActivityInfo.controller.id}}">{{liveActivityInfo.controller.name}}</a>
+		</td>
+	</tr>
+</table>

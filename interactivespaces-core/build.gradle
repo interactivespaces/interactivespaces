@@ -17,7 +17,10 @@ dependencies {
   compile project(':rosjava_osgi')
   compile project(':interactivespaces-bootstrap-core')
 
-  compile 'com.google.guava:guava:12.0'
+  compile('com.google.guava:guava:12.0') {
+    exclude group: 'com.google.code.findbugs', module: 'jsr305'
+  }
+
   compile 'io.netty:netty:3.6.6.Final'
 
   compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
@@ -35,9 +38,8 @@ dependencies {
   compile 'org.jboss.javassist:com.springsource.javassist:3.12.1.GA'
 
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
-  //compile 'org.jdom:com.springsource.org.jdom:1.1.0'
 
-  provided 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

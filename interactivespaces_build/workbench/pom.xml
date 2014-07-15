@@ -100,6 +100,8 @@
                       name="**/interactivespaces.example.activity.*/**" />
                     <include name="**/interactivespaces.example.library.*/**" />
                     <exclude name="**/bin/**" />
+                    <exclude name="**/.project" />
+                    <exclude name="**/.classpath" />
                   </fileset>
                 </copy>
                 <copy todir="${staging.dir}/lib/system/java">

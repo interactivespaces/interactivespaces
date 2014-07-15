@@ -13,12 +13,17 @@
  * the License.
  */
 
+ext {
+  serviceFolderName = "interactivespaces.service.comm.serial"
+  baseServiceBuildFolder = "${project.ext.extrasBuildFolder}/${project.ext.serviceFolderName}"
+}
+
 dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
 
-  compile files(project.getProperty("rxtx.home"))
+  extrasCompile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/serial/RXTXcomm.jar")
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
@@ -28,12 +33,23 @@ dependencies {
 
 task copyResources(type: Copy) {
   from 'src/main/resources/extras'
-  into 'build/staging/controller/extras'
+  into "${project.ext.baseServiceBuildFolder}"
 }
 
-task copyExtraComponents(dependsOn: [copyResources])
+task copyExtrasJars(type: Copy) {
+  from configurations.extrasCompile
+  into "${project.ext.baseServiceBuildFolder}/jars"
+  include '**/*.jar'
+}
 
-install.dependsOn.add copyExtraComponents
+task copyExtraComponents(dependsOn: [copyResources, copyExtrasJars])
+
+task copyServiceArtifacts(type: Copy, dependsOn: [install]) {
+  from configurations.archives.allArtifacts.files
+  into "${project.ext.baseServiceBuildFolder}"
+}
+
+task assembleExtras(dependsOn: [copyExtraComponents, copyServiceArtifacts])
 
 jar {
   manifest {

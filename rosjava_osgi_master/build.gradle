@@ -15,6 +15,8 @@
 
 dependencies {
   compile project(':rosjava_osgi')
+  
+  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
@@ -24,6 +26,9 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'org.ros.osgi.master'
+	
+	instruction 'Bundle-Activator',
+		'org.ros.osgi.master.core.internal.RosOsgiMasterBundleActivator'
 
     instruction 'Export-Package',
         '!org.ros.osgi.master.core.internal.*',
@@ -31,13 +36,6 @@ jar {
 
     instruction 'Private-Package',
         'org.ros.osgi.master.core.internal.*'
-
-    instruction 'Import-Package',
-        'org.apache.felix.service.command;status=provisional',
-        '*'
-
-    instruction 'Service-Component',
-        'OSGI-INF/master.xml'
   }
 }
 

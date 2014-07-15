@@ -1,0 +1,13 @@
+<h1>Spaces</h1>
+
+<table>
+	<tr>
+		<td>&nbsp;</td>
+		<td>Name</td>
+	</tr>
+
+	<tr ng-repeat="space in spaces | orderBy:'name'" ng-class-odd="'odd'">
+		<td><a href="#/space/{{space.id}}">View</a></td>
+		<td>{{space.name}}</td>
+	</tr>
+</table>

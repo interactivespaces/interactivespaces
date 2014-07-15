@@ -13,17 +13,38 @@
  * the License.
  */
 
+ext {
+  serviceFolderName = "interactivespaces.service.comm.bluetooth"
+  baseServiceBuildFolder = "${project.ext.extrasBuildFolder}/${project.ext.serviceFolderName}"
+}
+ 
 dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile files(project.getProperty("bluecove.home"))
+  extrasCompile files(files("${project.getProperty('interactivespaces.dependencies.home')}/comm/bluetooth/bluecove-2.1.0.jar"))
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
+
+task copyExtrasJars(type: Copy) {
+  from configurations.extrasCompile
+  into "${project.ext.baseServiceBuildFolder}/jars"
+  include '**/*.jar'
+}
+
+task copyExtraComponents(dependsOn: [copyExtrasJars])
+
+task copyServiceArtifacts(type: Copy, dependsOn: [install]) {
+  from configurations.archives.allArtifacts.files
+  into "${project.ext.baseServiceBuildFolder}"
+}
+
+task assembleExtras(dependsOn: [copyExtraComponents, copyServiceArtifacts])
+
 
 jar {
   manifest {

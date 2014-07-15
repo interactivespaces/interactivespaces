@@ -13,6 +13,11 @@
  * the License.
  */
 
+ext {
+  serviceFolderName = "interactivespaces.service.image.vision"
+  baseServiceBuildFolder = "${project.ext.extrasBuildFolder}/${project.ext.serviceFolderName}"
+}
+ 
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
@@ -23,6 +28,15 @@ dependencies {
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
+
+task copyServiceArtifacts(type: Copy, dependsOn: [install]) {
+  from configurations.archives.allArtifacts.files
+  into "${project.ext.baseServiceBuildFolder}"
+}
+
+task assembleExtras(dependsOn: [
+  copyServiceArtifacts
+])
 
 jar {
   manifest {

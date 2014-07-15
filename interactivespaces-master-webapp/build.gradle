@@ -17,22 +17,64 @@ dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-master')
 
-  compile project(':interactivespaces-database')
-  compile project(':service:interactivespaces-service-script')
-  compile project(':service:interactivespaces-service-scheduler')
+  runtime project(':interactivespaces-database')
 
-  compile ('org.springframework:spring-web:3.1.1.RELEASE')
-  compile ('org.springframework:spring-webmvc:3.1.1.RELEASE')
-  compile ('org.springframework.webflow:spring-webflow:2.3.1.RELEASE')
-  compile ('javax.validation:com.springsource.javax.validation:1.0.0.GA')
+  compile('org.springframework:spring-web:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance' 
+  }
+  
+  compile('org.springframework:spring-webmvc:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance' 
+  }
+  
+  compile('org.springframework.webflow:spring-webflow:2.3.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance' 
+    exclude module: 'spring-js-resources'
+  }
+  
+  compile 'javax.validation:com.springsource.javax.validation:1.0.0.GA'
 
-  compile ('org.ops4j.pax.web:pax-web-extender-war:1.1.1')
-  compile ('org.eclipse.gemini.blueprint:gemini-blueprint-core:1.0.0.RELEASE')
-  compile ('org.freemarker:com.springsource.freemarker:2.3.18')
+  compile('org.ops4j.pax.web:pax-web-extender-war:1.1.2') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.ops4j.pax.swissbox'
+    exclude group: 'org.ops4j.base'
+    exclude group: 'javax.servlet'
+  }
+ 
+  runtime('org.ops4j.pax.web:pax-web-jetty-bundle:1.1.1') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.ops4j.pax.swissbox'
+  }
+  
+  runtime('org.ops4j.pax.web:pax-web-runtime:1.1.2') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.ops4j.pax.swissbox'
+  }
+  
+  runtime('org.ops4j.pax.web:pax-web-spi:1.1.2') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.ops4j.pax.swissbox'
+  }
+  
+  compile 'org.eclipse.gemini.blueprint:gemini-blueprint-core:1.0.2.RELEASE'
+  
+  runtime 'org.eclipse.gemini.blueprint:gemini-blueprint-extender:1.0.2.RELEASE'
+  
+  compile 'org.eclipse.gemini.blueprint:gemini-blueprint-io:1.0.2.RELEASE'
+  
+  compile('org.freemarker:com.springsource.freemarker:2.3.15') {
+    exclude group: 'org.apache.log4j'
+  }
+
   //compile ('javax.servlet:javax.servlet:3.0.0.v201103241009')
-  compile ('org.apache.commons:com.springsource.org.apache.commons.fileupload:1.2.1')
-  compile ('org.apache.commons:com.springsource.org.apache.commons.io:1.4.0')
-
+  
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.fileupload:1.2.1'
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.io:1.4.0'
+  runtime 'org.aopalliance:com.springsource.org.aopalliance:1.0.0'
+  
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -77,14 +119,15 @@ jar {
         'org.springframework.web.multipart.commons',
         'org.springframework.ui.velocity',
         'org.eclipse.gemini.blueprint.config',
-        'org.springframework.security.config',
-        'org.springframework.security.provisioning',
-        'org.springframework.security.web.authentication',
         'org.springframework.web.filter',
 		'org.springframework.transaction.config',
 		'org.apache.derby.jdbc',
         'org.apache.commons.fileupload.disk',
 		//'javax.servlet;version=""',
         '*'
+        
+        //'org.springframework.security.config',
+        //'org.springframework.security.provisioning',
+        //'org.springframework.security.web.authentication',
   }
 }
