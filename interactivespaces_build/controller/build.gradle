@@ -15,10 +15,57 @@
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
+apply plugin: 'izpack'
+
 ext { containerType = "controller" }
 
-task cleanContainer(type: Exec) {
-  commandLine "rm", "-fR", new File(project.projectDir, "target").absolutePath
+configurations {
+  bootstrap
+  system
+  launcher
+  extras
+}
+
+dependencies {
+    izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
+    
+    bootstrap project(":interactivespaces-controller")
+    
+    bootstrap project(":interactivespaces-activity-wrapper-script")
+    
+    bootstrap project(":service:interactivespaces-service-script")
+    bootstrap project(":service:interactivespaces-service-scheduler")
+    bootstrap project(":service:interactivespaces-service-web")
+    bootstrap project(":service:interactivespaces-service-audio-player")
+    bootstrap project(":service:interactivespaces-service-speech-synthesis")
+    bootstrap project(":service:interactivespaces-service-comm-chat")
+    bootstrap project(":service:interactivespaces-service-comm-twitter")
+    bootstrap project(":service:interactivespaces-service-mail-receiver")
+    bootstrap project(":service:interactivespaces-service-mail-sender")
+    bootstrap project(":service:interactivespaces-service-template")
+    bootstrap project(":interactivespaces-interaction")
+    
+    bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
+    
+    system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+    system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
+    system 'org.apache.felix:org.apache.felix.framework:4.2.1'
+    system project(':interactivespaces-bootstrap-core')
+    system project(':interactivespaces-launcher-bootstrap')
+    
+    launcher project(':interactivespaces-launcher')
+    
+    extras project(":service:interactivespaces-service-comm-usb")
+    extras project(":service:interactivespaces-service-comm-bluetooth")
+    extras project(":service:interactivespaces-service-comm-serial")
+    extras project(":service:interactivespaces-service-image-depth")
+    extras project(":service:interactivespaces-service-image-depth-openni2")
+    extras project(":service:interactivespaces-service-image-vision")
+    extras project(":service:interactivespaces-service-image-vision-opencv")
+}
+
+task cleanContainers(type: Exec) {
+  commandLine "rm", "-fR", new File(project.projectDir, "build").absolutePath
 }
 
 task copyCore(type:Copy) {
@@ -28,62 +75,105 @@ task copyCore(type:Copy) {
   from parent.file('template-common')
   from parent.file('common')
   from project.file('template')
-  from project.file('src/izpack')
-  into 'target/staging'
+  into project.ext.containerBuildTarget
   filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
   filter(ReplaceTokens, tokens:[INTERACTIVESPACES_CONTAINER_TYPE:project.ext.containerType])
 }
 
 task copyPythonCore(type:Copy) {
-  from "${project.getProperty('jython.home')}/Lib"
-  into 'target/staging/lib/python/PyLib'
+  from "${project.getProperty('interactivespaces.dependencies.home')}/python/jython/jython2.5.2/Lib"
+  into "${project.ext.containerBuildTarget}/lib/python/PyLib"
 }
 
 task copyPythonRelease(type:Copy) {
   from rootProject.file('interactivespaces_lib/src/main/python/release/common')
   from rootProject.file('interactivespaces_lib/src/main/python/release/controller')
-  into 'target/staging/lib/python/release'
+  into "${project.ext.containerBuildTarget}/lib/python/release"
 }
 
-task copyExtras(type:Copy) {
+task doAssembleExtras()
+
+task copyExtras(type:Copy, dependsOn: [doAssembleExtras]) {
   from rootProject.subprojects.collect { it.file('build/staging/controller') }
-  into 'target/staging'
+  into "${project.ext.containerBuildTarget}"
+}
+
+project.afterEvaluate {
+  project.configurations.extras.allDependencies.each {
+    def extrasProject = it.dependencyProject
+    extrasProject.afterEvaluate {
+      doAssembleExtras.dependsOn extrasProject.assembleExtras
+    }
+  }
 }
 
 task copyNeededComponents(dependsOn: [
   copyExtras,
   copyCore,
   copyPythonCore,
-  copyPythonRelease,
-  cleanContainer
+  copyPythonRelease
 ])
 
-task assembleContainers(type: Exec, dependsOn: [
-  copyNeededComponents,
-  cleanContainer
-]) {
-  commandLine "mvn", "install", "-DinteractiveSpacesVersion=${version}"
+task copyContainerDependenciesLauncher(type: Copy) {
+  into "${project.ext.containerBuildTarget}"  
+  from configurations.launcher - configurations.system
 }
 
-task installDev(type: Exec, dependsOn: [assembleContainers]) {
+task copyContainerDependenciesBootstrap(type: Copy) {
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"  
+  from configurations.bootstrap - configurations.system
+}
+
+task copyContainerDependenciesSystemJava(type: Copy) {
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"  
+  from configurations.system
+}
+
+task assembleContainers(dependsOn: [
+  copyNeededComponents,
+  copyContainerDependenciesLauncher,
+  copyContainerDependenciesBootstrap,
+  copyContainerDependenciesSystemJava
+])
+
+assembleContainers.mustRunAfter cleanContainers
+
+task installDev(type: Exec, dependsOn: [assembleContainers, cleanContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
-  def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+  def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
   def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
   commandLine "bash", "../install_container.bash", version, project.ext.containerType, containerDir, stagingDir
 }
 
-
-task createImage(type: Copy, dependsOn: [assembleContainers]) {
+task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
-    def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+    def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
     def containerDir = getProperty("imageHome") + "/" + project.ext.containerType
 
     from stagingDir
     into containerDir
     exclude 'config'
-    exclude 'install.xml'
-    exclude 'userInputLang.xml_eng'
-    exclude 'user_input_spec.xml'
   }
 }
+
+task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
+  from project.file('src/izpack')
+  into project.ext.containerBuildTarget
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_CONTAINER_TYPE:project.ext.containerType])
+}
+
+izpack {
+    baseDir = file("${project.ext.containerBuildTarget}")
+    installFile = file('src/izpack/install.xml')
+    outputFile = file("$buildDir/distributions/interactivespaces-controller-installer-${version}.jar")
+    compression = 'deflate'
+    compressionLevel = 9
+    appProperties = ['app.name': 'Interactive Spaces Controller',
+                     'app.version': version]
+}
+
+izPackCreateInstaller.dependsOn copyInstallerDependencies
+
+task createInstallers(dependsOn: [cleanContainers, izPackCreateInstaller])

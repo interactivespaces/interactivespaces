@@ -16,17 +16,14 @@
 
 buildscript {
   repositories {
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-      name = 'GitHub'
-      addArtifactPattern 'http://cloud.github.com/downloads/[organisation]/[module]/[module]-[revision].[ext]'
-    }
+    jcenter()
     mavenCentral()
   }
 
-//  dependencies {
-//    classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.2'
-//    classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
-//  }
+  dependencies {
+    classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.3'
+    classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
+  }
 
 }
 
@@ -42,10 +39,21 @@ allprojects {
     interactiveSpacesVersion = '1.6.3'
     interactiveSpacesVersionQualifier = 'SNAPSHOT'
 
+    // These specify the layout of IS containers.
+    
+    // Where the Java system libraries go
+    interactiveSpacesContainerSystemJava = 'lib/system/java'
+    
+    // Where the OSGi bootstrap bundles go
+    interactiveSpacesContainerBootstrap = 'bootstrap'
+
+    // When building the containers, where do we build?
+    containerBuildTarget = 'build/staging'
+
     nonjavaProjects = [ 
       'interactivespaces_docs', 
       'interactivespaces-controller-android', 
-      'service', 
+      'service',
       'interactivespaces_build', 
       'master', 'controller', 'workbench'
     ]
@@ -74,6 +82,11 @@ allprojects {
 }
 
 subprojects {
+
+  ext {
+    extrasBuildFolder = "build/staging/controller/extras"
+  }
+
   if (!ext.nonjavaProjects.contains(name)) {
     apply plugin: 'java'
     apply plugin: 'maven'
@@ -105,33 +118,40 @@ subprojects {
     configurations {
       // dependencies which are provided by the container.
       provided
+
+      // JARs which will be expanded into a normal jar
+      expandedJars
+
+      // Compile time resources needed for compiling extras.
+      extrasCompile
     }
 
     sourceSets {
       main { 
            // Provided libraries should be on the compile classpath, though
            // not in the compile configuration.
-      	   compileClasspath += configurations.provided 
+      	   compileClasspath += [configurations.provided]
+      	   compileClasspath += [configurations.expandedJars]
+      	   compileClasspath += [configurations.extrasCompile]
       }
     }
 
     // Provided dependencies need to be available to eclipse.
-    eclipse.classpath.plusConfigurations += configurations.provided
+    eclipse.classpath.plusConfigurations += [configurations.provided]
+    eclipse.classpath.plusConfigurations += [configurations.expandedJars]
+    eclipse.classpath.plusConfigurations += [configurations.extrasCompile]
 
     sourceCompatibility = 1.6
 
-    repositories {
-      mavenLocal()
-      maven {
-        url 'http://robotbrains.hideho.org/nexus/content/groups/ros-public'
-      }
-      mavenCentral()
-      maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
-      }
-    }
-
     install.dependsOn build
+  }
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+      url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
   }
 }
 

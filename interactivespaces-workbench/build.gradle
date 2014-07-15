@@ -17,11 +17,15 @@ import com.sun.java.util.jar.pack.Instruction;
 
 dependencies {
   compile project(':interactivespaces-core')
-  compile project(':interactivespaces-controller')
+  //compile project(':interactivespaces-controller')
 
   compile 'org.apache.felix:org.apache.felix.framework:4.2.1'
-  compile 'org.freemarker:com.springsource.freemarker:2.3.18'
-  compile 'interactivespaces:org.swinglabs.swingx:1.6.1'
+  
+  compile('org.freemarker:com.springsource.freemarker:2.3.15') {
+    exclude group: 'org.apache.log4j'
+  }
+  
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/gui/org.swinglabs.swingx-1.6.1.jar")
   compile 'biz.aQute:bndlib:1.50.0'
   compile 'org.ow2.asm:asm-all:4.2'
   

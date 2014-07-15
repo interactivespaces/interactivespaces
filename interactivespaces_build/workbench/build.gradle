@@ -13,30 +13,131 @@
  * the License.
  */
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'izpack'
+
 ext { containerType = "workbench" }
 
-task assembleContainers(type: Exec) {
-  commandLine "mvn", "clean", "install", "-DinteractiveSpacesVersion=${version}"
+configurations {
+  bootstrap
+  system
+  launcher
+  alternate
 }
 
-task installDev(type: Exec, dependsOn: [assembleContainers]) {
+dependencies {
+    izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
+    
+    bootstrap project(":interactivespaces-workbench")
+    
+    system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+    system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
+    system 'org.apache.felix:org.apache.felix.framework:4.2.1'
+    system project(':interactivespaces-bootstrap-core')
+    system project(':interactivespaces-launcher-bootstrap')
+    
+    launcher project(':interactivespaces-launcher')
+    
+    alternate project(':service:interactivespaces-service-androidos')
+}
+
+task cleanContainers(type: Exec) {
+  commandLine "rm", "-fR", new File(project.projectDir, "build").absolutePath
+}
+
+task copyCore(type:Copy) {
+  from rootProject.file('LICENSE.txt')
+  from rootProject.file('LICENSE.thirdparties.txt')
+  from rootProject.file('NOTICE.txt')
+  from parent.file('common')
+  from project.file('template')
+  into project.ext.containerBuildTarget
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_CONTAINER_TYPE:project.ext.containerType])
+}
+
+task copyExamples(type:Copy) {
+  from rootProject.file('examples')
+  into "${project.ext.containerBuildTarget}/examples"
+  include "**/interactivespaces.example.activity.*/**"
+  include "**/interactivespaces.example.library.*/**"
+  exclude "**/bin/**"
+  exclude "**/.project"
+  exclude "**/.classpath"
+}
+
+task copyNeededComponents(dependsOn: [
+  copyCore,
+  copyExamples
+])
+
+task copyContainerDependenciesAlternate(type: Copy) {
+  into "${project.ext.containerBuildTarget}/alternate/android"
+  from configurations.alternate - configurations.bootstrap
+}
+
+task copyContainerDependenciesLauncher(type: Copy) {
+  into "${project.ext.containerBuildTarget}"  
+  from configurations.launcher - configurations.system
+}
+
+task copyContainerDependenciesBootstrap(type: Copy) {
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"  
+  from configurations.bootstrap - configurations.system
+}
+
+task copyContainerDependenciesSystemJava(type: Copy) {
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"  
+  from configurations.system
+}
+
+task assembleContainers(dependsOn: [
+  copyNeededComponents,
+  copyContainerDependenciesLauncher,
+  copyContainerDependenciesBootstrap,
+  copyContainerDependenciesSystemJava,
+  copyContainerDependenciesAlternate
+])
+
+assembleContainers.mustRunAfter cleanContainers
+
+task installDev(type: Exec, dependsOn: [assembleContainers, cleanContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
-  def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+  def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
   def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
   commandLine "bash", "../install_container.bash", version, project.ext.containerType , containerDir, stagingDir
 }
 
-task createImage(type: Copy, dependsOn: [assembleContainers]) {
+task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
-    def stagingDir = new File(project.projectDir, "target/staging").absolutePath
+    def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
     def containerDir = getProperty("imageHome") + "/" + project.ext.containerType
 
     from stagingDir
     into containerDir
     exclude 'config'
-    exclude 'install.xml'
-    exclude 'userInputLang.xml_eng'
-    exclude 'user_input_spec.xml'
   }
 }
+
+task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
+  from project.file('src/izpack')
+  into project.ext.containerBuildTarget
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
+  filter(ReplaceTokens, tokens:[INTERACTIVESPACES_CONTAINER_TYPE:project.ext.containerType])
+}
+
+izpack {
+    baseDir = file("${project.ext.containerBuildTarget}")
+    installFile = file('src/izpack/install.xml')
+    outputFile = file("$buildDir/distributions/interactivespaces-workbench-installer-${version}.jar")
+    compression = 'deflate'
+    compressionLevel = 9
+    appProperties = ['app.name': 'Interactive Spaces Workbench',
+                     'app.version': version]
+}
+
+izPackCreateInstaller.dependsOn copyInstallerDependencies
+
+task createInstallers(dependsOn: [cleanContainers, izPackCreateInstaller])

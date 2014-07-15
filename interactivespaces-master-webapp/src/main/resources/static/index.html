@@ -1,0 +1,63 @@
+<!--
+ * Copyright (C) 2014 Google Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ -->
+<!DOCTYPE html>
+<html ng-app="interactiveSpacesWebAdminApp">
+<head>
+<title>Interactive Spaces Admin</title>
+
+<link rel="stylesheet" type="text/css" href="/interactivespaces/static/css/interactivespaces_master.css" />
+<link rel="shortcut icon" href="/interactivespaces/static/img/favicon.ico" type="image/x-icon" />
+
+<script type="text/javascript" src="/interactivespaces/static/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/angular-1.2.9.min.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/angular-route-1.2.9.min.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/app.js"></script>
+<script type="text/javascript" src="/interactivespaces/static/js/controllers.js"></script>
+
+
+</head>
+
+<body>
+
+<div>
+<img src="/interactivespaces/static/img/interactivespaces_logo_small.png" alt="Interactive Spaces logo" />
+<span id="spaceName">${interactivespacesName}</span>
+</div>
+
+<div id="navMain">
+<ul>
+<li><a class="uglylink" href="#/activity">Activity</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/liveactivity">Live Activity</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/liveactivitygroup">Live Activity Group</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/space">Space</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/spacecontroller">Space Controller</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/troubleshoot">Troubleshoot</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/namedscript">Scripts</a></li>
+<li>&bull;</li>
+<li><a class="uglylink" href="#/support">Support</a></li>
+</ul>
+</div>
+
+<div ng-view></div>
+
+</body>
+<html>

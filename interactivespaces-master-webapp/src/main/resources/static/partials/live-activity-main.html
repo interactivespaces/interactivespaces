@@ -1,0 +1,13 @@
+<h1>Live Activities</h1>
+
+<table>
+	<tr>
+		<td>&nbsp;</td>
+		<td>Name</td>
+	</tr>
+
+	<tr ng-repeat="liveActivity in liveActivities | orderBy:'name'" ng-class-odd="'odd'">
+		<td><a href="#/liveactivity/{{liveActivity.id}}">View</a></td>
+		<td>{{liveActivity.name}}</td>
+	</tr>
+</table>

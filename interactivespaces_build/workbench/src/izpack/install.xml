@@ -4,8 +4,8 @@
 
 	<!-- The info section. The meaning of the tags should be natural ... -->
 	<info>
-		<appname>@{project.name}</appname>
-		<appversion>@{project.version}</appversion>
+		<appname>@{app.name}</appname>
+		<appversion>@{app.version}</appversion>
 		<appsubpath>interactivespaces/workbench</appsubpath>
 		<authors>
 			<author name="Google" email="" />
@@ -15,7 +15,7 @@
 	</info>
 
 	<dynamicvariables>
-		<variable name="interactivespaces.version" value="@{project.version}" />
+		<variable name="interactivespaces.version" value="@{app.version}" />
 		<variable name="interactivespaces.platform.os" value="linux"
 			condition="izpack.linuxinstall" />
 		<variable name="interactivespaces.platform.os" value="windows"
@@ -57,9 +57,6 @@
 		<panel classname="FinishPanel" />
 	</panels>
 
-	<jar src="dependency/plexus-utils.jar" />
-	<jar src="../interactivespaces-workbench-installer.jar" />
-
 	<!-- The packs section. We specify here our packs. -->
 	<packs>
 		<pack name="Base" required="yes">
@@ -78,7 +75,7 @@
 			<file src="examples" targetdir="$INSTALL_PATH" />
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
 			<file src="alternate" targetdir="$INSTALL_PATH" />
-			<file src="interactivespaces-launcher-@{project.version}.jar"
+			<file src="interactivespaces-launcher-@{app.version}.jar"
 				targetdir="$INSTALL_PATH" override="true" />
 
 			<parsable targetfile="$INSTALL_PATH/config/workbench.conf" />

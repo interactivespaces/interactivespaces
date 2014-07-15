@@ -1,0 +1,13 @@
+<h1>Space Controllers</h1>
+
+<table>
+	<tr>
+		<td>&nbsp;</td>
+		<td>Name</td>
+	</tr>
+
+	<tr ng-repeat="spaceController in spaceControllers | orderBy:'name'" ng-class-odd="'odd'">
+		<td><a href="#/spacecontroller/{{spaceController.id}}">View</a></td>
+		<td>{{spaceController.name}}</td>
+	</tr>
+</table>

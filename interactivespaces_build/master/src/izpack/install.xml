@@ -6,8 +6,8 @@
         The meaning of the tags should be natural ...
     -->
     <info>
-        <appname>@{project.name}</appname>
-        <appversion>@{project.version}</appversion>
+        <appname>@{app.name}</appname>
+        <appversion>@{app.version}</appversion>
         <appsubpath>interactivespaces/master</appsubpath>
         <authors>
             <author name="Google" email="" />
@@ -17,7 +17,7 @@
     </info>
 
     <dynamicvariables>
-      <variable name="interactivespaces.version" value="@{project.version}" />
+      <variable name="interactivespaces.version" value="@{app.version}" />
       <variable name="interactivespaces.platform.os" value="linux" condition="izpack.linuxinstall" />
       <variable name="interactivespaces.platform.os" value="windows" condition="izpack.windowsinstall" />
       <variable name="interactivespaces.platform.os" value="osx" condition="izpack.macinstall" />
@@ -69,9 +69,6 @@
         <panel classname="FinishPanel"/>
     </panels>
 
-    <jar src="dependency/plexus-utils.jar"/>
-    <jar src="../interactivespaces-master-installer.jar"/>
-
     <!-- 
         The packs section.
         We specify here our packs.
@@ -92,18 +89,13 @@
             <file src="bootstrap" targetdir="$INSTALL_PATH"  override="true" />
             <file src="lib" targetdir="$INSTALL_PATH" override="true" />
             <file src="master" targetdir="$INSTALL_PATH"/>
-            <file src="interactivespaces-launcher-@{project.version}.jar" targetdir="$INSTALL_PATH" override="true" />
+            <file src="interactivespaces-launcher-@{app.version}.jar" targetdir="$INSTALL_PATH" override="true" />
 
             <parsable targetfile="$INSTALL_PATH/bin/startup_linux.bash"/>
             <executable targetfile="$INSTALL_PATH/bin/startup_linux.bash" stage="never" />
             <parsable targetfile="$INSTALL_PATH/config/container.conf"/>
             <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf"/>
             <parsable targetfile="$INSTALL_PATH/config/interactivespaces/master.conf"/>
-        </pack>
-        <pack name="Docs" required="no">
-            <description>The documentation</description>
-            <file src="docs" targetdir="$INSTALL_PATH"/>
-            <!-- Reccursive adding -->
         </pack>
     </packs>
 

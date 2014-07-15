@@ -1,0 +1,20 @@
+<h1>Activities</h1>
+
+<table class="activity-list">
+	<tr>
+		<th></th>
+		<th>Name</th>
+		<th>Version</th>
+		<th>Last Uploaded</th>
+		<th>Last Started</th>
+		<th>Bundle Content Hash</th>
+	</tr>
+
+	<tr ng-repeat="activity in activities | orderBy:'identifyingName'" ng-class-odd="'odd'">
+		<td><a href="#/activity/{{activity.id}}">View</a></td>
+		<td>{{activity.identifyingName}}</td>
+		<td>{{activity.version}}</td>
+		<td>{{activity.lastUploadDate | date:'medium'}}</td>
+	</tr>
+
+</table>

@@ -24,25 +24,75 @@ dependencies {
   compile project(':service:interactivespaces-service-script')
   compile project(':service:interactivespaces-service-scheduler')
 
-  compile 'org.apache.openjpa:openjpa:2.3.0'
-  compile 'javax.persistence:com.springsource.javax.persistence:2.0.0'
-    
-  compile 'org.springframework:spring-tx:3.1.1.RELEASE'
-  compile 'org.springframework:spring-orm:3.1.1.RELEASE'
-
-  compile 'org.jdom:com.springsource.org.jdom:1.1.0'
+  compile('org.apache.openjpa:openjpa:2.3.0') {
+    exclude group: 'org.apache.geronimo.specs'
+    exclude group: 'javax.xml.stream'
+    exclude group: 'net.sourceforge.serp'
+    exclude group: 'commons-collections'
+    exclude group: 'commons-lang'
+  }
   
-  compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
+  compile 'javax.persistence:com.springsource.javax.persistence:2.0.0'
+
+  compile('org.springframework:spring-orm:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance'
+  }
+  
+  compile('org.springframework:spring-tx:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance'
+  }
+
+  compile('org.springframework:spring-aop:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance'
+  }
+
+  compile('org.springframework:spring-jdbc:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance'
+  }
+
+  compile('org.springframework:spring-context:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+    exclude group: 'aopalliance'
+  }
+  
+  compile('org.springframework:spring-core:3.1.1.RELEASE') {
+    exclude group: 'commons-logging' 
+  }
+  
+  compile('org.apache.felix:org.apache.felix.gogo.command:0.10.0') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.easymock'
+  }
   
   compile 'org.codehaus.groovy:groovy-all:2.0.6'
-  compile 'commons-cli:commons-cli:1.2'
   
-  compile 'org.apache.felix:org.apache.felix.bundlerepository:1.6.6'
-  compile 'org.sat4j:org.sat4j.core:2.3.1'
-  compile 'org.sat4j:org.sat4j.pb:2.3.1'
+  compile('org.apache.felix:org.apache.felix.bundlerepository:1.6.6') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.easymock'
+  }
+  
+  //compile 'org.sat4j:org.sat4j.core:2.3.1'
+  //compile 'org.sat4j:org.sat4j.pb:2.3.1'
 
   runtime 'org.apache.geronimo.specs:geronimo-jta_1.1_spec:1.1.1'
-
+  
+  // For openjpa
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.lang:2.4.0'
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.collections:3.2.1'
+  runtime('org.apache.servicemix.bundles:org.apache.servicemix.bundles.serp:1.13.1_4') {
+    exclude group: 'junit'
+  }
+    
+  
+  // For Spring jdbc
+  runtime 'org.apache.commons:com.springsource.org.apache.commons.dbcp:1.2.2.osgi'
+  
+  runtime 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
+    
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
@@ -51,7 +101,6 @@ compileJava.doLast {
   ant {
 	path (id: 'foo') {
 		pathelement(path: "build/classes/main")
-		pathelement(path: configurations.compile.asPath)
 		pathelement(path: configurations.runtime.asPath)
 	}
 	

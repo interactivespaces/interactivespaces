@@ -18,6 +18,8 @@ dependencies {
   compile project(':interactivespaces-system')
 
   compile 'javax.mail:com.springsource.javax.mail:1.4.1'
+  
+  runtime 'javax.activation:com.springsource.javax.activation:1.1.1'
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 

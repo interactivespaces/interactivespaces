@@ -17,8 +17,8 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'org.farng.mp3:jid3lib:0.5.4'
-  compile 'javazoom:interactivespaces.javazoom.jlayer:1.0.1'
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/audio/jid3lib-0.5.4.jar")
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/audio/interactivespaces.javazoom.jlayer-1.0.1.jar")
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

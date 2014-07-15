@@ -13,13 +13,18 @@
  * the License.
  */
 
+ext {
+  serviceFolderName = "interactivespaces.service.image.depth"
+  baseServiceBuildFolder = "${project.ext.extrasBuildFolder}/${project.ext.serviceFolderName}"
+}
+
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-interaction')
   compile project(':service:interactivespaces-service-image-depth-openni2')
 
-  compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
+  compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx'  }
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
@@ -29,18 +34,18 @@ dependencies {
 
 task copyResources(type: Copy) {
   from 'src/main/resources/extras'
-  into 'build/staging/controller/extras'
+  into "${project.ext.baseServiceBuildFolder}"
 }
 
 task copyExtrasNativeLibs1(type: Copy) {
   from "${project.getProperty('interactivespaces.dependencies.home')}/openni/2.2/native"
-  into 'build/staging/controller/extras/interactivespaces.service.image.depth/openni/native'
+  into "${project.ext.baseServiceBuildFolder}/openni/native"
   exclude '**/*.a'
 }
 
 task copyExtrasNativeLibs2(type: Copy) {
   from "${project.getProperty('interactivespaces.dependencies.home')}/nite/2.2/native"
-  into 'build/staging/controller/extras/interactivespaces.service.image.depth/nite/native'
+  into "${project.ext.baseServiceBuildFolder}/nite/native"
   exclude '**/*.a'
 }
 
@@ -50,7 +55,12 @@ task copyExtraComponents(dependsOn: [
   copyExtrasNativeLibs2
 ])
 
-install.dependsOn.add copyExtraComponents
+task copyServiceArtifacts(type: Copy, dependsOn: [install]) {
+  from configurations.archives.allArtifacts.files
+  into "${project.ext.baseServiceBuildFolder}"
+}
+
+task assembleExtras(dependsOn: [copyExtraComponents, copyServiceArtifacts])
 
 jar {
   manifest {
