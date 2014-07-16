@@ -24,44 +24,49 @@ configurations {
   system
   launcher
   extras
+
+  // TODO(keith): Eventually get from the extras themselves
+  extrasSupport
 }
 
 dependencies {
-    izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
-    
-    bootstrap project(":interactivespaces-controller")
-    
-    bootstrap project(":interactivespaces-activity-wrapper-script")
-    
-    bootstrap project(":service:interactivespaces-service-script")
-    bootstrap project(":service:interactivespaces-service-scheduler")
-    bootstrap project(":service:interactivespaces-service-web")
-    bootstrap project(":service:interactivespaces-service-audio-player")
-    bootstrap project(":service:interactivespaces-service-speech-synthesis")
-    bootstrap project(":service:interactivespaces-service-comm-chat")
-    bootstrap project(":service:interactivespaces-service-comm-twitter")
-    bootstrap project(":service:interactivespaces-service-mail-receiver")
-    bootstrap project(":service:interactivespaces-service-mail-sender")
-    bootstrap project(":service:interactivespaces-service-template")
-    bootstrap project(":interactivespaces-interaction")
-    
-    bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
-    
-    system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
-    system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
-    system 'org.apache.felix:org.apache.felix.framework:4.2.1'
-    system project(':interactivespaces-bootstrap-core')
-    system project(':interactivespaces-launcher-bootstrap')
-    
-    launcher project(':interactivespaces-launcher')
-    
-    extras project(":service:interactivespaces-service-comm-usb")
-    extras project(":service:interactivespaces-service-comm-bluetooth")
-    extras project(":service:interactivespaces-service-comm-serial")
-    extras project(":service:interactivespaces-service-image-depth")
-    extras project(":service:interactivespaces-service-image-depth-openni2")
-    extras project(":service:interactivespaces-service-image-vision")
-    extras project(":service:interactivespaces-service-image-vision-opencv")
+  izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
+
+  bootstrap project(":interactivespaces-controller")
+
+  bootstrap project(":interactivespaces-activity-wrapper-script")
+
+  bootstrap project(":service:interactivespaces-service-script")
+  bootstrap project(":service:interactivespaces-service-scheduler")
+  bootstrap project(":service:interactivespaces-service-web")
+  bootstrap project(":service:interactivespaces-service-audio-player")
+  bootstrap project(":service:interactivespaces-service-speech-synthesis")
+  bootstrap project(":service:interactivespaces-service-comm-chat")
+  bootstrap project(":service:interactivespaces-service-comm-twitter")
+  bootstrap project(":service:interactivespaces-service-mail-receiver")
+  bootstrap project(":service:interactivespaces-service-mail-sender")
+  bootstrap project(":service:interactivespaces-service-template")
+  bootstrap project(":interactivespaces-interaction")
+
+  bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
+
+  system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
+  system 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  system project(':interactivespaces-bootstrap-core')
+  system project(':interactivespaces-launcher-bootstrap')
+
+  launcher project(':interactivespaces-launcher')
+
+  extras project(":service:interactivespaces-service-comm-usb")
+  extras project(":service:interactivespaces-service-comm-bluetooth")
+  extras project(":service:interactivespaces-service-comm-serial")
+  extras project(":service:interactivespaces-service-image-depth")
+  extras project(":service:interactivespaces-service-image-depth-openni2")
+  extras project(":service:interactivespaces-service-image-vision")
+  extras project(":service:interactivespaces-service-image-vision-opencv")
+
+  extrasSupport('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
 }
 
 task cleanContainers(type: Exec) {
@@ -101,9 +106,7 @@ task copyExtras(type:Copy, dependsOn: [doAssembleExtras]) {
 project.afterEvaluate {
   project.configurations.extras.allDependencies.each {
     def extrasProject = it.dependencyProject
-    extrasProject.afterEvaluate {
-      doAssembleExtras.dependsOn extrasProject.assembleExtras
-    }
+    extrasProject.afterEvaluate { doAssembleExtras.dependsOn extrasProject.assembleExtras }
   }
 }
 
@@ -115,37 +118,49 @@ task copyNeededComponents(dependsOn: [
 ])
 
 task copyContainerDependenciesLauncher(type: Copy) {
-  into "${project.ext.containerBuildTarget}"  
+  into "${project.ext.containerBuildTarget}"
   from configurations.launcher - configurations.system
 }
 
 task copyContainerDependenciesBootstrap(type: Copy) {
-  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"  
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"
   from configurations.bootstrap - configurations.system
 }
 
 task copyContainerDependenciesSystemJava(type: Copy) {
-  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"  
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"
   from configurations.system
+}
+
+task copyContainerDependenciesExtrasSupport(type: Copy) {
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerExtrasSupportJars}"
+  from configurations.extrasSupport
 }
 
 task assembleContainers(dependsOn: [
   copyNeededComponents,
   copyContainerDependenciesLauncher,
   copyContainerDependenciesBootstrap,
-  copyContainerDependenciesSystemJava
+  copyContainerDependenciesSystemJava,
+  copyContainerDependenciesExtrasSupport
 ])
 
 assembleContainers.mustRunAfter cleanContainers
 
-task installDev(type: Exec, dependsOn: [assembleContainers, cleanContainers]) {
+task installDev(type: Exec, dependsOn: [
+  assembleContainers,
+  cleanContainers
+]) {
   // TODO(keith): get the common parts into a generic task available to all
   def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
   def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
   commandLine "bash", "../install_container.bash", version, project.ext.containerType, containerDir, stagingDir
 }
 
-task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
+task createImage(type: Copy, dependsOn: [
+  assembleContainers,
+  cleanContainers
+]) {
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
     def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
@@ -165,15 +180,18 @@ task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
 }
 
 izpack {
-    baseDir = file("${project.ext.containerBuildTarget}")
-    installFile = file('src/izpack/install.xml')
-    outputFile = file("$buildDir/distributions/interactivespaces-controller-installer-${version}.jar")
-    compression = 'deflate'
-    compressionLevel = 9
-    appProperties = ['app.name': 'Interactive Spaces Controller',
-                     'app.version': version]
+  baseDir = file("${project.ext.containerBuildTarget}")
+  installFile = file('src/izpack/install.xml')
+  outputFile = file("$buildDir/distributions/interactivespaces-controller-installer-${version}.jar")
+  compression = 'deflate'
+  compressionLevel = 9
+  appProperties = ['app.name': 'Interactive Spaces Controller',
+    'app.version': version]
 }
 
 izPackCreateInstaller.dependsOn copyInstallerDependencies
 
-task createInstallers(dependsOn: [cleanContainers, izPackCreateInstaller])
+task createInstallers(dependsOn: [
+  cleanContainers,
+  izPackCreateInstaller
+])

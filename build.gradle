@@ -46,6 +46,9 @@ allprojects {
     
     // Where the OSGi bootstrap bundles go
     interactiveSpacesContainerBootstrap = 'bootstrap'
+    
+    // Where the extras support jars go.
+    interactiveSpacesContainerExtrasSupportJars = 'extras/support/jars'
 
     // When building the containers, where do we build?
     containerBuildTarget = 'build/staging'
@@ -122,8 +125,13 @@ subprojects {
       // JARs which will be expanded into a normal jar
       expandedJars
 
-      // Compile time resources needed for compiling extras.
+      // Compile time resources needed for compiling extras local to the
+      // extra.
       extrasCompile
+
+      // Compile time resources needed for compiling extras shared by many
+      // extras.
+      extrasSupportCompile
     }
 
     sourceSets {
@@ -133,6 +141,7 @@ subprojects {
       	   compileClasspath += [configurations.provided]
       	   compileClasspath += [configurations.expandedJars]
       	   compileClasspath += [configurations.extrasCompile]
+      	   compileClasspath += [configurations.extrasSupportCompile]
       }
     }
 
@@ -140,6 +149,7 @@ subprojects {
     eclipse.classpath.plusConfigurations += [configurations.provided]
     eclipse.classpath.plusConfigurations += [configurations.expandedJars]
     eclipse.classpath.plusConfigurations += [configurations.extrasCompile]
+    eclipse.classpath.plusConfigurations += [configurations.extrasSupportCompile]
 
     sourceCompatibility = 1.6
 

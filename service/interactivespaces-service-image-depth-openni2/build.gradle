@@ -19,7 +19,7 @@ ext {
 }
  
 dependencies {
-  compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
+  extrasSupportCompile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
