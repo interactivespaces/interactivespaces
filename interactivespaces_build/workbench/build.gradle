@@ -47,6 +47,7 @@ task cleanContainers(type: Exec) {
 }
 
 task copyCore(type:Copy) {
+  outputs.upToDateWhen { false }
   from rootProject.file('LICENSE.txt')
   from rootProject.file('LICENSE.thirdparties.txt')
   from rootProject.file('NOTICE.txt')
@@ -58,6 +59,7 @@ task copyCore(type:Copy) {
 }
 
 task copyExamples(type:Copy) {
+  outputs.upToDateWhen { false }
   from rootProject.file('examples')
   into "${project.ext.containerBuildTarget}/examples"
   include "**/interactivespaces.example.activity.*/**"
@@ -110,6 +112,7 @@ task installDev(type: Exec, dependsOn: [assembleContainers, cleanContainers]) {
 }
 
 task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
+  outputs.upToDateWhen { false }
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
     def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
@@ -122,6 +125,7 @@ task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
 }
 
 task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
+  outputs.upToDateWhen { false }
   from project.file('src/izpack')
   into project.ext.containerBuildTarget
   filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])

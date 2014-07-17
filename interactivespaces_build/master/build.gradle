@@ -54,6 +54,7 @@ task cleanContainers(type: Exec) {
 }
 
 task copyCore(type:Copy) {
+  outputs.upToDateWhen { false }
   from rootProject.file('LICENSE.txt')
   from rootProject.file('LICENSE.thirdparties.txt')
   from rootProject.file('NOTICE.txt')
@@ -66,11 +67,13 @@ task copyCore(type:Copy) {
 }
 
 task copyPythonCore(type:Copy) {
+  outputs.upToDateWhen { false }
   from "${project.getProperty('interactivespaces.dependencies.home')}/python/jython/jython2.5.2/Lib"
   into "${project.ext.containerBuildTarget}/lib/python/PyLib"
 }
 
 task copyPythonRelease(type:Copy) {
+  outputs.upToDateWhen { false }
   from rootProject.file('interactivespaces_lib/src/main/python/release/common')
   from rootProject.file('interactivespaces_lib/src/main/python/release/master')
   into "${project.ext.containerBuildTarget}/lib/python/release"
@@ -115,6 +118,7 @@ task installDev(type: Exec, dependsOn: [assembleContainers]) {
 }
 
 task createImage(type: Copy, dependsOn: [assembleContainers]) {
+  outputs.upToDateWhen { false }
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
     def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
@@ -127,6 +131,7 @@ task createImage(type: Copy, dependsOn: [assembleContainers]) {
 }
 
 task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
+  outputs.upToDateWhen { false }
   from project.file('src/izpack')
   into project.ext.containerBuildTarget
   filter(ReplaceTokens, tokens:[INTERACTIVESPACES_VERSION:project.version])
