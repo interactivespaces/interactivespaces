@@ -26,11 +26,14 @@ dependencies {
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.junit:4.11_1'
   compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
   compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
+  compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpcore:4.1') {
+    //exclude module: 'com.springsource.org.apache.commons.logging'
+  }
   compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1') {
     //exclude module: 'com.springsource.org.apache.commons.logging'
   }
   compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpmime:4.1.1') {
-    //exclude module: 'com.springsource.org.apache.commons.logging'
+    exclude module: 'com.springsource.org.apache.httpcomponents.httpcore'
   }
 
   runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
