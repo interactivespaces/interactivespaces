@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.test;
 
 import com.google.common.collect.Lists;
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.TestRunnerBridge;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -169,7 +169,7 @@ public class JunitTestRunner {
       Object result = runner.invoke(null, testClassNames, classLoader);
       return (Boolean) result;
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("Error running tests", e);
+      throw new InteractiveSpacesException("Error running tests", e);
     }
   }
 }

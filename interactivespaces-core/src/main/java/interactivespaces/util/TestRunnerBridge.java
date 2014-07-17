@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package interactivespaces.util;
 
 import org.junit.runner.Description;
@@ -10,10 +26,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 
 /**
- * This is a bridge class that cleanly isolates the JUnit testing from the rest of the system. This is necessary
- * to provide a clean class loader boundary for isolating classes. Although nominally only used by the build
- * environment (workbench), this needs to be in the core module that is included by both the workbench and
- * controller, such that it appears to be part of the eventual runtime environment.
+ * This is a bridge class that does JUnit testing for the workbench.
  *
  * @author Trevor Pering
  */
@@ -49,7 +62,7 @@ public class TestRunnerBridge extends RunListener {
 
         allSuceeded &= result.wasSuccessful();
       } catch (ClassNotFoundException e) {
-        // TODO Auto-generated catch block
+        // TODO: replace with a proper logging mechanism.
         e.printStackTrace();
       }
     }

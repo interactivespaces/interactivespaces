@@ -23,7 +23,6 @@ dependencies {
 
   compile 'io.netty:netty:3.6.6.Final'
 
-  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.junit:4.11_1'
   compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
   compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
   compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpcore:4.1') {
@@ -68,7 +67,6 @@ jar {
         'org.apache.commons.net.ntp;resolution:="optional"',
         'org.ros.*;resolution:="optional"',
         'javassist.*;resolution:="optional"',
-        'org.junit;version="[4,5)"',
         'interactivespaces.system.bootstrap.osgi;resolution:="optional"',
         '*'
   }
