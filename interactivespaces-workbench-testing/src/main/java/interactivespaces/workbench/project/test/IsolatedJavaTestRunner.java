@@ -45,6 +45,8 @@ public class IsolatedJavaTestRunner {
    *          the folder for
    * @param classLoader
    *          class loader to use for running tests
+   * @param log
+   *          logger for the test run
    *
    * @return {@code true} if all tests passed
    */
@@ -55,7 +57,6 @@ public class IsolatedJavaTestRunner {
     List<String> testClassNames = new ArrayList<String>();
 
     if (!testClasses.isEmpty()) {
-
       for (JunitTestClassVisitor testClass : testClasses) {
         testClassNames.add(testClass.getClassName().replaceAll("\\/", "."));
       }
@@ -76,6 +77,8 @@ public class IsolatedJavaTestRunner {
    *          the classloader for loading test classes
    * @param testClassNames
    *          the names of the detected JUnit classes
+   * @param log
+   *          logger for the test run
    *
    * @return {@code true} if all tests succeeded
    */
@@ -131,7 +134,7 @@ public class IsolatedJavaTestRunner {
             result.getRunTime(), result.getFailureCount(), result.getIgnoreCount(), testClassName));
 
         allSuceeded &= result.wasSuccessful();
-      } catch (ClassNotFoundException e) {
+      } catch (Exception e) {
         log.error(String.format("Error while running test class %s", testClassName), e);
       }
     }
@@ -147,7 +150,7 @@ public class IsolatedJavaTestRunner {
    * @param testFailure
    *          the test failure
    * @param log
-   *          logger for logging the error
+   *          logger for the test run
    */
   private void reportFailure(Failure testFailure, Log log) {
     log.error(String.format("Test %s failed\n%s\n", testFailure.getTestHeader(), trimStackTrace(testFailure)));

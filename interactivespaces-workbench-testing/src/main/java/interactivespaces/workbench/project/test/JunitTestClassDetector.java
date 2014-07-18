@@ -55,7 +55,7 @@ public class JunitTestClassDetector {
   }
 
   /**
-   * Get all test classes
+   * Get all test classes.
    *
    * @param directory
    *          the directory to scan
@@ -68,7 +68,7 @@ public class JunitTestClassDetector {
       for (File file : contents) {
         if (file.isFile()) {
           if (file.getName().endsWith(CLASS_FILE_EXTENSION)) {
-            JunitTestClassVisitor classVisitor = classVisitor(file);
+            JunitTestClassVisitor classVisitor = newClassVisitor(file);
             if (classVisitor.isTestClass() && !classVisitor.isAbstractClass()) {
               testClasses.add(classVisitor);
             }
@@ -81,7 +81,15 @@ public class JunitTestClassDetector {
     }
   }
 
-  private JunitTestClassVisitor classVisitor(File testClassFile) {
+  /**
+   * Create a class visitor for the class to be examined for JUnit tests.
+   *
+   * @param testClassFile
+   *          the file to be examined
+   *
+   * @return the class visitor for scanning the class
+   */
+  private JunitTestClassVisitor newClassVisitor(File testClassFile) {
     JunitTestClassVisitor classVisitor = new JunitTestClassVisitor();
 
     InputStream classStream = null;
@@ -89,11 +97,9 @@ public class JunitTestClassDetector {
       classStream = new BufferedInputStream(new FileInputStream(testClassFile));
 
       ClassReader classReader = new ClassReader(classStream);
-      classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE
-          | ClassReader.SKIP_FRAMES);
+      classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES);
     } catch (Throwable e) {
-      throw new RuntimeException(String.format("Could not process class file %s",
-          testClassFile.getAbsolutePath()), e);
+      throw new RuntimeException(String.format("Could not process class file %s", testClassFile.getAbsolutePath()), e);
     } finally {
       if (classStream != null) {
         try {

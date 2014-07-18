@@ -40,9 +40,25 @@ import java.util.List;
  * A test runner which finds a bunch of classes which are JUnit test classes and
  * runs them.
  *
+ * <p>
+ * Tests are run in a test runner which is isolated from the classloader which
+ * loads the Interactive Spaces workbench. This is to prevent mixing jar files
+ * which are found in both the Interactive Spaces Workbench and controller.
+ *
  * @author Keith M. Hughes
  */
 public class JavaTestRunner {
+
+  /**
+   * The classname for the isolated test runner.
+   */
+  public static final String ISOLATED_TESTRUNNER_CLASSNAME =
+      "interactivespaces.workbench.project.test.IsolatedJavaTestRunner";
+
+  /**
+   * The method name for running tests on the isolated test runner.
+   */
+  public static final String ISOLATED_TESTRUNNER_METHODNAME = "runTests";
 
   /**
    * The project compiler.
@@ -100,25 +116,25 @@ public class JavaTestRunner {
   /**
    * Detect and run any JUnit test classes.
    *
-   * @param compilationFolder
+   * @param testCompilationFolder
    *          folder where the test classes were compiled
    * @param jarDestinationFile
    *          the jar that was built
    * @param projectType
    *          the project type
    * @param extension
-   *          the extension, if any, for the project
+   *          the Java project extension for the project (can be {@code null})
    * @param context
    *          the build context
    *
    * @return {@code true} if all tests passed
    */
   private boolean runJavaUnitTests(File testCompilationFolder, File jarDestinationFile, JavaProjectType projectType,
-      JavaProjectExtension extensions, ProjectBuildContext context) {
+      JavaProjectExtension extension, ProjectBuildContext context) {
     List<File> classpath = Lists.newArrayList();
     classpath.add(jarDestinationFile);
     classpath.add(testCompilationFolder);
-    projectType.getProjectClasspath(context, classpath, extensions, context.getWorkbench());
+    projectType.getProjectClasspath(context, classpath, extension, context.getWorkbench());
 
     List<URL> urls = Lists.newArrayList();
     for (File classpathElement : classpath) {
@@ -135,7 +151,7 @@ public class JavaTestRunner {
     }
 
     URLClassLoader classLoader =
-        new URLClassLoader(urls.toArray(new URL[urls.size()]), context.getWorkbench().getSystemClassLoader());
+        new URLClassLoader(urls.toArray(new URL[urls.size()]), context.getWorkbench().getBaseClassLoader());
 
     return runTestsInIsolation(testCompilationFolder, classLoader, context);
   }
@@ -149,6 +165,8 @@ public class JavaTestRunner {
    *          the folder containing the test classes
    * @param classLoader
    *          classLoader to use for running tests
+   * @param context
+   *          the build context
    *
    * @return {@code true} if all tests passed
    */
@@ -158,9 +176,9 @@ public class JavaTestRunner {
       // This code is equivalent to TestRunnerBridge.runTests(testClassNames,
       // classLoader), except
       // that it is sanitized through the test class loader.
-      Class<?> testRunnerClass =
-          classLoader.loadClass("interactivespaces.workbench.project.test.IsolatedJavaTestRunner");
-      Method runner = testRunnerClass.getMethod("runTests", File.class, URLClassLoader.class, Log.class);
+      Class<?> testRunnerClass = classLoader.loadClass(ISOLATED_TESTRUNNER_CLASSNAME);
+      Method runner =
+          testRunnerClass.getMethod(ISOLATED_TESTRUNNER_METHODNAME, File.class, URLClassLoader.class, Log.class);
 
       Object testRunner = testRunnerClass.newInstance();
 

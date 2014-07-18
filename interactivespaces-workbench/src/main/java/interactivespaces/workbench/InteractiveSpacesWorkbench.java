@@ -223,7 +223,10 @@ public class InteractiveSpacesWorkbench {
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
-  private final ClassLoader systemClassLoader;
+  /**
+   * The base classloader to use for things like unit testing.
+   */
+  private final ClassLoader baseClassLoader;
 
   /**
    * Logger for the workbench.
@@ -235,12 +238,14 @@ public class InteractiveSpacesWorkbench {
    *
    * @param workbenchConfig
    *          the configuration for the workbench
+   * @param baseClassLoader
+   *          the base classloader for the workbench
    * @param log
    *          the logger to use
    */
-  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, ClassLoader systemClassLoader, Log log) {
+  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, ClassLoader baseClassLoader, Log log) {
     this.workbenchConfig = workbenchConfig;
-    this.systemClassLoader = systemClassLoader;
+    this.baseClassLoader = baseClassLoader;
     this.log = log;
 
     workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
@@ -916,8 +921,8 @@ public class InteractiveSpacesWorkbench {
    *
    * @return the base classloader for the system
    */
-  public ClassLoader getSystemClassLoader() {
-    return systemClassLoader;
+  public ClassLoader getBaseClassLoader() {
+    return baseClassLoader;
   }
 
   /**
