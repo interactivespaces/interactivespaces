@@ -53,6 +53,7 @@ fi
 
 if [ ${CONTAINER_TYPE} == "workbench" ]; then
   ${DO_CMD} cp -R ${STAGING}/templates/* ${CONTAINER_TEMPLATES}
+  ${DO_CMD} cp -R ${STAGING}/extras/* ${CONTAINER_EXTRAS}
 fi
 
 

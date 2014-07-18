@@ -47,6 +47,11 @@ public abstract class JavaProjectType implements ProjectType {
   public static final String SOURCE_MAIN_TESTS = "src/test/java";
 
   /**
+   * The extras component for testing support.
+   */
+  public static final String TESTING_EXTRAS_COMPONENT = "testing";
+
+  /**
    * Get a classpath that would be used at runtime for the project.
    *
    * @param context
@@ -118,10 +123,6 @@ public abstract class JavaProjectType implements ProjectType {
       InteractiveSpacesWorkbench workbench) {
     getRuntimeClasspath(context, classpath, extension, workbench);
 
-    for (File file : workbench.getAllWorkbenchBootstrapFiles()) {
-      if (file.getName().contains("junit-4")) {
-        classpath.add(file);
-      }
-    }
+    context.getWorkbench().addExtrasControllerExtensionsClasspath(classpath, TESTING_EXTRAS_COMPONENT);
   }
 }

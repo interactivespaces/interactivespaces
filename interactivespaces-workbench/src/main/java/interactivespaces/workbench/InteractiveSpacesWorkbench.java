@@ -79,6 +79,11 @@ import java.util.Map;
 public class InteractiveSpacesWorkbench {
 
   /**
+   * The base folder for extras.
+   */
+  public static final String EXTRAS_BASE_FOLDER = "extras";
+
+  /**
    * Configuration property defining the project home directory.
    */
   public static final String CONFIGURATION_PROPERTY_WORKBENCH_HOME = "workbench.home";
@@ -218,6 +223,8 @@ public class InteractiveSpacesWorkbench {
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
+  private final ClassLoader systemClassLoader;
+
   /**
    * Logger for the workbench.
    */
@@ -231,8 +238,9 @@ public class InteractiveSpacesWorkbench {
    * @param log
    *          the logger to use
    */
-  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, Log log) {
+  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, ClassLoader systemClassLoader, Log log) {
     this.workbenchConfig = workbenchConfig;
+    this.systemClassLoader = systemClassLoader;
     this.log = log;
 
     workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
@@ -488,25 +496,24 @@ public class InteractiveSpacesWorkbench {
   /**
    * Add all extension classpath entries that the controller specifies.
    *
-   * @param files
-   *          the list of files to add to.
-   * @param alternate
-   *          the alternate files to add
+   * @param classpath
+   *          the list of files to add to
+   * @param extraComponent
+   *          the extra component to add
    */
-  public void addAlternateControllerExtensionsClasspath(List<File> files, String alternate) {
-    File[] alternateFiles =
-        new File(new File(workbenchFileSystem.getInstallDirectory(), "alternate"), alternate)
+  public void addExtrasControllerExtensionsClasspath(List<File> classpath, String extraComponent) {
+    File[] extraComponentFiles =
+        new File(new File(workbenchFileSystem.getInstallDirectory(), EXTRAS_BASE_FOLDER), extraComponent)
             .listFiles(new FilenameFilter() {
-
               @Override
               public boolean accept(File dir, String name) {
                 return name.endsWith(FILENAME_JAR_EXTENSION);
               }
             });
 
-    if (alternateFiles != null) {
-      for (File alternateFile : alternateFiles) {
-        files.add(alternateFile);
+    if (extraComponentFiles != null) {
+      for (File extraComponentFile : extraComponentFiles) {
+        classpath.add(extraComponentFile);
       }
     }
   }
@@ -902,6 +909,15 @@ public class InteractiveSpacesWorkbench {
    */
   public ProjectTypeRegistry getProjectTypeRegistry() {
     return projectTypeRegistry;
+  }
+
+  /**
+   * Get the base classloader for the system.
+   *
+   * @return the base classloader for the system
+   */
+  public ClassLoader getSystemClassLoader() {
+    return systemClassLoader;
   }
 
   /**

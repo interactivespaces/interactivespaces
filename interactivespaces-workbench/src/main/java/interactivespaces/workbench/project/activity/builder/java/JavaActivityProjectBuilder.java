@@ -26,7 +26,7 @@ import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
 import interactivespaces.workbench.project.java.OsgiInfo;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
-import interactivespaces.workbench.project.test.JunitTestRunner;
+import interactivespaces.workbench.project.test.JavaTestRunner;
 
 import java.io.File;
 
@@ -105,7 +105,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @return {@code true} if all tests succeeded
    */
   private boolean runTests(File jarDestinationFile, ProjectBuildContext context) {
-    JunitTestRunner runner = new JunitTestRunner();
+    JavaTestRunner runner = new JavaTestRunner();
 
     return runner.runTests(jarDestinationFile, extensions, context);
   }

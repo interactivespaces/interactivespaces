@@ -23,6 +23,7 @@ import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -113,8 +114,11 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    * Start the workbench running.
    */
   public void run() {
+    Bundle systemBundle = bundleContext.getBundle(0);
+    ClassLoader systemClassLoader = systemBundle.getClass().getClassLoader();
     final InteractiveSpacesWorkbench workbench =
-        new InteractiveSpacesWorkbench(configurationProvider.getInitialConfiguration(), loggingProvider.getLog());
+        new InteractiveSpacesWorkbench(configurationProvider.getInitialConfiguration(), systemClassLoader,
+            loggingProvider.getLog());
 
     final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
     if (!commandLineArguments.isEmpty()) {

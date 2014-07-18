@@ -16,9 +16,7 @@
 
 package interactivespaces.workbench.project.test;
 
-import com.google.common.collect.Lists;
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.util.TestRunnerBridge;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -27,12 +25,15 @@ import interactivespaces.workbench.project.java.JavaProjectType;
 import interactivespaces.workbench.project.java.JavaxProjectJavaCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
 
+import com.google.common.collect.Lists;
+
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class JunitTestRunner {
+public class JavaTestRunner {
 
   /**
    * The project compiler.
@@ -86,12 +87,12 @@ public class JunitTestRunner {
       List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
       if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
-        return runJUnit(compilationFolder, jarDestinationFile, projectType, extensions, context);
+        return runJavaUnitTests(compilationFolder, jarDestinationFile, projectType, extensions, context);
       } else {
         return false;
       }
     } catch (Exception e) {
-      context.getWorkbench().handleError("Error while running JUnit tests", e);
+      context.getWorkbench().handleError("Error while running tests", e);
       return false;
     }
   }
@@ -112,63 +113,61 @@ public class JunitTestRunner {
    *
    * @return {@code true} if all tests passed
    */
-  private boolean runJUnit(File compilationFolder, File jarDestinationFile, JavaProjectType projectType,
-      JavaProjectExtension extension, ProjectBuildContext context) {
-    // Get all JUnit tests
-    JunitTestClassDetector detector = new JunitTestClassDetector();
-    List<JunitTestClassVisitor> testClasses = detector.findTestClasses(compilationFolder);
-    List<String> testClassNames = new LinkedList<String>();
-
-    for (JunitTestClassVisitor testClass : testClasses) {
-      testClassNames.add(testClass.getClassName().replaceAll("\\/", "."));
-    }
-
+  private boolean runJavaUnitTests(File testCompilationFolder, File jarDestinationFile, JavaProjectType projectType,
+      JavaProjectExtension extensions, ProjectBuildContext context) {
     List<File> classpath = Lists.newArrayList();
-    classpath.add(compilationFolder);
     classpath.add(jarDestinationFile);
-    projectType.getRuntimeClasspath(context, classpath, extension, context.getWorkbench());
+    classpath.add(testCompilationFolder);
+    projectType.getProjectClasspath(context, classpath, extensions, context.getWorkbench());
 
     List<URL> urls = Lists.newArrayList();
     for (File classpathElement : classpath) {
       try {
         urls.add(classpathElement.toURL());
       } catch (MalformedURLException e) {
-        e.printStackTrace();
+        context
+            .getWorkbench()
+            .getLog()
+            .error(
+                String.format("Error while adding %s to the unit test classpath", classpathElement.getAbsolutePath()),
+                e);
       }
     }
 
-    if (!testClassNames.isEmpty()) {
-      URLClassLoader classLoader =
-          new URLClassLoader(urls.toArray(new URL[urls.size()]), ClassLoader.getSystemClassLoader());
+    URLClassLoader classLoader =
+        new URLClassLoader(urls.toArray(new URL[urls.size()]), context.getWorkbench().getSystemClassLoader());
 
-      return runTests(testClassNames, classLoader);
-    } else {
-      // No tests classes, so we will get philosophical again...
-      return true;
-    }
+    return runTestsInIsolation(testCompilationFolder, classLoader, context);
   }
 
   /**
-   * Run the given tests in the given class loader. This method is somewhat complicated, since it needs to
-   * use reflection to isolate the test runner in a separate class loader that does not derive from the
-   * current class.
+   * Run the given tests in the given class loader. This method is somewhat
+   * complicated, since it needs to use reflection to isolate the test runner in
+   * a separate class loader that does not derive from the current class.
    *
-   * @param testClassNames
-   *          names of classes to test
+   * @param testCompilationFolder
+   *          the folder containing the test classes
    * @param classLoader
    *          classLoader to use for running tests
    *
    * @return {@code true} if all tests passed
    */
-  private boolean runTests(List<String> testClassNames, URLClassLoader classLoader) {
+  private boolean runTestsInIsolation(File testCompilationFolder, URLClassLoader classLoader,
+      ProjectBuildContext context) {
     try {
-      // This code is equivalent to TestRunnerBridge.runTests(testClassNames, classLoader), except
+      // This code is equivalent to TestRunnerBridge.runTests(testClassNames,
+      // classLoader), except
       // that it is sanitized through the test class loader.
-      Class<?> testRunner = classLoader.loadClass(TestRunnerBridge.class.getName());
-      Method runner = testRunner.getMethod(TestRunnerBridge.RUNNER_METHOD_NAME, List.class, URLClassLoader.class);
-      Object result = runner.invoke(null, testClassNames, classLoader);
+      Class<?> testRunnerClass =
+          classLoader.loadClass("interactivespaces.workbench.project.test.IsolatedJavaTestRunner");
+      Method runner = testRunnerClass.getMethod("runTests", File.class, URLClassLoader.class, Log.class);
+
+      Object testRunner = testRunnerClass.newInstance();
+
+      Object result = runner.invoke(testRunner, testCompilationFolder, classLoader, context.getWorkbench().getLog());
       return (Boolean) result;
     } catch (Exception e) {
+      context.getWorkbench().getLog().error("Error running tests", e);
       throw new InteractiveSpacesException("Error running tests", e);
     }
   }

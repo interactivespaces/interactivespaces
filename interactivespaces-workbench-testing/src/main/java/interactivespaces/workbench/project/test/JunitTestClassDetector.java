@@ -16,17 +16,14 @@
 
 package interactivespaces.workbench.project.test;
 
-import interactivespaces.InteractiveSpacesException;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import org.objectweb.asm.ClassReader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +47,7 @@ public class JunitTestClassDetector {
    * @return list of all test classes in the directory
    */
   public List<JunitTestClassVisitor> findTestClasses(File directory) {
-    List<JunitTestClassVisitor> testClasses = Lists.newArrayList();
+    List<JunitTestClassVisitor> testClasses = new ArrayList<JunitTestClassVisitor>();
 
     scanDirectory(directory, testClasses);
 
@@ -95,10 +92,16 @@ public class JunitTestClassDetector {
       classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE
           | ClassReader.SKIP_FRAMES);
     } catch (Throwable e) {
-      throw new InteractiveSpacesException(String.format("Could not process class file %s",
+      throw new RuntimeException(String.format("Could not process class file %s",
           testClassFile.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(classStream);
+      if (classStream != null) {
+        try {
+          classStream.close();
+        } catch (IOException e) {
+          // Don't care
+        }
+      }
     }
 
     return classVisitor;
