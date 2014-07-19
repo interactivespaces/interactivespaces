@@ -36,14 +36,28 @@ import java.util.zip.ZipOutputStream;
 public interface FileSupport {
 
   /**
-   * Place the contents of a directory into a zip file.
+   * Internal helper function to recursively copy contents into a zip file.
    *
-   * @param target
-   *          the output zip file
+   * @param zipOutputStream
+   *          output stream in which to copy the contents
    * @param basePath
-   *          the source content directory
+   *          base path for the content copy
+   * @param relPath
+   *          relative path (to {@code basePath}), that will be included in the zip file
+   * @param pathPrefix
+   *          path prefix for added sections
    */
-  void zip(File target, File basePath);
+  void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath, String pathPrefix);
+
+  /**
+   * Create a new zip output stream.
+   *
+   * @param outputFile
+   *          the target output file
+   *
+   * @return the zip output stream
+   */
+  ZipOutputStream createZipOutputStream(File outputFile);
 
   /**
    * Place the contents of a zip file into a base directory.
@@ -68,28 +82,14 @@ public interface FileSupport {
   void unzip(File source, File baseLocation, Map<File, File> extractMap);
 
   /**
-   * Create a new zip output stream.
+   * Place the contents of a directory into a zip file.
    *
-   * @param outputFile
-   *          the target output file
-   *
-   * @return the zip output stream
-   */
-  ZipOutputStream createZipOutputStream(File outputFile);
-
-  /**
-   * Internal helper function to recursively copy contents into a zip file.
-   *
-   * @param zipOutputStream
-   *          output stream in which to copy the contents
+   * @param target
+   *          the output zip file
    * @param basePath
-   *          base path for the content copy
-   * @param relPath
-   *          relative path (to {@code basePath}), that will be included in the zip file
-   * @param pathPrefix
-   *          path prefix for added sections
+   *          the source content directory
    */
-  void addFileToZipStream(ZipOutputStream zipOutputStream, File basePath, File relPath, String pathPrefix);
+  void zip(File target, File basePath);
 
   /**
    * Copy the source directory to the destination directory.
@@ -231,6 +231,24 @@ public interface FileSupport {
   String readAvailableToString(InputStream in) throws IOException;
 
   /**
+   * Atomically creates a new, empty file named by this abstract pathname if
+   * and only if a file with this name does not yet exist. The check for the
+   * existence of the file and the creation of the file if it does not exist
+   * are a single operation that is atomic with respect to all other filesystem
+   * activities that might affect the file.
+   *
+   * @param file
+   *          the file to be created
+   *
+   * @return {@code true} if the named file does not exist and was successfully
+   *         created; {@code false} if the named file already exists
+   *
+   * @throws IOException
+   *           If an I/O error occurred
+   */
+  boolean createNewFile(File file) throws IOException;
+
+  /**
    * Delete a file.
    *
    * <p>
@@ -254,6 +272,178 @@ public interface FileSupport {
    *          the directory to be deleted
    */
   void deleteDirectoryContents(File file);
+
+  /**
+   * Make sure a directory exists. If not, it will be created.
+   *
+   * @param dir
+   *          the directory that should exist
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if the result is not the existence of a valid directory
+   */
+  void directoryExists(File dir) throws SimpleInteractiveSpacesException;
+
+  /**
+   * Make sure a directory exists. If not, it will be created.
+   *
+   * @param dir
+   *          the directory that should exist
+   * @param message
+   *          the message to use if the directory cannot be made
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           if the result is not the existence of a valid directory
+   */
+  void directoryExists(File dir, String message) throws SimpleInteractiveSpacesException;
+
+  /**
+   * Returns an array of abstract pathnames denoting the files in the directory
+   * denoted by this abstract pathname.
+   *
+   * @param dir
+   *          the directory whos contents are to be listed
+   *
+   * @return the zip output stream
+   */
+  File[] listFiles(File dir);
+
+  /**
+   * Tests whether the file denoted by this abstract pathname is a directory.
+   *
+   * @param dir
+   *          the directory that is to be tested
+   *
+   * @return {@code true} if and only if the file denoted by this abstract pathname
+   *         exists and is a directory; {@code false} otherwise
+   */
+  boolean isDirectory(File dir);
+
+  /**
+   * Tests whether the file denoted by this abstract pathname is a normal file.
+   * A file is normal if it is not a directory and, in addition, satisfies other
+   * system-dependent criteria. Any non-directory file created by a Java
+   * application is guaranteed to be a normal file.
+   *
+   * @param file
+   *          the file that is to be tested
+   *
+   * @return {@code true} if and only if the file denoted by this abstract pathname
+   *         exists and is a normal file; {@code false} otherwise
+   */
+  boolean isFile(File file);
+
+  /**
+   * Tests whether the file or directory denoted by this abstract pathname
+   * exists.
+   *
+   * @param file
+   *          the file/directory that is to be tested
+   *
+   * @return {@code true} if and only if the file or directory denoted by this abstract
+   *         pathname exists; {@code false} otherwise
+   */
+  boolean exists(File file);
+
+  /**
+   * Returns the absolute form of this abstract pathname.
+   *
+   * @param file
+   *          the file/directory whose path is to be examined
+   *
+   * @return The absolute abstract pathname denoting the same file or directory
+   *         as this abstract pathname
+   */
+  File getAbsoluteFile(File file);
+
+  /**
+   * Returns the absolute pathname string of this abstract pathname.
+   *
+   * @param file
+   *          the file/directory whose path is to be examined
+   *
+   * @return The absolute pathname string denoting the same file or directory
+   *         as this abstract pathname
+   */
+  String getAbsolutePath(File file);
+
+  /**
+   * Returns the name of the file or directory denoted by this abstract
+   * pathname. This is just the last name in the pathname's name sequence. If
+   * the pathname's name sequence is empty, then the empty string is returned.
+   *
+   * @param file
+   *          the file/directory whose path is to be determined
+   *
+   * @return The name of the file or directory denoted by this abstract
+   *         pathname, or the empty string if this pathname's name sequence is
+   *         empty
+   */
+  String getName(File file);
+
+  /**
+   * Converts this abstract pathname into a pathname string. The resulting
+   * string uses the default name-separator character to separate the names in
+   * the name sequence.
+   *
+   * @param file
+   *          the file/directory whose path is to be determined
+   *
+   * @return The abstract pathname of the parent directory named by this
+   *         abstract pathname, or {@code null} if this pathname does not name
+   *         a parent
+   */
+  String getPath(File file);
+
+  /**
+   * Returns the pathname string of this abstract pathname's parent, or
+   * {@code null} if this pathname does not name a parent directory.
+   *
+   * @param file
+   *          the file/directory whose path is to be examined
+   *
+   * @return The pathname string of the parent directory named by this abstract
+   *         pathname, or {@code null} if this pathname does not name a parent
+   */
+  String getParent(File file);
+
+  /**
+   * Returns the abstract pathname of this abstract pathname's parent, or null
+   * if this pathname does not name a parent directory.
+   *
+   * @param file
+   *          the file/directory whose path is to be examined
+   *
+   * @return The abstract pathname of the parent directory named by this
+   *         abstract pathname, or {@code null} if this pathname does not name
+   *         a parent
+   */
+  File getParentFile(File file);
+
+  /**
+   * Creates the directory named by this abstract pathname.
+   *
+   * @param dir
+   *          the directory that is going to be created
+   *
+   * @return
+   *         {@code true} if and only if the directory was created;
+   *         {@code false} otherwise
+   */
+  boolean mkdir(File dir);
+
+  /**
+   * Creates the directory named by this abstract pathname, including any
+   * necessary but nonexistent parent directories.
+   *
+   * @param dir
+   *          the directory that is going to be created
+   *
+   * @return
+   *         {@code true} if and only if the directory was created, along with
+   *         all necessary parent directories; {@code false} otherwise
+   */
+  boolean mkdirs(File dir);
 
   /**
    * Rename a file/directory.
@@ -289,28 +479,4 @@ public interface FileSupport {
    *          the contents to be written into the file
    */
   void writeFile(File file, String contents);
-
-  /**
-   * Make sure a directory exists. If not, it will be created.
-   *
-   * @param dir
-   *          the directory that should exist
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if the result is not the existence of a valid directory
-   */
-  void directoryExists(File dir) throws SimpleInteractiveSpacesException;
-
-  /**
-   * Make sure a directory exists. If not, it will be created.
-   *
-   * @param dir
-   *          the directory that should exist
-   * @param message
-   *          the message to use if the directory cannot be made
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           if the result is not the existence of a valid directory
-   */
-  void directoryExists(File dir, String message) throws SimpleInteractiveSpacesException;
 }

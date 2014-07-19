@@ -63,7 +63,7 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void zip(File target, File basePath) {
-    if (target.exists()) {
+    if (exists(target)) {
       throw new SimpleInteractiveSpacesException("Cowardly refusing to overwrite existing output file " + target);
     }
     ZipOutputStream zipOutputStream = null;
@@ -84,7 +84,7 @@ public class FileSupportImpl implements FileSupport {
     try {
       return new ZipOutputStream(new FileOutputStream(outputFile));
     } catch (IOException e) {
-      throw new SimpleInteractiveSpacesException("Error creating zip output file " + outputFile.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("Error creating zip output file " + getAbsolutePath(outputFile), e);
     }
   }
 
@@ -92,18 +92,18 @@ public class FileSupportImpl implements FileSupport {
   public void addFileToZipStream(ZipOutputStream zipOutputStream, File baseFile, File relFile, String prefixPath) {
     FileInputStream fileStream = null;
     try {
-      File target = new File(baseFile, relFile.getPath());
-      String relPath = relFile.getPath();
-      String entryPath = prefixPath == null ? relPath : new File(prefixPath, relPath).getPath();
-      if (target.isFile()) {
+      File target = new File(baseFile, getPath(relFile));
+      String relPath = getPath(relFile);
+      String entryPath = prefixPath == null ? relPath : getPath(new File(prefixPath, relPath));
+      if (isFile(target)) {
         zipOutputStream.putNextEntry(new ZipEntry(entryPath));
         fileStream = new FileInputStream(target);
         copyStream(fileStream, zipOutputStream, false);
         fileStream.close();
-      } else if (target.isDirectory()) {
+      } else if (isDirectory(target)) {
         // Zip requires trailing / for directory.
         zipOutputStream.putNextEntry(new ZipEntry(entryPath + ZIP_PATH_SEPARATOR));
-        File[] dirFiles = target.listFiles();
+        File[] dirFiles = listFiles(target);
         if (dirFiles != null) {
           for (File childPath : dirFiles) {
             File childRelPath = new File(relFile, childPath.getName());
@@ -111,10 +111,10 @@ public class FileSupportImpl implements FileSupport {
           }
         }
       } else {
-        throw new SimpleInteractiveSpacesException("File source not found/recognized: " + target.getAbsolutePath());
+        throw new SimpleInteractiveSpacesException("File source not found/recognized: " + getAbsolutePath(target));
       }
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("Error adding file to zip stream " + baseFile.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("Error adding file to zip stream " + getAbsolutePath(baseFile), e);
     } finally {
       closeQuietly(fileStream);
     }
@@ -137,13 +137,13 @@ public class FileSupportImpl implements FileSupport {
 
         if (entry.isDirectory()) {
           File newDir = new File(baseLocation, entry.getName());
-          if (!newDir.exists() && !newDir.mkdirs()) {
+          if (!exists(newDir) && !mkdirs(newDir)) {
             throw new SimpleInteractiveSpacesException("Could not create directory: " + newDir);
           }
         } else {
           File file = new File(baseLocation, entry.getName());
-          File parentFile = file.getParentFile();
-          if (!parentFile.exists() && !parentFile.mkdirs()) {
+          File parentFile = getParentFile(file);
+          if (!exists(parentFile) && !mkdirs(parentFile)) {
             throw new SimpleInteractiveSpacesException("Could not create directory: " + parentFile);
           }
 
@@ -157,7 +157,7 @@ public class FileSupportImpl implements FileSupport {
       zipFile.close();
     } catch (IOException ioe) {
       throw new SimpleInteractiveSpacesException(String.format("Error while unzipping file %s",
-          source.getAbsolutePath()), ioe);
+          getAbsolutePath(source)), ioe);
     } finally {
       // ZipFile does not implement Closeable, so can't use utility function.
       if (zipFile != null) {
@@ -186,18 +186,18 @@ public class FileSupportImpl implements FileSupport {
   public void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> fileMap) {
     directoryExists(destDir);
 
-    File[] sourceFiles = sourceDir.listFiles();
+    File[] sourceFiles = listFiles(sourceDir);
     if (sourceFiles == null) {
-      throw new SimpleInteractiveSpacesException("Missing source directory " + sourceDir.getAbsolutePath());
+      throw new SimpleInteractiveSpacesException("Missing source directory " + getAbsolutePath(sourceDir));
     }
 
     for (File src : sourceFiles) {
       try {
         File dst = new File(destDir, src.getName());
-        if (src.isDirectory()) {
+        if (isDirectory(src)) {
           copyDirectory(src, dst, overwrite, fileMap);
         } else {
-          if (!dst.exists() || overwrite) {
+          if (!exists(dst) || overwrite) {
             if (fileMap != null) {
               fileMap.put(dst, src);
             }
@@ -205,7 +205,7 @@ public class FileSupportImpl implements FileSupport {
           }
         }
       } catch (Exception e) {
-        throw new InteractiveSpacesException("While copying file " + src.getAbsolutePath(), e);
+        throw new InteractiveSpacesException("While copying file " + getAbsolutePath(src), e);
       }
     }
   }
@@ -213,10 +213,10 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public void copyFile(File source, File destination) {
     try {
-      destination.createNewFile();
+      createNewFile(destination);
     } catch (IOException e) {
       throw new InteractiveSpacesException(
-          String.format("Could not create new file %s", destination.getAbsolutePath()), e);
+          String.format("Could not create new file %s", getAbsolutePath(destination)), e);
     }
 
     FileChannel in = null;
@@ -227,8 +227,8 @@ public class FileSupportImpl implements FileSupport {
       out = new FileOutputStream(destination).getChannel();
       out.transferFrom(in, 0, in.size());
     } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Could not copy file %s to %s", source.getAbsoluteFile(),
-          destination.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Could not copy file %s to %s", getAbsoluteFile(source),
+          getAbsolutePath(destination)), e);
     } finally {
       try {
         if (out != null) {
@@ -236,7 +236,7 @@ public class FileSupportImpl implements FileSupport {
             out.close();
           } catch (IOException e) {
             throw new InteractiveSpacesException(
-                String.format("Could not close file %s", destination.getAbsolutePath()), e);
+                String.format("Could not close file %s", getAbsolutePath(destination)), e);
           }
         }
       } finally {
@@ -312,8 +312,8 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public final void delete(File file) {
-    if (file.exists()) {
-      if (file.isDirectory()) {
+    if (exists(file)) {
+      if (isDirectory(file)) {
         deleteDirectoryContents(file);
       }
 
@@ -323,17 +323,12 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void deleteDirectoryContents(File file) {
-    File[] files = file.listFiles();
+    File[] files = listFiles(file);
     if (files != null) {
       for (File contained : files) {
         delete(contained);
       }
     }
-  }
-
-  @Override
-  public boolean rename(File from, File to) {
-    return from.renameTo(to);
   }
 
   @Override
@@ -374,19 +369,19 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void directoryExists(File dir, String message) {
-    if (dir.exists()) {
-      if (!dir.isDirectory()) {
+    if (exists(dir)) {
+      if (!isDirectory(dir)) {
         String emessage =
-            message != null ? String.format("%s: %s is not a directory", message, dir.getAbsolutePath()) : String
-                .format("%s is not a directory", dir.getAbsolutePath());
+            message != null ? String.format("%s: %s is not a directory", message, getAbsolutePath(dir)) : String
+                .format("%s is not a directory", getAbsolutePath(dir));
 
         throw new SimpleInteractiveSpacesException(emessage);
       }
     } else {
-      if (!dir.mkdirs()) {
+      if (!mkdirs(dir)) {
         String emessage =
-            message != null ? String.format("%s: Could not create directory %s", dir.getAbsolutePath()) : String
-                .format("Could not create directory %s", dir.getAbsolutePath());
+            message != null ? String.format("%s: Could not create directory %s", getAbsolutePath(dir)) : String
+                .format("Could not create directory %s", getAbsolutePath(dir));
 
         throw new SimpleInteractiveSpacesException(emessage);
       }
@@ -394,7 +389,77 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
+  public boolean createNewFile(File file) throws IOException {
+    return createNewFile(file);
+  }
+
+  @Override
   public void directoryExists(File dir) {
     directoryExists(dir, null);
+  }
+
+  @Override
+  public boolean exists(File file) {
+    return file.exists();
+  }
+
+  @Override
+  public File getAbsoluteFile(File file) {
+    return file.getAbsoluteFile();
+  }
+
+  @Override
+  public String getAbsolutePath(File file) {
+    return file.getAbsolutePath();
+  }
+
+  @Override
+  public String getName(File file) {
+    return file.getName();
+  }
+
+  @Override
+  public String getParent(File file) {
+    return file.getParent();
+  }
+
+  @Override
+  public File getParentFile(File file) {
+    return file.getParentFile();
+  }
+
+  @Override
+  public String getPath(File file) {
+    return file.getPath();
+  }
+
+  @Override
+  public boolean isDirectory(File dir) {
+    return dir.isDirectory();
+  }
+
+  @Override
+  public boolean isFile(File file) {
+    return file.isFile();
+  }
+
+  @Override
+  public File[] listFiles(File dir) {
+    return dir.listFiles();
+  }
+
+  @Override
+  public boolean mkdir(File dir) {
+    return dir.mkdir();
+  }
+
+  @Override
+  public boolean mkdirs(File dir) {
+    return dir.mkdirs();
+  }
+
+  @Override
+  public boolean rename(File from, File to) {
+    return from.renameTo(to);
   }
 }
