@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project.test;
 
 import org.apache.commons.logging.Log;
-import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -87,21 +86,6 @@ public class IsolatedJavaTestRunner {
 
     junit.addListener(new RunListener() {
       @Override
-      public void testRunStarted(Description description) throws Exception {
-        // Don't care
-      }
-
-      @Override
-      public void testRunFinished(Result result) throws Exception {
-        // Don't care
-      }
-
-      @Override
-      public void testStarted(Description description) throws Exception {
-        // Don't care
-      }
-
-      @Override
       public void testFailure(Failure failure) throws Exception {
         reportFailure(failure, log);
       }
@@ -110,21 +94,11 @@ public class IsolatedJavaTestRunner {
       public void testAssumptionFailure(Failure failure) {
         reportFailure(failure, log);
       }
-
-      @Override
-      public void testFinished(Description description) throws Exception {
-        // Don't care
-      }
-
-      @Override
-      public void testIgnored(Description description) throws Exception {
-        // Don't care
-      }
     });
 
     log.info("Starting JUnit tests");
 
-    boolean allSuceeded = true;
+    boolean allSucceeded = true;
     for (String testClassName : testClassNames) {
       try {
         Class<?> testClass = classLoader.loadClass(testClassName);
@@ -133,7 +107,7 @@ public class IsolatedJavaTestRunner {
         log.info(String.format("Ran %2d tests in %4dms: %d failed, %d ignored. (%s)", result.getRunCount(),
             result.getRunTime(), result.getFailureCount(), result.getIgnoreCount(), testClassName));
 
-        allSuceeded &= result.wasSuccessful();
+        allSucceeded &= result.wasSuccessful();
       } catch (Exception e) {
         log.error(String.format("Error while running test class %s", testClassName), e);
       }
@@ -141,7 +115,7 @@ public class IsolatedJavaTestRunner {
 
     log.info("JUnit tests complete");
 
-    return allSuceeded;
+    return allSucceeded;
   }
 
   /**

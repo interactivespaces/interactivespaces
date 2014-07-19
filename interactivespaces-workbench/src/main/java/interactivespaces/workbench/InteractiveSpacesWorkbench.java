@@ -68,6 +68,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -517,9 +518,7 @@ public class InteractiveSpacesWorkbench {
             });
 
     if (extraComponentFiles != null) {
-      for (File extraComponentFile : extraComponentFiles) {
-        classpath.add(extraComponentFile);
-      }
+      Collections.addAll(classpath, extraComponentFiles);
     }
   }
 
