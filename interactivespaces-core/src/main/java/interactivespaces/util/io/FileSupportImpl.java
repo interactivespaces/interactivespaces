@@ -16,15 +16,19 @@
 
 package interactivespaces.util.io;
 
+import static com.google.common.io.Closeables.closeQuietly;
+
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,8 +37,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * Various useful file routines.
@@ -156,8 +158,8 @@ public class FileSupportImpl implements FileSupport {
 
       zipFile.close();
     } catch (IOException ioe) {
-      throw new SimpleInteractiveSpacesException(String.format("Error while unzipping file %s",
-          getAbsolutePath(source)), ioe);
+      throw new SimpleInteractiveSpacesException(
+          String.format("Error while unzipping file %s", getAbsolutePath(source)), ioe);
     } finally {
       // ZipFile does not implement Closeable, so can't use utility function.
       if (zipFile != null) {
@@ -215,8 +217,8 @@ public class FileSupportImpl implements FileSupport {
     try {
       createNewFile(destination);
     } catch (IOException e) {
-      throw new InteractiveSpacesException(
-          String.format("Could not create new file %s", getAbsolutePath(destination)), e);
+      throw new InteractiveSpacesException(String.format("Could not create new file %s", getAbsolutePath(destination)),
+          e);
     }
 
     FileChannel in = null;
@@ -380,8 +382,8 @@ public class FileSupportImpl implements FileSupport {
     } else {
       if (!mkdirs(dir)) {
         String emessage =
-            message != null ? String.format("%s: Could not create directory %s", getAbsolutePath(dir)) : String
-                .format("Could not create directory %s", getAbsolutePath(dir));
+            message != null ? String.format("%s: Could not create directory %s", message, getAbsolutePath(dir))
+                : String.format("Could not create directory %s", getAbsolutePath(dir));
 
         throw new SimpleInteractiveSpacesException(emessage);
       }
@@ -390,7 +392,7 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public boolean createNewFile(File file) throws IOException {
-    return createNewFile(file);
+    return file.createNewFile();
   }
 
   @Override
@@ -446,6 +448,16 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public File[] listFiles(File dir) {
     return dir.listFiles();
+  }
+
+  @Override
+  public File[] listFiles(File dir, FileFilter fileFilter) {
+    return dir.listFiles(fileFilter);
+  }
+
+  @Override
+  public File[] listFiles(File dir, FilenameFilter fileFilter) {
+    return dir.listFiles(fileFilter);
   }
 
   @Override

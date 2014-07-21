@@ -55,6 +55,10 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
     File compilationFolder = getOutputDirectory(buildDirectory);
     File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
 
+    // The resources go to the compilation folder. They will then be in the
+    // right place for creating the JAR file.
+    processResources(project, compilationFolder, context);
+
     if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getOsgiInfo(), context)) {
       return runTests(jarDestinationFile, context);
     }
