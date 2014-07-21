@@ -358,7 +358,14 @@
                   <type>jar</type>
                   <overWrite>true</overWrite>
                 </artifactItem>
-
+                <artifactItem>
+                  <groupId>org.mockito</groupId>
+                  <artifactId>mockito-all</artifactId>
+                  <version>1.9.5</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+                
                 <!-- Test runner -->
                 <artifactItem>
                   <groupId>org.ow2.asm</groupId>
