@@ -27,10 +27,6 @@ dependencies {
   
   compile files("${project.getProperty('interactivespaces.dependencies.home')}/gui/org.swinglabs.swingx-1.6.1.jar")
   compile 'biz.aQute:bndlib:1.50.0'
-  compile 'org.ow2.asm:asm-all:4.2'
-  compile('org.apache.servicemix.bundles:org.apache.servicemix.bundles.junit:4.11_1') {
-    exclude group: 'org.hamcrest'
-  }
   
   // Needed by BND for some reason. Wish it was optional.
   runtime 'org.junit:com.springsource.junit:3.8.2'

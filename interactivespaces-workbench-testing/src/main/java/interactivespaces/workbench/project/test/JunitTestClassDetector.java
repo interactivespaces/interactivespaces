@@ -16,17 +16,14 @@
 
 package interactivespaces.workbench.project.test;
 
-import interactivespaces.InteractiveSpacesException;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import org.objectweb.asm.ClassReader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +47,7 @@ public class JunitTestClassDetector {
    * @return list of all test classes in the directory
    */
   public List<JunitTestClassVisitor> findTestClasses(File directory) {
-    List<JunitTestClassVisitor> testClasses = Lists.newArrayList();
+    List<JunitTestClassVisitor> testClasses = new ArrayList<JunitTestClassVisitor>();
 
     scanDirectory(directory, testClasses);
 
@@ -58,7 +55,7 @@ public class JunitTestClassDetector {
   }
 
   /**
-   * Get all test classes
+   * Get all test classes.
    *
    * @param directory
    *          the directory to scan
@@ -71,7 +68,7 @@ public class JunitTestClassDetector {
       for (File file : contents) {
         if (file.isFile()) {
           if (file.getName().endsWith(CLASS_FILE_EXTENSION)) {
-            JunitTestClassVisitor classVisitor = classVisitor(file);
+            JunitTestClassVisitor classVisitor = newClassVisitor(file);
             if (classVisitor.isTestClass() && !classVisitor.isAbstractClass()) {
               testClasses.add(classVisitor);
             }
@@ -84,7 +81,15 @@ public class JunitTestClassDetector {
     }
   }
 
-  private JunitTestClassVisitor classVisitor(File testClassFile) {
+  /**
+   * Create a class visitor for the class to be examined for JUnit tests.
+   *
+   * @param testClassFile
+   *          the file to be examined
+   *
+   * @return the class visitor for scanning the class
+   */
+  private JunitTestClassVisitor newClassVisitor(File testClassFile) {
     JunitTestClassVisitor classVisitor = new JunitTestClassVisitor();
 
     InputStream classStream = null;
@@ -92,13 +97,17 @@ public class JunitTestClassDetector {
       classStream = new BufferedInputStream(new FileInputStream(testClassFile));
 
       ClassReader classReader = new ClassReader(classStream);
-      classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE
-          | ClassReader.SKIP_FRAMES);
+      classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES);
     } catch (Throwable e) {
-      throw new InteractiveSpacesException(String.format("Could not process class file %s",
-          testClassFile.getAbsolutePath()), e);
+      throw new RuntimeException(String.format("Could not process class file %s", testClassFile.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(classStream);
+      if (classStream != null) {
+        try {
+          classStream.close();
+        } catch (IOException e) {
+          // Don't care
+        }
+      }
     }
 
     return classVisitor;

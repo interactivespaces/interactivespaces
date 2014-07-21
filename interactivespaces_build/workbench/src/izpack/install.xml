@@ -74,7 +74,7 @@
 			<file src="config" targetdir="$INSTALL_PATH" />
 			<file src="examples" targetdir="$INSTALL_PATH" />
 			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
-			<file src="alternate" targetdir="$INSTALL_PATH" />
+			<file src="extras" targetdir="$INSTALL_PATH" />
 			<file src="interactivespaces-launcher-@{app.version}.jar"
 				targetdir="$INSTALL_PATH" override="true" />
 

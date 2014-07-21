@@ -66,7 +66,7 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
           androidJarFile.getAbsolutePath()));
     }
 
-    context.getWorkbench().addAlternateControllerExtensionsClasspath(classpath, "android");
+    context.getWorkbench().addExtrasControllerExtensionsClasspath(classpath, "android");
   }
 
   @Override
