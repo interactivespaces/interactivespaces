@@ -16,14 +16,15 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.List;
@@ -87,7 +88,7 @@ public abstract class Project {
   private final List<ProjectDependency> dependencies = Lists.newArrayList();
 
   /**
-   * The resources the project requires. A null value indicates that no
+   * The resources the project requires. A {@code null} value indicates that no
    * resources have been specified for the project (which is slightly different
    * than saying an empty set of resources have been specified, which would be
    * indicated by the empty list).
@@ -95,7 +96,7 @@ public abstract class Project {
   private final List<ProjectConstituent> resources = Lists.newArrayList();
 
   /**
-   * The sources the project requires. A null value indicates that no sources
+   * The sources the project requires. A {@code null} value indicates that no sources
    * have been specified for the project (which is slightly different than
    * saying an empty set of sources have been specified, which would be
    * indicated by the empty list).
@@ -343,7 +344,7 @@ public abstract class Project {
    * Add resources to the project.
    *
    * @param addResources
-   *          the resources to add
+   *          the resources to add, can be {@code null}
    */
   public void addResources(List<ProjectConstituent> addResources) {
     if (addResources != null) {

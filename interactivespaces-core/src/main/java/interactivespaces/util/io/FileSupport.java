@@ -19,6 +19,8 @@ package interactivespaces.util.io;
 import interactivespaces.SimpleInteractiveSpacesException;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,7 +45,8 @@ public interface FileSupport {
    * @param basePath
    *          base path for the content copy
    * @param relPath
-   *          relative path (to {@code basePath}), that will be included in the zip file
+   *          relative path (to {@code basePath}), that will be included in the
+   *          zip file
    * @param pathPrefix
    *          path prefix for added sections
    */
@@ -70,14 +73,16 @@ public interface FileSupport {
   void unzip(File source, File baseLocation);
 
   /**
-   * Place the contents of a zip file into a base directory and keep a record of unziped files.
+   * Place the contents of a zip file into a base directory and keep a record of
+   * unziped files.
    *
    * @param source
    *          the source zip file
    * @param baseLocation
    *          where the contents will be written
    * @param extractMap
-   *          if not {@code null}, add extracted files to map, with dest (key) and source (value)
+   *          if not {@code null}, add extracted files to map, with dest (key)
+   *          and source (value)
    */
   void unzip(File source, File baseLocation, Map<File, File> extractMap);
 
@@ -135,9 +140,11 @@ public interface FileSupport {
    * @param destDir
    *          the destination directory (which will be created if necessary)
    * @param overwrite
-   *          {@code true} if should overwrite files if already in the destination folder
+   *          {@code true} if should overwrite files if already in the
+   *          destination folder
    * @param copyMap
-   *          if not {@code null}, add copied files to map, with dest (key) and source (value)
+   *          if not {@code null}, add copied files to map, with dest (key) and
+   *          source (value)
    */
   void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> copyMap);
 
@@ -231,10 +238,10 @@ public interface FileSupport {
   String readAvailableToString(InputStream in) throws IOException;
 
   /**
-   * Atomically creates a new, empty file named by this abstract pathname if
-   * and only if a file with this name does not yet exist. The check for the
-   * existence of the file and the creation of the file if it does not exist
-   * are a single operation that is atomic with respect to all other filesystem
+   * Atomically creates a new, empty file named by this abstract pathname if and
+   * only if a file with this name does not yet exist. The check for the
+   * existence of the file and the creation of the file if it does not exist are
+   * a single operation that is atomic with respect to all other filesystem
    * activities that might affect the file.
    *
    * @param file
@@ -302,11 +309,37 @@ public interface FileSupport {
    * denoted by this abstract pathname.
    *
    * @param dir
-   *          the directory whos contents are to be listed
+   *          the directory whose contents are to be listed
    *
-   * @return the zip output stream
+   * @return the the set of files found in the directory
    */
   File[] listFiles(File dir);
+
+  /**
+   * Get an array of abstract pathnames denoting the files in the directory
+   * denoted by this abstract pathname which pass the file filter.
+   *
+   * @param dir
+   *          the directory whose contents are to be listed
+   * @param fileFilter
+   *          the file filter
+   *
+   * @return the the set of files found in the directory that pass the filter
+   */
+  File[] listFiles(File dir, FileFilter fileFilter);
+
+  /**
+   * Get an array of abstract pathnames denoting the files in the directory
+   * denoted by this abstract pathname which pass the file name filter.
+   *
+   * @param dir
+   *          the directory whose contents are to be listed
+   * @param fileFilter
+   *          the file name filter
+   *
+   * @return the the set of files found in the directory that pass the filter
+   */
+  File[] listFiles(File dir, FilenameFilter fileFilter);
 
   /**
    * Tests whether the file denoted by this abstract pathname is a directory.
@@ -314,8 +347,8 @@ public interface FileSupport {
    * @param dir
    *          the directory that is to be tested
    *
-   * @return {@code true} if and only if the file denoted by this abstract pathname
-   *         exists and is a directory; {@code false} otherwise
+   * @return {@code true} if and only if the file denoted by this abstract
+   *         pathname exists and is a directory; {@code false} otherwise
    */
   boolean isDirectory(File dir);
 
@@ -328,8 +361,8 @@ public interface FileSupport {
    * @param file
    *          the file that is to be tested
    *
-   * @return {@code true} if and only if the file denoted by this abstract pathname
-   *         exists and is a normal file; {@code false} otherwise
+   * @return {@code true} if and only if the file denoted by this abstract
+   *         pathname exists and is a normal file; {@code false} otherwise
    */
   boolean isFile(File file);
 
@@ -340,8 +373,8 @@ public interface FileSupport {
    * @param file
    *          the file/directory that is to be tested
    *
-   * @return {@code true} if and only if the file or directory denoted by this abstract
-   *         pathname exists; {@code false} otherwise
+   * @return {@code true} if and only if the file or directory denoted by this
+   *         abstract pathname exists; {@code false} otherwise
    */
   boolean exists(File file);
 
@@ -362,8 +395,8 @@ public interface FileSupport {
    * @param file
    *          the file/directory whose path is to be examined
    *
-   * @return The absolute pathname string denoting the same file or directory
-   *         as this abstract pathname
+   * @return The absolute pathname string denoting the same file or directory as
+   *         this abstract pathname
    */
   String getAbsolutePath(File file);
 
@@ -390,8 +423,8 @@ public interface FileSupport {
    *          the file/directory whose path is to be determined
    *
    * @return The abstract pathname of the parent directory named by this
-   *         abstract pathname, or {@code null} if this pathname does not name
-   *         a parent
+   *         abstract pathname, or {@code null} if this pathname does not name a
+   *         parent
    */
   String getPath(File file);
 
@@ -415,8 +448,8 @@ public interface FileSupport {
    *          the file/directory whose path is to be examined
    *
    * @return The abstract pathname of the parent directory named by this
-   *         abstract pathname, or {@code null} if this pathname does not name
-   *         a parent
+   *         abstract pathname, or {@code null} if this pathname does not name a
+   *         parent
    */
   File getParentFile(File file);
 
@@ -426,8 +459,7 @@ public interface FileSupport {
    * @param dir
    *          the directory that is going to be created
    *
-   * @return
-   *         {@code true} if and only if the directory was created;
+   * @return {@code true} if and only if the directory was created;
    *         {@code false} otherwise
    */
   boolean mkdir(File dir);
@@ -439,8 +471,7 @@ public interface FileSupport {
    * @param dir
    *          the directory that is going to be created
    *
-   * @return
-   *         {@code true} if and only if the directory was created, along with
+   * @return {@code true} if and only if the directory was created, along with
    *         all necessary parent directories; {@code false} otherwise
    */
   boolean mkdirs(File dir);

@@ -16,11 +16,13 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import com.google.common.collect.Maps;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+
+import com.google.common.collect.Maps;
+
 import org.jdom.Element;
 
 import java.io.File;

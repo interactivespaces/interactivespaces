@@ -12,7 +12,7 @@ implementing Interactive Spaces.
 The Basics
 ==========
 
-Building an Activity Project
+Building a Project
 ----------------------------
 
 Interactive Spaces projects must be built with the Workbench Builder. From the
@@ -23,18 +23,56 @@ like
 
   bin/isworkbench.bash <projectdir> build
 
-where ``<projectdir>`` is the folder which contains the project. For example, you can build
+where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
+you can build
 the Simple Java Activity Example project with the command
 
 ::
 
   bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello build
 
-
-Creating an Activity Project
+Cleaning a Project
 ----------------------------
 
-You can create activity projects very simply.
+Sometimes your project build directory gets a lot of extraneous files in, perhaps you renamed one of your classes,
+and you want to clean out the build directory and have a fresh build. You can delete the entire build folder with the
+command
+
+::
+
+  bin/isworkbench.bash <projectdir> clean
+
+where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
+you can clean
+the Simple Java Activity Example project with the command
+
+::
+
+  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello clean
+
+Combining Workbench Commands
+----------------------------
+
+You can combine workbench commands very easily by placing them one after another on the commandline. For example, if you
+wish to first clean your project and then build it, you can use the command
+
+::
+
+  bin/isworkbench.bash <projectdir> clean build
+
+where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
+you can clean and build
+the Simple Java Activity Example project with the command
+
+::
+
+  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello clean build
+
+
+Creating a Project
+----------------------------
+
+You can create  projects very simply.
 
 ::
 
@@ -177,6 +215,8 @@ Versions consists of 3 sets of numbers, separated by dots. Examples would be
 * 0.1.0-beta
 
 Notice the last one has a dash followed by some text.
+
+.. _workbench1-resource-copying:
 
 Resource Copying
 ----------------
@@ -414,10 +454,15 @@ The artifact built for a Library project will be a Java jar file. It can be copi
 the ``bootstrap`` folder of an Interactive Spaces controller and will then be available for
 Activities to use.
 
+A Resource section (see :ref:`workbench1-resource-copying`) in your Library ``project.xml`` will copy the files
+such that they will appear in the JAR file created for the library. Destination pathnames will be relative to the
+root of the JAR file.
+
 If you add a new Library into a Controller, make sure you recreate the IDE project
 for any Activities which will use the Library and refresh the project in your IDE.
 See :ref:`workbench1-using-ide-label`
 for more details on creating the IDE project for a Workbench project.
+
 
 Service Projects
 ----------------
