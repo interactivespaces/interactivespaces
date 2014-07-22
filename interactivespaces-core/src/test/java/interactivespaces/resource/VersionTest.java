@@ -55,6 +55,18 @@ public class VersionTest {
   }
 
   @Test
+  public void testQualifierComparisons() {
+    Version v1 = new Version(1, 2, 3);
+    Version v2 = new Version(1, 2, 3, "foo");
+    Version v3 = new Version(1, 2, 3, "yada");
+
+    Assert.assertFalse(v1.equals(v2));
+    Assert.assertFalse(v2.equals(v3));
+    Assert.assertTrue(v1.lessThan(v2));
+    Assert.assertTrue(v2.lessThan(v3));
+  }
+
+  @Test
   public void testIncrements() {
     Version v0 = new Version(1, 2, 3);
 

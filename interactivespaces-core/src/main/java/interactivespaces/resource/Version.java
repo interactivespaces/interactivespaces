@@ -37,10 +37,20 @@ public class Version implements Comparable<Version> {
   public static final char VERSION_SECTION_SEPARATOR = '.';
 
   /**
+   * The regular expression for recognizing a version qualifier.
+   */
+  public static final String QUALIFIER_REGEX = "[a-zA-Z0-9][a-zA-Z0-9_]*";
+
+  /**
    * Pattern for the version.
    */
-  public static final Pattern VERSION_PATTERN = Pattern
-      .compile("^([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?(\\.[a-zA-Z0-9][a-zA-Z0-9_]*)?$");
+  public static final Pattern VERSION_PATTERN = Pattern.compile("^([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?(\\."
+      + QUALIFIER_REGEX + ")?$");
+
+  /**
+   * Pattern for just the qualifier.
+   */
+  public static final Pattern QUALIFIER_PATTERN = Pattern.compile("^" + QUALIFIER_REGEX + "$");
 
   /**
    * Description of a legal version.
@@ -112,7 +122,7 @@ public class Version implements Comparable<Version> {
   private final int micro;
 
   /**
-   * Any qualifier, can be {@code null}.
+   * Any qualifier.
    */
   private final String qualifier;
 
@@ -129,10 +139,16 @@ public class Version implements Comparable<Version> {
    *          qualifier, can be {@code null}
    */
   public Version(int major, int minor, int micro, String qualifier) {
+    if (qualifier == null) {
+      qualifier = "";
+    }
+
     this.major = major;
     this.minor = minor;
     this.micro = micro;
     this.qualifier = qualifier;
+
+    validate();
   }
 
   /**
@@ -269,6 +285,7 @@ public class Version implements Comparable<Version> {
     result = prime * result + micro;
     result = prime * result + major;
     result = prime * result + minor;
+    result = prime * result + qualifier.hashCode();
     return result;
   }
 
@@ -284,26 +301,26 @@ public class Version implements Comparable<Version> {
       return false;
     }
     Version other = (Version) obj;
-    if (micro != other.micro) {
-      return false;
-    }
-    if (major != other.major) {
-      return false;
-    }
-    if (minor != other.minor) {
-      return false;
-    }
-    return true;
+    return (major == other.major) && (minor == other.minor) && (micro == other.micro)
+        && qualifier.equals(other.qualifier);
   }
 
   @Override
   public int compareTo(Version o) {
+    if (o == this) {
+      return 0;
+    }
+
     int diff = major - o.major;
     if (diff == 0) {
       diff = minor - o.minor;
 
       if (diff == 0) {
         diff = micro - o.micro;
+
+        if (diff == 0) {
+          diff = qualifier.compareTo(o.qualifier);
+        }
       }
     }
 
@@ -316,9 +333,28 @@ public class Version implements Comparable<Version> {
         new StringBuilder().append(major).append(VERSION_SECTION_SEPARATOR).append(minor)
             .append(VERSION_SECTION_SEPARATOR).append(micro);
 
-    if (qualifier != null) {
+    if (!qualifier.isEmpty()) {
       builder.append(VERSION_SECTION_SEPARATOR).append(qualifier);
     }
     return builder.toString();
+  }
+
+  /**
+   * Validate the version components.
+   */
+  private void validate() {
+    if (major < 0) {
+      throw new SimpleInteractiveSpacesException(String.format("Major version number cannot be negative: %d", major));
+    }
+    if (minor < 0) {
+      throw new SimpleInteractiveSpacesException(String.format("Minor version number cannot be negative: %d", minor));
+    }
+    if (micro < 0) {
+      throw new SimpleInteractiveSpacesException(String.format("Micro version number cannot be negative: %d", micro));
+    }
+    if (!qualifier.isEmpty() && !Version.QUALIFIER_PATTERN.matcher(qualifier).matches()) {
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Version qualifiers must use only characters a-z, A-Z, 0-9, _ and - cannot be negative: %s", qualifier));
+    }
   }
 }
