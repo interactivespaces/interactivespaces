@@ -1,6 +1,8 @@
 <#ftl strip_whitespace=true>
 space.activity.type=${project.activityType}
+<#if project.activityExecutable?has_content>
 space.activity.executable=${project.activityExecutable}
+</#if>
 <#if project.activityClass?has_content>
 space.activity.java.class=${project.activityClass}
 </#if>
