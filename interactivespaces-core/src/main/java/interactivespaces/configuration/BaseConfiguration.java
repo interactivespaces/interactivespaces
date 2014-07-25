@@ -197,7 +197,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
   public boolean containsProperty(String property) {
     Configuration current = this;
     while (current != null) {
-      if (containsPropertyLocally(property)) {
+      if (current.containsPropertyLocally(property)) {
         return true;
       }
 

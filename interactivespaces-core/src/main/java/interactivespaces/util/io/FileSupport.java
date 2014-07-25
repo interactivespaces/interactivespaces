@@ -224,7 +224,7 @@ public interface FileSupport {
   String inputStreamAsString(InputStream in) throws IOException;
 
   /**
-   * Read all the availble data from an input stream and return it as a string.
+   * Read all the available data from an input stream and return it as a string.
    *
    * @param in
    *          the input stream to read
