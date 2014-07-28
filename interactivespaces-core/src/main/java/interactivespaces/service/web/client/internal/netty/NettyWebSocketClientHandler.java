@@ -115,7 +115,7 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-    log.error("Error during web socket lient connection, closing connecton", e.getCause());
+    log.error("Error during web socket client connection, closing connecton", e.getCause());
 
     e.getChannel().close();
   }

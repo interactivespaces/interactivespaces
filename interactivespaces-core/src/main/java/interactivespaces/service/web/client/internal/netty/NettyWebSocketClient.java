@@ -152,7 +152,7 @@ public class NettyWebSocketClient implements WebSocketClient {
     } catch (Exception e) {
       channel = null;
 
-      throw new InteractiveSpacesException("Could not connect to web socket sonnection", e);
+      throw new InteractiveSpacesException("Could not connect to web socket connection", e);
     }
   }
 
