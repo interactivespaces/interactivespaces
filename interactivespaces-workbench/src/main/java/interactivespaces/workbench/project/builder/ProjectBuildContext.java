@@ -48,6 +48,16 @@ public class ProjectBuildContext implements ProjectContext {
   private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   /**
+   * Extension for creating temp build directories.
+   */
+  public static final String TEMP_DIRECTORY_EXTENSION = ".dir";
+
+  /**
+   * Sub-directory in which to put temp build files.
+   */
+  public static final String BUILD_TEMP_DIRECTORY = "tmp";
+
+  /**
    * The project being built.
    */
   private final Project project;
@@ -135,6 +145,18 @@ public class ProjectBuildContext implements ProjectContext {
    */
   public File getBuildDirectory() {
     return buildDirectory;
+  }
+
+  /**
+   * Get a unique temporary build directory.
+   *
+   * @return a temporary build directory
+   */
+  public File getTempBuildDirectory() {
+    File tempDirectory = new File(buildDirectory, BUILD_TEMP_DIRECTORY);
+    FILE_SUPPORT.mkdir(tempDirectory);
+    File tempFile = FILE_SUPPORT.createTempFile(tempDirectory);
+    return new File(tempDirectory, tempFile.getName() + TEMP_DIRECTORY_EXTENSION);
   }
 
   @Override
