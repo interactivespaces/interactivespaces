@@ -91,7 +91,13 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       }
 
       for (ProjectConstituent constituent : project.getSources()) {
-        File addedSource = context.getProjectTarget(project.getBaseDirectory(), constituent.getSourceDirectory());
+        String sourceDirectory = constituent.getSourceDirectory();
+        if (sourceDirectory == null) {
+          File buildTempDirectory = context.getTempBuildDirectory();
+          constituent.processConstituent(project, buildTempDirectory, context);
+          sourceDirectory = buildTempDirectory.toString();
+        }
+        File addedSource = context.getProjectTarget(project.getBaseDirectory(), sourceDirectory);
         List<File> additionalSources = projectCompiler.getCompilationFiles(addedSource);
         compilationFiles.addAll(additionalSources);
         context

@@ -63,6 +63,11 @@ public class FileSupportImpl implements FileSupport {
    */
   private static final int COPY_DEFAULT_BUFFER_SIZE = 4096;
 
+  /**
+   * File prefix to use for creating unique temporary files.
+   */
+  private static final String TEMP_FILE_PREFIX = "tmp";
+
   @Override
   public void zip(File target, File basePath) {
     if (exists(target)) {
@@ -473,5 +478,19 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public boolean rename(File from, File to) {
     return from.renameTo(to);
+  }
+
+  @Override
+  public File createTempFile(File baseDir) {
+    return createTempFile(baseDir, TEMP_FILE_PREFIX, "");
+  }
+
+  @Override
+  public File createTempFile(File baseDir, String prefix, String suffix) {
+    try {
+      return File.createTempFile(prefix, suffix, baseDir);
+    } catch (IOException e) {
+      throw new SimpleInteractiveSpacesException("Creating temp file in " + baseDir.getAbsolutePath(), e);
+    }
   }
 }

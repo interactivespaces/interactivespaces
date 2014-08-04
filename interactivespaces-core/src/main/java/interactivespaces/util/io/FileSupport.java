@@ -489,6 +489,30 @@ public interface FileSupport {
   boolean rename(File from, File to);
 
   /**
+   * Create a unique temporary file in the given directory, using default prefix and suffix.
+   *
+   * @param baseDir
+   *          directory in which to create file
+   *
+   * @return unique file
+   */
+  File createTempFile(File baseDir);
+
+  /**
+   * Create a unique temporary file in the given directory.
+   *
+   * @param baseDir
+   *          directory in which to create file
+   * @param prefix
+   *          temp file prefix to use
+   * @param suffix
+   *          temp file suffix to use
+   *
+   * @return unique file
+   */
+  File createTempFile(File baseDir, String prefix, String suffix);
+
+  /**
    * Get a file as a string.
    *
    * @param file
