@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.activity.configuration;
 
+import com.google.common.base.Preconditions;
+
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.ConfigurationStorageManager;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -101,12 +103,12 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 
   @Override
   public boolean containsPropertyLocally(String property) {
-    return temporary.containsPropertyLocally(property);
+    return temporary.containsProperty(property);
   }
 
   @Override
   public String findValueLocally(String property) {
-    return temporary.findValueLocally(property);
+    return temporary.findValue(property);
   }
 
   @Override
@@ -121,11 +123,12 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
 
   @Override
   public void setParent(Configuration parent) {
-    this.parent = parent;
+    throw new UnsupportedOperationException("setParent not supported");
   }
 
   @Override
   public Configuration getParent() {
+    Preconditions.checkState(parent == null);
     return parent;
   }
 
@@ -207,6 +210,11 @@ public class SimpleLiveActivityConfiguration implements LiveActivityConfiguratio
   @Override
   public boolean containsProperty(String property) {
     return temporary.containsProperty(property);
+  }
+
+  @Override
+  public String findValue(String property) {
+    return temporary.findValue(property);
   }
 
   @Override

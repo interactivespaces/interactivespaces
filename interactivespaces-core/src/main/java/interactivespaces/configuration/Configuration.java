@@ -44,6 +44,16 @@ public interface Configuration {
   boolean containsProperty(String property);
 
   /**
+   * Get the property from the current configuration.
+   *
+   * @param property
+   *          name of the property
+   *
+   * @return The value of the property, or {@code null} if not found.
+   */
+  String findValue(String property);
+
+  /**
    * Get the value of the property as a string.
    *
    * @param property

@@ -49,6 +49,11 @@ public class ReadOnlyConfiguration implements Configuration {
   }
 
   @Override
+  public String findValue(String property) {
+    return wrapped.findValue(property);
+  }
+
+  @Override
   public String getPropertyString(String property) {
     return wrapped.getPropertyString(property);
   }

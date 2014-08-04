@@ -208,7 +208,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
   }
 
   /**
-   * Get the property from the actual implementation.
+   * Get the property from the actual implementation, evaluated as a string expression.
    *
    * @param property
    *          Name of the property.
@@ -216,6 +216,25 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
    * @return The value of the property, or null if not found.
    */
   private String getValue(String property) {
+    String value = findValue(property);
+
+    if (value != null) {
+      return expressionEvaluator.evaluateStringExpression(value);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Get the property from the actual implementation.
+   *
+   * @param property
+   *          Name of the property.
+   *
+   * @return The value of the property, or null if not found.
+   */
+  @Override
+  public String findValue(String property) {
     String value = null;
 
     Configuration current = this;
@@ -226,12 +245,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
       }
       current = current.getParent();
     }
-
-    if (value != null) {
-      return expressionEvaluator.evaluateStringExpression(value);
-    } else {
-      return null;
-    }
+    return value;
   }
 
   @Override
