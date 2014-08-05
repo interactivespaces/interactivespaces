@@ -34,22 +34,22 @@ public interface Configuration {
   String CONFIGURATION_NAME_SEPARATOR = ".";
 
   /**
-   * True if the configuration contains the property, false otherwise.
+   * True if the configuration contains the property, {@code false} otherwise.
    *
    * @param property
    *          Name of the property.
    *
-   * @return True if the configuration has the property, false otherwise.
+   * @return {@code true} if the configuration has the property, {@code false} otherwise
    */
   boolean containsProperty(String property);
 
   /**
-   * Get the property from the current configuration.
+   * Get the uninterpreted property value from the current configuration.
    *
    * @param property
    *          name of the property
    *
-   * @return The value of the property, or {@code null} if not found.
+   * @return the value of the property, or {@code null} if not found
    */
   String findValue(String property);
 
@@ -59,7 +59,7 @@ public interface Configuration {
    * @param property
    *          name of the property
    *
-   * @return The property value, or {@code null} if it wasn't found.
+   * @return the property value, or {@code null} if it wasn't found
    */
   String getPropertyString(String property);
 
@@ -70,7 +70,8 @@ public interface Configuration {
    *          name of the property.
    * @param defaultValue
    *          Default value.
-   * @return Use the default value if the property isn't found.
+   *
+   * @return string property value, or default if not found
    */
   String getPropertyString(String property, String defaultValue);
 
@@ -98,10 +99,14 @@ public interface Configuration {
    * Throws an exception if the property doesn't exist.
    *
    * @param property
-   *          name of the property.
-   * @return Use the default value if the property isn't found.
+   *          name of the property
+   *
+   * @return property value string
+   *
+   * @throws InteractiveSpacesException
+   *           if the property does not exist
    */
-  String getRequiredPropertyString(String property);
+  String getRequiredPropertyString(String property) throws InteractiveSpacesException;
 
   /**
    * Get the value of the property as an integer.
@@ -110,7 +115,8 @@ public interface Configuration {
    *          name of the property.
    * @param defaultValue
    *          Default value.
-   * @return Use the default value if the property isn't found.
+   *
+   * @return integer property value, or default if not found
    */
   Integer getPropertyInteger(String property, Integer defaultValue);
 
@@ -135,7 +141,7 @@ public interface Configuration {
    * @param defaultValue
    *          default value
    *
-   * @return Use the default value if the property isn't found.
+   * @return property value as a long, or default if not found
    */
   Long getPropertyLong(String property, Long defaultValue);
 
@@ -159,7 +165,8 @@ public interface Configuration {
    *          name of the property.
    * @param defaultValue
    *          Default value.
-   * @return Use the default value if the property isn't found.
+   *
+   * @return property value as a double, or default if not found
    */
   Double getPropertyDouble(String property, Double defaultValue);
 
@@ -183,7 +190,8 @@ public interface Configuration {
    *          name of the property.
    * @param defaultValue
    *          Default value.
-   * @return Use the default value if the property isn't found.
+   *
+   * @return property value as a Boolean, or default if not found
    */
   Boolean getPropertyBoolean(String property, Boolean defaultValue);
 
@@ -207,11 +215,9 @@ public interface Configuration {
    * @param property
    *          name of the property
    * @param delineator
-   *          the string to use to separate the property value into a list of
-   *          strings
+   *          the string to use to separate the property value into a list of strings
    *
    * @return the list of values or {@code null} if no such property.
-   *
    */
   List<String> getPropertyStringList(String property, String delineator);
 
@@ -226,7 +232,7 @@ public interface Configuration {
    *          the string to use to separate the property value into seperate
    *          strings
    *
-   * @return the set of distinct values or {@code null} if no such property.
+   * @return the set of distinct values or {@code null} if no such property
    */
   Set<String> getPropertyStringSet(String property, String delineator);
 
@@ -272,7 +278,7 @@ public interface Configuration {
    * @param property
    *          name of the property
    *
-   * @return The value of the property, or {@code null} if not found.
+   * @return the value of the property, or {@code null} if not found
    */
   String findValueLocally(String property);
 

@@ -186,8 +186,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
    * @param value
    *          the string
    *
-   * @return {@code true} if the string represents an Interactive Spaces true
-   *         value
+   * @return {@code true} if the string represents an Interactive Spaces true value
    */
   private boolean getBooleanValue(String value) {
     return "true".equalsIgnoreCase(value);
@@ -213,7 +212,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
    * @param property
    *          Name of the property.
    *
-   * @return The value of the property, or null if not found.
+   * @return the value of the property, or null if not found
    */
   private String getValue(String property) {
     String value = findValue(property);
@@ -225,14 +224,6 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
     }
   }
 
-  /**
-   * Get the property from the actual implementation.
-   *
-   * @param property
-   *          Name of the property.
-   *
-   * @return The value of the property, or null if not found.
-   */
   @Override
   public String findValue(String property) {
     String value = null;
