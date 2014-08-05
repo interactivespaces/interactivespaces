@@ -270,7 +270,7 @@ public interface Configuration {
   Configuration getParent();
 
   /**
-   * Get the property from the current configuration.
+   * Get the uninterpreted property from the current configuration.
    *
    * <p>
    * This method does not go up the parent chain.
