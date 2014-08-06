@@ -45,9 +45,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
-public class TcpClient {
+public class TcpRosClient {
 
-  private static final Log log = RosLogFactory.getLog(TcpClient.class);
+  private static final Log log = RosLogFactory.getLog(TcpRosClient.class);
 
   private static final int DEFAULT_CONNECTION_TIMEOUT_DURATION = 5;
   private static final TimeUnit DEFAULT_CONNECTION_TIMEOUT_UNIT = TimeUnit.SECONDS;
@@ -62,12 +62,12 @@ public class TcpClient {
   private Channel channel;
   private HashedWheelTimer nettyTimer;
 
-  public TcpClient(ChannelGroup channelGroup, HashedWheelTimer nettyTimer, Executor executor) {
+  public TcpRosClient(ChannelGroup channelGroup, HashedWheelTimer nettyTimer, Executor executor) {
     this.channelGroup = channelGroup;
     this.nettyTimer = nettyTimer;
     channelFactory =
-        new NioClientSocketChannelFactory(new NioClientBossPool(executor, 1), new NioWorkerPool(
-            executor, Runtime.getRuntime().availableProcessors() * 2));
+        new NioClientSocketChannelFactory(new NioClientBossPool(executor, 1), new NioWorkerPool(executor, Runtime
+            .getRuntime().availableProcessors() * 2));
     channelBufferFactory = new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN);
     bootstrap = new ClientBootstrap(channelFactory);
     bootstrap.setOption("bufferFactory", channelBufferFactory);
@@ -92,8 +92,8 @@ public class TcpClient {
     this.namedChannelHandlers.addAll(namedChannelHandlers);
   }
 
-  public Channel connect(String connectionName, SocketAddress socketAddress) {
-    TcpClientPipelineFactory tcpClientPipelineFactory = new TcpClientPipelineFactory(channelGroup) {
+  public void connect(String connectionName, SocketAddress socketAddress) {
+    TcpRosClientPipelineFactory tcpClientPipelineFactory = new TcpRosClientPipelineFactory(channelGroup) {
       @Override
       public ChannelPipeline getPipeline() {
         ChannelPipeline pipeline = super.getPipeline();
@@ -114,7 +114,24 @@ public class TcpClient {
       // We expect the first connection to succeed. If not, fail fast.
       throw new RosRuntimeException("Connection exception: " + socketAddress, future.getCause());
     }
+  }
+
+  /**
+   * Get the netty channel for this client.
+   *
+   * @return the netty channel
+   */
+  public Channel getChannel() {
     return channel;
+  }
+
+  /**
+   * Is the client connected to the other side?
+   *
+   * @return {@code true} if connected
+   */
+  public boolean isConnected() {
+    return channel.isConnected();
   }
 
   public ChannelFuture write(ChannelBuffer buffer) {

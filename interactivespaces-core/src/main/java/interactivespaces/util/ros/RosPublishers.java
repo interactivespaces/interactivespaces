@@ -16,9 +16,9 @@
 
 package interactivespaces.util.ros;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
+
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.ros.internal.node.topic.SubscriberIdentifier;
@@ -43,15 +43,40 @@ public class RosPublishers<T> implements PublisherListener<T> {
   /**
    * All publishers registered.
    */
-  private List<Publisher<T>> publishers = Lists.newArrayList();
+  private final List<Publisher<T>> publishers = Lists.newArrayList();
+
+  /**
+   * All publisher listeners registered.
+   */
+  private final List<PublisherListener<T>> publisherListeners = Lists.newArrayList();
 
   /**
    * Logger for this collection.
    */
-  private Log log;
+  private final Log log;
 
+  /**
+   * Construct a new publishers collection.
+   *
+   * @param log
+   *          the logger to use
+   */
   public RosPublishers(Log log) {
     this.log = log;
+  }
+
+  /**
+   * Add a publisher listener to the collection.
+   *
+   * @param listener
+   *          the listener to add
+   */
+  public synchronized void addPublisherListener(PublisherListener<T> listener) {
+    publisherListeners.add(listener);
+
+    for (Publisher<T> publisher : publishers) {
+      publisher.addListener(listener);
+    }
   }
 
   /**
@@ -90,11 +115,9 @@ public class RosPublishers<T> implements PublisherListener<T> {
    *          {@code true} if the publisher should always send the last message
    *          sent to any new subscribers
    */
-  public void
-      addPublishers(ConnectedNode node, String messageType, String topicNames, boolean latch) {
+  public synchronized void addPublishers(ConnectedNode node, String messageType, String topicNames, boolean latch) {
     if (log.isInfoEnabled()) {
-      log.info(String.format("Adding publishers for topic names %s with message type %s",
-          topicNames, messageType));
+      log.info(String.format("Adding publishers for topic names %s with message type %s", topicNames, messageType));
     }
 
     for (String topicName : topicNames.split(SEPARATOR)) {
@@ -108,6 +131,11 @@ public class RosPublishers<T> implements PublisherListener<T> {
           log.info(String.format("Added publisher topic %s", topicName));
         }
         publisher.addListener(this);
+
+        for (PublisherListener<T> listener : publisherListeners) {
+          publisher.addListener(listener);
+        }
+
         publisher.setLatchMode(latch);
         publishers.add(publisher);
       }
@@ -120,7 +148,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * @param message
    *          The message to be published.
    */
-  public void publishMessage(T message) {
+  public synchronized void publishMessage(T message) {
     for (Publisher<T> publisher : publishers) {
       publisher.publish(message);
     }
@@ -131,7 +159,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
    *
    * @return an instance of the message
    */
-  public T newMessage() {
+  public synchronized T newMessage() {
     if (!publishers.isEmpty()) {
       return publishers.get(0).newMessage();
     } else {
@@ -145,7 +173,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * <p>
    * This method does not need to be called if the node is shut down.
    */
-  public void shutdown() {
+  public synchronized void shutdown() {
     for (Publisher<T> publisher : publishers) {
       publisher.shutdown();
     }
@@ -153,8 +181,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
 
   @Override
   public void onMasterRegistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to register with the master",
-        publisher.getTopicName()));
+    log.info(String.format("Publisher for topic %s has failed to register with the master", publisher.getTopicName()));
   }
 
   @Override
@@ -165,8 +192,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
 
   @Override
   public void onMasterUnregistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to unregister with the master",
-        publisher.getTopicName()));
+    log.info(String.format("Publisher for topic %s has failed to unregister with the master", publisher.getTopicName()));
   }
 
   @Override
@@ -177,13 +203,11 @@ public class RosPublishers<T> implements PublisherListener<T> {
 
   @Override
   public void onNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
-    log.info(String.format("Publisher for topic %s has a new subscriber %s",
-        publisher.getTopicName(), subscriberIdentifier.getNodeIdentifier()));
+    log.info(String.format("Publisher for topic %s has a new subscriber", publisher.getTopicName()));
   }
 
   @Override
   public void onShutdown(Publisher<T> publisher) {
     log.info(String.format("Publisher for topic %s has shut down", publisher.getTopicName()));
   }
-
 }

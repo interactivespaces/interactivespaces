@@ -129,10 +129,13 @@ public class CircularBlockingDeque<T> implements Iterable<T> {
   }
 
   /**
-   * Retrieves the head of the queue, blocking if necessary until an entry is
-   * available.
+   * Retrieves the head of the queue.
    *
-   * @return the head of the queue
+   * <p>
+   * There is no waiting.
+   *
+   * @return the head of the queue, or {@code null} if nothing is in the queue.
+   *
    * @throws InterruptedException
    */
   public T poll() {

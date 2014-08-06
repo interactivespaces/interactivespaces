@@ -22,7 +22,7 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.MessageEvent;
 import org.ros.internal.transport.BaseClientHandshakeHandler;
 import org.ros.internal.transport.ConnectionHeader;
-import org.ros.internal.transport.tcp.TcpClientPipelineFactory;
+import org.ros.internal.transport.tcp.TcpRosClientPipelineFactory;
 import org.ros.log.RosLogFactory;
 import org.ros.message.MessageDeserializer;
 import org.ros.node.service.ServiceResponseListener;
@@ -63,7 +63,7 @@ class ServiceClientHandshakeHandler<T, S> extends BaseClientHandshakeHandler {
   protected void onSuccess(ConnectionHeader incommingConnectionHeader, ChannelHandlerContext ctx,
       MessageEvent e) {
     ChannelPipeline pipeline = e.getChannel().getPipeline();
-    pipeline.remove(TcpClientPipelineFactory.LENGTH_FIELD_BASED_FRAME_DECODER);
+    pipeline.remove(TcpRosClientPipelineFactory.LENGTH_FIELD_BASED_FRAME_DECODER);
     pipeline.remove(ServiceClientHandshakeHandler.this);
     pipeline.addLast("ResponseDecoder", new ServiceResponseDecoder<S>());
     pipeline.addLast("ResponseHandler", new ServiceResponseHandler<S>(responseListeners,

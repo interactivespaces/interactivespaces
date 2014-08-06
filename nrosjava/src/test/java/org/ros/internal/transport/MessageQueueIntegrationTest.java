@@ -46,9 +46,9 @@ import org.ros.internal.node.service.ServiceManager;
 import org.ros.internal.node.topic.TopicParticipantManager;
 import org.ros.internal.transport.queue.IncomingMessageQueue;
 import org.ros.internal.transport.queue.OutgoingMessageQueue;
-import org.ros.internal.transport.tcp.TcpClient;
-import org.ros.internal.transport.tcp.TcpClientManager;
-import org.ros.internal.transport.tcp.TcpServerPipelineFactory;
+import org.ros.internal.transport.tcp.TcpRosClient;
+import org.ros.internal.transport.tcp.TcpRosClientManager;
+import org.ros.internal.transport.tcp.TcpRosServerPipelineFactory;
 import org.ros.message.MessageDefinitionProvider;
 import org.ros.message.MessageIdentifier;
 import org.ros.message.MessageListener;
@@ -70,8 +70,8 @@ public class MessageQueueIntegrationTest {
   private static final int QUEUE_CAPACITY = 128;
 
   private ExecutorService executorService;
-  private TcpClientManager firstTcpClientManager;
-  private TcpClientManager secondTcpClientManager;
+  private TcpRosClientManager firstTcpClientManager;
+  private TcpRosClientManager secondTcpClientManager;
   private OutgoingMessageQueue<Message> outgoingMessageQueue;
   private IncomingMessageQueue<std_msgs.String> firstIncomingMessageQueue;
   private IncomingMessageQueue<std_msgs.String> secondIncomingMessageQueue;
@@ -89,8 +89,7 @@ public class MessageQueueIntegrationTest {
     }
 
     @Override
-    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-        throws Exception {
+    public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
       if (DEBUG) {
         log.info("Channel disconnected: " + e.getChannel().toString());
       }
@@ -114,17 +113,16 @@ public class MessageQueueIntegrationTest {
     TopicMessageFactory topicMessageFactory = new TopicMessageFactory(messageDefinitionProvider);
     expectedMessage = topicMessageFactory.newFromType(std_msgs.String._TYPE);
     expectedMessage.setData("Would you like to play a game?");
-    outgoingMessageQueue =
-        new OutgoingMessageQueue<Message>(new DefaultMessageSerializer(), executorService);
+    outgoingMessageQueue = new OutgoingMessageQueue<Message>(new DefaultMessageSerializer(), executorService);
     firstIncomingMessageQueue =
         new IncomingMessageQueue<std_msgs.String>(new DefaultMessageDeserializer<std_msgs.String>(
             MessageIdentifier.of(std_msgs.String._TYPE), topicMessageFactory), executorService);
     secondIncomingMessageQueue =
         new IncomingMessageQueue<std_msgs.String>(new DefaultMessageDeserializer<std_msgs.String>(
             MessageIdentifier.of(std_msgs.String._TYPE), topicMessageFactory), executorService);
-    firstTcpClientManager = new TcpClientManager(executorService);
+    firstTcpClientManager = new TcpRosClientManager(executorService);
     firstTcpClientManager.addNamedChannelHandler(firstIncomingMessageQueue.getMessageReceiver());
-    secondTcpClientManager = new TcpClientManager(executorService);
+    secondTcpClientManager = new TcpRosClientManager(executorService);
     secondTcpClientManager.addNamedChannelHandler(secondIncomingMessageQueue.getMessageReceiver());
   }
 
@@ -147,22 +145,20 @@ public class MessageQueueIntegrationTest {
   private Channel buildServerChannel() {
     TopicParticipantManager topicParticipantManager = new TopicParticipantManager();
     ServiceManager serviceManager = new ServiceManager();
-    NioServerSocketChannelFactory channelFactory =
-        new NioServerSocketChannelFactory(executorService, executorService);
+    NioServerSocketChannelFactory channelFactory = new NioServerSocketChannelFactory(executorService, executorService);
     ServerBootstrap bootstrap = new ServerBootstrap(channelFactory);
-    bootstrap.setOption("child.bufferFactory",
-        new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
+    bootstrap.setOption("child.bufferFactory", new HeapChannelBufferFactory(ByteOrder.LITTLE_ENDIAN));
     bootstrap.setOption("child.keepAlive", true);
     ChannelGroup serverChannelGroup = new DefaultChannelGroup();
-    TcpServerPipelineFactory serverPipelineFactory =
-        new TcpServerPipelineFactory(serverChannelGroup, topicParticipantManager, serviceManager) {
+    TcpRosServerPipelineFactory serverPipelineFactory =
+        new TcpRosServerPipelineFactory(serverChannelGroup, topicParticipantManager, serviceManager) {
           @Override
           public ChannelPipeline getPipeline() {
             ChannelPipeline pipeline = super.getPipeline();
             // We're not interested firstIncomingMessageQueue testing the
             // handshake here. Removing it means connections are established
             // immediately.
-            pipeline.remove(TcpServerPipelineFactory.HANDSHAKE_HANDLER);
+            pipeline.remove(TcpRosServerPipelineFactory.HANDSHAKE_HANDLER);
             pipeline.addLast("ServerHandler", new ServerHandler());
             return pipeline;
           }
@@ -172,7 +168,7 @@ public class MessageQueueIntegrationTest {
     return serverChannel;
   }
 
-  private TcpClient connect(TcpClientManager TcpClientManager, Channel serverChannel) {
+  private TcpRosClient connect(TcpRosClientManager TcpClientManager, Channel serverChannel) {
     return TcpClientManager.connect("Foo", serverChannel.getLocalAddress());
   }
 

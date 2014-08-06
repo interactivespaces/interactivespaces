@@ -68,8 +68,7 @@ public class MessageDispatcherTest {
         if (this.count.compareAndSet(message.getData(), message.getData() + 1)) {
           latch.countDown();
         } else {
-          fail(String.format("Expected message data not equal to actual data: %d != %d",
-              count.get(), message.getData()));
+          fail(String.format("Expected message data not equal to actual data: %d != %d", count.get(), message.getData()));
         }
         try {
           // Sleeping allows the queue to fill up a bit by slowing down the

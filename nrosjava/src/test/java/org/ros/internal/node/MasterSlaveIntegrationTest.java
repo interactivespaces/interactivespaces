@@ -52,18 +52,16 @@ public class MasterSlaveIntegrationTest {
   @Before
   public void setUp() {
     executorService = new DefaultScheduledExecutorService();
-    masterServer =
-        new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
+    masterServer = new MasterServer(BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), executorService);
     masterServer.start();
     masterClient = new MasterClient(masterServer.getUri());
     TopicParticipantManager topicParticipantManager = new TopicParticipantManager();
     ServiceManager serviceManager = new ServiceManager();
     ParameterManager parameterManager = new ParameterManager(executorService);
     slaveServer =
-        new SlaveServer(GraphName.of("/foo"), BindAddress.newPrivate(),
-            AdvertiseAddress.newPrivate(), BindAddress.newPrivate(), AdvertiseAddress.newPrivate(),
-            masterClient, topicParticipantManager, serviceManager, parameterManager,
-            executorService);
+        new SlaveServer(GraphName.of("/foo"), BindAddress.newPrivate(), AdvertiseAddress.newPrivate(),
+            BindAddress.newPrivate(), AdvertiseAddress.newPrivate(), masterClient, topicParticipantManager,
+            serviceManager, parameterManager, executorService);
     slaveServer.start();
     slaveClient = new SlaveClient(GraphName.of("/bar"), slaveServer.getUri());
   }

@@ -24,12 +24,12 @@ import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
-public class TcpClientPipelineFactory extends ConnectionTrackingChannelPipelineFactory {
+public class TcpRosClientPipelineFactory extends ConnectionTrackingChannelPipelineFactory {
 
   public static final String LENGTH_FIELD_BASED_FRAME_DECODER = "LengthFieldBasedFrameDecoder";
   public static final String LENGTH_FIELD_PREPENDER = "LengthFieldPrepender";
 
-  public TcpClientPipelineFactory(ChannelGroup channelGroup) {
+  public TcpRosClientPipelineFactory(ChannelGroup channelGroup) {
     super(channelGroup);
   }
 

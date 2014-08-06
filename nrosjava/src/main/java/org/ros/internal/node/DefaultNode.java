@@ -143,25 +143,22 @@ public class DefaultNode implements ConnectedNode {
     resolver = new NodeNameResolver(nodeName, parentResolver);
     slaveServer =
         new SlaveServer(nodeName, nodeConfiguration.getTcpRosBindAddress(),
-            nodeConfiguration.getTcpRosAdvertiseAddress(),
-            nodeConfiguration.getXmlRpcBindAddress(),
-            nodeConfiguration.getXmlRpcAdvertiseAddress(), masterClient, topicParticipantManager,
-            serviceManager, parameterManager, scheduledExecutorService);
+            nodeConfiguration.getTcpRosAdvertiseAddress(), nodeConfiguration.getXmlRpcBindAddress(),
+            nodeConfiguration.getXmlRpcAdvertiseAddress(), masterClient, topicParticipantManager, serviceManager,
+            parameterManager, scheduledExecutorService);
     slaveServer.start();
 
     NodeIdentifier nodeIdentifier = slaveServer.toNodeIdentifier();
 
     parameterTree =
-        DefaultParameterTree.newFromNodeIdentifier(nodeIdentifier, masterClient.getRemoteUri(),
-            resolver, parameterManager);
+        DefaultParameterTree.newFromNodeIdentifier(nodeIdentifier, masterClient.getRemoteUri(), resolver,
+            parameterManager);
 
     publisherFactory =
-        new PublisherFactory(nodeIdentifier, topicParticipantManager,
-            nodeConfiguration.getTopicMessageFactory(), scheduledExecutorService);
-    subscriberFactory =
-        new SubscriberFactory(nodeIdentifier, topicParticipantManager, scheduledExecutorService);
-    serviceFactory =
-        new ServiceFactory(nodeName, slaveServer, serviceManager, scheduledExecutorService);
+        new PublisherFactory(nodeIdentifier, topicParticipantManager, nodeConfiguration.getTopicMessageFactory(),
+            scheduledExecutorService);
+    subscriberFactory = new SubscriberFactory(nodeIdentifier, topicParticipantManager, scheduledExecutorService);
+    serviceFactory = new ServiceFactory(nodeName, slaveServer, serviceManager, scheduledExecutorService);
 
     registrar = new Registrar(masterClient, scheduledExecutorService);
     topicParticipantManager.setListener(registrar);
@@ -193,9 +190,7 @@ public class DefaultNode implements ConnectedNode {
 
     boolean useSimTime = false;
     try {
-      useSimTime =
-          parameterTree.has(Parameters.USE_SIM_TIME)
-              && parameterTree.getBoolean(Parameters.USE_SIM_TIME);
+      useSimTime = parameterTree.has(Parameters.USE_SIM_TIME) && parameterTree.getBoolean(Parameters.USE_SIM_TIME);
     } catch (Exception e) {
       signalOnError(e);
     }
@@ -236,41 +231,39 @@ public class DefaultNode implements ConnectedNode {
 
   @SuppressWarnings("unchecked")
   private <T> MessageDeserializer<T> newMessageDeserializer(String messageType) {
-    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory()
-        .newMessageDeserializer(messageType);
+    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory().newMessageDeserializer(
+        messageType);
   }
 
   @SuppressWarnings("unchecked")
   private <T> MessageSerializer<T> newServiceResponseSerializer(String serviceType) {
-    return (MessageSerializer<T>) nodeConfiguration.getMessageSerializationFactory()
-        .newServiceResponseSerializer(serviceType);
+    return (MessageSerializer<T>) nodeConfiguration.getMessageSerializationFactory().newServiceResponseSerializer(
+        serviceType);
   }
 
   @SuppressWarnings("unchecked")
   private <T> MessageDeserializer<T> newServiceResponseDeserializer(String serviceType) {
-    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory()
-        .newServiceResponseDeserializer(serviceType);
+    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory().newServiceResponseDeserializer(
+        serviceType);
   }
 
   @SuppressWarnings("unchecked")
   private <T> MessageSerializer<T> newServiceRequestSerializer(String serviceType) {
-    return (MessageSerializer<T>) nodeConfiguration.getMessageSerializationFactory()
-        .newServiceRequestSerializer(serviceType);
+    return (MessageSerializer<T>) nodeConfiguration.getMessageSerializationFactory().newServiceRequestSerializer(
+        serviceType);
   }
 
   @SuppressWarnings("unchecked")
   private <T> MessageDeserializer<T> newServiceRequestDeserializer(String serviceType) {
-    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory()
-        .newServiceRequestDeserializer(serviceType);
+    return (MessageDeserializer<T>) nodeConfiguration.getMessageSerializationFactory().newServiceRequestDeserializer(
+        serviceType);
   }
 
   @Override
   public <T> Publisher<T> newPublisher(GraphName topicName, String messageType) {
     GraphName resolvedTopicName = resolveName(topicName);
-    TopicDescription topicDescription =
-        nodeConfiguration.getTopicDescriptionFactory().newFromType(messageType);
-    TopicDeclaration topicDeclaration =
-        TopicDeclaration.newFromTopicName(resolvedTopicName, topicDescription);
+    TopicDescription topicDescription = nodeConfiguration.getTopicDescriptionFactory().newFromType(messageType);
+    TopicDeclaration topicDeclaration = TopicDeclaration.newFromTopicName(resolvedTopicName, topicDescription);
     org.ros.message.MessageSerializer<T> serializer = newMessageSerializer(messageType);
     return publisherFactory.newOrExisting(topicDeclaration, serializer);
   }
@@ -283,10 +276,8 @@ public class DefaultNode implements ConnectedNode {
   @Override
   public <T> Subscriber<T> newSubscriber(GraphName topicName, String messageType) {
     GraphName resolvedTopicName = resolveName(topicName);
-    TopicDescription topicDescription =
-        nodeConfiguration.getTopicDescriptionFactory().newFromType(messageType);
-    TopicDeclaration topicDeclaration =
-        TopicDeclaration.newFromTopicName(resolvedTopicName, topicDescription);
+    TopicDescription topicDescription = nodeConfiguration.getTopicDescriptionFactory().newFromType(messageType);
+    TopicDeclaration topicDeclaration = TopicDeclaration.newFromTopicName(resolvedTopicName, topicDescription);
     MessageDeserializer<T> deserializer = newMessageDeserializer(messageType);
     Subscriber<T> subscriber = subscriberFactory.newOrExisting(topicDeclaration, deserializer);
     return subscriber;
@@ -304,13 +295,12 @@ public class DefaultNode implements ConnectedNode {
     // TODO(damonkohler): It's rather non-obvious that the URI will be
     // created later on the fly.
     ServiceIdentifier identifier = new ServiceIdentifier(resolvedServiceName, null);
-    ServiceDescription serviceDescription =
-        nodeConfiguration.getServiceDescriptionFactory().newFromType(serviceType);
+    ServiceDescription serviceDescription = nodeConfiguration.getServiceDescriptionFactory().newFromType(serviceType);
     ServiceDeclaration definition = new ServiceDeclaration(identifier, serviceDescription);
     MessageDeserializer<T> requestDeserializer = newServiceRequestDeserializer(serviceType);
     MessageSerializer<S> responseSerializer = newServiceResponseSerializer(serviceType);
-    return serviceFactory.newServer(definition, responseBuilder, requestDeserializer,
-        responseSerializer, nodeConfiguration.getServiceResponseMessageFactory());
+    return serviceFactory.newServer(definition, responseBuilder, requestDeserializer, responseSerializer,
+        nodeConfiguration.getServiceResponseMessageFactory());
   }
 
   @Override
@@ -333,8 +323,7 @@ public class DefaultNode implements ConnectedNode {
   @Override
   public URI lookupServiceUri(GraphName serviceName) {
     Response<URI> response =
-        masterClient.lookupService(slaveServer.toNodeIdentifier().getName(),
-            resolveName(serviceName).toString());
+        masterClient.lookupService(slaveServer.toNodeIdentifier().getName(), resolveName(serviceName).toString());
     if (response.getStatusCode() == StatusCode.SUCCESS) {
       return response.getResult();
     } else {
@@ -353,11 +342,9 @@ public class DefaultNode implements ConnectedNode {
     GraphName resolvedServiceName = resolveName(serviceName);
     URI uri = lookupServiceUri(resolvedServiceName);
     if (uri == null) {
-      throw new ServiceNotFoundException("No such service " + resolvedServiceName + " of type "
-          + serviceType);
+      throw new ServiceNotFoundException("No such service " + resolvedServiceName + " of type " + serviceType);
     }
-    ServiceDescription serviceDescription =
-        nodeConfiguration.getServiceDescriptionFactory().newFromType(serviceType);
+    ServiceDescription serviceDescription = nodeConfiguration.getServiceDescriptionFactory().newFromType(serviceType);
     ServiceIdentifier serviceIdentifier = new ServiceIdentifier(resolvedServiceName, uri);
     ServiceDeclaration definition = new ServiceDeclaration(serviceIdentifier, serviceDescription);
     MessageSerializer<T> requestSerializer = newServiceRequestSerializer(serviceType);
@@ -411,8 +398,7 @@ public class DefaultNode implements ConnectedNode {
     }
     for (ServiceServer<?, ?> serviceServer : serviceManager.getServers()) {
       try {
-        Response<Integer> response =
-            masterClient.unregisterService(slaveServer.toNodeIdentifier(), serviceServer);
+        Response<Integer> response = masterClient.unregisterService(slaveServer.toNodeIdentifier(), serviceServer);
         if (DEBUG) {
           if (response.getResult() == 0) {
             System.err.println("Failed to unregister service: " + serviceServer.getName());

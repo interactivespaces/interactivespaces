@@ -45,12 +45,12 @@ import org.ros.namespace.GraphName;
  * @author damonkohler@google.com (Damon Kohler)
  * @author kwc@willowgarage.com (Ken Conley)
  */
-public class TcpServerHandshakeHandler extends SimpleChannelHandler {
+public class TcpRosServerHandshakeHandler extends SimpleChannelHandler {
 
   private final TopicParticipantManager topicParticipantManager;
   private final ServiceManager serviceManager;
 
-  public TcpServerHandshakeHandler(TopicParticipantManager topicParticipantManager,
+  public TcpRosServerHandshakeHandler(TopicParticipantManager topicParticipantManager,
       ServiceManager serviceManager) {
     this.topicParticipantManager = topicParticipantManager;
     this.serviceManager = serviceManager;
@@ -78,7 +78,7 @@ public class TcpServerHandshakeHandler extends SimpleChannelHandler {
     if (probe != null && probe.equals("1")) {
       e.getChannel().close();
     } else {
-      pipeline.replace(TcpServerPipelineFactory.LENGTH_FIELD_PREPENDER, "ServiceResponseEncoder",
+      pipeline.replace(TcpRosServerPipelineFactory.LENGTH_FIELD_PREPENDER, "ServiceResponseEncoder",
           new ServiceResponseEncoder());
       pipeline.replace(this, "ServiceRequestHandler", serviceServer.newRequestHandler());
     }

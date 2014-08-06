@@ -81,8 +81,7 @@ public class ServiceFactory {
       } else {
         serviceServer =
             new DefaultServiceServer<T, S>(serviceDeclaration, responseBuilder,
-                slaveServer.getTcpRosAdvertiseAddress(), deserializer, serializer, messageFactory,
-                executorService);
+                slaveServer.getTcpRosAdvertiseAddress(), deserializer, serializer, messageFactory, executorService);
         serviceManager.addServer(serviceServer);
       }
     }
@@ -121,8 +120,7 @@ public class ServiceFactory {
    */
   @SuppressWarnings("unchecked")
   public <T, S> DefaultServiceClient<T, S> newClient(ServiceDeclaration serviceDeclaration,
-      MessageSerializer<T> serializer, MessageDeserializer<S> deserializer,
-      MessageFactory messageFactory) {
+      MessageSerializer<T> serializer, MessageDeserializer<S> deserializer, MessageFactory messageFactory) {
     Preconditions.checkNotNull(serviceDeclaration.getUri());
     DefaultServiceClient<T, S> serviceClient;
     GraphName name = serviceDeclaration.getName();
@@ -131,13 +129,15 @@ public class ServiceFactory {
     synchronized (mutex) {
       if (serviceManager.hasClient(name)) {
         serviceClient = (DefaultServiceClient<T, S>) serviceManager.getClient(name);
-      } else {
-        serviceClient =
-            DefaultServiceClient.newDefault(nodeName, serviceDeclaration, serializer, deserializer,
-                messageFactory, executorService);
-        serviceManager.addClient(serviceClient);
-        createdNewClient = true;
+        if (serviceClient.isConnected()) {
+          return serviceClient;
+        }
       }
+      serviceClient =
+          DefaultServiceClient.newDefault(nodeName, serviceDeclaration, serializer, deserializer, messageFactory,
+              executorService);
+      serviceManager.addClient(serviceClient);
+      createdNewClient = true;
     }
 
     if (createdNewClient) {

@@ -99,6 +99,5 @@ public class EventDispatcher<T> extends CancellableLoop {
         e.printStackTrace();
       }
     }
-
   }
 }

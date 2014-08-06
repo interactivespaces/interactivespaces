@@ -32,8 +32,7 @@ public class NodeNameResolverTest {
   public void testResolveNameOneArg() {
     Map<GraphName, GraphName> remappings = new HashMap<GraphName, GraphName>();
     GraphName nodeName = GraphName.of("/node");
-    NodeNameResolver r =
-        new NodeNameResolver(nodeName, NameResolver.newRootFromRemappings(remappings));
+    NodeNameResolver r = new NodeNameResolver(nodeName, NameResolver.newRootFromRemappings(remappings));
 
     assertGraphNameEquals("/foo", r.resolve("foo"));
     assertGraphNameEquals("/foo", r.resolve("/foo"));
@@ -52,9 +51,7 @@ public class NodeNameResolverTest {
 
     // Test case where private name is not is same namespace as default
     nodeName = GraphName.of("/ns2/node");
-    r =
-        new NodeNameResolver(nodeName, NameResolver.newFromNamespaceAndRemappings("/ns1",
-            remappings));
+    r = new NodeNameResolver(nodeName, NameResolver.newFromNamespaceAndRemappings("/ns1", remappings));
 
     assertGraphNameEquals("/ns1/foo", r.resolve("foo"));
     assertGraphNameEquals("/foo", r.resolve("/foo"));

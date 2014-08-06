@@ -25,7 +25,7 @@ import org.ros.concurrent.SignalRunnable;
 import org.ros.internal.node.server.NodeIdentifier;
 import org.ros.internal.transport.ProtocolNames;
 import org.ros.internal.transport.queue.IncomingMessageQueue;
-import org.ros.internal.transport.tcp.TcpClientManager;
+import org.ros.internal.transport.tcp.TcpRosClientManager;
 import org.ros.log.RosLogFactory;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageListener;
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultSubscriber<T> extends DefaultTopicParticipant implements Subscriber<T> {
 
-  private static final Log log = RosLogFactory.getLog(DefaultPublisher.class);
+  private static final Log log = RosLogFactory.getLog(DefaultSubscriber.class);
 
   /**
    * The maximum delay before shutdown will begin even if all
@@ -62,7 +62,7 @@ public class DefaultSubscriber<T> extends DefaultTopicParticipant implements Sub
   private final ScheduledExecutorService executorService;
   private final IncomingMessageQueue<T> incomingMessageQueue;
   private final Set<PublisherIdentifier> knownPublishers;
-  private final TcpClientManager tcpClientManager;
+  private final TcpRosClientManager tcpClientManager;
   private final Object mutex;
 
   /**
@@ -89,7 +89,7 @@ public class DefaultSubscriber<T> extends DefaultTopicParticipant implements Sub
     this.executorService = executorService;
     incomingMessageQueue = new IncomingMessageQueue<T>(deserializer, executorService);
     knownPublishers = Sets.newHashSet();
-    tcpClientManager = new TcpClientManager(executorService);
+    tcpClientManager = new TcpRosClientManager(executorService);
     mutex = new Object();
     SubscriberHandshakeHandler<T> subscriberHandshakeHandler =
         new SubscriberHandshakeHandler<T>(toDeclaration().toConnectionHeader(),

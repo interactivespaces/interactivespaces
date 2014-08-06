@@ -22,18 +22,28 @@ import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
+import interactivespaces.activity.component.route.MessageRouterActivityComponentListener;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
 import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.ros.BasePublisherListener;
+import interactivespaces.util.ros.BaseSubscriberListener;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
+import org.ros.internal.node.topic.PublisherIdentifier;
+import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageListener;
+import org.ros.node.topic.Publisher;
+import org.ros.node.topic.PublisherListener;
+import org.ros.node.topic.Subscriber;
+import org.ros.node.topic.SubscriberListener;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +70,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   /**
    * Description of this component.
    */
-  public static final String COMPONENT_DESCRIPTION = "Message Router";
+  public static final String COMPONENT_DESCRIPTION = "ROS Message Router";
 
   /**
    * Dependencies for the component.
@@ -116,9 +126,34 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   private RosPublishers<T> messageFactory;
 
   /**
+   * The listeners for this component.
+   */
+  private final List<MessageRouterActivityComponentListener> listeners = Lists.newCopyOnWriteArrayList();
+
+  /**
    * A creator for handler invocation IDs.
    */
   private final AtomicLong handlerInvocationId = new AtomicLong();
+
+  /**
+   * The publisher listener to get events to this router instance.
+   */
+  private final PublisherListener<T> publisherListener = new BasePublisherListener<T>() {
+    @Override
+    public void onNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
+      handleNewSubscriber(publisher, subscriberIdentifier);
+    }
+  };
+
+  /**
+   * The subscriber listener to get events to this router instance.
+   */
+  private final SubscriberListener<T> subscriberListener = new BaseSubscriberListener<T>() {
+    @Override
+    public void onNewPublisher(Subscriber<T> subscriber, PublisherIdentifier publisherIdentifier) {
+      handleNewPublisher(subscriber, publisherIdentifier);
+    }
+  };
 
   /**
    * Construct a new ROS message router activity component.
@@ -131,6 +166,16 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   public RosMessageRouterActivityComponent(String rosMessageType, RoutableInputMessageListener<T> messageListener) {
     this.rosMessageType = rosMessageType;
     this.messageListener = messageListener;
+  }
+
+  @Override
+  public void addListener(MessageRouterActivityComponentListener listener) {
+    listeners.add(listener);
+  }
+
+  @Override
+  public void removeListener(MessageRouterActivityComponentListener listener) {
+    listeners.remove(listener);
   }
 
   @Override
@@ -183,7 +228,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     }
 
     if (routeErrors.length() > 0) {
-      throw new InteractiveSpacesException("Router has missing routes: " + routeErrors);
+      throw new SimpleInteractiveSpacesException("Router has missing routes: " + routeErrors);
     }
 
     if ((inputNames == null || inputNames.isEmpty()) && (outputNames == null || outputNames.isEmpty())) {
@@ -277,7 +322,10 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     if (outputs.containsKey(outputName)) {
       throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
     }
+
     RosPublishers<T> publishers = new RosPublishers<T>(getComponentContext().getActivity().getLog());
+    publishers.addPublisherListener(publisherListener);
+
     outputs.put(outputName, publishers);
     outputTopics.put(outputName, topicNames);
 
@@ -296,6 +344,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
     }
 
     RosSubscribers<T> subscribers = new RosSubscribers<T>(getComponentContext().getActivity().getLog());
+    subscribers.addSubscriberListener(subscriberListener);
+
     inputs.put(inputName, subscribers);
     inputTopics.put(inputName, topicNames);
 
@@ -426,5 +476,47 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   private String makeRouteDetail(String className, String key, String bridge, String value) {
     return String.format(StatusDetail.PREFIX_FORMAT, className) + key + StatusDetail.SEPARATOR + bridge
         + StatusDetail.SEPARATOR + value + StatusDetail.POSTFIX;
+  }
+
+  /**
+   * Handle the event of a new subscriber coming in for a publisher.
+   *
+   * @param publisher
+   *          the publisher which has received a new subscriber
+   * @param subscriberIdentifier
+   *          the identifier for the new subscriber
+   */
+  private void handleNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
+    String topicName = publisher.getTopicName().toString();
+    String subscriberName = subscriberIdentifier.getNodeIdentifier().getName().toString();
+
+    for (MessageRouterActivityComponentListener listener : listeners) {
+      try {
+        listener.onNewSubscriber(topicName, subscriberName);
+      } catch (Exception e) {
+        getComponentContext().getActivity().getLog().error("Error notifying listener about new subscriber", e);
+      }
+    }
+  }
+
+  /**
+   * Handle the event of a new publisher coming in for a subscriber.
+   *
+   * @param subscriber
+   *          the subscriber which has received a new publisher
+   * @param publisherIdentifier
+   *          the identifier for the new publisher
+   */
+  private void handleNewPublisher(Subscriber<T> subscriber, PublisherIdentifier publisherIdentifier) {
+    String topicName = subscriber.getTopicName().toString();
+    String publisherName = publisherIdentifier.getNodeIdentifier().getName().toString();
+
+    for (MessageRouterActivityComponentListener listener : listeners) {
+      try {
+        listener.onNewPublisher(topicName, publisherName);
+      } catch (Exception e) {
+        getComponentContext().getActivity().getLog().error("Error notifying listener about new publisher", e);
+      }
+    }
   }
 }

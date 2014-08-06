@@ -41,6 +41,11 @@ public interface ServiceClient<T, S> {
   void connect(URI uri);
 
   /**
+   * @return {@code true} if the {@link ServiceClient} is connected
+   */
+  boolean isConnected();
+
+  /**
    * Calls a method on the {@link ServiceServer}.
    *
    * @param request

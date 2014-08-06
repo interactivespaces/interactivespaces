@@ -47,8 +47,7 @@ public class XmlRpcServer {
   private final AdvertiseAddress advertiseAddress;
   private final CountDownLatch startLatch;
 
-  public XmlRpcServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress,
-      ScheduledExecutorService threadPool) {
+  public XmlRpcServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService threadPool) {
     InetSocketAddress address = bindAddress.toInetSocketAddress();
     server = new NettyXmlRpcWebServer(address.getPort(), address.getAddress(), threadPool, log);
     this.advertiseAddress = advertiseAddress;
@@ -70,8 +69,7 @@ public class XmlRpcServer {
    * @param instance
    *          an instance of the remoting server class
    */
-  public <T extends org.ros.internal.node.xmlrpc.XmlRpcEndpoint> void start(Class<T> instanceClass,
-      T instance) {
+  public <T extends org.ros.internal.node.xmlrpc.XmlRpcEndpoint> void start(Class<T> instanceClass, T instance) {
     org.apache.xmlrpc.server.XmlRpcServer xmlRpcServer = server.getXmlRpcServer();
     PropertyHandlerMapping phm = new PropertyHandlerMapping();
     phm.setRequestProcessorFactoryFactory(new NodeRequestProcessorFactoryFactory<T>(instance));

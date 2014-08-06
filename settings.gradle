@@ -15,7 +15,7 @@
  */
 
 include 'nrosjava_bootstrap', 'nrosjava_messages', 
-        'apache_xmlrpc_common', 'apache_xmlrpc_client', 'apache_xmlrpc_server',
+        'napache_xmlrpc_common', 'napache_xmlrpc_client', 'napache_xmlrpc_server',
         'nrosjava', 'nrosjava_geometry',
         'interactivespaces-core',
 	'interactivespaces-system',
