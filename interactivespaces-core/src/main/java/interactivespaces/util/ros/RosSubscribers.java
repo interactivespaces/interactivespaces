@@ -42,16 +42,42 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
   /**
    * All subscribers registered.
    */
-  private List<Subscriber<T>> subscribers = Lists.newArrayList();
+  private final List<Subscriber<T>> subscribers = Lists.newArrayList();
+
+  /**
+   * All publisher listeners registered.
+   */
+  private final List<SubscriberListener<T>> subscriberListeners = Lists.newArrayList();
 
   /**
    * Logger for this collection.
    */
-  private Log log;
+  private final Log log;
 
+  /**
+   * Construct a new subscribers collection.
+   *
+   * @param log
+   *          the logger to use
+   */
   public RosSubscribers(Log log) {
     this.log = log;
   }
+
+  /**
+   * Add a subscriber listener to the collection.
+   *
+   * @param listener
+   *          the listener to add
+   */
+  public synchronized void addSubscriberListener(SubscriberListener<T> listener) {
+    subscriberListeners.add(listener);
+
+    for (Subscriber<T> subscriber : subscribers) {
+      subscriber.addSubscriberListener(listener);
+    }
+  }
+
 
   /**
    * Add a series of subscribers to a node.
@@ -69,8 +95,7 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
    *          The listener which all subscribers will call when a message is
    *          received.
    */
-  public void addSubscribers(ConnectedNode node, String messageType, String topicNames,
-      MessageListener<T> listener) {
+  public synchronized void addSubscribers(ConnectedNode node, String messageType, String topicNames, MessageListener<T> listener) {
     log.info("Adding topic subscribers");
     for (String topicName : topicNames.split(SEPARATOR)) {
       topicName = topicName.trim();
@@ -79,6 +104,11 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
         Subscriber<T> newSubscriber = node.newSubscriber(topicName, messageType);
         log.info(String.format("Added subscriber topic %s", topicName));
         newSubscriber.addSubscriberListener(this);
+
+        for (SubscriberListener<T> subscriberListener : subscriberListeners) {
+          newSubscriber.addSubscriberListener(subscriberListener);
+        }
+
         newSubscriber.addMessageListener(listener);
         subscribers.add(newSubscriber);
       }
@@ -91,7 +121,7 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
    * <p>
    * This method does not need to be called if the node is shut down.
    */
-  public void shutdown() {
+  public synchronized void shutdown() {
     for (Subscriber<T> subscriber : subscribers) {
       subscriber.shutdown();
     }
@@ -99,8 +129,7 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
 
   @Override
   public void onMasterRegistrationFailure(Subscriber<T> subscriber) {
-    log.info(String.format("Subscriber for topic %s has failed to register with the master",
-        subscriber.getTopicName()));
+    log.info(String.format("Subscriber for topic %s has failed to register with the master", subscriber.getTopicName()));
   }
 
   @Override
@@ -117,15 +146,13 @@ public class RosSubscribers<T> implements SubscriberListener<T> {
 
   @Override
   public void onMasterUnregistrationSuccess(Subscriber<T> subscriber) {
-    log.info(String.format("Subscriber for topic %s has unregistered from the master",
-        subscriber.getTopicName()));
+    log.info(String.format("Subscriber for topic %s has unregistered from the master", subscriber.getTopicName()));
   }
 
   @Override
   public void onNewPublisher(Subscriber<T> subscriber, PublisherIdentifier publisher) {
     if (log.isInfoEnabled()) {
-      log.info(String.format("Subscriber for topic %s has a new publisher %s",
-          subscriber.getTopicName(), publisher.getNodeIdentifier().getName()));
+      log.info(String.format("Subscriber for topic %s has a new publisher", subscriber.getTopicName()));
     }
   }
 

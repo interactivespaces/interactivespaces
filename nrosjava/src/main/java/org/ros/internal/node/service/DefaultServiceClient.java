@@ -25,8 +25,8 @@ import org.ros.internal.message.MessageBufferPool;
 import org.ros.internal.transport.ClientHandshakeListener;
 import org.ros.internal.transport.ConnectionHeader;
 import org.ros.internal.transport.ConnectionHeaderFields;
-import org.ros.internal.transport.tcp.TcpClient;
-import org.ros.internal.transport.tcp.TcpClientManager;
+import org.ros.internal.transport.tcp.TcpRosClient;
+import org.ros.internal.transport.tcp.TcpRosClientManager;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageSerializer;
@@ -55,8 +55,7 @@ public class DefaultServiceClient<T, S> implements ServiceClient<T, S> {
     private String errorMessage;
 
     @Override
-    public void onSuccess(ConnectionHeader outgoingConnectionHeader,
-        ConnectionHeader incomingConnectionHeader) {
+    public void onSuccess(ConnectionHeader outgoingConnectionHeader, ConnectionHeader incomingConnectionHeader) {
       success = true;
       latch.countDown();
     }
@@ -90,22 +89,21 @@ public class DefaultServiceClient<T, S> implements ServiceClient<T, S> {
   private final MessageBufferPool messageBufferPool;
   private final Queue<ServiceResponseListener<S>> responseListeners;
   private final ConnectionHeader connectionHeader;
-  private final TcpClientManager tcpClientManager;
+  private final TcpRosClientManager tcpClientManager;
   private final HandshakeLatch handshakeLatch;
 
-  private TcpClient tcpClient;
+  private TcpRosClient tcpClient;
 
-  public static <S, T> DefaultServiceClient<S, T> newDefault(GraphName nodeName,
-      ServiceDeclaration serviceDeclaration, MessageSerializer<S> serializer,
-      MessageDeserializer<T> deserializer, MessageFactory messageFactory,
+  public static <S, T> DefaultServiceClient<S, T> newDefault(GraphName nodeName, ServiceDeclaration serviceDeclaration,
+      MessageSerializer<S> serializer, MessageDeserializer<T> deserializer, MessageFactory messageFactory,
       ScheduledExecutorService executorService) {
-    return new DefaultServiceClient<S, T>(nodeName, serviceDeclaration, serializer, deserializer,
-        messageFactory, executorService);
+    return new DefaultServiceClient<S, T>(nodeName, serviceDeclaration, serializer, deserializer, messageFactory,
+        executorService);
   }
 
   private DefaultServiceClient(GraphName nodeName, ServiceDeclaration serviceDeclaration,
-      MessageSerializer<T> serializer, MessageDeserializer<S> deserializer,
-      MessageFactory messageFactory, ScheduledExecutorService executorService) {
+      MessageSerializer<T> serializer, MessageDeserializer<S> deserializer, MessageFactory messageFactory,
+      ScheduledExecutorService executorService) {
     this.serviceDeclaration = serviceDeclaration;
     this.serializer = serializer;
     this.messageFactory = messageFactory;
@@ -116,10 +114,9 @@ public class DefaultServiceClient<T, S> implements ServiceClient<T, S> {
     // TODO(damonkohler): Support non-persistent connections.
     connectionHeader.addField(ConnectionHeaderFields.PERSISTENT, "1");
     connectionHeader.merge(serviceDeclaration.toConnectionHeader());
-    tcpClientManager = new TcpClientManager(executorService);
+    tcpClientManager = new TcpRosClientManager(executorService);
     ServiceClientHandshakeHandler<T, S> serviceClientHandshakeHandler =
-        new ServiceClientHandshakeHandler<T, S>(connectionHeader, responseListeners, deserializer,
-            executorService);
+        new ServiceClientHandshakeHandler<T, S>(connectionHeader, responseListeners, deserializer, executorService);
     handshakeLatch = new HandshakeLatch();
     serviceClientHandshakeHandler.addListener(handshakeLatch);
     tcpClientManager.addNamedChannelHandler(serviceClientHandshakeHandler);
@@ -170,5 +167,10 @@ public class DefaultServiceClient<T, S> implements ServiceClient<T, S> {
   @Override
   public T newMessage() {
     return messageFactory.newFromType(serviceDeclaration.getType());
+  }
+
+  @Override
+  public boolean isConnected() {
+    return tcpClient.isConnected();
   }
 }

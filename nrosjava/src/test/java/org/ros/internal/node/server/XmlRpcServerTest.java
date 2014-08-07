@@ -55,8 +55,7 @@ public class XmlRpcServerTest {
   @Test
   public void testGetPublicUri() {
     BindAddress bindAddress = BindAddress.newPublic();
-    XmlRpcServer xmlRpcServer =
-        new XmlRpcServer(bindAddress, new AdvertiseAddress("override"), executorService);
+    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, new AdvertiseAddress("override"), executorService);
     try {
       xmlRpcServer.getUri();
       fail("Should not have succeeded before startup.");
@@ -75,8 +74,7 @@ public class XmlRpcServerTest {
   @Test
   public void testGetPrivateUri() {
     BindAddress bindAddress = BindAddress.newPrivate();
-    XmlRpcServer xmlRpcServer =
-        new XmlRpcServer(bindAddress, AdvertiseAddress.newPrivate(), executorService);
+    XmlRpcServer xmlRpcServer = new XmlRpcServer(bindAddress, AdvertiseAddress.newPrivate(), executorService);
     try {
       xmlRpcServer.getUri();
       fail("Should not have succeeded before startup.");

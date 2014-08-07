@@ -111,4 +111,23 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    * Shutdown and clear all the input/output message topics.
    */
   void clearAllChannelTopics();
+
+  /**
+   * Add a new message router listener to the component.
+   *
+   * @param listener
+   *          the listener to add
+   */
+  void addListener(MessageRouterActivityComponentListener listener);
+
+  /**
+   * Remove a message router listener to the component.
+   *
+   * <p>
+   * Does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeListener(MessageRouterActivityComponentListener listener);
 }

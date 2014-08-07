@@ -55,8 +55,7 @@ public class SlaveImplTest {
   public void testGetPublications() {
     SlaveServer mockSlave = mock(SlaveServer.class);
     DefaultPublisher<?> mockPublisher = mock(DefaultPublisher.class);
-    when(mockSlave.getPublications()).thenReturn(
-        Lists.<DefaultPublisher<?>>newArrayList(mockPublisher));
+    when(mockSlave.getPublications()).thenReturn(Lists.<DefaultPublisher<?>>newArrayList(mockPublisher));
     when(mockPublisher.getTopicName()).thenReturn(GraphName.of("/bar"));
     when(mockPublisher.getTopicMessageType()).thenReturn("/baz");
     when(mockPublisher.getTopicDeclarationAsList()).thenReturn(Lists.newArrayList("/bar", "/baz"));
@@ -76,8 +75,7 @@ public class SlaveImplTest {
     TcpRosProtocolDescription protocol = new TcpRosProtocolDescription(address);
     when(
         mockSlave.requestTopic(Matchers.<String>any(),
-            Matchers.eq(Sets.newHashSet(ProtocolNames.TCPROS, ProtocolNames.UDPROS)))).thenReturn(
-        protocol);
+            Matchers.eq(Sets.newHashSet(ProtocolNames.TCPROS, ProtocolNames.UDPROS)))).thenReturn(protocol);
     SlaveXmlRpcEndpointImpl slave = new SlaveXmlRpcEndpointImpl(mockSlave);
     Object[][] protocols = new Object[][] { { ProtocolNames.TCPROS }, { ProtocolNames.UDPROS } };
     List<Object> response = slave.requestTopic("/foo", "/bar", protocols);

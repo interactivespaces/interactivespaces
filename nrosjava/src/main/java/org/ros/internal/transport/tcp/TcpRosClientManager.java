@@ -31,16 +31,18 @@ import java.util.concurrent.Executor;
 /**
  * @author damonkohler@google.com (Damon Kohler)
  */
-public class TcpClientManager {
+public class TcpRosClientManager {
 
   private final ChannelGroup channelGroup;
-  private final Collection<TcpClient> tcpClients;
+  private final Collection<TcpRosClient> tcpClients;
   private final List<NamedChannelHandler> namedChannelHandlers;
   private final Executor executor;
   private final HashedWheelTimer nettyTimer;
 
-  public TcpClientManager(Executor executor) {
+  public TcpRosClientManager(Executor executor) {
     this.executor = executor;
+
+    // TODO(keith): Get this into a global place so it is shared across the VM
     nettyTimer = new HashedWheelTimer();
 
     channelGroup = new DefaultChannelGroup();
@@ -65,10 +67,10 @@ public class TcpClientManager {
    *          the name of the new connection
    * @param socketAddress
    *          the {@link SocketAddress} to connect to
-   * @return a new {@link TcpClient}
+   * @return a new {@link TcpRosClient}
    */
-  public TcpClient connect(String connectionName, SocketAddress socketAddress) {
-    TcpClient tcpClient = new TcpClient(channelGroup, nettyTimer, executor);
+  public TcpRosClient connect(String connectionName, SocketAddress socketAddress) {
+    TcpRosClient tcpClient = new TcpRosClient(channelGroup, nettyTimer, executor);
     tcpClient.addAllNamedChannelHandlers(namedChannelHandlers);
     tcpClient.connect(connectionName, socketAddress);
     tcpClients.add(tcpClient);
@@ -76,13 +78,13 @@ public class TcpClientManager {
   }
 
   /**
-   * Shuts down all {@link TcpClient}s and closes all open {@link Channel}s.
+   * Shuts down all {@link TcpRosClient}s and closes all open {@link Channel}s.
    */
   public void shutdown() {
     channelGroup.close().awaitUninterruptibly();
 
     // Shut down each client. This will free up many of their resources.
-    for (TcpClient client : tcpClients) {
+    for (TcpRosClient client : tcpClients) {
       client.shutdown();
     }
     tcpClients.clear();

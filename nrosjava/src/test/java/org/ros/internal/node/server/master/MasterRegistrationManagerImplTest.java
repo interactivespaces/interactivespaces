@@ -49,8 +49,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "topic/Message";
 
     TopicRegistrationInfo topic =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
 
     assertTrue(topic.getSubscribers().isEmpty());
 
@@ -82,8 +81,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "topic/Message";
 
     TopicRegistrationInfo topic =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName, topicMessageType);
 
     assertTrue(topic.getPublishers().isEmpty());
 
@@ -151,16 +149,14 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType1 = "topic/Message1";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerSubscriber(nodeName1, nodeSlaveUri1, topicName,
-            topicMessageType1);
+        masterRegistrationManager.registerSubscriber(nodeName1, nodeSlaveUri1, topicName, topicMessageType1);
 
     GraphName nodeName2 = GraphName.of("/node2");
     URI nodeSlaveUri2 = new URI("http://localhost:54321");
     String topicMessageType2 = "topic/Message2";
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerSubscriber(nodeName2, nodeSlaveUri2, topicName,
-            topicMessageType2);
+        masterRegistrationManager.registerSubscriber(nodeName2, nodeSlaveUri2, topicName, topicMessageType2);
 
     // This is the important test. The message type should be the second
     // registration's type.
@@ -203,8 +199,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType1 = "msgs/Message";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerSubscriber(nodeName1, nodeSlaveUri1, topicName,
-            topicMessageType1);
+        masterRegistrationManager.registerSubscriber(nodeName1, nodeSlaveUri1, topicName, topicMessageType1);
 
     GraphName nodeName2 = GraphName.of("/node2");
     URI nodeSlaveUri2 = new URI("http://localhost:54321");
@@ -251,16 +246,16 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageTypeSubscriber = "msgs/Message1";
 
     TopicRegistrationInfo topicSubscriber =
-        masterRegistrationManager.registerSubscriber(nodeNameSubscriber, nodeSlaveUriSubscriber,
-            topicName, topicMessageTypeSubscriber);
+        masterRegistrationManager.registerSubscriber(nodeNameSubscriber, nodeSlaveUriSubscriber, topicName,
+            topicMessageTypeSubscriber);
 
     GraphName nodeNamePublisher = GraphName.of("/node2");
     URI nodeSlaveUriPublisher = new URI("http://localhost:54321");
     String topicMessageTypePublisher = "msgs/Message2";
 
     TopicRegistrationInfo topicPublisher =
-        masterRegistrationManager.registerPublisher(nodeNamePublisher, nodeSlaveUriPublisher,
-            topicName, topicMessageTypePublisher);
+        masterRegistrationManager.registerPublisher(nodeNamePublisher, nodeSlaveUriPublisher, topicName,
+            topicMessageTypePublisher);
 
     // Should be only one topic info object since the same topic type
     assertTrue(topicSubscriber == topicPublisher);
@@ -269,14 +264,12 @@ public class MasterRegistrationManagerImplTest {
     assertEquals(topicMessageTypePublisher, topicSubscriber.getMessageType());
 
     // Make sure node info objects have everything
-    NodeRegistrationInfo node1 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNameSubscriber);
+    NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeNameSubscriber);
     assertTrue(node1.hasRegistrations());
     assertTrue(node1.getPublishers().isEmpty());
     assertEquals(Sets.newHashSet(topicSubscriber), node1.getSubscribers());
 
-    NodeRegistrationInfo node2 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher);
+    NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher);
     assertTrue(node2.hasRegistrations());
     assertTrue(node2.getSubscribers().isEmpty());
     assertEquals(Sets.newHashSet(topicSubscriber), node2.getPublishers());
@@ -301,16 +294,16 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageTypePublisher = "msgs/Message2";
 
     TopicRegistrationInfo topicPublisher =
-        masterRegistrationManager.registerPublisher(nodeNamePublisher, nodeSlaveUriPublisher,
-            topicName, topicMessageTypePublisher);
+        masterRegistrationManager.registerPublisher(nodeNamePublisher, nodeSlaveUriPublisher, topicName,
+            topicMessageTypePublisher);
 
     GraphName nodeNameSubscriber = GraphName.of("/node1");
     URI nodeSlaveUriSubscriber = new URI("http://localhost:12345");
     String topicMessageTypeSubscriber = "msgs/Message1";
 
     TopicRegistrationInfo topicSubscriber =
-        masterRegistrationManager.registerSubscriber(nodeNameSubscriber, nodeSlaveUriSubscriber,
-            topicName, topicMessageTypeSubscriber);
+        masterRegistrationManager.registerSubscriber(nodeNameSubscriber, nodeSlaveUriSubscriber, topicName,
+            topicMessageTypeSubscriber);
 
     // Should be only one topic info object since the same topic type
     assertTrue(topicSubscriber == topicPublisher);
@@ -319,14 +312,12 @@ public class MasterRegistrationManagerImplTest {
     assertEquals(topicMessageTypePublisher, topicSubscriber.getMessageType());
 
     // Make sure node info objects have everything
-    NodeRegistrationInfo node1 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNameSubscriber);
+    NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeNameSubscriber);
     assertTrue(node1.hasRegistrations());
     assertTrue(node1.getPublishers().isEmpty());
     assertEquals(Sets.newHashSet(topicSubscriber), node1.getSubscribers());
 
-    NodeRegistrationInfo node2 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher);
+    NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher);
     assertTrue(node2.hasRegistrations());
     assertTrue(node2.getSubscribers().isEmpty());
     assertEquals(Sets.newHashSet(topicSubscriber), node2.getPublishers());
@@ -351,16 +342,16 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageTypePublisher1 = "msgs/Message1";
 
     TopicRegistrationInfo topicPublisher1 =
-        masterRegistrationManager.registerPublisher(nodeNamePublisher1, nodeSlaveUriPublisher1,
-            topicName, topicMessageTypePublisher1);
+        masterRegistrationManager.registerPublisher(nodeNamePublisher1, nodeSlaveUriPublisher1, topicName,
+            topicMessageTypePublisher1);
 
     GraphName nodeNamePublisher2 = GraphName.of("/node2");
     URI nodeSlaveUriPublisher2 = new URI("http://localhost:12345");
     String topicMessageTypePublisher2 = "msgs/Message2";
 
     TopicRegistrationInfo topicPublisher2 =
-        masterRegistrationManager.registerPublisher(nodeNamePublisher2, nodeSlaveUriPublisher2,
-            topicName, topicMessageTypePublisher2);
+        masterRegistrationManager.registerPublisher(nodeNamePublisher2, nodeSlaveUriPublisher2, topicName,
+            topicMessageTypePublisher2);
 
     // Should be only one topic info object since the same topic type
     assertTrue(topicPublisher2 == topicPublisher1);
@@ -369,14 +360,12 @@ public class MasterRegistrationManagerImplTest {
     assertEquals(topicMessageTypePublisher2, topicPublisher2.getMessageType());
 
     // Make sure node info objects have everything
-    NodeRegistrationInfo node1 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher2);
+    NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher2);
     assertTrue(node1.hasRegistrations());
     assertTrue(node1.getSubscribers().isEmpty());
     assertEquals(Sets.newHashSet(topicPublisher2), node1.getPublishers());
 
-    NodeRegistrationInfo node2 =
-        masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher1);
+    NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeNamePublisher1);
     assertTrue(node2.hasRegistrations());
     assertTrue(node2.getSubscribers().isEmpty());
     assertEquals(Sets.newHashSet(topicPublisher2), node2.getPublishers());
@@ -404,8 +393,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType1 = "msgs/Message1";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri1, topicName1,
-            topicMessageType1);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri1, topicName1, topicMessageType1);
 
     NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
@@ -414,8 +402,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType2 = "msgs/Message2";
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri2, topicName2,
-            topicMessageType2);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri2, topicName2, topicMessageType2);
 
     NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
@@ -451,8 +438,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "msgs/Message1";
 
     TopicRegistrationInfo topic =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
 
     masterRegistrationManager.unregisterPublisher(nodeName, topicName);
 
@@ -477,15 +463,13 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType1 = "msgs/Message1";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName1,
-            topicMessageType1);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName1, topicMessageType1);
 
     GraphName topicName2 = GraphName.of("/topic2");
     String topicMessageType2 = "msgs/Message2";
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName2,
-            topicMessageType2);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName2, topicMessageType2);
 
     NodeRegistrationInfo node = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
@@ -513,8 +497,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "msgs/Message1";
 
     TopicRegistrationInfo topic =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName, topicMessageType);
 
     masterRegistrationManager.unregisterSubscriber(nodeName, topicName);
 
@@ -539,15 +522,13 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType1 = "msgs/Message1";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName1,
-            topicMessageType1);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName1, topicMessageType1);
 
     GraphName topicName2 = GraphName.of("/topic2");
     String topicMessageType2 = "msgs/Message2";
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName2,
-            topicMessageType2);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName2, topicMessageType2);
 
     NodeRegistrationInfo node = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
@@ -577,13 +558,11 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "topic/Message";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName, topicMessageType);
     NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName, topicMessageType);
     NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
     // This is the important test. Nothing should have changed.
@@ -614,13 +593,11 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "topic/Message";
 
     TopicRegistrationInfo topic1 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
     NodeRegistrationInfo node1 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
     TopicRegistrationInfo topic2 =
-        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName,
-            topicMessageType);
+        masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
     NodeRegistrationInfo node2 = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
     // This is the important test. Nothing should have changed, the exact
@@ -710,8 +687,7 @@ public class MasterRegistrationManagerImplTest {
     String topicMessageType = "foo/Bar";
 
     masterRegistrationManager.registerService(nodeName, nodeSlaveUri, serviceName, serviceUri);
-    masterRegistrationManager
-        .registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
+    masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName, topicMessageType);
 
     NodeRegistrationInfo node = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
@@ -743,13 +719,11 @@ public class MasterRegistrationManagerImplTest {
     URI nodeSlaveUri2 = new URI("http://localhost:54321");
 
     masterRegistrationManager.registerService(nodeName, nodeSlaveUri1, serviceName, serviceUri);
-    masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri1, topicName,
-        topicMessageType);
+    masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri1, topicName, topicMessageType);
 
     NodeRegistrationInfo node = masterRegistrationManager.getNodeRegistrationInfo(nodeName);
 
-    masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri2, topicName,
-        topicMessageType);
+    masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri2, topicName, topicMessageType);
 
     assertNull(masterRegistrationManager.getServiceRegistrationInfo(serviceName));
     assertTrue(masterRegistrationManager.getNodeRegistrationInfo(nodeName).getServices().isEmpty());

@@ -18,9 +18,9 @@ dependencies {
   compile project(':nrosjava_bootstrap')
   compile project(':nrosjava_messages')
 
-  compile project(':apache_xmlrpc_common')
-  compile project(':apache_xmlrpc_server')
-  compile project(':apache_xmlrpc_client')
+  compile project(':napache_xmlrpc_common')
+  compile project(':napache_xmlrpc_server')
+  compile project(':napache_xmlrpc_client')
 
   compile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/net/org.ros.rosjava.dnsjava-2.1.1.jar")
 

@@ -244,7 +244,7 @@ public class Registrar implements TopicParticipantManagerListener, ServiceManage
       }
     });
     if (!submitted) {
-      log.warn("Master unregistration never submitted");
+      log.warn("Master subscriber unregistration never submitted");
       executorService.execute(new Runnable() {
         @Override
         public void run() {

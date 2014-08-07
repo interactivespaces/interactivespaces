@@ -64,8 +64,7 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements Publ
   private final MessageFactory messageFactory;
 
   public DefaultPublisher(NodeIdentifier nodeIdentifier, TopicDeclaration topicDeclaration,
-      MessageSerializer<T> serializer, MessageFactory messageFactory,
-      ScheduledExecutorService executorService) {
+      MessageSerializer<T> serializer, MessageFactory messageFactory, ScheduledExecutorService executorService) {
     super(topicDeclaration);
     this.nodeIdentifier = nodeIdentifier;
     this.messageFactory = messageFactory;
@@ -164,17 +163,13 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements Publ
     String incomingType = incomingHeader.getField(ConnectionHeaderFields.TYPE);
     String expectedType = topicDefinitionHeader.getField(ConnectionHeaderFields.TYPE);
     boolean messageTypeMatches =
-        incomingType.equals(expectedType)
-            || incomingType.equals(Subscriber.TOPIC_MESSAGE_TYPE_WILDCARD);
-    Preconditions.checkState(messageTypeMatches, "Unexpected message type " + incomingType + " != "
-        + expectedType);
+        incomingType.equals(expectedType) || incomingType.equals(Subscriber.TOPIC_MESSAGE_TYPE_WILDCARD);
+    Preconditions.checkState(messageTypeMatches, "Unexpected message type " + incomingType + " != " + expectedType);
     String incomingChecksum = incomingHeader.getField(ConnectionHeaderFields.MD5_CHECKSUM);
     String expectedChecksum = topicDefinitionHeader.getField(ConnectionHeaderFields.MD5_CHECKSUM);
     boolean checksumMatches =
-        incomingChecksum.equals(expectedChecksum)
-            || incomingChecksum.equals(Subscriber.TOPIC_MESSAGE_TYPE_WILDCARD);
-    Preconditions.checkState(checksumMatches, "Unexpected message MD5 " + incomingChecksum + " != "
-        + expectedChecksum);
+        incomingChecksum.equals(expectedChecksum) || incomingChecksum.equals(Subscriber.TOPIC_MESSAGE_TYPE_WILDCARD);
+    Preconditions.checkState(checksumMatches, "Unexpected message MD5 " + incomingChecksum + " != " + expectedChecksum);
     ConnectionHeader outgoingConnectionHeader = toDeclaration().toConnectionHeader();
     // TODO(damonkohler): Force latch mode to be consistent throughout the
     // life
@@ -193,8 +188,7 @@ public class DefaultPublisher<T> extends DefaultTopicParticipant implements Publ
    */
   public void addSubscriber(SubscriberIdentifier subscriberIdentifer, Channel channel) {
     if (log.isDebugEnabled()) {
-      log.debug(String.format("Adding subscriber %s channel %s to publisher %s.",
-          subscriberIdentifer, channel, this));
+      log.debug(String.format("Adding subscriber %s channel %s to publisher %s.", subscriberIdentifer, channel, this));
     }
     outgoingMessageQueue.addChannel(channel);
     signalOnNewSubscriber(subscriberIdentifer);

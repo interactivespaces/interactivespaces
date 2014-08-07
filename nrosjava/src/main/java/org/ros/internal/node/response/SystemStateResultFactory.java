@@ -55,16 +55,14 @@ public class SystemStateResultFactory implements ResultFactory<SystemState> {
         subscriberNodes = Sets.newHashSet();
       }
 
-      topics.put(topicName, new TopicSystemState(topicName, publisherData.getValue(),
-          subscriberNodes));
+      topics.put(topicName, new TopicSystemState(topicName, publisherData.getValue(), subscriberNodes));
     }
 
     for (Entry<String, Set<String>> subscriberData : subscriberMap.entrySet()) {
       // At this point there are no publishers with the same topic name
       HashSet<String> noPublishers = Sets.newHashSet();
       String topicName = subscriberData.getKey();
-      topics.put(topicName,
-          new TopicSystemState(topicName, noPublishers, subscriberData.getValue()));
+      topics.put(topicName, new TopicSystemState(topicName, noPublishers, subscriberData.getValue()));
     }
 
     // TODO(keith): Get service state in here.

@@ -14,36 +14,34 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
- * under the License.    
+ * under the License.
  */
 package org.apache.xmlrpc.server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
- * Instances of this class can be used to customize the servers
- * error logging.
+ * Instances of this class can be used to customize the servers error logging.
  */
 public class XmlRpcErrorLogger {
-    private static Log log = LogFactory.getLog(XmlRpcErrorLogger.class);
+  private static Log log = LogFactory.getLog(XmlRpcErrorLogger.class);
 
-    public static void setLog(Log l) {
-    	log = l;
-    }
-    
-    /**
-     * Called to log the given error.
-     */
-    public void log(String pMessage, Throwable pThrowable) {
-        log.error(pMessage, pThrowable);
-    }
+  public static void setLog(Log l) {
+    log = l;
+  }
 
-    /**
-     * Called to log the given error message.
-     */
-    public void log(String pMessage) {
-        log.error(pMessage);
-    }
+  /**
+   * Called to log the given error.
+   */
+  public void log(String pMessage, Throwable pThrowable) {
+    log.error(pMessage, pThrowable);
+  }
+
+  /**
+   * Called to log the given error message.
+   */
+  public void log(String pMessage) {
+    log.error(pMessage);
+  }
 }
