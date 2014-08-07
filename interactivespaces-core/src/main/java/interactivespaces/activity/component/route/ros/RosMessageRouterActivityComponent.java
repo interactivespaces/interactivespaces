@@ -31,6 +31,12 @@ import interactivespaces.util.ros.BaseSubscriberListener;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import org.apache.commons.logging.Log;
 import org.ros.internal.node.topic.PublisherIdentifier;
 import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.message.MessageListener;
@@ -481,16 +487,18 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
    *          the identifier for the new subscriber
    */
   private void handleNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
-//    String topicName = publisher.getTopicName().toString();
-//    String subscriberName = subscriberIdentifier.getNodeIdentifier().getName().toString();
-//
-//    for (MessageRouterActivityComponentListener listener : listeners) {
-//      try {
-//        listener.onNewSubscriber(topicName, subscriberName);
-//      } catch (Exception e) {
-//        getComponentContext().getActivity().getLog().error("Error notifying listener about new subscriber", e);
-//      }
-//    }
+    // String topicName = publisher.getTopicName().toString();
+    // String subscriberName =
+    // subscriberIdentifier.getNodeIdentifier().getName().toString();
+    //
+    // for (MessageRouterActivityComponentListener listener : listeners) {
+    // try {
+    // listener.onNewSubscriber(topicName, subscriberName);
+    // } catch (Exception e) {
+    // getComponentContext().getActivity().getLog().error("Error notifying listener about new subscriber",
+    // e);
+    // }
+    // }
   }
 
   /**
@@ -502,15 +510,17 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
    *          the identifier for the new publisher
    */
   private void handleNewPublisher(Subscriber<T> subscriber, PublisherIdentifier publisherIdentifier) {
-//    String topicName = subscriber.getTopicName().toString();
-//    String publisherName = publisherIdentifier.getNodeIdentifier().getName().toString();
-//
-//    for (MessageRouterActivityComponentListener listener : listeners) {
-//      try {
-//        listener.onNewPublisher(topicName, publisherName);
-//      } catch (Exception e) {
-//        getComponentContext().getActivity().getLog().error("Error notifying listener about new publisher", e);
-//      }
-//    }
+    // String topicName = subscriber.getTopicName().toString();
+    // String publisherName =
+    // publisherIdentifier.getNodeIdentifier().getName().toString();
+    //
+    // for (MessageRouterActivityComponentListener listener : listeners) {
+    // try {
+    // listener.onNewPublisher(topicName, publisherName);
+    // } catch (Exception e) {
+    // getComponentContext().getActivity().getLog().error("Error notifying listener about new publisher",
+    // e);
+    // }
+    // }
   }
 }
