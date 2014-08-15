@@ -146,7 +146,6 @@
       <sourceFolder url="file://$MODULE_DIR$/interactivespaces-master-controller/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/interactivespaces-core/src/test/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/service/interactivespaces-service-script/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/interactivespaces-workbench-testing/src/main/java" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
