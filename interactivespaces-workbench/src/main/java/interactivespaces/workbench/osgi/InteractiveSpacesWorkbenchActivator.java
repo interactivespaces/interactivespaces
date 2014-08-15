@@ -20,6 +20,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
+import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
@@ -37,6 +38,14 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
+
+  /**
+   * Introduced delay to prevent startup/shutdown race conditions when the workbench immediately errors out
+   * due to something like a missing command line argument.  When that happens, sometimes other components
+   * are in the process of starting up and throw a confusing/misleading error message when the workbench then
+   * shuts down. This delay allows the other components to fully start up before being shutdown.
+   */
+  public static final int ERROR_RACE_CONDITION_DELAY_MS = 200;
 
   /**
    * The workbench UI, if any.
@@ -135,6 +144,7 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
             } else {
               workbench.getLog().error("Error executing workbench commands", e);
             }
+            InteractiveSpacesUtilities.delay(ERROR_RACE_CONDITION_DELAY_MS);
           } finally {
             try {
               bundleContext.getBundle(0).stop();

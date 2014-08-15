@@ -122,81 +122,19 @@ Once there, type the following command.
 
 ::
 
-  bin/isworkbench.bash create language java
+  bin/isworkbench.bash create activity java me.activity.first
 
-You will then be asked a series of questions. Let's create a project called
-*me.activity.first*.
+This will create a new directory *me.activity.first*, containing a *project.xml* file and also the
+requisite Java source files. The project file contains a number of fields, such as description and version,
+that can then be edited appropriately.
+There are also templates available for ``javascript``, ``python``, or ``android``.
 
-The first question is the identifying name.
-
-::
-
-  Identifying name:
-
-This, along with the version given later
-uniquely identifies the Activity to Interactive Spaces.
-
+Project specifications can also be specified by directly specifying a project spec file:
 
 ::
 
-  Identifying name: me.activity.first
-
-The identifying name is is a dot separated set of names, Examples would be
-things like
-
-* a.b.c
-* com.google.myactivity
-
-Each part of the name must start with a letter and can then be letters,
-digits, and underscores.
-
-
-Next is the version.
-
-::
-
-  Version:
-
-Let's make it version 1.
-
-::
-
-  Version: 1.0.0
-
-Versions consists of 3 sets of numbers, separated by dots. Examples would be
-
-* 1.0.0
-* 0.1.0-beta
-
-Notice the last one has a dash followed by some text.
-
-Next is the name.
-
-::
-
-  Name:
-
-Let's use the name *My First Interactive Spaces Activity*.
-
-::
-
-  Name: My First Interactive Spaces Activity
-
-The name is the human readable name which shows up in the Interactive Spaces
-web UI.
-
-Finally there is a description.
-
-::
-
-  Description:
-
-Make this description anything you want.
-
-This field is not required. It is a description of the activity.
-
-The project will then be created in the Workbench directory.
-
+  bin/isworkbench.bash create spec \
+    templates/activity/generic/java/simple/java_activity_spec.xml me.activity.first
 
 Building the Activity
 ---------------------
@@ -210,7 +148,7 @@ build your project is
 
   bin/isworkbench.bash me.activity.first build
 
-This will put a file called *me.activity.first-1.0.0.zip* in the
+This will put a file called *me.activity.first-0.0.1.zip* in the
 *me.activity.first/build* directory.
 
 You can upload this activity into Interactive Spaces the same way you did

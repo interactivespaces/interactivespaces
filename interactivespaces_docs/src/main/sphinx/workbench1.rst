@@ -72,14 +72,13 @@ the Simple Java Activity Example project with the command
 Creating a Project
 ----------------------------
 
-You can create  projects very simply.
+You can create projects very simply.
 
 ::
 
-  bin/isworkbench.bash create language <language>
+  bin/isworkbench.bash create activity <language>
 
-where ``<language>`` is one of ``java``, ``javascript``, ``python``,
-or ``android``.
+where ``<language>`` is one of ``java``, ``javascript``, ``python``, or ``android``.
 
 You then get a project of one of those types which contains an initial
 piece of code for you to then start editing. You will be prompted for

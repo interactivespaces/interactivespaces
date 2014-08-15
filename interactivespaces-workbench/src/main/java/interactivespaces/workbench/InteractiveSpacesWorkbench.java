@@ -16,7 +16,11 @@
 
 package interactivespaces.workbench;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
 import interactivespaces.domain.support.DomainValidationResult;
@@ -56,10 +60,6 @@ import interactivespaces.workbench.project.java.OsgiBundleCreator;
 import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
@@ -104,6 +104,11 @@ public class InteractiveSpacesWorkbench {
    * Command to create a new project.
    */
   public static final String COMMAND_CREATE = "create";
+
+  /**
+   * Command to create a new project directly from a specification file.
+   */
+  public static final String COMMAND_CREATE_SPEC = "spec";
 
   /**
    * Command to deploy a project.
@@ -169,14 +174,9 @@ public class InteractiveSpacesWorkbench {
   public static final String CONFIGURATION_MASTER_BASEDIR = "interactivespaces.master.basedir";
 
   /**
-   * Properties for the workbench.
-   */
-  private final Map<String, String> workbenchConfig;
-
-  /**
    * Configuration for the workbench.
    */
-  private final SimpleConfiguration workbenchSimpleConfig;
+  private final Configuration workbenchConfig;
 
   /**
    * The activity project manager for file operations.
@@ -237,22 +237,21 @@ public class InteractiveSpacesWorkbench {
   /**
    * Construct a workbench.
    *
-   * @param workbenchConfig
-   *          the configuration for the workbench
+   * @param workbenchProperties
+   *          the map of configuration properties for the workbench
    * @param baseClassLoader
    *          the base classloader for the workbench
    * @param log
    *          the logger to use
    */
-  public InteractiveSpacesWorkbench(Map<String, String> workbenchConfig, ClassLoader baseClassLoader, Log log) {
-    this.workbenchConfig = workbenchConfig;
+  public InteractiveSpacesWorkbench(Map<String, String> workbenchProperties, ClassLoader baseClassLoader, Log log) {
     this.baseClassLoader = baseClassLoader;
     this.log = log;
 
-    workbenchSimpleConfig = SimpleConfiguration.newConfiguration();
+    workbenchConfig = SimpleConfiguration.newConfiguration();
 
-    workbenchSimpleConfig.setValues(workbenchConfig);
-    workbenchSimpleConfig.setValue(CONFIGURATION_PROPERTY_WORKBENCH_HOME, workbenchFileSystem.getInstallDirectory()
+    workbenchConfig.setValues(workbenchProperties);
+    workbenchConfig.setValue(CONFIGURATION_PROPERTY_WORKBENCH_HOME, workbenchFileSystem.getInstallDirectory()
         .getAbsolutePath());
 
     this.templater = new FreemarkerTemplater();
@@ -357,7 +356,7 @@ public class InteractiveSpacesWorkbench {
     try {
       for (ProjectDeployment deployment : project.getDeployments()) {
         if (type.equals(deployment.getType())) {
-          File deploymentLocation = new File(workbenchSimpleConfig.evaluate(deployment.getLocation()));
+          File deploymentLocation = new File(workbenchConfig.evaluate(deployment.getLocation()));
           System.out.format("Deploying to %s\n", deploymentLocation.getAbsolutePath());
           copyBuildArtifacts(project, deploymentLocation);
         }
@@ -466,12 +465,12 @@ public class InteractiveSpacesWorkbench {
    * @return the controller directory
    */
   public File getControllerDirectory() {
-    String controllerPath = workbenchConfig.get(CONFIGURATION_CONTROLLER_BASEDIR);
+    String controllerPath = workbenchConfig.getPropertyString(CONFIGURATION_CONTROLLER_BASEDIR);
     File controllerDirectory = new File(controllerPath);
     if (controllerDirectory.isAbsolute()) {
       return controllerDirectory;
     }
-    File homeDir = new File(workbenchConfig.get(CONFIGURATION_INTERACTIVESPACES_HOME));
+    File homeDir = new File(workbenchConfig.getPropertyString(CONFIGURATION_INTERACTIVESPACES_HOME));
     return new File(homeDir, controllerPath);
   }
 
@@ -612,7 +611,8 @@ public class InteractiveSpacesWorkbench {
    */
   private void createProject(List<String> commands) {
     getLog().info("Creating project from specification...");
-    File specFile = new File(removeArgument(commands, "specification file"));
+    File specFile = new File(determineTemplateSpec(removeArgument(commands, "specification project type"),
+        removeArgument(commands, "specification project kind")));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 
     JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
@@ -625,6 +625,29 @@ public class InteractiveSpacesWorkbench {
     creationSpecification.setBaseDirectory(baseDirectory);
 
     projectCreator.create(creationSpecification);
+  }
+
+  /**
+   * Determine a template specification path from the input parameters.
+   *
+   * @param type
+   *          project type (e.g., {@code activity} or {@code library})
+   * @param kind
+   *          project kind (e.g., {@code java} or {@code web})
+   *
+   * @return project specification path
+   */
+  private String determineTemplateSpec(String type, String kind) {
+    final List<String> matches = Lists.newArrayList();
+    if (COMMAND_CREATE_SPEC.equals(type)) {
+      return kind;
+    }
+    String parameterName = String.format("interactivespaces.workbench.template.%s.%s", type, kind);
+    String specPath = workbenchConfig.getPropertyString(parameterName);
+    if (Strings.isNullOrEmpty(specPath)) {
+      throw new SimpleInteractiveSpacesException("Missing spec path configuration " + parameterName);
+    }
+    return specPath;
   }
 
   /**
@@ -866,8 +889,8 @@ public class InteractiveSpacesWorkbench {
   /**
    * @return the workbenchProperties
    */
-  public SimpleConfiguration getWorkbenchConfig() {
-    return workbenchSimpleConfig;
+  public Configuration getWorkbenchConfig() {
+    return workbenchConfig;
   }
 
   /**

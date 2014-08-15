@@ -150,12 +150,12 @@ Writing Android-based Activities
 ================================
 
 You can create and build Android-based Activities using the Interactive Spaces
-Workbench. When creating the project, be sure to specify the language as
+Workbench. When creating the project, be sure to specify the project kind as
 *android*.
 
 ::
 
-  java -jar interactivespaces-launcher-0.0.0.jar create language android
+  java -jar interactivespaces-launcher-0.0.0.jar create activity android
 
 if using the command line interface, or by chosing one of the Android templates
 if using the Workbench GUI.
