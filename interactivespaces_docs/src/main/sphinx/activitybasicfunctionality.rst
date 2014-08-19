@@ -20,8 +20,8 @@ General Activity Information
 There are several methods in Activities which give information about
 the Activity.
 
-``getName()`` return the name of the Activity as set in the 
-``activity.conf``.
+``getName()`` return the name of the Activity as set in the ``<activity>`` section of the
+``project.xml``.
 
 ``getUuid()`` returns the UUID of the Activity when it was added to a 
 Live Activity. The UUID is assigned by Interactive Spaces when an
@@ -96,12 +96,12 @@ Activity would then be found in the folder
       34eb3c27-5d37-45aa-a9cd-22d46bc85701/log
 
 The configuration parameter *space.activity.log.level* lets you set the logging
-level, which by default is set to *error*. The following parameter added to
-your *activity.conf* will take the logging level up to *info*.
+level, which by default is set to *error*. The following parameter added to the activity configuration section
+in your ``project.xml`` will take the logging level up to *info*.
 
 ::
 
-  space.activity.log.level=info
+  <property name="space.activity.log.level" value="info" />
 
 Legal values are
 
@@ -125,9 +125,9 @@ A Live Activities is installed in the
 
 ::
 
-  controller/controller/activities/installed/uuid
+  controller/controller/activities/installed/<uuid>
 
-folder, where ``uuid`` is the UUID of the Live Activity.
+folder, where ``<uuid>`` is the UUID of the Live Activity.
 
 Each of the following directories are under this directory.
 
@@ -136,8 +136,8 @@ The Install Directory
 
 The Install Directory is where the resources that were contained in
 the Activity's install bundle are placed. This includes the 
-``activity.conf`` and any code and resources necessary for the Activity
-to run.
+``activity.conf`` and any code and resources necessary for 
+the Activity to run.
 
 The Install Directory is in the ``install`` directory of the Activity's
 fileystem.
@@ -231,7 +231,7 @@ on the Activity Filesystem.
 
 .. code-block:: java
 
-  File logDir = getActivityFilesystem().getTLogDirectory();
+  File logDir = getActivityFilesystem().getLogDirectory();
 
 The Space Controller
 ====================
