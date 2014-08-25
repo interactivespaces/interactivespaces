@@ -1,3 +1,5 @@
+.. _activity-types-label:
+
 Activity Types
 **************
 

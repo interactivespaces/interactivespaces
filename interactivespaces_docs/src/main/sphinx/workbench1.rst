@@ -76,13 +76,25 @@ You can create projects very simply.
 
 ::
 
-  bin/isworkbench.bash create activity <language>
+  bin/isworkbench.bash create <type> <language> <projectdir>
 
-where ``<language>`` is one of ``java``, ``javascript``, ``python``, or ``android``.
+``<type>`` is the type of the project and would be one of ``activity`` or ``library``.
+``<language>`` is one of ``java``, ``javascript``, ``python``, or ``android``. ``<projectdir>`` is the file path to 
+the root folder which will contain the project. 
 
-You then get a project of one of those types which contains an initial
-piece of code for you to then start editing. You will be prompted for
-identifying name, version, name, and description of the new project.
+
+The workbench then creates a project with an initial set of files, including the ``project.xml`` file and some
+code files for you to then start editing. If the root folder for the project does not exist it will be created.
+
+For example,
+
+
+::
+
+  bin/isworkbench.bash create activity java foo.bar
+
+will create the skeleton for a Java-based activity in the folder ``foo.bar``. ``foo.bar`` will be the initial
+identifying name of the activity.
 
 If you are using ``android``, please see the chapter on Android for details about
 initial configurations.
@@ -145,6 +157,11 @@ Interactive Spaces.
 
     <identifyingName>interactivespaces.example.activity.hello</identifyingName>
     <version>1.0.0</version>
+        
+    <activity type="interactivespaces_native">
+      <name>example_activity_hello</name>
+      <class>interactivespaces.activity.example.hello.HelloActivity</class>
+    </activity>
   </project>
 
 As you can see, project files are XML-based. The root element is
@@ -178,6 +195,11 @@ attribute, as you can see in the example project
 
     <identifyingName>interactivespaces.example.activity.hello.python</identifyingName>
     <version>1.0.0</version>
+
+    <activity type="script">
+      <name>example_activity_hello_python</name>
+      <executable>HelloActivity.py</executable>
+    </activity>
   </project>
 
 Notice that the ``project`` element only contains the ``type`` attribute, not the
@@ -214,6 +236,64 @@ Versions consists of 3 sets of numbers, separated by dots. Examples would be
 * 0.1.0-beta
 
 Notice the last one has a dash followed by some text.
+
+The <activity> section
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``<activity>`` section describes important information about the activity. 
+
+The ``type`` attribute of the ``<activity>`` element gives the :ref:`Activity Type <activity-types-label>`.
+
+The ``<name>`` element gives the name of the activity. Every activity has a name.
+
+The <activity> Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``<configuration>`` element lives under the ``<project>`` element. It defines any configuration parameters
+for the Activity.
+
+The following example is part of the ``<activity>`` element for the 
+``examples/activity/control/interactivespaces.example.activity.control.osc.routable`` project in the workbench.
+
+::
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityControlOscRoutable</name>
+    <class>interactivespaces.example.activity.control.osc.routable.OpenSoundControlRoutableExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.log.level" value="info"
+        required="true" />
+      <property name="space.activity.ros.node.name" required="true">
+        <value>example/routable/input/osc
+        </value>
+      </property>
+      <property name="space.activity.routes.inputs" value="signal"
+        required="true" />
+      <property name="space.activity.route.input.signal"
+        required="true">
+        <value>/example/routable/signal/analog
+        </value>
+      </property>
+
+      <property name="space.activity.osc.server.host" value="127.0.0.1"
+        required="true">
+        <description>The host which contains the OSC server which is
+          being controlled by this activity.
+        </description>
+      </property>
+      <property name="space.activity.osc.server.port" value="7771"
+        required="true">
+        <description>The port the OSC server which is
+          being controlled by
+          this activity is listening on.
+        </description>
+      </property>
+    </configuration>
+  </activity>
+
+The properties for your activity are defined by the ``<property>`` elements in the ``<configuration>`` section.
 
 .. _workbench1-resource-copying:
 
@@ -312,7 +392,7 @@ Resource Assemblies
 ^^^^^^^^^^^^^^^^^^^
 
 In addition to copied resources, it's possible to include an ``assembly``, which is a single bundle file
-that's extracted into a collection of files. See :ref:`workbench1-assembly-projects` for documentation
+that's expanded into a collection of files. See :ref:`workbench1-assembly-projects` for documentation
 on how assembly projects are created. To use a resource assembly, specify an ``<assembly>`` tag as in the
 example below.
 
@@ -400,6 +480,15 @@ Here is an example of a complete Activity project file with resource and deploym
 
     <identifyingName>my.web</identifyingName>
     <version>1.0.0</version>
+        
+    <activity type="interactivespaces_native">
+      <name>example_activity_my_web</name>
+      <class>my.web.MyActivity</class>
+      
+      <configuration>
+        <property name="space.activity.log.level" value="info" />
+      </configuration>
+    </activity>
 
     <resources>
         <resource destinationDirectory="webapp/fonts/OpenSans"
@@ -449,18 +538,51 @@ Library projects must be Java-based, hence the lack of the ``builder`` attribute
 and version sections that all projects must have. But the ``type`` attribute of the
 ``<project>`` element has the value ``library``.
 
-The artifact built for a Library project will be a Java jar file. It can be copied into
-the ``bootstrap`` folder of an Interactive Spaces controller and will then be available for
+The artifact built for a Library project will be a Java jar file. It is copied into
+the ``startup`` folder of an Interactive Spaces controller and will then be available for
 Activities to use.
 
 A Resource section (see :ref:`workbench1-resource-copying`) in your Library ``project.xml`` will copy the files
 such that they will appear in the JAR file created for the library. Destination pathnames will be relative to the
 root of the JAR file.
 
-If you add a new Library into a Controller, make sure you recreate the IDE project
+If you add a new Library to a Controller or make changes to the method signatures in the Library already installed in a Controller, 
+make sure you recreate the IDE project
 for any Activities which will use the Library and refresh the project in your IDE.
 See :ref:`workbench1-using-ide-label`
 for more details on creating the IDE project for a Workbench project.
+
+Library Projects With OSGi Bundle Activators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Since Interactive Spaces is an OSGi application, your library projects must ultimately become an OSGi bundle.
+Normally this happens behind the scenes and you will never know about it but sometimes you need more to happen than
+just having the classes in your library made available to your activities. One very useful bit of functionality
+is to have some code called when your library starts up. This is done with an OSGi bundle. For more details, see
+*Need reference for Library Projects*.
+
+::
+
+  <?xml version="1.0"?>
+  <project type="library" >
+    <name>Support for Interactive Spaces projects</name>
+    <description>
+  Support For Interactive Spaces projects.
+    </description>
+
+    <identifyingName>my.support</identifyingName>
+    <version>1.0.0</version>
+    
+    <library> 
+      <osgi> 
+        <activator>my.support.internal.osgi.MySupportBundleActivator</activator>
+        <privatePackages> 
+          <package>my.support.internal.*</package>
+        </privatePackages>
+      </osgi> 
+    </library>
+  </project>
+
 
 
 Service Projects

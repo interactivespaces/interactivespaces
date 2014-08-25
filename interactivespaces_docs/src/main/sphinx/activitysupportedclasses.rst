@@ -185,7 +185,7 @@ current state.
 The method should return ``true`` if the Activity is working correctly,
 and ``false`` if it isn't.
 
-``void onActivityConfigurationUpdate(Map<String, Object> update)``
+``void onActivityConfiguration(Map<String, Object> update)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A live configuration update is coming into the Activity.
@@ -234,7 +234,7 @@ Interactive Spaces will do it automatically when the Activity is
 cleaned up.
 
 For more details, see the
-:javadoc:`interactivespaces.util.concurrency.CommandCollection`
+:javadoc:`interactivespaces.util.concurrency.ManagedCommands`
 Javadoc.
 
 Managed Resources

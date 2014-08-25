@@ -47,20 +47,22 @@ Configuring Routes
 
 The example Workbench Activity ``interactivespaces.example.activity.routable.input``
 reads from a route whose global topic name is ``/example/routable/channel1``.
-The Activity has the following lines in its ``activity.conf``:
+The Activity has the following configuration parameters:
 
-::
-
-    space.activity.routes.inputs=input1
-    space.activity.route.input.input1=/example/routable/channel1
++-----------------------------------+----------------------------+
+| space.activity.routes.inputs      | input1                     |
++-----------------------------------+----------------------------+
+| space.activity.route.input.input1 | /example/routable/channel1 |
++-----------------------------------+----------------------------+
 
 The example Workbench Activity ``interactivespaces.example.activity.routable.output``
-writes to the same route. The Activity has the following lines in its ``activity.conf``:
+writes to the same route. The Activity has the following configuration parameters:
 
-::
-
-    space.activity.routes.outputs=output1
-    space.activity.route.input.output1=/example/routable/channel1
++------------------------------------+----------------------------+
+| space.activity.routes.outputs      | output1                    |
++------------------------------------+----------------------------+
+| space.activity.route.input.output1 | /example/routable/channel1 |
++------------------------------------+----------------------------+
 
 Notice that the configuration property ``space.activity.route.input.input1`` has the same
 value as the configuration property ``space.activity.route.output.output1``. This means that
@@ -79,9 +81,10 @@ the activity will read from. Every channel to be read from will be listed in thi
 with each name separated by a ``:``. For example
 
 
-::
++------------------------------+----------------+
+| space.activity.routes.inputs | foo:bar:bletch |
++------------------------------+----------------+
 
-    space.activity.routes.inputs=foo:bar:bletch
 
 would create input channels named ``foo``, ``bar``, and ``bletch``.
 
@@ -97,9 +100,9 @@ time.
 
 Similarly
 
-::
-
-    space.activity.routes.outputs=foo:bar:bletch
++-------------------------------+----------------+
+| space.activity.routes.outputs | foo:bar:bletch |
++-------------------------------+----------------+
 
 would create output channels named ``foo``, ``bar``, and ``bletch``.
 
