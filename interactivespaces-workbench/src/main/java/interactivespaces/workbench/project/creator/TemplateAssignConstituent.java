@@ -23,7 +23,9 @@ import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ContainerConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.Map;
@@ -115,7 +117,8 @@ public class TemplateAssignConstituent extends ContainerConstituent {
     Map<String, Object> templateData = projectCreationContext.getTemplateData();
     templater.processStringTemplate(templateData, getValue(), getName(), evaluationPasses);
     if (getExport() != null) {
-      // Query the template data since it will then export the resolved data (without variable references).
+      // Query the template data since it will then export the resolved data
+      // (without variable references).
       project.addAttribute(getExport(), (String) templateData.get(getName()));
     }
   }
@@ -141,7 +144,7 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   private static class TemplateAssignConstituentBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
+    public ProjectConstituent buildConstituentFromElement(Namespace namespace, Element element, Project project) {
       String name = element.getAttributeValue(NAME_ATTRIBUTE_NAME);
       String value = element.getAttributeValue(VALUE_ATTRIBUTE_NAME);
       String export = element.getAttributeValue(EXPORT_ATTRIBUTE_NAME);

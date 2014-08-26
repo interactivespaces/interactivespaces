@@ -26,6 +26,7 @@ import interactivespaces.workbench.project.java.OsgiInfo;
 import interactivespaces.workbench.project.java.OsgiInfo.ImportPackage;
 
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.List;
@@ -126,10 +127,10 @@ public class LibraryProjectConstituent implements ProjectConstituent {
   private static class LibraryProjectBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element rootElement, Project project) {
+    public ProjectConstituent buildConstituentFromElement(Namespace namespace, Element rootElement, Project project) {
       LibraryProject lproject = (LibraryProject) project;
 
-      getOsgiInfo(rootElement, lproject.getOsgiInfo());
+      getOsgiInfo(namespace, rootElement, lproject.getOsgiInfo());
 
       return null;
     }
@@ -137,38 +138,42 @@ public class LibraryProjectConstituent implements ProjectConstituent {
     /**
      * Get all OSGi info for an OSGi element if there is one.
      *
+     * @param namespace
+     *          XML namespace for elements
      * @param rootElement
      *          the root element for the library
      * @param osgiInfo
      *          the OSGi Info object to populate
      */
     @SuppressWarnings("unchecked")
-    private void getOsgiInfo(Element rootElement, OsgiInfo osgiInfo) {
+    private void getOsgiInfo(Namespace namespace, Element rootElement, OsgiInfo osgiInfo) {
 
-      Element osgiElement = rootElement.getChild(OSGI_ELEMENT);
+      Element osgiElement = rootElement.getChild(OSGI_ELEMENT, namespace);
       if (osgiElement != null) {
-        osgiInfo.setActivatorClassname(osgiElement.getChildText(OSGI_ACTIVATOR_ELEMENT));
+        osgiInfo.setActivatorClassname(osgiElement.getChildText(OSGI_ACTIVATOR_ELEMENT, namespace));
 
-        extractPrivatePackages(osgiElement, osgiInfo);
-        extractImportPackages(osgiElement, osgiInfo);
+        extractPrivatePackages(namespace, osgiElement, osgiInfo);
+        extractImportPackages(namespace, osgiElement, osgiInfo);
       }
     }
 
     /**
      * Get private package data.
      *
+     * @param namespace
+     *          XML namespace for elements
      * @param rootElement
      *          root element for the OSGi
      * @param osgiInfo
      *          the OSGi info object to store the packages in
      */
-    private void extractPrivatePackages(Element rootElement, OsgiInfo osgiInfo) {
+    private void extractPrivatePackages(Namespace namespace, Element rootElement, OsgiInfo osgiInfo) {
       List<String> packages = osgiInfo.getPrivatePackages();
 
-      Element packagesElement = rootElement.getChild(OSGI_PRIVATE_PACKAGES_ELEMENT);
+      Element packagesElement = rootElement.getChild(OSGI_PRIVATE_PACKAGES_ELEMENT, namespace);
       if (packagesElement != null) {
         @SuppressWarnings("unchecked")
-        List<Element> packageElements = packagesElement.getChildren(ELEMENT_NAME_OSGI_PACKAGES_PACKAGE);
+        List<Element> packageElements = packagesElement.getChildren(ELEMENT_NAME_OSGI_PACKAGES_PACKAGE, namespace);
         for (Element packageElement : packageElements) {
           String packageName = packageElement.getTextTrim();
           if (packageName != null && !packageName.isEmpty()) {
@@ -183,18 +188,20 @@ public class LibraryProjectConstituent implements ProjectConstituent {
      *
      * the element name for the package section desired
      *
+     * @param namespace
+     *          XML namespace for elements
      * @param rootElement
      *          root element for the OSGi
      * @param osgiInfo
      *          the OSGi info object to store the packages in
      */
-    private void extractImportPackages(Element rootElement, OsgiInfo osgiInfo) {
+    private void extractImportPackages(Namespace namespace, Element rootElement, OsgiInfo osgiInfo) {
       List<ImportPackage> packages = osgiInfo.getImportPackages();
 
-      Element packagesElement = rootElement.getChild(OSGI_IMPORT_PACKAGES_ELEMENT);
+      Element packagesElement = rootElement.getChild(OSGI_IMPORT_PACKAGES_ELEMENT, namespace);
       if (packagesElement != null) {
         @SuppressWarnings("unchecked")
-        List<Element> packageElements = packagesElement.getChildren(ELEMENT_NAME_OSGI_PACKAGES_PACKAGE);
+        List<Element> packageElements = packagesElement.getChildren(ELEMENT_NAME_OSGI_PACKAGES_PACKAGE, namespace);
         for (Element packageElement : packageElements) {
           String packageName = packageElement.getTextTrim();
           if (packageName != null && !packageName.isEmpty()) {

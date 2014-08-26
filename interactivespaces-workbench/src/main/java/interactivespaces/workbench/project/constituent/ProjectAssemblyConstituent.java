@@ -16,13 +16,16 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import com.google.common.collect.Maps;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+
+import com.google.common.collect.Maps;
+
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.Map;
@@ -146,7 +149,8 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   private static class ProjectAssemblyBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
+    public ProjectConstituent
+        buildConstituentFromElement(Namespace namespace, Element resourceElement, Project project) {
       String packFormat = resourceElement.getAttributeValue(PACK_FORMAT_ATTRIBUTE);
       if (!ZIP_PACK_FORMAT.equals(packFormat)) {
         addError(String.format("Pack format '%s' not supported (currently must be '%s')", packFormat, ZIP_PACK_FORMAT));

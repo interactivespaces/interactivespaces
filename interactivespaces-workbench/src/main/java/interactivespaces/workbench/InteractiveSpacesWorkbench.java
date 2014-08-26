@@ -616,7 +616,7 @@ public class InteractiveSpacesWorkbench {
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 
     JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
-    GroupProjectTemplateSpecification project = projectReader.readProject(specFile);
+    GroupProjectTemplateSpecification project = projectReader.readProjectGroupTemplateSpecification(specFile);
 
     ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
     creationSpecification.setGroupProjectTemplateSpecification(project);

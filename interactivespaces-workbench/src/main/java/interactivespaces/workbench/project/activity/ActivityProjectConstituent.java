@@ -16,14 +16,17 @@
 
 package interactivespaces.workbench.project.activity;
 
-import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
+import com.google.common.collect.Maps;
+
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -136,20 +139,21 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   private static class ActivityProjectBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
+    public ProjectConstituent
+        buildConstituentFromElement(Namespace namespace, Element resourceElement, Project project) {
       ActivityProject aproject = (ActivityProject) project;
 
-      aproject.setActivityType(
-          resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE, aproject.getActivityType()));
-      aproject.setActivityRuntimeName(
-          getChildTextNormalize(resourceElement, ACTIVITY_NAME_ELEMENT, aproject.getActivityRuntimeName()));
-      aproject.setActivityExecutable(
-          getChildTextNormalize(resourceElement, ACTIVITY_EXECUTABLE_ELEMENT, aproject.getActivityExecutable()));
-      aproject.setActivityClass(
-          getChildTextNormalize(resourceElement, ACTIVITY_CLASS_ELEMENT, aproject.getActivityClass()));
+      aproject.setActivityType(resourceElement.getAttributeValue(ACTIVITY_TYPE_ATTRIBUTE, aproject.getActivityType()));
+      aproject.setActivityRuntimeName(getChildTextNormalize(resourceElement, namespace, ACTIVITY_NAME_ELEMENT,
+          aproject.getActivityRuntimeName()));
+      aproject.setActivityExecutable(getChildTextNormalize(resourceElement, namespace, ACTIVITY_EXECUTABLE_ELEMENT,
+          aproject.getActivityExecutable()));
+      aproject.setActivityClass(getChildTextNormalize(resourceElement, namespace, ACTIVITY_CLASS_ELEMENT,
+          aproject.getActivityClass()));
 
       List<ProjectConfigurationProperty> configurationProperties =
-          getProjectConfigurationProperty(resourceElement.getChild(ACTIVITY_CONFIGURATION_ELEMENT));
+          getProjectConfigurationProperty(namespace,
+              resourceElement.getChild(ACTIVITY_CONFIGURATION_ELEMENT, namespace));
       aproject.addConfigurationProperties(configurationProperties);
 
       return null;
@@ -158,51 +162,58 @@ public class ActivityProjectConstituent implements ProjectConstituent {
     /**
      * Get all configuration properties from the activity configuration element.
      *
+     * @param namespace
+     *          XML namespace for the elements being read
      * @param configurationElement
      *          the configuration element, can be {@code null}
      *
      * @return a possibly empty list of properties
      */
     @SuppressWarnings("unchecked")
-    private List<ProjectConfigurationProperty> getProjectConfigurationProperty(Element configurationElement) {
+    private List<ProjectConfigurationProperty> getProjectConfigurationProperty(Namespace namespace,
+        Element configurationElement) {
 
-      // Use a map internally, but return a list, to coalesce multiple properties with the same name together
-      // into one item (e.g., if one comes from a prototype). Also use a tree map so the output is sorted, just for
+      // Use a map internally, but return a list, to coalesce multiple
+      // properties with the same name together
+      // into one item (e.g., if one comes from a prototype). Also use a tree
+      // map so the output is sorted, just for
       // convenience.
       Map<String, ProjectConfigurationProperty> properties = Maps.newTreeMap();
 
       if (configurationElement != null) {
-        for (Element propertyElement : (List<Element>) configurationElement.getChildren(PROPERTY_ELEMENT_NAME)) {
-          processConfigurationPropertyElement(propertyElement, properties);
+        for (Element propertyElement : (List<Element>) configurationElement.getChildren(PROPERTY_ELEMENT_NAME,
+            namespace)) {
+          processConfigurationPropertyElement(namespace, propertyElement, properties);
         }
       }
 
-      return new ArrayList(properties.values());
+      return new ArrayList<ProjectConfigurationProperty>(properties.values());
     }
 
     /**
      * Process a configuration property element.
      *
+     * @param namespace
+     *          XML namespace for the elements
      * @param propertyElement
      *          the property element
      * @param properties
      *          the properties map to populate
      */
-    private void processConfigurationPropertyElement(Element propertyElement,
+    private void processConfigurationPropertyElement(Namespace namespace, Element propertyElement,
         Map<String, ProjectConfigurationProperty> properties) {
       String name = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_NAME_ATTRIBUTE);
-      String description = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT);
+      String description = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_DESCRIPTION_ELEMENT, namespace);
       String requiredAttribute = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_REQUIRED_ATTRIBUTE);
       boolean required = "true".equals(requiredAttribute);
 
       String valueAttribute = propertyElement.getAttributeValue(CONFIGURATION_PROPERTY_VALUE);
-      String valueChild = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_VALUE);
+      String valueChild = propertyElement.getChildTextNormalize(CONFIGURATION_PROPERTY_VALUE, namespace);
       String value = valueAttribute;
       if (valueAttribute != null) {
         if (valueChild != null) {
-          addWarn(String.format(
-              "Configuration property %s has both an attribute and child element giving the value. "
-                  + "The child element is being used.", name));
+          addWarn(String.format("Configuration property %s has both an attribute and child element giving the value. "
+              + "The child element is being used.", name));
           value = valueChild;
         }
       } else {

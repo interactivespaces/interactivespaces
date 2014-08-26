@@ -24,8 +24,10 @@ import interactivespaces.workbench.project.ProjectGroupTemplateSpecificationRead
 import interactivespaces.workbench.project.creator.TemplateAssignConstituent;
 import interactivespaces.workbench.project.creator.TemplateFileConstituent;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
+
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.List;
@@ -35,8 +37,8 @@ import java.util.List;
  *
  * @author Trevor Pering
  */
-public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
-    implements ProjectGroupTemplateSpecificationReader {
+public class JdomProjectGroupTemplateSpecificationReader extends JdomReader implements
+    ProjectGroupTemplateSpecificationReader {
 
   /**
    * Element name for a project group.
@@ -68,23 +70,22 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
   }
 
   @Override
-  public GroupProjectTemplateSpecification readProject(File specFile) {
+  public GroupProjectTemplateSpecification readProjectGroupTemplateSpecification(File specFile) {
     try {
       Element rootElement = getRootElement(specFile);
       String type = rootElement.getName();
-      GroupProjectTemplateSpecification project;
+      GroupProjectTemplateSpecification specification;
       if (PROJECT_GROUP_TEMPLATE_SPECIFICATION_ELEMENT_NAME.equals(type)) {
-        project =  makeFromElement(rootElement);
+        specification = makeFromElement(rootElement);
       } else if (PROJECT_GROUP_ELEMENT_NAME.equals(type)) {
-        project =  makeFromElement(rootElement);
+        specification = makeFromElement(rootElement);
       } else {
         throw new SimpleInteractiveSpacesException("Unknown root element type " + type);
       }
-      project.setSpecificationSource(specFile);
-      return project;
+      specification.setSpecificationSource(specFile);
+      return specification;
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(
-          "While processing specification file " + specFile.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("While processing specification file " + specFile.getAbsolutePath(), e);
     }
   }
 
@@ -94,14 +95,16 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
    * @param rootElement
    *          input element
    *
-   * @return new project
+   * @return new specification
    */
   private GroupProjectTemplateSpecification makeFromElement(Element rootElement) {
+    Namespace namespace = rootElement.getNamespace();
+
     GroupProjectTemplateSpecification groupProjectTemplateSpecification = new GroupProjectTemplateSpecification();
 
     List<Element> children = getChildren(rootElement);
     for (Element child : children) {
-      addElementToSpec(groupProjectTemplateSpecification, child);
+      addElementToSpec(groupProjectTemplateSpecification, namespace, child);
     }
 
     return groupProjectTemplateSpecification;
@@ -111,11 +114,13 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
    * Add the given element to the spec.
    *
    * @param spec
-   *          spec to add to
+   *          specification to configure
+   * @param namespace
+   *          XML namespace for elements
    * @param child
    *          child element to add
    */
-  private void addElementToSpec(GroupProjectTemplateSpecification spec, Element child) {
+  private void addElementToSpec(GroupProjectTemplateSpecification spec, Namespace namespace, Element child) {
     String name = child.getName();
 
     try {
@@ -128,10 +133,10 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_DESCRIPTION.equals(name)) {
         spec.setDescription(child.getTextTrim());
       } else if (JdomReader.PROJECT_ELEMENT_NAME_TEMPLATES.equals(name)) {
-        // This is really a prototype chain for the entire group project, but we need to control when it is
-        // processed, so instead snarf the attribute from the templates element when it is processed.
-        processPrototypeChain(spec, child);
-        spec.addExtraConstituents(getContainerConstituents(child, null));
+        // This is really a prototype chain for the entire group project, but we need to control when it is processed,
+        // so instead snarf the attribute from the templates element when it is processed.
+        processPrototypeChain(spec, namespace, child);
+        spec.addExtraConstituents(getContainerConstituents(namespace, child, null));
       } else if (JdomProjectReader.PROJECT_ELEMENT_NAME_VERSION.equals(name)) {
         spec.setVersion(Version.parseVersion(child.getTextTrim()));
       } else {
@@ -143,10 +148,10 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
   }
 
   /**
-   * Add all prototypes to the spec.
+   * Add all prototypes to the specification.
    *
    * @param spec
-   *          spec to add
+   *          specification to configure
    * @param group
    *          prototype group to add
    */
@@ -160,54 +165,59 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
   /**
    * Process the prototype chain for the given element.
    *
-   * @param project
-   *          project where the results go
+   * @param spec
+   *          specification to configure
+   * @param namespace
+   *          XML namespace for elements
    * @param projectElement
    *          element to populate from
    */
-  private void processPrototypeChain(GroupProjectTemplateSpecification project, Element projectElement) {
+  private void
+      processPrototypeChain(GroupProjectTemplateSpecification spec, Namespace namespace, Element projectElement) {
     if (getJdomPrototypeProcessor() != null) {
       List<Element> prototypeChain = getJdomPrototypeProcessor().getPrototypeChain(projectElement);
       for (Element prototype : prototypeChain) {
-        configureProjectGroupFromElement(project, prototype);
+        configureProjectGroupFromElement(spec, namespace, prototype);
       }
       // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
-      project.getAttributes().remove(JdomPrototypeProcessor.PROTOTYPE_NAME_ATTRIBUTE);
+      spec.getAttributes().remove(JdomPrototypeProcessor.PROTOTYPE_NAME_ATTRIBUTE);
     }
   }
 
   /**
    * Configure a project given an element.
    *
-   * @param project
-   *          project to configure
+   * @param spec
+   *          specification to configure
+   * @param namespace
+   *          XML namespace for elements
    * @param projectElement
    *          project element to read from
    */
-  private void configureProjectGroupFromElement(GroupProjectTemplateSpecification project, Element projectElement) {
-    getProjectAttributes(project, projectElement);
-    getMainData(project, projectElement);
+  private void configureProjectGroupFromElement(GroupProjectTemplateSpecification spec, Namespace namespace,
+      Element projectElement) {
+    getSpecificationAttributes(spec, projectElement);
+    getMainData(spec, namespace, projectElement);
 
-    project.addExtraConstituents(getContainerConstituents(
+    spec.addExtraConstituents(getContainerConstituents(namespace,
         projectElement.getChild(JdomReader.PROJECT_ELEMENT_NAME_TEMPLATES), null));
   }
 
   /**
    * Get any attributes attached to the project.
    *
-   * @param project
-   *          the project description whose data is being read
+   * @param spec
+   *          the specification whose data is being read
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getProjectAttributes(GroupProjectTemplateSpecification project, Element rootElement) {
+  private void getSpecificationAttributes(GroupProjectTemplateSpecification spec, Element rootElement) {
     @SuppressWarnings("unchecked")
     List<Attribute> attributes = rootElement.getAttributes();
     for (Attribute attribute : attributes) {
-      project.addAttribute(attribute.getName(), attribute.getValue());
+      spec.addAttribute(attribute.getName(), attribute.getValue());
     }
   }
-
 
   /**
    * Add all projects to the spec.
@@ -234,21 +244,22 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader
   /**
    * Get the main data from the document.
    *
-   * @param project
-   *          the project description whose data is being read
+   * @param spec
+   *          the specification whose data is being read
+   * @param namespace
+   *          XML namespace for elements
    * @param rootElement
    *          root element to read from
    */
-  private void getMainData(GroupProjectTemplateSpecification project, Element rootElement) {
-    project.setName(
-        getChildTextTrimmed(rootElement, JdomProjectReader.PROJECT_ELEMENT_NAME_NAME, project.getName()));
-    project.setDescription(
-        getChildTextTrimmed(rootElement, JdomProjectReader.PROJECT_ELEMENT_NAME_DESCRIPTION, project.getDescription()));
+  private void getMainData(GroupProjectTemplateSpecification spec, Namespace namespace, Element rootElement) {
+    spec.setName(getChildTextTrimmed(rootElement, namespace, JdomProjectReader.PROJECT_ELEMENT_NAME_NAME,
+        spec.getName()));
+    spec.setDescription(getChildTextTrimmed(rootElement, namespace, JdomProjectReader.PROJECT_ELEMENT_NAME_DESCRIPTION,
+        spec.getDescription()));
 
-    String version = getChildTextTrimmed(rootElement, JdomProjectReader.PROJECT_ELEMENT_NAME_VERSION);
+    String version = getChildTextTrimmed(rootElement, namespace, JdomProjectReader.PROJECT_ELEMENT_NAME_VERSION);
     if (version != null) {
-      project.setVersion(Version.parseVersion(version));
+      spec.setVersion(Version.parseVersion(version));
     }
-
   }
 }

@@ -24,6 +24,7 @@ import interactivespaces.workbench.project.ProjectContext;
 import com.google.common.collect.Maps;
 
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.Map;
@@ -212,7 +213,8 @@ public class ProjectResourceConstituent extends ContainerConstituent {
   private static class ProjectResourceBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element resourceElement, Project project) {
+    public ProjectConstituent
+        buildConstituentFromElement(Namespace namespace, Element resourceElement, Project project) {
       String sourceDir = resourceElement.getAttributeValue(SOURCE_DIRECTORY_ATTRIBUTE);
       String sourceFile = resourceElement.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
       String destDir = resourceElement.getAttributeValue(DESTINATION_DIRECTORY_ATTRIBUTE);

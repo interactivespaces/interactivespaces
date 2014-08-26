@@ -16,11 +16,16 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import com.google.common.collect.Lists;
+import static com.google.common.io.Closeables.closeQuietly;
+
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+
+import com.google.common.collect.Lists;
+
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,8 +33,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import static com.google.common.io.Closeables.closeQuietly;
 
 /**
  * A bundle resource for a {@link interactivespaces.workbench.project.Project}.
@@ -114,7 +117,7 @@ public class ProjectBundleConstituent extends ContainerConstituent {
   private static class ProjectBundleConstituentBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
+    public ProjectConstituent buildConstituentFromElement(Namespace namespace, Element element, Project project) {
       ProjectBundleConstituent bundle = new ProjectBundleConstituent();
 
       bundle.outputPath = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
@@ -123,7 +126,7 @@ public class ProjectBundleConstituent extends ContainerConstituent {
       }
 
       @SuppressWarnings("unchecked")
-      List<Element> sourceElements = element.getChildren("source");
+      List<Element> sourceElements = element.getChildren("source", namespace);
       if (sourceElements == null || sourceElements.size() == 0) {
         addError("No source elements specified");
       } else {

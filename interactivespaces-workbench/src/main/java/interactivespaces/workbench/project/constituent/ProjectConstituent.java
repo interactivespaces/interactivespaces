@@ -19,8 +19,10 @@ package interactivespaces.workbench.project.constituent;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 
@@ -103,6 +105,8 @@ public interface ProjectConstituent {
     /**
      * Get a new constituent of the appropriate type.
      *
+     * @param namespace
+     *          XML namespace for all elements
      * @param constituentElement
      *          project file definition element
      * @param project
@@ -110,7 +114,7 @@ public interface ProjectConstituent {
      *
      * @return new project object or {@code null} if there were errors
      */
-    ProjectConstituent buildConstituentFromElement(Element constituentElement, Project project);
+    ProjectConstituent buildConstituentFromElement(Namespace namespace, Element constituentElement, Project project);
 
     /**
      * Set the logging provider for use by the builder.

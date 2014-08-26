@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.List;
@@ -57,7 +58,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Element name for a JDOM project specification.
    */
-  public static final String ELEMENT_NAME = "project";
+  public static final String PROJECT_ELEMENT_NAME_PROJECT = "project";
 
   /**
    * Element name for a group of projects.
@@ -74,7 +75,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
     addConstituentType(new LibraryProjectConstituent.LibraryProjectBuilderFactory());
- }
+  }
 
   /**
    * The name of the project.
@@ -224,6 +225,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   @Override
   public Project readProject(File projectFile) {
     Element rootElement = getRootElement(projectFile);
+
     Project project = makeProjectFromElement(rootElement);
     project.setBaseDirectory(projectFile.getParentFile());
     return project;
@@ -238,19 +240,22 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * @return project representing the element
    */
   Project makeProjectFromElement(Element projectElement) {
-    if (!ELEMENT_NAME.equals(projectElement.getName())) {
+    Namespace projectNamespace = projectElement.getNamespace();
+
+    if (!PROJECT_ELEMENT_NAME_PROJECT.equals(projectElement.getName())) {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
 
     String projectType = getProjectType(projectElement);
     Project project = getWorkbench().getProjectTypeRegistry().newProject(projectType);
 
-    processPrototypeChain(project, projectElement);
-    configureProjectFromElement(project, projectElement);
+    processPrototypeChain(project, projectNamespace, projectElement);
+    configureProjectFromElement(project, projectNamespace, projectElement);
 
     if (project.getInteractiveSpacesVersionRange() == null) {
-      getLog().warn("Did not specify a range of needed Interactive Spaces versions. Setting default to "
-          + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
+      getLog().warn(
+          "Did not specify a range of needed Interactive Spaces versions. Setting default to "
+              + INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
       project.setInteractiveSpacesVersionRange(INTERACTIVESPACES_VERSION_RANGE_DEFAULT);
     }
 
@@ -266,17 +271,20 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          project where the results go
+   * @param projectNamespace
+   *          XML namespace for project elements
    * @param projectElement
    *          prototype chain root to follow
    */
-  private void processPrototypeChain(Project project, Element projectElement) {
+  private void processPrototypeChain(Project project, Namespace projectNamespace, Element projectElement) {
     if (getJdomPrototypeProcessor() != null) {
       List<Element> prototypeChain = getJdomPrototypeProcessor().getPrototypeChain(projectElement);
       for (Element prototype : prototypeChain) {
-        configureProjectFromElement(project, prototype);
+        configureProjectFromElement(project, projectNamespace, prototype);
       }
 
-      // Remove the not-useful prototype's name, since it would incorrectly be naming this element.
+      // Remove the not-useful prototype's name, since it would incorrectly be
+      // naming this element.
       project.getAttributes().remove(JdomPrototypeProcessor.PROTOTYPE_NAME_ATTRIBUTE);
     }
   }
@@ -286,28 +294,32 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          project to configure
+   * @param projectNamespace
+   *          XML namespace for the project element
    * @param projectElement
    *          input element
    */
-  private void configureProjectFromElement(Project project, Element projectElement) {
+  private void configureProjectFromElement(Project project, Namespace projectNamespace, Element projectElement) {
     getProjectAttributes(project, projectElement);
-    getMainData(project, projectElement);
-    getMetadata(project, projectElement);
-    getDependencies(project, projectElement);
-    getConfiguration(project, projectElement);
+    getMainData(project, projectNamespace, projectElement);
+    getMetadata(project, projectNamespace, projectElement);
+    getDependencies(project, projectNamespace, projectElement);
+    getConfiguration(project, projectNamespace, projectElement);
 
-    project.addResources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME), project));
-    project.addSources(getContainerConstituents(projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES), project));
+    project.addResources(getContainerConstituents(projectNamespace,
+        projectElement.getChild(PROJECT_ELEMENT_RESOURCES_NAME, projectNamespace), project));
+    project.addSources(getContainerConstituents(projectNamespace,
+        projectElement.getChild(PROJECT_ELEMENT_NAME_SOURCES, projectNamespace), project));
 
-    project.addExtraConstituents(getContainerConstituents(
-        projectElement.getChild(PROJECT_ELEMENT_NAME_TEMPLATES), project));
+    project.addExtraConstituents(getContainerConstituents(projectNamespace,
+        projectElement.getChild(PROJECT_ELEMENT_NAME_TEMPLATES, projectNamespace), project));
 
-    project.addExtraConstituents(getIndividualConstituent(
-        projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT), project));
-    project.addExtraConstituents(getIndividualConstituent(
-        projectElement.getChild(LibraryProjectConstituent.LIBRARY_ELEMENT), project));
+    project.addExtraConstituents(getIndividualConstituent(projectNamespace,
+        projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT, projectNamespace), project));
+    project.addExtraConstituents(getIndividualConstituent(projectNamespace,
+        projectElement.getChild(LibraryProjectConstituent.LIBRARY_ELEMENT, projectNamespace), project));
 
-    getDeployments(project, projectElement);
+    getDeployments(project, projectNamespace, projectElement);
   }
 
   /**
@@ -327,29 +339,30 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          the project description whose data is being read
+   * @param projectNamespace
+   *          XML namespace for the project
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getMainData(Project project, Element rootElement) {
-    project.setName(
-        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_NAME, project.getName()));
-    project.setDescription(
-        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_DESCRIPTION, project.getDescription()));
-    project.setIdentifyingName(
-        getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_IDENTIFYING_NAME, project.getIdentifyingName()));
+  private void getMainData(Project project, Namespace projectNamespace, Element rootElement) {
+    project.setName(getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_NAME, project.getName()));
+    project.setDescription(getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_DESCRIPTION,
+        project.getDescription()));
+    project.setIdentifyingName(getChildTextTrimmed(rootElement, projectNamespace,
+        PROJECT_ELEMENT_NAME_IDENTIFYING_NAME, project.getIdentifyingName()));
 
-    String version = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_VERSION);
+    String version = getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_VERSION);
     if (version != null) {
       project.setVersion(Version.parseVersion(version));
     }
 
-    String baseDirectory = getChildTextTrimmed(rootElement, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
+    String baseDirectory = getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
     if (baseDirectory != null) {
       project.setBaseDirectory(new File(baseDirectory));
     }
 
-    project.setBuilderType(
-        getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER, project.getBuilderType()));
+    project.setBuilderType(getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER,
+        project.getBuilderType()));
 
     String interactiveSpacesVersionRangeAttribute =
         getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION, null);
@@ -381,15 +394,17 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          the project description whose data is being read
+   * @param projectNamespace
+   *          XML namespace for the project
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getMetadata(Project project, Element rootElement) {
-    Element metadataElement = rootElement.getChild(PROJECT_ELEMENT_NAME_METADATA);
+  private void getMetadata(Project project, Namespace projectNamespace, Element rootElement) {
+    Element metadataElement = rootElement.getChild(PROJECT_ELEMENT_NAME_METADATA, projectNamespace);
 
     if (metadataElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> itemElements = metadataElement.getChildren(PROJECT_ELEMENT_NAME_METADATA_ITEM);
+      List<Element> itemElements = metadataElement.getChildren(PROJECT_ELEMENT_NAME_METADATA_ITEM, projectNamespace);
 
       Map<String, Object> metadata = Maps.newHashMap();
       for (Element itemElement : itemElements) {
@@ -407,16 +422,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          the project description whose data is being read
+   * @param projectNamespace
+   *          XML namespace for the project
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getConfiguration(Project project, Element rootElement) {
-    Element configurationElement = rootElement.getChild(PROJECT_ELEMENT_NAME_CONFIGURATION);
+  private void getConfiguration(Project project, Namespace projectNamespace, Element rootElement) {
+    Element configurationElement = rootElement.getChild(PROJECT_ELEMENT_NAME_CONFIGURATION, projectNamespace);
 
     if (configurationElement != null) {
       @SuppressWarnings("unchecked")
       List<Element> propertyElements =
-          configurationElement.getChildren(ActivityProjectConstituent.PROPERTY_ELEMENT_NAME);
+          configurationElement.getChildren(ActivityProjectConstituent.PROPERTY_ELEMENT_NAME, projectNamespace);
 
       Configuration configuration = project.getConfiguration();
       for (Element propertyElement : propertyElements) {
@@ -435,15 +452,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          the project description whose data is being read
+   * @param projectNamespace
+   *          namespace for the project
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getDependencies(Project project, Element rootElement) {
-    Element dependenciesElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPENDENCIES);
+  private void getDependencies(Project project, Namespace projectNamespace, Element rootElement) {
+    Element dependenciesElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPENDENCIES, projectNamespace);
 
     if (dependenciesElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> dependencyElements = dependenciesElement.getChildren(PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM);
+      List<Element> dependencyElements =
+          dependenciesElement.getChildren(PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM, projectNamespace);
 
       for (Element dependencyElement : dependencyElements) {
         ProjectDependency dependency = getDependency(dependencyElement);
@@ -500,15 +520,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param project
    *          the project description whose data is being read
+   * @param projectNamespace
+   *          XML namespace for the project
    * @param rootElement
    *          root element of the XML DOM containing the project data
    */
-  private void getDeployments(Project project, Element rootElement) {
-    Element deploymentsElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPLOYMENTS);
+  private void getDeployments(Project project, Namespace projectNamespace, Element rootElement) {
+    Element deploymentsElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPLOYMENTS, projectNamespace);
 
     if (deploymentsElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> deploymentElements = deploymentsElement.getChildren(PROJECT_ELEMENT_NAME_DEPLOYMENT_ITEM);
+      List<Element> deploymentElements =
+          deploymentsElement.getChildren(PROJECT_ELEMENT_NAME_DEPLOYMENT_ITEM, projectNamespace);
 
       for (Element deploymentElement : deploymentElements) {
         ProjectDeployment deployment = getDeployment(deploymentElement);

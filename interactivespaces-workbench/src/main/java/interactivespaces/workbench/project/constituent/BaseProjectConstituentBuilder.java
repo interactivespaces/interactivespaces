@@ -18,6 +18,7 @@ package interactivespaces.workbench.project.constituent;
 
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * Base implementation of a project constituent builder.
@@ -41,6 +42,8 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    *
    * @param resourceElement
    *          input element
+   * @param namespace
+   *          XML namespace for property name
    * @param propertyName
    *          property name to extract
    * @param fallback
@@ -48,8 +51,9 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
    *
    * @return property value, else fallback
    */
-  public static String getChildTextNormalize(Element resourceElement, String propertyName, String fallback) {
-    String value = resourceElement.getChildTextNormalize(propertyName);
+  public static String getChildTextNormalize(Element resourceElement, Namespace namespace, String propertyName,
+      String fallback) {
+    String value = resourceElement.getChildTextNormalize(propertyName, namespace);
     return (value == null || (value.isEmpty() && fallback != null)) ? fallback : value;
   }
 
@@ -83,12 +87,7 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
     return errors;
   }
 
-  /**
-   * Set the logging provider.
-   *
-   * @param log
-   *          logging provider
-   */
+  @Override
   public void setLog(Log log) {
     this.log = log;
   }

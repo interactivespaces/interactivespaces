@@ -16,17 +16,20 @@
 
 package interactivespaces.workbench.project.jdom;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Closeables;
+
 import org.apache.commons.logging.Log;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
 import java.io.File;
@@ -49,8 +52,8 @@ public class JdomReader {
   /**
    * Map of resource types to resource builders.
    */
-  private final Map<String, ProjectConstituent.ProjectConstituentFactory> projectConstituentFactoryMap =
-      Maps.newHashMap();
+  private final Map<String, ProjectConstituent.ProjectConstituentFactory> projectConstituentFactoryMap = Maps
+      .newHashMap();
 
   /**
    * {@code true} if read was successful.
@@ -63,7 +66,8 @@ public class JdomReader {
   private final InteractiveSpacesWorkbench workbench;
 
   /**
-   * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
+   * Prototype manager to use when reading/constructing projects, may be
+   * {@code null} if none available.
    */
   private JdomPrototypeProcessor jdomPrototypeProcessor;
 
@@ -103,8 +107,8 @@ public class JdomReader {
       SAXBuilder builder = new SAXBuilder();
       doc = builder.build(inputStream);
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Exception while processing %s",
-          inputFile.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Exception while processing %s", inputFile.getAbsolutePath()),
+          e);
     } finally {
       Closeables.closeQuietly(inputStream);
     }
@@ -116,6 +120,8 @@ public class JdomReader {
    *
    * @param element
    *          container element
+   * @param namespace
+   *          namespace for the key element
    * @param key
    *          variable key
    *
@@ -124,9 +130,10 @@ public class JdomReader {
    * @throws InteractiveSpacesException
    *           if the child element is not provided
    */
-  protected String getChildTextTrimmed(Element element, String key) throws InteractiveSpacesException {
+  protected String getChildTextTrimmed(Element element, Namespace namespace, String key)
+      throws InteractiveSpacesException {
     try {
-      return element.getChildTextTrim(key);
+      return element.getChildTextTrim(key, namespace);
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("Looking for text of child: " + key, e);
     }
@@ -137,6 +144,8 @@ public class JdomReader {
    *
    * @param element
    *          container element
+   * @param namespace
+   *          namespace for the key element
    * @param key
    *          variable key
    * @param fallback
@@ -144,8 +153,8 @@ public class JdomReader {
    *
    * @return trimmed element text
    */
-  protected String getChildTextTrimmed(Element element, String key, String fallback) {
-    String value = getChildTextTrimmed(element, key);
+  protected String getChildTextTrimmed(Element element, Namespace namespace, String key, String fallback) {
+    String value = getChildTextTrimmed(element, namespace, key);
     return (value == null || (!value.isEmpty() && fallback != null)) ? fallback : value;
   }
 
@@ -264,6 +273,8 @@ public class JdomReader {
   /**
    * Add the constituents from a container in the document the document.
    *
+   * @param namespace
+   *          XML namespace for elements
    * @param containerElement
    *          root element of the XML DOM containing the project data
    * @param project
@@ -271,7 +282,8 @@ public class JdomReader {
    *
    * @return the constituents for the project
    */
-  protected List<ProjectConstituent> getContainerConstituents(Element containerElement, Project project) {
+  protected List<ProjectConstituent> getContainerConstituents(Namespace namespace, Element containerElement,
+      Project project) {
     if (containerElement == null) {
       return null;
     }
@@ -280,7 +292,7 @@ public class JdomReader {
     List<Element> childElements = getChildren(containerElement);
 
     for (Element childElement : childElements) {
-      getConstituent(childElement, project, constituents);
+      getConstituent(namespace, childElement, project, constituents);
     }
 
     return constituents;
@@ -289,6 +301,8 @@ public class JdomReader {
   /**
    * Add the constituents from a container in the document the document.
    *
+   * @param namespace
+   *          XML namespace for elements
    * @param constituentElement
    *          XML element containing the constituent data
    * @param project
@@ -296,14 +310,15 @@ public class JdomReader {
    *
    * @return the constituents for the element
    */
-  protected List<ProjectConstituent> getIndividualConstituent(Element constituentElement, Project project) {
+  protected List<ProjectConstituent> getIndividualConstituent(Namespace namespace, Element constituentElement,
+      Project project) {
     if (constituentElement == null) {
       return null;
     }
 
     List<ProjectConstituent> constituents = Lists.newArrayList();
 
-    getConstituent(constituentElement, project, constituents);
+    getConstituent(namespace, constituentElement, project, constituents);
 
     return constituents;
   }
@@ -311,6 +326,8 @@ public class JdomReader {
   /**
    * Get the constituent from the element which describes it..
    *
+   * @param namespace
+   *          XML namespace for elements
    * @param constituentElement
    *          the element containing the constituent
    * @param project
@@ -318,7 +335,8 @@ public class JdomReader {
    * @param constituents
    *          the list of constituents currently being extracted
    */
-  private void getConstituent(Element constituentElement, Project project, List<ProjectConstituent> constituents) {
+  private void getConstituent(Namespace namespace, Element constituentElement, Project project,
+      List<ProjectConstituent> constituents) {
     String type = constituentElement.getName();
     ProjectConstituent.ProjectConstituentFactory factory = getProjectConstituentFactoryMap().get(type);
     if (factory == null) {
@@ -327,7 +345,7 @@ public class JdomReader {
       ProjectConstituent.ProjectConstituentBuilder projectConstituentBuilder = factory.newBuilder();
       projectConstituentBuilder.setLog(getLog());
       ProjectConstituent constituent =
-          projectConstituentBuilder.buildConstituentFromElement(constituentElement, project);
+          projectConstituentBuilder.buildConstituentFromElement(namespace, constituentElement, project);
       if (constituent != null) {
         constituents.add(constituent);
       }

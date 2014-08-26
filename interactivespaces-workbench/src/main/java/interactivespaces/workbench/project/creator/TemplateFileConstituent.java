@@ -24,7 +24,9 @@ import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ContainerConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import java.io.File;
 import java.util.Map;
@@ -152,7 +154,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
   private static class TemplateFileConstituentBuilder extends BaseProjectConstituentBuilder {
 
     @Override
-    public ProjectConstituent buildConstituentFromElement(Element element, Project project) {
+    public ProjectConstituent buildConstituentFromElement(Namespace namespace, Element element, Project project) {
       if (!TYPE_NAME.equals(element.getName())) {
         throw new SimpleInteractiveSpacesException("Bad element name " + element.getName());
       }
