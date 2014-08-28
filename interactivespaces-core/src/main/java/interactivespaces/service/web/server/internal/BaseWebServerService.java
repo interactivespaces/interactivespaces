@@ -19,11 +19,10 @@ package interactivespaces.service.web.server.internal;
 import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
-import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Support for creating an instance of a {@link WebServerService}.
@@ -35,11 +34,24 @@ public abstract class BaseWebServerService extends BaseSupportedService implemen
   /**
    * Map from server name to server.
    */
-  private Map<String, NettyWebServer> servers = Maps.newHashMap();
+  private List<WebServer> servers = Lists.newArrayList();
+
+  /**
+   * Add in a new server to the list.
+   *
+   * <p>
+   * This is expected to be synchronized in the calling method.
+   *
+   * @param server
+   *          the server to add
+   */
+  protected void addServer(WebServer server) {
+    servers.add(server);
+  }
 
   @Override
-  public void shutdown() {
-    for (NettyWebServer server : servers.values()) {
+  public synchronized void shutdown() {
+    for (WebServer server : servers) {
       server.shutdown();
     }
 
@@ -47,17 +59,22 @@ public abstract class BaseWebServerService extends BaseSupportedService implemen
   }
 
   @Override
-  public WebServer getWebServer(String serverName) {
-    return servers.get(serverName);
+  public synchronized WebServer getWebServer(String serverName) {
+    for (WebServer server : servers) {
+      if (serverName.equals(server.getServerName())) {
+        return server;
+      }
+    }
+
+    return null;
   }
 
   @Override
-  public void shutdownServer(String serverName) {
-    NettyWebServer server = servers.get(serverName);
+  public synchronized void shutdownServer(String serverName) {
+    WebServer server = getWebServer(serverName);
     if (server != null) {
       server.shutdown();
-
-      servers.remove(serverName);
+      servers.remove(server);
     }
   }
 }

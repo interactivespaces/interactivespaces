@@ -19,6 +19,9 @@
 
 package org.ros.internal.xmlrpc.webserver;
 
+import static org.jboss.netty.handler.codec.http.HttpHeaders.getContentLength;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
+
 import com.google.common.collect.Maps;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -49,8 +52,7 @@ import java.util.Map;
  * One of these is created for each request that comes in.
  *
  * <p>
- * This code is derived from the web server which came with the Apache XMLRPC
- * server.
+ * This code is derived from the web server which came with the Apache XMLRPC server.
  *
  * @author Apache
  * @author Keith M. Hughes
@@ -103,13 +105,24 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
   private Map<String, String> headers = Maps.newHashMap();
 
   /**
-   * If not {@code null} at the end of processing, something bad happened during
-   * processing.
+   * If not {@code null} at the end of processing, something bad happened during processing.
    */
   private Throwable processingThrowable;
 
-  public XmlRpcServerClientConnection(ChannelHandlerContext ctx, HttpRequest request,
-      XmlRpcStreamServer xmlRpcServer, NettyXmlRpcWebServerHandler handler) {
+  /**
+   * Construct an XML RPC server client connection.
+   *
+   * @param ctx
+   *          the Netty context
+   * @param request
+   *          the HTTP request
+   * @param xmlRpcServer
+   *          the server which will handle the requests
+   * @param handler
+   *          the handler for requests
+   */
+  public XmlRpcServerClientConnection(ChannelHandlerContext ctx, HttpRequest request, XmlRpcStreamServer xmlRpcServer,
+      NettyXmlRpcWebServerHandler handler) {
     this.ctx = ctx;
     this.request = request;
     this.xmlRpcServer = xmlRpcServer;
@@ -136,8 +149,7 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
       // BadEncodingException, and XmlRpcNotAuthorizedException, none of
       // which are needed for ROS. Otherwise errors return a 200.
 
-      DefaultHttpResponse res =
-          new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+      DefaultHttpResponse res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
       // for (Entry<String, String> header : headers.entrySet()) {
       // res.addHeader(header.getKey(), header.getValue());
@@ -152,13 +164,9 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
   }
 
   /**
-   * Get the connections request configuration by merging the HTTP request
-   * headers and the servers configuration.
+   * Get the connections request configuration by merging the HTTP request headers and the servers configuration.
    *
-   * @return The connections request configuration.
-   *
-   * @throws IOException
-   *           Reading the request headers failed.
+   * @return the connection's request configuration
    */
   private XmlRpcServerClientRequestData getRequestConfig() {
     requestData = new XmlRpcServerClientRequestData(this);
@@ -172,8 +180,8 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
     requestData.setMethod("POST");
     String httpVersion = request.getProtocolVersion().getText();
     requestData.setHttpVersion(httpVersion);
-    requestData.setKeepAlive(serverConfig.isKeepAliveEnabled() && request.isKeepAlive());
-    requestData.setContentLength((int) request.getContentLength());
+    requestData.setKeepAlive(serverConfig.isKeepAliveEnabled() && isKeepAlive(request));
+    requestData.setContentLength((int) getContentLength(request));
 
     return requestData;
   }
@@ -218,14 +226,11 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
    *          the request data
    * @param throwable
    *          the error being reported
-   * @param contentLength
-   *          the response length, if known, or {@code -1}
    *
    * @throws IOException
-   *           Writing the response failed.
+   *           writing the response failed
    */
-  public void notifyError(XmlRpcServerClientRequestData requestData, Throwable throwable)
-      throws IOException {
+  public void notifyError(XmlRpcServerClientRequestData requestData, Throwable throwable) throws IOException {
     handler.getWebServer().getLog().error("Got XMLRPC error!", throwable);
 
     processingThrowable = throwable;
@@ -235,8 +240,7 @@ public class XmlRpcServerClientConnection implements ServerStreamConnection {
    * Get the channel buffer containing the response.
    *
    * <p>
-   * Once this is called, the output stream used for writing the response is
-   * closed.
+   * Once this is called, the output stream used for writing the response is closed.
    *
    * @return the channel buffer
    */

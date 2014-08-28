@@ -16,12 +16,11 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
+import static org.jboss.netty.handler.codec.http.HttpHeaders.addHeader;
+
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 
-import java.io.IOException;
-import java.net.HttpCookie;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.Maps;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
@@ -30,7 +29,10 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpVersion;
 
-import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A Netty handler for {@link HttpDynamicRequestHandler}.
@@ -59,9 +61,22 @@ public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHa
    */
   private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
-  public NettyHttpDynamicRequestHandlerHandler(NettyWebServerHandler parentHandler, String up,
-      boolean usePath, HttpDynamicRequestHandler requestHandler,
-      Map<String, String> extraHttpContentHeaders) {
+  /**
+   * Construct a dynamic request handler.
+   *
+   * @param parentHandler
+   *          the parent web server handler
+   * @param uriPrefixBase
+   *          the base of the URI prefix that this handler is triggered by
+   * @param usePath
+   *          {@code true} if the path should be fully used for the match
+   * @param requestHandler
+   *          the handler which handles the dynamic request
+   * @param extraHttpContentHeaders
+   *          any extra HTTP content headers to be added to the response
+   */
+  public NettyHttpDynamicRequestHandlerHandler(NettyWebServerHandler parentHandler, String uriPrefixBase,
+      boolean usePath, HttpDynamicRequestHandler requestHandler, Map<String, String> extraHttpContentHeaders) {
     this.parentHandler = parentHandler;
 
     if (extraHttpContentHeaders != null) {
@@ -69,11 +84,11 @@ public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHa
     }
 
     StringBuilder uriPrefix = new StringBuilder();
-    if (!up.startsWith("/")) {
+    if (!uriPrefixBase.startsWith("/")) {
       uriPrefix.append('/');
     }
-    uriPrefix.append(up);
-    if (usePath && !up.endsWith("/")) {
+    uriPrefix.append(uriPrefixBase);
+    if (usePath && !uriPrefixBase.endsWith("/")) {
       uriPrefix.append('/');
     }
     this.uriPrefix = uriPrefix.toString();
@@ -87,10 +102,9 @@ public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHa
   }
 
   @Override
-  public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req,
-      Set<HttpCookie> cookiesToAdd) throws IOException {
-    interactivespaces.service.web.server.HttpRequest request =
-        new NettyHttpRequest(req, parentHandler.getWebServer().getLog());
+  public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
+      throws IOException {
+    NettyHttpRequest request = new NettyHttpRequest(req, parentHandler.getWebServer().getLog());
     NettyHttpResponse response = new NettyHttpResponse(ctx, extraHttpContentHeaders);
     response.addCookies(cookiesToAdd);
 
@@ -98,27 +112,21 @@ public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHa
     try {
       requestHandler.handle(request, response);
 
-      res =
-          new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response
-              .getResponseCode()));
+      res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(response.getResponseCode()));
       res.setContent(response.getChannelBuffer());
 
       String contentType = response.getContentType();
       if (contentType != null) {
-        res.setHeader(HttpHeaders.Names.CONTENT_TYPE, contentType);
+        addHeader(res, HttpHeaders.Names.CONTENT_TYPE, contentType);
       }
 
       parentHandler.addHttpResponseHeaders(res, response.getContentHeaders());
       parentHandler.sendHttpResponse(ctx, req, res, true, false);
 
-      parentHandler.getWebServer().getLog()
-          .debug(String.format("Dynamic content handler for %s completed", uriPrefix));
+      parentHandler.getWebServer().getLog().debug(String.format("Dynamic content handler for %s completed", uriPrefix));
     } catch (Exception e) {
-      parentHandler
-          .getWebServer()
-          .getLog()
-          .error(String.format("Error while handling dynamic web server request %s", req.getUri()),
-              e);
+      parentHandler.getWebServer().getLog()
+          .error(String.format("Error while handling dynamic web server request %s", req.getUri()), e);
 
       parentHandler.sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     }

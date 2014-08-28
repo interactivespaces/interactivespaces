@@ -16,9 +16,6 @@
 
 package interactivespaces.util.web;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.service.web.WebSocketConnection;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.internal.netty.NettyWebSocketClient;
@@ -26,6 +23,9 @@ import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerSupport;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
@@ -101,7 +101,9 @@ public class WebSocketTest {
       serverSentList.add(random.nextInt());
     }
 
-    NettyWebServer server = new NettyWebServer("test-server", port, threadPool, log);
+    NettyWebServer server = new NettyWebServer(threadPool, log);
+    server.setServerName("test-server");
+    server.setPort(port);
     server.setWebSocketHandlerFactory(webSocketUriPrefix, new WebServerWebSocketHandlerFactory() {
 
       @Override

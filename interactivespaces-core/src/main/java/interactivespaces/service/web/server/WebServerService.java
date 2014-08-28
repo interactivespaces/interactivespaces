@@ -30,41 +30,54 @@ public interface WebServerService extends SupportedService {
   /**
    * name for the service.
    */
-  public static final String SERVICE_NAME = "web.server";
+  String SERVICE_NAME = "web.server";
 
   /**
    * Create a new server.
    *
    * @param serverName
-   *          Name of the server.
+   *          name of the server
    * @param port
-   *          Port the server should be on.
+   *          port the server should be on
    * @param log
-   *          Logger to be used with the server.
+   *          logger to be used with the server
    *
-   * @return The web server.
+   * @return the web server
    */
   WebServer newWebServer(String serverName, int port, Log log);
+
+  /**
+   * Create a new server.
+   *
+   * <p>
+   * The server name and port will have to be set before the server can be started.
+   *
+   * @param log
+   *          logger to be used with the server
+   *
+   * @return the web server
+   */
+  WebServer newWebServer(Log log);
 
   /**
    * Get the web server.
    *
    * @param serverName
-   *          name of the web server to get.
+   *          name of the web server to get
    *
-   * @return The server with the associated name, or null if no such server.
+   * @return The server with the associated name, or {@code null} if no such server
    */
   WebServer getWebServer(String serverName);
 
   /**
-   * Shut down the server with the specified name. The server is then removed
-   * from the collection of servers controlled by this service.
+   * Shut down the server with the specified name. The server is then removed from the collection of servers controlled
+   * by this service.
    *
    * <p>
    * Do nothing if there is no server with the given name.
    *
    * @param serverName
-   *          name of the server to shut down.
+   *          name of the server to shut down
    */
   void shutdownServer(String serverName);
 }

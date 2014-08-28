@@ -18,6 +18,7 @@ package interactivespaces.activity.component.web;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.component.BaseActivityComponent;
+import interactivespaces.activity.configuration.WebActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 
 import com.google.common.collect.ImmutableList;
@@ -25,12 +26,13 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /**
- * Abstract base class for web browser activity components, providing for common constants
- * and base functionality. Needs to be overridden to provide an actual implementation.
+ * Abstract base class for web browser activity components, providing for common constants and base functionality. Needs
+ * to be overridden to provide an actual implementation.
  *
  * @author Keith M. Hughes
  */
-public abstract class BaseWebBrowserActivityComponent extends BaseActivityComponent implements WebBrowserActivityComponent {
+public abstract class BaseWebBrowserActivityComponent extends BaseActivityComponent implements
+    WebBrowserActivityComponent {
 
   /**
    * List of allowed prefixes for external URLs.
@@ -41,16 +43,6 @@ public abstract class BaseWebBrowserActivityComponent extends BaseActivityCompon
    * List of disallowed prefixes for external URLs.
    */
   public static final List<String> DISALLOWED_URL_PREFIXES = ImmutableList.of("file:");
-
-  /**
-   * Separator for web path elements.
-   */
-  public static final char WEB_PATH_SEPARATOR = '/';
-
-  /**
-   * Separator for a web url query string.
-   */
-  public static final char WEB_QUERY_STRING_SEPARATOR = '?';
 
   /**
    * The base of the content URL (minus the opening page and query string).
@@ -78,13 +70,12 @@ public abstract class BaseWebBrowserActivityComponent extends BaseActivityCompon
 
     StringBuilder initialUrlBuilder = new StringBuilder();
 
-    String configurationInitialPage =
-        configuration.getRequiredPropertyString(CONFIGURATION_INITIAL_PAGE);
+    String configurationInitialPage = configuration.getRequiredPropertyString(CONFIGURATION_INITIAL_PAGE);
 
     configurationInitialPage = configurationInitialPage.trim();
     if (isDisallowedPrefix(configurationInitialPage)) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "The initial page %s starts with an illegal prefix", configurationInitialPage));
+      throw new SimpleInteractiveSpacesException(String.format("The initial page %s starts with an illegal prefix",
+          configurationInitialPage));
     }
 
     if (isExternalPrefix(configurationInitialPage)) {
@@ -92,13 +83,13 @@ public abstract class BaseWebBrowserActivityComponent extends BaseActivityCompon
     } else {
       WebServerActivityComponent webServer =
           componentContext.getRequiredActivityComponent(WebServerActivityComponent.COMPONENT_NAME);
-      initialUrlBuilder.append(webServer.getWebContentUrl()).append(WEB_PATH_SEPARATOR)
+      initialUrlBuilder.append(webServer.getWebContentUrl()).append(WebActivityConfiguration.WEB_PATH_SEPARATOR)
           .append(configurationInitialPage);
     }
 
     String queryString = configuration.getPropertyString(CONFIGURATION_INITIAL_URL_QUERY_STRING);
     if (queryString != null) {
-      initialUrlBuilder.append(WEB_QUERY_STRING_SEPARATOR).append(queryString);
+      initialUrlBuilder.append(WebActivityConfiguration.WEB_QUERY_STRING_SEPARATOR).append(queryString);
     }
 
     initialUrl = initialUrlBuilder.toString();

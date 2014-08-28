@@ -18,15 +18,16 @@ package interactivespaces.service.web.server.internal.netty;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -39,6 +40,9 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
+import org.jboss.netty.handler.ssl.SslContext;
+import org.jboss.netty.handler.ssl.util.SelfSignedCertificate;
+import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -110,28 +114,40 @@ public class NettyWebServer implements WebServer {
   private ServerBootstrap bootstrap;
 
   /**
+   * {@code true} if support being a secure server.
+   */
+  private boolean secureServer;
+
+  /**
+   * The certificate chain file for an SSL connection. Can be {@code null}.
+   */
+  private File sslCertChainFile;
+
+  /**
+   * The key file for an SSL connection. Can be {@code null}.
+   */
+  private File sslKeyFile;
+
+  /**
+   * The SSL context for HTTPS connections. Will be {@code null} if the server is not labeled secure.
+   */
+  private SslContext sslContext;
+
+  /**
    * Create a web server using a singular thread pool.
    *
-   * @param serverName
-   *          name for the server
-   * @param port
-   *          port to listen on
    * @param threadPool
    *          thread pool to use
    * @param log
    *          logger
    */
-  public NettyWebServer(String serverName, int port, ScheduledExecutorService threadPool, Log log) {
-    this(serverName, port, threadPool, threadPool, log);
+  public NettyWebServer(ScheduledExecutorService threadPool, Log log) {
+    this(threadPool, threadPool, log);
   }
 
   /**
    * Create a server with differentiated thread pools.
    *
-   * @param serverName
-   *          name for the server
-   * @param port
-   *          port to listen on
    * @param bossThreadPool
    *          thread pool to use for boss threads
    * @param workerThreadPool
@@ -139,10 +155,7 @@ public class NettyWebServer implements WebServer {
    * @param log
    *          logger
    */
-  public NettyWebServer(String serverName, int port, ScheduledExecutorService bossThreadPool,
-      ScheduledExecutorService workerThreadPool, Log log) {
-    this.serverName = serverName;
-    this.port = port;
+  public NettyWebServer(ScheduledExecutorService bossThreadPool, ScheduledExecutorService workerThreadPool, Log log) {
     this.bossThreadPool = bossThreadPool;
     this.workerThreadPool = workerThreadPool;
     this.log = log;
@@ -159,15 +172,36 @@ public class NettyWebServer implements WebServer {
 
     bootstrap = new ServerBootstrap(channelFactory);
 
+    if (secureServer) {
+      try {
+        if (sslCertChainFile == null) {
+          SelfSignedCertificate ssc = new SelfSignedCertificate();
+          sslCertChainFile = ssc.certificate();
+          sslKeyFile = ssc.privateKey();
+        }
+
+        sslContext = SslContext.newServerContext(sslCertChainFile, sslKeyFile);
+      } catch (Exception e) {
+        throw new SimpleInteractiveSpacesException("Could not create a secure web server", e);
+      }
+    }
+
     // Set up the event pipeline factory.
     bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+      @Override
       public ChannelPipeline getPipeline() throws Exception {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
+
+        if (sslContext != null) {
+          pipeline.addLast("ssl", sslContext.newHandler());
+        }
+
         pipeline.addLast("decoder", new HttpRequestDecoder());
         // pipeline.addLast("aggregator", new
         // HttpChunkAggregator(4615604));
         pipeline.addLast("encoder", new HttpResponseEncoder());
+        pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
         pipeline.addLast("handler", serverHandler);
 
         return pipeline;
@@ -198,8 +232,7 @@ public class NettyWebServer implements WebServer {
   }
 
   @Override
-  public void addStaticContentHandler(String uriPrefix, File baseDir,
-      Map<String, String> extraHttpContentHeaders) {
+  public void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders) {
     addStaticContentHandler(uriPrefix, baseDir, extraHttpContentHeaders, null);
   }
 
@@ -207,29 +240,27 @@ public class NettyWebServer implements WebServer {
   public void addStaticContentHandler(String uriPrefix, File baseDir, Map<String, String> extraHttpContentHeaders,
       HttpDynamicRequestHandler fallbackHandler) {
     if (!baseDir.exists()) {
-      throw new InteractiveSpacesException(String.format("Cannot find web folder %s",
-          baseDir.getAbsolutePath()));
+      throw new InteractiveSpacesException(String.format("Cannot find web folder %s", baseDir.getAbsolutePath()));
     }
 
-    NettyHttpDynamicRequestHandlerHandler fallbackNettyHandler = fallbackHandler == null ? null
-        : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
+    NettyHttpDynamicRequestHandlerHandler fallbackNettyHandler =
+        fallbackHandler == null ? null : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
             fallbackHandler, extraHttpContentHeaders);
 
-    serverHandler.addHttpContentHandler(new NettyStaticContentHandler(serverHandler, uriPrefix,
-        baseDir, extraHttpContentHeaders, fallbackNettyHandler));
+    serverHandler.addHttpContentHandler(new NettyStaticContentHandler(serverHandler, uriPrefix, baseDir,
+        extraHttpContentHeaders, fallbackNettyHandler));
   }
 
   @Override
-  public void addDynamicContentHandler(String uriPrefix, boolean usePath,
-      HttpDynamicRequestHandler handler) {
+  public void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler) {
     addDynamicContentHandler(uriPrefix, usePath, handler, null);
   }
 
   @Override
-  public void addDynamicContentHandler(String uriPrefix, boolean usePath,
-      HttpDynamicRequestHandler handler, Map<String, String> extraHttpContentHeaders) {
-    serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(serverHandler,
-        uriPrefix, usePath, handler, extraHttpContentHeaders));
+  public void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler,
+      Map<String, String> extraHttpContentHeaders) {
+    serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, usePath,
+        handler, extraHttpContentHeaders));
   }
 
   @Override
@@ -249,6 +280,16 @@ public class NettyWebServer implements WebServer {
   }
 
   @Override
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
+  }
+
+  @Override
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  @Override
   public int getPort() {
     return port;
   }
@@ -263,6 +304,49 @@ public class NettyWebServer implements WebServer {
     globalHttpContentHeaders.putAll(headers);
   }
 
+  @Override
+  public boolean isSecureServer() {
+    return secureServer;
+  }
+
+  @Override
+  public void setSecureServer(boolean secureServer) {
+    this.secureServer = secureServer;
+  }
+
+  @Override
+  public void setSslCertificates(File sslCertChainFile, File sslKeyFile) {
+    if (((sslCertChainFile == null) && (sslKeyFile != null)) || (sslCertChainFile != null) && (sslKeyFile == null)) {
+      throw new SimpleInteractiveSpacesException(
+          "Both a certificate chain file and a private key file must be supplied");
+
+    }
+
+    if (sslCertChainFile != null && !sslCertChainFile.isFile()) {
+      throw new SimpleInteractiveSpacesException(String.format("The certificate chain file %s does not exist",
+          sslCertChainFile.getAbsolutePath()));
+    }
+
+    if (sslKeyFile != null && !sslKeyFile.isFile()) {
+      throw new SimpleInteractiveSpacesException(String.format("The private key file %s does not exist",
+          sslKeyFile.getAbsolutePath()));
+    }
+
+    this.sslCertChainFile = sslCertChainFile;
+    this.sslKeyFile = sslKeyFile;
+  }
+
+  @Override
+  public void setAuthProvider(HttpAuthProvider authProvider) {
+    serverHandler.setAuthProvider(authProvider);
+
+  }
+
+  @Override
+  public void setAccessManager(WebResourceAccessManager accessManager) {
+    serverHandler.setAccessManager(accessManager);
+  }
+
   /**
    * Get the worker thread pool.
    *
@@ -275,7 +359,8 @@ public class NettyWebServer implements WebServer {
   /**
    * A new channel was opened. Register it so it can be properly shut down.
    *
-   * @param channel channel that has been opened
+   * @param channel
+   *          channel that has been opened
    */
   public void channelOpened(Channel channel) {
     allChannels.add(channel);
@@ -297,16 +382,5 @@ public class NettyWebServer implements WebServer {
    */
   public Log getLog() {
     return log;
-  }
-
-  @Override
-  public void setAuthProvider(HttpAuthProvider authProvider) {
-    serverHandler.setAuthProvider(authProvider);
-
-  }
-
-  @Override
-  public void setAccessManager(WebResourceAccessManager accessManager) {
-    serverHandler.setAccessManager(accessManager);
   }
 }

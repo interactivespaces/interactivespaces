@@ -16,8 +16,6 @@
 
 package interactivespaces.util.web;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUpload;
@@ -26,6 +24,8 @@ import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.util.io.Files;
+
+import com.google.common.collect.Maps;
 
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
@@ -71,7 +71,9 @@ public class HttpClientHttpContentCopierTest {
 
     webServerPort = 10031;
     webServerUriPrefix = "websockettest";
-    webServer = new NettyWebServer("test-server", webServerPort, threadPool, log);
+    webServer = new NettyWebServer(threadPool, log);
+    webServer.setServerName("test-server");
+    webServer.setPort(webServerPort);
     webServer.addDynamicContentHandler("/" + webServerUriPrefix, true,
         new HttpDynamicRequestHandler() {
 

@@ -63,6 +63,7 @@ public class BaseRoutableRosWebServerActivity extends BaseRoutableRosActivity im
     webServerComponent = addActivityComponent(new BasicWebServerActivityComponent());
     webServerComponent.setWebSocketHandlerFactory(webSocketFactory);
     webServerComponent.setHttpFileUploadListener(this);
+
   }
 
   @Override

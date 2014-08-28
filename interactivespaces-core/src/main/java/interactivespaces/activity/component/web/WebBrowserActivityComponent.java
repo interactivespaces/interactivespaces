@@ -17,6 +17,7 @@
 package interactivespaces.activity.component.web;
 
 import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.activity.configuration.WebActivityConfiguration;
 
 /**
  * An {@link ActivityComponent} which starts up a web browser.
@@ -34,27 +35,25 @@ public interface WebBrowserActivityComponent extends ActivityComponent {
    * Configuration property giving the initial page of the web activity.
    *
    * <p>
-   * If there is no content location, this should be a fully qualified URL.
-   * Otherwise it can be relative to
+   * If there is no content location, this should be a fully qualified URL. Otherwise it can be relative to
    * {@link #CONFIGURATION_WEBAPP_CONTENT_LOCATION}.
    */
-  String CONFIGURATION_INITIAL_PAGE = "space.activity.webapp.url.initial";
+  String CONFIGURATION_INITIAL_PAGE = WebActivityConfiguration.CONFIGURATION_PREFIX_WEBAPP
+      + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_PAGE;
 
   /**
-   * Configuration property of any query string parameter which should be added
-   * to the URL given to the web browser.
+   * Configuration property of any query string parameter which should be added to the URL given to the web browser.
    */
-  String CONFIGURATION_INITIAL_URL_QUERY_STRING = "space.activity.webapp.url.query_string";
+  String CONFIGURATION_INITIAL_URL_QUERY_STRING = WebActivityConfiguration.CONFIGURATION_PREFIX_WEBAPP
+      + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING;
 
   /**
-   * Configuration property saying whether the browser should be started in
-   * debug mode or not.
+   * Configuration property saying whether the browser should be started in debug mode or not.
    */
   String CONFIGURATION_BROWSER_DEBUG = "space.activity.webapp.browser.debug";
 
   /**
-   * Configuration property saying whether the browser should be started up when
-   * the app starts up.
+   * Configuration property saying whether the browser should be started up when the app starts up.
    */
   String CONFIGURATION_BROWSER_STARTUP = "space.activity.webapp.browser.startup";
 

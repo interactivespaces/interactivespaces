@@ -24,13 +24,15 @@ import java.util.Map;
 /**
  * A web server for Interactive Spaces activities.
  *
+ * <p>
+ * If the server is set to be secure and no certificate files are provided, a self-signed certificate will be generated.
+ *
  * @author Keith M. Hughes
  */
 public interface WebServer extends ManagedResource {
 
   /**
-   * The default for the web socket URI prefix. Does not include the forward
-   * slash.
+   * The default for the web socket URI prefix. Does not include the forward slash.
    */
   String WEBSOCKET_URI_PREFIX_DEFAULT = "websocket";
 
@@ -38,8 +40,7 @@ public interface WebServer extends ManagedResource {
    * Add in a new static content handler to the server.
    *
    * <p>
-   * See {@link #addStaticContentHandler(String, File, Map)}, the content header
-   * map value will be {@code null}.
+   * See {@link #addStaticContentHandler(String, File, Map)}, the content header map value will be {@code null}.
    *
    * @param uriPrefix
    *          URI prefix for the content
@@ -52,8 +53,7 @@ public interface WebServer extends ManagedResource {
    * Add in a new static content handler to the server.
    *
    * <p>
-   * Content handlers are attempted in the order added. The first prefix which
-   * matches will be run.
+   * Content handlers are attempted in the order added. The first prefix which matches will be run.
    *
    * @param uriPrefix
    *          URI prefix for the content
@@ -68,8 +68,7 @@ public interface WebServer extends ManagedResource {
    * Add in a new static content handler to the server.
    *
    * <p>
-   * Content handlers are attempted in the order added. The first prefix which
-   * matches will be run.
+   * Content handlers are attempted in the order added. The first prefix which matches will be run.
    *
    * @param uriPrefix
    *          URI prefix for the content
@@ -87,9 +86,8 @@ public interface WebServer extends ManagedResource {
    * Add in a new dynamic content handler to the server.
    *
    * <p>
-   * See
-   * {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)},
-   * the content header map value will be {@code null}.
+   * See {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)}, the content header map value will be
+   * {@code null}.
    *
    * @param uriPrefix
    *          URI prefix for the content
@@ -104,8 +102,7 @@ public interface WebServer extends ManagedResource {
    * Add in a new dynamic content handler to the server.
    *
    * <p>
-   * Content handlers are attempted in the order added. The first prefix which
-   * matches will be run.
+   * Content handlers are attempted in the order added. The first prefix which matches will be run.
    *
    * @param uriPrefix
    *          URI prefix for the content
@@ -114,8 +111,7 @@ public interface WebServer extends ManagedResource {
    * @param handler
    *          dynamic request handler
    * @param extraHttpContentHeaders
-   *          extra HTTP content headers to add to all responses to the handler,
-   *          can be {@code null}
+   *          extra HTTP content headers to add to all responses to the handler, can be {@code null}
    */
   void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler,
       Map<String, String> extraHttpContentHeaders);
@@ -126,8 +122,7 @@ public interface WebServer extends ManagedResource {
    * @param webSocketUriPrefix
    *          uri prefix for websocket handler
    * @param webSocketHandlerFactory
-   *          the factory to use (can be {@code null} if don't want to handle
-   *          web socket calls)
+   *          the factory to use (can be {@code null} if don't want to handle web socket calls)
    */
   void setWebSocketHandlerFactory(String webSocketUriPrefix, WebServerWebSocketHandlerFactory webSocketHandlerFactory);
 
@@ -150,11 +145,36 @@ public interface WebServer extends ManagedResource {
   String getServerName();
 
   /**
+   * Set the name given to the server.
+   *
+   * <p>
+   * This is not the server's hostname.
+   *
+   * <p>
+   * Changing this has no meaning after the server has been started.
+   *
+   * @param serverName
+   *          the server name
+   */
+  void setServerName(String serverName);
+
+  /**
    * Get the port the server is listening on.
    *
    * @return the port
    */
   int getPort();
+
+  /**
+   * Set the port the server is listening on.
+   *
+   * <p>
+   * Changing this has no meaning after the server has been started.
+   *
+   * @param port
+   *          the port
+   */
+  void setPort(int port);
 
   /**
    * Add an HTTP content header that will go out with every HTTP response.
@@ -170,15 +190,39 @@ public interface WebServer extends ManagedResource {
    * Add an HTTP content header that will go out with every HTTP response.
    *
    * @param headers
-   *          the headers to add, the key is the header name, value is the
-   *          header value
+   *          the headers to add, the key is the header name, value is the header value
    */
   void addContentHeaders(Map<String, String> headers);
 
   /**
-   * Set the AuthProvider to use with this server, if no auth provider is set on
-   * a server, it should not attempt any kind of access control. Setting the
-   * auth provider to null should disable authorization checking on a server.
+   * Does the server supports secure communication?
+   *
+   * @return {@code true} if supports secure communications
+   */
+  boolean isSecureServer();
+
+  /**
+   * Set whether server supports secure communication.
+   *
+   * @param secureServer
+   *          {@code true} if should support secure communications
+   */
+  void setSecureServer(boolean secureServer);
+
+  /**
+   * Set the SSL certificate files.
+   *
+   * @param sslCertChainFile
+   *          an X.509 certificate chain file in PEM format
+   * @param sslKeyFile
+   *          a PKCS#8 private key file in PEM format
+   */
+  void setSslCertificates(File sslCertChainFile, File sslKeyFile);
+
+  /**
+   * Set the AuthProvider to use with this server, if no auth provider is set on a server, it should not attempt any
+   * kind of access control. Setting the auth provider to {@code null} should disable authorization checking on a
+   * server.
    *
    * @param authProvider
    *          the authentication provider
@@ -186,8 +230,7 @@ public interface WebServer extends ManagedResource {
   void setAuthProvider(HttpAuthProvider authProvider);
 
   /**
-   * Set the access manager for this webserver. The access manager will only be
-   * used if the auth provider is set.
+   * Set the access manager for this webserver. The access manager will only be used if the auth provider is set.
    *
    * @param accessManager
    *          the access manager

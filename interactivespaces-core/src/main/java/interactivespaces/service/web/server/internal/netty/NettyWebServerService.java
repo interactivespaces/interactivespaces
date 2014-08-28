@@ -37,10 +37,22 @@ public class NettyWebServerService extends BaseWebServerService {
   }
 
   @Override
-  public WebServer newWebServer(String serverName, int port, Log log) {
+  public synchronized WebServer newWebServer(String serverName, int port, Log log) {
+    WebServer server = newWebServer(log);
+
+    server.setPort(port);
+    server.setServerName(serverName);
+
+    return server;
+  }
+
+  @Override
+  public synchronized WebServer newWebServer(Log log) {
     ScheduledExecutorService threadPool = getSpaceEnvironment().getExecutorService();
 
-    WebServer server = new NettyWebServer(serverName, port, threadPool, threadPool, log);
+    WebServer server = new NettyWebServer(threadPool, threadPool, log);
+
+    addServer(server);
 
     return server;
   }

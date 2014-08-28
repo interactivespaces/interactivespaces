@@ -58,8 +58,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   public static final int ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT = 10000;
 
   /**
-   * The internal name given to the web server being used for the activity
-   * repository.
+   * The internal name given to the web server being used for the activity repository.
    */
   private static final String ACTIVITY_REPOSITORY_SERVER_NAME = "interactivespaces_activity_repository";
 
@@ -110,9 +109,11 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
         spaceEnvironment.getSystemConfiguration().getPropertyInteger(
             CONFIGURATION_PROPERTY_ACTIVITY_RESPOSITORY_SERVER_PORT, ACTIVITY_RESPOSITORY_SERVER_PORT_DEFAULT);
     repositoryServer =
-        new NettyWebServer(ACTIVITY_REPOSITORY_SERVER_NAME, repositoryPort, spaceEnvironment.getExecutorService(),
-            spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
+        new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getExecutorService(),
+            spaceEnvironment.getLog());
 
+    repositoryServer.setServerName(ACTIVITY_REPOSITORY_SERVER_NAME);
+    repositoryServer.setPort(repositoryPort);
     String webappPath = "/" + repositoryUrlPathPrefix;
 
     repositoryServer.addDynamicContentHandler(webappPath, true, new HttpDynamicRequestHandler() {

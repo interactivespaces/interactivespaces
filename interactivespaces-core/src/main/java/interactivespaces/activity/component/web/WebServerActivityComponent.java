@@ -42,37 +42,6 @@ public interface WebServerActivityComponent extends ActivityComponent {
   String COMPONENT_DESCRIPTION = "Web Server";
 
   /**
-   * Configuration property giving the port the web server should be started on.
-   */
-  String CONFIGURATION_WEBAPP_WEB_SERVER_PORT = "space.activity.webapp.web.server.port";
-
-  /**
-   * Configuration property giving the websocket URI for the web server on.
-   */
-  String CONFIGURATION_WEBAPP_WEB_SERVER_WEBSOCKET_URI = "space.activity.webapp.web.server.websocket.uri";
-
-  /**
-   * Configuration property giving location of the webapp content. Relative
-   * paths give relative to app install directory.
-   */
-  String CONFIGURATION_WEBAPP_CONTENT_LOCATION = "space.activity.webapp.content.location";
-
-  /**
-   * Default port to give to the web server.
-   */
-  int WEB_SERVER_PORT_DEFAULT = 9000;
-
-  /**
-   * Host identifier to use if not specified in configuration.
-   */
-  String WEB_SERVER_DEFAULT_HOST = "localhost";
-
-  /**
-   * Default page to use when none specified in configuration.
-   */
-  String DEFAULT_INITIAL_PAGE = "index.html";
-
-  /**
    * Get the main URL for web content for the component.
    *
    * @return the main URL for web content
@@ -94,17 +63,21 @@ public interface WebServerActivityComponent extends ActivityComponent {
   WebServer getWebServer();
 
   /**
-   * @return the webContentPath
+   * Get the path for web content.
+   *
+   * @return the path for web content
    */
   String getWebContentPath();
 
   /**
-   * @return the webContentBaseDir
+   * Get the base directory for web content in the file system.
+   *
+   * @return the base directory for web content in the file system
    */
   File getWebContentBaseDir();
 
   /**
-   * Set the web socket handler factory for the web server to use.
+   * Set the URI prefix for websocket connections.
    *
    * <p>
    * This can be called either before or after calling

@@ -24,7 +24,7 @@ dependencies {
     exclude group: 'com.google.code.findbugs', module: 'jsr305'
   }
 
-  compile 'io.netty:netty:3.6.6.Final'
+  compile 'io.netty:netty:3.9.3.Final'
 
   testCompile 'junit:junit:4.8.2'
 }

@@ -377,7 +377,9 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
             MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT,
             MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT);
 
-    webServer = new NettyWebServer("master", port, spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
+    webServer = new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
+    webServer.setServerName("master");
+    webServer.setPort(port);
 
     webSocketFactory = new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
 

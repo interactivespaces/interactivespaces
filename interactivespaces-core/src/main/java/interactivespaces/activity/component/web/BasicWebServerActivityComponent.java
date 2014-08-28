@@ -16,20 +16,24 @@
 
 package interactivespaces.activity.component.web;
 
-import com.google.common.collect.Lists;
 import interactivespaces.activity.Activity;
+import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
+import interactivespaces.activity.configuration.WebServerActivityResourceConfigurator;
 import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
-import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.collect.Lists;
+
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -44,34 +48,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BasicWebServerActivityComponent extends BaseActivityComponent implements WebServerActivityComponent {
 
   /**
-   * URL for the web activity.
-   */
-  private String webContentUrl;
-
-  /**
-   * URL for the initial content page for this server.
-   */
-  private String webInitialPage;
-
-  /**
-   * Port the web server will run on.
-   */
-  private int webServerPort;
-
-  /**
    * Web server for the app, if needed.
    */
   private WebServer webServer;
-
-  /**
-   * The path to the web content. This is the absolute path portion of the URL.
-   */
-  private String webContentPath;
-
-  /**
-   * The base directory of the web content being served.
-   */
-  private File webContentBaseDir;
 
   /**
    * Factory for web socket handlers.
@@ -84,11 +63,6 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   private HttpFileUploadListener httpFileUploadListener;
 
   /**
-   * Prefix of the URI for the web socket connections.
-   */
-  private String webSocketUriPrefix;
-
-  /**
    * List of static content for the web server.
    */
   private final List<StaticContent> staticContent = Lists.newArrayList();
@@ -97,6 +71,11 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
    * List of dynamic content for the web server.
    */
   private final List<DynamicContent> dynamicContent = Lists.newArrayList();
+
+  /**
+   * Configurator for this component.
+   */
+  private WebServerActivityResourceConfigurator configurator = new WebServerActivityResourceConfigurator();
 
   @Override
   public String getName() {
@@ -114,34 +93,11 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
 
     Activity activity = getComponentContext().getActivity();
 
-    webSocketUriPrefix = configuration.getPropertyString(CONFIGURATION_WEBAPP_WEB_SERVER_WEBSOCKET_URI);
-
-    webServerPort = configuration.getPropertyInteger(CONFIGURATION_WEBAPP_WEB_SERVER_PORT, WEB_SERVER_PORT_DEFAULT);
     WebServerService webServerService =
         activity.getSpaceEnvironment().getServiceRegistry().getService(WebServerService.SERVICE_NAME);
-    webServer =
-        webServerService.newWebServer(String.format("%sWebServer", activity.getName()), webServerPort,
-            activity.getLog());
+    webServer = webServerService.newWebServer(activity.getLog());
 
-    String webServerHost =
-        configuration.getPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS,
-            WEB_SERVER_DEFAULT_HOST);
-
-    webContentPath = "/" + activity.getName();
-    webContentUrl = "http://" + webServerHost + ":" + webServer.getPort() + webContentPath;
-
-    webInitialPage =
-        webContentUrl
-            + "/"
-            + configuration.getPropertyString(BasicWebBrowserActivityComponent.CONFIGURATION_INITIAL_PAGE,
-                DEFAULT_INITIAL_PAGE);
-
-    String contentLocation = configuration.getPropertyString(CONFIGURATION_WEBAPP_CONTENT_LOCATION);
-    if (contentLocation != null) {
-      webContentBaseDir = new File(activity.getActivityFilesystem().getInstallDirectory(), contentLocation);
-
-      webServer.addStaticContentHandler(webContentPath, webContentBaseDir);
-    }
+    configurator.configure(null, activity, webServer);
 
     for (StaticContent content : staticContent) {
       webServer.addStaticContentHandler(content.getUriPrefix(), content.getBaseDir());
@@ -190,12 +146,12 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
 
   @Override
   public String getWebContentUrl() {
-    return webContentUrl;
+    return configurator.getWebContentUrl();
   }
 
   @Override
   public int getWebServerPort() {
-    return webServerPort;
+    return configurator.getWebServerPort();
   }
 
   @Override
@@ -205,17 +161,17 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
 
   @Override
   public String getWebContentPath() {
-    return webContentPath;
+    return configurator.getWebContentPath();
   }
 
   @Override
   public File getWebContentBaseDir() {
-    return webContentBaseDir;
+    return configurator.getWebContentBaseDir();
   }
 
   @Override
   public WebServerActivityComponent setWebSocketUriPrefix(String webSocketUriPrefix) {
-    this.webSocketUriPrefix = webSocketUriPrefix;
+    configurator.setWebSocketUriPrefix(webSocketUriPrefix);
 
     return this;
   }
@@ -270,7 +226,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
    * Set the web server web socket handler with the proper wrapped factory.
    */
   private void setWebServerWebSocketHandlerFactory() {
-    webServer.setWebSocketHandlerFactory(webSocketUriPrefix, new MyWebServerWebSocketHandlerFactory(
+    webServer.setWebSocketHandlerFactory(configurator.getWebSocketUriPrefix(), new MyWebServerWebSocketHandlerFactory(
         webSocketHandlerFactory, this));
   }
 
@@ -380,9 +336,8 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   }
 
   /**
-   * A {@link WebServerWebSocketHandlerFactory} which delegates to another web
-   * socket handler factory and wraps web socket handler with
-   * {@link MyWebServerWebSocketHandler}.
+   * A {@link WebServerWebSocketHandlerFactory} which delegates to another web socket handler factory and wraps web
+   * socket handler with {@link MyWebServerWebSocketHandler}.
    *
    * @author Keith M. Hughes
    */
@@ -420,7 +375,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
 
   @Override
   public String getComponentStatusDetail() {
-    return String.format(StatusDetail.LINK_FORMAT, webInitialPage);
+    return String.format(StatusDetail.LINK_FORMAT, configurator.getWebInitialPage());
   }
 
   /**
@@ -433,8 +388,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   }
 
   /**
-   * A {@link WebSocketHandler} which delegates to a web socket handler but
-   * ensures that the component is running.
+   * A {@link WebSocketHandler} which delegates to a web socket handler but ensures that the component is running.
    *
    * @author Keith M. Hughes
    */

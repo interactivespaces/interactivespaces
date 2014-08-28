@@ -16,6 +16,8 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
+import static org.jboss.netty.handler.codec.http.HttpHeaders.addHeader;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.getHeader;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -185,7 +187,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
       CookieEncoder encoder = new CookieEncoder(true);
       for (HttpCookie value : cookiesToAdd) {
         encoder.addCookie(NettyHttpResponse.createNettyCookie(value));
-        response.addHeader(HttpHeaders.Names.SET_COOKIE, encoder.encode());
+        addHeader(response, HttpHeaders.Names.SET_COOKIE, encoder.encode());
       }
     }
 
@@ -207,7 +209,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
       setContentLength(response, fileLength);
     } else {
       setContentLength(response, rangeRequest.getRangeLength());
-      response.addHeader(HttpHeaders.Names.CONTENT_RANGE, "bytes " + rangeRequest.begin + "-" + rangeRequest.end + "/"
+      addHeader(response, HttpHeaders.Names.CONTENT_RANGE, "bytes " + rangeRequest.begin + "-" + rangeRequest.end + "/"
           + fileLength);
       response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
     }
@@ -257,11 +259,10 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
    * @param availableLength
    *          the available number of bytes for the file requested
    *
-   * @return a parsed range header, or {@code null} if there is no range request
-   *         header or there was some sort of error
+   * @return a parsed range header, or {@code null} if there is no range request header or there was some sort of error
    */
   private RangeRequest parseRangeRequest(HttpRequest request, long availableLength) {
-    String rangeHeader = request.getHeader(HttpHeaders.Names.RANGE);
+    String rangeHeader = getHeader(request, HttpHeaders.Names.RANGE);
     if (rangeHeader == null || rangeHeader.trim().isEmpty()) {
       return null;
     }
