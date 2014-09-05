@@ -35,16 +35,37 @@ public interface NativeActivityComponent extends ActivityComponent {
   String COMPONENT_NAME = "runner.native";
 
   /**
-   * Configuration property giving the location of the application executable
-   * relative to the application installation directory.
+   * Configuration property giving the location of the application executable relative to the application installation
+   * directory.
    */
   String CONFIGURATION_ACTIVITY_EXECUTABLE = "space.activity.component.native.executable";
 
   /**
-   * Configuration property giving the flags that a native application would use
-   * to launch.
+   * Configuration property giving the flags that a native application would use to launch.
    */
   String CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS = "space.activity.component.native.executable.flags";
+
+  /**
+   * Configuration property giving the environment that a native application would use to launch.
+   *
+   * <p>
+   * The value of the config parameter should be a set of key value pairs, e.g.
+   *
+   * <pre>
+   * var1=val1 var2=val2
+   * </pre>
+   *
+   * <p>
+   * values can be removed from the environment by not giving a value, e.g.
+   *
+   * <pre>
+   * var1=val1 var2 var3=val3
+   * </pre>
+   *
+   * <p>
+   * will set {@code var1} to {@code val1}, {@code var2} to {@code val2}, and remove {@code var2}.
+   */
+  String CONFIGURATION_ACTIVITY_EXECUTABLE_ENVIRONMENT = "space.activity.component.native.executable.environment";
 
   /**
    * Get the native activity runner for the component.
@@ -62,8 +83,7 @@ public interface NativeActivityComponent extends ActivityComponent {
   void setRestartStrategy(RestartStrategy<NativeApplicationRunner> restartStrategy);
 
   /**
-   * Add in a new application runner listener to use when the runner is finally
-   * created.
+   * Add in a new application runner listener to use when the runner is finally created.
    *
    * @param listener
    *          the listener to add

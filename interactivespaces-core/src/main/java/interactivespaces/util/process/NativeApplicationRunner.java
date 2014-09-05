@@ -26,8 +26,8 @@ import java.util.Map;
  * A launcher of apps native to the given system.
  *
  * <p>
- * The configuration needs a property with name {#ACTIVITYNAME} which gives the
- * full descriptor (e.g. path on a Linux system) to the application.
+ * The configuration needs a property with name {#ACTIVITYNAME} which gives the full descriptor (e.g. path on a Linux
+ * system) to the application.
  *
  * @author Keith M. Hughes
  */
@@ -39,19 +39,33 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
   char ESCAPE_CHARACTER = '\\';
 
   /**
-   * The name of the property which gives the fully qualified name for the
-   * application.
+   * The equals character for environment variables.
+   */
+  char EQUALS_CHARACTER = '=';
+
+  /**
+   * The name of the property which gives the fully qualified name for the application.
    */
   String EXECUTABLE_PATHNAME = "executablePath";
 
   /**
-   * A set of flags for the application.
+   * A set of flags for the application as a string to be parsed.
    */
   String EXECUTABLE_FLAGS = "executableFlags";
 
   /**
-   * The name of the property which gives the fully qualified name for the
-   * application.
+   * A set of environment variables for the application as a string to be parsed.
+   */
+  String EXECUTABLE_ENVIRONMENT = "executableEnvironment";
+
+  /**
+   * A map containing environment variables. Entries with a {@code null} value will be removed from the process
+   * environment.
+   */
+  String EXECUTABLE_ENVIRONMENT_MAP = "executableEnvironmentMap";
+
+  /**
+   * The name of the property which gives the fully qualified name for the application.
    *
    * @deprecated use {@link #EXECUTABLE_PATHNAME}
    */
@@ -65,6 +79,14 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
    */
   @Deprecated
   String FLAGS = EXECUTABLE_FLAGS;
+
+  /**
+   * Set whether the process environment should be fully cleaned before the process is started.
+   *
+   * @param cleanEnvironment
+   *          {@code true} if the environment should be cleaned
+   */
+  void setCleanEnvironment(boolean cleanEnvironment);
 
   /**
    * Configure the runner.
@@ -115,8 +137,8 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
    * Add in a new application runner listener.
    *
    * <p>
-   * Any listeners added will be automatically added to any
-   * {@link RestartStrategy} no matter when the strategy is added.
+   * Any listeners added will be automatically added to any {@link RestartStrategy} no matter when the strategy is
+   * added.
    *
    * @param listener
    *          the listener to add

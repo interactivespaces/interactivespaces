@@ -61,6 +61,11 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   private String executableFlagsProperty = CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS;
 
   /**
+   * The name of the configuration flag for getting the executable environment.
+   */
+  private String executableEnvironmentProperty = CONFIGURATION_ACTIVITY_EXECUTABLE_ENVIRONMENT;
+
+  /**
    * The restart strategy to use when the runner is finally created.
    */
   private RestartStrategy<NativeApplicationRunner> restartStrategy;
@@ -71,17 +76,17 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   private List<NativeApplicationRunnerListener> listeners = Lists.newArrayList();
 
   /**
-   * Create the component which uses the properties
-   * {@link #CONFIGURATION_ACTIVITY_EXECUTABLE} and
-   * {@link #CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS} for execution path and
-   * flags.
+   * Create the component which uses the properties {@link #CONFIGURATION_ACTIVITY_EXECUTABLE} and
+   * {@link #CONFIGURATION_ACTIVITY_EXECUTABLE_FLAGS} for execution path, flags, and environment.
    */
   public BasicNativeActivityComponent() {
   }
 
   /**
-   * Create the component with the properties to use for execution path and
-   * flags.
+   * Create the component with the properties to use for execution path and flags.
+   *
+   * <p>
+   * The environment property name is left alone.
    *
    * @param executablePathProperty
    *          config property name for the executable path
@@ -91,6 +96,22 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   public BasicNativeActivityComponent(String executablePathProperty, String executableFlagsProperty) {
     this.executablePathProperty = executablePathProperty;
     this.executableFlagsProperty = executableFlagsProperty;
+  }
+
+  /**
+   * Create the component with the properties to use for execution path and flags.
+   *
+   * @param executablePathProperty
+   *          config property name for the executable path
+   * @param executableFlagsProperty
+   *          config property prefix for the executable flags
+   * @param executableEnvironmentProperty
+   *          config property prefix for the environment flags
+   */
+  public BasicNativeActivityComponent(String executablePathProperty, String executableFlagsProperty, String executableEnvironmentProperty) {
+    this.executablePathProperty = executablePathProperty;
+    this.executableFlagsProperty = executableFlagsProperty;
+    this.executableEnvironmentProperty = executableEnvironmentProperty;
   }
 
   @Override
@@ -126,7 +147,8 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
             activityFile.setExecutable(true);
           }
         } else {
-          throw new SimpleInteractiveSpacesException(String.format("The native executable %s does not exist", activityPath));
+          throw new SimpleInteractiveSpacesException(String.format("The native executable %s does not exist",
+              activityPath));
         }
       } else {
         throw new InteractiveSpacesException(String.format("The native executable %s is not local to the activity",
@@ -136,9 +158,11 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
 
     appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME, activityFile.getAbsolutePath());
 
-    String commandFlags = configuration.getRequiredPropertyString(executableFlagsProperty + "." + os);
-
+    String commandFlags = configuration.getPropertyString(executableFlagsProperty + "." + os);
     appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
+
+    String commandEnvironment = configuration.getPropertyString(executableEnvironmentProperty + "." + os);
+    appConfig.put(NativeActivityRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
 
     nativeActivity = controller.getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
     nativeActivity.configure(appConfig);
@@ -147,7 +171,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
       nativeActivity.setRestartStrategy(restartStrategy);
     }
 
-    for (NativeApplicationRunnerListener listener: listeners) {
+    for (NativeApplicationRunnerListener listener : listeners) {
       nativeActivity.addNativeApplicationRunnerListener(listener);
     }
   }
@@ -197,8 +221,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
    * @param applicationFile
    *          the application file being checked
    *
-   * @return {@code true} if the file is local to the application install
-   *         directory
+   * @return {@code true} if the file is local to the application install directory
    */
   private boolean isLocalToActivityInstallDirectory(ActivityFilesystem activityFilesystem, File applicationFile) {
 

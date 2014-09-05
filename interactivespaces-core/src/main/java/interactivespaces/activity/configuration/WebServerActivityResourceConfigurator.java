@@ -35,7 +35,7 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
   /**
    * Configuration property suffix giving the port the web server should be started on.
    */
-  public static final String CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_PORT = ".port";
+  public static final String CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_PORT = ".web.server.port";
 
   /**
    * Configuration property suffix giving the websocket URI for the web server on.
@@ -151,7 +151,7 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
 
     webContentPath = "/" + activity.getName();
     webContentUrl =
-        ((webServer.isSecureServer()) ? "https" : "http") + "://" + webServerHost + ":" + webServer.getPort()
+        ((webServer.isSecureServer()) ? "https" : "http") + "://" + webServerHost + ":" + webServerPort
             + webContentPath;
 
     StringBuilder webInitialPageBuilder = new StringBuilder();
@@ -163,7 +163,9 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
                 + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_PAGE,
                 WebActivityConfiguration.DEFAULT_INITIAL_PAGE));
 
-    String queryString = configuration.getPropertyString(configurationPrefix + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING);
+    String queryString =
+        configuration.getPropertyString(configurationPrefix
+            + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING);
     if (queryString != null) {
       webInitialPageBuilder.append(WebActivityConfiguration.WEB_QUERY_STRING_SEPARATOR).append(queryString.trim());
     }

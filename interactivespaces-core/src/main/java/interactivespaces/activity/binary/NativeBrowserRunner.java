@@ -36,20 +36,17 @@ import java.util.Map;
 public class NativeBrowserRunner {
 
   /**
-   * The number of times the restart strategy will attempt a restart before
-   * giving up.
+   * The number of times the restart strategy will attempt a restart before giving up.
    */
   public static final int RESTART_STRATEGY_NUMBER_RETRIES = 4;
 
   /**
-   * How long the browser must be running before restart is considered
-   * successful in milliseconds.
+   * How long the browser must be running before restart is considered successful in milliseconds.
    */
   public static final int RESTART_STRATEGY_SUCCESS_TIME = 4000;
 
   /**
-   * How often the restart will sample to see if restart has happened, in
-   * milliseconds.
+   * How often the restart will sample to see if restart has happened, in milliseconds.
    */
   public static final int RESTART_STRATEGY_SAMPLE_TIME = 1000;
 
@@ -78,10 +75,8 @@ public class NativeBrowserRunner {
    *
    * @param initialUrl
    *          URL the browser should start on.
-   *
    * @param debug
-   *          True if the browser should have a URL bar, etc, to make it easier
-   *          to debug.
+   *          {@code true} if the browser should have a URL bar, etc, to make it easier to debug.
    */
   public void startup(String initialUrl, boolean debug) {
     browserRunner =
@@ -90,14 +85,19 @@ public class NativeBrowserRunner {
     Configuration configuration = activity.getConfiguration();
 
     Map<String, Object> appConfig = Maps.newHashMap();
-    appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
+    appConfig.put(NativeApplicationRunner.EXECUTABLE_PATHNAME,
         ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
 
     String commandFlags =
         MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
             initialUrl);
 
-    appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
+    appConfig.put(NativeApplicationRunner.EXECUTABLE_FLAGS, commandFlags);
+
+    String commandEnvironment = ActivitySystemConfiguration.getActivityNativeBrowserCommandEnvironment(configuration);
+    if (commandEnvironment != null) {
+      appConfig.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
+    }
 
     browserRunner.configure(appConfig);
     browserRunner.setRestartStrategy(getDefaultRestartStrategy());

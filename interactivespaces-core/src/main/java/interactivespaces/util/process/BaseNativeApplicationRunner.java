@@ -25,9 +25,11 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.restart.RestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategyInstance;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
@@ -35,6 +37,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -95,8 +98,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   private RestartStrategyInstance<NativeApplicationRunner> restarter;
 
   /**
-   * When attempting a restart, this is where the native application process
-   * will live until we know that startup has been successful.
+   * When attempting a restart, this is where the native application process will live until we know that startup has
+   * been successful.
    */
   private Process restartProcess;
 
@@ -113,7 +116,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   /**
    * The commands to be handed to exec.
    */
-  private String[] commands;
+  private String[] commandLine;
 
   /**
    * Folder which contains the executable.
@@ -126,9 +129,14 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   private String appName;
 
   /**
-   * List of the command flags.
+   * {@code true} if the process environment should be cleaned before the process starts.
    */
-  private String commandFlags;
+  private boolean cleanEnvironment;
+
+  /**
+   * A map of environment variables set for the runner.
+   */
+  private Map<String, String> environment;
 
   /**
    * The application runner listeners.
@@ -155,18 +163,53 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   @Override
+  public void setCleanEnvironment(boolean cleanEnvironment) {
+    this.cleanEnvironment = cleanEnvironment;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
   public void configure(Map<String, Object> config) {
     this.config = config;
 
     appName = (String) getConfig().get(EXECUTABLE_PATHNAME);
     if (appName == null) {
-      throw new SimpleInteractiveSpacesException("Missing property " + EXECUTABLE_PATHNAME);
+      throw new SimpleInteractiveSpacesException("Missing required property " + EXECUTABLE_PATHNAME);
     }
 
-    commandFlags = (String) getConfig().get(EXECUTABLE_FLAGS);
-    if (commandFlags == null) {
-      throw new SimpleInteractiveSpacesException("Missing property " + EXECUTABLE_FLAGS);
+    List<String> commandLineComponents = Lists.newArrayList();
+
+    commandLineComponents.add(appName);
+
+    environment = Maps.newHashMap();
+
+    // Build up the command line.
+    for (Map.Entry<String, Object> entry : getConfig().entrySet()) {
+      String key = entry.getKey();
+      if (EXECUTABLE_PATHNAME.equals(key)) {
+        continue;
+      } else if (EXECUTABLE_FLAGS.equals(key)) {
+        extractCommandFlags(commandLineComponents, (String) entry.getValue());
+      } else if (EXECUTABLE_ENVIRONMENT.equals(key)) {
+        extractEnvironment((String) entry.getValue());
+      } else if (EXECUTABLE_ENVIRONMENT_MAP.equals(key)) {
+        environment.putAll((Map<String, String>) entry.getValue());
+      } else {
+        String arg = " --" + key;
+        Object value = entry.getValue();
+        if (value != null) {
+          arg += "=" + value.toString();
+        }
+
+        commandLineComponents.add(arg);
+      }
     }
+
+    commandLine = commandLineComponents.toArray(new String[commandLineComponents.size()]);
+
+    String executable = commandLine[0];
+    executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
+
   }
 
   @Override
@@ -180,13 +223,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
 
       notifyApplicationStarting();
 
-      commands = getCommand();
-
-      String executable = commands[0];
-      executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
-
       if (log.isInfoEnabled()) {
-        String appLine = Joiner.on(' ').join(commands);
+        String appLine = Joiner.on(' ').join(commandLine);
         log.info(String.format("Native application starting up %s", appLine));
       }
 
@@ -211,7 +249,14 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
    */
   private Process attemptRun(boolean firstTime) throws InteractiveSpacesException {
     try {
-      ProcessBuilder builder = new ProcessBuilder(commands);
+      ProcessBuilder builder = new ProcessBuilder(commandLine);
+
+      Map<String, String> processEnvironment = builder.environment();
+      if (cleanEnvironment) {
+        processEnvironment.clear();
+      }
+      modifyEnvironment(processEnvironment, environment);
+
       builder.directory(executableFolder);
 
       log.info(String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
@@ -227,6 +272,26 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       }
 
       return null;
+    }
+  }
+
+  /**
+   * Modify the process environment with the contents of the environment map.
+   *
+   * @param processEnvironment
+   *          the process environment being modified
+   * @param modificationEnvironment
+   *          the environment containing the modifications
+   */
+  @VisibleForTesting
+  void modifyEnvironment(Map<String, String> processEnvironment, Map<String, String> modificationEnvironment) {
+    for (Entry<String, String> entry : modificationEnvironment.entrySet()) {
+      String value = entry.getValue();
+      if (value != null) {
+        processEnvironment.put(entry.getKey(), value);
+      } else {
+        processEnvironment.remove(entry.getKey());
+      }
     }
   }
 
@@ -281,7 +346,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
 
           logProcessResultStreams();
 
-          boolean successfulShutdown = handleProcessExit(exitValue, commands);
+          boolean successfulShutdown = handleProcessExit(exitValue, commandLine);
 
           // If restarter is working, the outside should be told
           // that we are still "running" until the restarter punts.
@@ -324,8 +389,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
-   * Handle the process result streams for this process, copying the results to
-   * the appropriate info or error logs.
+   * Handle the process result streams for this process, copying the results to the appropriate info or error logs.
    */
   private void logProcessResultStreams() {
     try {
@@ -406,8 +470,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
    * @param commands
    *          the commands being run
    *
-   * @return {@code true} if was a successful exit, {@code false} if it was some
-   *         sort of error exit
+   * @return {@code true} if was a successful exit, {@code false} if it was some sort of error exit
    */
   public abstract boolean handleProcessExit(int exitValue, String[] commands);
 
@@ -497,29 +560,27 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
-   * Get the app to run from the config.
+   * Extract command line flags from a string.
    *
-   * @return the process command line
+   * @param commandLineComponents
+   *          the list to place the command flags in
+   * @param commandFlags
+   *          the string containing the flags
    */
-  protected String[] getCommand() {
-    List<String> components = Lists.newArrayList();
-
-    components.add(appName);
-
-    // Eat up intitial whitespace
-    int i = 0;
-    while (i < commandFlags.length() && Character.isWhitespace(commandFlags.charAt(i))) {
-      i++;
+  private void extractCommandFlags(List<String> commandLineComponents, String commandFlags) {
+    if (commandFlags == null) {
+      return;
     }
 
     // Now collect the individual arguments. The escape character will always
     // pass through the following character as part of the current token.
     StringBuilder component = new StringBuilder();
-    for (; i < commandFlags.length(); i++) {
-      char ch = commandFlags.charAt(i);
+    for (int i = 0; i <= commandFlags.length(); i++) {
+      // Force a space on the end to keep the end of a term processing from being duplicated.
+      char ch = (i == commandFlags.length()) ? ' ' : commandFlags.charAt(i);
       if (Character.isWhitespace(ch)) {
         if (component.length() != 0) {
-          components.add(component.toString());
+          commandLineComponents.add(component.toString());
           component.setLength(0);
         }
       } else if (ch == ESCAPE_CHARACTER) {
@@ -531,26 +592,49 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         component.append(ch);
       }
     }
-    if (component.length() != 0) {
-      components.add(component.toString());
+  }
+
+  /**
+   * Extract environment variables.
+   *
+   * @param variables
+   *          the string containing the environment variables
+   */
+  private void extractEnvironment(String variables) {
+    if (variables == null) {
+      return;
     }
 
-    // Build up the command line.
-    for (Map.Entry<String, Object> entry : getConfig().entrySet()) {
-      if (EXECUTABLE_PATHNAME.equals(entry.getKey()) || EXECUTABLE_FLAGS.equals(entry.getKey())) {
-        continue;
+    // Now collect the individual arguments. The escape character will always
+    // pass through the following character as part of the current token.
+    String variableName = null;
+    StringBuilder component = new StringBuilder();
+    for (int i = 0; i <= variables.length(); i++) {
+      // Force a space on the end to keep the end of a term processing from being duplicated.
+      char ch = (i == variables.length()) ? ' ' : variables.charAt(i);
+      if (Character.isWhitespace(ch)) {
+        if (component.length() != 0) {
+          if (variableName != null) {
+            environment.put(variableName, component.toString());
+            variableName = null;
+          } else {
+            // No variable name so must have a variable name and a null value.
+            environment.put(component.toString(), null);
+          }
+          component.setLength(0);
+        }
+      } else if (ch == ESCAPE_CHARACTER) {
+        i++;
+        if (i < variables.length()) {
+          component.append(variables.charAt(i));
+        }
+      } else if (ch == EQUALS_CHARACTER && variableName == null) {
+        variableName = component.toString();
+        component.setLength(0);
+      } else {
+        component.append(ch);
       }
-
-      String arg = " --" + entry.getKey();
-      Object value = entry.getValue();
-      if (value != null) {
-        arg += "=" + value.toString();
-      }
-
-      components.add(arg);
     }
-
-    return components.toArray(new String[components.size()]);
   }
 
   /**
@@ -640,6 +724,26 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
+   * Get the command line for the runner.
+   *
+   * @return the command line for the runner
+   */
+  public String[] getCommandLine() {
+    return commandLine;
+  }
+
+  /**
+   * Get the environment for the runner.
+   *
+   * @return the environment, will be {@code null} if not configured
+   */
+  public Map<String, String> getEnvironment() {
+    return environment;
+  }
+
+  /**
+   * Get the space environment for the runner.
+   *
    * @return the space environment
    */
   public InteractiveSpacesEnvironment getSpaceEnvironment() {
@@ -647,6 +751,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
+   * Get the logger for the runner.
+   *
    * @return logger for the runner
    */
   public Log getLog() {
