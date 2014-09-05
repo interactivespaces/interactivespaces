@@ -100,7 +100,7 @@ public class WebServerActivityResourceConfiguratorTest {
     configuration.setValue("space.activity.webapp.web.server.websocket.uri", webSocketUri);
     configuration.setValue("space.activity.webapp.url.initial", initialUrl);
     configuration.setValue("space.activity.webapp.url.query_string", query);
-    configuration.setValue("space.activity.webapp.secure", "true");
+    configuration.setValue("space.activity.webapp.web.server.secure", "true");
 
     configurator.configure(null, activity, webServer);
 

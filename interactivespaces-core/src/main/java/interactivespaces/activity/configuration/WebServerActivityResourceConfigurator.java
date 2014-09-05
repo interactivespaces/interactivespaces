@@ -51,7 +51,7 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
   /**
    * Configuration property suffix for whether the server is secure or not.
    */
-  public static final String CONFIGURATION_SUFFIX_WEBAPP_SECURE = ".secure";
+  public static final String CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_SECURE = ".web.server.secure";
 
   /**
    * Configuration property suffix for obtaining the file path for the SSL certificate file.
@@ -125,7 +125,7 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
             activity.getName(), resourceName);
     webServer.setServerName(serverName);
 
-    boolean secure = configuration.getPropertyBoolean(configurationPrefix + CONFIGURATION_SUFFIX_WEBAPP_SECURE, false);
+    boolean secure = configuration.getPropertyBoolean(configurationPrefix + CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_SECURE, false);
     webServer.setSecureServer(secure);
 
     if (secure) {
@@ -150,9 +150,7 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
             WEB_SERVER_DEFAULT_HOST);
 
     webContentPath = "/" + activity.getName();
-    webContentUrl =
-        ((webServer.isSecureServer()) ? "https" : "http") + "://" + webServerHost + ":" + webServerPort
-            + webContentPath;
+    webContentUrl = ((secure) ? "https" : "http") + "://" + webServerHost + ":" + webServerPort + webContentPath;
 
     StringBuilder webInitialPageBuilder = new StringBuilder();
     webInitialPageBuilder
