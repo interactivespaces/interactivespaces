@@ -21,40 +21,40 @@ package interactivespaces.activity.configuration;
  *
  * @author Keith M. Hughes
  */
-public class WebActivityConfiguration {
+public interface WebActivityConfiguration {
 
   /**
    * Prefix for web app configuration properties.
    */
-  public static final String CONFIGURATION_PREFIX_WEBAPP = "space.activity.webapp";
+  String CONFIGURATION_PREFIX_WEBAPP = "space.activity.webapp";
 
   /**
    * Configuration property giving the initial page of the web activity.
    *
    * <p>
    * If there is no content location, this should be a fully qualified URL. Otherwise it can be relative to
-   * {@link WebServerActivityResourceConfigurator.CONFIGURATION_WEBAPP_CONTENT_LOCATION} in a web server component.
+   * the web server component content location.
    */
-  public static final String CONFIGURATION_SUFFIX_INITIAL_PAGE = ".url.initial";
+  String CONFIGURATION_SUFFIX_INITIAL_PAGE = ".url.initial";
 
   /**
    * Default page to use when none specified in configuration.
    */
-  public static final String DEFAULT_INITIAL_PAGE = "index.html";
+  String DEFAULT_INITIAL_PAGE = "index.html";
 
   /**
    * Configuration property of any query string parameter which should be added to the URL given to the web browser.
    */
-  public static final String CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING = ".url.query_string";
+  String CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING = ".url.query_string";
 
 
   /**
    * Separator for web path elements.
    */
-  public static final char WEB_PATH_SEPARATOR = '/';
+  char WEB_PATH_SEPARATOR = '/';
 
   /**
    * Separator for a web url query string.
    */
-  public static final char WEB_QUERY_STRING_SEPARATOR = '?';
+  char WEB_QUERY_STRING_SEPARATOR = '?';
 }

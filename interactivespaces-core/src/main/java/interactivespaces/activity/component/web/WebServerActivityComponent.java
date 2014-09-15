@@ -42,6 +42,13 @@ public interface WebServerActivityComponent extends ActivityComponent {
   String COMPONENT_DESCRIPTION = "Web Server";
 
   /**
+   * Get the base URL for the web server.
+   *
+   * @return the base URL for the web server
+   */
+  String getWebBaseUrl();
+
+  /**
    * Get the main URL for web content for the component.
    *
    * @return the main URL for web content
