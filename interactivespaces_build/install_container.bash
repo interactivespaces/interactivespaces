@@ -29,9 +29,9 @@ CONTAINER_LIB_SYSTEM_JAVA=${CONTAINER}/lib/system/java
 CONTAINER_EXTRAS=${CONTAINER}/extras
 CONTAINER_TEMPLATES=${CONTAINER}/templates
 
-${DO_CMD} rm ${CONTAINER_BOOTSTRAP}/*
-${DO_CMD} rm ${CONTAINER_LIB_SYSTEM_JAVA}/*.jar
-${DO_CMD} rm ${CONTAINER}/interactivespaces-launcher-*.jar
+${DO_CMD} rm  ${CONTAINER_BOOTSTRAP}/*
+${DO_CMD} rm  ${CONTAINER_LIB_SYSTEM_JAVA}/*.jar
+${DO_CMD} rm  ${CONTAINER}/interactivespaces-launcher-*.jar
 
 if [ ${CONTAINER_TYPE} == "controller" ]; then
   ${DO_CMD} rm -fR ${CONTAINER_EXTRAS}/*

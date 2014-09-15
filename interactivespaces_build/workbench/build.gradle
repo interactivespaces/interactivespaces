@@ -28,20 +28,20 @@ configurations {
 }
 
 dependencies {
-    izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
-    
-    bootstrap project(":interactivespaces-workbench")
-    
-    system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
-    system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
-    system 'org.apache.felix:org.apache.felix.framework:4.2.1'
-    system project(':interactivespaces-bootstrap-core')
-    system project(':interactivespaces-launcher-bootstrap')
-    
-    launcher project(':interactivespaces-launcher')
-    
-    extrasAndroid project(':service:interactivespaces-service-androidos')
-    extrasTesting project(':interactivespaces-workbench-testing')
+  izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
+
+  bootstrap project(":interactivespaces-workbench")
+
+  system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+  system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
+  system 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  system project(':interactivespaces-bootstrap-core')
+  system project(':interactivespaces-launcher-bootstrap')
+
+  launcher project(':interactivespaces-launcher')
+
+  extrasAndroid project(':service:interactivespaces-service-androidos')
+  extrasTesting project(':interactivespaces-workbench-testing')
 }
 
 task cleanContainers(type: Exec) {
@@ -71,10 +71,7 @@ task copyExamples(type:Copy) {
   exclude "**/.classpath"
 }
 
-task copyNeededComponents(dependsOn: [
-  copyCore,
-  copyExamples
-])
+task copyNeededComponents(dependsOn: [copyCore, copyExamples])
 
 task copyContainerDependenciesExtrasAndroid(type: Copy) {
   into "${project.ext.containerBuildTarget}/extras/android"
@@ -87,17 +84,17 @@ task copyContainerDependenciesExtrasTesting(type: Copy) {
 }
 
 task copyContainerDependenciesLauncher(type: Copy) {
-  into "${project.ext.containerBuildTarget}"  
+  into "${project.ext.containerBuildTarget}"
   from configurations.launcher - configurations.system
 }
 
 task copyContainerDependenciesBootstrap(type: Copy) {
-  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"  
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerBootstrap}"
   from configurations.bootstrap - configurations.system
 }
 
 task copyContainerDependenciesSystemJava(type: Copy) {
-  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"  
+  into "${project.ext.containerBuildTarget}/${project.ext.interactiveSpacesContainerSystemJava}"
   from configurations.system
 }
 
@@ -112,14 +109,20 @@ task assembleContainers(dependsOn: [
 
 assembleContainers.mustRunAfter cleanContainers
 
-task installDev(type: Exec, dependsOn: [assembleContainers, cleanContainers]) {
+task installDev(type: Exec, dependsOn: [
+  assembleContainers,
+  cleanContainers
+]) {
   // TODO(keith): get the common parts into a generic task available to all
   def stagingDir = new File(project.projectDir, "${project.ext.containerBuildTarget}").absolutePath
   def containerDir = getProperty("interactivespaces.dev.home") + "/" + project.ext.containerType
   commandLine "bash", "../install_container.bash", version, project.ext.containerType , containerDir, stagingDir
 }
 
-task createImage(type: Copy, dependsOn: [assembleContainers, cleanContainers]) {
+task createImage(type: Copy, dependsOn: [
+  assembleContainers,
+  cleanContainers
+]) {
   outputs.upToDateWhen { false }
   // TODO(keith): get the common parts into a generic task available to all
   if (project.hasProperty("imageHome")) {
@@ -141,15 +144,20 @@ task copyInstallerDependencies(type:Copy, dependsOn: [assembleContainers]) {
 }
 
 izpack {
-    baseDir = file("${project.ext.containerBuildTarget}")
-    installFile = file('src/izpack/install.xml')
-    outputFile = file("$buildDir/distributions/interactivespaces-workbench-installer-${version}.jar")
-    compression = 'deflate'
-    compressionLevel = 9
-    appProperties = ['app.name': 'Interactive Spaces Workbench',
-                     'app.version': version]
+  baseDir = file("${project.ext.containerBuildTarget}")
+  installFile = file('src/izpack/install.xml')
+  outputFile = file("$buildDir/distributions/interactivespaces-workbench-installer-${version}.jar")
+  compression = 'deflate'
+  compressionLevel = 9
+  appProperties = ['app.name': 'Interactive Spaces Workbench',
+    'app.version': version]
 }
 
 izPackCreateInstaller.dependsOn copyInstallerDependencies
 
-task createInstallers(dependsOn: [cleanContainers, izPackCreateInstaller])
+task createInstallers(dependsOn: [
+  cleanContainers,
+  izPackCreateInstaller
+])
+
+task clean(dependsOn: [cleanContainers])

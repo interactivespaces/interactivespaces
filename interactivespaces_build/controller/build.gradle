@@ -200,3 +200,5 @@ task createInstallers(dependsOn: [
   cleanContainers,
   izPackCreateInstaller
 ])
+
+task clean(dependsOn: [cleanContainers])
