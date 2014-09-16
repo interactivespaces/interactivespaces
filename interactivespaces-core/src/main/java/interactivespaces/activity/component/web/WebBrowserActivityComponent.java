@@ -36,7 +36,7 @@ public interface WebBrowserActivityComponent extends ActivityComponent {
    *
    * <p>
    * If there is no content location, this should be a fully qualified URL. Otherwise it can be relative to
-   * {@link #CONFIGURATION_WEBAPP_CONTENT_LOCATION}.
+   * the web activity content location root.
    */
   String CONFIGURATION_INITIAL_PAGE = WebActivityConfiguration.CONFIGURATION_PREFIX_WEBAPP
       + WebActivityConfiguration.CONFIGURATION_SUFFIX_INITIAL_PAGE;

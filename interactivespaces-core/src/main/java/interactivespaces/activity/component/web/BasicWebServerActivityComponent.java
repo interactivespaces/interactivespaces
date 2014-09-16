@@ -17,14 +17,12 @@
 package interactivespaces.activity.component.web;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.configuration.WebServerActivityResourceConfigurator;
 import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
-import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -33,7 +31,6 @@ import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import com.google.common.collect.Lists;
-
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -142,6 +139,11 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   public boolean isComponentRunning() {
     // TODO(keith): Anything to check on the web server?
     return true;
+  }
+
+  @Override
+  public String getWebBaseUrl() {
+    return configurator.getWebBaseUrl();
   }
 
   @Override

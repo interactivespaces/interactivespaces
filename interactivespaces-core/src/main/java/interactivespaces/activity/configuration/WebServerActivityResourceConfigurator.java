@@ -74,6 +74,11 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
   public static final String WEB_SERVER_DEFAULT_HOST = "localhost";
 
   /**
+   * The base URL that this web server works with (hostname and port).
+   */
+  private String webBaseUrl;
+
+  /**
    * URL for the web activity.
    */
   private String webContentUrl;
@@ -125,7 +130,8 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
             activity.getName(), resourceName);
     webServer.setServerName(serverName);
 
-    boolean secure = configuration.getPropertyBoolean(configurationPrefix + CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_SECURE, false);
+    boolean secure =
+        configuration.getPropertyBoolean(configurationPrefix + CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_SECURE, false);
     webServer.setSecureServer(secure);
 
     if (secure) {
@@ -150,7 +156,8 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
             WEB_SERVER_DEFAULT_HOST);
 
     webContentPath = "/" + activity.getName();
-    webContentUrl = ((secure) ? "https" : "http") + "://" + webServerHost + ":" + webServerPort + webContentPath;
+    webBaseUrl = ((secure) ? "https" : "http") + "://" + webServerHost + ":" + webServerPort;
+    webContentUrl = webBaseUrl + webContentPath;
 
     StringBuilder webInitialPageBuilder = new StringBuilder();
     webInitialPageBuilder
@@ -177,6 +184,15 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
 
       webServer.addStaticContentHandler(webContentPath, webContentBaseDir);
     }
+  }
+
+  /**
+   * Get the base URL for this server.
+   *
+   * @return the base URL for the web server
+   */
+  public String getWebBaseUrl() {
+    return webBaseUrl;
   }
 
   /**
