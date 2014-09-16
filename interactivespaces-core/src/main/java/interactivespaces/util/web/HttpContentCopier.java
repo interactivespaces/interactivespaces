@@ -21,6 +21,7 @@ import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -34,14 +35,52 @@ import java.util.Map;
 public interface HttpContentCopier extends ManagedResource {
 
   /**
+   * See {@link #getContentAsString(String, Charset)}.
+   *
+   * <p>
+   * The charset will be UTF-8.
+   *
+   * @param sourceUri
+   *          the URI to copy the content from
+   *
+   * @return the content
+   *
+   * @throws InteractiveSpacesException
+   *           if transfer was not successful
+   */
+  String getContentAsString(String sourceUri) throws InteractiveSpacesException;
+
+  /**
+   * Get the content of the source URI and return as a string.
+   *
+   * <p>
+   * This method blocks until the transfer is complete or it fails.
+   *
+   * <p>
+   * This method will fail if there are not enough connections available and blocking until a connection becomes ready
+   * is not enabled.
+   *
+   * @param sourceUri
+   *          the URI to copy the content from
+   * @param charset
+   *          the charset the content will be in
+   *
+   * @return the content
+   *
+   * @throws InteractiveSpacesException
+   *           if transfer was not successful
+   */
+  String getContentAsString(String sourceUri, Charset charset) throws InteractiveSpacesException;
+
+  /**
    * Copy the contents from the source URI to the destination file.
    *
    * <p>
    * This method blocks until the transfer is complete or it fails.
    *
    * <p>
-   * This method will fail if there are not enough connections available and
-   * blocking until a connection becomes ready is not enabled.
+   * This method will fail if there are not enough connections available and blocking until a connection becomes ready
+   * is not enabled.
    *
    * @param sourceUri
    *          the URI to copy the content from
@@ -57,8 +96,8 @@ public interface HttpContentCopier extends ManagedResource {
    * Copy content to a remote web server using an HTTP POST.
    *
    * <p>
-   * This method will fail if there are not enough connections available and
-   * blocking until a connection becomes ready is not enabled.
+   * This method will fail if there are not enough connections available and blocking until a connection becomes ready
+   * is not enabled.
    *
    * @param destinationUri
    *          URI for the destination server
@@ -67,21 +106,20 @@ public interface HttpContentCopier extends ManagedResource {
    * @param sourceParameterName
    *          the name of the parameter for the file
    * @param params
-   *          any parameters which should be included in the post, can be
-   *          {@code null}
+   *          any parameters which should be included in the post, can be {@code null}
    *
    * @throws InteractiveSpacesException
    *           if transfer was not successful
    */
-  void copyTo(String destinationUri, File source, String sourceParameterName,
-      Map<String, String> params) throws InteractiveSpacesException;
+  void copyTo(String destinationUri, File source, String sourceParameterName, Map<String, String> params)
+      throws InteractiveSpacesException;
 
   /**
    * Copy content to a remote web server using an HTTP POST.
    *
    * <p>
-   * This method will fail if there are not enough connections available and
-   * blocking until a connection becomes ready is not enabled.
+   * This method will fail if there are not enough connections available and blocking until a connection becomes ready
+   * is not enabled.
    *
    * @param destinationUri
    *          URI for the destination server
@@ -92,14 +130,13 @@ public interface HttpContentCopier extends ManagedResource {
    * @param sourceParameterName
    *          the name of the parameter for the file
    * @param params
-   *          any parameters which should be included in the post, can be
-   *          {@code null}
+   *          any parameters which should be included in the post, can be {@code null}
    *
    * @throws InteractiveSpacesException
    *           if transfer was not successful
    */
-  void copyTo(String destinationUri, InputStream source, String sourceFileName,
-      String sourceParameterName, Map<String, String> params) throws InteractiveSpacesException;
+  void copyTo(String destinationUri, InputStream source, String sourceFileName, String sourceParameterName,
+      Map<String, String> params) throws InteractiveSpacesException;
 
   /**
    * Get the total number of simultaneous connections allowed.

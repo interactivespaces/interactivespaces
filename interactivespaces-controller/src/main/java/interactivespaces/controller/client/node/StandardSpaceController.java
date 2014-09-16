@@ -823,7 +823,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * Start up an activity.
    *
    * @param activity
-   *          The activity to start up.
+   *          the activity to start up
    */
   private void attemptActivityStartup(ActiveControllerActivity activity) {
     String uuid = activity.getUuid();
@@ -945,7 +945,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * Attempt to deactivate an activity.
    *
    * @param activity
-   *          The app to deactivate.
+   *          the activity to deactivate
    */
   private void attemptActivityDeactivate(ActiveControllerActivity activity) {
     switch (activity.getActivityState()) {
