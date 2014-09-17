@@ -44,12 +44,13 @@ want. Hopefully peeling that onion won’t bring too many tears to your eyes.
    spaceenvironment
    services
    supportclasses
-   comm
+   hardwarecomm
    spacecontrolleradvanced
    android
    expressionlanguage
    masteradvanced
    masterapi
    cookbook
+   interactivespacesstartup
 
 
