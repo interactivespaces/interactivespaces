@@ -53,10 +53,10 @@ import interactivespaces.workbench.project.creator.ProjectCreationContext;
 import interactivespaces.workbench.project.creator.ProjectCreator;
 import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
-import interactivespaces.workbench.project.java.BndOsgiBundleCreator;
+import interactivespaces.workbench.project.java.BndOsgiContainerBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
-import interactivespaces.workbench.project.java.OsgiBundleCreator;
+import interactivespaces.workbench.project.java.ContainerBundleCreator;
 import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
@@ -401,7 +401,7 @@ public class InteractiveSpacesWorkbench {
   public void createOsgi(String file) {
     System.out.format("Making %s into an OSGi bundle\n", file);
 
-    OsgiBundleCreator osgiBundleCreator = new BndOsgiBundleCreator();
+    ContainerBundleCreator osgiBundleCreator = new BndOsgiContainerBundleCreator();
     try {
       osgiBundleCreator.createBundle(new File(file), null, null);
     } catch (Exception e) {

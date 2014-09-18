@@ -23,7 +23,7 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-import interactivespaces.workbench.project.java.OsgiInfo.ImportPackage;
+import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -71,7 +71,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   @Override
   public boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
-      OsgiInfo osgiInfo, ProjectBuildContext context) {
+      ContainerInfo containerInfo, ProjectBuildContext context) {
     try {
       JavaProjectType projectType = context.getProjectType();
 
@@ -115,7 +115,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
       if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
-        createJarFile(project, jarDestinationFile, compilationFolder, classpath, osgiInfo);
+        createJarFile(project, jarDestinationFile, compilationFolder, classpath, containerInfo, context);
 
         if (extensions != null) {
           extensions.postProcessJar(context, jarDestinationFile);
@@ -145,15 +145,17 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          folder that the Java class files were compiled into
    * @param classpath
    *          class-path to use for jar manifest file
-   * @param osgiInfo
-   *          the OSGi info for the build
+   * @param containerInfo
+   *          the container info for the build
+   * @param context
+   *          the build context
    */
   private void createJarFile(Project project, File jarDestinationFile, File compilationFolder, List<File> classpath,
-      OsgiInfo osgiInfo) {
+      ContainerInfo containerInfo, ProjectBuildContext context) {
     // Create a buffer for reading the files
     byte[] buf = new byte[IO_BUFFER_SIZE];
 
-    Manifest manifest = createManifest(project, compilationFolder, classpath, osgiInfo);
+    Manifest manifest = createManifest(project, compilationFolder, classpath, containerInfo, context);
     JarOutputStream out = null;
     try {
       // Create the ZIP file
@@ -180,16 +182,19 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          folder where the Java files were compiled to
    * @param classpath
    *          class-path to use for jar manifest file
-   * @param osgiInfo
-   *          any OSGi info for the build
+   * @param containerInfo
+   *          any container info for the build
+   * @param context
+   *          the project build context
    *
    * @return the manifest
    */
-  private Manifest createManifest(Project project, File compilationFolder, List<File> classpath, OsgiInfo osgiInfo) {
+  private Manifest createManifest(Project project, File compilationFolder, List<File> classpath,
+      ContainerInfo containerInfo, ProjectBuildContext context) {
     // Map Java package names which are supplied by project dependencies to
     // those dependencies.
     Map<String, ProjectDependency> dependencyInfo = Maps.newHashMap();
-    analyzeClasspathForDependencies(classpath, project, dependencyInfo);
+    analyzeClasspathForDependencies(classpath, project, dependencyInfo, context);
 
     Analyzer analyzer = new Analyzer();
     try {
@@ -203,14 +208,14 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       Version version = project.getVersion();
       analyzer.setProperty(Constants.BUNDLE_VERSION, version.toString());
 
-      String activatorClassname = osgiInfo.getActivatorClassname();
+      String activatorClassname = containerInfo.getActivatorClassname();
       if (activatorClassname != null && !activatorClassname.trim().isEmpty()) {
         analyzer.setProperty(Constants.BUNDLE_ACTIVATOR, activatorClassname);
       }
 
       List<String> exportPackages = Lists.newArrayList();
 
-      List<String> privatePackages = osgiInfo.getPrivatePackages();
+      List<String> privatePackages = containerInfo.getPrivatePackages();
       if (!privatePackages.isEmpty()) {
         // All private packages should be added as not being in the public
         // packages. For some reason BND wants the NOT for private packages
@@ -229,7 +234,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
       // This will make sure any imports we miss will be added to the imports.
       List<String> importPackages = Lists.newArrayList();
-      for (ImportPackage importPackage : osgiInfo.getImportPackages()) {
+      for (ImportPackage importPackage : containerInfo.getImportPackages()) {
         importPackages.add(importPackage.getOsgiHeader());
       }
       importPackages.add("*");
@@ -250,8 +255,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   }
 
   /**
-   * Make sure that all project dependencies are given the version range stated
-   * in the project dependencies.
+   * Make sure that all project dependencies are given the version range stated in the project dependencies.
    *
    * @param dependencyInfo
    *          the collection of packages to the project dependency
@@ -271,10 +275,9 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   }
 
   /**
-   * Analyze the classpath and get all bundle information that will affect
-   * project dependencies. The {@code dependencyInfo} map will be keyed by Java
-   * package names coming from project dependencies and will have a value of the
-   * project dependency itself.
+   * Analyze the classpath and get all bundle information that will affect project dependencies. The
+   * {@code dependencyInfo} map will be keyed by Java package names coming from project dependencies and will have a
+   * value of the project dependency itself.
    *
    * @param classpath
    *          the classpath to be analyzed
@@ -282,10 +285,12 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the project being built
    * @param dependencyInfo
    *          the dependency map
+   * @param context
+   *          the build context
    */
   private void analyzeClasspathForDependencies(List<File> classpath, Project project,
-      Map<String, ProjectDependency> dependencyInfo) {
-    BndBundleAnalyzer bundleAnalyzer = new BndBundleAnalyzer();
+      Map<String, ProjectDependency> dependencyInfo, ProjectBuildContext context) {
+    ContainerBundleAnalyzer bundleAnalyzer = new BndOsgiContainerBundleAnalyzer();
 
     Map<String, ProjectDependency> dependencies = Maps.newHashMap();
     for (ProjectDependency dependency : project.getDependencies()) {
@@ -300,11 +305,12 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       }
       ProjectDependency associatedDependency = dependencies.get(initialName);
       if (associatedDependency != null) {
-        Set<String> analyze = bundleAnalyzer.analyze(bundle);
-        if (analyze != null) {
-          for (String pckage : analyze) {
-            if (dependencyInfo.put(pckage, associatedDependency) != null) {
-              System.out.format("WARNING: Package %s found in multiple classpath entities\n", pckage);
+        Set<String> packageExports = bundleAnalyzer.analyze(bundle).getPackageExports();
+        if (packageExports != null) {
+          for (String packageExport : packageExports) {
+            if (dependencyInfo.put(packageExport, associatedDependency) != null) {
+              context.getWorkbench().getLog()
+                  .warn(String.format("Package export %s found in multiple classpath entities\n", packageExport));
             }
           }
         }

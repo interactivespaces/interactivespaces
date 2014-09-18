@@ -36,13 +36,13 @@ public interface JavaJarCompiler {
    *          the folder where the classes should be compiled into
    * @param extensions
    *          any extensions for the build
-   * @param osgiInfo
+   * @param containerInfo
    *          any OSGi info for the build
    * @param context
    *          the context for building a project
    *
    * @return {@code true} if the compilation was successful
    */
-  boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions, OsgiInfo osgiInfo,
-      ProjectBuildContext context);
+  boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
+      ContainerInfo containerInfo, ProjectBuildContext context);
 }

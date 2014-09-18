@@ -17,7 +17,7 @@
 package interactivespaces.workbench.project.library;
 
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.java.OsgiInfo;
+import interactivespaces.workbench.project.java.ContainerInfo;
 
 /**
  * An Interactive Spaces project for libraries.
@@ -32,16 +32,16 @@ public class LibraryProject extends Project {
   public static final String PROJECT_TYPE_NAME = "library";
 
   /**
-   * The OSGi info for this library.
+   * The container info for this library.
    */
-  private final OsgiInfo osgiInfo = new OsgiInfo();
+  private final ContainerInfo containerInfo = new ContainerInfo();
 
   /**
-   * Get the OSGi info for the project.
+   * Get the container info for the project.
    *
-   * @return the OSGi info for the project, can be {@code null}
+   * @return the container info for the project, can be {@code null}
    */
-  public OsgiInfo getOsgiInfo() {
-    return osgiInfo;
+  public ContainerInfo getContainerInfo() {
+    return containerInfo;
   }
 }

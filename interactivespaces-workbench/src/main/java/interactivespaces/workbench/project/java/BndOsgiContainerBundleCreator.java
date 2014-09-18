@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author Keith M. Hughes
  */
-public class BndOsgiBundleCreator implements OsgiBundleCreator {
+public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
   @Override
   public void createBundle(File source, File output, List<File> classpath) throws Exception {

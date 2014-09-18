@@ -18,9 +18,11 @@ package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
 
-import aQute.lib.osgi.Constants;
+import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 
 import aQute.lib.osgi.Analyzer;
+import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
 
 import java.io.File;
@@ -33,18 +35,16 @@ import java.util.jar.Manifest;
  *
  * @author Keith M. Hughes
  */
-public class BndBundleAnalyzer {
+public class BndOsgiContainerBundleAnalyzer implements ContainerBundleAnalyzer {
 
   /**
-   * Analyze a bundle for its exports.
-   *
-   * @param bundle
-   *          the bundle to analyze
-   *
-   * @return the set of all exported packages
+   * The package exports from the analyzed bundle.
    */
-  public Set<String> analyze(File bundle) {
+  private Set<String> packageExports;
 
+  @Override
+  public ContainerBundleAnalyzer analyze(File bundle) {
+    packageExports = null;
     Analyzer analyzer = new Analyzer();
     Jar jar = null;
     try {
@@ -54,20 +54,23 @@ public class BndBundleAnalyzer {
       if (exportHeader != null) {
         Map<String, Map<String, String>> exported = analyzer.parseHeader(exportHeader);
 
-        return exported.keySet();
+        packageExports = exported.keySet();
       } else {
-        return null;
+        packageExports = Sets.newHashSet();
       }
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not analyze bundle %s",
-          bundle.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Could not analyze bundle %s", bundle.getAbsolutePath()), e);
     } finally {
-      analyzer.close();
+      Closeables.closeQuietly(analyzer);
 
-      if (jar != null) {
-        jar.close();
-      }
+      Closeables.closeQuietly(jar);
     }
+
+    return this;
   }
 
+  @Override
+  public Set<String> getPackageExports() {
+    return packageExports;
+  }
 }

@@ -59,7 +59,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
     // right place for creating the JAR file.
     processResources(project, compilationFolder, context);
 
-    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getOsgiInfo(), context)) {
+    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getContainerInfo(), context)) {
       return runTests(jarDestinationFile, context);
     }
 

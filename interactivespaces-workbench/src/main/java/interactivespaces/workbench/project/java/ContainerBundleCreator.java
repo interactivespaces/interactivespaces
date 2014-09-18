@@ -20,11 +20,11 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Create an OSGi bundle from a source.
+ * Create an container bundle from a source.
  *
  * @author Keith M. Hughes
  */
-public interface OsgiBundleCreator {
+public interface ContainerBundleCreator {
 
   /**
    * Create a bundle from a given source.

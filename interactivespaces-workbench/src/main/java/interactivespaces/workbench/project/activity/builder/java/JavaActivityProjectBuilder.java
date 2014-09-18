@@ -24,7 +24,7 @@ import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
-import interactivespaces.workbench.project.java.OsgiInfo;
+import interactivespaces.workbench.project.java.ContainerInfo;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
 import interactivespaces.workbench.project.test.JavaTestRunner;
 
@@ -82,7 +82,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
       File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory, JAR_FILE_EXTENSION);
       project.setActivityExecutable(jarDestinationFile.getName());
 
-      if (compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, new OsgiInfo(), context)) {
+      if (compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, new ContainerInfo(), context)) {
         return runTests(jarDestinationFile, context);
       }
 

@@ -23,11 +23,11 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
- * OSGi info for a Java project.
+ * Information needed for the container for a Java project.
  *
  * @author Keith M. Hughes
  */
-public class OsgiInfo {
+public class ContainerInfo {
 
   /**
    * Classname of the bundle activator, can be {@code null}.
