@@ -230,7 +230,7 @@ public class ActivityComponentContextTest {
    * Add in a single component and have it start successfully.
    */
   @Test
-  public void addSingleComponentSuccess() throws Exception {
+  public void addSingleComponentSuccess() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -246,7 +246,7 @@ public class ActivityComponentContextTest {
    * Add in a single component and have it fail on startup.
    */
   @Test
-  public void addSingleComponentFailStartup() throws Exception {
+  public void addSingleComponentFailStartup() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -271,7 +271,7 @@ public class ActivityComponentContextTest {
    * Add in a single component and have it fail on configuration.
    */
   @Test
-  public void addSingleComponentFailConfigure() throws Exception {
+  public void addSingleComponentFailConfigure() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -296,7 +296,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have them start successfully.
    */
   @Test
-  public void addMultipleComponentsSuccess() throws Exception {
+  public void addMultipleComponentsSuccess() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -319,7 +319,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have the first fail on startup.
    */
   @Test
-  public void addMultipleComponentFailStartup1() throws Exception {
+  public void addMultipleComponentFailStartup1() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -351,7 +351,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have the second fail on startup.
    */
   @Test
-  public void addMultipleComponentFailStartup2() throws Exception {
+  public void addMultipleComponentFailStartup2() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("foo");
 
@@ -385,7 +385,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have the first one fail on configuration.
    */
   @Test
-  public void addMultipleComponentFailConfigure1() throws Exception {
+  public void addMultipleComponentFailConfigure1() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("blerg");
 
@@ -419,7 +419,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have the second one fail on configuration.
    */
   @Test
-  public void addMultipleComponentFailConfigure2() throws Exception {
+  public void addMultipleComponentFailConfigure2() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("blerg");
 
@@ -453,7 +453,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have all succeed on shutdown.
    */
   @Test
-  public void shutdownAllComponentsSuccess() throws Exception {
+  public void shutdownAllComponentsSuccess() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("blerg");
 
@@ -475,7 +475,7 @@ public class ActivityComponentContextTest {
    * Add in multiple components and have all fail on shutdown.
    */
   @Test
-  public void shutdownAllComponentsFailure() throws Exception {
+  public void shutdownAllComponentsFailure() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component1.getName()).thenReturn("blerg");
 

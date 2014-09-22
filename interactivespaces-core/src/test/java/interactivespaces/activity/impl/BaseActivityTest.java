@@ -222,7 +222,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenSetup() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivitySetup();
 
     activity.startup();
@@ -242,7 +242,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenComponentConfigure() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito
         .doThrow(e)
         .when(component)
@@ -269,7 +269,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenComponentStartup() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(component).startupComponent();
 
     activity.startup();
@@ -301,7 +301,7 @@ public class BaseActivityTest {
     componentInOrder = Mockito.inOrder(component, component2);
     componentsToAdd.add(component2);
 
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(component2).startupComponent();
 
     activity.startup();
@@ -333,7 +333,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenStartup() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityStartup();
 
     activity.startup();
@@ -358,7 +358,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenPostStartup() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityPostStartup();
 
     activity.startup();
@@ -384,7 +384,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenActivate() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityActivate();
 
     activity.startup();
@@ -400,7 +400,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenDeactivate() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityDeactivate();
 
     activity.startup();
@@ -417,7 +417,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenPreShutdown() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityPreShutdown();
 
     activity.startup();
@@ -443,7 +443,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenShutdown() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(activity).onActivityShutdown();
 
     activity.startup();
@@ -468,7 +468,7 @@ public class BaseActivityTest {
    */
   @Test
   public void testBrokenComponentShutdown() {
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(component).shutdownComponent();
 
     activity.startup();

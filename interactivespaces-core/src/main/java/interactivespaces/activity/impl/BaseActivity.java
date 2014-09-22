@@ -151,7 +151,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     try {
       onActivityConfiguration(update);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       logException("Failure when calling onActivityConfiguration", e);
     } finally {
       getExecutionContext().exitMethod(invocation);
@@ -336,7 +336,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       callOnActivityActivate();
 
       setCompositeActivityState(ActivityState.ACTIVE);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       logException("Cannot activate activity", e);
 
       setActivityStatus(ActivityState.ACTIVATE_FAILURE, null, e);
@@ -374,7 +374,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       callOnActivityDeactivate();
 
       setCompositeActivityState(ActivityState.RUNNING);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       logException("Cannot deactivate activity", e);
 
       setActivityStatus(ActivityState.DEACTIVATE_FAILURE, null, e);
@@ -408,7 +408,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     try {
       callOnActivityPreShutdown();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while calling onActivityPreShutdown", e);
       cleanShutdown = false;
@@ -416,7 +416,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     try {
       commonActivityPreShutdown();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while calling commonActivityPreShutdown", e);
       cleanShutdown = false;
@@ -441,7 +441,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       if (cleanShutdown) {
         callOnActivityShutdown();
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while calling onActivityShutdown", e);
       cleanShutdown = false;
@@ -451,7 +451,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       if (cleanShutdown) {
         commonActivityShutdown();
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while calling commonActivityShutdown", e);
       cleanShutdown = false;
@@ -459,14 +459,14 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     try {
       callOnActivityCleanup();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while calling onActivityCleanup", e);
       cleanShutdown = false;
     }
     try {
       commonActivityCleanup();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while cleaning up common activity", e);
       cleanShutdown = false;
@@ -476,7 +476,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       if (!componentContext.shutdownAndClear()) {
         cleanShutdown = false;
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       t = e;
       logException("Error while shutting down activity components", e);
       cleanShutdown = false;
@@ -550,17 +550,17 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       try {
         callOnActivityFailure();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         logException("Error while calling onActivityFailure", e);
       }
       try {
         callOnActivityCleanup();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         logException("Error while calling onActivityCleanup", e);
       }
       try {
         commonActivityCleanup();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         logException("Error while cleaning up activity", e);
       }
     }
@@ -792,14 +792,14 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         String value;
         try {
           value = configuration.evaluate(entry.getValue());
-        } catch (Exception e) {
+        } catch (Throwable e) {
           value = e.toString();
         }
         logBuilder.append(String.format("%s=%s\n", entry.getKey(), value));
       }
       File configLog = new File(getActivityFilesystem().getLogDirectory(), logFile);
       fileSupport.writeFile(configLog, logBuilder.toString());
-    } catch (Exception e) {
+    } catch (Throwable e) {
       logException("While logging activity configuration", e);
     }
   }

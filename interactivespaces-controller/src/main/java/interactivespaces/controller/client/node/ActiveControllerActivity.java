@@ -120,7 +120,8 @@ public class ActiveControllerActivity implements ActivityControl {
    *          the controller the activity is running under
    */
   public ActiveControllerActivity(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;
@@ -174,7 +175,7 @@ public class ActiveControllerActivity implements ActivityControl {
           throw new SimpleInteractiveSpacesException(String.format(
               "Attempt to start activity %s which is already started", uuid));
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
         controller.getSpaceEnvironment().getLog().error("Error starting activity", e);
         setActivityStatusUnprotected(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
       } finally {

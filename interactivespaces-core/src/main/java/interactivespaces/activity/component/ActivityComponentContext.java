@@ -345,10 +345,10 @@ public class ActivityComponentContext {
   /**
    * Do the initial startup of components.
    *
-   * @throws Exception
+   * @throws Throwable
    *           an internal startup error
    */
-  public void initialStartupComponents() throws Exception {
+  public void initialStartupComponents() throws Throwable {
     configureComponents();
     startupComponents();
   }
@@ -387,17 +387,17 @@ public class ActivityComponentContext {
   /**
    * Startup all components in the container.
    *
-   * @throws Exception
+   * @throws Throwable
    *           on internal startup error
    */
-  private void startupComponents() throws Exception {
+  private void startupComponents() throws Throwable {
     List<ActivityComponent> startedComponents = Lists.newArrayList();
     try {
       for (ActivityComponent component : configuredComponents) {
         startupComponent(component);
         startedComponents.add(component);
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       // Every component that was actually started up should be shut down.
       for (ActivityComponent component : startedComponents) {
         try {
