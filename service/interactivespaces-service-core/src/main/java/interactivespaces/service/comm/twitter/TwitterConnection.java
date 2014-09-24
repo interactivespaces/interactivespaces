@@ -19,7 +19,7 @@ package interactivespaces.service.comm.twitter;
 import interactivespaces.comm.CommunicationEndpoint;
 
 /**
- * A connection to a chat service.
+ * A connection to a Twitter user account.
  *
  * @author Keith M. Hughes
  */
@@ -28,19 +28,19 @@ public interface TwitterConnection extends CommunicationEndpoint {
   /**
    * Is the connection connected?
    *
-   * @return {@code true} if connected.
+   * @return {@code true} if connected
    */
   boolean isConnected();
 
   /**
-   * Get the user of the connection.
+   * Get the user account name that the connection is connected to.
    *
-   * @return the user the service is using
+   * @return the user account name
    */
   String getUser();
 
   /**
-   * Send a message to the other end.
+   * Update the status of the user account that the connection is connected to.
    *
    * @param status
    *          the status to send
@@ -50,10 +50,13 @@ public interface TwitterConnection extends CommunicationEndpoint {
   /**
    * Add a hash tag search to the client.
    *
+   * <p>
+   * Only include the tag content itself, do not include the {@code #}.
+   *
    * @param tag
    *          the Twitter tag (without the hash) to search for
    * @param since
-   *          the date to start looking for the tag from
+   *          the date to start looking for the tag from, in the form {@code yy-mm-dd}.
    */
   void addHashTagSearch(String tag, String since);
 

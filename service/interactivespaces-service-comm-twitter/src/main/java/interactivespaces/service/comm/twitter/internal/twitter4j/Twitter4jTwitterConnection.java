@@ -16,12 +16,13 @@
 
 package interactivespaces.service.comm.twitter.internal.twitter4j;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.comm.twitter.TwitterConnection;
 import interactivespaces.service.comm.twitter.TwitterConnectionListener;
 
+import com.google.common.collect.Lists;
+
+import org.apache.commons.logging.Log;
 import twitter4j.AsyncTwitter;
 import twitter4j.AsyncTwitterFactory;
 import twitter4j.Query;
@@ -37,31 +38,36 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link TwitterConnection} for  using Twitter4j.
+ * A {@link TwitterConnection} using Twitter4J.
  *
  * @author Keith M. Hughes
  */
 public class Twitter4jTwitterConnection implements TwitterConnection {
 
   /**
-   * Consumer key for the connection.
+   * The character used by the twitter query mechanism for specifying a hashtag.
    */
-  private String consumerKey;
+  public static final String TWITTER_SYMBOL_HASHTAG = "#";
 
   /**
-   * Consumer secret for the connection.
+   * The Interactive Spaces API key for the connection.
    */
-  private String consumerSecret;
+  private String apiKey;
 
   /**
-   * Access token for connection.
+   * The Interactive Spaces API key secret for the connection.
    */
-  private String accessToken;
+  private String apiKeySecret;
 
   /**
-   * Access token secret for the connection.
+   * The user access token for connection.
    */
-  private String accessTokenSecret;
+  private String userAccessToken;
+
+  /**
+   * The user access token secret for the connection.
+   */
+  private String userAccessTokenSecret;
 
   /**
    * The listeners for the connection.
@@ -74,23 +80,30 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
   private AsyncTwitter connection;
 
   /**
+   * The logger for this endpoint.
+   */
+  private Log log;
+
+  /**
    * Construct a twitter connection.
    *
-   * @param consumerKey
-   *          the consumer key for the connection
-   * @param consumerSecret
-   *          the consumer secret for the connection
-   * @param accessToken
-   *          the access token for the connection
-   * @param accessTokenSecret
-   *          the access token secret for the connection
+   * @param apiKey
+   *          the API key for the connection
+   * @param apiKeySecret
+   *          the API secret for the connection
+   * @param userAccessToken
+   *          the user access token for the connection
+   * @param userAccessTokenSecret
+   *          the user access token secret for the connection
+   * @param log
+   *          the logger for this endpoint
    */
-  public Twitter4jTwitterConnection(String consumerKey, String consumerSecret, String accessToken,
-      String accessTokenSecret) {
-    this.consumerKey = consumerKey;
-    this.consumerSecret = consumerSecret;
-    this.accessToken = accessToken;
-    this.accessTokenSecret = accessTokenSecret;
+  public Twitter4jTwitterConnection(String apiKey, String apiKeySecret, String userAccessToken,
+      String userAccessTokenSecret, Log log) {
+    this.apiKey = apiKey;
+    this.apiKeySecret = apiKeySecret;
+    this.userAccessToken = userAccessToken;
+    this.userAccessTokenSecret = userAccessTokenSecret;
 
     listeners = Lists.newArrayList();
     listeners = Collections.synchronizedList(listeners);
@@ -106,14 +119,13 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
 
       @Override
       public void onException(TwitterException e, TwitterMethod method) {
-        e.printStackTrace();
+        log.error("Exception during Twitter connection communication", e);
       }
     };
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
-    cb.setDebugEnabled(true).setOAuthConsumerKey(consumerKey)
-        .setOAuthConsumerSecret(consumerSecret).setOAuthAccessToken(accessToken)
-        .setOAuthAccessTokenSecret(accessTokenSecret);
+    cb.setDebugEnabled(true).setOAuthConsumerKey(apiKey).setOAuthConsumerSecret(apiKeySecret)
+        .setOAuthAccessToken(userAccessToken).setOAuthAccessTokenSecret(userAccessTokenSecret).setUseSSL(true);
 
     // The factory instance is re-useable and thread safe.
     AsyncTwitterFactory factory = new AsyncTwitterFactory(cb.build());
@@ -150,7 +162,7 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
 
   @Override
   public void addHashTagSearch(String tag, String since) {
-    Query query = new Query("#" + tag);
+    Query query = new Query(TWITTER_SYMBOL_HASHTAG + tag);
     query.setSince(since);
     connection.search(query);
   }
@@ -169,6 +181,7 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
    * Handle a Twitter search result.
    *
    * @param queryResult
+   *          the result of the Twitter query
    */
   public void handleSearchResult(QueryResult queryResult) {
     String query = queryResult.getQuery();

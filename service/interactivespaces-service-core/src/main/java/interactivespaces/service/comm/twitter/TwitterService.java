@@ -18,6 +18,8 @@ package interactivespaces.service.comm.twitter;
 
 import interactivespaces.service.SupportedService;
 
+import org.apache.commons.logging.Log;
+
 /**
  * A Twitter service.
  *
@@ -31,22 +33,24 @@ public interface TwitterService extends SupportedService {
   /**
    * The name for the service.
    */
-  public static final String SERVICE_NAME = "comm.twitter";
+  String SERVICE_NAME = "comm.twitter";
 
   /**
    * Create a new chat connection.
    *
-   * @param consumerKey
-   *          the consumer key for the connection
-   * @param consumerSecret
-   *          the consumer secret for the connection
-   * @param accessToken
-   *          the access token for the connection
-   * @param accessTokenSecret
-   *          the access token secret for the connection
+   * @param apiKey
+   *          the API key for the connection
+   * @param apiKeySecret
+   *          the API key secret for the connection
+   * @param userAccessToken
+   *          the user access token for the connection
+   * @param userAccessTokenSecret
+   *          the user access token secret for the connection
+   * @param log
+   *        the logger for the connection
    *
    * @return the connection, which will not be connected
    */
-  TwitterConnection newTwitterConnection(String consumerKey, String consumerSecret,
-      String accessToken, String accessTokenSecret);
+  TwitterConnection newTwitterConnection(String apiKey, String apiKeySecret,
+      String userAccessToken, String userAccessTokenSecret, Log log);
 }

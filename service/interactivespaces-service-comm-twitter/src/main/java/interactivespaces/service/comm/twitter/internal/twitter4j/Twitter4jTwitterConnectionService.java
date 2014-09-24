@@ -22,6 +22,8 @@ import interactivespaces.service.comm.twitter.TwitterService;
 
 import com.google.common.collect.Lists;
 
+import org.apache.commons.logging.Log;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -30,7 +32,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class Twitter4jTwitterService extends BaseSupportedService implements TwitterService {
+public class Twitter4jTwitterConnectionService extends BaseSupportedService implements TwitterService {
 
   /**
    * All twitter connections currently live.
@@ -40,7 +42,7 @@ public class Twitter4jTwitterService extends BaseSupportedService implements Twi
   /**
    * Construct a new twitter service.
    */
-  public Twitter4jTwitterService() {
+  public Twitter4jTwitterConnectionService() {
     connections = Lists.newArrayList();
     connections = Collections.synchronizedList(connections);
   }
@@ -60,10 +62,10 @@ public class Twitter4jTwitterService extends BaseSupportedService implements Twi
   }
 
   @Override
-  public TwitterConnection newTwitterConnection(String consumerKey, String consumerSecret,
-      String accessToken, String accessTokenSecret) {
+  public TwitterConnection newTwitterConnection(String apiKey, String apiKeySecret, String userAccessToken,
+      String userAccessTokenSecret, Log log) {
     Twitter4jTwitterConnection connection =
-        new Twitter4jTwitterConnection(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+        new Twitter4jTwitterConnection(apiKey, apiKeySecret, userAccessToken, userAccessTokenSecret, log);
     connections.add(connection);
 
     return connection;

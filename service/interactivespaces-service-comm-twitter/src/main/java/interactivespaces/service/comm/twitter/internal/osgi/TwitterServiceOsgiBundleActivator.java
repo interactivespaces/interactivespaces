@@ -18,7 +18,7 @@ package interactivespaces.service.comm.twitter.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.service.comm.twitter.TwitterService;
-import interactivespaces.service.comm.twitter.internal.twitter4j.Twitter4jTwitterService;
+import interactivespaces.service.comm.twitter.internal.twitter4j.Twitter4jTwitterConnectionService;
 
 /**
  * An OSGi bundle activator for the TwitterService.
@@ -29,7 +29,7 @@ public class TwitterServiceOsgiBundleActivator extends InteractiveSpacesServiceO
 
   @Override
   protected void allRequiredServicesAvailable() {
-    TwitterService twitterService = new Twitter4jTwitterService();
+    TwitterService twitterService = new Twitter4jTwitterConnectionService();
 
     registerNewInteractiveSpacesService(twitterService);
   }
