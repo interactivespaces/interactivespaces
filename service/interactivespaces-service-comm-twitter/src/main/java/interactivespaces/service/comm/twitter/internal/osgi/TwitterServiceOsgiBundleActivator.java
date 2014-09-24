@@ -21,7 +21,7 @@ import interactivespaces.service.comm.twitter.TwitterService;
 import interactivespaces.service.comm.twitter.internal.twitter4j.Twitter4jTwitterConnectionService;
 
 /**
- * An OSGi bundle activator for the TwitterService.
+ * An OSGi bundle activator for the Twitter services.
  *
  * @author Keith M. Hughes
  */

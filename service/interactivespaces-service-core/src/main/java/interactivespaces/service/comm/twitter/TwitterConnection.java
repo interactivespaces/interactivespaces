@@ -48,6 +48,22 @@ public interface TwitterConnection extends CommunicationEndpoint {
   void updateStatus(String status);
 
   /**
+   * Add user search to the client.
+   *
+   * <p>
+   * This will return tweets which mention the user. It does not include tweets from the user.
+   *
+   * <p>
+   * Only use the screen name of the user.
+   *
+   * @param user
+   *          the Twitter user name to search for
+   * @param since
+   *          the date to start looking for the screen name from, in the form {@code yy-mm-dd}.
+   */
+  void addUserSearch(String user, String since);
+
+  /**
    * Add a hash tag search to the client.
    *
    * <p>

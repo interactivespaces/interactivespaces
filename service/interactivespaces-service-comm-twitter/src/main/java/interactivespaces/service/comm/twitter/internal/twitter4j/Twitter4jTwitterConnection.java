@@ -161,9 +161,20 @@ public class Twitter4jTwitterConnection implements TwitterConnection {
   }
 
   @Override
+  public void addUserSearch(String user, String since) {
+    Query query = new Query(user);
+    if (since != null) {
+      query.setSince(since);
+    }
+    connection.search(query);
+  }
+
+  @Override
   public void addHashTagSearch(String tag, String since) {
     Query query = new Query(TWITTER_SYMBOL_HASHTAG + tag);
-    query.setSince(since);
+    if (since != null) {
+      query.setSince(since);
+    }
     connection.search(query);
   }
 
