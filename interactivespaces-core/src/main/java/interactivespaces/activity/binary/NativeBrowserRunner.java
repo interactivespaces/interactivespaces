@@ -17,48 +17,15 @@
 package interactivespaces.activity.binary;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.ActivitySystemConfiguration;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.util.process.NativeApplicationRunner;
-import interactivespaces.util.process.restart.LimitedRetryRestartStrategy;
-import interactivespaces.util.process.restart.RestartStrategy;
 
-import com.google.common.collect.Maps;
-
-import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * A runner for native browsers.
  *
  * @author Keith M. Hughes
  */
-public class NativeBrowserRunner {
-
-  /**
-   * The number of times the restart strategy will attempt a restart before giving up.
-   */
-  public static final int RESTART_STRATEGY_NUMBER_RETRIES = 4;
-
-  /**
-   * How long the browser must be running before restart is considered successful in milliseconds.
-   */
-  public static final int RESTART_STRATEGY_SUCCESS_TIME = 4000;
-
-  /**
-   * How often the restart will sample to see if restart has happened, in milliseconds.
-   */
-  public static final int RESTART_STRATEGY_SAMPLE_TIME = 1000;
-
-  /**
-   * Activity this browser is running under.
-   */
-  private final Activity activity;
-
-  /**
-   * Launcher for the browser.
-   */
-  private NativeActivityRunner browserRunner;
+@Deprecated
+public class NativeBrowserRunner extends BasicNativeWebBrowserRunner {
 
   /**
    * Construct a new browser runner.
@@ -67,76 +34,7 @@ public class NativeBrowserRunner {
    *          the activity the browser is running
    */
   public NativeBrowserRunner(Activity activity) {
-    this.activity = activity;
-  }
-
-  /**
-   * Start up the browser.
-   *
-   * @param initialUrl
-   *          URL the browser should start on.
-   * @param debug
-   *          {@code true} if the browser should have a URL bar, etc, to make it easier to debug.
-   */
-  public void startup(String initialUrl, boolean debug) {
-    browserRunner =
-        activity.getController().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
-
-    Configuration configuration = activity.getConfiguration();
-
-    Map<String, Object> appConfig = Maps.newHashMap();
-    appConfig.put(NativeApplicationRunner.EXECUTABLE_PATHNAME,
-        ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
-
-    String commandFlags =
-        MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
-            initialUrl);
-
-    appConfig.put(NativeApplicationRunner.EXECUTABLE_FLAGS, commandFlags);
-
-    String commandEnvironment = ActivitySystemConfiguration.getActivityNativeBrowserCommandEnvironment(configuration);
-    if (commandEnvironment != null) {
-      appConfig.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
-    }
-
-    browserRunner.configure(appConfig);
-    browserRunner.setRestartStrategy(getDefaultRestartStrategy());
-
-    browserRunner.startup();
-  }
-
-  /**
-   * Get the default restart strategy for the browser.
-   *
-   * @return the restart strategy for the browser
-   */
-  public RestartStrategy<NativeApplicationRunner> getDefaultRestartStrategy() {
-    return new LimitedRetryRestartStrategy<NativeApplicationRunner>(RESTART_STRATEGY_NUMBER_RETRIES,
-        RESTART_STRATEGY_SAMPLE_TIME, RESTART_STRATEGY_SUCCESS_TIME, activity.getSpaceEnvironment());
-  }
-
-  /**
-   * Shut the browser down.
-   */
-  public void shutdown() {
-    if (browserRunner != null) {
-      browserRunner.shutdown();
-
-      browserRunner = null;
-    }
-  }
-
-  /**
-   * Is the browser still running?
-   *
-   * @return {@code true} if the browser is running
-   */
-  public boolean isRunning() {
-    if (browserRunner != null) {
-      return browserRunner.isRunning();
-    } else {
-      return false;
-    }
+    super(activity);
   }
 
   /**
@@ -145,6 +43,6 @@ public class NativeBrowserRunner {
    * @return the native activity runner for the browser
    */
   public NativeActivityRunner getBrowserRunner() {
-    return browserRunner;
+    return (NativeActivityRunner) getNativeWebBrowserRunner();
   }
 }
