@@ -52,6 +52,16 @@ import org.ros.osgi.common.RosEnvironment;
 public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
+   * Specification for standard controller mode.
+   */
+  private static final String STANDARD_CONTROLLER_MODE = "standard";
+
+  /**
+   * Configuration property name for controller mode.
+   */
+  private static final String INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME = "interactivespaces.controller.mode";
+
+  /**
    * OSGi service tracker for the interactive spaces control.
    */
   private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
@@ -125,6 +135,14 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   @Override
   protected void allRequiredServicesAvailable() {
     InteractiveSpacesEnvironment spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
+
+    String controllerMode = spaceEnvironment.getSystemConfiguration()
+        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
+    if (!STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
+      return;
+    }
+
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
     ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();

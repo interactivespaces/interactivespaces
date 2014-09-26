@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component.ros;
 
-import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
@@ -24,12 +24,24 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.osgi.common.RosEnvironment;
 
+import java.util.regex.Pattern;
+
 /**
  * A basic {@link ActivityComponent} that gives ROS functionality.
  *
  * @author Keith M. Hughes
  */
 public class BasicRosActivityComponent extends BaseActivityComponent implements RosActivityComponent {
+
+  /**
+   * RegEx that will correctly match a valid ROS node name.
+   */
+  private static final String NODE_NAME_REGEX = "[a-zA-Z/_]+";
+
+  /**
+   * Compiled pattern for a valid node name.
+   */
+  private static final Pattern NODE_NAME_PATTERN = Pattern.compile(NODE_NAME_REGEX);
 
   /**
    * ROS Environment the activity is running in.
@@ -64,6 +76,11 @@ public class BasicRosActivityComponent extends BaseActivityComponent implements 
         componentContext.getActivity().getSpaceEnvironment().getValue("environment.ros");
 
     rosNodeName = configuration.getRequiredPropertyString(CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
+
+    if (!NODE_NAME_PATTERN.matcher(rosNodeName).matches()) {
+      throw new SimpleInteractiveSpacesException(String.format("Node %s does not match allowed node name pattern %s",
+          rosNodeName, NODE_NAME_REGEX));
+    }
 
     nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
     nodeConfiguration.setLog(componentContext.getActivity().getLog());
