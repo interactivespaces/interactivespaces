@@ -78,8 +78,8 @@ public class BasicRosActivityComponent extends BaseActivityComponent implements 
     rosNodeName = configuration.getRequiredPropertyString(CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
 
     if (!NODE_NAME_PATTERN.matcher(rosNodeName).matches()) {
-      throw new SimpleInteractiveSpacesException(String.format("Node %s does not match allowed node name pattern %s",
-          rosNodeName, NODE_NAME_REGEX));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Node name '%s' does not match allowed node name pattern '%s'", rosNodeName, NODE_NAME_REGEX));
     }
 
     nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
