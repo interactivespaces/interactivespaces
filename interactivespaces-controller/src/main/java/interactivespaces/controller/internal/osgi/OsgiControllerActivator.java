@@ -92,24 +92,9 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private SimpleActivityInstallationManager activityInstallationManager;
 
   /**
-   * The controller side of an activity installation manager.
-   */
-  private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
-
-  /**
    * OSGi service tracker for the container resource manager.
    */
   private MyServiceTracker<ContainerResourceManager> containerResourceManagerTracker;
-
-  /**
-   * The container resource manager.
-   */
-  private ContainerResourceManager containerResourceManager;
-
-  /**
-   * The actual space controller itself.
-   */
-  private StandardSpaceController spaceController;
 
   /**
    * The container resource deployment manager.
@@ -117,9 +102,19 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private ControllerContainerResourceDeploymentManager containerResourceDeploymentManager;
 
   /**
-   * The OSGi shell for the controller.
+   * The space environment for this controller.
    */
-  private OsgiControllerShell controllerShell;
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * Configuration manager for the controller.
+   */
+  private PropertyFileLiveActivityConfigurationManager activityConfigurationManager;
+
+  /**
+   * Activity factory for the controller.
+   */
+  private ActiveControllerActivityFactory controllerActivityFactory;
 
   @Override
   public void onStart() {
@@ -134,21 +129,27 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
   @Override
   protected void allRequiredServicesAvailable() {
-    InteractiveSpacesEnvironment spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
+    initializeBaseSpaceControllerComponents();
 
     String controllerMode = spaceEnvironment.getSystemConfiguration()
         .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
-    if (!STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+      activateStandardSpaceController();
+    } else {
       spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
-      return;
     }
 
-    InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
-    RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
-    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+    registerOsgiFrameworkService(getClass().getName(), this);
+  }
 
-    containerResourceManager = containerResourceManagerTracker.getMyService();
+  /**
+   * Initialize all the base components for this controller, which are then available to any controller
+   * that may be instantiated.
+   */
+  private void initializeBaseSpaceControllerComponents() {
+    spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
+    ContainerResourceManager containerResourceManager = containerResourceManagerTracker.getMyService();
     containerResourceDeploymentManager =
         new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
     addManagedResource(containerResourceDeploymentManager);
@@ -159,24 +160,29 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
     addManagedResource(controllerRepository);
 
-    PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
+    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+    activityConfigurationManager =
         new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
     activityInstallationManager =
         new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
     addManagedResource(activityInstallationManager);
 
-    SimpleActiveControllerActivityFactory controllerActivityFactory = new SimpleActiveControllerActivityFactory();
+    controllerActivityFactory = new SimpleActiveControllerActivityFactory();
     controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
     controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
     controllerActivityFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
-
     controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
         getBundleContext()));
-
     registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
+  }
 
-    controllerActivityInstaller =
+  /**
+   * Initialize components that are necessary only to the {@link StandardSpaceController}, and then instantiate
+   * and register the space controller itself..
+   */
+  private void activateStandardSpaceController() {
+    SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller =
         new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
 
@@ -186,20 +192,23 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
 
+    SpaceControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
+
+    InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
+    RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
+
     RosSpaceControllerCommunicator spaceControllerCommunicator =
         new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
             rosEnvironment, spaceEnvironment);
 
-    ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
-
-    spaceController =
+    StandardSpaceController spaceController =
         new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
             nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
             spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
             dataBundleManager, spaceEnvironment);
     addManagedResource(spaceController);
 
-    controllerShell =
+    OsgiControllerShell controllerShell =
         new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
     addManagedResource(controllerShell);
   }
