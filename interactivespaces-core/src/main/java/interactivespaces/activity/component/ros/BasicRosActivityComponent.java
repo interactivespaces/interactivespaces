@@ -24,24 +24,12 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.osgi.common.RosEnvironment;
 
-import java.util.regex.Pattern;
-
 /**
  * A basic {@link ActivityComponent} that gives ROS functionality.
  *
  * @author Keith M. Hughes
  */
 public class BasicRosActivityComponent extends BaseActivityComponent implements RosActivityComponent {
-
-  /**
-   * RegEx that will correctly match a valid ROS node name.
-   */
-  private static final String NODE_NAME_REGEX = "[a-zA-Z/_]+";
-
-  /**
-   * Compiled pattern for a valid node name.
-   */
-  private static final Pattern NODE_NAME_PATTERN = Pattern.compile(NODE_NAME_REGEX);
 
   /**
    * ROS Environment the activity is running in.
@@ -76,15 +64,14 @@ public class BasicRosActivityComponent extends BaseActivityComponent implements 
         componentContext.getActivity().getSpaceEnvironment().getValue("environment.ros");
 
     rosNodeName = configuration.getRequiredPropertyString(CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
-
-    if (!NODE_NAME_PATTERN.matcher(rosNodeName).matches()) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "Node name '%s' does not match allowed node name pattern '%s'", rosNodeName, NODE_NAME_REGEX));
+    try {
+      nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
+      nodeConfiguration.setLog(componentContext.getActivity().getLog());
+      nodeConfiguration.setNodeName(rosNodeName);
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(String.format("While processing node '%s' from configuration '%s'",
+          rosNodeName, CONFIGURATION_ACTIVITY_ROS_NODE_NAME), e);
     }
-
-    nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
-    nodeConfiguration.setLog(componentContext.getActivity().getLog());
-    nodeConfiguration.setNodeName(rosNodeName);
   }
 
   @Override

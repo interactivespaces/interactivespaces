@@ -203,4 +203,28 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
     addManagedResource(controllerShell);
   }
+
+  public InteractiveSpacesEnvironment getSpaceEnvironment() {
+    return spaceEnvironment;
+  }
+
+  public PropertyFileLiveActivityConfigurationManager getActivityConfigurationManager() {
+    return activityConfigurationManager;
+  }
+
+  public ActiveControllerActivityFactory getControllerActivityFactory() {
+    return controllerActivityFactory;
+  }
+
+  public SimpleActivityInstallationManager getActivityInstallationManager() {
+    return activityInstallationManager;
+  }
+
+  public FileLocalSpaceControllerRepository getControllerRepository() {
+    return controllerRepository;
+  }
+
+  public SimpleActivityStorageManager getActivityStorageManager() {
+    return activityStorageManager;
+  }
 }

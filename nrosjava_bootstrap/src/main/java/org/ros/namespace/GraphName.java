@@ -40,13 +40,16 @@ public class GraphName {
   private static final String SEPARATOR = "/";
 
   // TODO(damonkohler): Why make empty names valid?
+
+  public static final String VALID_GRAPH_NAME_REGEXP = "^([\\~\\/A-Za-z][\\w_\\/]*)?$";
+
   /**
    * Graph names must match this pattern to be valid.
    * <p>
    * Note that empty graph names are considered valid.
    */
-  private static final Pattern VALID_GRAPH_NAME_PATTERN = Pattern
-      .compile("^([\\~\\/A-Za-z][\\w_\\/]*)?$");
+  public static final Pattern VALID_GRAPH_NAME_PATTERN = Pattern
+      .compile(VALID_GRAPH_NAME_REGEXP);
 
   private static AtomicInteger anonymousCounter = new AtomicInteger();
 
@@ -103,7 +106,7 @@ public class GraphName {
    */
   private static String canonicalize(String name) {
     if (!VALID_GRAPH_NAME_PATTERN.matcher(name).matches()) {
-      throw new RosRuntimeException("Invalid graph name: " + name);
+      throw new RosRuntimeException(String.format("Graph name '%s' must match pattern '%s'", name, VALID_GRAPH_NAME_REGEXP));
     }
     // Trim trailing slashes for canonical representation.
     while (!name.equals(GraphName.ROOT) && name.endsWith(SEPARATOR)) {
