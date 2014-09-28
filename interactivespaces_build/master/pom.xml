@@ -22,7 +22,7 @@
     <dependency>
       <groupId>org.codehaus.izpack</groupId>
       <artifactId>izpack-standalone-compiler</artifactId>
-      <version>${izpack-standalone.version}</version>
+      <version>${izpack-interactivespaces.controller.standalone.version}</version>
       <optional>true</optional>
     </dependency>
 
@@ -923,7 +923,7 @@
           <dependency>
             <groupId>org.codehaus.izpack</groupId>
             <artifactId>izpack-standalone-compiler</artifactId>
-            <version>${izpack-standalone.version}</version>
+            <version>${izpack-interactivespaces.controller.standalone.version}</version>
           </dependency>
         </dependencies>
         <configuration>

@@ -35,6 +35,7 @@ import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicat
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
+import interactivespaces.controller.standalone.stubs.StandaloneSpaceController;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
@@ -116,6 +117,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    */
   private ActiveControllerActivityFactory controllerActivityFactory;
 
+  private SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory;
+
   @Override
   public void onStart() {
     interactiveSpacesSystemControlTracker = newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
@@ -131,15 +134,17 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   protected void allRequiredServicesAvailable() {
     initializeBaseSpaceControllerComponents();
 
-    String controllerMode = spaceEnvironment.getSystemConfiguration()
-        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
-    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
-      activateStandardSpaceController();
-    } else {
-      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
-    }
+    activateStandaloneSpaceController();
 
-    registerOsgiFrameworkService(getClass().getName(), this);
+//    String controllerMode = spaceEnvironment.getSystemConfiguration()
+//        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
+//    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+//      activateStandardSpaceController();
+//    } else {
+//      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
+//    }
+//
+//    registerOsgiFrameworkService(getClass().getName(), this);
   }
 
   /**
@@ -175,6 +180,12 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
         getBundleContext()));
     registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
+
+    nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
+  }
+
+  private void activateStandaloneSpaceController() {
+    new StandaloneSpaceController(spaceEnvironment,nativeActivityRunnerFactory);
   }
 
   /**
@@ -185,9 +196,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller =
         new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
-
-    SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory =
-        new SimpleNativeActivityRunnerFactory(spaceEnvironment);
 
     InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
