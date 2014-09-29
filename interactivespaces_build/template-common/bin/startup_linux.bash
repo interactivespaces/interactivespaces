@@ -39,9 +39,9 @@ fi
 
 # Start up Interactive Spaces
 if [ $# == 0 ] || [ $1 == "foreground" ]; then
-  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher
+  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher ${INTERACTIVESPACES_MAIN_ARGS}
 fi
 
 if [ "$1" == "background" ]; then
-  nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell &>/dev/null &
+    nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell ${INTERACTIVESPACES_MAIN_ARGS} &>/dev/null &
 fi

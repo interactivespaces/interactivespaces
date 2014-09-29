@@ -23,10 +23,11 @@ import interactivespaces.controller.activity.wrapper.internal.interactivespaces.
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.ControllerDataBundleManager;
+import interactivespaces.controller.client.node.BaseSpaceController;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
+import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
@@ -35,6 +36,7 @@ import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicat
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
+import interactivespaces.controller.standalone.StandaloneActivityRunner;
 import interactivespaces.controller.standalone.stubs.StandaloneSpaceController;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
@@ -44,6 +46,8 @@ import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.system.resources.ContainerResourceManager;
 
 import org.ros.osgi.common.RosEnvironment;
+
+import java.io.File;
 
 /**
  * An OSGi activator for an Interactive Spaces space controller.
@@ -134,17 +138,15 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   protected void allRequiredServicesAvailable() {
     initializeBaseSpaceControllerComponents();
 
-    activateStandaloneSpaceController();
+    String controllerMode = spaceEnvironment.getSystemConfiguration()
+        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
+    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+      activateStandardSpaceController();
+    } else {
+      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
+    }
 
-//    String controllerMode = spaceEnvironment.getSystemConfiguration()
-//        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
-//    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
-//      activateStandardSpaceController();
-//    } else {
-//      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
-//    }
-//
-//    registerOsgiFrameworkService(getClass().getName(), this);
+    registerOsgiFrameworkService(getClass().getName(), this);
   }
 
   /**
@@ -184,10 +186,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
   }
 
-  private void activateStandaloneSpaceController() {
-    new StandaloneSpaceController(spaceEnvironment,nativeActivityRunnerFactory);
-  }
-
   /**
    * Initialize components that are necessary only to the {@link StandardSpaceController}, and then instantiate
    * and register the space controller itself..
@@ -205,7 +203,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
 
-    RosSpaceControllerCommunicator spaceControllerCommunicator =
+    SpaceControllerCommunicator spaceControllerCommunicator =
         new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
             rosEnvironment, spaceEnvironment);
 
