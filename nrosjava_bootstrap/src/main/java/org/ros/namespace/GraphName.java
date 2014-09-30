@@ -39,10 +39,12 @@ public class GraphName {
   private static final String ROOT = "/";
   private static final String SEPARATOR = "/";
 
-  // TODO(damonkohler): Why make empty names valid?
-
+  /**
+   * RegExp string for a valid graph name.
+   */
   public static final String VALID_GRAPH_NAME_REGEXP = "^([\\~\\/A-Za-z][\\w_\\/]*)?$";
 
+  // TODO(damonkohler): Why make empty names valid?
   /**
    * Graph names must match this pattern to be valid.
    * <p>

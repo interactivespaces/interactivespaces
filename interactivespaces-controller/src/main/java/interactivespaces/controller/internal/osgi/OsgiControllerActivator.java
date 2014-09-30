@@ -17,6 +17,7 @@
 package interactivespaces.controller.internal.osgi;
 
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
@@ -50,16 +51,6 @@ import org.ros.osgi.common.RosEnvironment;
  * @author Keith M. Hughes
  */
 public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
-
-  /**
-   * Specification for standard controller mode.
-   */
-  private static final String STANDARD_CONTROLLER_MODE = "standard";
-
-  /**
-   * Configuration property name for controller mode.
-   */
-  private static final String INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME = "interactivespaces.controller.mode";
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -136,9 +127,9 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   protected void allRequiredServicesAvailable() {
     initializeBaseSpaceControllerComponents();
 
-    String controllerMode = spaceEnvironment.getSystemConfiguration()
-        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
-    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+    String controllerMode = spaceEnvironment.getSystemConfiguration().getPropertyString(
+        SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE);
+    if (SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
       activateStandardSpaceController();
     } else {
       spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
