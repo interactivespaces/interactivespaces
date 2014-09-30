@@ -24,6 +24,7 @@ import interactivespaces.util.resource.ManagedResource;
 import interactivespaces.util.resource.ManagedResources;
 
 import com.google.common.collect.Lists;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
