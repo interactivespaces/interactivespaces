@@ -16,6 +16,7 @@
 
 package interactivespaces.launcher.bootstrap;
 
+import interactivespaces.system.core.container.InteractiveSpacesStartLevel;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
@@ -75,23 +76,6 @@ public class InteractiveSpacesFrameworkBootstrap {
    * The argument for saying the container should run with no shell access.
    */
   public static final String ARGS_NOSHELL = "--noshell";
-
-  /**
-   * The default OSGi startup level for bundles.
-   */
-  public static final int STARTUP_LEVEL_DEFAULT = 1;
-
-  /**
-   * The OSGi startup level for bundles which should start after most bundles
-   * but not the ones which really require everything running.
-   */
-  public static final int STARTUP_LEVEL_PENULTIMATE = 4;
-
-  /**
-   * The OSGi startup level for bundles which should start after everything else
-   * is started.
-   */
-  public static final int STARTUP_LEVEL_LAST = 5;
 
   /**
    * External packages loaded from the Interactive Spaces system folder.
@@ -216,7 +200,7 @@ public class InteractiveSpacesFrameworkBootstrap {
         framework.start();
 
         startBundles(initialBundles);
-        frameworkStartLevel.setStartLevel(STARTUP_LEVEL_LAST);
+        frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
 
         framework.waitForStop(0);
         System.exit(0);
@@ -305,23 +289,28 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         String symbolicName = bundle.getSymbolicName();
         if (symbolicName != null) {
-          int startLevel = STARTUP_LEVEL_DEFAULT;
+          InteractiveSpacesStartLevel startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_DEFAULT;
           if (symbolicName.equals("interactivespaces.master.webapp")) {
-            startLevel = STARTUP_LEVEL_LAST;
+            startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST;
           } else if (symbolicName.equals("interactivespaces.master")) {
-            startLevel = STARTUP_LEVEL_PENULTIMATE;
+            startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_PENULTIMATE;
+          } else {
+            String interactiveSpacesStartLevel = bundle.getHeaders().get("InteractiveSpaces-StartLevel");
+            if (interactiveSpacesStartLevel != null) {
+              startLevel = InteractiveSpacesStartLevel.valueOf(interactiveSpacesStartLevel);
+            }
           }
 
-          if (startLevel != STARTUP_LEVEL_DEFAULT) {
-            bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel);
+          if (startLevel != InteractiveSpacesStartLevel.STARTUP_LEVEL_DEFAULT) {
+            bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel.getStartLevel());
           }
 
           bundles.add(bundle);
         } else {
-          logBadBundle(bundleUri);
+          logBadBundle(bundleUri, new Exception("No symbolic name"));
         }
       } catch (Exception e) {
-        logBadBundle(bundleUri);
+        logBadBundle(bundleUri, e);
       }
     }
 
@@ -346,9 +335,9 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @param bundleUri
    *          URI for the bundle
    */
-  private void logBadBundle(String bundleUri) {
+  private void logBadBundle(String bundleUri, Exception e) {
     loggingProvider.getLog().error(
-        String.format("Bundle %s is not an OSGi bundle, skipping during Interactive Spaces startup", bundleUri));
+        String.format("Bundle %s is not an OSGi bundle, skipping during Interactive Spaces startup", bundleUri), e);
   }
 
   /**
