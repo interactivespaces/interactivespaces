@@ -116,6 +116,9 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    */
   private ActiveControllerActivityFactory controllerActivityFactory;
 
+  /**
+   * Native activity runner factory.
+   */
   private SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory;
 
   @Override
@@ -214,6 +217,11 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     addManagedResource(controllerShell);
   }
 
+  /**
+   * Get the space environment for this controller instance.
+   *
+   * @return {@link interactivespaces.system.InteractiveSpacesEnvironment} for this controller
+   */
   public InteractiveSpacesEnvironment getSpaceEnvironment() {
     return spaceEnvironment;
   }
@@ -221,6 +229,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   public PropertyFileLiveActivityConfigurationManager getActivityConfigurationManager() {
     return activityConfigurationManager;
   }
+
 
   public ActiveControllerActivityFactory getControllerActivityFactory() {
     return controllerActivityFactory;
