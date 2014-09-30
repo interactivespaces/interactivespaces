@@ -109,6 +109,11 @@ public class InteractiveSpacesFrameworkBootstrap {
       "META-INF/services/org.osgi.framework.launch.FrameworkFactory";
 
   /**
+   * Bundle manifest header indicating the start level to use.
+   */
+  public static final String BUNDLE_MANIFEST_START_LEVEL_HEADER = "InteractiveSpaces-StartLevel";
+
+  /**
    * The OSGI framework which has been started.
    */
   private Framework framework;
@@ -295,7 +300,7 @@ public class InteractiveSpacesFrameworkBootstrap {
           } else if (symbolicName.equals("interactivespaces.master")) {
             startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_PENULTIMATE;
           } else {
-            String interactiveSpacesStartLevel = bundle.getHeaders().get("InteractiveSpaces-StartLevel");
+            String interactiveSpacesStartLevel = bundle.getHeaders().get(BUNDLE_MANIFEST_START_LEVEL_HEADER);
             if (interactiveSpacesStartLevel != null) {
               startLevel = InteractiveSpacesStartLevel.valueOf(interactiveSpacesStartLevel);
             }
