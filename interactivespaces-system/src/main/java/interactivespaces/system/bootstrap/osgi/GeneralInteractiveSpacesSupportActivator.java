@@ -470,7 +470,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
       if (argument.startsWith(COMMAND_LINE_VALUE_DEFINITION_PREFIX)) {
         String[] parts = argument.split(COMMAND_LINE_VALUE_DEFINITION_SPLIT, 2);
         systemConfiguration.setValue(
-            parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()), parts.length > 1 ? parts[1] : null);
+            parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()), parts.length > 1 ? parts[1] : "");
       }
     }
 
