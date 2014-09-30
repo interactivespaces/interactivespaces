@@ -29,6 +29,7 @@ import interactivespaces.controller.client.node.SimpleActivityInstallationManage
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
+import interactivespaces.controller.client.node.SpaceControllerInitializer;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
@@ -50,7 +51,8 @@ import org.ros.osgi.common.RosEnvironment;
  *
  * @author Keith M. Hughes
  */
-public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator
+    implements SpaceControllerInitializer {
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -68,39 +70,14 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private MyServiceTracker<ExpressionEvaluatorFactory> expressionEvaluatorFactoryTracker;
 
   /**
-   * The storage manager for activities.
-   */
-  private SimpleActivityStorageManager activityStorageManager;
-
-  /**
-   * The controller repository.
-   */
-  private FileLocalSpaceControllerRepository controllerRepository;
-
-  /**
-   * The activity installation manager.
-   */
-  private SimpleActivityInstallationManager activityInstallationManager;
-
-  /**
    * OSGi service tracker for the container resource manager.
    */
   private MyServiceTracker<ContainerResourceManager> containerResourceManagerTracker;
 
   /**
-   * The container resource deployment manager.
-   */
-  private ControllerContainerResourceDeploymentManager containerResourceDeploymentManager;
-
-  /**
    * The space environment for this controller.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * Configuration manager for the controller.
-   */
-  private PropertyFileLiveActivityConfigurationManager activityConfigurationManager;
 
   /**
    * Activity factory for the controller.
@@ -135,7 +112,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
       spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
     }
 
-    registerOsgiFrameworkService(OsgiControllerActivator.class.getName(), this);
+    registerOsgiFrameworkService(SpaceControllerInitializer.class.getName(), this);
   }
 
   /**
@@ -144,25 +121,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    */
   private void initializeBaseSpaceControllerComponents() {
     spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
-
-    ContainerResourceManager containerResourceManager = containerResourceManagerTracker.getMyService();
-    containerResourceDeploymentManager =
-        new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
-    addManagedResource(containerResourceDeploymentManager);
-
-    activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
-    addManagedResource(activityStorageManager);
-
-    controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
-    addManagedResource(controllerRepository);
-
-    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
-    activityConfigurationManager =
-        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
-
-    activityInstallationManager =
-        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
-    addManagedResource(activityInstallationManager);
 
     controllerActivityFactory = new SimpleActiveControllerActivityFactory();
     controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
@@ -180,6 +138,26 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    * and register the space controller itself..
    */
   private void activateStandardSpaceController() {
+    ContainerResourceManager containerResourceManager = containerResourceManagerTracker.getMyService();
+    ControllerContainerResourceDeploymentManager containerResourceDeploymentManager =
+        new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
+    addManagedResource(containerResourceDeploymentManager);
+
+    SimpleActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
+    addManagedResource(activityStorageManager);
+
+    FileLocalSpaceControllerRepository controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
+    addManagedResource(controllerRepository);
+
+    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+
+    PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
+        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
+
+    SimpleActivityInstallationManager activityInstallationManager =
+        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
+    addManagedResource(activityInstallationManager);
+
     SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller =
         new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
@@ -208,57 +186,18 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     addManagedResource(controllerShell);
   }
 
-  /**
-   * Get the space environment for this controller instance.
-   *
-   * @return {@link interactivespaces.system.InteractiveSpacesEnvironment} for this controller
-   */
+  @Override
   public InteractiveSpacesEnvironment getSpaceEnvironment() {
     return spaceEnvironment;
   }
 
-  /**
-   * Get the activity configuration manager for this controller.
-   *
-   * @return activity configuration manager
-   */
-  public PropertyFileLiveActivityConfigurationManager getActivityConfigurationManager() {
-    return activityConfigurationManager;
-  }
-
-  /**
-   * Get the activity factory for this controller.
-   *
-   * @return activity factory
-   */
+  @Override
   public ActiveControllerActivityFactory getControllerActivityFactory() {
     return controllerActivityFactory;
   }
 
-  /**
-   * Get the activity installation manager for this controller.
-   *
-   * @return activity installation manager
-   */
-  public SimpleActivityInstallationManager getActivityInstallationManager() {
-    return activityInstallationManager;
-  }
-
-  /**
-   * Get the controller repository for this controller.
-   *
-   * @return controller repository
-   */
-  public FileLocalSpaceControllerRepository getControllerRepository() {
-    return controllerRepository;
-  }
-
-  /**
-   * Get the activity storage manager for this controller.
-   *
-   * @return activity storage manager
-   */
-  public SimpleActivityStorageManager getActivityStorageManager() {
-    return activityStorageManager;
+  @Override
+  public SimpleNativeActivityRunnerFactory getNativeActivityRunnerFactory() {
+    return nativeActivityRunnerFactory;
   }
 }
