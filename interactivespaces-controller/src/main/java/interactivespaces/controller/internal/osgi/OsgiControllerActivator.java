@@ -16,26 +16,31 @@
 
 package interactivespaces.controller.internal.osgi;
 
+import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
+import interactivespaces.controller.activity.installation.ActivityInstallationManager;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.ActivityStorageManager;
+import interactivespaces.controller.client.node.ControllerDataBundleManager;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
-import interactivespaces.controller.client.node.SpaceControllerCommunicator;
+import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
-import interactivespaces.controller.client.node.SpaceControllerInitializer;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
+import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
+import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
@@ -51,8 +56,7 @@ import org.ros.osgi.common.RosEnvironment;
  *
  * @author Keith M. Hughes
  */
-public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator
-    implements SpaceControllerInitializer {
+public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -112,8 +116,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     } else {
       spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
     }
-
-    registerOsgiFrameworkService(SpaceControllerInitializer.class.getName(), this);
   }
 
   /**
@@ -132,6 +134,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
 
     nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
+    registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
   }
 
   /**
@@ -139,44 +142,44 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    * and register the space controller itself..
    */
   private void activateStandardSpaceController() {
+    InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
+    RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
+    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
+
     ContainerResourceManager containerResourceManager = containerResourceManagerTracker.getMyService();
-    ControllerContainerResourceDeploymentManager containerResourceDeploymentManager =
+
+    ContainerResourceDeploymentManager containerResourceDeploymentManager =
         new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
     addManagedResource(containerResourceDeploymentManager);
 
-    SimpleActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
+    ActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
     addManagedResource(activityStorageManager);
 
-    FileLocalSpaceControllerRepository controllerRepository =
+    LocalSpaceControllerRepository controllerRepository =
         new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
     addManagedResource(controllerRepository);
-
-    ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
 
     PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
         new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
-    SimpleActivityInstallationManager activityInstallationManager =
+    ActivityInstallationManager activityInstallationManager =
         new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
     addManagedResource(activityInstallationManager);
 
-    SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller =
+    SpaceControllerActivityInstallationManager controllerActivityInstaller =
         new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
 
     InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
 
-    SpaceControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
-
-    InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
-    RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
-
-    SpaceControllerCommunicator spaceControllerCommunicator =
+    RosSpaceControllerCommunicator spaceControllerCommunicator =
         new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
             rosEnvironment, spaceEnvironment);
 
-    StandardSpaceController spaceController =
+    ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
+
+    SpaceController spaceController =
         new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
             nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
             spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
@@ -186,20 +189,5 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     OsgiControllerShell controllerShell =
         new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
     addManagedResource(controllerShell);
-  }
-
-  @Override
-  public InteractiveSpacesEnvironment getSpaceEnvironment() {
-    return spaceEnvironment;
-  }
-
-  @Override
-  public ActiveControllerActivityFactory getControllerActivityFactory() {
-    return controllerActivityFactory;
-  }
-
-  @Override
-  public SimpleNativeActivityRunnerFactory getNativeActivityRunnerFactory() {
-    return nativeActivityRunnerFactory;
   }
 }
