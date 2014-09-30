@@ -134,8 +134,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   protected void allRequiredServicesAvailable() {
     initializeBaseSpaceControllerComponents();
 
-    activateStandaloneSpaceController();
-
     String controllerMode = spaceEnvironment.getSystemConfiguration()
         .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
     if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
@@ -182,10 +180,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
 
     nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
-  }
-
-  private void activateStandaloneSpaceController() {
-    new StandaloneSpaceController(spaceEnvironment,nativeActivityRunnerFactory);
   }
 
   /**
