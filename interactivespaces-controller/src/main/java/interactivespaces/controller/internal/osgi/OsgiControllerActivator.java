@@ -23,10 +23,10 @@ import interactivespaces.controller.activity.wrapper.internal.interactivespaces.
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.ControllerDataBundleManager;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
+import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
@@ -35,7 +35,6 @@ import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicat
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
-import interactivespaces.controller.standalone.stubs.StandaloneSpaceController;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
@@ -199,7 +198,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
 
-    RosSpaceControllerCommunicator spaceControllerCommunicator =
+    SpaceControllerCommunicator spaceControllerCommunicator =
         new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
             rosEnvironment, spaceEnvironment);
 
