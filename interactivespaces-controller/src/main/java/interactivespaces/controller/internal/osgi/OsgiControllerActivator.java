@@ -136,15 +136,15 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
     activateStandaloneSpaceController();
 
-//    String controllerMode = spaceEnvironment.getSystemConfiguration()
-//        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
-//    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
-//      activateStandardSpaceController();
-//    } else {
-//      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
-//    }
-//
-//    registerOsgiFrameworkService(getClass().getName(), this);
+    String controllerMode = spaceEnvironment.getSystemConfiguration()
+        .getPropertyString(INTERACTIVESPACES_CONTROLLER_MODE_PROPERTY_NAME, STANDARD_CONTROLLER_MODE);
+    if (STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+      activateStandardSpaceController();
+    } else {
+      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
+    }
+
+    registerOsgiFrameworkService(OsgiControllerActivator.class.getName(), this);
   }
 
   /**
