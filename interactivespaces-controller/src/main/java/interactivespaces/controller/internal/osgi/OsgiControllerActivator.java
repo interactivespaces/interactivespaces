@@ -105,7 +105,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     initializeBaseSpaceControllerComponents();
 
     String controllerMode = spaceEnvironment.getSystemConfiguration().getPropertyString(
-        SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE);
+        SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE,
+        SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE);
     if (SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
       activateStandardSpaceController();
     } else {
@@ -146,7 +147,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     SimpleActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
     addManagedResource(activityStorageManager);
 
-    FileLocalSpaceControllerRepository controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
+    FileLocalSpaceControllerRepository controllerRepository =
+        new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
     addManagedResource(controllerRepository);
 
     ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
