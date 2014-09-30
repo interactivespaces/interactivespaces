@@ -80,7 +80,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * External packages loaded from the Interactive Spaces system folder.
    */
-  public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] { "org.apache.commons.logging; version=1.1.1",
+  public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] {"org.apache.commons.logging; version=1.1.1",
       "org.apache.commons.logging.impl; version=1.1.1", "javax.transaction; version=1.1.0",
       "javax.transaction.xa; version=1.1.0", "javax.transaction", "javax.transaction.xa" };
 
@@ -334,6 +334,8 @@ public class InteractiveSpacesFrameworkBootstrap {
    *
    * @param bundleUri
    *          URI for the bundle
+   * @param e
+   *          triggering exception
    */
   private void logBadBundle(String bundleUri, Exception e) {
     loggingProvider.getLog().error(
