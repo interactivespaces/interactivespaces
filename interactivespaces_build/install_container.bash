@@ -43,6 +43,7 @@ fi
 
 ${DO_CMD} cp ${STAGING}/bootstrap/* ${CONTAINER_BOOTSTRAP}
 ${DO_CMD} cp ${STAGING}/bin/* ${CONTAINER_BIN}
+${DO_CMD} cp ${STAGING}/lib/system/java/delegations.conf ${CONTAINER_LIB_SYSTEM_JAVA}
 ${DO_CMD} cp ${STAGING}/lib/system/java/*.jar ${CONTAINER_LIB_SYSTEM_JAVA}
 ${DO_CMD} cp ${STAGING}/interactivespaces-launcher-${VERSION}.jar ${CONTAINER}
 

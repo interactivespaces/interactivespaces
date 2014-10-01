@@ -98,6 +98,24 @@ task copyContainerDependenciesSystemJava(type: Copy) {
   from configurations.system
 }
 
+// TODO(keith): Get docs built from here
+task copyHtmlDocs(type: Copy) {
+  outputs.upToDateWhen { false }
+  into "${project.ext.containerBuildTarget}/docs/html"
+  from rootProject.file('interactivespaces_docs/build/html')
+}
+
+task copyPdfDocs(type: Copy) {
+  outputs.upToDateWhen { false }
+  into "${project.ext.containerBuildTarget}/docs"
+  from project(':interactivespaces_docs').file('build/latex/interactivespaces.pdf')
+  rename { String fileName ->
+    fileName.replace('.pdf', "-${project.version}.pdf")
+  }
+}
+
+task copyDocs (dependsOn: [copyHtmlDocs, copyPdfDocs])
+
 task assembleContainers(dependsOn: [
   copyNeededComponents,
   copyContainerDependenciesLauncher,
@@ -105,6 +123,7 @@ task assembleContainers(dependsOn: [
   copyContainerDependenciesSystemJava,
   copyContainerDependenciesExtrasAndroid,
   copyContainerDependenciesExtrasTesting,
+  copyDocs
 ])
 
 assembleContainers.mustRunAfter cleanContainers
