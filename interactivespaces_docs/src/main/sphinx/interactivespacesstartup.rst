@@ -1,5 +1,5 @@
 Interactive Spaces Startup
-*********************************
+**************************
 
 Interactive Spaces has a somewhat involved startup process to make sure everything works properly.
 Understanding this startup process can help when you are trying to figure out how to implement something
@@ -20,6 +20,10 @@ The ``startup_linux.bash`` script starts by figuring out in exactly which direct
 It then changes the directory for the operating system process which is running the container to that installation
 directory.
 
+By default, a container will start up in a ``foreground`` mode, a normal blocking terminal process. If
+``background`` is specified as the first argument to ``startup_linux.bash``, then it will run in a sub-process
+with detached input/output pipes.
+
 Setting up the Java Process Environment
 ---------------------------------------
 
@@ -27,7 +31,8 @@ Next the startup script will execute the bash file ``.interactivespaces.rc`` in 
 that is starting the container.  This file can set any
 environment variables for the operating system process that will run the container and can be used, for example,
 to set the ``DISPLAY`` variable to be used for specifying which display the process should use when the container
-opens any windows, such as a web browser.
+opens any windows, such as a web browser. Additionally, this script can modify ``INTERACTIVESPACES_MAIN_ARGS``
+variable to add additional container arguments.
 
 Next the startup script executes the file ``config/environment/localenvironment.rc``. This file can set any
 environment variables for the operation system process that will run the container. 
@@ -53,8 +58,23 @@ use is setting ``-Djava.library.path``, which tells the JVM where to find native
 
 As an aside, the ``LD_LIBRARY_PATH`` is the basis for ``-Djava.library.path``, so using either is fine.
 
+The ``INTERACTIVESPACES_MAIN_ARGS`` environment variable can be used to pass command line arguments to the
+underlying container launcher. Any command line arguments to ``startup_linux.bash`` (after the initial
+``background``, if any) will be appended to the environment variable and passed to the container.
+See :ref:`command-line-arguments` for more details on the command line arguments that can be used.
+
+.. _command-line-arguments:
+
+Container Command Line Arguments
+--------------------------------
+
+There are several command-line arguments that can be passed to a container:
+
+* ``--noshell`` start the container without an interactive OSGi shell.
+* ``-Dx=y`` defines a container system configuration parameter ``x`` to have the value ``y``.
+
 Preparing to start the OSGi Container
----------------------------
+-------------------------------------
 
 The next step is to start up the OSGi container itself. A small Java class called the **launcher** is used to 
 start the OSGi container (the term **OSGi container** is why the Master and Controller are called containers). 
@@ -100,7 +120,7 @@ Once the OSGi classpath is formed, the **launcher bootstrap** takes over. This c
 container with a classloader based on the OSGi classpath.
 
 Exporting Java Packages from the OSGi System Bundle
----------------------------
+---------------------------------------------------
 
 Bundles in OSGi have to state what Java packages are exported from that bundle. Anything not explicitly listed as
 exported cannot be seen by any other bundle in the OSGi environment. This is what makes OSGi able to run
@@ -156,6 +176,11 @@ You should not place your own files in the ``bootstrap`` folder. If you have bun
 own or things which are not part of core Interactive Spaces, you should place them in the ``startup`` folder.
 The contents of this folder are expected to be OSGi bundles and are also loaded by the container as OSGi
 starts up.
+
+Normally, the Interactive Spaces Controller container will launch and start a Standard Space Controller instance.
+However, this behavior can be controlled with the ``interactivespaces.controller.mode`` variable, and setting it
+to something other than ``standard`` will result in no default controller instance being started, e.g., by specifying
+``-Dinteractivespaces.controller.mode=none`` on the ``startup_linux.bash`` command line.
 
 Core Services
 -------------

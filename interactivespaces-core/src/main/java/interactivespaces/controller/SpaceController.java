@@ -61,6 +61,16 @@ public interface SpaceController extends ManagedResource {
       "interactivespaces.controller.description";
 
   /**
+   * Specification for standard controller mode.
+   */
+  String CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE = "standard";
+
+  /**
+   * Configuration property name for controller mode.
+   */
+  String CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE = "interactivespaces.controller.mode";
+
+  /**
    * Get a factory for native activities runners.
    *
    * @return the factory to use
