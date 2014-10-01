@@ -16,24 +16,31 @@
 
 package interactivespaces.controller.internal.osgi;
 
+import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.PropertyFileLiveActivityConfigurationManager;
+import interactivespaces.controller.activity.installation.ActivityInstallationManager;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.controller.client.node.ActivityStorageManager;
 import interactivespaces.controller.client.node.ControllerDataBundleManager;
 import interactivespaces.controller.client.node.FileSystemSpaceControllerInfoPersister;
 import interactivespaces.controller.client.node.SimpleActivityInstallationManager;
 import interactivespaces.controller.client.node.SimpleActivityStorageManager;
+import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
 import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
+import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
+import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
@@ -67,49 +74,24 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private MyServiceTracker<ExpressionEvaluatorFactory> expressionEvaluatorFactoryTracker;
 
   /**
-   * The storage manager for activities.
-   */
-  private SimpleActivityStorageManager activityStorageManager;
-
-  /**
-   * The controller repository.
-   */
-  private FileLocalSpaceControllerRepository controllerRepository;
-
-  /**
-   * The activity installation manager.
-   */
-  private SimpleActivityInstallationManager activityInstallationManager;
-
-  /**
-   * The controller side of an activity installation manager.
-   */
-  private SimpleSpaceControllerActivityInstallationManager controllerActivityInstaller;
-
-  /**
    * OSGi service tracker for the container resource manager.
    */
   private MyServiceTracker<ContainerResourceManager> containerResourceManagerTracker;
 
   /**
-   * The container resource manager.
+   * The space environment for this controller.
    */
-  private ContainerResourceManager containerResourceManager;
+  private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
-   * The actual space controller itself.
+   * Activity factory for the controller.
    */
-  private StandardSpaceController spaceController;
+  private ActiveControllerActivityFactory controllerActivityFactory;
 
   /**
-   * The container resource deployment manager.
+   * Native activity runner factory.
    */
-  private ControllerContainerResourceDeploymentManager containerResourceDeploymentManager;
-
-  /**
-   * The OSGi shell for the controller.
-   */
-  private OsgiControllerShell controllerShell;
+  private SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory;
 
   @Override
   public void onStart() {
@@ -124,46 +106,69 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
   @Override
   protected void allRequiredServicesAvailable() {
-    InteractiveSpacesEnvironment spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
+    initializeBaseSpaceControllerComponents();
+
+    String controllerMode = spaceEnvironment.getSystemConfiguration().getPropertyString(
+        SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE,
+        SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE);
+    if (SpaceController.CONFIGURATION_VALUE_STANDARD_CONTROLLER_MODE.equals(controllerMode)) {
+      activateStandardSpaceController();
+    } else {
+      spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
+    }
+  }
+
+  /**
+   * Initialize all the base components for this controller, which are then available to any controller
+   * that may be instantiated.
+   */
+  private void initializeBaseSpaceControllerComponents() {
+    spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
+
+    controllerActivityFactory = new SimpleActiveControllerActivityFactory();
+    controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
+    controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
+    controllerActivityFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
+    controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
+        getBundleContext()));
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
+
+    nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
+    registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
+  }
+
+  /**
+   * Initialize components that are necessary only to the {@link StandardSpaceController}, and then instantiate
+   * and register the space controller itself..
+   */
+  private void activateStandardSpaceController() {
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
     ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();
 
-    containerResourceManager = containerResourceManagerTracker.getMyService();
+    ContainerResourceManager containerResourceManager = containerResourceManagerTracker.getMyService();
 
-    containerResourceDeploymentManager =
+    ContainerResourceDeploymentManager containerResourceDeploymentManager =
         new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
     addManagedResource(containerResourceDeploymentManager);
 
-    activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
+    ActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
     addManagedResource(activityStorageManager);
 
-    controllerRepository = new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
+    LocalSpaceControllerRepository controllerRepository =
+        new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
     addManagedResource(controllerRepository);
 
     PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
         new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
-    activityInstallationManager =
+    ActivityInstallationManager activityInstallationManager =
         new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
     addManagedResource(activityInstallationManager);
 
-    SimpleActiveControllerActivityFactory controllerActivityFactory = new SimpleActiveControllerActivityFactory();
-    controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
-    controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
-    controllerActivityFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
-
-    controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
-        getBundleContext()));
-
-    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
-
-    controllerActivityInstaller =
+    SpaceControllerActivityInstallationManager controllerActivityInstaller =
         new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
-
-    SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory =
-        new SimpleNativeActivityRunnerFactory(spaceEnvironment);
 
     InteractiveSpacesEnvironmentActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentActivityLogFactory(spaceEnvironment);
@@ -174,14 +179,14 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
     ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
 
-    spaceController =
+    SpaceController spaceController =
         new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
             nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
             spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
             dataBundleManager, spaceEnvironment);
     addManagedResource(spaceController);
 
-    controllerShell =
+    OsgiControllerShell controllerShell =
         new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
     addManagedResource(controllerShell);
   }

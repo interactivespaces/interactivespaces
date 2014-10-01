@@ -6,6 +6,17 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
+# Figure out run mode.
+if [ "$1" == "foreground" -o "$1" == "background" ]; then
+  RUN_MODE=$1
+  shift
+else
+  RUN_MODE=foreground
+fi
+
+# Append any additional command-line arguments to pass through to the IS runtime.
+INTERACTIVESPACES_MAIN_ARGS+=" $@"
+
 # Get to the directory above the bin directory.
 cd $DIR/..
 
@@ -38,10 +49,10 @@ if [ -n $CLASSPATH_ADDITIONAL ]; then
 fi
 
 # Start up Interactive Spaces
-if [ $# == 0 ] || [ $1 == "foreground" ]; then
-  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher
+if [ $RUN_MODE == "foreground" ]; then
+  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher ${INTERACTIVESPACES_MAIN_ARGS}
 fi
 
-if [ "$1" == "background" ]; then
-  nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell &>/dev/null &
+if [ $RUN_MODE == "background" ]; then
+  nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell ${INTERACTIVESPACES_MAIN_ARGS} &>/dev/null &
 fi

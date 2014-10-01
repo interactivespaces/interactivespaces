@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component.ros;
 
-import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 
@@ -64,10 +64,14 @@ public class BasicRosActivityComponent extends BaseActivityComponent implements 
         componentContext.getActivity().getSpaceEnvironment().getValue("environment.ros");
 
     rosNodeName = configuration.getRequiredPropertyString(CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
-
-    nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
-    nodeConfiguration.setLog(componentContext.getActivity().getLog());
-    nodeConfiguration.setNodeName(rosNodeName);
+    try {
+      nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
+      nodeConfiguration.setLog(componentContext.getActivity().getLog());
+      nodeConfiguration.setNodeName(rosNodeName);
+    } catch (Exception e) {
+      throw new SimpleInteractiveSpacesException(String.format("While processing node '%s' from configuration '%s'",
+          rosNodeName, CONFIGURATION_ACTIVITY_ROS_NODE_NAME), e);
+    }
   }
 
   @Override
@@ -94,33 +98,21 @@ public class BasicRosActivityComponent extends BaseActivityComponent implements 
     return node != null;
   }
 
-  /* (non-Javadoc)
-   * @see interactivespaces.activity.component.ros.RosActivityComponent#getNodeName()
-   */
   @Override
   public String getNodeName() {
     return rosNodeName;
   }
 
-  /* (non-Javadoc)
-   * @see interactivespaces.activity.component.ros.RosActivityComponent#getNodeConfiguration()
-   */
   @Override
   public NodeConfiguration getNodeConfiguration() {
     return nodeConfiguration;
   }
 
-  /* (non-Javadoc)
-   * @see interactivespaces.activity.component.ros.RosActivityComponent#getNode()
-   */
   @Override
   public ConnectedNode getNode() {
     return node;
   }
 
-  /* (non-Javadoc)
-   * @see interactivespaces.activity.component.ros.RosActivityComponent#getRosEnvironment()
-   */
   @Override
   public RosEnvironment getRosEnvironment() {
     return rosEnvironment;
