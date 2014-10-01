@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class InteractiveSpacesLauncher {
   /**
    * The run folder in the directory where the container is installed.
    */
-  private static final String FOLDER_RUN = "run";
+  private static final String RUN_DIR_PATH = "run";
 
   /**
    * The name of the PID file for the container.
@@ -80,9 +81,21 @@ public class InteractiveSpacesLauncher {
   private static final String SPACES_CONFIG_ENVIRONMENT = "config/environment";
 
   /**
+   * Command line argument prefix for specifying a specific runtime path. This should match the value of
+   * {@code InteractiveSpacesFrameworkBootstrap.ARGS_RUNTIME_PREFIX}, but can't be a shared variable because of
+   * package dependency considerations.
+   */
+  private static final String COMMAND_LINE_RUNTIME_PREFIX = "--runtime=";
+
+  /**
    * The classloader for starting Interactive Spaces.
    */
   private ClassLoader classLoader;
+
+  /**
+   * Path to the runtime directory, which is the root for dynamic configuration. Can be set by a command line flag.
+   */
+  private String runtimePath = ".";
 
   /**
    * The file which gives the process ID for the Interactive Spaces process.
@@ -107,14 +120,34 @@ public class InteractiveSpacesLauncher {
    * Launch Interactive Spaces.
    *
    * @param args
-   *          the arhguments from the command line
+   *          the command line arguments
    */
   public void launch(String[] args) {
+    // argList needs to be mutable because it is modified by some components downstream.
+    List<String> argList = new ArrayList<String>();
+    Collections.addAll(argList, args);
+    processLauncherCommandArgs(argList);
     if (writePid()) {
       createClassLoader();
-      boostrap(args);
+      boostrap(argList);
     } else {
       System.err.format("InteractiveSpaces component already running. Lock found on %s\n", pidFile.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Process any command line args for the launcher. This leaves the arguments in-place in case they're
+   * needed downstream.
+   *
+   * @param args
+   *          list of arguments
+   */
+  private void processLauncherCommandArgs(List<String> args) {
+    for (String thisArg : args) {
+      if (thisArg.startsWith(COMMAND_LINE_RUNTIME_PREFIX)) {
+        runtimePath = thisArg.substring(COMMAND_LINE_RUNTIME_PREFIX.length());
+        System.out.println("Setting runtime path to " + runtimePath);
+      }
     }
   }
 
@@ -227,19 +260,14 @@ public class InteractiveSpacesLauncher {
   /**
    * Bootstrap the framework.
    *
-   * @param args
+   * @param argList
    *          the command line arguments
    */
-  private void boostrap(String[] args) {
+  private void boostrap(List<String> argList) {
     try {
       Class<?> bootstrapClass = classLoader.loadClass(CLASSNAME_INTERACTIVESPACES_FRAMEWORK_BOOTSTRAP);
 
       Object bootstrapInstance = bootstrapClass.newInstance();
-
-      List<String> argList = new ArrayList<String>();
-      for (String arg : args) {
-        argList.add(arg);
-      }
 
       Method boostrapMethod = bootstrapClass.getMethod("boot", List.class);
       boostrapMethod.invoke(bootstrapInstance, argList);
@@ -252,11 +280,10 @@ public class InteractiveSpacesLauncher {
   /**
    * Try and write the pid file.
    *
-   * @return {@code true} if a pid file didn't previously exist and one couldn't
-   *         be written.
+   * @return {@code false} if there was an error creating the pid file
    */
   private boolean writePid() {
-    File runDirectory = new File(FOLDER_RUN);
+    File runDirectory = new File(runtimePath, RUN_DIR_PATH);
     if (!runDirectory.exists()) {
       if (!runDirectory.mkdir()) {
         System.err.format("Could not create run directory %s\n", runDirectory);

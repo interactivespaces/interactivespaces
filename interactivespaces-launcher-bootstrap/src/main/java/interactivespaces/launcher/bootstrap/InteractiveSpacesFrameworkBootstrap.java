@@ -16,11 +16,11 @@
 
 package interactivespaces.launcher.bootstrap;
 
-import interactivespaces.system.core.container.InteractiveSpacesStartLevel;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
+import interactivespaces.system.core.container.InteractiveSpacesStartLevel;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
@@ -76,6 +76,13 @@ public class InteractiveSpacesFrameworkBootstrap {
    * The argument for saying the container should run with no shell access.
    */
   public static final String ARGS_NOSHELL = "--noshell";
+
+  /**
+   * Command line argument prefix for specifying a specific runtime path. This should match the value of
+   * {@code InteractiveSpacesLauncher.COMMAND_LINE_RUNTIME_PREFIX}, but can't be a shared variable because of
+   * package dependency considerations.
+   */
+  public static final String ARGS_RUNTIME_PREFIX = "--runtime=";
 
   /**
    * External packages loaded from the Interactive Spaces system folder.
@@ -154,6 +161,12 @@ public class InteractiveSpacesFrameworkBootstrap {
   private File baseInstallFolder;
 
   /**
+   * The root runtime directory for this container. May be the same as the base install folder, but
+   * can be independently controlled to allow for multiple runtime instances.
+   */
+  private File runtimeDirectory;
+
+  /**
    * The OSGi bundle context for the OSGi framework bundle.
    */
   private BundleContext rootBundleContext;
@@ -170,49 +183,70 @@ public class InteractiveSpacesFrameworkBootstrap {
    *          the arguments to be passed to the bootstrap
    */
   public void boot(List<String> args) {
-    // TODO(keith): Better command line processing
-    needShell = !args.contains(ARGS_NOSHELL);
 
     baseInstallFolder = new File(".").getAbsoluteFile().getParentFile();
+
+    runtimeDirectory = baseInstallFolder;
+
+    processCommandLineArgs(args);
 
     initialBundles = new ArrayList<File>();
 
     getBootstrapBundleJars(new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
 
-    // If no bundle JAR files are in the directory, then exit.
-    if (initialBundles.isEmpty()) {
-      loggingProvider.getLog().warn("No bootstrap bundles to install.");
-    } else {
+    try {
       setupShutdownHandler();
 
       setupExceptionHandler();
 
-      try {
-        loadStartupFolder();
+      loadStartupFolder();
 
-        createCoreServices(args);
+      createCoreServices(args);
 
-        File environmentFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT);
-        ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
-        extensionsReader.processExtensionFiles(environmentFolder);
+      if (initialBundles.isEmpty()) {
+        throw new RuntimeException("No bootstrap bundles to install.");
+      }
 
-        createFramework(extensionsReader);
+      File environmentFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT);
+      ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
+      extensionsReader.processExtensionFiles(environmentFolder);
 
-        registerCoreServices();
+      createFramework(extensionsReader);
 
-        loadClasses(extensionsReader.getLoadclasses());
+      registerCoreServices();
 
-        framework.start();
+      loadClasses(extensionsReader.getLoadclasses());
 
-        startBundles(initialBundles);
-        frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
+      framework.start();
 
-        framework.waitForStop(0);
-        System.exit(0);
-      } catch (Throwable ex) {
+      startBundles(initialBundles);
+      frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
+
+      framework.waitForStop(0);
+      System.exit(0);
+    } catch (Throwable ex) {
+      if (loggingProvider != null && loggingProvider.getLog() != null) {
         loggingProvider.getLog().error("Error starting framework", ex);
+      } else {
+        System.err.println("Error starting framework");
+        ex.printStackTrace();
+      }
+      System.exit(1);
+    }
+  }
 
-        System.exit(1);
+  /**
+   * Process the command line arguments for this container.
+   *
+   * @param args
+   *          the list of command line arguments
+   */
+  private void processCommandLineArgs(List<String> args) {
+    for (String arg : args) {
+      if (arg.equals(ARGS_NOSHELL)) {
+        needShell = false;
+      } else if (arg.startsWith(ARGS_RUNTIME_PREFIX)) {
+        runtimeDirectory = new File(arg.substring(ARGS_RUNTIME_PREFIX.length()));
       }
     }
   }
@@ -258,7 +292,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   public void createCoreServices(List<String> args) {
     loggingProvider = new Log4jLoggingProvider();
-    loggingProvider.configure(baseInstallFolder);
+    loggingProvider.configure(runtimeDirectory);
 
     configurationProvider = new FileConfigurationProvider(baseInstallFolder);
     configurationProvider.load();
@@ -403,6 +437,8 @@ public class InteractiveSpacesFrameworkBootstrap {
     m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
 
     m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR, baseInstallFolder.getAbsolutePath());
+
+    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR, runtimeDirectory.getAbsolutePath());
 
     m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION, getInteractiveSpacesVersion());
 
