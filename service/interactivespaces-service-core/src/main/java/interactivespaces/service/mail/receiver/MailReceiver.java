@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,31 +16,32 @@
 
 package interactivespaces.service.mail.receiver;
 
-import interactivespaces.service.SupportedService;
-
-import org.apache.commons.logging.Log;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * An Interactive Spaces service for receiving email.
+ * A receiver for email.
  *
  * @author Keith M. Hughes
  */
-public interface MailReceiverService extends SupportedService {
+
+public interface MailReceiver extends ManagedResource {
 
   /**
-   * The name of the service.
+   * Add a listener to the service.
+   *
+   * @param listener
+   *          the listener to add
    */
-  String SERVICE_NAME = "mail.receiver";
+  void addListener(MailReceiverListener listener);
 
   /**
-   * Create a new mail receiver listening on a given port.
+   * Remove a listener from the service.
    *
-   * @param port
-   *          the port for the mail receiver to listen on
-   * @param log
-   *          the logger to use
+   * <p>
+   * This method does nothing if the listener was never added.
    *
-   * @return the new mail receiver
+   * @param listener
+   *          the listener to remove
    */
-  MailReceiver newMailReceiver(int port, Log log);
+  void removeListener(MailReceiverListener listener);
 }
