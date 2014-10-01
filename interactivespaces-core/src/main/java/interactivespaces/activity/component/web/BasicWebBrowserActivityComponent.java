@@ -16,9 +16,11 @@
 
 package interactivespaces.activity.component.web;
 
-import interactivespaces.activity.binary.NativeBrowserRunner;
+import interactivespaces.activity.binary.BasicNativeWebBrowserRunner;
+import interactivespaces.activity.binary.NativeWebBrowserRunner;
 import interactivespaces.activity.component.ActivityComponent;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -32,13 +34,16 @@ public class BasicWebBrowserActivityComponent extends BaseWebBrowserActivityComp
 
   /**
    * Dependencies for the component.
+   *
+   * TODO(keith): Should this actually depend on there being a web server? What will break if the dependency is removed?
    */
-  public static final List<String> BASE_COMPONENT_DEPENDENCIES = ImmutableList.of(WebServerActivityComponent.COMPONENT_NAME);
+  public static final List<String> BASE_COMPONENT_DEPENDENCIES = ImmutableList
+      .of(WebServerActivityComponent.COMPONENT_NAME);
 
   /**
    * The browser runner.
    */
-  private NativeBrowserRunner browserRunner;
+  private NativeWebBrowserRunner webBrowserRunner;
 
   @Override
   public String getName() {
@@ -53,22 +58,40 @@ public class BasicWebBrowserActivityComponent extends BaseWebBrowserActivityComp
   @Override
   public void startupComponent() {
     if (browserStartup) {
-      browserRunner = new NativeBrowserRunner(getComponentContext().getActivity());
-      browserRunner.startup(initialUrl, browserDebug);
+      webBrowserRunner = newWebBrowserRunner();
+      webBrowserRunner.startup(initialUrl, browserDebug);
     }
   }
 
   @Override
   public void shutdownComponent() {
-    if (browserRunner != null) {
-      browserRunner.shutdown();
-      browserRunner = null;
+    if (webBrowserRunner != null) {
+      webBrowserRunner.shutdown();
+      webBrowserRunner = null;
     }
   }
 
   @Override
   public boolean isComponentRunning() {
-    // TODO(keith): Anything to check on the browser?
-    return browserRunner != null && browserRunner.isRunning();
+    return webBrowserRunner != null && webBrowserRunner.isRunning();
+  }
+
+  /**
+   * Get the web browser runner being used.
+   *
+   * @return the web browser runner being used
+   */
+  public NativeWebBrowserRunner getWebBrowserRunner() {
+    return webBrowserRunner;
+  }
+
+  /**
+   * Create a new web browser runner.
+   *
+   * @return a new web browser runner
+   */
+  @VisibleForTesting
+  protected BasicNativeWebBrowserRunner newWebBrowserRunner() {
+    return new BasicNativeWebBrowserRunner(getComponentContext().getActivity());
   }
 }
