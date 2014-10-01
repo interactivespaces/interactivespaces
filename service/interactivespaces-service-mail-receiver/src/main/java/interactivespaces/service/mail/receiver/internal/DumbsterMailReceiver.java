@@ -16,7 +16,6 @@
 
 package interactivespaces.service.mail.receiver.internal;
 
-import interactivespaces.service.mail.common.MailMessage;
 import interactivespaces.service.mail.receiver.MailReceiver;
 import interactivespaces.service.mail.receiver.MailReceiverListener;
 
@@ -25,9 +24,11 @@ import com.dumbster.smtp.SmtpServerFactory;
 import org.apache.commons.logging.Log;
 
 /**
+ * A mail receiver which uses Dumbster to receive the messages.
+ *
  * @author Keith M. Hughes
  */
-public class DumbsterMailReceiver implements MailReceiver, MailReceiverListener {
+public class DumbsterMailReceiver implements MailReceiver {
 
   /**
    * The port to listen to for SMTP messages.
@@ -89,10 +90,5 @@ public class DumbsterMailReceiver implements MailReceiver, MailReceiverListener 
   @Override
   public void removeListener(MailReceiverListener listener) {
     mailStore.removeListener(listener);
-  }
-
-  @Override
-  public void onMailMessageReceive(MailMessage message) {
-    log.debug(String.format("Got email message\n%s", message.getBody()));
   }
 }
