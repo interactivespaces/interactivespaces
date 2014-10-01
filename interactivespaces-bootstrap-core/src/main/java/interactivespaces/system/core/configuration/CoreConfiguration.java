@@ -21,17 +21,20 @@ package interactivespaces.system.core.configuration;
  *
  * @author Keith M. Hughes
  */
-public class CoreConfiguration {
+public interface CoreConfiguration {
 
   /**
    * Configuration property containing the Interactive Spaces version.
    */
-  public static final String CONFIGURATION_INTERACTIVESPACES_VERSION = "interactivespaces.version";
+  String CONFIGURATION_INTERACTIVESPACES_VERSION = "interactivespaces.version";
 
   /**
-   * Property containing the Interactive Spaces root dir. This will be an
-   * absolute path.
+   * Property containing the Interactive Spaces root dir. This will be an absolute path.
    */
-  public static final String CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR =
-      "interactivespaces.rootdir";
+  String CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR = "interactivespaces.rootdir";
+
+  /**
+   * Property containing the Interactive Spaces runtime location. This will be an absolute path.
+   */
+  String CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR = "interactivespaces.runtime";
 }
