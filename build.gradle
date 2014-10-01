@@ -37,7 +37,7 @@ allprojects {
     //
     // Final versions should set the qualifier to null.
     interactiveSpacesVersion = '1.6.5'
-    interactiveSpacesVersionQualifier = 'SNAPSHOT'
+    interactiveSpacesVersionQualifier = null // 'SNAPSHOT'
 
     // These specify the layout of IS containers.
     
