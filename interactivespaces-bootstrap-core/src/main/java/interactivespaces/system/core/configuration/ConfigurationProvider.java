@@ -16,6 +16,7 @@
 
 package interactivespaces.system.core.configuration;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -31,4 +32,11 @@ public interface ConfigurationProvider {
    * @return the initial map of configuration properties
    */
   Map<String, String> getInitialConfiguration();
+
+  /**
+   * Get the config folder, if any.
+   *
+   * @return the config folder, or {@code null} if none
+   */
+  File getConfigFolder();
 }

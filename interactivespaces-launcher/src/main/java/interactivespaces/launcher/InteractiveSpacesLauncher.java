@@ -76,9 +76,9 @@ public class InteractiveSpacesLauncher {
   private static final String SPACES_LIB_SYSTEM_JAVA = "lib/system/java";
 
   /**
-   * The subdirectory which contains the environment files.
+   * The subdirectory which contains the environment files relative to the config folder.
    */
-  private static final String SPACES_CONFIG_ENVIRONMENT = "config/environment";
+  private static final String SPACES_CONFIG_ENVIRONMENT = "environment";
 
   /**
    * Command line argument prefix for specifying a specific runtime path. This should match the value of
@@ -86,6 +86,13 @@ public class InteractiveSpacesLauncher {
    * package dependency considerations.
    */
   private static final String COMMAND_LINE_RUNTIME_PREFIX = "--runtime=";
+
+  /**
+   * Command line argument prefix for specifying a specific config path. This should match the value of
+   * {@code InteractiveSpacesFrameworkBootstrap.ARGS_CONFIG_PREFIX}, but can't be a shared variable because of
+   * package dependency considerations.
+   */
+  private static final String COMMAND_LINE_CONFIG_PREFIX = "--config=";
 
   /**
    * The classloader for starting Interactive Spaces.
@@ -96,6 +103,11 @@ public class InteractiveSpacesLauncher {
    * Path to the runtime directory, which is the root for dynamic configuration. Can be set by a command line flag.
    */
   private String runtimePath = ".";
+
+  /**
+   * Path to the config directory, which is the root for dynamic configuration. Can be set by a command line flag.
+   */
+  private String configPath = "config";
 
   /**
    * The file which gives the process ID for the Interactive Spaces process.
@@ -147,6 +159,9 @@ public class InteractiveSpacesLauncher {
       if (thisArg.startsWith(COMMAND_LINE_RUNTIME_PREFIX)) {
         runtimePath = thisArg.substring(COMMAND_LINE_RUNTIME_PREFIX.length());
         System.out.println("Setting runtime path to " + runtimePath);
+      } else if (thisArg.startsWith(COMMAND_LINE_CONFIG_PREFIX)) {
+        configPath = thisArg.substring(COMMAND_LINE_CONFIG_PREFIX.length());
+        System.out.println("Setting config path to " + configPath);
       }
     }
   }
@@ -200,7 +215,7 @@ public class InteractiveSpacesLauncher {
    *          the classpath
    */
   private void addExtensionsToClasspath(List<URL> classpath) {
-    File extensionsDirectory = new File(SPACES_CONFIG_ENVIRONMENT);
+    File extensionsDirectory = new File(new File(configPath), SPACES_CONFIG_ENVIRONMENT);
     File[] extensionFiles = extensionsDirectory.listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {

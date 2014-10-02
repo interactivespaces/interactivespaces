@@ -21,6 +21,7 @@ import interactivespaces.system.core.configuration.ConfigurationProvider;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,12 +31,41 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class AndroidConfigurationProvider implements ConfigurationProvider {
+
+  /**
+   * The Android preference for the Interactive Spaces Master port.
+   */
   public static final String PREF_MASTER_PORT = "PREF_MASTER_PORT";
+
+  /**
+   * The Android preference for the Interactive Spaces Master host.
+   */
   public static final String PREF_MASTER_HOST = "PREF_MASTER_HOST";
+
+  /**
+   * The Android preference for the description of the Interactive Spaces space controller running on the Android
+   * device.
+   */
   public static final String PREF_CONTROLLER_DESCRIPTION = "PREF_CONTROLLER_DESCRIPTION";
+
+  /**
+   * The Android preference for the name of the Interactive Spaces space controller running on the Android device.
+   */
   public static final String PREF_CONTROLLER_NAME = "PREF_CONTROLLER_NAME";
+
+  /**
+   * The Android preference for the host ID of the Interactive Spaces space controller running on the Android device.
+   */
   public static final String PREF_HOST_ID = "PREF_HOST_ID";
+
+  /**
+   * The Android preference for the host name of the Interactive Spaces space controller running on the Android device.
+   */
   public static final String PREF_CONTROLLER_HOST = "PREF_CONTROLLER_HOST";
+
+  /**
+   * The Android preference for the UUID of the Interactive Spaces space controller running on the Android device.
+   */
   public static final String PREF_CONTROLLER_UUID = "PREF_CONTROLLER_UUID";
 
   /**
@@ -44,18 +74,17 @@ public class AndroidConfigurationProvider implements ConfigurationProvider {
   public static final String CONTROLLER_HOST_DEVICE_IP = "$device_ip";
 
   /**
-   * Get the initial properties for the Interactive Spaces boot from the
-   * prefererences.
+   * Get the initial properties for the Interactive Spaces boot from the preferences.
    *
    * @param prefs
    *          the shared preferences from Android
    *
    * @return a map of the shared properties
    *
-   * @return RuntimeException a required property was missing
+   * @throws RuntimeException
+   *           a required property was missing
    */
-  public static Map<String, String> getInitialProperties(SharedPreferences prefs)
-      throws RuntimeException {
+  public static Map<String, String> getInitialProperties(SharedPreferences prefs) throws RuntimeException {
 
     String masterHost = getRequiredPrefValue(prefs, PREF_MASTER_HOST);
     String masterPort = getRequiredPrefValue(prefs, PREF_MASTER_PORT);
@@ -99,11 +128,10 @@ public class AndroidConfigurationProvider implements ConfigurationProvider {
    *
    * @return a trimmed version of the value
    *
-   * @throws Exception
+   * @throws RuntimeException
    *           there was no value found
    */
-  private static String getRequiredPrefValue(SharedPreferences prefs, String name)
-      throws RuntimeException {
+  private static String getRequiredPrefValue(SharedPreferences prefs, String name) throws RuntimeException {
     String value = prefs.getString(name, null);
     if (value != null) {
       value = value.trim();
@@ -122,6 +150,12 @@ public class AndroidConfigurationProvider implements ConfigurationProvider {
    */
   private SharedPreferences prefs;
 
+  /**
+   * Construct a new configuration provider.
+   *
+   * @param prefs
+   *          the Android preferences
+   */
   public AndroidConfigurationProvider(SharedPreferences prefs) {
     this.prefs = prefs;
   }
@@ -129,5 +163,11 @@ public class AndroidConfigurationProvider implements ConfigurationProvider {
   @Override
   public Map<String, String> getInitialConfiguration() {
     return getInitialProperties(prefs);
+  }
+
+  @Override
+  public File getConfigFolder() {
+    // Aren't any.
+    return null;
   }
 }

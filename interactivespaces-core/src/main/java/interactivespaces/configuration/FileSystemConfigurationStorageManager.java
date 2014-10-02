@@ -16,10 +16,11 @@
 
 package interactivespaces.configuration;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.evaluation.ExpressionEvaluator;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.system.InteractiveSpacesFilesystem;
+import interactivespaces.system.core.container.ContainerFilesystemLayout;
 
 import org.apache.commons.logging.Log;
 
@@ -36,12 +37,6 @@ import java.util.Properties;
  * @author Keith M. Hughes
  */
 public class FileSystemConfigurationStorageManager implements SystemConfigurationStorageManager {
-
-  /**
-   * Location of the configuration file folder relative to the root of the
-   * Interactive Spaces installation.
-   */
-  private static final String CONFIGURATION_FILE_FOLDER = "config/interactivespaces";
 
   /**
    * The extension for configuration files.
@@ -64,6 +59,11 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   private InteractiveSpacesFilesystem interactiveSpacesFilesystem;
 
   /**
+   * The folder which contains the configurations. Can be {@code null}.
+   */
+  private File configFolder;
+
+  /**
    * Logger.
    */
   private Log log;
@@ -76,8 +76,10 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
 
     systemConfiguration = sconfig;
 
-    for (File configFile : getConfigFiles()) {
-      loadConfigFile(systemConfiguration, configFile);
+    if (configFolder != null) {
+      for (File configFile : getConfigFiles()) {
+        loadConfigFile(systemConfiguration, configFile);
+      }
     }
   }
 
@@ -95,7 +97,9 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
    * Load the contents of a configuration file into a configuration.
    *
    * @param configuration
+   *          the configuration to place values in
    * @param configFile
+   *          the file to load into the configuration
    */
   private void loadConfigFile(Configuration configuration, File configFile) {
     InputStream in = null;
@@ -126,21 +130,20 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   }
 
   /**
-   * Get all configuration files from the Interactive Spaces configuration
-   * folder.
+   * Get all configuration files from the Interactive Spaces configuration folder.
    *
-   * @return
+   * @return all files in the configuration folder
    */
   private File[] getConfigFiles() {
-    File configurationFolder = new File(interactiveSpacesFilesystem.getInstallDirectory(), CONFIGURATION_FILE_FOLDER);
+    File configurationFolder = new File(configFolder, ContainerFilesystemLayout.FOLDER_CONFIG_INTERACTIVESPACES);
     if (configurationFolder.exists()) {
       if (!configurationFolder.isDirectory()) {
-        throw new InteractiveSpacesException(String.format(
+        throw new SimpleInteractiveSpacesException(String.format(
             "Interactive Spaces configuration folder %s is not a directory", configurationFolder));
       }
     } else {
-      throw new InteractiveSpacesException(String.format("Interactive Spaces configuration folder %s does not exist",
-          configurationFolder));
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Interactive Spaces configuration folder %s does not exist", configurationFolder));
     }
 
     File[] configFiles = configurationFolder.listFiles(new FilenameFilter() {
@@ -152,7 +155,7 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
     });
 
     if (configFiles.length == 0) {
-      throw new InteractiveSpacesException(String.format(
+      throw new SimpleInteractiveSpacesException(String.format(
           "Interactive Spaces configuration folder %s contains no files ending with %s", configurationFolder,
           CONFIGURATION_FILE_EXTENSION));
     }
@@ -161,6 +164,8 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   }
 
   /**
+   * Set the expression evaluator factory for this component.
+   *
    * @param expressionEvaluatorFactory
    *          the expressionEvaluatorFactory to set
    */
@@ -169,6 +174,8 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   }
 
   /**
+   * Set the logger for this component.
+   *
    * @param log
    *          the log to set
    */
@@ -177,10 +184,22 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   }
 
   /**
+   * Set the filesystem for this component.
+   *
    * @param interactiveSpacesFilesystem
    *          the interactiveSpacesFilesystem to set
    */
   public void setInteractiveSpacesFilesystem(InteractiveSpacesFilesystem interactiveSpacesFilesystem) {
     this.interactiveSpacesFilesystem = interactiveSpacesFilesystem;
+  }
+
+  /**
+   * Set the configuration folder for this component.
+   *
+   * @param configFolder
+   *          the configuration folder to set, can be {@code null}
+   */
+  public void setConfigFolder(File configFolder) {
+    this.configFolder = configFolder;
   }
 }

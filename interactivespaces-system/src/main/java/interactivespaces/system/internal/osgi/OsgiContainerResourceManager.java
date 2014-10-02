@@ -62,15 +62,13 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   public static final int BUNDLE_UPDATER_TIMEOUT = 4000;
 
   /**
-   * What to search for in an OSGi bundle location for being in the system
-   * bootstrap folder.
+   * What to search for in an OSGi bundle location for being in the system bootstrap folder.
    */
   private static final String SYSTEM_BOOTSTRAP_COMPONENT = "/" + ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP
       + "/";
 
   /**
-   * What to search for in an OSGi bundle location for being in the user
-   * bootstrap folder.
+   * What to search for in an OSGi bundle location for being in the user bootstrap folder.
    */
   private static final String USER_BOOTSTRAP_COMPONENT = "/" + ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP + "/";
 
@@ -83,6 +81,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    * The file system for the container.
    */
   private final InteractiveSpacesFilesystem filesystem;
+
+  /**
+   * Folder for configs. Can be {@code null}.
+   */
+  private final File configFolder;
 
   /**
    * Logger for this manager.
@@ -106,12 +109,16 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    *          the OSGi bundle context
    * @param filesystem
    *          the Interactive Spaces container filesystem
+   * @param configFolder
+   *          the folder for configurations, can be {@code null}
    * @param log
    *          the log to use
    */
-  public OsgiContainerResourceManager(BundleContext bundleContext, InteractiveSpacesFilesystem filesystem, Log log) {
+  public OsgiContainerResourceManager(BundleContext bundleContext, InteractiveSpacesFilesystem filesystem,
+      File configFolder, Log log) {
     this.bundleContext = bundleContext;
     this.filesystem = filesystem;
+    this.configFolder = configFolder;
     this.log = log;
   }
 
@@ -163,8 +170,11 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         break;
 
       case CONFIG:
-        resourceDestination =
-            new File(filesystem.getInstallDirectory(), ContainerFilesystemLayout.FOLDER_CONFIG_INTERACTIVESPACES);
+        if (configFolder == null) {
+          throw new SimpleInteractiveSpacesException("Configurations are not modifiable");
+        }
+
+        resourceDestination = new File(configFolder, ContainerFilesystemLayout.FOLDER_CONFIG_INTERACTIVESPACES);
 
         break;
       case LIB_SYSTEM:
@@ -247,8 +257,8 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   }
 
   /**
-   * An updater for bundle updates. This is for bundles which are already loaded
-   * and being used and that very bundle is being updated.
+   * An updater for bundle updates. This is for bundles which are already loaded and being used and that very bundle is
+   * being updated.
    *
    * @author Keith M. Hughes
    */
