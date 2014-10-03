@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,29 +14,34 @@
  * the License.
  */
 
-package interactivespaces.system.core.configuration;
+package interactivespaces.service.mail.receiver;
 
-import java.io.File;
-import java.util.Map;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * Boot configuration provider for Interactive Spaces.
+ * A receiver for email.
  *
  * @author Keith M. Hughes
  */
-public interface ConfigurationProvider {
+
+public interface MailReceiver extends ManagedResource {
 
   /**
-   * Get the initial configuration.
+   * Add a listener to the service.
    *
-   * @return the initial map of configuration properties
+   * @param listener
+   *          the listener to add
    */
-  Map<String, String> getInitialConfiguration();
+  void addListener(MailReceiverListener listener);
 
   /**
-   * Get the config folder, if any.
+   * Remove a listener from the service.
    *
-   * @return the config folder, or {@code null} if none
+   * <p>
+   * This method does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
    */
-  File getConfigFolder();
+  void removeListener(MailReceiverListener listener);
 }

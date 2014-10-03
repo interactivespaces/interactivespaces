@@ -156,8 +156,8 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   private OsgiContainerResourceManager containerResourceManager;
 
   /**
-   * Managed resources for the bundle. This simplifies automatic startup and
-   * shutdown of resources the bundle may need to provide.
+   * Managed resources for the bundle. This simplifies automatic startup and shutdown of resources the bundle may need
+   * to provide.
    */
   private ManagedResources managedResources;
 
@@ -210,7 +210,9 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    * Create any additional resources needed by the container.
    */
   private void createAdditionalResources() {
-    containerResourceManager = new OsgiContainerResourceManager(bundleContext, filesystem, spaceEnvironment.getLog());
+    containerResourceManager =
+        new OsgiContainerResourceManager(bundleContext, filesystem, configurationProvider.getConfigFolder(),
+            spaceEnvironment.getLog());
     containerResourceManager.startup();
     managedResources.addResource(containerResourceManager);
   }
@@ -229,10 +231,9 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    * Get all core services needed.
    *
    * <p>
-   * These services should have been provided by the OSGi container bootstrap
-   * and so will be immediately available. They will never go away since they
-   * are only destroyed when bundle 0 goes, which means the entire container is
-   * being shut down.
+   * These services should have been provided by the OSGi container bootstrap and so will be immediately available. They
+   * will never go away since they are only destroyed when bundle 0 goes, which means the entire container is being shut
+   * down.
    *
    * @throws Exception
    *           something bad happened
@@ -355,8 +356,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   }
 
   /**
-   * Add any customization to the service from services and other objects
-   * provided by the container.
+   * Add any customization to the service from services and other objects provided by the container.
    */
   public void customizeContainer() {
     if (containerCustomizerProvider != null) {
@@ -450,6 +450,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     fileSystemConfigurationStorageManager.setLog(spaceEnvironment.getLog());
     fileSystemConfigurationStorageManager.setExpressionEvaluatorFactory(expressionEvaluatorFactory);
     fileSystemConfigurationStorageManager.setInteractiveSpacesFilesystem(filesystem);
+    fileSystemConfigurationStorageManager.setConfigFolder(configurationProvider.getConfigFolder());
 
     systemConfigurationStorageManager = fileSystemConfigurationStorageManager;
     systemConfigurationStorageManager.startup();
@@ -469,8 +470,8 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     for (String argument : containerCustomizerProvider.getCommandLineArguments()) {
       if (argument.startsWith(COMMAND_LINE_VALUE_DEFINITION_PREFIX)) {
         String[] parts = argument.split(COMMAND_LINE_VALUE_DEFINITION_SPLIT, 2);
-        systemConfiguration.setValue(
-            parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()), parts.length > 1 ? parts[1] : "");
+        systemConfiguration.setValue(parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()),
+            parts.length > 1 ? parts[1] : "");
       }
     }
 

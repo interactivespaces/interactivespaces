@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Logging provider using Log4J
+ * Logging provider using Log4J.
  *
  * @author Keith M. Hughes
  */
@@ -68,6 +68,9 @@ public class Log4jLoggingProvider implements LoggingProvider {
    */
   private Logger baseInteractiveSpacesLogger;
 
+  /**
+   * The base log for the container.
+   */
   private Log baseContainerLog;
 
   /**
@@ -75,8 +78,6 @@ public class Log4jLoggingProvider implements LoggingProvider {
    *
    * @param baseInstallDir
    *          base installation directory for IS
-   * @param loggerBaseName
-   *          base name for the logger to be used
    */
   public void configure(File baseInstallDir) {
     File loggingPropertiesFile = new File(baseInstallDir, LOGGING_PROPERTIES_FILE);

@@ -18,6 +18,8 @@ package interactivespaces.service.mail.receiver;
 
 import interactivespaces.service.SupportedService;
 
+import org.apache.commons.logging.Log;
+
 /**
  * An Interactive Spaces service for receiving email.
  *
@@ -31,31 +33,14 @@ public interface MailReceiverService extends SupportedService {
   String SERVICE_NAME = "mail.receiver";
 
   /**
-   * Configuration property for SMTP host port interactive spaces should use.
-   */
-  String CONFIGURATION_MAIL_SMTP_PORT = "interactivespaces.service.mail.receiver.smtp.port";
-
-  /**
-   * The default value for the {@link #CONFIGURATION_MAIL_SMTP_PORT} parameter.
-   */
-  int CONFIGURATION_DEFAULT_MAIL_SMTP_PORT = 9999;
-
-  /**
-   * Add a listener to the service.
+   * Create a new mail receiver listening on a given port.
    *
-   * @param listener
-   *          the listener to add
-   */
-  void addListener(MailReceiverListener listener);
-
-  /**
-   * Remove a listener from the service.
+   * @param port
+   *          the port for the mail receiver to listen on
+   * @param log
+   *          the logger to use
    *
-   * <p>
-   * This method does nothing if the listener was never added.
-   *
-   * @param listener
-   *          the listener to remove
+   * @return the new mail receiver
    */
-  void removeListener(MailReceiverListener listener);
+  MailReceiver newMailReceiver(int port, Log log);
 }

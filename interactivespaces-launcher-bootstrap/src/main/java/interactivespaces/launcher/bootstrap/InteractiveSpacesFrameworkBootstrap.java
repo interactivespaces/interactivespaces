@@ -16,11 +16,11 @@
 
 package interactivespaces.launcher.bootstrap;
 
-import interactivespaces.system.core.container.InteractiveSpacesStartLevel;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
+import interactivespaces.system.core.container.InteractiveSpacesStartLevel;
 import interactivespaces.system.core.container.SimpleContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 
@@ -61,14 +61,12 @@ import java.util.jar.Manifest;
 public class InteractiveSpacesFrameworkBootstrap {
 
   /**
-   * Configuration parameter to specify if startup order of bundles should be
-   * logged.
+   * Configuration parameter to specify if startup order of bundles should be logged.
    */
   public static final String CONFIG_PROPERTY_STARTUP_LOGGING = "interactivespaces.logging.container.startup";
 
   /**
-   * Configuration parameter value to specify if startup order of bundles should
-   * be logged.
+   * Configuration parameter value to specify if startup order of bundles should be logged.
    */
   public static final String CONFIG_PROPERTY_VALUE_STARTUP_LOGGING = "true";
 
@@ -78,15 +76,28 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String ARGS_NOSHELL = "--noshell";
 
   /**
+   * Command line argument prefix for specifying a specific runtime path. This should match the value of
+   * {@code InteractiveSpacesLauncher.COMMAND_LINE_RUNTIME_PREFIX}, but can't be a shared variable because of package
+   * dependency considerations.
+   */
+  public static final String ARGS_RUNTIME_PREFIX = "--runtime=";
+
+  /**
+   * Command line argument prefix for specifying a specific config path. This should match the value of
+   * {@code InteractiveSpacesLauncher.COMMAND_LINE_CONFIG_PREFIX}, but can't be a shared variable because of package
+   * dependency considerations.
+   */
+  public static final String ARGS_CONFIG_PREFIX = "--config=";
+
+  /**
    * External packages loaded from the Interactive Spaces system folder.
    */
-  public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] {"org.apache.commons.logging; version=1.1.1",
+  public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] { "org.apache.commons.logging; version=1.1.1",
       "org.apache.commons.logging.impl; version=1.1.1", "javax.transaction; version=1.1.0",
       "javax.transaction.xa; version=1.1.0", "javax.transaction", "javax.transaction.xa" };
 
   /**
-   * Packages loaded from the Interactive Spaces system folder that are part of
-   * Interactive Spaces.
+   * Packages loaded from the Interactive Spaces system folder that are part of Interactive Spaces.
    */
   public static final String[] PACKAGES_SYSTEM_INTERACTIVESPACES = new String[] {
       "interactivespaces.system.core.logging", "interactivespaces.system.core.configuration",
@@ -98,7 +109,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String MANIFEST_PROPERTY_INTERACTIVESPACES_VERSION = "Bundle-Version";
 
   /**
-   * The folder where Interactive Spaces will cache OSGi plugins.
+   * The folder where Interactive Spaces will cache OSGi plugins. This is relative to the run folder.
    */
   public static final String FOLDER_PLUGINS_CACHE = "plugins-cache";
 
@@ -154,6 +165,17 @@ public class InteractiveSpacesFrameworkBootstrap {
   private File baseInstallFolder;
 
   /**
+   * The root runtime directory for this container. May be the same as the base install folder, but can be independently
+   * controlled to allow for multiple runtime instances.
+   */
+  private File runtimeFolder;
+
+  /**
+   * The root config directory for this container.
+   */
+  private File configFolder;
+
+  /**
    * The OSGi bundle context for the OSGi framework bundle.
    */
   private BundleContext rootBundleContext;
@@ -170,56 +192,80 @@ public class InteractiveSpacesFrameworkBootstrap {
    *          the arguments to be passed to the bootstrap
    */
   public void boot(List<String> args) {
-    // TODO(keith): Better command line processing
-    needShell = !args.contains(ARGS_NOSHELL);
 
     baseInstallFolder = new File(".").getAbsoluteFile().getParentFile();
+
+    // Set default values for various directories.
+    runtimeFolder = baseInstallFolder;
+    configFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_DEFAULT_CONFIG);
+
+    processCommandLineArgs(args);
 
     initialBundles = new ArrayList<File>();
 
     getBootstrapBundleJars(new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
 
-    // If no bundle JAR files are in the directory, then exit.
-    if (initialBundles.isEmpty()) {
-      loggingProvider.getLog().warn("No bootstrap bundles to install.");
-    } else {
+    try {
       setupShutdownHandler();
 
       setupExceptionHandler();
 
-      try {
-        loadStartupFolder();
+      loadStartupFolder();
 
-        createCoreServices(args);
+      createCoreServices(args);
 
-        File environmentFolder = new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT);
-        ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
-        extensionsReader.processExtensionFiles(environmentFolder);
+      if (initialBundles.isEmpty()) {
+        throw new RuntimeException("No bootstrap bundles to install.");
+      }
 
-        createFramework(extensionsReader);
+      File environmentFolder = new File(configFolder, ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT);
+      ExtensionsReader extensionsReader = new ExtensionsReader(loggingProvider.getLog());
+      extensionsReader.processExtensionFiles(environmentFolder);
 
-        registerCoreServices();
+      createFramework(extensionsReader);
 
-        loadClasses(extensionsReader.getLoadclasses());
+      registerCoreServices();
 
-        framework.start();
+      loadClasses(extensionsReader.getLoadclasses());
 
-        startBundles(initialBundles);
-        frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
+      framework.start();
 
-        framework.waitForStop(0);
-        System.exit(0);
-      } catch (Throwable ex) {
+      startBundles(initialBundles);
+      frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
+
+      framework.waitForStop(0);
+      System.exit(0);
+    } catch (Throwable ex) {
+      if (loggingProvider != null && loggingProvider.getLog() != null) {
         loggingProvider.getLog().error("Error starting framework", ex);
+      } else {
+        System.err.println("Error starting framework");
+        ex.printStackTrace();
+      }
+      System.exit(1);
+    }
+  }
 
-        System.exit(1);
+  /**
+   * Process the command line arguments for this container.
+   *
+   * @param args
+   *          the list of command line arguments
+   */
+  private void processCommandLineArgs(List<String> args) {
+    for (String arg : args) {
+      if (arg.equals(ARGS_NOSHELL)) {
+        needShell = false;
+      } else if (arg.startsWith(ARGS_RUNTIME_PREFIX)) {
+        runtimeFolder = new File(arg.substring(ARGS_RUNTIME_PREFIX.length()));
+      } else if (arg.startsWith(ARGS_CONFIG_PREFIX)) {
+        configFolder = new File(arg.substring(ARGS_CONFIG_PREFIX.length()));
       }
     }
   }
 
   /**
-   * Load the contents of the startup folder, which contains additional
-   * resources for the container.
+   * Load the contents of the startup folder, which contains additional resources for the container.
    *
    * @throws Exception
    *           could not create the startup folder or load it
@@ -258,9 +304,9 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   public void createCoreServices(List<String> args) {
     loggingProvider = new Log4jLoggingProvider();
-    loggingProvider.configure(baseInstallFolder);
+    loggingProvider.configure(runtimeFolder);
 
-    configurationProvider = new FileConfigurationProvider(baseInstallFolder);
+    configurationProvider = new FileConfigurationProvider(baseInstallFolder, configFolder, loggingProvider.getLog());
     configurationProvider.load();
 
     containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
@@ -282,8 +328,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    *          the jars to start as OSGi bundles
    *
    * @throws BundleException
-   *           something happened while starting bundles that could not be
-   *           recovered from
+   *           something happened while starting bundles that could not be recovered from
    */
   protected void startBundles(List<File> jars) throws BundleException {
     for (File bundleFile : jars) {
@@ -404,12 +449,15 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR, baseInstallFolder.getAbsolutePath());
 
+    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR, runtimeFolder.getAbsolutePath());
+
     m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION, getInteractiveSpacesVersion());
 
     m.putAll(configurationProvider.getInitialConfiguration());
 
-    File file = new File(baseInstallFolder, FOLDER_PLUGINS_CACHE);
-    m.put(Constants.FRAMEWORK_STORAGE, file.getCanonicalPath());
+    File pluginsCacheFolder =
+        new File(new File(runtimeFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_RUN), FOLDER_PLUGINS_CACHE);
+    m.put(Constants.FRAMEWORK_STORAGE, pluginsCacheFolder.getCanonicalPath());
 
     framework = getFrameworkFactory().newFramework(m);
     frameworkStartLevel = framework.adapt(FrameworkStartLevel.class);
@@ -469,8 +517,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Set up a shutdown hook which will stop the framework when the VM shuts
-   * down.
+   * Set up a shutdown hook which will stop the framework when the VM shuts down.
    */
   private void setupShutdownHandler() {
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -523,9 +570,8 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Simple method to parse META-INF/services file for framework factory.
-   * Currently, it assumes the first non-commented line is the class nodeName of
-   * the framework factory implementation.
+   * Simple method to parse META-INF/services file for framework factory. Currently, it assumes the first non-commented
+   * line is the class nodeName of the framework factory implementation.
    *
    * @return the created <tt>FrameworkFactory</tt> instance
    *
@@ -560,12 +606,11 @@ public class InteractiveSpacesFrameworkBootstrap {
    * Get the list of packages which must be delegated to the boot classloader.
    *
    * <p>
-   * The bootloader loads all classes in the java install. This covers things
-   * like the javax classes which are not automatically exposed through the OSGi
-   * bundle classloaders.
+   * The bootloader loads all classes in the java install. This covers things like the javax classes which are not
+   * automatically exposed through the OSGi bundle classloaders.
    *
-   * @return a properly formated string for the delegation classpath, or
-   *         {@code null} if there are no packages to be delegated
+   * @return a properly formated string for the delegation classpath, or {@code null} if there are no packages to be
+   *         delegated
    */
   private String getClassloaderDelegations() {
     File delegation = new File(baseInstallFolder, "lib/system/java/delegations.conf");

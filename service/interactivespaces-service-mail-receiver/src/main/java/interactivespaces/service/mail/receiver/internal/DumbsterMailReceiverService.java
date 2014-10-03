@@ -17,13 +17,10 @@
 package interactivespaces.service.mail.receiver.internal;
 
 import interactivespaces.service.BaseSupportedService;
-import interactivespaces.service.mail.common.MailMessage;
-import interactivespaces.service.mail.receiver.MailReceiverListener;
+import interactivespaces.service.mail.receiver.MailReceiver;
 import interactivespaces.service.mail.receiver.MailReceiverService;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
-import com.dumbster.smtp.SmtpServer;
-import com.dumbster.smtp.SmtpServerFactory;
+import org.apache.commons.logging.Log;
 
 /**
  * A {@link MailReceiverService} which uses Dumbster.
@@ -31,17 +28,7 @@ import com.dumbster.smtp.SmtpServerFactory;
  * @author Keith M. Hughes
  */
 public class DumbsterMailReceiverService extends BaseSupportedService implements
-    MailReceiverService, MailReceiverListener {
-
-  /**
-   * The SMTP server.
-   */
-  private SmtpServer server;
-
-  /**
-   * The mail store to use.
-   */
-  private final CallbackMailStore mailStore = new CallbackMailStore();
+    MailReceiverService {
 
   @Override
   public String getName() {
@@ -49,54 +36,7 @@ public class DumbsterMailReceiverService extends BaseSupportedService implements
   }
 
   @Override
-  public void startup() {
-    getSpaceEnvironment().getLog().info("Starting mail server");
-
-    server =
-        SmtpServerFactory.startServer(getSpaceEnvironment().getSystemConfiguration().getPropertyInteger(
-            CONFIGURATION_MAIL_SMTP_PORT, CONFIGURATION_DEFAULT_MAIL_SMTP_PORT));
-    server.setThreaded(true);
-    server.setMailStore(mailStore);
-  }
-
-  @Override
-  public void shutdown() {
-    if (server != null) {
-      server.stop();
-      server = null;
-
-      mailStore.clearMessages();
-    }
-  }
-
-  @Override
-  public void addListener(MailReceiverListener listener) {
-    mailStore.addListener(listener);
-  }
-
-  @Override
-  public void removeListener(MailReceiverListener listener) {
-    mailStore.removeListener(listener);
-  }
-
-  @Override
-  public void onMailMessageReceive(MailMessage message) {
-    getSpaceEnvironment().getLog().info(String.format("Got email message\n%s", message.getBody()));
-  }
-
-  /**
-   * @param spaceEnvironment
-   *          the spaceEnvironment to set
-   */
-  public void bindSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    setSpaceEnvironment(spaceEnvironment);
-  }
-
-  /**
-   * @param spaceEnvironment
-   *          the spaceEnvironment to set
-   */
-  public void unbindSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
-    setSpaceEnvironment(null);
+  public MailReceiver newMailReceiver(int port, Log log) {
+    return new DumbsterMailReceiver(port, log);
   }
 }
