@@ -97,6 +97,12 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
   /**
+   * Should this web-server allow links to be accessed? (Wander outside the root filesystem.)
+   * Useful for debugging & development.
+   */
+  private boolean allowLinks;
+
+  /**
    * Create a new instance.
    *
    * @param parentHandler
@@ -159,7 +165,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     File file = new File(baseDir, filepath);
 
     // Refuse to process if the path wanders outside of the base directory.
-    if (!file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+    if (!allowLinks && !file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
       parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
       return;
     }
@@ -295,6 +301,16 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   }
 
   /**
+   * Allow files linked outside the root filesystem to be accessed.
+   *
+   * @param allowLinks
+   *          {@code true} if following links should be allowed
+   */
+  public void setAllowLinks(boolean allowLinks) {
+    this.allowLinks = allowLinks;
+  }
+
+  /**
    * An HTTP range request.
    *
    * @author Keith M. Hughes
@@ -304,12 +320,12 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     /**
      * The position of the first byte in the request.
      */
-    long begin;
+    private long begin;
 
     /**
      * The position of the last byte in the request.
      */
-    long end;
+    private long end;
 
     /**
      * Get the number of bytes in the range.

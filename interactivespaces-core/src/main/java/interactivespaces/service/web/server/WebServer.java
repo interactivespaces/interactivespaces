@@ -195,6 +195,14 @@ public interface WebServer extends ManagedResource {
   void addContentHeaders(Map<String, String> headers);
 
   /**
+   * Set whether the server should run in debug mode.
+   *
+   * @param debugMode
+   *          {@code true} if should be in debug mode.
+   */
+  void setDebugMode(boolean debugMode);
+
+  /**
    * Does the server supports secure communication?
    *
    * @return {@code true} if supports secure communications
