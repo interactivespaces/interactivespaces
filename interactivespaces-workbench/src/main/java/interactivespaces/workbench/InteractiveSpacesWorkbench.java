@@ -16,9 +16,6 @@
 
 package interactivespaces.workbench;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
@@ -54,12 +51,17 @@ import interactivespaces.workbench.project.creator.ProjectCreator;
 import interactivespaces.workbench.project.creator.ProjectCreatorImpl;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 import interactivespaces.workbench.project.java.BndOsgiContainerBundleCreator;
+import interactivespaces.workbench.project.java.ContainerBundleCreator;
 import interactivespaces.workbench.project.java.ExternalJavadocGenerator;
 import interactivespaces.workbench.project.java.JavadocGenerator;
-import interactivespaces.workbench.project.java.ContainerBundleCreator;
 import interactivespaces.workbench.project.jdom.JdomProjectGroupTemplateSpecificationReader;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
@@ -90,8 +92,7 @@ public class InteractiveSpacesWorkbench {
   public static final String CONFIGURATION_PROPERTY_WORKBENCH_HOME = "workbench.home";
 
   /**
-   * Command to recursively walk over a set of directories looking for the IS
-   * project folders.
+   * Command to recursively walk over a set of directories looking for the IS project folders.
    */
   public static final String COMMAND_RECURSIVE = "walk";
 
@@ -156,20 +157,17 @@ public class InteractiveSpacesWorkbench {
   public static final int EXTENSION_FILE_PATH_KEYWORD_LENGTH = EXTENSION_FILE_PATH_KEYWORD.length();
 
   /**
-   * Configuration property giving the location of the controller the workbench
-   * is using.
+   * Configuration property giving the location of the controller the workbench is using.
    */
   public static final String CONFIGURATION_INTERACTIVESPACES_HOME = "interactivespaces.home";
 
   /**
-   * Configuration property giving the location of the controller the workbench
-   * is using.
+   * Configuration property giving the location of the controller the workbench is using.
    */
   public static final String CONFIGURATION_CONTROLLER_BASEDIR = "interactivespaces.controller.basedir";
 
   /**
-   * Configuration property giving the location of the master the workbench is
-   * using.
+   * Configuration property giving the location of the master the workbench is using.
    */
   public static final String CONFIGURATION_MASTER_BASEDIR = "interactivespaces.master.basedir";
 
@@ -482,14 +480,13 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT)
-            .listFiles(new FilenameFilter() {
-
-              @Override
-              public boolean accept(File dir, String name) {
-                return name.endsWith(EXTENSION_FILE_EXTENSION);
-              }
-            });
+        new File(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_DEFAULT_CONFIG),
+            ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT).listFiles(new FilenameFilter() {
+          @Override
+          public boolean accept(File dir, String name) {
+            return name.endsWith(EXTENSION_FILE_EXTENSION);
+          }
+        });
 
     if (extensionFiles != null) {
       for (File extensionFile : extensionFiles) {
@@ -611,8 +608,9 @@ public class InteractiveSpacesWorkbench {
    */
   private void createProject(List<String> commands) {
     getLog().info("Creating project from specification...");
-    File specFile = new File(determineTemplateSpec(removeArgument(commands, "specification project type"),
-        removeArgument(commands, "specification project kind")));
+    File specFile =
+        new File(determineTemplateSpec(removeArgument(commands, "specification project type"),
+            removeArgument(commands, "specification project kind")));
     File baseDirectory = new File(removeArgument(commands, "base output directory"));
 
     JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
@@ -702,8 +700,7 @@ public class InteractiveSpacesWorkbench {
    * Walk over a set of folders looking for project files to build.
    *
    * @param baseDir
-   *          base folder which may be a project folder or may contain project
-   *          folders
+   *          base folder which may be a project folder or may contain project folders
    * @param commands
    *          commands to run on all project files
    * @param filter

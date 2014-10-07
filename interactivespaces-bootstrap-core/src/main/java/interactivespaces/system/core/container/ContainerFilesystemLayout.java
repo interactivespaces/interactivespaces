@@ -24,6 +24,11 @@ package interactivespaces.system.core.container;
 public class ContainerFilesystemLayout {
 
   /**
+   * The folder where Interactive Spaces run files are kept, e.g. pid, etc.
+   */
+  public static final String FOLDER_INTERACTIVESPACES_RUN = "run";
+
+  /**
    * The folder where Interactive Spaces system files as needed for bootstrap
    * are kept.
    */
@@ -35,14 +40,19 @@ public class ContainerFilesystemLayout {
   public static final String FOLDER_SYSTEM_BOOTSTRAP = "bootstrap";
 
   /**
-   * Subdirectory which will contain the InteractiveSpaces configs.
+   * Folder default for the container configs.
    */
-  public static final String FOLDER_CONFIG_INTERACTIVESPACES = "config/interactivespaces";
+  public static final String FOLDER_DEFAULT_CONFIG = "config";
 
   /**
-   * Subdirectory which will contain the local environment.
+   * Subdirectory which will contain the InteractiveSpaces configs, relative to the root config folder.
    */
-  public static final String FOLDER_CONFIG_ENVIRONMENT = "config/environment";
+  public static final String FOLDER_CONFIG_INTERACTIVESPACES = "interactivespaces";
+
+  /**
+   * Subdirectory which will contain the local environment, relative to the root config folder.
+   */
+  public static final String FOLDER_CONFIG_ENVIRONMENT = "environment";
 
   /**
    * Subdirectory which will contain additional bundles for bootstrap.
