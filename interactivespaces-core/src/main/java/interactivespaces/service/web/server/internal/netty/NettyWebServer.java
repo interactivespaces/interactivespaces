@@ -114,6 +114,11 @@ public class NettyWebServer implements WebServer {
   private ServerBootstrap bootstrap;
 
   /**
+   * {@code true} if running in debug mode.
+   */
+  private boolean debugMode;
+
+  /**
    * {@code true} if support being a secure server.
    */
   private boolean secureServer;
@@ -247,8 +252,14 @@ public class NettyWebServer implements WebServer {
         fallbackHandler == null ? null : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
             fallbackHandler, extraHttpContentHeaders);
 
-    serverHandler.addHttpContentHandler(new NettyStaticContentHandler(serverHandler, uriPrefix, baseDir,
-        extraHttpContentHeaders, fallbackNettyHandler));
+    NettyStaticContentHandler staticContentHandler = new NettyStaticContentHandler(serverHandler, uriPrefix, baseDir,
+        extraHttpContentHeaders, fallbackNettyHandler);
+    staticContentHandler.setAllowLinks(isDebugMode());
+    if (isDebugMode()) {
+      getLog().warn("Enabling web-server link following because of debug mode -- not secure.");
+    }
+
+    serverHandler.addHttpContentHandler(staticContentHandler);
   }
 
   @Override
@@ -302,6 +313,20 @@ public class NettyWebServer implements WebServer {
   @Override
   public void addContentHeaders(Map<String, String> headers) {
     globalHttpContentHeaders.putAll(headers);
+  }
+
+  @Override
+  public void setDebugMode(boolean debugMode) {
+    this.debugMode = debugMode;
+  }
+
+  /**
+   * Check if this server is running in debug mode.
+   *
+   * @return {@code true} if this server is running in debug mode
+   */
+  public boolean isDebugMode() {
+    return debugMode;
   }
 
   @Override

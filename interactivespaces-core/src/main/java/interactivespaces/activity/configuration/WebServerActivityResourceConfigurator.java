@@ -151,6 +151,10 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
       }
     }
 
+    boolean debugMode =
+        configuration.getPropertyBoolean(WebActivityConfiguration.CONFIGURATION_WEBAPP_DEBUG, false);
+    webServer.setDebugMode(debugMode);
+
     String webServerHost =
         configuration.getPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS,
             WEB_SERVER_DEFAULT_HOST);
