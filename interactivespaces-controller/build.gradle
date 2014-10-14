@@ -25,8 +25,6 @@ dependencies {
   runtime 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
                   
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
-
-  //compile 'org.apache.felix:org.apache.felix.gogo.command:0.10.0'
   
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

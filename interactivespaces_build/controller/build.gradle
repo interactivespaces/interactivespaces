@@ -49,6 +49,11 @@ dependencies {
   bootstrap project(":interactivespaces-interaction")
 
   bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
+  
+  bootstrap('org.apache.felix:org.apache.felix.gogo.command:0.10.0') {
+    exclude group: 'org.osgi'
+    exclude group: 'org.easymock'
+  }
 
   system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
   system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
