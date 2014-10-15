@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.java;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.util.List;
 
@@ -33,11 +35,15 @@ public interface ContainerBundleCreator {
    *          file for the source jar
    * @param output
    *          where the file should be written
+   * @param headers
+   *          the file containing the OSGi header information, can be {@code null}
    * @param classpath
    *          the classpath for the bundle
+   * @param log
+   *          the logger to use
    *
    * @throws Exception
    *           something bad happened
    */
-  void createBundle(File source, File output, List<File> classpath) throws Exception;
+  void createBundle(File source, File output, File headers, List<File> classpath, Log log) throws Exception;
 }
