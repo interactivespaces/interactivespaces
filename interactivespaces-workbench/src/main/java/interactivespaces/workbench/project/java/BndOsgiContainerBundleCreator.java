@@ -20,6 +20,7 @@ import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
 import aQute.lib.osgi.Verifier;
+import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.util.List;
@@ -34,7 +35,7 @@ import java.util.regex.Pattern;
 public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
   @Override
-  public void createBundle(File source, File output, List<File> classpath) throws Exception {
+  public void createBundle(File source, File output, File headers, List<File> classpath, Log log) throws Exception {
     Analyzer analyzer = new Analyzer();
     try {
       analyzer.setJar(source);
@@ -46,30 +47,31 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
       Jar sourceJar = analyzer.getJar();
 
-      analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
+      if (headers != null) {
+        analyzer.addProperties(headers);
+      } else {
+        analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
 
-      if (analyzer.getProperty(Constants.BUNDLE_SYMBOLICNAME) == null) {
-        Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
-        String base = source.getName();
-        Matcher m = p.matcher(base);
-        base = "Untitled";
-        if (m.matches()) {
-          base = m.group(1);
-        } else {
-          System.err
-          .println("Can not calculate name of output bundle, rename jar or use -properties");
+        if (analyzer.getProperty(Constants.BUNDLE_SYMBOLICNAME) == null) {
+          Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
+          String base = source.getName();
+          Matcher m = p.matcher(base);
+          base = "Untitled";
+          if (m.matches()) {
+            base = m.group(1);
+          } else {
+            log.error("Can not calculate name of output bundle, rename jar or use a headers file");
+          }
+          analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
         }
-        analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
-      }
 
-      String export = analyzer.calculateExportsFromContents(sourceJar);
-      analyzer.setProperty(Constants.EXPORT_PACKAGE, export);
+        String export = analyzer.calculateExportsFromContents(sourceJar);
+        analyzer.setProperty(Constants.EXPORT_PACKAGE, export);
+      }
 
       analyzer.mergeManifest(sourceJar.getManifest());
 
-      //
       // Cleanup the version ..
-      //
       String version = analyzer.getProperty(Constants.BUNDLE_VERSION);
       if (version != null) {
         version = Analyzer.cleanupVersion(version);
@@ -90,8 +92,8 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       Jar finalJar = analyzer.getJar();
 
       List<String> errors = analyzer.getErrors();
-      outputIssues("Errors", errors);
-      outputIssues("Warnings", analyzer.getWarnings());
+      outputErrors(errors, log);
+      outputWarnings(analyzer.getWarnings(), log);
 
       if (errors.isEmpty()) {
         finalJar.write(output);
@@ -102,19 +104,30 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
   }
 
   /**
-   * Output issues for the user.
+   * Output errors for the user.
    *
-   * @param type
-   *          the type of issue
    * @param issues
    *          the issues
+   * @param log
+   *          the logger to use
    */
-  private void outputIssues(String type, List<String> issues) {
-    if (!issues.isEmpty()) {
-      System.out.format("OSGi Bundle Creator %s:\n", type);
-      for (String issue : issues) {
-        System.out.println(issue);
-      }
+  private void outputErrors(List<String> issues, Log log) {
+    for (String issue : issues) {
+      log.error("OSGi Bundle Creator: " + issue);
+    }
+  }
+
+  /**
+   * Output warnings for the user.
+   *
+   * @param issues
+   *          the issues
+   * @param log
+   *          the logger to use
+   */
+  private void outputWarnings(List<String> issues, Log log) {
+    for (String issue : issues) {
+      log.warn("OSGi Bundle Creator: " + issue);
     }
   }
 }

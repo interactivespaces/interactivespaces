@@ -401,7 +401,7 @@ public class InteractiveSpacesWorkbench {
 
     ContainerBundleCreator osgiBundleCreator = new BndOsgiContainerBundleCreator();
     try {
-      osgiBundleCreator.createBundle(new File(file), null, null);
+      osgiBundleCreator.createBundle(new File(file), null, null, null, log);
     } catch (Exception e) {
       handleError("Error while creating project", e);
     }
