@@ -21,6 +21,8 @@ import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -35,6 +37,11 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public abstract class JavaProjectType implements ProjectType {
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Source location for the Java source files.
@@ -75,8 +82,7 @@ public abstract class JavaProjectType implements ProjectType {
   }
 
   /**
-   * Add dependencies to the classpath if they are found in the user bootstrap
-   * folder of the controller.
+   * Add dependencies to the classpath if they are found in the user bootstrap folder of the controller.
    *
    * @param context
    *          the project build context
@@ -88,18 +94,18 @@ public abstract class JavaProjectType implements ProjectType {
   private void addDependenciesFromUserBootstrap(ProjectBuildContext context, List<File> classpath,
       InteractiveSpacesWorkbench workbench) {
     NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> startupResources =
-        new OsgiResourceAnalyzer(workbench.getLog()).getResourceCollection(new File(workbench.getControllerDirectory(),
-            ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
+        new OsgiResourceAnalyzer(workbench.getLog()).getResourceCollection(fileSupport.newFile(
+            workbench.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
     for (ProjectDependency dependency : context.getProject().getDependencies()) {
       NamedVersionedResourceWithData<String> dependencyProvider =
           startupResources.getResource(dependency.getName(), dependency.getVersionRange());
       if (dependencyProvider != null) {
-        classpath.add(new File(dependencyProvider.getData()));
+        classpath.add(fileSupport.newFile(dependencyProvider.getData()));
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
-        throw new SimpleInteractiveSpacesException(
-            String.format("Project has listed dependency that isn't available %s:%s", dependency.getName(),
-                dependency.getVersionRange()));
+        throw new SimpleInteractiveSpacesException(String.format(
+            "Project has listed dependency that isn't available %s:%s", dependency.getName(),
+            dependency.getVersionRange()));
       }
     }
   }

@@ -16,6 +16,13 @@
 
 package interactivespaces.workbench.project.java;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+
+import com.google.common.io.Closeables;
+
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
@@ -23,9 +30,15 @@ import aQute.lib.osgi.Verifier;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Create an OSGi bundle from a source file using BND.
@@ -34,11 +47,50 @@ import java.util.regex.Pattern;
  */
 public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
+  /**
+   * Size of IO buffers in bytes.
+   */
+  public static final int IO_BUFFER_SIZE = 1024;
+
+  /**
+   * A folder for temporary files.
+   */
+  private File baseTempDir;
+
+  /**
+   * The logger to use.
+   */
+  private Log log;
+
+  /**
+   * The file support to use for file operations.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct a new creator.
+   *
+   * @param baseTempDir
+   *          directory to be used for scratch files
+   * @param log
+   *          the logger to use
+   */
+  public BndOsgiContainerBundleCreator(File baseTempDir, Log log) {
+    this.baseTempDir = baseTempDir;
+    this.log = log;
+  }
+
   @Override
-  public void createBundle(File source, File output, File headers, List<File> classpath, Log log) throws Exception {
+  public void createBundle(List<File> sources, File output, File headers, List<File> classpath) {
+    if (sources.size() > 1 && output == null) {
+      throw new SimpleInteractiveSpacesException("An output name must be specified if merging multiple jars");
+    }
+
+    File sourceJarFile = getSourceJar(sources);
+
     Analyzer analyzer = new Analyzer();
     try {
-      analyzer.setJar(source);
+      analyzer.setJar(sourceJarFile);
       analyzer.setPedantic(true);
 
       if (classpath != null) {
@@ -52,18 +104,17 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       } else {
         analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
 
-        if (analyzer.getProperty(Constants.BUNDLE_SYMBOLICNAME) == null) {
-          Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
-          String base = source.getName();
-          Matcher m = p.matcher(base);
-          base = "Untitled";
-          if (m.matches()) {
-            base = m.group(1);
-          } else {
-            log.error("Can not calculate name of output bundle, rename jar or use a headers file");
-          }
-          analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
+        Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
+        String base = sourceJarFile.getName();
+        Matcher m = p.matcher(base);
+        base = "Untitled";
+        if (m.matches()) {
+          base = m.group(1);
+        } else {
+          throw new SimpleInteractiveSpacesException(
+              "Can not calculate bundle name from the source jar, rename jar to be of form name-version.jar or use a headers file");
         }
+        analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
 
         String export = analyzer.calculateExportsFromContents(sourceJar);
         analyzer.setProperty(Constants.EXPORT_PACKAGE, export);
@@ -79,13 +130,13 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       }
 
       if (output == null) {
-        output = source.getAbsoluteFile().getParentFile();
+        output = sourceJarFile.getAbsoluteFile().getParentFile();
       }
 
-      String path = "interactivespaces." + source.getName();
+      String bundleFileName = "interactivespaces." + sourceJarFile.getName();
 
       if (output.isDirectory()) {
-        output = new File(output, path);
+        output = new File(output, bundleFileName);
       }
 
       analyzer.calcManifest();
@@ -98,8 +149,69 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       if (errors.isEmpty()) {
         finalJar.write(output);
       }
+    } catch (Exception e) {
+      throw new InteractiveSpacesException("Error while creating OSGi bundle", e);
     } finally {
-      analyzer.close();
+      Closeables.closeQuietly(analyzer);
+
+      if (sources.size() > 1) {
+        fileSupport.delete(sourceJarFile);
+      }
+    }
+  }
+
+  /**
+   * Get the source jar for BND analysis.
+   *
+   * <p>
+   * If multiple sources this file should be deleted after the source jar is processed.
+   *
+   * @param sources
+   *          the source jars
+   *
+   * @return the source jar
+   */
+  private File getSourceJar(List<File> sources) {
+    if (sources.size() > 1) {
+      return mergeSources(sources);
+    } else {
+      return sources.get(0);
+    }
+  }
+
+  /**
+   * Merge the following sources into one large source.
+   *
+   * @param sources
+   *          the source jars
+   *
+   * @return a source which contains everything from the sources
+   */
+  private File mergeSources(List<File> sources) {
+    File tempExpansionFolder = null;
+    File fatJar = null;
+    try {
+      tempExpansionFolder = fileSupport.createTempDirectory(baseTempDir, "interactivespaces", "-bundle");
+
+      for (File source : sources) {
+        fileSupport.unzip(source, tempExpansionFolder);
+      }
+
+      fatJar = fileSupport.createTempFile(baseTempDir, "interactivespaces", "-bundle.jar");
+      createJarFile(fatJar, tempExpansionFolder);
+
+      return fatJar;
+    } catch (Exception e) {
+      e.printStackTrace();
+      if (fatJar != null) {
+        fileSupport.delete(fatJar);
+      }
+
+      throw new InteractiveSpacesException("Exception while merging source jars", e);
+    } finally {
+      if (tempExpansionFolder != null) {
+        fileSupport.delete(tempExpansionFolder);
+      }
     }
   }
 
@@ -128,6 +240,84 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
   private void outputWarnings(List<String> issues, Log log) {
     for (String issue : issues) {
       log.warn("OSGi Bundle Creator: " + issue);
+    }
+  }
+
+  /**
+   * Create a Jar file from a source folder.
+   *
+   * @param jarDestinationFile
+   *          the jar file being created
+   * @param sourceFolder
+   *          the source folder containing the classes
+   */
+  private void createJarFile(File jarDestinationFile, File sourceFolder) {
+    // Create a buffer for reading the files
+    byte[] buf = new byte[IO_BUFFER_SIZE];
+
+    JarOutputStream out = null;
+    try {
+      // Create the jar file
+      out = new JarOutputStream(new FileOutputStream(jarDestinationFile));
+
+      writeJarFile(sourceFolder, buf, out, "");
+
+      // Complete the jar file
+      out.close();
+    } catch (Exception e) {
+      throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
+          jarDestinationFile.getAbsolutePath()), e);
+    } finally {
+      Closeables.closeQuietly(out);
+    }
+  }
+
+  /**
+   * Write out the contents of the folder to the distribution file.
+   *
+   * @param directory
+   *          folder being written to the build
+   * @param buf
+   *          a buffer for caching info
+   * @param jarOutputStream
+   *          the stream where the jar is being written
+   * @param parentPath
+   *          path up to this point
+   *
+   * @throws IOException
+   *           for IO access errors
+   */
+  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream, String parentPath)
+      throws IOException {
+    File[] files = directory.listFiles();
+    if (files == null || files.length == 0) {
+      log.warn("No source files found in " + directory.getAbsolutePath());
+      return;
+    }
+    for (File file : files) {
+      if (file.isDirectory()) {
+        writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/");
+      } else {
+        FileInputStream in = null;
+        try {
+          in = new FileInputStream(file);
+
+          // Add ZIP entry to output stream.
+          jarOutputStream.putNextEntry(new JarEntry(parentPath + file.getName()));
+
+          // Transfer bytes from the file to the ZIP file
+          int len;
+          while ((len = in.read(buf)) > 0) {
+            jarOutputStream.write(buf, 0, len);
+          }
+
+          // Complete the entry
+          jarOutputStream.closeEntry();
+          in.close();
+        } finally {
+          Closeables.close(in, true);
+        }
+      }
     }
   }
 }
