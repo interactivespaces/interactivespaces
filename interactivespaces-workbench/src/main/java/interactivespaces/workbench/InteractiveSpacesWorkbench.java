@@ -19,12 +19,6 @@ package interactivespaces.workbench;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
-import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
-import interactivespaces.domain.support.DomainValidationResult;
-import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
-import interactivespaces.domain.support.Validator;
-import interactivespaces.resource.Version;
-import interactivespaces.resource.VersionValidator;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
@@ -65,7 +59,6 @@ import com.google.common.io.Closeables;
 import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
@@ -80,6 +73,21 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesWorkbench {
+
+  /**
+   * Command line flag for specifying a source directory.
+   */
+  public static final String COMMAND_LINE_FLAG_SOURCEDIR = "--sourcedir";
+
+  /**
+   * Command line flag for specifying a headers file.
+   */
+  public static final String COMMAND_LINE_FLAG_HEADERS = "--headers";
+
+  /**
+   * Command line flag for specifying an output file.
+   */
+  public static final String COMMAND_LINE_FLAG_OUTPUT = "--output";
 
   /**
    * The base folder for extras.
@@ -393,15 +401,54 @@ public class InteractiveSpacesWorkbench {
   /**
    * Create an OSGi bundle from an existing JAR.
    *
-   * @param file
-   *          the jar file
+   * @param args
+   *          the args for the OSGi bundle
    */
-  public void createOsgi(String file) {
-    System.out.format("Making %s into an OSGi bundle\n", file);
+  public void createOsgi(List<String> args) {
+    if (args.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("No args given for OSGI command");
+    }
 
-    ContainerBundleCreator osgiBundleCreator = new BndOsgiContainerBundleCreator();
+    List<File> sources = Lists.newArrayList();
+    File outputFile = null;
+    File headersFile = null;
+    for (int i = 0; i < args.size(); i++) {
+      String arg = args.get(i);
+      if (COMMAND_LINE_FLAG_OUTPUT.equals(arg)) {
+        if (++i >= args.size()) {
+          throw new SimpleInteractiveSpacesException("Missing output value from osgi command");
+        }
+
+        outputFile = fileSupport.newFile(args.get(i));
+      } else if (COMMAND_LINE_FLAG_HEADERS.equals(arg)) {
+        if (++i >= args.size()) {
+          throw new SimpleInteractiveSpacesException("Missing headers value from osgi command");
+        }
+
+        headersFile = fileSupport.newFile(args.get(i));
+      } else if (COMMAND_LINE_FLAG_SOURCEDIR.equals(arg)) {
+        if (++i >= args.size()) {
+          throw new SimpleInteractiveSpacesException("Missing source dir value from osgi command");
+        }
+
+        addJarFiles(fileSupport.newFile(args.get(i)), sources);
+      } else {
+        sources.add(fileSupport.newFile(arg));
+      }
+    }
+
+    if (sources.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("No input jar files for the osgi command");
+    }
+
+    args.clear();
+
+    log.info(String.format("Making %s into an OSGi bundle\n", sources));
+
+    ContainerBundleCreator osgiBundleCreator =
+        new BndOsgiContainerBundleCreator(workbenchFileSystem.getTempDirectory(), log);
     try {
-      osgiBundleCreator.createBundle(new File(file), null, null, null, log);
+      osgiBundleCreator.createBundle(sources, outputFile, headersFile, null);
     } catch (Exception e) {
       handleError("Error while creating project", e);
     }
@@ -415,11 +462,11 @@ public class InteractiveSpacesWorkbench {
   public List<File> getControllerSystemBootstrapClasspath() {
     List<File> classpath = Lists.newArrayList();
 
-    addClasspathFiles(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP), classpath);
+    addJarFiles(fileSupport.newFile(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP), classpath);
 
     File controllerDirectory = getControllerDirectory();
     File javaSystemDirectory =
-        new File(controllerDirectory, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
+        fileSupport.newFile(controllerDirectory, InteractiveSpacesContainer.INTERACTIVESPACES_CONTAINER_FOLDER_LIB_SYSTEM_JAVA);
     if (!javaSystemDirectory.isDirectory()) {
       throw new SimpleInteractiveSpacesException(String.format(
           "Controller directory %s configured by %s does not appear to be valid.", controllerDirectory,
@@ -436,14 +483,14 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Add all JAR files from the given directory to the classdpath.
+   * Add all JAR files from the given directory to the list of files.
    *
    * @param directory
-   *          the directory to get the classpath files from
-   * @param classpath
-   *          the classpath to add the files to
+   *          the directory to get the jar files from
+   * @param fileList
+   *          the list to add the files to
    */
-  private void addClasspathFiles(File directory, List<File> classpath) {
+  private void addJarFiles(File directory, List<File> fileList) {
     File[] files = directory.listFiles(new FileFilter() {
       @Override
       public boolean accept(File pathname) {
@@ -451,9 +498,7 @@ public class InteractiveSpacesWorkbench {
       }
     });
     if (files != null) {
-      for (File file : files) {
-        classpath.add(file);
-      }
+      Collections.addAll(fileList, files);
     }
   }
 
@@ -468,8 +513,8 @@ public class InteractiveSpacesWorkbench {
     if (controllerDirectory.isAbsolute()) {
       return controllerDirectory;
     }
-    File homeDir = new File(workbenchConfig.getPropertyString(CONFIGURATION_INTERACTIVESPACES_HOME));
-    return new File(homeDir, controllerPath);
+    File homeDir = fileSupport.newFile(workbenchConfig.getPropertyString(CONFIGURATION_INTERACTIVESPACES_HOME));
+    return fileSupport.newFile(homeDir, controllerPath);
   }
 
   /**
@@ -480,7 +525,8 @@ public class InteractiveSpacesWorkbench {
    */
   private void addControllerExtensionsClasspath(List<File> files) {
     File[] extensionFiles =
-        new File(new File(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_DEFAULT_CONFIG),
+        fileSupport.newFile(
+            fileSupport.newFile(getControllerDirectory(), ContainerFilesystemLayout.FOLDER_DEFAULT_CONFIG),
             ContainerFilesystemLayout.FOLDER_CONFIG_ENVIRONMENT).listFiles(new FilenameFilter() {
           @Override
           public boolean accept(File dir, String name) {
@@ -569,7 +615,7 @@ public class InteractiveSpacesWorkbench {
     if (COMMAND_CREATE.equals(command)) {
       createProject(commands);
     } else if (COMMAND_OSGI.equals(command)) {
-      createOsgi(removeArgument(commands, "osgi file"));
+      createOsgi(commands);
     } else {
       File baseDir = new File(command);
       if (baseDir.isDirectory()) {
@@ -636,7 +682,6 @@ public class InteractiveSpacesWorkbench {
    * @return project specification path
    */
   private String determineTemplateSpec(String type, String kind) {
-    final List<String> matches = Lists.newArrayList();
     if (COMMAND_CREATE_SPEC.equals(type)) {
       return kind;
     }
@@ -749,56 +794,6 @@ public class InteractiveSpacesWorkbench {
   }
 
   /**
-   * Populate the project data from the console.
-   *
-   * @param project
-   *          where the project data should be stored
-   */
-  private void populateProjectFromConsole(Project project) {
-    Console console = System.console();
-
-    if (console != null) {
-      String identifyingName = getValue("Identifying name", new ActivityIdentifyingNameValidator(), console);
-      String version = getValue("Version", new VersionValidator(), console);
-      String name = console.readLine("Name: ");
-      String description = console.readLine("Description: ");
-
-      project.setIdentifyingName(identifyingName);
-      project.setVersion(Version.parseVersion(version));
-      project.setName(name);
-      project.setDescription(description);
-    } else {
-      throw new SimpleInteractiveSpacesException("Could not allocate console");
-    }
-  }
-
-  /**
-   * Get a value from the user.
-   *
-   * @param prompt
-   *          the prompt for the user
-   * @param validator
-   *          the validator for the value
-   * @param console
-   *          the console for IO
-   *
-   * @return a valid value for the question
-   */
-  private String getValue(String prompt, Validator validator, Console console) {
-    String fullPrompt = prompt + ": ";
-
-    String value = console.readLine(fullPrompt);
-    DomainValidationResult result = validator.validate(value);
-    while (result.getResultType().equals(DomainValidationResultType.ERRORS)) {
-      console.printf("%s\n", result.getDescription());
-      value = console.readLine(fullPrompt);
-      result = validator.validate(value);
-    }
-
-    return value;
-  }
-
-  /**
    * Perform a sequence of commands on a project.
    *
    * @param project
@@ -818,19 +813,19 @@ public class InteractiveSpacesWorkbench {
       String command = removeArgument(commands, "workbench command");
 
       if (COMMAND_BUILD.equals(command)) {
-        System.out.format("Building project %s\n", project.getBaseDirectory().getAbsolutePath());
+        log.info(String.format("Building project %s", project.getBaseDirectory().getAbsolutePath()));
         success = buildProject(project);
       } else if (COMMAND_CLEAN.equals(command)) {
-        System.out.format("Cleaning project %s\n", project.getBaseDirectory().getAbsolutePath());
+        log.info(String.format("Cleaning project %s", project.getBaseDirectory().getAbsolutePath()));
         success = cleanActivityProject(project);
       } else if (COMMAND_DOCS.equals(command)) {
-        System.out.format("Building Docs for project %s\n", project.getBaseDirectory().getAbsolutePath());
+        log.info(String.format("Building Docs for project %s", project.getBaseDirectory().getAbsolutePath()));
         success = generateDocs(project);
       } else if (COMMAND_IDE.equals(command)) {
-        System.out.format("Building project IDE project %s\n", project.getBaseDirectory().getAbsolutePath());
+        log.info(String.format("Building project IDE project %s", project.getBaseDirectory().getAbsolutePath()));
         success = generateIdeActivityProject(project, removeArgument(commands, "ide type"));
       } else if (COMMAND_DEPLOY.equals(command)) {
-        System.out.format("Deploying project %s\n", project.getBaseDirectory().getAbsolutePath());
+        log.info(String.format("Deploying project %s", project.getBaseDirectory().getAbsolutePath()));
         success = deployProject(project, removeArgument(commands, "deployment type"));
       }
     }
@@ -905,10 +900,10 @@ public class InteractiveSpacesWorkbench {
   public List<File> getAllWorkbenchBootstrapFiles() {
     List<File> files = Lists.newArrayList();
 
-    addClasspathFiles(workbenchFileSystem.getSystemBootstrapDirectory(), files);
+    addJarFiles(workbenchFileSystem.getSystemBootstrapDirectory(), files);
     File userBootstrap = workbenchFileSystem.getUserBootstrapDirectory();
     if (userBootstrap.exists() && userBootstrap.isDirectory()) {
-      addClasspathFiles(userBootstrap, files);
+      addJarFiles(userBootstrap, files);
     }
 
     return files;
