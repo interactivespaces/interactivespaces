@@ -10,8 +10,12 @@ space.activity.java.class=${project.activityClass}
 space.activity.name=${project.activityRuntimeName}
 
 <#list project.extraConfigurationParameters as parameter>
+<#if parameter.value?has_content>
 ${parameter.name}=${parameter.value}
+</#if>
 </#list>
 <#list project.configurationProperties as parameter>
+<#if parameter.value?has_content>
 ${parameter.name}=${parameter.value?replace('\\','\\\\')}
+</#if>
 </#list>

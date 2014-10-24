@@ -1,10 +1,30 @@
 <?xml version="1.0"?>
 <project type="activity">
-    <name>Native Example</name>
-    <description>
-An example of a pure native code activity.
-    </description>
+  <name>Native Example</name>
+  <description>
+    An example of a pure native code activity.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.native</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>interactivespaces.example.activity.native</identifyingName>
+  <version>1.0.0</version>
+
+
+  <activity type="native">
+    <name>nativeExample</name>
+
+    <configuration>
+      <property name="space.activity.executable.linux" required="true">
+        <description>
+          The executable to run in a Linux environment.
+        </description>
+        <value>/usr/bin/mpg321</value>
+      </property>
+      <property name="space.activity.executable.flags.linux" required="true">
+        <description>
+          The flags for the executable to run in a Linux environment.
+        </description>
+        <value>-q ${activity.installdir}/NativeActivityExample.mp3</value>
+      </property>
+    </configuration>
+  </activity>
 </project>
