@@ -32,18 +32,22 @@ import java.util.concurrent.TimeUnit;
  * A collection of {@link NativeApplicationRunner} instances.
  *
  * <p>
- * This collection ensures the runners are properly sampled and shutdown
- * properly, do not attempt to handle them yourself.
+ * This collection ensures the runners are properly sampled and shutdown properly, do not attempt to handle them
+ * yourself.
  *
  * @author Keith M. Hughes
  */
 public class NativeApplicationRunnerCollection implements ManagedResource {
 
   /**
-   * How often to sample the runners to see if they are still running, in
-   * milliseconds.
+   * The default for how often to sample the runners to see if they are still running, in milliseconds.
    */
-  private long samplingPeriod = 500;
+  public static final long SAMPLING_PERIOD_DEFAULT = 500;
+
+  /**
+   * How often to sample the runners to see if they are still running, in milliseconds.
+   */
+  private long samplingPeriod = SAMPLING_PERIOD_DEFAULT;
 
   /**
    * The space environment to use.
@@ -116,24 +120,49 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    * Create a new application runner with the given config.
    *
    * <p>
-   * The runner is added to the collection. The collection then takes over the lifecycle of the runner.
+   * The runner is added to the collection. The collection will handle the lifecycle of the runner.
    *
    * @param config
-   *        the configuration for the runner
+   *          the configuration for the runner
    *
    * @return a new application runner appropriate for the current platform
    */
-  public synchronized NativeApplicationRunner addNativeApplicationRunner(Map<String, Object> config) {
-    NativeApplicationRunner runner = runnerFactory.newPlatformNativeApplicationRunner(log);
+  public NativeApplicationRunner addNativeApplicationRunner(Map<String, Object> config) {
+    NativeApplicationRunner runner = newNativeApplicationRunner();
     runner.configure(config);
 
+    addNativeApplicationRunner(runner);
+
+    return runner;
+  }
+
+  /**
+   * Add a native application runner to the collection.
+   *
+   * <p>
+   * The runner should not be started yet. The collection will control the lifecycle of the runner.
+   *
+   * @param runner
+   *          the runner to add to the collection
+   */
+  public synchronized void addNativeApplicationRunner(NativeApplicationRunner runner) {
     runners.add(runner);
 
     if (samplingFuture != null) {
       runner.startup();
     }
+  }
 
-    return runner;
+  /**
+   * Create a new application runner.
+   *
+   * <p>
+   * The collection will not own the runner, it will need to be added.
+   *
+   * @return a new runner
+   */
+  public NativeApplicationRunner newNativeApplicationRunner() {
+    return runnerFactory.newPlatformNativeApplicationRunner(log);
   }
 
   /**
