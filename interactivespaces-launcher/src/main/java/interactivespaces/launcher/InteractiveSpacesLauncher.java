@@ -253,7 +253,7 @@ public class InteractiveSpacesLauncher {
         if (!line.isEmpty()) {
           int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
           if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-            File path = new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH));
+            File path = new File(line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH).trim());
             urls.add(path.toURI().toURL());
           }
         }

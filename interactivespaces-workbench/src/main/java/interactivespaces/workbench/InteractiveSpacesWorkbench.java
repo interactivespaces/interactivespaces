@@ -585,12 +585,12 @@ public class InteractiveSpacesWorkbench {
         if (!line.isEmpty()) {
           int pos = line.indexOf(EXTENSION_FILE_PATH_KEYWORD);
           if (pos == 0 && line.length() > EXTENSION_FILE_PATH_KEYWORD_LENGTH) {
-            String classpathAddition = line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH);
+            String classpathAddition = line.substring(EXTENSION_FILE_PATH_KEYWORD_LENGTH).trim();
 
             // Want to be able to have files relative to the controller
-            File classpathFile = new File(classpathAddition);
+            File classpathFile = fileSupport.newFile(classpathAddition);
             if (!classpathFile.isAbsolute()) {
-              classpathFile = new File(controllerBaseDir, classpathAddition);
+              classpathFile = fileSupport.newFile(controllerBaseDir, classpathAddition);
             }
             files.add(classpathFile);
           }

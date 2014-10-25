@@ -187,7 +187,7 @@ public class ExtensionsReader {
    */
   private boolean processLine(String line, String keyword, List<String> collection) {
     if (line.startsWith(keyword)) {
-      collection.add(line.substring(keyword.length()));
+      collection.add(line.substring(keyword.length()).trim());
 
       return true;
     }
