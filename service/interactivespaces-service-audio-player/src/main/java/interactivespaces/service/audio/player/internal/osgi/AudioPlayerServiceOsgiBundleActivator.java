@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,20 +14,20 @@
  * the License.
  */
 
-package interactivespaces.service.comm.chat.internal.osgi;
+package interactivespaces.service.audio.player.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
-import interactivespaces.service.comm.chat.internal.xmpp.smack.SmackXmppChatService;
+import interactivespaces.service.audio.player.internal.jlayer.JLayerAudioTrackPlayerService;
 
 /**
- * An OSGi bundle activator for the ChatService.
+ * OSGi bundle activator for the sound service.
  *
  * @author Keith M. Hughes
  */
-public class ChatServiceOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+public class AudioPlayerServiceOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   @Override
   protected void allRequiredServicesAvailable() {
-    registerNewInteractiveSpacesService(new SmackXmppChatService());
+    registerNewInteractiveSpacesService(new JLayerAudioTrackPlayerService());
   }
 }

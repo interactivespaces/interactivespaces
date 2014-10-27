@@ -30,7 +30,15 @@ public interface UdpServerNetworkCommunicationEndpointService extends SupportedS
   /**
    * Name for the service.
    */
-  public static final String NAME = "comm.network.udp.server";
+  String SERVICE_NAME = "comm.network.udp.server";
+
+  /**
+   * Name for the service.
+   *
+   * @deprecated Use {@link #SERVICE_NAME}.
+   */
+  @Deprecated
+  String NAME = SERVICE_NAME;
 
   /**
    * Create a new UDP server endpoint.
