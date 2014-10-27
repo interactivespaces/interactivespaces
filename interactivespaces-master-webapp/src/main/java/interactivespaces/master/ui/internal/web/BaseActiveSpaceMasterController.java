@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web;
 
-import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.master.MasterApiActivityManager;
+import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 
 /**
  * Base support for Spring MVC controllers for the space master who have live

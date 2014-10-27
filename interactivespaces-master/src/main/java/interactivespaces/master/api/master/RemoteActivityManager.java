@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
 /**
  * A manager for activity operations.

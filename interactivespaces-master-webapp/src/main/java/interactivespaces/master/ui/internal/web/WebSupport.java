@@ -22,7 +22,7 @@ import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
-import interactivespaces.master.api.MasterApiUtilities;
+import interactivespaces.master.api.master.MasterApiUtilities;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

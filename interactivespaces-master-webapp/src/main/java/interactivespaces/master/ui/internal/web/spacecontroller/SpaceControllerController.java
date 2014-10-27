@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web.spacecontroller;
 
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 
 import com.google.common.collect.Lists;
@@ -51,7 +51,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("spacecontroller/SpaceControllerViewAll");
-    mav.addObject("spacecontrollers", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
+    mav.addObject("spacecontrollers", response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }
@@ -81,7 +81,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
       mav.clear();
       mav.setViewName("redirect:/spacecontroller/all.html");
     } else if (MasterApiMessageSupport.isResponseReason(response,
-        MasterApiMessage.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN)) {
+        MasterApiMessages.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN)) {
       mav.setViewName("spacecontroller/SpaceControllerNonexistent");
     }
 

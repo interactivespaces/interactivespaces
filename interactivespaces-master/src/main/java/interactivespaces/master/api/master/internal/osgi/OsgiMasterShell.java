@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal.osgi;
+package interactivespaces.master.api.master.internal.osgi;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.master.MasterApiActivityManager;
+import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.service.script.FileScriptSource;

@@ -14,25 +14,30 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
-import interactivespaces.util.resource.ManagedResource;
+import interactivespaces.master.server.services.MasterSupportManager;
+
+import java.util.Map;
 
 /**
- * A websocket connection to the master.
+ * Master API access for the {@link MasterSupportManager}.
  *
  * @author Keith M. Hughes
  */
-public interface MasterWebsocketManager extends ManagedResource {
+public interface MasterApiMasterSupportManager {
 
   /**
-   * Configuration property for the websocket port for the master.
+   * Get the master domain description.
+   *
+   * @return the Master API response
    */
-  String CONFIGURATION_MASTER_WEBSOCKET_PORT = "interactivespaces.master.api.websocket.port";
+  Map<String, Object> getMasterDomainDescription();
 
   /**
-   * Default value for configuration property for the websocket port for the
-   * master.
+   * Import the master domain description.
+   *
+   * @return the Master API response
    */
-  int CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT = 8090;
+  Map<String, Object> importMasterDomainDescription();
 }

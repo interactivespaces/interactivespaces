@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.messages;
 
 /**
  * Message components for the Master API.
  *
  * @author Keith M. Hughes
  */
-public class MasterApiMessage {
+public class MasterApiMessages {
 
   /**
    * The type field for a websocket message envelope.
