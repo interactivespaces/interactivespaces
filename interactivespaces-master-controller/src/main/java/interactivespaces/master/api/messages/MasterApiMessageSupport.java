@@ -14,9 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api.master;
-
-import interactivespaces.master.api.messages.MasterApiMessages;
+package interactivespaces.master.api.messages;
 
 import com.google.common.collect.Maps;
 

@@ -18,16 +18,18 @@ package interactivespaces.master.api.master.internal;
 
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.Activity;
+import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
-import interactivespaces.master.api.master.MasterApiMessageSupport;
 import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.master.MasterApiUtilities;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
@@ -159,6 +161,138 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
       return getNoSuchSpaceControllerResult();
     }
   }
+
+//  @Override
+//  public Map<String, Object> getSpacecontrollerConfiguration(String id) {
+//    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+//    if (spaceController != null) {
+//      Map<String, String> data = Maps.newHashMap();
+//
+//      SpaceControllerConfiguration config = spaceController.getConfiguration();
+//      if (config != null) {
+//        for (ConfigurationParameter parameter : config.getParameters()) {
+//          data.put(parameter.getName(), parameter.getValue());
+//        }
+//      }
+//
+//      return MasterApiMessageSupport.getSuccessResponse(data);
+//    } else {
+//      return getNoSuchSpaceControllerResult();
+//    }
+//  }
+
+//  @Override
+//  public Map<String, Object> configureSpaceController(String id, Map<String, String> map) {
+//    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+//    if (spaceController != null) {
+//      if (saveSpaceControllerConfiguration(spaceController, map)) {
+//        spaceControllerRepository.saveSpaceController(spaceController);
+//      }
+//
+//      return MasterApiMessageSupport.getSimpleSuccessResponse();
+//    } else {
+//      return getNoSuchSpaceControllerResult();
+//    }
+//  }
+
+  /**
+   * Get the new configuration into the space controller.
+   *
+   * @param spaceController
+   *          the space controller being configured
+   * @param map
+   *          the map representing the new configuration
+   *
+   * @return {@code true} if there was a change to the configuration
+   */
+//  private boolean saveSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+//    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
+//    if (configuration != null) {
+//      return mergeParameters(map, configuration);
+//    } else {
+//      // No configuration. If nothing in submission, nothing has changed.
+//      // Otherwise add everything.
+//      if (map.isEmpty()) {
+//        return false;
+//      }
+//
+//      newSpaceControllerConfiguration(spaceController, map);
+//
+//      return true;
+//    }
+//  }
+
+  /**
+   * merge the values in the map with the configuration.
+   *
+   * @param map
+   *          map of new name/value pairs
+   * @param configuration
+   *          the configuration which may be changed
+   *
+   * @return {@code true} if there were any parameters changed in the configuration
+   */
+  private boolean mergeParameters(Map<String, String> map, SpaceControllerConfiguration configuration) {
+    boolean changed = false;
+
+    Map<String, ConfigurationParameter> existingMap = configuration.getParameterMap();
+
+    // Delete all items removed
+    for (Entry<String, ConfigurationParameter> entry : existingMap.entrySet()) {
+      if (!map.containsKey(entry.getKey())) {
+        changed = true;
+
+        configuration.removeParameter(entry.getValue());
+      }
+    }
+
+    // Now everything in the submitted map will be check. if the name exists
+    // in the old configuration, we will try and change the value. if the
+    // name doesn't exist, add it.
+    for (Entry<String, String> entry : map.entrySet()) {
+      ConfigurationParameter parameter = existingMap.get(entry.getKey());
+      if (parameter != null) {
+        // Existed
+        String oldValue = parameter.getValue();
+        if (!oldValue.equals(entry.getValue())) {
+          changed = true;
+          parameter.setValue(entry.getValue());
+        }
+      } else {
+        // Didn't exist
+        changed = true;
+
+        parameter = activityRepository.newConfigurationParameter();
+        parameter.setName(entry.getKey());
+        parameter.setValue(entry.getValue());
+
+        configuration.addParameter(parameter);
+      }
+
+    }
+    return changed;
+  }
+
+  /**
+   * Create a new configuration for a space controller.
+   *
+   * @param spaceController
+   *          the space controller
+   * @param map
+   *          the new configuration
+   */
+//  private void newSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+//    SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
+//    spaceController.setConfiguration(configuration);
+//
+//    for (Entry<String, String> entry : map.entrySet()) {
+//      ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
+//      parameter.setName(entry.getKey());
+//      parameter.setValue(entry.getValue());
+//
+//      configuration.addParameter(parameter);
+//    }
+//  }
 
   @Override
   public Map<String, Object> updateSpaceControllerMetadata(String id, Object metadataCommandObj) {
@@ -849,14 +983,12 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * Request status for all live activities in the space and all subspaces.
    *
    * <p>
-   * A given live activity will only be queried once even if in multiple
-   * activity groups.
+   * A given live activity will only be queried once even if in multiple activity groups.
    *
    * @param space
    *          the space to examine
    * @param liveActivityIds
-   *          IDs of all live activities which have had their status requested
-   *          so far
+   *          IDs of all live activities which have had their status requested so far
    */
   private void statusSpace(Space space, Set<String> liveActivityIds) {
     for (LiveActivityGroup group : space.getActivityGroups()) {
@@ -969,8 +1101,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * Create the Master API status object for a space.
    *
    * <p>
-   * This will include all subspaces, live activity groups, and the live
-   * activities contained in the groups.
+   * This will include all subspaces, live activity groups, and the live activities contained in the groups.
    *
    * @param space
    *          the space to get the status for
@@ -1006,8 +1137,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   /**
-   * Get a list of Master API status objects for all live activity groups in a
-   * space.
+   * Get a list of Master API status objects for all live activity groups in a space.
    *
    * @param space
    *          the space containing the subspaces
@@ -1078,8 +1208,8 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   /**
-   * Get all enabled space controllers, which are ones that are not marked
-   * disabled or otherwise should not be contacted for normal "all" operations.
+   * Get all enabled space controllers, which are ones that are not marked disabled or otherwise should not be contacted
+   * for normal "all" operations.
    *
    * @return list of enabled space controllers
    */

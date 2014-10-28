@@ -38,6 +38,10 @@
     </class>
     <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController
     </class>
+    <!-- <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfigurationParameter
+    </class>
+    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfiguration
+    </class> -->
     <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerMetadataItem
     </class>
     <class>interactivespaces.master.server.services.internal.jpa.domain.JpaNamedScript

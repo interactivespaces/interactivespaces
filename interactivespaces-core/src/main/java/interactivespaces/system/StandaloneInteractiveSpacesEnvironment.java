@@ -22,6 +22,8 @@ import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.time.SettableTimeProvider;
 import interactivespaces.time.TimeProvider;
+import interactivespaces.util.resource.ManagedResource;
+import interactivespaces.util.resource.ManagedResources;
 
 import com.google.common.collect.Maps;
 
@@ -33,26 +35,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * An {@link InteractiveSpacesEnvironment} that can be used for active testing
- * of components.
+ * An {@link InteractiveSpacesEnvironment} that can be used for standalone running of components.
  *
  * @author Keith M. Hughes
  */
-public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
+public class StandaloneInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
 
   /**
-   * Create a new {@link ActiveTestInteractiveSpacesEnvironment}.
+   * Create a new {@link StandaloneInteractiveSpacesEnvironment}.
    *
    * @return the space environment
    */
-  public static ActiveTestInteractiveSpacesEnvironment newActiveTestInteractiveSpacesEnvironment() {
-    ActiveTestInteractiveSpacesEnvironment environment = new ActiveTestInteractiveSpacesEnvironment();
+  public static StandaloneInteractiveSpacesEnvironment newStandaloneInteractiveSpacesEnvironment() {
+    StandaloneInteractiveSpacesEnvironment environment = new StandaloneInteractiveSpacesEnvironment();
 
     environment.systemConfiguration = SimpleConfiguration.newConfiguration();
     environment.executorService = Executors.newScheduledThreadPool(100);
     environment.log = new Jdk14Logger("test.interactive.spaces");
     environment.serviceRegistry = new SimpleServiceRegistry(environment);
     environment.timeProvider = new SettableTimeProvider();
+    environment.managedResources = new ManagedResources(environment.log);
+    environment.managedResources.startupResources();
 
     return environment;
   }
@@ -91,6 +94,17 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
    * Simple value map.
    */
   private final Map<String, Object> values = Maps.newHashMap();
+
+  /**
+   * The managed resources for this environment.
+   */
+  private ManagedResources managedResources;
+
+  /**
+   * Construct a new environment.
+   */
+  private StandaloneInteractiveSpacesEnvironment() {
+  }
 
   @Override
   public Configuration getSystemConfiguration() {
@@ -160,6 +174,7 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
    * Shutdown the environment.
    */
   public void shutdown() {
+    managedResources.shutdownResourcesAndClear();
     executorService.shutdown();
   }
 
@@ -191,5 +206,15 @@ public class ActiveTestInteractiveSpacesEnvironment implements InteractiveSpaces
    */
   public void setTimeProvider(TimeProvider timeProvider) {
     this.timeProvider = timeProvider;
+  }
+
+  /**
+   * Add a managed resource.
+   *
+   * @param resource
+   *          the resource to add
+   */
+  public void addManagedResource(ManagedResource resource) {
+    managedResources.addResource(resource);
   }
 }

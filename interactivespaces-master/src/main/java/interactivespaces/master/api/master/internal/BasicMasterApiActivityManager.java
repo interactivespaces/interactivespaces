@@ -30,8 +30,8 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
-import interactivespaces.master.api.master.MasterApiMessageSupport;
 import interactivespaces.master.api.master.MasterApiUtilities;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
@@ -379,7 +379,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   public Map<String, Object> configureLiveActivity(String id, Map<String, String> map) {
     LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
     if (liveActivity != null) {
-      if (saveConfiguration(liveActivity, map)) {
+      if (saveLiveActivityConfiguration(liveActivity, map)) {
         activityRepository.saveLiveActivity(liveActivity);
       }
 
@@ -399,7 +399,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    *
    * @return {@code true} if there was a change to the configuration
    */
-  private boolean saveConfiguration(LiveActivity liveactivity, Map<String, String> map) {
+  private boolean saveLiveActivityConfiguration(LiveActivity liveactivity, Map<String, String> map) {
     ActivityConfiguration configuration = liveactivity.getConfiguration();
     if (configuration != null) {
       return mergeParameters(map, configuration);
@@ -410,7 +410,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         return false;
       }
 
-      createLiveActivityNewConfiguration(liveactivity, map);
+      newLiveActivityConfiguration(liveactivity, map);
 
       return true;
     }
@@ -476,7 +476,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    * @param map
    *          the new configuration
    */
-  private void createLiveActivityNewConfiguration(LiveActivity liveactivity, Map<String, String> map) {
+  private void newLiveActivityConfiguration(LiveActivity liveactivity, Map<String, String> map) {
     ActivityConfiguration configuration;
     configuration = activityRepository.newActivityConfiguration();
     liveactivity.setConfiguration(configuration);

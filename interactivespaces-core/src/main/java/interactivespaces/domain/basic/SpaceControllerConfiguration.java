@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection of {@link ConfigurationParameter} instances for either an {@link Activity} or an {@link LiveActivity}.
+ * A collection of {@link ConfigurationParameter} instances for a {@link SpaceController}.
  *
  * @author Keith M. Hughes
  */
-public interface ActivityConfiguration {
+public interface SpaceControllerConfiguration {
 
   /**
    * Get the name of the configuration.
@@ -85,7 +85,7 @@ public interface ActivityConfiguration {
   /**
    * Get the configuration parameters as a map.
    *
-   * @return a copy of the parameters as of the time of the call.
+   * @return a copy of the parameters as of the time of the call
    */
   Map<String, ConfigurationParameter> getParameterMap();
 }

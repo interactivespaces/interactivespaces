@@ -16,11 +16,15 @@
 package interactivespaces.master.server.services.internal.jpa;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController;
+import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfiguration;
+import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfigurationParameter;
 import interactivespaces.util.uuid.UuidGenerator;
 
 import com.google.common.collect.Lists;
@@ -163,6 +167,16 @@ public class JpaSpaceControllerRepository implements SpaceControllerRepository {
       throw new SimpleInteractiveSpacesException(String.format(
           "Cannot delete space controller %s, it is in %d live activities", controller.getId(), count));
     }
+  }
+
+  @Override
+  public SpaceControllerConfiguration newSpaceControllerConfiguration() {
+    return new JpaSpaceControllerConfiguration();
+  }
+
+  @Override
+  public ConfigurationParameter newSpaceControllerConfigurationParameter() {
+    return new JpaSpaceControllerConfigurationParameter();
   }
 
   /**

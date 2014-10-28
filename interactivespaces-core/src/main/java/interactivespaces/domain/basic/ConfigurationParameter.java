@@ -17,7 +17,7 @@
 package interactivespaces.domain.basic;
 
 /**
- * A configuration parameter.
+ * A configuration parameter for an {@link Activity} or {@link LiveActivity}.
  *
  * <p>
  * Equality and hashing should only depend on the name of the parameter.

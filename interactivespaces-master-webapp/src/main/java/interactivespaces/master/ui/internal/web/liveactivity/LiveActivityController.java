@@ -16,7 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.liveactivity;
 
-import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 

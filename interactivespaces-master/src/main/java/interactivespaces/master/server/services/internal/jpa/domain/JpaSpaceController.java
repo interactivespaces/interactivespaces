@@ -124,6 +124,15 @@ public class JpaSpaceController implements SpaceController {
   private SpaceControllerMode mode = SpaceControllerMode.ENABLED;
 
   /**
+   * The configuration for this space controller.
+   */
+  // TODO(keith): make configurations completely separately contained items
+  // that aren't dependent on their containing object so can have catalogs of
+  // them.
+  //@ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  //private JpaSpaceControllerConfiguration configuration;
+
+  /**
    * The metadata.
    */
   @OneToMany(targetEntity = JpaSpaceControllerMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
@@ -180,6 +189,18 @@ public class JpaSpaceController implements SpaceController {
   public void setDescription(String description) {
     this.description = description;
   }
+
+  /*
+  @Override
+  public SpaceControllerConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  @Override
+  public void setConfiguration(SpaceControllerConfiguration configuration) {
+    this.configuration = (JpaSpaceControllerConfiguration) configuration;
+  }
+  */
 
   @Override
   public void setMetadata(Map<String, Object> m) {

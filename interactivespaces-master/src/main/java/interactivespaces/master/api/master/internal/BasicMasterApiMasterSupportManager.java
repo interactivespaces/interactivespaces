@@ -17,7 +17,7 @@
 package interactivespaces.master.api.master.internal;
 
 import interactivespaces.master.api.master.MasterApiMasterSupportManager;
-import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.util.io.FileSupport;

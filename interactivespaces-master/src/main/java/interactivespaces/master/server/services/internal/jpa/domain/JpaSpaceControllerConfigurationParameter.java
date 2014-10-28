@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,8 +16,8 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,19 +26,19 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * A JPA implementation of a {@link ConfigurationParameter} for {@link ActivityConfiguration}.
+ * A JPA implementation of a {@link ConfigurationParameter} for {@link SpaceControllerConfiguration}.
  *
  * @author Keith M. Hughes
  */
 @Entity
-@Table(name = "config_parameter")
-public class JpaConfigurationParameter implements ConfigurationParameter {
+@Table(name = "space_controller_config_parameter")
+public class JpaSpaceControllerConfigurationParameter implements ConfigurationParameter {
 
   /**
    * The configuration this parameter is part of.
    */
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
-  private JpaActivityConfiguration configuration;
+  private JpaSpaceControllerConfiguration configuration;
 
   /**
    * The name of the parameter.
@@ -59,11 +59,11 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
   /**
    * Construct a parameter without a configuration or any value.
    */
-  public JpaConfigurationParameter() {
+  public JpaSpaceControllerConfigurationParameter() {
   }
 
   /**
-   * Construct a parameter with a configuration and es.
+   * Construct a parameter with a configuration and a name/value pair.
    *
    * @param configuration
    *          the configuration this is part of
@@ -72,7 +72,7 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
    * @param value
    *          the value of the parameter
    */
-  JpaConfigurationParameter(JpaActivityConfiguration configuration, String name, String value) {
+  JpaSpaceControllerConfigurationParameter(JpaSpaceControllerConfiguration configuration, String name, String value) {
     this.configuration = configuration;
     this.name = name;
     this.value = value;
@@ -83,17 +83,17 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
    *
    * @return the configuration
    */
-  public JpaActivityConfiguration getConfiguration() {
+  public JpaSpaceControllerConfiguration getConfiguration() {
     return configuration;
   }
 
   /**
-   * Set the asssociated configuration.
+   * Set the associated configuration.
    *
    * @param configuration
    *          the configuration to set
    */
-  public void setConfiguration(JpaActivityConfiguration configuration) {
+  public void setConfiguration(JpaSpaceControllerConfiguration configuration) {
     this.configuration = configuration;
   }
 
@@ -119,6 +119,6 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
 
   @Override
   public String toString() {
-    return "JpaConfigurationParameter [name=" + name + ", value=" + value + "]";
+    return "JpaSpaceControllerConfigurationParameter [name=" + name + ", value=" + value + "]";
   }
 }

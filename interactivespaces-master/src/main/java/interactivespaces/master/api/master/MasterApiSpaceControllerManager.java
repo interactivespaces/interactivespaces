@@ -64,6 +64,28 @@ public interface MasterApiSpaceControllerManager {
   Map<String, Object> getSpaceControllerView(String id);
 
   /**
+   * Get the configuration of a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   *
+   * @return the configuration
+   */
+  //Map<String, Object> getSpacecontrollerConfiguration(String id);
+
+  /**
+   * Configure a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   * @param map
+   *          the new configuration
+   *
+   * @return API response
+   */
+  //Map<String, Object> configureSpaceController(String id, Map<String, String> map);
+
+  /**
    * Modify a space's metadata.
    *
    * <p>

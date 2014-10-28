@@ -18,14 +18,14 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.api.master.MasterApiMasterSupportManager;
-import interactivespaces.master.api.master.MasterApiMessageSupport;
 import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
-import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.server.services.ScriptingNames;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.script.FileScriptSource;
 import interactivespaces.service.script.Script;
