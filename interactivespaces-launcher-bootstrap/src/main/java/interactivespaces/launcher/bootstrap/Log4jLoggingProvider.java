@@ -48,7 +48,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   /**
    * The map of logging levels to their log4j level.
    */
-  public static final Map<String, Level> log4jLevels;
+  public static final Map<String, Level> LOG_4J_LEVELS;
 
   static {
     Map<String, Level> levels = new HashMap<String, Level>();
@@ -57,10 +57,10 @@ public class Log4jLoggingProvider implements LoggingProvider {
     levels.put(LOG_LEVEL_DEBUG, Level.DEBUG);
     levels.put(LOG_LEVEL_INFO, Level.INFO);
     levels.put(LOG_LEVEL_OFF, Level.OFF);
-    levels.put(LOG_LEVEL_TRACE, Level.DEBUG);
+    levels.put(LOG_LEVEL_TRACE, Level.TRACE);
     levels.put(LOG_LEVEL_WARN, Level.WARN);
 
-    log4jLevels = Collections.unmodifiableMap(levels);
+    LOG_4J_LEVELS = Collections.unmodifiableMap(levels);
   }
 
   /**
@@ -112,7 +112,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
   @Override
   public Log getLog(String logName, String level) {
-    Level l = log4jLevels.get(level.toLowerCase());
+    Level l = LOG_4J_LEVELS.get(level.toLowerCase());
     boolean unknownLevel = false;
     if (l == null) {
       unknownLevel = true;
@@ -133,7 +133,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   public boolean modifyLogLevel(Log log, String level) {
     if (Log4JLogger.class.isAssignableFrom(log.getClass())) {
 
-      Level l = log4jLevels.get(level.toLowerCase());
+      Level l = LOG_4J_LEVELS.get(level.toLowerCase());
       if (l != null) {
         ((Log4JLogger) log).getLogger().setLevel(l);
 
