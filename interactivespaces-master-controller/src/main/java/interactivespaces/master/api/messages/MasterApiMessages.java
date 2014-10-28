@@ -64,6 +64,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_PARAMETER_COMMAND = "command";
 
   /**
+   * Web socket command for getting view data for all live activities.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_ALL = "/liveactivity/all";
+
+  /**
    * Web socket command for getting view data for a live activity.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW = "/liveactivity/view";
@@ -129,6 +134,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_REMOTE = "/liveactivity/delete/remote";
 
   /**
+   * Web socket command for getting view data for all live activity groups.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ALL = "/liveactivitygroup/all";
+
+  /**
    * Web socket command for getting view data for a live activity group.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW = "/liveactivitygroup/view";
@@ -172,6 +182,11 @@ public class MasterApiMessages {
    * Web socket command for getting the status for a live activity group.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STATUS = "/liveactivitygroup/status";
+
+  /**
+   * Web socket command for getting all spaces.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_ALL = "/space/all";
 
   /**
    * Web socket command for getting view data for a space.
@@ -289,9 +304,14 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_METADATA_MODIFY = "modify";
 
   /**
-   * The JSON metadata command for seleting some of the metadata.
+   * The JSON metadata command for selecting some of the metadata.
    */
   public static final String MASTER_API_COMMAND_METADATA_DELETE = "delete";
+
+  /**
+   * The Master API command parameter for filtering retrievals of all entities of a domain model type..
+   */
+  public static final String MASTER_API_PARAMETER_NAME_FILTER = "filter";
 
   /**
    * Message key for unknown commands.

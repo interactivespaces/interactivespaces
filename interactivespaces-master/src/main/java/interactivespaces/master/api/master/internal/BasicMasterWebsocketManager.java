@@ -49,8 +49,7 @@ import java.util.Map;
  * A basic {@link MasterWebsocketManager} implementation.
  *
  * <p>
- * At the moment this only sends activity and controller events to anyone
- * listening.
+ * At the moment this only sends activity and controller events to anyone listening.
  *
  * @author Keith M. Hughes
  */
@@ -111,6 +110,23 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
    * Construct a new manager.
    */
   public BasicMasterWebsocketManager() {
+    registerLiveActivityHandlers();
+    registerLiveActivityGroupHandlers();
+    registerSpaceHandlers();
+  }
+
+  /**
+   * Register all handlers for Live Activity commands.
+   */
+  private void registerLiveActivityHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
+        return masterApiActivityManager.getLiveActivitiesByFilter(filter);
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW) {
       @Override
@@ -218,7 +234,20 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         return masterApiSpaceControllerManager.deleteLiveActivity(id);
       }
     });
+  }
 
+  /**
+   * Register all handlers for Live Activity Group commands.
+   */
+  private void registerLiveActivityGroupHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
+        return masterApiActivityManager.getLiveActivityGroupsByFilter(filter);
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW) {
       @Override
@@ -293,7 +322,20 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         return masterApiSpaceControllerManager.statusLiveActivityGroup(id);
       }
     });
+  }
 
+  /**
+   * Register all handlers for Space commands.
+   */
+  private void registerSpaceHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String filter =
+            (commandArgs != null) ? (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER) : null;
+        return masterApiActivityManager.getSpacesByFilter(filter);
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
@@ -509,7 +551,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
               String.format("Master API websocket connection got unknown command %s", command));
         }
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error(String.format("Error while performing Master API websocket command %s", command),
           e);
     }

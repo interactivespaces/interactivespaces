@@ -23,7 +23,7 @@ import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicati
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointListener;
 import interactivespaces.service.comm.network.server.UdpServerRequest;
 import interactivespaces.service.comm.network.server.internal.netty.NettyUdpServerNetworkCommunicationEndpointService;
-import interactivespaces.system.ActiveTestInteractiveSpacesEnvironment;
+import interactivespaces.system.StandaloneInteractiveSpacesEnvironment;
 
 import org.junit.After;
 import org.junit.Assert;

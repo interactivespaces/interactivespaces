@@ -17,7 +17,7 @@
 package interactivespaces.master.api.master.internal;
 
 import interactivespaces.expression.ExpressionFactory;
-import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 

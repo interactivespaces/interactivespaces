@@ -16,7 +16,9 @@
 
 package interactivespaces.master.server.services;
 
+import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.expression.FilterExpression;
 
 import java.util.List;
@@ -39,8 +41,7 @@ public interface SpaceControllerRepository {
   SpaceController newSpaceController();
 
   /**
-   * Create a new controller from a template. It will not be saved in the
-   * repository.
+   * Create a new controller from a template. It will not be saved in the repository.
    *
    * <p>
    * The controller will be assigned a UUID.
@@ -53,8 +54,7 @@ public interface SpaceControllerRepository {
   SpaceController newSpaceController(SpaceController template);
 
   /**
-   * Create a new controller from a template object with a specified UUID. It
-   * will not be saved in the repository.
+   * Create a new controller from a template object with a specified UUID. It will not be saved in the repository.
    *
    * @param uuid
    *          the UUID to give to the controller
@@ -95,8 +95,7 @@ public interface SpaceControllerRepository {
    * @param id
    *          the id of the desired controller
    *
-   * @return the controller with the given id or {@code null} if no such
-   *         controller
+   * @return the controller with the given id or {@code null} if no such controller
    */
   SpaceController getSpaceControllerById(String id);
 
@@ -106,8 +105,7 @@ public interface SpaceControllerRepository {
    * @param uuid
    *          The UUID of the desired controller.
    *
-   * @return the controller with the given UUID or {@code null} if no such
-   *         controller
+   * @return the controller with the given UUID or {@code null} if no such controller
    */
   SpaceController getSpaceControllerByUuid(String uuid);
 
@@ -115,8 +113,7 @@ public interface SpaceControllerRepository {
    * Save a controller in the repository.
    *
    * <p>
-   * Is used both to save a new controller into the repository for the first
-   * time or to update edits to the controller.
+   * Is used both to save a new controller into the repository for the first time or to update edits to the controller.
    *
    * @param controller
    *          the controller to save
@@ -132,4 +129,18 @@ public interface SpaceControllerRepository {
    *          the controller to delete
    */
   void deleteSpaceController(SpaceController controller);
+
+  /**
+   * Create a new space controller configuration.
+   *
+   * @return the new space controller configuration, it will not be saved in the repository
+   */
+  SpaceControllerConfiguration newSpaceControllerConfiguration();
+
+  /**
+   * Create a new space controller configuration parameter.
+   *
+   * @return the new space controller configuration parameter, it will not be saved in the repository
+   */
+  ConfigurationParameter newSpaceControllerConfigurationParameter();
 }

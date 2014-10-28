@@ -16,11 +16,12 @@
 
 package interactivespaces.domain.basic.pojo;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.pojo.SimpleObject;
+
+import com.google.common.collect.Maps;
 
 import java.util.Map;
 
@@ -60,6 +61,11 @@ public class SimpleSpaceController extends SimpleObject implements SpaceControll
    * Mode of the controller.
    */
   private SpaceControllerMode mode;
+
+  /**
+   * The configuration for the space controller.
+   */
+  private SpaceControllerConfiguration configuration;
 
   /**
    * The meta data for this space controller.
@@ -105,6 +111,16 @@ public class SimpleSpaceController extends SimpleObject implements SpaceControll
   public void setDescription(String description) {
     this.description = description;
   }
+
+//  @Override
+//  public SpaceControllerConfiguration getConfiguration() {
+//    return configuration;
+//  }
+//
+//  @Override
+//  public void setConfiguration(SpaceControllerConfiguration configuration) {
+//    this.configuration = configuration;
+//  }
 
   @Override
   public void setMetadata(Map<String, Object> metadata) {
