@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal;
+package interactivespaces.master.api.master.internal;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.support.AutomationUtils;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
-import interactivespaces.master.api.MasterApiAutomationManager;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.master.MasterApiAutomationManager;
+import interactivespaces.master.api.master.MasterApiMessageSupport;
 import interactivespaces.master.server.services.AutomationManager;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.service.scheduler.SchedulerService;

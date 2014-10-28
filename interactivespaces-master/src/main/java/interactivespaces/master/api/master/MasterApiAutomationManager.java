@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;

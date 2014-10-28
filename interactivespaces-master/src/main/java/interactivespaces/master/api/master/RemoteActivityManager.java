@@ -14,25 +14,12 @@
  * the License.
  */
 
-package interactivespaces.master.api;
-
-import interactivespaces.util.resource.ManagedResource;
+package interactivespaces.master.api.master;
 
 /**
- * A websocket connection to the master.
+ * A manager for activity operations.
  *
  * @author Keith M. Hughes
  */
-public interface MasterWebsocketManager extends ManagedResource {
-
-  /**
-   * Configuration property for the websocket port for the master.
-   */
-  String CONFIGURATION_MASTER_WEBSOCKET_PORT = "interactivespaces.master.api.websocket.port";
-
-  /**
-   * Default value for configuration property for the websocket port for the
-   * master.
-   */
-  int CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT = 8090;
+public interface RemoteActivityManager {
 }

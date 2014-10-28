@@ -14,7 +14,9 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
+
+import interactivespaces.master.api.messages.MasterApiMessages;
 
 import com.google.common.collect.Maps;
 
@@ -35,7 +37,7 @@ public class MasterApiMessageSupport {
   public static Map<String, Object> getSimpleSuccessResponse() {
     Map<String, Object> response = Maps.newHashMap();
 
-    response.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessage.MASTER_API_RESULT_SUCCESS);
+    response.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessages.MASTER_API_RESULT_SUCCESS);
 
     return response;
   }
@@ -66,8 +68,8 @@ public class MasterApiMessageSupport {
    */
   public static Map<String, Object> getFailureResponse(String reason) {
     Map<String, Object> result = Maps.newHashMap();
-    result.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessage.MASTER_API_RESULT_FAILURE);
-    result.put(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_REASON, reason);
+    result.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessages.MASTER_API_RESULT_FAILURE);
+    result.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_REASON, reason);
 
     return result;
   }
@@ -81,7 +83,7 @@ public class MasterApiMessageSupport {
    * @return {@code true} if the response was a success
    */
   public static boolean isSuccessResponse(Map<String, Object> response) {
-    return MasterApiMessage.MASTER_API_RESULT_SUCCESS.equals(response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_RESULT));
+    return MasterApiMessages.MASTER_API_RESULT_SUCCESS.equals(response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT));
   }
 
   /**
@@ -95,7 +97,7 @@ public class MasterApiMessageSupport {
    * @return {@code true} if the reason given is the reason in the response
    */
   public static boolean isResponseReason(Map<String, Object> response, String reason) {
-    return reason.equals(response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_REASON));
+    return reason.equals(response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_REASON));
   }
 
   /**
@@ -108,7 +110,7 @@ public class MasterApiMessageSupport {
    */
   public static Map<String, Object> getResponseDataMap(Map<String, Object> response) {
     @SuppressWarnings("unchecked")
-    Map<String, Object> data = (Map<String, Object>) response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA);
+    Map<String, Object> data = (Map<String, Object>) response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
     return data;
   }
 }

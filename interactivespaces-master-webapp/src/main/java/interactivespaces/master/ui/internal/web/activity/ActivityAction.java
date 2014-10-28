@@ -19,7 +19,7 @@ package interactivespaces.master.ui.internal.web.activity;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
-import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.web.multipart.MultipartFile;

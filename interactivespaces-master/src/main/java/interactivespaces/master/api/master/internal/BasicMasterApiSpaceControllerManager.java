@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal;
+package interactivespaces.master.api.master.internal;
 
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.Activity;
@@ -25,10 +25,10 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.api.MasterApiSpaceControllerManager;
-import interactivespaces.master.api.MasterApiUtilities;
+import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.master.MasterApiUtilities;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
@@ -98,7 +98,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Attempt to get activity data failed", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -163,7 +163,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   @Override
   public Map<String, Object> updateSpaceControllerMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -175,36 +175,36 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
         return getNoSuchSpaceControllerResult();
       }
 
-      String command = (String) metadataCommand.get(MasterApiMessage.MASTER_API_PARAMETER_COMMAND);
+      String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
 
-      if (MasterApiMessage.MASTER_API_COMMAND_METADATA_REPLACE.equals(command)) {
+      if (MasterApiMessages.MASTER_API_COMMAND_METADATA_REPLACE.equals(command)) {
         @SuppressWarnings("unchecked")
         Map<String, Object> replacement =
-            (Map<String, Object>) metadataCommand.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA);
+            (Map<String, Object>) metadataCommand.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
         spaceController.setMetadata(replacement);
-      } else if (MasterApiMessage.MASTER_API_COMMAND_METADATA_MODIFY.equals(command)) {
+      } else if (MasterApiMessages.MASTER_API_COMMAND_METADATA_MODIFY.equals(command)) {
         Map<String, Object> metadata = spaceController.getMetadata();
 
         @SuppressWarnings("unchecked")
         Map<String, Object> modifications =
-            (Map<String, Object>) metadataCommand.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA);
+            (Map<String, Object>) metadataCommand.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
         for (Entry<String, Object> entry : modifications.entrySet()) {
           metadata.put(entry.getKey(), entry.getValue());
         }
 
         spaceController.setMetadata(metadata);
-      } else if (MasterApiMessage.MASTER_API_COMMAND_METADATA_DELETE.equals(command)) {
+      } else if (MasterApiMessages.MASTER_API_COMMAND_METADATA_DELETE.equals(command)) {
         Map<String, Object> metadata = spaceController.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications = (List<String>) metadataCommand.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA);
+        List<String> modifications = (List<String>) metadataCommand.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
 
         spaceController.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
       }
 
       spaceControllerRepository.saveSpaceController(spaceController);
@@ -213,7 +213,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Could not modify space controller metadata", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -961,7 +961,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Could not modify activity metadata", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -980,7 +980,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   private Map<String, Object> generateSpaceStatusApiResponse(Space space) {
     Map<String, Object> data = Maps.newHashMap();
 
-    data.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID, space.getId());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, space.getId());
     data.put("subspaces", generateSubSpacesStatusesApiResponse(space));
     data.put("liveActivityGroups", generateLiveActivityGroupsStatusesApiResponse(space));
 
@@ -1034,7 +1034,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   private Map<String, Object> generateLiveActivityGroupStatusApiResponse(LiveActivityGroup group) {
     Map<String, Object> result = Maps.newHashMap();
 
-    result.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID, group.getId());
+    result.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, group.getId());
     result.put("liveactivities", generateLiveActivitiesStatusesApiResponse(group));
 
     return result;
@@ -1071,7 +1071,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
 
     Map<String, Object> response = Maps.newHashMap();
 
-    response.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
+    response.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
     response.put("status", active.getRuntimeState().getDescription());
 
     return response;
@@ -1103,8 +1103,8 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    *          where the data should be stored
    */
   private void getSpaceControllerMasterApiData(SpaceController controller, Map<String, Object> controllerData) {
-    controllerData.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_ID, controller.getId());
-    controllerData.put(MasterApiMessage.MASTER_API_PARAMETER_NAME_ENTITY_UUID, controller.getUuid());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, controller.getId());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, controller.getUuid());
     controllerData.put("name", controller.getName());
     controllerData.put("description", controller.getDescription());
     controllerData.put("metadata", controller.getMetadata());
@@ -1147,7 +1147,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
   }
 
   /**
@@ -1156,7 +1156,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchLiveActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
   }
 
   /**
@@ -1165,7 +1165,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchLiveActivityGroupResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
   }
 
   /**
@@ -1174,7 +1174,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchSpaceControllerResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN);
   }
 
   /**
@@ -1183,7 +1183,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchSpaceResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
   }
 
   /**

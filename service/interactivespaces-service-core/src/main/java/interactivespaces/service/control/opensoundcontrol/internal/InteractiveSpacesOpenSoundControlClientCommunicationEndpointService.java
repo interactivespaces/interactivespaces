@@ -36,7 +36,7 @@ public class InteractiveSpacesOpenSoundControlClientCommunicationEndpointService
     BaseSupportedService implements OpenSoundControlClientCommunicationEndpointService {
 
   /**
-   * Service for obtaining UDP communication endpoints
+   * Service for obtaining UDP communication endpoints.
    */
   private UdpClientNetworkCommunicationEndpointService udpEndpointService;
 
@@ -49,7 +49,7 @@ public class InteractiveSpacesOpenSoundControlClientCommunicationEndpointService
   public void startup() {
     udpEndpointService =
         getSpaceEnvironment().getServiceRegistry().getRequiredService(
-            UdpClientNetworkCommunicationEndpointService.NAME);
+            UdpClientNetworkCommunicationEndpointService.SERVICE_NAME);
   }
 
   @Override

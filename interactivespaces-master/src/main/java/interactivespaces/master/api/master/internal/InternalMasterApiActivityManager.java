@@ -14,10 +14,10 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal;
+package interactivespaces.master.api.master.internal;
 
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.api.MasterApiActivityManager;
+import interactivespaces.master.api.master.MasterApiActivityManager;
 
 import java.util.List;
 import java.util.Map;

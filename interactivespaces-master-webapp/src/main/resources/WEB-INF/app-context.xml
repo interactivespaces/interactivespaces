@@ -35,19 +35,19 @@
     interface="interactivespaces.master.server.services.ActiveSpaceControllerManager"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.api.activity"
-    interface="interactivespaces.master.api.MasterApiActivityManager"
+    interface="interactivespaces.master.api.master.MasterApiActivityManager"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.api.automation"
-    interface="interactivespaces.master.api.MasterApiAutomationManager"
+    interface="interactivespaces.master.api.master.MasterApiAutomationManager"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.api.support"
-    interface="interactivespaces.master.api.MasterApiMasterSupportManager"
+    interface="interactivespaces.master.api.master.MasterApiMasterSupportManager"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.extension"
     interface="interactivespaces.master.server.services.ExtensionManager"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.api.controller"
-    interface="interactivespaces.master.api.MasterApiSpaceControllerManager"
+    interface="interactivespaces.master.api.master.MasterApiSpaceControllerManager"
     availability="mandatory" />
 
   <osgi:reference id="interactivespaces.master.networkinfo.client"

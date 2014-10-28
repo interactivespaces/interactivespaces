@@ -14,20 +14,30 @@
  * the License.
  */
 
-package interactivespaces.service.comm.chat.internal.osgi;
+package interactivespaces.master.api.master;
 
-import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
-import interactivespaces.service.comm.chat.internal.xmpp.smack.SmackXmppChatService;
+import interactivespaces.master.server.services.MasterSupportManager;
+
+import java.util.Map;
 
 /**
- * An OSGi bundle activator for the ChatService.
+ * Master API access for the {@link MasterSupportManager}.
  *
  * @author Keith M. Hughes
  */
-public class ChatServiceOsgiBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+public interface MasterApiMasterSupportManager {
 
-  @Override
-  protected void allRequiredServicesAvailable() {
-    registerNewInteractiveSpacesService(new SmackXmppChatService());
-  }
+  /**
+   * Get the master domain description.
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> getMasterDomainDescription();
+
+  /**
+   * Import the master domain description.
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> importMasterDomainDescription();
 }
