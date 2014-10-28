@@ -18,7 +18,7 @@ package interactivespaces.master.ui.internal.web.admin;
 
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.domain.system.pojo.SimpleNamedScript;
-import interactivespaces.master.api.MasterApiAutomationManager;
+import interactivespaces.master.api.master.MasterApiAutomationManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.WebSupport;
 

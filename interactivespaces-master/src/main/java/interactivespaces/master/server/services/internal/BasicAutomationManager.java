@@ -18,9 +18,9 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.system.NamedScript;
-import interactivespaces.master.api.MasterApiActivityManager;
-import interactivespaces.master.api.MasterApiSpaceControllerManager;
-import interactivespaces.master.api.MasterApiMasterSupportManager;
+import interactivespaces.master.api.master.MasterApiActivityManager;
+import interactivespaces.master.api.master.MasterApiMasterSupportManager;
+import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;

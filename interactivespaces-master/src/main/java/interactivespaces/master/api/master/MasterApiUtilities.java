@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
@@ -27,6 +27,8 @@ import interactivespaces.master.server.services.ActiveSpaceController;
 import java.util.Comparator;
 
 /**
+ * Utilities for the master side for working with the master.
+ *
  * @author Keith M. Hughes
  */
 public class MasterApiUtilities {

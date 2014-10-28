@@ -14,29 +14,25 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal;
+package interactivespaces.master.api.master;
 
-import interactivespaces.master.api.RemoteActivityManager;
-import interactivespaces.master.server.services.RemoteSpaceControllerClient;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * A simple remote activity manager.
+ * A websocket connection to the master.
  *
  * @author Keith M. Hughes
  */
-public class BasicRemoteActivityManager implements RemoteActivityManager {
+public interface MasterWebsocketManager extends ManagedResource {
 
   /**
-   * Handle operations on remote controllers.
+   * Configuration property for the websocket port for the master.
    */
-  private RemoteSpaceControllerClient remoteControllerClient;
+  String CONFIGURATION_MASTER_WEBSOCKET_PORT = "interactivespaces.master.api.websocket.port";
 
   /**
-   * @param remoteControllerClient
-   *          the remoteControllerClient to set
+   * Default value for configuration property for the websocket port for the
+   * master.
    */
-  public void setRemoteControllerClient(RemoteSpaceControllerClient remoteControllerClient) {
-    this.remoteControllerClient = remoteControllerClient;
-  }
-
+  int CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT = 8090;
 }

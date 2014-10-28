@@ -19,6 +19,8 @@ dependencies {
 
   compile files("${project.getProperty('interactivespaces.dependencies.home')}/audio/jid3lib-0.5.4.jar")
   compile files("${project.getProperty('interactivespaces.dependencies.home')}/audio/interactivespaces.javazoom.jlayer-1.0.1.jar")
+  
+  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
@@ -29,8 +31,15 @@ jar {
     version = osgiVersion
     symbolicName = 'interactivespaces.service.audio.player'
 
+    instruction 'Bundle-Activator',
+        'interactivespaces.service.audio.player.internal.osgi.AudioPlayerServiceOsgiBundleActivator'
+
     instruction 'Export-Package',
+        '!interactivespaces.service.audio.player.internal.*',
         'interactivespaces.service.audio.player.*'
+
+    instruction 'Private-Package',
+        'interactivespaces.service.audio.player.internal.*'
   }
 }
 

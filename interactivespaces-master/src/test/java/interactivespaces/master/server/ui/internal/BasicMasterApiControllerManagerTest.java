@@ -18,7 +18,7 @@ package interactivespaces.master.server.ui.internal;
 
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.master.api.internal.BasicMasterApiSpaceControllerManager;
+import interactivespaces.master.api.master.internal.BasicMasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.SpaceControllerRepository;

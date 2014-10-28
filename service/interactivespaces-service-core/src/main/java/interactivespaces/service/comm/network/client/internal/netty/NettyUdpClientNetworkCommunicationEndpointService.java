@@ -36,7 +36,7 @@ public class NettyUdpClientNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public String getName() {
-    return UdpClientNetworkCommunicationEndpointService.NAME;
+    return UdpClientNetworkCommunicationEndpointService.SERVICE_NAME;
   }
 
   @Override

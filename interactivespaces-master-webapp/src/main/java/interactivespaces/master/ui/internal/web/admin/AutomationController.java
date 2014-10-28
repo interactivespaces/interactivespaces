@@ -17,9 +17,9 @@
 package interactivespaces.master.ui.internal.web.admin;
 
 import interactivespaces.domain.system.NamedScript;
-import interactivespaces.master.api.MasterApiAutomationManager;
-import interactivespaces.master.api.MasterApiMessageSupport;
-import interactivespaces.master.api.MasterApiUtilities;
+import interactivespaces.master.api.master.MasterApiAutomationManager;
+import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.master.MasterApiUtilities;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 

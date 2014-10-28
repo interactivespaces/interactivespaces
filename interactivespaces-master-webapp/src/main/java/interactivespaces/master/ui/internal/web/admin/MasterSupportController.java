@@ -16,7 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.admin;
 
-import interactivespaces.master.api.MasterApiMasterSupportManager;
+import interactivespaces.master.api.master.MasterApiMasterSupportManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 

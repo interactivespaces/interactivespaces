@@ -32,7 +32,15 @@ public interface UdpClientNetworkCommunicationEndpointService extends SupportedS
   /**
    * Name for the service.
    */
-  String NAME = "comm.network.udp.client";
+  String SERVICE_NAME = "comm.network.udp.client";
+
+  /**
+   * Name for the service.
+   *
+   * @deprecated Use {@link #SERVICE_NAME}
+   */
+  @Deprecated
+  String NAME = SERVICE_NAME;
 
   /**
    * Create a new UDP client endpoint.

@@ -327,7 +327,7 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiActivityManager"
+        class="interactivespaces.master.api.master.internal.BasicMasterApiActivityManager"
         destroy-method="shutdown" init-method="startup" parent="abstractMasterApiManager">
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
@@ -348,7 +348,7 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiSpaceControllerManager"
+        class="interactivespaces.master.api.master.internal.BasicMasterApiSpaceControllerManager"
         parent="abstractMasterApiManager">
 
         <property name="spaceControllerRepository"
@@ -369,7 +369,7 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiAutomationManager"
+        class="interactivespaces.master.api.master.internal.BasicMasterApiAutomationManager"
         parent="abstractMasterApiManager">
 
         <property name="automationRepository"
@@ -385,7 +385,7 @@
     <property name="target">
 
       <bean
-        class="interactivespaces.master.api.internal.BasicMasterApiMasterSupportManager"
+        class="interactivespaces.master.api.master.internal.BasicMasterApiMasterSupportManager"
         parent="abstractMasterApiManager">
 
         <property name="masterSupportManager" ref="interactivespaces.master.support" />
@@ -412,7 +412,7 @@
   </bean>
 
   <bean id="interactivespaces.master.websocket"
-    class="interactivespaces.master.api.internal.BasicMasterWebsocketManager"
+    class="interactivespaces.master.api.master.internal.BasicMasterWebsocketManager"
     destroy-method="shutdown" init-method="startup">
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
@@ -433,7 +433,7 @@
   <context:component-scan base-package="interactivespaces" />
 
   <bean id="interactivespaces.master.shell"
-    class="interactivespaces.master.api.internal.osgi.OsgiMasterShell"
+    class="interactivespaces.master.api.master.internal.osgi.OsgiMasterShell"
     destroy-method="deactivate" init-method="activate">
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
@@ -471,19 +471,19 @@
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
-  <osgi:service interface="interactivespaces.master.api.MasterApiActivityManager"
+  <osgi:service interface="interactivespaces.master.api.master.MasterApiActivityManager"
     ref="interactivespaces.master.api.activity" />
 
   <osgi:service
-    interface="interactivespaces.master.api.MasterApiSpaceControllerManager"
+    interface="interactivespaces.master.api.master.MasterApiSpaceControllerManager"
     ref="interactivespaces.master.api.controller" />
 
   <osgi:service
-    interface="interactivespaces.master.api.MasterApiAutomationManager"
+    interface="interactivespaces.master.api.master.MasterApiAutomationManager"
     ref="interactivespaces.master.api.automation" />
 
   <osgi:service
-    interface="interactivespaces.master.api.MasterApiMasterSupportManager"
+    interface="interactivespaces.master.api.master.MasterApiMasterSupportManager"
     ref="interactivespaces.master.api.support" />
 
   <osgi:service

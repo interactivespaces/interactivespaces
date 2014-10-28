@@ -14,30 +14,29 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master.internal;
 
-import interactivespaces.master.server.services.MasterSupportManager;
-
-import java.util.Map;
+import interactivespaces.master.api.master.RemoteActivityManager;
+import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 
 /**
- * Master API access for the {@link MasterSupportManager}.
+ * A simple remote activity manager.
  *
  * @author Keith M. Hughes
  */
-public interface MasterApiMasterSupportManager {
+public class BasicRemoteActivityManager implements RemoteActivityManager {
 
   /**
-   * Get the master domain description.
-   *
-   * @return the Master API response
+   * Handle operations on remote controllers.
    */
-  Map<String, Object> getMasterDomainDescription();
+  private RemoteSpaceControllerClient remoteControllerClient;
 
   /**
-   * Import the master domain description.
-   *
-   * @return the Master API response
+   * @param remoteControllerClient
+   *          the remoteControllerClient to set
    */
-  Map<String, Object> importMasterDomainDescription();
+  public void setRemoteControllerClient(RemoteSpaceControllerClient remoteControllerClient) {
+    this.remoteControllerClient = remoteControllerClient;
+  }
+
 }

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
 import java.util.List;
 import java.util.Map;

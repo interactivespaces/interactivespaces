@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.master.api;
+package interactivespaces.master.api.master;
 
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;

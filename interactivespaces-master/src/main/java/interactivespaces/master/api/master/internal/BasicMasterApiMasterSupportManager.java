@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.master.api.internal;
+package interactivespaces.master.api.master.internal;
 
-import interactivespaces.master.api.MasterApiMasterSupportManager;
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.master.MasterApiMasterSupportManager;
+import interactivespaces.master.api.master.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -59,7 +59,7 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Error while writing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
@@ -74,7 +74,7 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
     } catch (Exception e) {
       spaceEnvironment.getLog().error("Error while importing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
     }
   }
 
