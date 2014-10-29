@@ -322,7 +322,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources"))
         .append("Managed Resources").append(StatusDetail.SEPARATOR);
     for (ManagedResource managedResource : managedResources.getResources()) {
-      detailString.append(managedResource.getClass().getName()).append(StatusDetail.BREAK);
+      detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
     }
     detailString.append(StatusDetail.POSTFIX);
 
