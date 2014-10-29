@@ -17,6 +17,7 @@
 package interactivespaces.service.web.client.internal.netty;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.util.data.json.JsonMapper;
@@ -53,6 +54,26 @@ import java.util.concurrent.Executor;
 public class NettyWebSocketClient implements WebSocketClient {
 
   /**
+   * The Netty Channel Pipeline name for the web socket handler.
+   */
+  public static final String CHANNEL_PIPELINE_NAME_WEBSOCKET_HANDLER = "ws-handler";
+
+  /**
+   * The Netty Channel Pipeline name for the HTTP encoder.
+   */
+  public static final String CHANNEL_PIPELINE_NAME_ENCODER = "encoder";
+
+  /**
+   * The Netty Channel Pipeline name for the HTTP decoder.
+   */
+  public static final String CHANNEL_PIPELINE_NAME_DECODER = "decoder";
+
+  /**
+   * The message sent for a web socket ping message.
+   */
+  public static final byte[] WEBSOCKET_PING_MESSAGE = new byte[] { 1, 2, 3, 4, 5, 6 };
+
+  /**
    * The JSON mapper.
    */
   private static final JsonMapper MAPPER;
@@ -69,7 +90,7 @@ public class NettyWebSocketClient implements WebSocketClient {
   /**
    * The handler for messages.
    */
-  private final WebSocketHandler handler;
+  private WebSocketHandler handler;
 
   /**
    * The threadpool to use for the connection.
@@ -112,6 +133,10 @@ public class NettyWebSocketClient implements WebSocketClient {
 
   @Override
   public void startup() {
+    if (handler == null) {
+      throw new SimpleInteractiveSpacesException("The web socket client does not have a handler at startup");
+    }
+
     bootstrap =
         new ClientBootstrap(new NioClientSocketChannelFactory(new NioClientBossPool(threadPool, 1), new NioWorkerPool(
             threadPool, Runtime.getRuntime().availableProcessors() * 2)));
@@ -136,9 +161,10 @@ public class NettyWebSocketClient implements WebSocketClient {
         public ChannelPipeline getPipeline() throws Exception {
           ChannelPipeline pipeline = Channels.pipeline();
 
-          pipeline.addLast("decoder", new HttpResponseDecoder());
-          pipeline.addLast("encoder", new HttpRequestEncoder());
-          pipeline.addLast("ws-handler", new NettyWebSocketClientHandler(handshaker, handler, log));
+          pipeline.addLast(CHANNEL_PIPELINE_NAME_DECODER, new HttpResponseDecoder());
+          pipeline.addLast(CHANNEL_PIPELINE_NAME_ENCODER, new HttpRequestEncoder());
+          pipeline.addLast(CHANNEL_PIPELINE_NAME_WEBSOCKET_HANDLER, new NettyWebSocketClientHandler(handshaker,
+              handler, log));
           return pipeline;
         }
       });
@@ -154,6 +180,15 @@ public class NettyWebSocketClient implements WebSocketClient {
 
       throw new InteractiveSpacesException("Could not connect to web socket connection", e);
     }
+  }
+
+  @Override
+  public void setWebSocketHandler(WebSocketHandler handler) {
+    if (bootstrap == null) {
+      throw new SimpleInteractiveSpacesException("The web socket client is already running");
+    }
+
+    this.handler = handler;
   }
 
   @Override
@@ -177,7 +212,7 @@ public class NettyWebSocketClient implements WebSocketClient {
   @Override
   public void ping() {
     if (channel != null) {
-      channel.write(new PingWebSocketFrame(ChannelBuffers.copiedBuffer(new byte[] { 1, 2, 3, 4, 5, 6 })));
+      channel.write(new PingWebSocketFrame(ChannelBuffers.copiedBuffer(WEBSOCKET_PING_MESSAGE)));
     }
   }
 
@@ -208,5 +243,10 @@ public class NettyWebSocketClient implements WebSocketClient {
   @Override
   public String getUser() {
     return "";
+  }
+
+  @Override
+  public String toString() {
+    return "NettyWebSocketClient [uri=" + uri + "]";
   }
 }

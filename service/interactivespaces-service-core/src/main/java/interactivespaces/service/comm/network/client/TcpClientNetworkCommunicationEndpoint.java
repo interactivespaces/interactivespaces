@@ -18,8 +18,10 @@ package interactivespaces.service.comm.network.client;
 
 import interactivespaces.util.resource.ManagedResource;
 
+import java.net.InetAddress;
+
 /**
- * Communication endpoint for a TCP based server.
+ * Communication endpoint for a TCP based client.
  *
  * @param <T>
  *          the type of the messages being handled
@@ -29,9 +31,16 @@ import interactivespaces.util.resource.ManagedResource;
 public interface TcpClientNetworkCommunicationEndpoint<T> extends ManagedResource {
 
   /**
-   * Get the server port being listened to.
+   * Get the remote host being connected to.
    *
-   * @return the server port being listened to
+   * @return the remote port being connected to
+   */
+  InetAddress getRemoteHost();
+
+  /**
+   * Get the remote port being connected.
+   *
+   * @return the remote port being connected to
    */
   int getRemotePort();
 
@@ -66,7 +75,7 @@ public interface TcpClientNetworkCommunicationEndpoint<T> extends ManagedResourc
    * Set the connection timeout.
    *
    * @param connectionTimeout
-   *        the connection timeout, in milliseconds
+   *          the connection timeout, in milliseconds
    */
   void setConnectionTimeout(long connectionTimeout);
 }

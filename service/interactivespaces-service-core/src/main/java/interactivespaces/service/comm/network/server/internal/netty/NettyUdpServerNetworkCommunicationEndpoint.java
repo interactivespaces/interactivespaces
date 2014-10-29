@@ -46,8 +46,12 @@ import java.util.concurrent.ExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class NettyUdpServerNetworkCommunicationEndpoint implements
-    UdpServerNetworkCommunicationEndpoint {
+public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetworkCommunicationEndpoint {
+
+  /**
+   * The buffer size for UDP packets.
+   */
+  public static final int BUFFER_SIZE = 1024;
 
   /**
    * The port the server is listening to.
@@ -60,13 +64,12 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
   private ConnectionlessBootstrap bootstrap;
 
   /**
-   * The listeners to endpoint events
+   * The listeners to endpoint events.
    */
-  private final List<UdpServerNetworkCommunicationEndpointListener> listeners = Lists
-      .newCopyOnWriteArrayList();
+  private final List<UdpServerNetworkCommunicationEndpointListener> listeners = Lists.newCopyOnWriteArrayList();
 
   /**
-   * Executor service for this endpoint
+   * Executor service for this endpoint.
    */
   private final ExecutorService executorService;
 
@@ -75,8 +78,17 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
    */
   private final Log log;
 
-  public NettyUdpServerNetworkCommunicationEndpoint(int serverPort,
-      ExecutorService executorService, Log log) {
+  /**
+   * Construct a new endpoint.
+   *
+   * @param serverPort
+   *          the server port to listen to
+   * @param executorService
+   *          the executor service to use
+   * @param log
+   *          the logger to use
+   */
+  public NettyUdpServerNetworkCommunicationEndpoint(int serverPort, ExecutorService executorService, Log log) {
     this.serverPort = serverPort;
     this.executorService = executorService;
     this.log = log;
@@ -108,8 +120,7 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
     // certain size, depending on router configuration. IPv4 routers
     // truncate and IPv6 routers drop a large packet. That's why it is
     // safe to send small packets in UDP.
-    bootstrap.setOption("receiveBufferSizePredictorFactory",
-        new FixedReceiveBufferSizePredictorFactory(1024));
+    bootstrap.setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(BUFFER_SIZE));
 
     // Bind to the port and start the service.
     bootstrap.bind(new InetSocketAddress(serverPort));
@@ -131,6 +142,16 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
   @Override
   public void removeListener(UdpServerNetworkCommunicationEndpointListener listener) {
     listeners.remove(listener);
+  }
+
+  @Override
+  public int getServerPort() {
+    return serverPort;
+  }
+
+  @Override
+  public String toString() {
+    return "NettyUdpServerNetworkCommunicationEndpoint [serverPort=" + serverPort + "]";
   }
 
   /**
@@ -177,13 +198,19 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements
      */
     private final MessageEvent event;
 
+    /**
+     * Construct a new server request.
+     *
+     * @param event
+     *          the Netty message event which came in
+     */
     public NettyUdpServerRequest(MessageEvent event) {
       this.event = event;
     }
 
     @Override
     public InetSocketAddress getRemoteAddress() {
-      return (InetSocketAddress)event.getRemoteAddress();
+      return (InetSocketAddress) event.getRemoteAddress();
     }
 
     @Override

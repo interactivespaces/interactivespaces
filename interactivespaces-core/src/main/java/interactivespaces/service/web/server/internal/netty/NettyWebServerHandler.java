@@ -83,8 +83,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Factory for HTTP data objects. Used for post events.
    *
    * <p>
-   * The factory will keep all in memory until it gets too big, then writes to
-   * disk.
+   * The factory will keep all in memory until it gets too big, then writes to disk.
    */
   private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
 
@@ -175,8 +174,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * @param webSocketUriPrefix
    *          uri prefix for websocket handler, can be {@code null}
    * @param webSocketHandlerFactory
-   *          the factory to use, can be {@code null} if don't want to handle
-   *          web socket calls
+   *          the factory to use, can be {@code null} if don't want to handle web socket calls
    */
   public void setWebSocketHandlerFactory(String webSocketUriPrefix,
       WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
@@ -270,8 +268,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   }
 
   /**
-   * Attempt to handle an HTTP request by scanning through all registered
-   * handlers.
+   * Attempt to handle an HTTP request by scanning through all registered handlers.
    *
    * @param context
    *          the context for the request
@@ -422,7 +419,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * @return the handshaker factory for the request
    */
   private WebSocketServerHandshakerFactory getWebSocketHandshakerFactory(HttpRequest req) {
-    String host = req.getHeader(HttpHeaders.Names.HOST);
+    String host = HttpHeaders.getHeader(req, HttpHeaders.Names.HOST);
 
     synchronized (webSocketHandshakerFactories) {
       WebSocketServerHandshakerFactory wsFactory = webSocketHandshakerFactories.get(host);
@@ -479,8 +476,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   }
 
   /**
-   * The file upload is complete. Finish processing and alert everyone who needs
-   * to know.
+   * The file upload is complete. Finish processing and alert everyone who needs to know.
    *
    * @param fileUpload
    *          the completed file upload object
@@ -507,8 +503,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * @param setContentLength
    *          {@code true} if should set content length on result
    * @param ignoreKeepAlive
-   *          {@code true} if should ignore the HTTP keepalive aheader and close
-   *          the connection anyway
+   *          {@code true} if should ignore the HTTP keepalive aheader and close the connection anyway
    */
   public void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res, boolean setContentLength,
       boolean ignoreKeepAlive) {
@@ -573,8 +568,8 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   public void addHeaderIfNotExists(HttpResponse response, String name, Object value) {
 
-    if (!response.containsHeader(name)) {
-      response.addHeader(name, value);
+    if (HttpHeaders.getHeader(response, name) == null) {
+      HttpHeaders.addHeader(response, name, value);
     }
   }
 
@@ -606,7 +601,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   private void addHttpResponseHeaderMap(HttpResponse res, Map<String, String> headers) {
     for (Entry<String, String> entry : headers.entrySet()) {
-      res.addHeader(entry.getKey(), entry.getValue());
+      HttpHeaders.addHeader(res, entry.getKey(), entry.getValue());
     }
   }
 
@@ -621,7 +616,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   private void addHttpResponseHeaderMap(HttpResponse res, Multimap<String, String> headers) {
     for (String key : headers.keySet()) {
       for (String value : headers.get(key)) {
-        res.addHeader(key, value);
+        HttpHeaders.addHeader(res, key, value);
       }
     }
   }
@@ -692,7 +687,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
-    response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
+    HttpHeaders.setHeader(response, CONTENT_TYPE, "text/plain; charset=UTF-8");
     response.setContent(ChannelBuffers.copiedBuffer("Failure: " + status.toString() + "\r\n", CharsetUtil.UTF_8));
 
     // Close the connection as soon as the error message is sent.
@@ -709,7 +704,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   private DefaultHttpResponse createRedirect(String url) {
     DefaultHttpResponse response = new DefaultHttpResponse(HTTP_1_1, FOUND);
-    response.addHeader("Location", url);
+    HttpHeaders.addHeader(response, HttpHeaders.Names.LOCATION, url);
     return response;
   }
 

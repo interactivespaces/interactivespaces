@@ -23,6 +23,8 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
+import interactivespaces.util.web.MimeResolver;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
@@ -55,11 +57,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Handle content for Netty.
+ * Handle static web content using Netty.
  *
  * @author Keith M. Hughes
  */
-public class NettyStaticContentHandler implements NettyHttpContentHandler {
+public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpStaticContentRequestHandler {
 
   /**
    * Chunk size to use for copying content.
@@ -97,10 +99,18 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
 
   /**
-   * Should this web-server allow links to be accessed? (Wander outside the root filesystem.)
-   * Useful for debugging & development.
+   * Should this web-server allow links to be accessed? (Wander outside the root filesystem.) Useful for debugging &
+   * development.
    */
   private boolean allowLinks;
+
+  /**
+   * The MIME resolver to use for responding to requests.
+   *
+   * <p>
+   * Can be {@code null}.
+   */
+  private MimeResolver mimeResolver;
 
   /**
    * Create a new instance.
@@ -136,6 +146,17 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     this.uriPrefix = sanitizedUriPrefix.toString();
 
     this.baseDir = baseDir;
+  }
+
+  @Override
+  public void setMimeResolver(MimeResolver resolver) {
+    mimeResolver = resolver;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends MimeResolver> T getMimeResolver() {
+    return (T) mimeResolver;
   }
 
   @Override
@@ -185,6 +206,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
     // Start with an initial OK response which will be modified as needed.
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
+
+    setMimeType(filepath, response);
 
     parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
     parentHandler.addHeaderIfNotExists(response, HttpHeaders.Names.ACCEPT_RANGES, HttpHeaders.Values.BYTES);
@@ -254,6 +277,23 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     if (!isKeepAlive(request)) {
       // Close the connection when the whole content is written out.
       writeFuture.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  /**
+   * Set the MIME type of the content, if we can.
+   *
+   * @param filepath
+   *          the filepath for the content
+   * @param response
+   *          the HTTP response
+   */
+  private void setMimeType(String filepath, HttpResponse response) {
+    if (mimeResolver != null) {
+      String mimeType = mimeResolver.resolve(filepath);
+      if (mimeType != null) {
+        HttpHeaders.setHeader(response, HttpHeaders.Names.CONTENT_TYPE, mimeType);
+      }
     }
   }
 

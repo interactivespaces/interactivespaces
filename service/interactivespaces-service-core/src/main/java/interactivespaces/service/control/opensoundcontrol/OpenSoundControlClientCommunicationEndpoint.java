@@ -26,6 +26,20 @@ import interactivespaces.util.resource.ManagedResource;
 public interface OpenSoundControlClientCommunicationEndpoint extends ManagedResource {
 
   /**
+   * Get the OSC server remote host.
+   *
+   * @return the OSC server remote host
+   */
+  String getRemoteHost();
+
+  /**
+   * Get the OSC server remote port.
+   *
+   * @return the OSC server remote port
+   */
+  int getRemotePort();
+
+  /**
    * Create a new OSC packet.
    *
    * @param oscAddress
