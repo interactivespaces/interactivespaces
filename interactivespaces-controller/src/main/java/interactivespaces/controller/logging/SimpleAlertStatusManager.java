@@ -16,6 +16,8 @@
 
 package interactivespaces.controller.logging;
 
+import interactivespaces.activity.Activity;
+import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.client.node.ActiveControllerActivity;
 
@@ -25,12 +27,16 @@ import org.apache.commons.logging.Log;
  * Use the console to report status.
  *
  * <p>
- * This should not be used in production. Someone should be emailed, or paged,
- * or something.
+ * This should not be used in production. Someone should be emailed, or paged, or something.
  *
  * @author Keith M. Hughes
  */
 public class SimpleAlertStatusManager implements AlertStatusManager {
+
+  /**
+   * The designator for unknown items.
+   */
+  public static final String UNKNOWN = "UNKNOWN";
 
   /**
    * Local log where things should be written.
@@ -41,18 +47,34 @@ public class SimpleAlertStatusManager implements AlertStatusManager {
   public void announceStatus(ActiveControllerActivity activity) {
     // TODO(keith): Stupid for now.
     ActivityStatus status = activity.getActivityStatus();
-    log.error(String.format("ALERT: Activity %s has serious issues: %s\n", activity.getInstance()
-        .getName(), status.getState().toString()));
+    String activityName = activity.getUuid();
+    Activity activityInstance = activity.getInstance();
+    if (activityInstance != null) {
+      activityName = activityName + ":" + activityInstance.getName();
+    }
+    String activityState = UNKNOWN;
+    ActivityState state = status.getState();
+    if (state != null) {
+      activityState = state.toString();
+    }
+
+    log.error(String.format("ALERT: Activity %s has serious issues: %s\n", activityName, activityState));
     log.error(status.getDescription());
-    Throwable e = activity.getActivityStatus().getException();
+
+    Throwable e = null;
+    if (status != null) {
+      e = status.getException();
+    }
     if (e != null) {
       log.error("Exception involved", e);
     }
   }
 
   /**
+   * Set the logger to use.
+   *
    * @param log
-   *          the log to set
+   *          the log to use
    */
   public void setLog(Log log) {
     this.log = log;
