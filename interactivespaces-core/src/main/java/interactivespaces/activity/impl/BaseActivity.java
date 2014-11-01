@@ -162,9 +162,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
-    if (getLog().isInfoEnabled()) {
-      logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
-    }
+    logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
 
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
