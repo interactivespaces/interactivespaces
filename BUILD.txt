@@ -1,6 +1,5 @@
-Interactive Spaces uses the gradle build tool. Download it from http://www.gradle.org
-
-Building Interactive Spaces requires at least Gradle 2.0.
+Interactive Spaces uses the Gradle build tool. There is no need to download 
+Gradle,it will be downloaded automatically by the build process.
 
 Building Interactive Spaces requires the following dependencies:
 
@@ -47,7 +46,7 @@ Building installers:
 
 If you want to build the installers, use the following command
 
-gradle createInstallers
+./gradlew createInstallers
 
 This will create installers for the master, controller, and workbench. The
 installers will be found in
@@ -58,7 +57,7 @@ where * can be master, controller, or workbench.
 
 Building an Image:
 
-gradle -PimageHome=path createImage
+./gradlew -PimageHome=path createImage
 
 where path is the root folder which will receive the image.
 
@@ -78,4 +77,4 @@ Interactive Spaces development environment.
 To build Intercative Spaces and install updated files into your development
 instance, use
 
-gradle installDev
+./gradlew installDev
