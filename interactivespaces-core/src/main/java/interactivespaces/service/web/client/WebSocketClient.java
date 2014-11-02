@@ -17,6 +17,7 @@
 package interactivespaces.service.web.client;
 
 import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
@@ -25,6 +26,17 @@ import interactivespaces.util.resource.ManagedResource;
  * @author Keith M. Hughes
  */
 public interface WebSocketClient extends WebSocketConnection, ManagedResource {
+
+  /**
+   * Set the web socket handler to be used for callbacks.
+   *
+   * <p>
+   * This must be set before {@link #startup()} is called.
+   *
+   * @param handler
+   *          the handler
+   */
+  void setWebSocketHandler(WebSocketHandler handler);
 
   /**
    * Ping the server.

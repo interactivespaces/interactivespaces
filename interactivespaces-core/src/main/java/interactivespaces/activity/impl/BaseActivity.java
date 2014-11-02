@@ -162,9 +162,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
-    if (getLog().isInfoEnabled()) {
-      logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
-    }
+    logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
 
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
@@ -322,7 +320,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources"))
         .append("Managed Resources").append(StatusDetail.SEPARATOR);
     for (ManagedResource managedResource : managedResources.getResources()) {
-      detailString.append(managedResource.getClass().getName()).append(StatusDetail.BREAK);
+      detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
     }
     detailString.append(StatusDetail.POSTFIX);
 

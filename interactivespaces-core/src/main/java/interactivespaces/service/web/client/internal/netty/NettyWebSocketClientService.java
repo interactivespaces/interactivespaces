@@ -49,4 +49,9 @@ public class NettyWebSocketClientService extends BaseSupportedService implements
       throw new InteractiveSpacesException(String.format("Bad URI syntax for web socket URI: %s", uri), e);
     }
   }
+
+  @Override
+  public WebSocketClient newWebSocketClient(String uri, Log log) {
+    return newWebSocketClient(uri, null, log);
+  }
 }

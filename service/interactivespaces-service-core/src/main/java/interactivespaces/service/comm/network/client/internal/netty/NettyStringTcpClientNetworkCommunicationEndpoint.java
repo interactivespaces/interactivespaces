@@ -177,6 +177,11 @@ public class NettyStringTcpClientNetworkCommunicationEndpoint implements TcpClie
   }
 
   @Override
+  public InetAddress getRemoteHost() {
+    return remoteHost;
+  }
+
+  @Override
   public int getRemotePort() {
     return remotePort;
   }
@@ -199,6 +204,12 @@ public class NettyStringTcpClientNetworkCommunicationEndpoint implements TcpClie
   @Override
   public void setConnectionTimeout(long connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
+  }
+
+  @Override
+  public String toString() {
+    return "NettyStringTcpClientNetworkCommunicationEndpoint [remoteHost=" + remoteHost + ", remotePort=" + remotePort
+        + "]";
   }
 
   /**

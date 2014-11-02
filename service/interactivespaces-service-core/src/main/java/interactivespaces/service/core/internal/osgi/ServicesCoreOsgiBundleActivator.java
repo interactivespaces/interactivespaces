@@ -23,6 +23,7 @@ import interactivespaces.service.comm.network.server.internal.netty.NettyTcpServ
 import interactivespaces.service.comm.network.server.internal.netty.NettyUdpServerNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.serial.xbee.internal.InteractiveSpacesXBeeCommunicationEndpointService;
 import interactivespaces.service.control.opensoundcontrol.internal.InteractiveSpacesOpenSoundControlClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.internal.InteractiveSpacesOpenSoundControlServerCommunicationEndpointService;
 
 /**
  * The Bundle Activator for the core InteractiveSpaces services.
@@ -44,5 +45,6 @@ public class ServicesCoreOsgiBundleActivator extends InteractiveSpacesServiceOsg
     registerNewInteractiveSpacesService(new NettyTcpServerNetworkCommunicationEndpointService());
 
     registerNewInteractiveSpacesService(new InteractiveSpacesOpenSoundControlClientCommunicationEndpointService());
+    registerNewInteractiveSpacesService(new InteractiveSpacesOpenSoundControlServerCommunicationEndpointService());
   }
 }

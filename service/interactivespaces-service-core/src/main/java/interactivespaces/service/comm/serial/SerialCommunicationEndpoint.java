@@ -26,6 +26,13 @@ import interactivespaces.comm.CommunicationEndpoint;
 public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
 
   /**
+   * Get the port name the endpoint is connected to.
+   *
+   * @return the port name the endpoint is connected
+   */
+  String getPortName();
+
+  /**
    * How many bytes are available on the input stream?
    *
    * @return the number of bytes available for reading
@@ -33,14 +40,14 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   int available();
 
   /**
-   * Read a single byte
+   * Read a single byte.
    *
    * @return the byte
    */
   int read();
 
   /**
-   * Read bytes into the buffer
+   * Read bytes into the buffer.
    *
    * @param buffer
    *          the buffer to read the bytes into
@@ -69,7 +76,7 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   void flush();
 
   /**
-   * Write the byte out to the serial port
+   * Write the byte out to the serial port.
    *
    * @param b
    *          the byte value to write
@@ -77,7 +84,7 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   void write(int b);
 
   /**
-   * Write the array of bytes out to the serial port
+   * Write the array of bytes out to the serial port.
    *
    * @param b
    *          the byte array to write
@@ -85,7 +92,7 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   void write(byte[] b);
 
   /**
-   * Write the array of bytes out to the serial port
+   * Write the array of bytes out to the serial port.
    *
    * @param b
    *          the byte array to write
@@ -142,6 +149,30 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
    * @author Keith M. Hughes
    */
   public enum Parity {
-    NONE, EVEN, ODD, SPACE, MARK
+
+    /**
+     * No parity.
+     */
+    NONE,
+
+    /**
+     * Even parity.
+     */
+    EVEN,
+
+    /**
+     * Odd parity.
+     */
+    ODD,
+
+    /**
+     * Space parity.
+     */
+    SPACE,
+
+    /**
+     * Mark parity.
+     */
+    MARK
   }
 }

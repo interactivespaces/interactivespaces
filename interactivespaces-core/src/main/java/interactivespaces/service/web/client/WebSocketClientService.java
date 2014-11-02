@@ -31,7 +31,7 @@ public interface WebSocketClientService extends SupportedService {
   /**
    * Service name for the service.
    */
-  public static final String SERVICE_NAME = "web.client.websocket";
+  String SERVICE_NAME = "web.client.websocket";
 
   /**
    * Create a new server.
@@ -43,7 +43,19 @@ public interface WebSocketClientService extends SupportedService {
    * @param log
    *          logger to be used with the client
    *
-   * @return The web server.
+   * @return the web socket client
    */
   WebSocketClient newWebSocketClient(String uri, WebSocketHandler handler, Log log);
+
+  /**
+   * Create a new client.
+   *
+   * @param uri
+   *          the uri to connect to
+   * @param log
+   *          logger to be used with the client
+   *
+   * @return the web socket client
+   */
+  WebSocketClient newWebSocketClient(String uri, Log log);
 }

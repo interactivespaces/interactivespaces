@@ -17,6 +17,7 @@
 package interactivespaces.service.web.server;
 
 import interactivespaces.service.SupportedService;
+import interactivespaces.util.web.MimeResolver;
 
 import org.apache.commons.logging.Log;
 
@@ -80,4 +81,22 @@ public interface WebServerService extends SupportedService {
    *          name of the server to shut down
    */
   void shutdownServer(String serverName);
+
+  /**
+   * Get the default HTTP MIME resolver to use.
+   *
+   * @param <T>
+   *          the type of the MIME resolver
+   *
+   * @return the default HTTP MIME resolver, can be {@code null}
+   */
+  <T extends MimeResolver> T getDefaultHttpMimeResolver();
+
+  /**
+   * Set the default HTTP MIME resolver to use.
+   *
+   * @param resolver
+   *          the default HTTP MIME resolver, can be {@code null}
+   */
+  void setDefaultHttpMimeResolver(MimeResolver resolver);
 }

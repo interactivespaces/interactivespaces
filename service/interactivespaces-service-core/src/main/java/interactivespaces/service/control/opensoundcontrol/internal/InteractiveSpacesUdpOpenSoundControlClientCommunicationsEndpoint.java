@@ -21,16 +21,17 @@ import interactivespaces.service.comm.network.client.UdpPacket;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientPacket;
 
-import java.net.InetSocketAddress;
-
 import org.apache.commons.logging.Log;
+
+import java.net.InetSocketAddress;
 
 /**
  * An Interactive Spaces implementation of an {@link OpenSoundControlClientCommunicationEndpoint}.
  *
  * @author Keith M. Hughes
  */
-public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint implements OpenSoundControlClientCommunicationEndpoint {
+public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint implements
+    OpenSoundControlClientCommunicationEndpoint {
 
   /**
    * Padding bytes.
@@ -50,7 +51,7 @@ public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint im
   /**
    * Communication endpoint for talking to the OSC server.
    */
-  private UdpClientNetworkCommunicationEndpoint commEndpoint;
+  private UdpClientNetworkCommunicationEndpoint udpClientEndpoint;
 
   /**
    * Log for the connection
@@ -58,20 +59,30 @@ public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint im
   private Log log;
 
   public InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint(InetSocketAddress remoteAddress,
-      UdpClientNetworkCommunicationEndpoint commEndpoint, Log log) {
+      UdpClientNetworkCommunicationEndpoint udpClientEndpoint, Log log) {
     this.remoteAddress = remoteAddress;
-    this.commEndpoint = commEndpoint;
+    this.udpClientEndpoint = udpClientEndpoint;
     this.log = log;
   }
 
   @Override
   public void startup() {
-    commEndpoint.startup();
+    udpClientEndpoint.startup();
   }
 
   @Override
   public void shutdown() {
-    commEndpoint.shutdown();
+    udpClientEndpoint.shutdown();
+  }
+
+  @Override
+  public String getRemoteHost() {
+    return remoteAddress.getHostName();
+  }
+
+  @Override
+  public int getRemotePort() {
+    return remoteAddress.getPort();
   }
 
   @Override
@@ -82,6 +93,12 @@ public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint im
   @Override
   public OpenSoundControlClientPacket newPacket(String address, byte... types) {
     return new InteractiveSpacesOscPacket(address, types);
+  }
+
+  @Override
+  public String toString() {
+    return "InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint [remoteHost=" + getRemoteHost()
+        + ", remotePort=" + getRemotePort() + "]";
   }
 
   /**
@@ -101,12 +118,20 @@ public class InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint im
      */
     private UdpPacket packet;
 
+    /**
+     * Construct a new packet.
+     *
+     * @param address
+     *          the OSC address
+     * @param types
+     *          the types of the arguments
+     */
     public InteractiveSpacesOscPacket(String address, String types) {
       this(address, types.getBytes());
     }
 
     public InteractiveSpacesOscPacket(String address, byte... types) {
-      packet = commEndpoint.newDynamicUdpPacket();
+      packet = udpClientEndpoint.newDynamicUdpPacket();
 
       writeString(address);
       writeArgumentTypes(types);

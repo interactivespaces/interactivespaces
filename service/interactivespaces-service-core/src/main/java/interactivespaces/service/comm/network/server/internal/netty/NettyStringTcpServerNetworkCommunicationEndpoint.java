@@ -154,6 +154,11 @@ public class NettyStringTcpServerNetworkCommunicationEndpoint implements TcpServ
     listeners.remove(listener);
   }
 
+  @Override
+  public String toString() {
+    return "NettyStringTcpServerNetworkCommunicationEndpoint [serverPort=" + serverPort + "]";
+  }
+
   /**
    * Handle the message received by the handler.
    *

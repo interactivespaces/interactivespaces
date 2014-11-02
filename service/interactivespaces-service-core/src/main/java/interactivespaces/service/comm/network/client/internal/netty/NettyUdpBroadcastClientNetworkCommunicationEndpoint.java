@@ -144,6 +144,11 @@ public class NettyUdpBroadcastClientNetworkCommunicationEndpoint implements
   }
 
   @Override
+  public int getPort() {
+    return port;
+  }
+
+  @Override
   public void addListener(UdpBroadcastClientNetworkCommunicationEndpointListener listener) {
     listeners.add(listener);
   }
@@ -171,6 +176,11 @@ public class NettyUdpBroadcastClientNetworkCommunicationEndpoint implements
   @Override
   public void leaveGroup(InetSocketAddress multicastAddress, NetworkInterface networkInterface) {
     channel.leaveGroup(multicastAddress, networkInterface);
+  }
+
+  @Override
+  public String toString() {
+    return "NettyUdpBroadcastClientNetworkCommunicationEndpoint [port=" + port + "]";
   }
 
   /**

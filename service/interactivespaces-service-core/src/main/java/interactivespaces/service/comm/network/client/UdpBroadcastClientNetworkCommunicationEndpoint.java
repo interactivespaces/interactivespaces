@@ -30,6 +30,13 @@ import java.net.NetworkInterface;
 public interface UdpBroadcastClientNetworkCommunicationEndpoint extends ManagedResource {
 
   /**
+   * Get the port being used by the client.
+   *
+   * @return the port being used
+   */
+  int getPort();
+
+  /**
    * Add a listener to the endpoint.
    *
    * @param listener
