@@ -226,7 +226,9 @@ public class InteractiveSpacesFrameworkBootstrap {
 
       registerCoreServices();
 
-      loadClasses(extensionsReader.getLoadclasses());
+      loadClasses(extensionsReader.getLoadClasses());
+
+      addContainerPathBundles(initialBundles, extensionsReader.getContainerPath());
 
       framework.start();
 
@@ -330,7 +332,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @throws BundleException
    *           something happened while starting bundles that could not be recovered from
    */
-  protected void startBundles(List<File> jars) throws BundleException {
+  private void startBundles(List<File> jars) throws BundleException {
     for (File bundleFile : jars) {
       String bundleUri = bundleFile.getAbsoluteFile().toURI().toString();
 
@@ -436,7 +438,7 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     extraPackages.addAll(extensionsReader.getPackages());
 
-    loadLibraries(extensionsReader.getLoadlibraries());
+    loadLibraries(extensionsReader.getLoadLibraries());
 
     StringBuilder packages = new StringBuilder();
     String separator = "";
@@ -512,6 +514,25 @@ public class InteractiveSpacesFrameworkBootstrap {
         rootBundleContext.registerService(obj.getClass().getName(), obj, null);
       } catch (Exception e) {
         loggingProvider.getLog().error(String.format("Error while creating class %s", className), e);
+      }
+    }
+  }
+
+  /**
+   * Add in all container path entries from the extensions files as long as the files actually exist.
+   *
+   * @param initialBundles
+   *          the initial bundles list
+   * @param containerPath
+   *          the elements to be on the container classpath.
+   */
+  private void addContainerPathBundles(List<File> initialBundles, List<String> containerPath) {
+    for (String containerBundlePath : containerPath) {
+      File bundleFile = new File(containerBundlePath);
+      if (bundleFile.isFile()) {
+        initialBundles.add(bundleFile);
+      } else {
+        loggingProvider.getLog().warn(String.format("Container path file %s is not a file", containerBundlePath));
       }
     }
   }
