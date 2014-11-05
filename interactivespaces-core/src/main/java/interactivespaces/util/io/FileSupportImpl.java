@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -68,19 +69,29 @@ public class FileSupportImpl implements FileSupport {
    */
   private static final String TEMP_FILE_PREFIX = "tmp";
 
+  /**
+   * For generating unique filenames.
+   */
+  private SecureRandom random = new SecureRandom();
+
   @Override
-  public void zip(File target, File basePath) {
-    if (exists(target)) {
-      throw new SimpleInteractiveSpacesException("Cowardly refusing to overwrite existing output file " + target);
+  public void zip(File target, File sourceDirectory) {
+    zip(target, sourceDirectory, false);
+  }
+
+  @Override
+  public void zip(File target, File sourceDirectory, boolean overwrite) {
+    if (exists(target) && !overwrite) {
+      throw new SimpleInteractiveSpacesException("Cannot overwrite existing output file " + target);
     }
     ZipOutputStream zipOutputStream = null;
     try {
       zipOutputStream = createZipOutputStream(target);
       File relPath = new File(".");
-      addFileToZipStream(zipOutputStream, basePath, relPath, null);
+      addFileToZipStream(zipOutputStream, sourceDirectory, relPath, null);
       zipOutputStream.close();
     } catch (Exception e) {
-      throw new InteractiveSpacesException("Error wile zipping directory " + basePath, e);
+      throw new InteractiveSpacesException("Error while zipping directory " + sourceDirectory, e);
     } finally {
       closeQuietly(zipOutputStream);
     }
@@ -143,15 +154,15 @@ public class FileSupportImpl implements FileSupport {
         ZipEntry entry = entries.nextElement();
 
         if (entry.isDirectory()) {
-          File newDir = new File(baseLocation, entry.getName());
+          File newDir = newFile(baseLocation, entry.getName());
           if (!exists(newDir) && !mkdirs(newDir)) {
             throw new SimpleInteractiveSpacesException("Could not create directory: " + newDir);
           }
         } else {
-          File file = new File(baseLocation, entry.getName());
+          File file = newFile(baseLocation, entry.getName());
           File parentFile = getParentFile(file);
           if (!exists(parentFile) && !mkdirs(parentFile)) {
-            throw new SimpleInteractiveSpacesException("Could not create directory: " + parentFile);
+            throw new SimpleInteractiveSpacesException("Could not create parent directory: " + parentFile);
           }
 
           copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
@@ -411,6 +422,18 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
+  public File newFile(String path) {
+    // TODO(keith): Handle Windows
+    return new File(path);
+  }
+
+  @Override
+  public File newFile(File parent, String subpath) {
+    // TODO(keith): Handle Windows
+    return new File(parent, subpath);
+  }
+
+  @Override
   public File getAbsoluteFile(File file) {
     return file.getAbsoluteFile();
   }
@@ -490,7 +513,52 @@ public class FileSupportImpl implements FileSupport {
     try {
       return File.createTempFile(prefix, suffix, baseDir);
     } catch (IOException e) {
-      throw new SimpleInteractiveSpacesException("Creating temp file in " + baseDir.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("Error creating temp file in " + baseDir.getAbsolutePath(), e);
     }
+  }
+
+  @Override
+  public File createTempFile(String prefix, String suffix) {
+    try {
+      return File.createTempFile(prefix, suffix);
+    } catch (IOException e) {
+      throw new SimpleInteractiveSpacesException("Error creating temp file", e);
+    }
+  }
+
+  @Override
+  public File createTempDirectory(File baseDir) {
+    return createTempDirectory(baseDir, TEMP_FILE_PREFIX, "");
+  }
+
+  @Override
+  public File createTempDirectory(File baseDir, String prefix, String suffix) {
+    // Cycle until find a file name that doesn't exist
+    File dir = null;
+    do {
+      dir = newFile(baseDir, generateTempName(prefix, suffix));
+    } while (!exists(dir));
+
+    if (!mkdirs(dir)) {
+      throw new SimpleInteractiveSpacesException("Could not create temp directory in " + baseDir.getAbsolutePath());
+    }
+    return dir;
+  }
+
+  /**
+   * Generate a temporary file name.
+   *
+   * @param prefix
+   *          the prefix for the filename
+   * @param suffix
+   *          `` the suffix for the filename
+   *
+   * @return a temporary filename
+   */
+  private String generateTempName(String prefix, String suffix) {
+    long n = random.nextLong();
+    n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
+
+    return prefix + Long.toString(n) + suffix;
   }
 }

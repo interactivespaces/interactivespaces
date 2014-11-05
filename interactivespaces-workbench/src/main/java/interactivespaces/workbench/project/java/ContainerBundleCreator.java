@@ -29,15 +29,14 @@ public interface ContainerBundleCreator {
   /**
    * Create a bundle from a given source.
    *
-   * @param source
-   *          file for the source jar
+   * @param sources
+   *          source files for the input jar
    * @param output
    *          where the file should be written
+   * @param headers
+   *          the file containing the OSGi header information, can be {@code null}
    * @param classpath
    *          the classpath for the bundle
-   *
-   * @throws Exception
-   *           something bad happened
    */
-  void createBundle(File source, File output, List<File> classpath) throws Exception;
+  void createBundle(List<File> sources, File output, File headers, List<File> classpath);
 }

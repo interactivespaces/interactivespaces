@@ -18,6 +18,8 @@ package interactivespaces.launcher.bootstrap;
 
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -33,11 +35,6 @@ import java.util.Properties;
  * @author Keith M. Hughes
  */
 public class FileConfigurationProvider implements ConfigurationProvider {
-
-  /**
-   * Where the config files are stored.
-   */
-  public static final String CONFIG_DIRECTORY = "config";
 
   /**
    * Extensions on config files.
@@ -60,9 +57,14 @@ public class FileConfigurationProvider implements ConfigurationProvider {
   private static final String INTERACTIVESPACES_HOME_CONFIG_KEY = "interactivespaces.home";
 
   /**
-   * The initial configuration
+   * The base install folder.
    */
   private File baseInstallFolder;
+
+  /**
+   * The initial configuration folder.
+   */
+  private File configFolder;
 
   /**
    * The current configuration.
@@ -70,13 +72,24 @@ public class FileConfigurationProvider implements ConfigurationProvider {
   private Map<String, String> currentConfiguration;
 
   /**
-   * Create a new provider.
+   * The logger to use.
+   */
+  private Log log;
+
+  /**
+   * Construct a new provider.
    *
    * @param baseInstallFolder
-   *          base install folder for this component
+   *        base install folder for the Interactive Spaces Container.
+   * @param configFolder
+   *          the configuration folder for this component
+   * @param log
+   *          the logger to use during
    */
-  public FileConfigurationProvider(File baseInstallFolder) {
+  public FileConfigurationProvider(File baseInstallFolder, File configFolder, Log log) {
     this.baseInstallFolder = baseInstallFolder;
+    this.configFolder = configFolder;
+    this.log = log;
   }
 
   @Override
@@ -92,20 +105,21 @@ public class FileConfigurationProvider implements ConfigurationProvider {
 
     // Calculate the proper home directory for this install of interactive spaces.
     String isHomeEnvPath = System.getenv(INTERACTIVESPACES_HOME_ENVIRONMENT_KEY);
-    File isHomeDir = isHomeEnvPath != null ? new File(isHomeEnvPath)
-        : new File(baseInstallFolder, INTERACTIVESPACES_HOME_DEFAULT_DIR);
+    File isHomeDir =
+        isHomeEnvPath != null ? new File(isHomeEnvPath) : new File(baseInstallFolder,
+            INTERACTIVESPACES_HOME_DEFAULT_DIR);
     currentConfiguration.put(INTERACTIVESPACES_HOME_CONFIG_KEY, isHomeDir.getAbsolutePath());
 
     // Look in the specified bundle directory to create a list
     // of all JAR files to install.
-    File[] files = new File(baseInstallFolder, CONFIG_DIRECTORY).listFiles(new FilenameFilter() {
+    File[] files = configFolder.listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {
         return name.toLowerCase().endsWith(CONFIGURATION_FILES_EXTENSION);
       }
     });
     if (files == null || files.length == 0) {
-      System.err.format("Couldn't load config files from %s\n", CONFIG_DIRECTORY);
+      log.error(String.format("Couldn't load config files from %s\n", configFolder.getAbsolutePath()));
     }
 
     for (File file : files) {
@@ -116,8 +130,13 @@ public class FileConfigurationProvider implements ConfigurationProvider {
           currentConfiguration.put((String) p.getKey(), (String) p.getValue());
         }
       } catch (IOException e) {
-        System.err.format("Couldn't load config file %s\n", file);
+        log.error(String.format("Couldn't load config file %s\n", file));
       }
     }
+  }
+
+  @Override
+  public File getConfigFolder() {
+    return configFolder;
   }
 }

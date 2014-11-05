@@ -13,10 +13,12 @@ ${project.description?html}
   <configuration>
 <#list project.configurationProperties as property>
     <property name="${property.name?html}" required="${property.required?string}">
-      <#if property.descripton?has_content>
+      <#if property.description?has_content>
       <description>${property.description?html}</description>
-</#if>
+      </#if>
+      <#if property.value?has_content>
       <value>${property.value?html}</value>
+      </#if>
     </property>
 </#list>
   </configuration>

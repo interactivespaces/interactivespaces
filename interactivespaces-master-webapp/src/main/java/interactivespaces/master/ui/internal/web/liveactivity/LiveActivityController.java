@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web.liveactivity;
 
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
@@ -52,7 +52,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("liveactivity/LiveActivityViewAll");
-    mav.addObject("liveactivities", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
+    mav.addObject("liveactivities", response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA));
     mav.addObject("canCreateLiveActivities", masterApiActivityManager.canCreateLiveActivities());
 
     return mav;
@@ -114,7 +114,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
 
       return masterApiActivityManager.configureLiveActivity(id, map);
     } else {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessage.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
 
   }

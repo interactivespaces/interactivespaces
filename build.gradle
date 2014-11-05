@@ -36,7 +36,7 @@ allprojects {
     // be pushed to production.
     //
     // Final versions should set the qualifier to null.
-    interactiveSpacesVersion = '1.6.6'
+    interactiveSpacesVersion = '1.7.1'
     interactiveSpacesVersionQualifier = 'SNAPSHOT'
 
     // These specify the layout of IS containers.
@@ -169,6 +169,10 @@ subprojects {
       url 'http://repository.pentaho.org/artifactory/repo/'
     }
   }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
 }
 
 defaultTasks 'install'

@@ -23,6 +23,8 @@ import static org.jboss.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
+import interactivespaces.util.web.MimeResolver;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
@@ -55,11 +57,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Handle content for Netty.
+ * Handle static web content using Netty.
  *
  * @author Keith M. Hughes
  */
-public class NettyStaticContentHandler implements NettyHttpContentHandler {
+public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpStaticContentRequestHandler {
 
   /**
    * Chunk size to use for copying content.
@@ -95,6 +97,20 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
    * Extra headers to add to the response.
    */
   private Map<String, String> extraHttpContentHeaders = Maps.newHashMap();
+
+  /**
+   * Should this web-server allow links to be accessed? (Wander outside the root filesystem.) Useful for debugging &
+   * development.
+   */
+  private boolean allowLinks;
+
+  /**
+   * The MIME resolver to use for responding to requests.
+   *
+   * <p>
+   * Can be {@code null}.
+   */
+  private MimeResolver mimeResolver;
 
   /**
    * Create a new instance.
@@ -133,6 +149,17 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   }
 
   @Override
+  public void setMimeResolver(MimeResolver resolver) {
+    mimeResolver = resolver;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends MimeResolver> T getMimeResolver() {
+    return (T) mimeResolver;
+  }
+
+  @Override
   public boolean isHandledBy(HttpRequest request) {
     if (request.getUri().startsWith(uriPrefix)) {
       HttpMethod method = request.getMethod();
@@ -159,7 +186,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     File file = new File(baseDir, filepath);
 
     // Refuse to process if the path wanders outside of the base directory.
-    if (!file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+    if (!allowLinks && !file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
       parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
       return;
     }
@@ -179,6 +206,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
 
     // Start with an initial OK response which will be modified as needed.
     HttpResponse response = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
+
+    setMimeType(filepath, response);
 
     parentHandler.addHttpResponseHeaders(response, extraHttpContentHeaders);
     parentHandler.addHeaderIfNotExists(response, HttpHeaders.Names.ACCEPT_RANGES, HttpHeaders.Values.BYTES);
@@ -252,6 +281,23 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   }
 
   /**
+   * Set the MIME type of the content, if we can.
+   *
+   * @param filepath
+   *          the filepath for the content
+   * @param response
+   *          the HTTP response
+   */
+  private void setMimeType(String filepath, HttpResponse response) {
+    if (mimeResolver != null) {
+      String mimeType = mimeResolver.resolve(filepath);
+      if (mimeType != null) {
+        HttpHeaders.setHeader(response, HttpHeaders.Names.CONTENT_TYPE, mimeType);
+      }
+    }
+  }
+
+  /**
    * Get a range header from the request, if there is one.
    *
    * @param request
@@ -295,6 +341,16 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
   }
 
   /**
+   * Allow files linked outside the root filesystem to be accessed.
+   *
+   * @param allowLinks
+   *          {@code true} if following links should be allowed
+   */
+  public void setAllowLinks(boolean allowLinks) {
+    this.allowLinks = allowLinks;
+  }
+
+  /**
    * An HTTP range request.
    *
    * @author Keith M. Hughes
@@ -304,12 +360,12 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler {
     /**
      * The position of the first byte in the request.
      */
-    long begin;
+    private long begin;
 
     /**
      * The position of the last byte in the request.
      */
-    long end;
+    private long end;
 
     /**
      * Get the number of bytes in the range.

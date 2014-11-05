@@ -16,7 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.misc;
 
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 

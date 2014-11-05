@@ -17,39 +17,39 @@
 package interactivespaces.service.control.opensoundcontrol;
 
 /**
- * useful constants for using Open Sound Control.
+ * Useful constants for using Open Sound Control.
  *
  * @author Keith M. Hughes
  */
 public class OpenSoundControlConstants {
 
   /**
-   * int32 argument type for an Open Sound Control message argument
+   * int32 argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_INT32 = 0x69;
 
   /**
-   * int64 argument type for an Open Sound Control message argument
+   * int64 argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_INT64 = 0x68;
 
   /**
-   * float32 argument type for an Open Sound Control message argument
+   * float32 argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_FLOAT32 = 0x66;
 
   /**
-   * float64 argument type for an Open Sound Control message argument
+   * float64 argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_FLOAT64 = 0x64;
 
   /**
-   * string argument type for an Open Sound Control message argument
+   * string argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_STRING = 0x73;
 
   /**
-   * blob argument type for an Open Sound Control message argument
+   * blob argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_BLOB = 0x62;
 }

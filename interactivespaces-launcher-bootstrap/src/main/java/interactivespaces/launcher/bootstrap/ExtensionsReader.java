@@ -39,19 +39,24 @@ public class ExtensionsReader {
   public static final String EXTENSION_FILE_EXTENSION = ".ext";
 
   /**
-   * The keyword header for a package line on an extensions file.
+   * The keyword header for a package line in an extensions file.
    */
-  public static final String EXTENSION_FILE_PACKAGE_KEYWORD = "package:";
+  public static final String EXTENSION_FILE_KEYWORD_PACKAGE = "package:";
 
   /**
-   * The keyword header for a loadclass line on an extensions file.
+   * The keyword header for a loadclass line in an extensions file.
    */
-  public static final String EXTENSION_FILE_LOADCLASS_KEYWORD = "loadclass:";
+  public static final String EXTENSION_FILE_KEYWORD_LOADCLASS = "loadclass:";
 
   /**
-   * The keyword header for a loadlibrary line on an extensions file.
+   * The keyword header for a loadlibrary line in an extensions file.
    */
-  public static final String EXTENSION_FILE_LOADLIBRARY_KEYWORD = "loadlibrary:";
+  public static final String EXTENSION_FILE_KEYWORD_LOADLIBRARY = "loadlibrary:";
+
+  /**
+   * The keyword header for a containerpath line in an extensions file.
+   */
+  public static final String EXTENSION_FILE_KEYWORD_CONTAINER_PATH = "containerpath:";
 
   /**
    * The list of packages from the files.
@@ -61,12 +66,17 @@ public class ExtensionsReader {
   /**
    * The list of classes to be preloaded.
    */
-  private final List<String> loadclasses = new ArrayList<String>();
+  private final List<String> loadClasses = new ArrayList<String>();
 
   /**
    * The list of libraries to be loaded.
    */
-  private final List<String> loadlibraries = new ArrayList<String>();
+  private final List<String> loadLibraries = new ArrayList<String>();
+
+  /**
+   * The list of items to add onto the container path.
+   */
+  private final List<String> containerPath = new ArrayList<String>();
 
   /**
    * Logger for the reader.
@@ -97,8 +107,8 @@ public class ExtensionsReader {
    *
    * @return the list of all loadclass values
    */
-  public List<String> getLoadclasses() {
-    return loadclasses;
+  public List<String> getLoadClasses() {
+    return loadClasses;
   }
 
   /**
@@ -106,8 +116,17 @@ public class ExtensionsReader {
    *
    * @return the list of all loadlibrary values
    */
-  public List<String> getLoadlibraries() {
-    return loadlibraries;
+  public List<String> getLoadLibraries() {
+    return loadLibraries;
+  }
+
+  /**
+   * Get the list of all containerpath values from all processed filed.
+   *
+   * @return the list of all containerpath values
+   */
+  public List<String> getContainerPath() {
+    return containerPath;
   }
 
   /**
@@ -132,8 +151,9 @@ public class ExtensionsReader {
     }
 
     log.info(String.format("Extensions have added the following Java packages: %s", packages));
-    log.info(String.format("Extensions have added the following classes to be loaded automatically: %s", loadclasses));
-    log.info(String.format("Extensions have loaded the following native libraries: %s ", loadlibraries));
+    log.info(String.format("Extensions have added the following classes to be loaded automatically: %s", loadClasses));
+    log.info(String.format("Extensions have loaded the following native libraries: %s ", loadLibraries));
+    log.info(String.format("Extensions have loaded the following container path items: %s ", containerPath));
   }
 
   /**
@@ -153,9 +173,10 @@ public class ExtensionsReader {
         line = line.trim();
         if (!line.isEmpty()) {
           boolean processed =
-              processLine(line, EXTENSION_FILE_PACKAGE_KEYWORD, packages)
-                  || processLine(line, EXTENSION_FILE_LOADCLASS_KEYWORD, loadclasses)
-                  || processLine(line, EXTENSION_FILE_LOADLIBRARY_KEYWORD, loadlibraries);
+              processLine(line, EXTENSION_FILE_KEYWORD_PACKAGE, packages)
+                  || processLine(line, EXTENSION_FILE_KEYWORD_LOADCLASS, loadClasses)
+                  || processLine(line, EXTENSION_FILE_KEYWORD_LOADLIBRARY, loadLibraries)
+                  || processLine(line, EXTENSION_FILE_KEYWORD_CONTAINER_PATH, containerPath);
         }
       }
     } catch (Exception e) {
@@ -179,15 +200,13 @@ public class ExtensionsReader {
    * @param keyword
    *          the keyword being checked for
    * @param collection
-   *          which collection should receive the value if there is a value for
-   *          the given keyword
+   *          which collection should receive the value if there is a value for the given keyword
    *
-   * @return {@code true} if the line was for the keyword and a value was placed
-   *         in the collection
+   * @return {@code true} if the line was for the keyword and a value was placed in the collection
    */
   private boolean processLine(String line, String keyword, List<String> collection) {
     if (line.startsWith(keyword)) {
-      collection.add(line.substring(keyword.length()));
+      collection.add(line.substring(keyword.length()).trim());
 
       return true;
     }

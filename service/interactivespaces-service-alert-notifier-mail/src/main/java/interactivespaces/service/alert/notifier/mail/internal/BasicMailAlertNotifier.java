@@ -40,8 +40,7 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
       "interactivespaces.service.alert.notifier.mail.";
 
   /**
-   * Configuration property for a space-separated list of email addresses for
-   * alert notifications.
+   * Configuration property for a space-separated list of email addresses for alert notifications.
    */
   public static final String CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_TO =
       CONFIGURATION_PREFIX_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL + "to";
@@ -103,17 +102,29 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
 
   @Override
   public void notify(String alertType, String id, String message) {
-    Configuration config = getSpaceEnvironment().getSystemConfiguration();
+    try {
+      Configuration config = getSpaceEnvironment().getSystemConfiguration();
 
-    ComposableMailMessage mail = new SimpleMailMessage();
+      ComposableMailMessage mail = new SimpleMailMessage();
 
-    addToAddresses(alertType, mail, config);
-    addFromAddress(alertType, mail, config);
-    addSubject(alertType, mail, config);
+      try {
+        addToAddresses(alertType, mail, config);
+        addFromAddress(alertType, mail, config);
+        addSubject(alertType, mail, config);
+      } catch (SimpleInteractiveSpacesException e) {
+        getSpaceEnvironment().getLog().warn(e.getCompoundMessage());
+        getSpaceEnvironment().getLog().warn(
+            String.format("Email alert failed for alert type %s, id %s, message %s", alertType, id, message));
+        return;
+      }
 
-    mail.setBody(message);
+      mail.setBody(message);
 
-    mailSenderService.sendMailMessage(mail);
+      mailSenderService.sendMailMessage(mail);
+    } catch (Throwable e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Email alert for alert type %s, id %s, message %s", alertType, id, message), e);
+    }
   }
 
   /**
@@ -127,9 +138,7 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
    *          the system configuration
    */
   private void addToAddresses(String alertType, ComposableMailMessage mail, Configuration config) {
-    String tos =
-        getConfigValue(CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_TO, alertType,
-            config);
+    String tos = getConfigValue(CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_TO, alertType, config);
 
     for (String to : tos.trim().split("\\s+")) {
       mail.addToAddress(to.trim());
@@ -147,8 +156,8 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
    *          the system configuration
    */
   private void addFromAddress(String alertType, ComposableMailMessage mail, Configuration config) {
-    mail.setFromAddress(getConfigValue(
-        CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_FROM, alertType, config));
+    mail.setFromAddress(getConfigValue(CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_FROM, alertType,
+        config));
   }
 
   /**
@@ -162,14 +171,13 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
    *          the system configuration
    */
   private void addSubject(String alertType, ComposableMailMessage mail, Configuration config) {
-    mail.setSubject(getConfigValue(
-        CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_SUBJECT, alertType, config));
+    mail.setSubject(getConfigValue(CONFIGURATION_INTERACTIVESPACES_SERVICE_ALERT_NOTIFIER_MAIL_SUBJECT, alertType,
+        config));
   }
 
   /**
-   * Get a config value based on the alert type. If not found, look for a
-   * default value which will have the same name but without the alert type on
-   * the end.
+   * Get a config value based on the alert type. If not found, look for a default value which will have the same name
+   * but without the alert type on the end.
    *
    * <p>
    * The alert type is separated from the config parameter by a period.
@@ -194,8 +202,8 @@ public class BasicMailAlertNotifier extends BaseSupportedService implements Aler
     }
 
     if (value == null || value.trim().isEmpty()) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "No configuration parameter %s set for alert type %s", configParameter, alertType));
+      throw new SimpleInteractiveSpacesException(String.format("No configuration parameter %s set for alert type %s",
+          configParameter, alertType));
     }
 
     return value;

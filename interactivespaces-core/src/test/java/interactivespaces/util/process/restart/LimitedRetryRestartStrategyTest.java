@@ -16,7 +16,7 @@
 
 package interactivespaces.util.process.restart;
 
-import interactivespaces.system.ActiveTestInteractiveSpacesEnvironment;
+import interactivespaces.system.StandaloneInteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
 
 import org.junit.After;
@@ -31,14 +31,14 @@ import org.mockito.Mockito;
  */
 public class LimitedRetryRestartStrategyTest {
 
-  private ActiveTestInteractiveSpacesEnvironment spaceEnvironment;
+  private StandaloneInteractiveSpacesEnvironment spaceEnvironment;
   private Restartable restartable;
   private RestartStrategyListener restartListener;
   private TimeProvider timeProvider;
 
   @Before
   public void setup() {
-    spaceEnvironment = ActiveTestInteractiveSpacesEnvironment.newActiveTestInteractiveSpacesEnvironment();
+    spaceEnvironment = StandaloneInteractiveSpacesEnvironment.newStandaloneInteractiveSpacesEnvironment();
 
     restartListener = Mockito.mock(RestartStrategyListener.class);
 

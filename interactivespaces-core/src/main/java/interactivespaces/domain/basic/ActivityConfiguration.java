@@ -20,8 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection of {@link ConfigurationParameter} instances for either an
- * {@link Activity} or an {@link LiveActivity}.
+ * A collection of {@link ConfigurationParameter} instances for either an {@link Activity} or an {@link LiveActivity}.
  *
  * @author Keith M. Hughes
  */
@@ -30,7 +29,7 @@ public interface ActivityConfiguration {
   /**
    * Get the name of the configuration.
    *
-   * @return
+   * @return the name of the configuration
    */
   String getName();
 
@@ -38,13 +37,14 @@ public interface ActivityConfiguration {
    * Set the name of the configuration.
    *
    * @param name
+   *          the name of the configuration
    */
   void setName(String name);
 
   /**
    * Get the description of the configuration.
    *
-   * @return
+   * @return the description of the configuration
    */
   String getDescription();
 
@@ -52,6 +52,7 @@ public interface ActivityConfiguration {
    * Set the description of the configuration.
    *
    * @param description
+   *          the description of the configuration
    */
   void setDescription(String description);
 

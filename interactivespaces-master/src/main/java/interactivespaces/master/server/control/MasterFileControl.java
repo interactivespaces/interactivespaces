@@ -17,8 +17,8 @@
 package interactivespaces.master.server.control;
 
 import interactivespaces.domain.basic.Activity;
-import interactivespaces.master.api.MasterApiAutomationManager;
-import interactivespaces.master.api.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.master.MasterApiAutomationManager;
+import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;

@@ -17,7 +17,6 @@
 package interactivespaces.service.comm.chat.internal.osgi;
 
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
-import interactivespaces.service.comm.chat.ChatService;
 import interactivespaces.service.comm.chat.internal.xmpp.smack.SmackXmppChatService;
 
 /**
@@ -29,8 +28,6 @@ public class ChatServiceOsgiBundleActivator extends InteractiveSpacesServiceOsgi
 
   @Override
   protected void allRequiredServicesAvailable() {
-    ChatService chatService = new SmackXmppChatService();
-
-    registerNewInteractiveSpacesService(chatService);
+    registerNewInteractiveSpacesService(new SmackXmppChatService());
   }
 }

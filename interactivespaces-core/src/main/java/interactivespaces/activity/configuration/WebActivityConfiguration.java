@@ -47,6 +47,10 @@ public interface WebActivityConfiguration {
    */
   String CONFIGURATION_SUFFIX_INITIAL_URL_QUERY_STRING = ".url.query_string";
 
+  /**
+   * Configuration param for specifying debug mode.
+   */
+  String CONFIGURATION_WEBAPP_DEBUG = "space.activity.webapp.debug";
 
   /**
    * Separator for web path elements.

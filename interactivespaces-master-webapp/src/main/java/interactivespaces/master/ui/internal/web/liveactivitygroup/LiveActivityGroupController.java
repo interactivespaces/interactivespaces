@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web.liveactivitygroup;
 
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
@@ -52,7 +52,7 @@ public class LiveActivityGroupController extends BaseActiveSpaceMasterController
 
     ModelAndView mav = getModelAndView();
     mav.setViewName("liveactivitygroup/LiveActivityGroupViewAll");
-    mav.addObject("liveactivitygroups", response.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
+    mav.addObject("liveactivitygroups", response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }

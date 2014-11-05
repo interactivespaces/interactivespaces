@@ -23,10 +23,13 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
+import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.util.web.MimeResolver;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
@@ -46,6 +49,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -114,6 +118,11 @@ public class NettyWebServer implements WebServer {
   private ServerBootstrap bootstrap;
 
   /**
+   * {@code true} if running in debug mode.
+   */
+  private boolean debugMode;
+
+  /**
    * {@code true} if support being a secure server.
    */
   private boolean secureServer;
@@ -132,6 +141,21 @@ public class NettyWebServer implements WebServer {
    * The SSL context for HTTPS connections. Will be {@code null} if the server is not labeled secure.
    */
   private SslContext sslContext;
+
+  /**
+   * The default MIME resolver to use.
+   */
+  private MimeResolver defaultMimeResolver;
+
+  /**
+   * The complete collection of static content handlers.
+   */
+  private List<HttpStaticContentRequestHandler> staticContentRequestHandlers = Lists.newArrayList();
+
+  /**
+   * The complete collection of static content handlers.
+   */
+  private List<HttpDynamicRequestHandler> dynamicRequestHandlers = Lists.newArrayList();
 
   /**
    * Create a web server using a singular thread pool.
@@ -247,8 +271,17 @@ public class NettyWebServer implements WebServer {
         fallbackHandler == null ? null : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
             fallbackHandler, extraHttpContentHeaders);
 
-    serverHandler.addHttpContentHandler(new NettyStaticContentHandler(serverHandler, uriPrefix, baseDir,
-        extraHttpContentHeaders, fallbackNettyHandler));
+    NettyStaticContentHandler staticContentHandler =
+        new NettyStaticContentHandler(serverHandler, uriPrefix, baseDir, extraHttpContentHeaders, fallbackNettyHandler);
+    staticContentHandler.setAllowLinks(isDebugMode());
+    if (isDebugMode()) {
+      getLog().warn("Enabling web-server link following because of debug mode -- not secure.");
+    }
+
+    staticContentHandler.setMimeResolver(defaultMimeResolver);
+    serverHandler.addHttpContentHandler(staticContentHandler);
+
+    staticContentRequestHandlers.add(staticContentHandler);
   }
 
   @Override
@@ -261,6 +294,17 @@ public class NettyWebServer implements WebServer {
       Map<String, String> extraHttpContentHeaders) {
     serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, usePath,
         handler, extraHttpContentHeaders));
+    dynamicRequestHandlers.add(handler);
+  }
+
+  @Override
+  public List<HttpStaticContentRequestHandler> getStaticContentRequestHandlers() {
+    return Lists.newArrayList(staticContentRequestHandlers);
+  }
+
+  @Override
+  public List<HttpDynamicRequestHandler> getDynamicRequestHandlers() {
+    return Lists.newArrayList(dynamicRequestHandlers);
   }
 
   @Override
@@ -302,6 +346,31 @@ public class NettyWebServer implements WebServer {
   @Override
   public void addContentHeaders(Map<String, String> headers) {
     globalHttpContentHeaders.putAll(headers);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends MimeResolver> T getDefaultMimeResolver() {
+    return (T) defaultMimeResolver;
+  }
+
+  @Override
+  public void setDefaultMimeResolver(MimeResolver resolver) {
+    defaultMimeResolver = resolver;
+  }
+
+  @Override
+  public void setDebugMode(boolean debugMode) {
+    this.debugMode = debugMode;
+  }
+
+  /**
+   * Check if this server is running in debug mode.
+   *
+   * @return {@code true} if this server is running in debug mode
+   */
+  public boolean isDebugMode() {
+    return debugMode;
   }
 
   @Override

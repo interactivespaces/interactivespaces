@@ -32,7 +32,7 @@ public class NettyUdpServerNetworkCommunicationEndpointService extends BaseSuppo
 
   @Override
   public String getName() {
-    return NAME;
+    return SERVICE_NAME;
   }
 
   @Override

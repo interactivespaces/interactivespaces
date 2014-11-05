@@ -56,11 +56,6 @@ public class ActivityProjectConstituent implements ProjectConstituent {
   public static final String ACTIVITY_TYPE_ATTRIBUTE = "type";
 
   /**
-   * XML attribute on the activity tag for the activity type.
-   */
-  public static final String LOG_LEVEL_ATTRIBUTE = "logLevel";
-
-  /**
    * XML entity name giving the name of the activity.
    */
   public static final String ACTIVITY_NAME_ELEMENT = "name";

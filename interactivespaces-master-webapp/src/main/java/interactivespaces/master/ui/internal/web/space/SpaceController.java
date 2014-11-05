@@ -16,8 +16,8 @@
 
 package interactivespaces.master.ui.internal.web.space;
 
-import interactivespaces.master.api.MasterApiMessage;
-import interactivespaces.master.api.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseActiveSpaceMasterController;
 
 import org.springframework.stereotype.Controller;
@@ -52,7 +52,7 @@ public class SpaceController extends BaseActiveSpaceMasterController {
     mav.setViewName("space/SpaceViewAll");
 
     Map<String, Object> result = masterApiActivityManager.getSpacesByFilter(null);
-    mav.addObject("spaces", result.get(MasterApiMessage.MASTER_API_MESSAGE_ENVELOPE_DATA));
+    mav.addObject("spaces", result.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA));
 
     return mav;
   }

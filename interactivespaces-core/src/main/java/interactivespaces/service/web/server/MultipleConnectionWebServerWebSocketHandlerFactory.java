@@ -21,7 +21,7 @@ package interactivespaces.service.web.server;
  *
  * @author Keith M. Hughes
  */
-public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebServerWebSocketHandlerFactory{
+public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebServerWebSocketHandlerFactory {
 
   /**
    * Are there any web sockets connected?
@@ -31,7 +31,7 @@ public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebS
   boolean areWebSocketsConnected();
 
   /**
-   * Send a JSON result to the web socket
+   * Send a JSON message to a specific web socket connection.
    *
    * @param connectionId
    *          the ID of the connection
@@ -41,7 +41,7 @@ public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebS
   void sendJson(String connectionId, Object data);
 
   /**
-   * Send a JSON result to all web socket connections
+   * Send a JSON message to all web socket connections.
    *
    * @param data
    *          the data to send
@@ -49,7 +49,7 @@ public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebS
   void sendJson(Object data);
 
   /**
-   * Send a string to the web socket.
+   * Send a string to a specific web socket connection.
    *
    * @param connectionId
    *          the ID of the connection
@@ -59,7 +59,7 @@ public interface MultipleConnectionWebServerWebSocketHandlerFactory extends WebS
   void sendString(String connectionId, String data);
 
   /**
-   * Send a string to all web socket connections
+   * Send a string to all web socket connections.
    *
    * @param data
    *          the data to send

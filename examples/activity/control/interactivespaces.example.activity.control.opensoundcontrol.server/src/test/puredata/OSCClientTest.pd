@@ -1,0 +1,14 @@
+#N canvas 66 577 450 300 10;
+#X obj 105 244 sendOSC;
+#X msg 61 42 disconnect;
+#X msg 303 112 send /osc/2 990;
+#X msg 163 77 send /cue/1/start;
+#X msg 26 14 connect localhost 53000;
+#X msg 163 112 send /play/recorded sound1;
+#X msg 303 77 send /play/recorded sound2;
+#X connect 1 0 0 0;
+#X connect 2 0 0 0;
+#X connect 3 0 0 0;
+#X connect 4 0 0 0;
+#X connect 5 0 0 0;
+#X connect 6 0 0 0;

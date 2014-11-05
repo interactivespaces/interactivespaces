@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
+import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 /**
- * A JPA implementation of a {@link ConfigurationParameter}.
+ * A JPA implementation of a {@link ConfigurationParameter} for {@link ActivityConfiguration}.
  *
  * @author Keith M. Hughes
  */
@@ -55,9 +56,22 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
   @Version
   private long databaseVersion;
 
+  /**
+   * Construct a parameter without a configuration or any value.
+   */
   public JpaConfigurationParameter() {
   }
 
+  /**
+   * Construct a parameter with a configuration and es.
+   *
+   * @param configuration
+   *          the configuration this is part of
+   * @param name
+   *          the name of the parameter
+   * @param value
+   *          the value of the parameter
+   */
   JpaConfigurationParameter(JpaActivityConfiguration configuration, String name, String value) {
     this.configuration = configuration;
     this.name = name;

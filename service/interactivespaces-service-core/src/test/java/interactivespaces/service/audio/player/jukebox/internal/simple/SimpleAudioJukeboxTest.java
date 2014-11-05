@@ -22,7 +22,7 @@ import interactivespaces.service.audio.player.jukebox.AudioJukebox;
 import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
 import interactivespaces.service.audio.player.support.InMemoryAudioRepository;
 import interactivespaces.service.audio.player.test.TestAudioTrackPlayer;
-import interactivespaces.system.ActiveTestInteractiveSpacesEnvironment;
+import interactivespaces.system.StandaloneInteractiveSpacesEnvironment;
 
 import com.google.common.collect.Sets;
 
@@ -42,14 +42,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class SimpleAudioJukeboxTest {
 
-  private ActiveTestInteractiveSpacesEnvironment spaceEnvironment;
+  private StandaloneInteractiveSpacesEnvironment spaceEnvironment;
   private SimpleAudioJukebox jukebox;
   private PlayableAudioTrack ptrack1;
   private PlayableAudioTrack ptrack2;
 
   @Before
   public void setup() {
-    spaceEnvironment = ActiveTestInteractiveSpacesEnvironment.newActiveTestInteractiveSpacesEnvironment();
+    spaceEnvironment = StandaloneInteractiveSpacesEnvironment.newStandaloneInteractiveSpacesEnvironment();
 
     InMemoryAudioRepository repository = new InMemoryAudioRepository();
     ptrack1 = new PlayableAudioTrack(new SimpleAudioTrack("1", "foo", null, null), null);

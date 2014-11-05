@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>Open Sound Control Server Test</name>
+  <description>
+    A Java Activity that sets up a server which responds to Open Sound Control Messages.
+    Try /gong and /chime. This activity only plays sounds if it is activated.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.control.opensoundcontrol.server
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityControlOpenSoundControlServer</name>
+    <class>
+      interactivespaces.example.activity.control.opensoundcontrol.server.OpenSoundControlServerExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.opensoundcontrol.server.port" required="true">
+        <description>
+          The port that the Open Sound Control server will listen on.
+        </description>
+        <value>53000</value>
+      </property>
+      <property name="space.opensoundcontrol.methodaddress" required="true">
+        <description>
+          The OSC address that will invoke the OSC method that plays the sounds.
+        </description>
+        <value>/play/recorded</value>
+      </property>
+      <property name="space.opensoundcontrol.trackmap" required="true">
+        <description>
+          The track map for this example's messages. It maps sound IDs to files to be
+          played when those messages come in. It is of the form soundId1:file1:soundId2:file2:...
+        </description>
+        <value>
+          sound1:${activity.installdir}/gong.mp3:sound2:${activity.installdir}/chime.mp3
+        </value>
+      </property>
+    </configuration>
+  </activity>
+</project>

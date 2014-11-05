@@ -91,6 +91,21 @@ public interface SpaceController extends PersistedObject, Serializable {
   Map<String, Object> getMetadata();
 
   /**
+   * Get the controller configuration.
+   *
+   * @return can be {@code null}
+   */
+  // SpaceControllerConfiguration getConfiguration();
+
+  /**
+   * Set the controller configuration.
+   *
+   * @param configuration
+   *          the configuration, can be {@code null}
+   */
+  // void setConfiguration(SpaceControllerConfiguration configuration);
+
+  /**
    * Set the mode for this controller.
    *
    * @param mode

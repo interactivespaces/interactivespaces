@@ -26,6 +26,13 @@ import interactivespaces.util.resource.ManagedResource;
 public interface UdpServerNetworkCommunicationEndpoint extends ManagedResource {
 
   /**
+   * Get the server port being listened to.
+   *
+   * @return the server port being listened to
+   */
+  int getServerPort();
+
+  /**
    * Add a listener to the endpoint.
    *
    * @param listener
@@ -43,5 +50,4 @@ public interface UdpServerNetworkCommunicationEndpoint extends ManagedResource {
    *          the listener to remove
    */
   void removeListener(UdpServerNetworkCommunicationEndpointListener listener);
-
 }

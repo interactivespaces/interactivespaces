@@ -17,8 +17,10 @@
 package interactivespaces.service.web.server;
 
 import interactivespaces.util.resource.ManagedResource;
+import interactivespaces.util.web.MimeResolver;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,6 +119,20 @@ public interface WebServer extends ManagedResource {
       Map<String, String> extraHttpContentHeaders);
 
   /**
+   * Get all static content request handlers.
+   *
+   * @return all static content request handlers in the order they were added to the server
+   */
+  List<HttpStaticContentRequestHandler> getStaticContentRequestHandlers();
+
+  /**
+   * Get all dynamic request handlers.
+   *
+   * @return all dynamic request handlers in the order they were added to the server
+   */
+  List<HttpDynamicRequestHandler> getDynamicRequestHandlers();
+
+  /**
    * Set the factory for creating web socket handlers.
    *
    * @param webSocketUriPrefix
@@ -177,6 +193,24 @@ public interface WebServer extends ManagedResource {
   void setPort(int port);
 
   /**
+   * Get the default MIME resolver to use.
+   *
+   * @param <T>
+   *          the type of the MIME resolver
+   *
+   * @return the default MIME resolver, can be {@code null}
+   */
+  <T extends MimeResolver> T getDefaultMimeResolver();
+
+  /**
+   * Set the default MIME resolver to use.
+   *
+   * @param resolver
+   *          the default MIME resolver, can be {@code null}
+   */
+  void setDefaultMimeResolver(MimeResolver resolver);
+
+  /**
    * Add an HTTP content header that will go out with every HTTP response.
    *
    * @param name
@@ -193,6 +227,14 @@ public interface WebServer extends ManagedResource {
    *          the headers to add, the key is the header name, value is the header value
    */
   void addContentHeaders(Map<String, String> headers);
+
+  /**
+   * Set whether the server should run in debug mode.
+   *
+   * @param debugMode
+   *          {@code true} if should be in debug mode.
+   */
+  void setDebugMode(boolean debugMode);
 
   /**
    * Does the server supports secure communication?
