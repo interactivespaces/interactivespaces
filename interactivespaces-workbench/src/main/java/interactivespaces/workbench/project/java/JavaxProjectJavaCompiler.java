@@ -43,6 +43,10 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     StandardJavaFileManager fileManager = null;
     try {
       JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+      if (compiler == null) {
+        throw new InteractiveSpacesException("Could not find Java compiler.  Verify java is being run "
+            + "from the JDK and not JRE.");
+      }
       fileManager = compiler.getStandardFileManager(null, null, null);
       fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
       fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Lists.newArrayList(compilationBuildDirectory));
