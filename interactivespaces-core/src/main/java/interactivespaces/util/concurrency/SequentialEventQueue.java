@@ -16,77 +16,16 @@
 
 package interactivespaces.util.concurrency;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import org.apache.commons.logging.Log;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * An event queue which will run its event handlers in First in, First Out
- * order.
- *
+ * An event queue that processes events in the order they are received.
  * <p>
- * Integrates into Interactive Spaces thread pools.
+ * Any events which have not processed are not guaranteed to be processed or finished processing on shutdown
  *
  * @author Keith M. Hughes
  */
-public class SequentialEventQueue {
-
-  /**
-   * The list of events to process.
-   */
-  private BlockingQueue<Runnable> events = new LinkedBlockingQueue<Runnable>();
-
-  /**
-   * The queue future, used for shutting the queue down.
-   */
-  private Future<?> queueFuture;
-
-  /**
-   * The space environment to run under.
-   */
-  private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The logger for errors.
-   */
-  private Log log;
-
-  public SequentialEventQueue(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    this.spaceEnvironment = spaceEnvironment;
-    this.log = log;
-  }
-
-  /**
-   * Start the event queue running.
-   */
-  public void startup() {
-    queueFuture = spaceEnvironment.getExecutorService().submit(new Runnable() {
-      @Override
-      public void run() {
-        processEvents();
-      }
-    });
-  }
-
-  /**
-   * Shut the queue down.
-   *
-   * <p>
-   * Any events which have not processed are not guaranteed to be processed or
-   * finished processing.
-   */
-  public void shutdown() {
-    if (queueFuture != null) {
-      queueFuture.cancel(true);
-      queueFuture = null;
-
-      events.clear();
-    }
-  }
+public interface SequentialEventQueue extends ManagedResource {
 
   /**
    * Add a new event to the queue.
@@ -94,41 +33,5 @@ public class SequentialEventQueue {
    * @param event
    *          the new event
    */
-  public void addEvent(Runnable event) {
-    try {
-      events.put(event);
-    } catch (InterruptedException e) {
-      // Don't care
-    }
-  }
-
-  /**
-   * Process events until the event processing thread is interrupted.
-   */
-  private void processEvents() {
-    try {
-      while (!Thread.interrupted()) {
-        processNextEvent();
-      }
-    } catch (InterruptedException e) {
-      // Don't care
-    }
-  }
-
-  /**
-   * Process the next event.
-   *
-   * @throws InterruptedException
-   */
-  private void processNextEvent() throws InterruptedException {
-    try {
-      Runnable event = events.take();
-
-      event.run();
-    } catch (InterruptedException e) {
-      throw e;
-    } catch (Exception e) {
-      log.error("Error during event processing", e);
-    }
-  }
+  void addEvent(Runnable event);
 }

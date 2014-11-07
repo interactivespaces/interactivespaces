@@ -14,22 +14,25 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
+package interactivespaces.liveactivity.runtime;
 
-import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * Handle important status reporting for Interactive Spaces activities and controllers.
+ * Sampler for live activity runners.
+ *
+ * <p>
+ * This allows them to be checked for run state periodically.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
+public interface LiveActivityRunnerSampler extends ManagedResource {
 
   /**
-   * Send activity state to the emergency reporting system.
+   * Start watching a live activity runner.
    *
-   * @param liveActivityRunner
-   *          the runner for the activity the alert is being raised for
+   * @param runner
+   *          the runner to start sampling
    */
-  void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner);
+  void startSamplingRunner(LiveActivityRunner runner);
 }

@@ -14,22 +14,30 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
-
-import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+package interactivespaces.util.concurrency;
 
 /**
- * Handle important status reporting for Interactive Spaces activities and controllers.
+ * A sequential event queue that immediately runs its events.
+ *
+ * <p>
+ * Mostly useful for testing.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
+public class ImmediateRunSequentialEventQueue implements SequentialEventQueue {
 
-  /**
-   * Send activity state to the emergency reporting system.
-   *
-   * @param liveActivityRunner
-   *          the runner for the activity the alert is being raised for
-   */
-  void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner);
+  @Override
+  public void startup() {
+    // Nothing to do.
+  }
+
+  @Override
+  public void shutdown() {
+    // Nothing to do.
+  }
+
+  @Override
+  public void addEvent(Runnable event) {
+    event.run();
+  }
 }

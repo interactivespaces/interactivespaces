@@ -18,6 +18,7 @@ package interactivespaces.controller.client.node;
 
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public interface SpaceControllerControl extends SpaceController {
    *
    * @return the activity with the given UUID, {@code null} if no such activity
    */
-  ActiveControllerActivity getActiveActivityByUuid(String uuid);
+  LiveActivityRunner getLiveActivityRunnerByUuid(String uuid);
 
   /**
    * Clean the temp data folder for a given activity.

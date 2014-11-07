@@ -20,8 +20,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * A collection of {@link ActivityListener} instances and the ability to signal
- * all of them.
+ * A collection of {@link ActivityListener} instances and the ability to signal all of them.
  *
  * <p>
  * All listeners are called, even if they throw an exception.
@@ -42,6 +41,7 @@ public class ActivityListenerCollection {
   private List<ActivityListener> listeners = new CopyOnWriteArrayList<ActivityListener>();
 
   /**
+   * Construct a new collection.
    *
    * @param activity
    *          the activity the listeners are collected for
@@ -76,8 +76,6 @@ public class ActivityListenerCollection {
   /**
    * There has been a change in the status of an activity.
    *
-   * @param activity
-   *          the activity which has changed its status
    * @param oldStatus
    *          the previous status of the activity
    * @param newStatus
@@ -87,7 +85,7 @@ public class ActivityListenerCollection {
     for (ActivityListener listener : listeners) {
       try {
         listener.onActivityStatusChange(activity, oldStatus, newStatus);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         activity.getLog().error("Error during signalling activity status change", e);
       }
     }

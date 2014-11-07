@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- *
+ * Tests for the {@link SimpleActivityInstallationManager}.
  *
  * @author Keith M. Hughes
  */

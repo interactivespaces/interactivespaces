@@ -14,22 +14,20 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
-
-import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+package interactivespaces.liveactivity.runtime;
 
 /**
- * Handle important status reporting for Interactive Spaces activities and controllers.
+ * A listener for events from a live activity runner.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
+public interface LiveActivityRunnerListener {
 
   /**
-   * Send activity state to the emergency reporting system.
+   * The status has changed on a runner, but there is no activity instance.
    *
-   * @param liveActivityRunner
-   *          the runner for the activity the alert is being raised for
+   * @param runner
+   *          the runner whose status has changed
    */
-  void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner);
+  void onNoInstanceActivityStatusEvent(LiveActivityRunner runner);
 }

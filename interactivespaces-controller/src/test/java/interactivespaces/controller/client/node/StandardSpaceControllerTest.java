@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
@@ -35,12 +36,18 @@ import interactivespaces.controller.activity.installation.ActivityInstallationMa
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.controller.logging.ActivityLogFactory;
+import interactivespaces.controller.logging.AlertStatusManager;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.liveactivity.runtime.BasicLiveActivityRunner;
+import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerSampler;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.time.TimeProvider;
+import interactivespaces.util.concurrency.ImmediateRunSequentialEventQueue;
 import interactivespaces.util.io.FileSupport;
 
 import org.apache.commons.logging.Log;
@@ -66,7 +73,7 @@ public class StandardSpaceControllerTest {
   private TimeProvider timeProvider;
   private ActivityInstallationManager activityInstallationManager;
   private LocalSpaceControllerRepository controllerRepository;
-  private ActiveControllerActivityFactory activeControllerActivityFactory;
+  private LiveActivityRunnerFactory activeControllerActivityFactory;
   private NativeActivityRunnerFactory nativeAppRunnerFactory;
   private LiveActivityConfigurationManager configurationManager;
   private ActivityStorageManager activityStorageManager;
@@ -78,6 +85,8 @@ public class StandardSpaceControllerTest {
   private ServiceRegistry serviceRegistry;
   private ControllerDataBundleManager dataBundleManager;
   private InteractiveSpacesFilesystem systemFilesystem;
+  private AlertStatusManager alertStatusManager;
+  private LiveActivityRunnerSampler liveActivityRunnerSampler;
 
   private Configuration systemConfiguration;
 
@@ -93,7 +102,7 @@ public class StandardSpaceControllerTest {
 
     activityInstallationManager = mock(ActivityInstallationManager.class);
     controllerRepository = mock(LocalSpaceControllerRepository.class);
-    activeControllerActivityFactory = mock(ActiveControllerActivityFactory.class);
+    activeControllerActivityFactory = mock(LiveActivityRunnerFactory.class);
     nativeAppRunnerFactory = mock(NativeActivityRunnerFactory.class);
     configurationManager = mock(LiveActivityConfigurationManager.class);
     activityStorageManager = mock(ActivityStorageManager.class);
@@ -103,6 +112,8 @@ public class StandardSpaceControllerTest {
     controllerInfoPersister = mock(SpaceControllerInfoPersister.class);
     systemConfiguration = SimpleConfiguration.newConfiguration();
     dataBundleManager = mock(SpaceControllerDataBundleManager.class);
+    alertStatusManager = mock(AlertStatusManager.class);
+    liveActivityRunnerSampler = mock(LiveActivityRunnerSampler.class);
 
     systemFilesystem = mock(InteractiveSpacesFilesystem.class);
 
@@ -131,8 +142,12 @@ public class StandardSpaceControllerTest {
 
     fileSupport = mock(FileSupport.class);
     controller.setFileSupport(fileSupport);
+    controller.setEventQueue(new ImmediateRunSequentialEventQueue());
+    controller.setAlertStatusManager(alertStatusManager);
+    controller.setLiveActivityRunnerSampler(liveActivityRunnerSampler);
 
     controller.startup();
+
   }
 
   @After
@@ -142,8 +157,8 @@ public class StandardSpaceControllerTest {
   }
 
   /**
-   * A live activity has an active instance in the controller and it is running.
-   * Startup should generate an RUNNING event.
+   * A live activity has an active instance in the controller and it is running. Startup should generate an RUNNING
+   * event.
    */
   @Test
   public void testStartupActivityAlreadyRunning() throws Exception {
@@ -157,8 +172,7 @@ public class StandardSpaceControllerTest {
   }
 
   /**
-   * A live activity has an active instance in the controller and it is active.
-   * Startup should generate an ACTIVE event.
+   * A live activity has an active instance in the controller and it is active. Startup should generate an ACTIVE event.
    */
   @Test
   public void testStartupActivityAlreadyActive() throws Exception {
@@ -172,8 +186,8 @@ public class StandardSpaceControllerTest {
   }
 
   /**
-   * A live activity has an active instance in the controller and it not
-   * running. Shutdown should generate a READY event.
+   * A live activity has an active instance in the controller and it not running. Shutdown should generate a READY
+   * event.
    */
   @Test
   public void testShutdownActivityNotRunning() throws Exception {
@@ -187,8 +201,8 @@ public class StandardSpaceControllerTest {
   }
 
   /**
-   * A live activity has an active instance in the controller and it is active.
-   * Activate should generate an ACTIVE event.
+   * A live activity has an active instance in the controller and it is active. Activate should generate an ACTIVE
+   * event.
    */
   @Test
   public void testActivateActivityAlreadyActive() throws Exception {
@@ -225,14 +239,15 @@ public class StandardSpaceControllerTest {
     SimpleInstalledLiveActivity liveActivity = new SimpleInstalledLiveActivity();
     when(controllerRepository.getInstalledLiveActivityByUuid(activityUuid)).thenReturn(liveActivity);
 
-    ActiveControllerActivity expectedActive = mock(ActiveControllerActivity.class);
-    when(activeControllerActivityFactory.newActiveActivity(liveActivity, activityFilesystem, configuration, controller))
-        .thenReturn(expectedActive);
+    BasicLiveActivityRunner expectedActive = mock(BasicLiveActivityRunner.class);
+    when(
+        activeControllerActivityFactory.newLiveActivityRunner(liveActivity, activityFilesystem, configuration,
+            controller, controller)).thenReturn(expectedActive);
     when(expectedActive.getCachedActivityStatus()).thenReturn(new ActivityStatus(startState, null));
-    when(expectedActive.getActivityStatus()).thenReturn(new ActivityStatus(startState, null));
-    when(expectedActive.getActivityState()).thenReturn(startState);
+    when(expectedActive.sampleActivityStatus()).thenReturn(new ActivityStatus(startState, null));
+    // when(expectedActive.getActivityState()).thenReturn(startState);
     when(expectedActive.getUuid()).thenReturn(activityUuid);
-    ActiveControllerActivity active = controller.getActiveActivityByUuid(activityUuid, true);
+    LiveActivityRunner active = controller.getLiveActivityRunnerByUuid(activityUuid, true);
     assertEquals(expectedActive, active);
 
     action.doit(activityUuid);
@@ -293,8 +308,9 @@ public class StandardSpaceControllerTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    ActiveControllerActivity active = new ActiveControllerActivity(installedActivity, null, null, null, controller);
-    controller.addActiveActivity(uuid, active);
+    BasicLiveActivityRunner active =
+        new BasicLiveActivityRunner(installedActivity, null, null, null, controller, controller);
+    controller.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
     controller.cleanLiveActivityTmpData(uuid);
@@ -323,13 +339,121 @@ public class StandardSpaceControllerTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    ActiveControllerActivity active = new ActiveControllerActivity(installedActivity, null, null, null, controller);
-    controller.addActiveActivity(uuid, active);
+    BasicLiveActivityRunner active =
+        new BasicLiveActivityRunner(installedActivity, null, null, null, controller, controller);
+    controller.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
     controller.cleanLiveActivityPermanentData(uuid);
 
     verify(activityStorageManager, times(0)).cleanPermanentActivityDataDirectory(uuid);
+  }
+
+  /**
+   * Test handling a live activity notification issue.
+   */
+  @Test
+  public void testHandlingLiveActivityRunnerNotification() {
+    ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, null);
+
+    LiveActivityRunner runner = mock(LiveActivityRunner.class);
+    when(runner.getCachedActivityStatus()).thenReturn(status);
+
+    controller.onNoInstanceActivityStatusEvent(runner);
+
+    verify(alertStatusManager).announceLiveActivityStatus(runner);
+  }
+
+  /**
+   * Test an activity successfully starting up through the activity event listening channels.
+   */
+  @Test
+  public void testActivityStartupSuccess() {
+    Activity activity = mock(Activity.class);
+    String uuid = "foo";
+    when(activity.getUuid()).thenReturn(uuid);
+
+    ActivityStatus oldStatus = new ActivityStatus(ActivityState.READY, null);
+    ActivityStatus newStatus = new ActivityStatus(ActivityState.RUNNING, null);
+
+    LiveActivityRunner runner = mock(LiveActivityRunner.class);
+    controller.addLiveActivityRunner(uuid, runner);
+    when(runner.sampleActivityStatus()).thenReturn(newStatus);
+
+    controller.getActivityListener().onActivityStatusChange(activity, oldStatus, newStatus);
+
+    verify(liveActivityRunnerSampler).startSamplingRunner(runner);
+    verify(controllerCommunicator).publishActivityStatus(uuid, newStatus);
+    verify(alertStatusManager, times(0)).announceLiveActivityStatus(runner);
+  }
+
+  /**
+   * Test an activity failing to start up through the activity event listening channels.
+   */
+  @Test
+  public void testActivityStartupFailure() {
+    Activity activity = mock(Activity.class);
+    String uuid = "foo";
+    when(activity.getUuid()).thenReturn(uuid);
+
+    ActivityStatus oldStatus = new ActivityStatus(ActivityState.READY, null);
+    ActivityStatus newStatus = new ActivityStatus(ActivityState.STARTUP_FAILURE, null);
+
+    LiveActivityRunner runner = mock(LiveActivityRunner.class);
+    controller.addLiveActivityRunner(uuid, runner);
+    when(runner.sampleActivityStatus()).thenReturn(newStatus);
+
+    controller.getActivityListener().onActivityStatusChange(activity, oldStatus, newStatus);
+
+    verify(liveActivityRunnerSampler, times(0)).startSamplingRunner(runner);
+    verify(controllerCommunicator).publishActivityStatus(uuid, newStatus);
+    verify(alertStatusManager).announceLiveActivityStatus(runner);
+  }
+
+  /**
+   * Test an activity successfully activating through the activity event listening channels.
+   */
+  @Test
+  public void testActivityActivateSuccess() {
+    Activity activity = mock(Activity.class);
+    String uuid = "foo";
+    when(activity.getUuid()).thenReturn(uuid);
+
+    ActivityStatus oldStatus = new ActivityStatus(ActivityState.RUNNING, null);
+    ActivityStatus newStatus = new ActivityStatus(ActivityState.ACTIVE, null);
+
+    LiveActivityRunner runner = mock(LiveActivityRunner.class);
+    controller.addLiveActivityRunner(uuid, runner);
+    when(runner.sampleActivityStatus()).thenReturn(newStatus);
+
+    controller.getActivityListener().onActivityStatusChange(activity, oldStatus, newStatus);
+
+    verify(liveActivityRunnerSampler, times(0)).startSamplingRunner(runner);
+    verify(controllerCommunicator).publishActivityStatus(uuid, newStatus);
+    verify(alertStatusManager, times(0)).announceLiveActivityStatus(runner);
+  }
+
+  /**
+   * Test an activity failing to activate through the activity event listening channels.
+   */
+  @Test
+  public void testActivityActivateFailure() {
+    Activity activity = mock(Activity.class);
+    String uuid = "foo";
+    when(activity.getUuid()).thenReturn(uuid);
+
+    ActivityStatus oldStatus = new ActivityStatus(ActivityState.RUNNING, null);
+    ActivityStatus newStatus = new ActivityStatus(ActivityState.ACTIVATE_FAILURE, null);
+
+    LiveActivityRunner runner = mock(LiveActivityRunner.class);
+    controller.addLiveActivityRunner(uuid, runner);
+    when(runner.sampleActivityStatus()).thenReturn(newStatus);
+
+    controller.getActivityListener().onActivityStatusChange(activity, oldStatus, newStatus);
+
+    verify(liveActivityRunnerSampler, times(0)).startSamplingRunner(runner);
+    verify(controllerCommunicator).publishActivityStatus(uuid, newStatus);
+    verify(alertStatusManager).announceLiveActivityStatus(runner);
   }
 
   /**

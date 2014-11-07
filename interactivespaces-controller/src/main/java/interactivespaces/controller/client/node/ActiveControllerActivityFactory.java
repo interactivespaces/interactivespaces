@@ -16,91 +16,15 @@
 
 package interactivespaces.controller.client.node;
 
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
-import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
 
 /**
- * A factory for {@link ActivityWrapper} instances.
+ * A factory for active controller instances.
  *
  * @author Keith M. Hughes
+ * @deprecated
  */
-public interface ActiveControllerActivityFactory {
+@Deprecated
+public interface ActiveControllerActivityFactory extends LiveActivityRunnerFactory {
 
-  /**
-   * Create a runner for a given activity type.
-   *
-   * @param activityType
-   *          the type of activity being created
-   * @param liapp
-   *          the activity to be run.
-   * @param activityFilesystem
-   *          the filesystem for the activity
-   * @param configuration
-   *          configuration for the activity.
-   * @param controller
-   *          the controller which will run the activity
-   *
-   * @return A runner for the activity.
-   */
-  ActiveControllerActivity createActiveLiveActivity(String activityType, InstalledLiveActivity liapp,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller);
-
-  /**
-   * Create an appropriate runner.
-   *
-   * <p>
-   * The activity type is determined from the {@code configuration} using the
-   * {@link #getConfiguredType(Configuration)} method.
-   *
-   *
-   * @param liapp
-   *          the activity to be run.
-   * @param activityFilesystem
-   *          the activity's filesystem
-   * @param configuration
-   *          configuration for the activity.
-   * @param controller
-   *          the controller which will run the activity
-   *
-   * @return a runner for the activity
-   */
-  ActiveControllerActivity newActiveActivity(InstalledLiveActivity liapp, InternalActivityFilesystem activityFilesystem,
-      LiveActivityConfiguration configuration, SpaceController controller);
-
-  /**
-   * Get the activity type of the activity.
-   *
-   * @param configuration
-   *          the configuration of the activity.
-   *
-   * @return the activity type
-   *
-   * @throws InteractiveSpacesException
-   *           if can't determine the activity type
-   */
-  String getConfiguredType(Configuration configuration) throws InteractiveSpacesException;
-
-  /**
-   * Register an {@link ActivityWrapperFactory}.
-   *
-   * @param factory
-   *          activity wrapper factory
-   */
-  void registerActivityWrapperFactory(ActivityWrapperFactory factory);
-
-  /**
-   * Unregister an {@link ActivityWrapperFactory}.
-   *
-   * <p>
-   * Nothing happens if the factory was never registered.
-   *
-   * @param factory
-   *          activity wrapper factory
-   */
-  void unregisterActivityWrapperFactory(ActivityWrapperFactory factory);
 }

@@ -17,7 +17,7 @@
 package interactivespaces.controller.activity.wrapper.internal.script.osgi;
 
 import interactivespaces.controller.activity.wrapper.internal.script.ScriptActivityWrapperFactory;
-import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.service.script.ScriptService;
 
@@ -29,38 +29,44 @@ import interactivespaces.service.script.ScriptService;
 public class OsgiScriptActivityWrapperActivator extends InteractiveSpacesServiceOsgiBundleActivator {
 
   /**
-   * OSGi service tracker for the interactive spaces environment.
+   * The service tracker for the script service.
    */
   private MyServiceTracker<ScriptService> scriptServiceTracker;
-  private MyServiceTracker<ActiveControllerActivityFactory> activeControllerActivityFactoryTracker;
 
-  private ActiveControllerActivityFactory activeControllerActivityFactory;
+  /**
+   * The service tracker for the live activity runner factory.
+   */
+  private MyServiceTracker<LiveActivityRunnerFactory> liveActivityRunnerFactoryTracker;
+
+  /**
+   * The live activity runner factory.
+   */
+  private LiveActivityRunnerFactory liveActivityRunnerFactory;
+
+  /**
+   * The activity wrapper factory for scripted activities.
+   */
   private ScriptActivityWrapperFactory scriptActivityWrapperFactory;
 
   @Override
   public void onStart() {
     scriptServiceTracker = newMyServiceTracker(ScriptService.class.getName());
-
-    activeControllerActivityFactoryTracker =
-        newMyServiceTracker(ActiveControllerActivityFactory.class.getName());
+    liveActivityRunnerFactoryTracker = newMyServiceTracker(LiveActivityRunnerFactory.class.getName());
   }
 
   @Override
   public void onStop() {
-    if (activeControllerActivityFactory != null) {
-      activeControllerActivityFactory
-          .unregisterActivityWrapperFactory(scriptActivityWrapperFactory);
-      activeControllerActivityFactory = null;
+    if (liveActivityRunnerFactory != null) {
+      liveActivityRunnerFactory.unregisterActivityWrapperFactory(scriptActivityWrapperFactory);
+      liveActivityRunnerFactory = null;
     }
-
   }
 
   @Override
   protected void allRequiredServicesAvailable() {
-    ScriptService scriptService = scriptServiceTracker.getMyService();
-    activeControllerActivityFactory = activeControllerActivityFactoryTracker.getMyService();
+    liveActivityRunnerFactory = liveActivityRunnerFactoryTracker.getMyService();
 
-    scriptActivityWrapperFactory = new ScriptActivityWrapperFactory(scriptService);
-    activeControllerActivityFactory.registerActivityWrapperFactory(scriptActivityWrapperFactory);
+    scriptActivityWrapperFactory = new ScriptActivityWrapperFactory(scriptServiceTracker.getMyService());
+    liveActivityRunnerFactory.registerActivityWrapperFactory(scriptActivityWrapperFactory);
   }
 }

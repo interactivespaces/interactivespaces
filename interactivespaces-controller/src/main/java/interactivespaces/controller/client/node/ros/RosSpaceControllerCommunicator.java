@@ -28,7 +28,6 @@ import interactivespaces.container.resource.deployment.ContainerResourceDeployme
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceControllerStatus;
-import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerCommunicator;
 import interactivespaces.controller.client.node.SpaceControllerControl;
@@ -40,6 +39,7 @@ import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
 import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerClient;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -484,7 +484,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
       LiveActivityRuntimeStatus cas = rosMessageFactory.newFromType(LiveActivityRuntimeStatus._TYPE);
       cas.setUuid(activity.getUuid());
 
-      ActiveControllerActivity activeActivity = controllerControl.getActiveActivityByUuid(cas.getUuid());
+      LiveActivityRunner activeActivity = controllerControl.getLiveActivityRunnerByUuid(cas.getUuid());
       if (activeActivity != null) {
         Activity instance = activeActivity.getInstance();
         ActivityState state = null;

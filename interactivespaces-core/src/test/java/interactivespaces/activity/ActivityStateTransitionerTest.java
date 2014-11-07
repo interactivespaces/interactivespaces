@@ -18,7 +18,8 @@ package interactivespaces.activity;
 
 import static org.junit.Assert.assertEquals;
 
-import interactivespaces.activity.ActivityStateTransitioner.SequenceTransitionResult;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransitioner;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransitioner.SimpleGoalStateTransitionResult;
 
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -27,7 +28,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 /**
- * Tests for {@link ActivityStateTransitioner} behavior.
+ * Tests for {@link SimpleGoalStateTransitioner} behavior.
  *
  * @author Keith M. Hughes
  */
@@ -35,7 +36,7 @@ public class ActivityStateTransitionerTest {
 
   private ActivityControl activity;
 
-  private ActivityStateTransitioner transitioner;
+  private SimpleGoalStateTransitioner<ActivityState, ActivityControl> transitioner;
 
   private Log log;
 
@@ -48,34 +49,37 @@ public class ActivityStateTransitionerTest {
   /**
    * A single step transition which succeeds
    */
+  @SuppressWarnings("unchecked")
   @Test
   public void testSingleTransitionSuccess() {
     transitioner =
-        new ActivityStateTransitioner(activity,
-            ActivityStateTransitioner.transitions(ActivityStateTransition.STARTUP), log);
-    SequenceTransitionResult result = transitioner.transition(ActivityState.READY);
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, log)
+            .addTransitions(ActivityStateTransition.STARTUP);
+
+    SimpleGoalStateTransitionResult result = transitioner.transition(ActivityState.READY);
 
     Mockito.verify(activity).startup();
 
-    assertEquals(SequenceTransitionResult.DONE, result);
+    assertEquals(SimpleGoalStateTransitionResult.DONE, result);
   }
 
   /**
    * A single step transition which succeeds
    */
   @Test
+  @SuppressWarnings("unchecked")
   public void testSingleTransitionFailure() {
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(activity).startup();
 
     transitioner =
-        new ActivityStateTransitioner(activity,
-            ActivityStateTransitioner.transitions(ActivityStateTransition.STARTUP), log);
-    SequenceTransitionResult result = transitioner.transition(ActivityState.READY);
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, log)
+            .addTransitions(ActivityStateTransition.STARTUP);
+    SimpleGoalStateTransitionResult result = transitioner.transition(ActivityState.READY);
 
     Mockito.verify(activity).startup();
 
-    assertEquals(SequenceTransitionResult.ERROR, result);
+    assertEquals(SimpleGoalStateTransitionResult.ERROR, result);
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
   }
 
@@ -83,18 +87,19 @@ public class ActivityStateTransitionerTest {
    * A single step transition which succeeds
    */
   @Test
+  @SuppressWarnings("unchecked")
   public void testMultipleTransitionSuccess() {
     InOrder activityInOrder = Mockito.inOrder(activity);
 
     transitioner =
-        new ActivityStateTransitioner(activity, ActivityStateTransitioner.transitions(
-            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE), log);
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, log).addTransitions(
+            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
 
-    SequenceTransitionResult result1 = transitioner.transition(ActivityState.READY);
-    assertEquals(SequenceTransitionResult.WORKING, result1);
+    SimpleGoalStateTransitionResult result1 = transitioner.transition(ActivityState.READY);
+    assertEquals(SimpleGoalStateTransitionResult.WORKING, result1);
 
-    SequenceTransitionResult result2 = transitioner.transition(ActivityState.RUNNING);
-    assertEquals(SequenceTransitionResult.DONE, result2);
+    SimpleGoalStateTransitionResult result2 = transitioner.transition(ActivityState.RUNNING);
+    assertEquals(SimpleGoalStateTransitionResult.DONE, result2);
 
     activityInOrder.verify(activity).startup();
     activityInOrder.verify(activity).activate();
@@ -104,19 +109,20 @@ public class ActivityStateTransitionerTest {
    * A single step transition which succeeds
    */
   @Test
+  @SuppressWarnings("unchecked")
   public void testMultipleTransitionError() {
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(activity).startup();
 
     transitioner =
-        new ActivityStateTransitioner(activity, ActivityStateTransitioner.transitions(
-            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE), log);
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, log).addTransitions(
+            ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
 
-    SequenceTransitionResult result1 = transitioner.transition(ActivityState.READY);
-    assertEquals(SequenceTransitionResult.ERROR, result1);
+    SimpleGoalStateTransitionResult result1 = transitioner.transition(ActivityState.READY);
+    assertEquals(SimpleGoalStateTransitionResult.ERROR, result1);
 
-    SequenceTransitionResult result2 = transitioner.transition(ActivityState.RUNNING);
-    assertEquals(SequenceTransitionResult.CANT, result2);
+    SimpleGoalStateTransitionResult result2 = transitioner.transition(ActivityState.RUNNING);
+    assertEquals(SimpleGoalStateTransitionResult.CANT, result2);
 
     Mockito.verify(activity).startup();
     Mockito.verify(activity, Mockito.never()).activate();

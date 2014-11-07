@@ -26,7 +26,9 @@ import static org.mockito.Mockito.when;
 import interactivespaces.activity.Activity;
 import interactivespaces.resource.Version;
 import interactivespaces.util.data.resource.ResourceSignature;
+import interactivespaces.util.io.FileSupport;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,13 +48,16 @@ public class SimpleLiveActivityBundleLoaderTest {
   private ResourceSignature bundleSignature;
 
   private SimpleLiveActivityBundleLoader loader;
+  private FileSupport fileSupport;
 
   @Before
   public void setup() {
     bundleContext = mock(BundleContext.class);
     bundleSignature = mock(ResourceSignature.class);
+    fileSupport = mock(FileSupport.class);
 
     loader = new SimpleLiveActivityBundleLoader(bundleContext, bundleSignature);
+    loader.setFileSupport(fileSupport);
   }
 
   /**
@@ -62,6 +67,8 @@ public class SimpleLiveActivityBundleLoaderTest {
   public void testOneLoad() throws Exception {
     File bundleFile = new File("foo");
     String bundleFileUri = bundleFile.toURI().toString();
+
+    when(fileSupport.isFile(bundleFile)).thenReturn(true);
 
     String bundleName = "foo";
     Version bundleVersion = new Version(1, 0, 0);
@@ -114,6 +121,9 @@ public class SimpleLiveActivityBundleLoaderTest {
 
     assertEquals(0, loader.getNumberEntries());
 
+    when(fileSupport.isFile(bundleFile1)).thenReturn(true);
+    when(fileSupport.isFile(bundleFile2)).thenReturn(true);
+
     Class<?> clazz1 = loader.getBundleClass(bundleFile1, bundleName1, bundleVersion1, className1);
     Class<?> clazz2 = loader.getBundleClass(bundleFile2, bundleName2, bundleVersion2, className2);
 
@@ -144,6 +154,8 @@ public class SimpleLiveActivityBundleLoaderTest {
 
     assertEquals(0, loader.getNumberEntries());
 
+    when(fileSupport.isFile(bundleFile)).thenReturn(true);
+
     Class<?> clazz1 = loader.getBundleClass(bundleFile, bundleName, bundleVersion, className);
     Class<?> clazz2 = loader.getBundleClass(bundleFile, bundleName, bundleVersion, className);
 
@@ -157,8 +169,7 @@ public class SimpleLiveActivityBundleLoaderTest {
   }
 
   /**
-   * Load a name/version pair with the same file twice in a row but the
-   * signature changes.
+   * Load a name/version pair with the same file twice in a row but the signature changes.
    */
   @Test
   public void testTwoLoadSignatureDifferent() throws Exception {
@@ -182,6 +193,8 @@ public class SimpleLiveActivityBundleLoaderTest {
 
     assertEquals(0, loader.getNumberEntries());
 
+    when(fileSupport.isFile(bundleFile)).thenReturn(true);
+
     Class<?> clazz1 = loader.getBundleClass(bundleFile, bundleName, bundleVersion, className);
     Class<?> clazz2 = loader.getBundleClass(bundleFile, bundleName, bundleVersion, className);
 
@@ -196,8 +209,7 @@ public class SimpleLiveActivityBundleLoaderTest {
   }
 
   /**
-   * Load a name/version pair with different files, but the signature is the
-   * same.
+   * Load a name/version pair with different files, but the signature is the same.
    */
   @Test
   public void testTwoLoadSignatureSame() throws Exception {
@@ -227,6 +239,9 @@ public class SimpleLiveActivityBundleLoaderTest {
 
     assertEquals(0, loader.getNumberEntries());
 
+    when(fileSupport.isFile(bundleFile1)).thenReturn(true);
+    when(fileSupport.isFile(bundleFile2)).thenReturn(true);
+
     Class<?> clazz1 = loader.getBundleClass(bundleFile1, bundleName, bundleVersion, className);
     Class<?> clazz2 = loader.getBundleClass(bundleFile2, bundleName, bundleVersion, className);
 
@@ -239,5 +254,38 @@ public class SimpleLiveActivityBundleLoaderTest {
     verify(bundleContext, never()).installBundle(bundleFileUri2);
     verify(bundle1, times(2)).loadClass(className);
     verify(bundle2, never()).loadClass(className);
+  }
+
+  /**
+   * Check loading a file that doesn't exist
+   */
+  @Test
+  public void testFileDoesntExist() throws Exception {
+    File bundleFile = new File("foo");
+    String bundleFileUri = bundleFile.toURI().toString();
+
+    String bundleName = "foo";
+    Version bundleVersion = new Version(1, 0, 0);
+    String className = "Foop";
+
+    Bundle bundle = mock(Bundle.class);
+    Class<?> expectedClass = Activity.class;
+
+    when(bundleContext.installBundle(bundleFileUri)).thenReturn(bundle);
+    Mockito.<Class<?>>when(bundle.loadClass(className)).thenReturn(expectedClass);
+
+    assertEquals(0, loader.getNumberEntries());
+
+    when(fileSupport.isFile(bundleFile)).thenReturn(false);
+
+    try {
+      loader.getBundleClass(bundleFile, bundleName, bundleVersion, className);
+
+      Assert.fail();
+    } catch (Exception e) {
+      // This is the success path
+    }
+
+    assertEquals(0, loader.getNumberEntries());
   }
 }

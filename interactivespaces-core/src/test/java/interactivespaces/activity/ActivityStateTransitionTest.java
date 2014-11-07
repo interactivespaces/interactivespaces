@@ -18,6 +18,7 @@ package interactivespaces.activity;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 /**
@@ -26,7 +27,6 @@ import org.mockito.Mockito;
  * @author Keith M. Hughes
  */
 public class ActivityStateTransitionTest {
-
   private ActivityControl activity;
 
   @Before
@@ -39,9 +39,22 @@ public class ActivityStateTransitionTest {
    */
   @Test
   public void testStartup() {
-    ActivityStateTransition.STARTUP.transition(activity);
+    ActivityStateTransition.STARTUP.onTransition(ActivityState.READY, activity);
 
     Mockito.verify(activity).startup();
+  }
+
+  /**
+   * Make sure we get a startup with shutdown if from a shutdown fail.
+   */
+  @Test
+  public void testStartupFromFailedShutdown() {
+    InOrder activityInOrder = Mockito.inOrder(activity);
+
+    ActivityStateTransition.STARTUP.onTransition(ActivityState.SHUTDOWN_FAILURE, activity);
+
+    activityInOrder.verify(activity).shutdown();
+    activityInOrder.verify(activity).startup();
   }
 
   /**
@@ -49,7 +62,7 @@ public class ActivityStateTransitionTest {
    */
   @Test
   public void testShutdown() {
-    ActivityStateTransition.SHUTDOWN.transition(activity);
+    ActivityStateTransition.SHUTDOWN.onTransition(ActivityState.RUNNING, activity);
 
     Mockito.verify(activity).shutdown();
   }
@@ -59,7 +72,7 @@ public class ActivityStateTransitionTest {
    */
   @Test
   public void testActivate() {
-    ActivityStateTransition.ACTIVATE.transition(activity);
+    ActivityStateTransition.ACTIVATE.onTransition(ActivityState.RUNNING, activity);
 
     Mockito.verify(activity).activate();
   }
@@ -69,7 +82,7 @@ public class ActivityStateTransitionTest {
    */
   @Test
   public void testDeactivate() {
-    ActivityStateTransition.DEACTIVATE.transition(activity);
+    ActivityStateTransition.DEACTIVATE.onTransition(ActivityState.ACTIVE, activity);
 
     Mockito.verify(activity).deactivate();
   }

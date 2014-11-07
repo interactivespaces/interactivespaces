@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.client.node.internal;
+package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.configuration.ActivityConfiguration;
@@ -23,7 +23,6 @@ import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
@@ -32,21 +31,24 @@ import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 
 /**
- * An {@link ActiveControllerActivityFactory} which with versioned factories.
+ * An {@link LiveActivityRunnerFactory} with versioned factories.
  *
  * <p>
- * Factories without a version are given a version of 0.0.0. The highest version
- * available will always be used that meets the activity type's requested
- * version range. No version constraints will give the highest version
- * available.
+ * Factories without a version are given a version of {@link #DEFAULT_FACTORY_VERSION}. The highest version available
+ * will always be used that meets the activity type's requested version range. No version constraints will give the
+ * highest version available.
  *
  * @author Keith M. Hughes
  */
-public class SimpleActiveControllerActivityFactory implements ActiveControllerActivityFactory {
+public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivityFactory, LiveActivityRunnerFactory {
 
   /**
-   * The separator between an activity type and a potential version range for
-   * the type.
+   * Default version for wrapper factories.
+   */
+  public static final Version DEFAULT_FACTORY_VERSION = new Version(0, 0, 0);
+
+  /**
+   * The separator between an activity type and a potential version range for the type.
    */
   public static final char VERSION_RANGE_SEPARATOR = ';';
 
@@ -57,8 +59,9 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
       NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
 
   @Override
-  public ActiveControllerActivity createActiveLiveActivity(String activityType, InstalledLiveActivity liveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+  public BasicLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
 
     String bareActivityType = activityType;
     VersionRange versionRange = null;
@@ -80,8 +83,9 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
       ActivityWrapper wrapper =
           wrapperFactory.newActivityWrapper(liveActivity, activityFilesystem, configuration, controller);
 
-      ActiveControllerActivity activeLiveActivity =
-          new ActiveControllerActivity(liveActivity, wrapper, activityFilesystem, configuration, controller);
+      BasicLiveActivityRunner activeLiveActivity =
+          new BasicLiveActivityRunner(liveActivity, wrapper, activityFilesystem, configuration,
+              liveActivityRunnerListener, controller);
 
       return activeLiveActivity;
     } else {
@@ -95,11 +99,13 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
   }
 
   @Override
-  public ActiveControllerActivity newActiveActivity(InstalledLiveActivity liveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration, SpaceController controller) {
+  public BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity liveActivity,
+      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
     String type = getConfiguredType(configuration);
 
-    return createActiveLiveActivity(type, liveActivity, activityFilesystem, configuration, controller);
+    return newLiveActivityRunner(type, liveActivity, activityFilesystem, configuration, liveActivityRunnerListener,
+        controller);
   }
 
   @Override
@@ -139,7 +145,7 @@ public class SimpleActiveControllerActivityFactory implements ActiveControllerAc
     // No version gets a version of 0.0.0.
     Version version = factory.getVersion();
     if (version == null) {
-      version = new Version(0, 0, 0);
+      version = DEFAULT_FACTORY_VERSION;
     }
     return version;
   }

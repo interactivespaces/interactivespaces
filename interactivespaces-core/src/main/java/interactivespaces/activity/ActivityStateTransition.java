@@ -16,12 +16,14 @@
 
 package interactivespaces.activity;
 
+import interactivespaces.util.statemachine.simplegoal.BaseSimpleGoalStateTransition;
+
 /**
  * A transition from one activity state to another.
  *
  * @author Keith M. Hughes
  */
-public abstract class ActivityStateTransition {
+public abstract class ActivityStateTransition extends BaseSimpleGoalStateTransition<ActivityState, ActivityControl> {
 
   /**
    * Transition for starting up an activity.
@@ -48,69 +50,32 @@ public abstract class ActivityStateTransition {
       "space.activity.state.transition.shutdown");
 
   /**
-   * Text description of the transition.
+   * Construct a new activity state transition.
+   *
+   * @param description
+   *          the description of the transition
    */
-  private String description;
-
   ActivityStateTransition(String description) {
-    this.description = description;
-  }
-
-  /**
-   * @return the description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * Can a transition happen from the given state?
-   *
-   * @param state
-   *          the current state
-   *
-   * @return the result of the transition
-   */
-  public abstract TransitionResult canTransition(ActivityState state);
-
-  /**
-   * Perform the proper transition.
-   *
-   * @param activity
-   *          the activity to transition
-   */
-  public abstract void transition(ActivityControl activity);
-
-  /**
-   * Attempt to do the transition. If it is legal, it will be done.
-   *
-   * @param state
-   *          current state of the activity
-   * @param activity
-   *          control for the activity
-   *
-   * @return what the transition result was when it was checked
-   */
-  public TransitionResult attemptTransition(ActivityState state, ActivityControl activity) {
-    TransitionResult result = canTransition(state);
-    if (result.equals(TransitionResult.OK)) {
-      transition(activity);
-    }
-
-    return result;
+    super(description);
   }
 
   @Override
   public String toString() {
-    return "ActivityStateTransition [description=" + description + "]";
+    return "ActivityStateTransition [description=" + getDescription() + "]";
   }
 
   /**
    * Transition for starting up an activity.
    */
-  private static class StartupActivityStateTransition extends ActivityStateTransition {
+  private static final class StartupActivityStateTransition extends ActivityStateTransition {
 
-    StartupActivityStateTransition(String description) {
+    /**
+     * Construct a startup transition.
+     *
+     * @param description
+     *          the description of the transition
+     */
+    private StartupActivityStateTransition(String description) {
       super(description);
     }
 
@@ -118,15 +83,27 @@ public abstract class ActivityStateTransition {
     public TransitionResult canTransition(ActivityState currentState) {
       if (currentState.isRunning()) {
         return TransitionResult.NOOP;
-      } else if (currentState.equals(ActivityState.READY)) {
-        return TransitionResult.OK;
       } else {
-        return TransitionResult.ILLEGAL;
+        switch (currentState) {
+          case STARTUP_FAILURE:
+          case SHUTDOWN_FAILURE:
+          case CRASHED:
+          case READY:
+            return TransitionResult.OK;
+
+          default:
+            return TransitionResult.ILLEGAL;
+        }
       }
     }
 
     @Override
-    public void transition(ActivityControl activity) {
+    public void onTransition(ActivityState currentState, ActivityControl activity) {
+      // Make one final attempt to shut it down.
+      if (currentState == ActivityState.SHUTDOWN_FAILURE) {
+        activity.shutdown();
+      }
+
       activity.startup();
     }
   }
@@ -134,17 +111,23 @@ public abstract class ActivityStateTransition {
   /**
    * Transition for activating an activity.
    */
-  private static class ActivateActivityStateTransition extends ActivityStateTransition {
+  private static final class ActivateActivityStateTransition extends ActivityStateTransition {
 
-    ActivateActivityStateTransition(String description) {
+    /**
+     * Construct an activate transition.
+     *
+     * @param description
+     *          the description of the transition
+     */
+    private ActivateActivityStateTransition(String description) {
       super(description);
     }
 
     @Override
     public TransitionResult canTransition(ActivityState state) {
-      if (state.equals(ActivityState.RUNNING) || state.equals(ActivityState.ACTIVATE_FAILURE)) {
+      if (state == ActivityState.RUNNING || state == ActivityState.ACTIVATE_FAILURE) {
         return TransitionResult.OK;
-      } else if (state.equals(ActivityState.ACTIVE)) {
+      } else if (state == ActivityState.ACTIVE) {
         return TransitionResult.NOOP;
       } else {
         return TransitionResult.ILLEGAL;
@@ -152,7 +135,7 @@ public abstract class ActivityStateTransition {
     }
 
     @Override
-    public void transition(ActivityControl activity) {
+    public void onTransition(ActivityState currentState, ActivityControl activity) {
       activity.activate();
     }
   }
@@ -160,9 +143,15 @@ public abstract class ActivityStateTransition {
   /**
    * Transition for deactivating an activity.
    */
-  private static class DeactivateActivityStateTransition extends ActivityStateTransition {
+  private static final class DeactivateActivityStateTransition extends ActivityStateTransition {
 
-    DeactivateActivityStateTransition(String description) {
+    /**
+     * Construct a deactivate transition.
+     *
+     * @param description
+     *          the description of the transition
+     */
+    private DeactivateActivityStateTransition(String description) {
       super(description);
     }
 
@@ -179,7 +168,7 @@ public abstract class ActivityStateTransition {
     }
 
     @Override
-    public void transition(ActivityControl activity) {
+    public void onTransition(ActivityState currentState, ActivityControl activity) {
       activity.deactivate();
     }
   }
@@ -187,9 +176,15 @@ public abstract class ActivityStateTransition {
   /**
    * Transition for shutting down an activity.
    */
-  private static class ShutdownActivityStateTransition extends ActivityStateTransition {
+  private static final class ShutdownActivityStateTransition extends ActivityStateTransition {
 
-    ShutdownActivityStateTransition(String description) {
+    /**
+     * Construct a shutdown transition.
+     *
+     * @param description
+     *          the description of the transition
+     */
+    private ShutdownActivityStateTransition(String description) {
       super(description);
     }
 
@@ -210,12 +205,8 @@ public abstract class ActivityStateTransition {
     }
 
     @Override
-    public void transition(ActivityControl activity) {
+    public void onTransition(ActivityState currentState, ActivityControl activity) {
       activity.shutdown();
     }
-  }
-
-  public enum TransitionResult {
-    OK, WAIT, ILLEGAL, NOOP
   }
 }

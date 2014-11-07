@@ -62,11 +62,22 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   /**
    * The context we use for loading in a bundle.
    */
-  private LiveActivityBundle bundle;
+  private NativeInteractiveSpacesLiveActivityOsgiBundle bundle;
 
+  /**
+   * Construct a new wrapper.
+   *
+   * @param liveActivity
+   *          the live activity to wrap
+   * @param activityFilesystem
+   *          the file system for the live activity
+   * @param configuration
+   *          the configuration for the activity
+   * @param bundleLoader
+   *          the bundle loader to be used for loading the live activity's bundle
+   */
   public InteractiveSpacesNativeActivityWrapper(InstalledLiveActivity liveActivity,
-      ActivityFilesystem activityFilesystem, Configuration configuration,
-      LiveActivityBundleLoader bundleLoader) {
+      ActivityFilesystem activityFilesystem, Configuration configuration, LiveActivityBundleLoader bundleLoader) {
     this.liveActivity = liveActivity;
     this.activityFilesystem = activityFilesystem;
     this.configuration = configuration;
@@ -77,17 +88,15 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   public synchronized Activity newInstance() {
     File executable = getActivityExecutable(activityFilesystem, configuration);
 
-    String className =
-        configuration.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
+    String className = configuration.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
     Class<?> activityClass =
-        bundleLoader.getBundleClass(executable, liveActivity.getIdentifyingName(),
-            liveActivity.getVersion(), className);
+        bundleLoader
+            .getBundleClass(executable, liveActivity.getIdentifyingName(), liveActivity.getVersion(), className);
 
     try {
       return (Activity) activityClass.newInstance();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not create activity class %s",
-          className), e);
+      throw new InteractiveSpacesException(String.format("Could not create activity class %s", className), e);
     }
   }
 
@@ -101,10 +110,8 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
    *
    * @return File containing the executable.
    */
-  private File getActivityExecutable(ActivityFilesystem activityFilesystem,
-      Configuration configuration) {
+  private File getActivityExecutable(ActivityFilesystem activityFilesystem, Configuration configuration) {
     return new File(activityFilesystem.getInstallDirectory(),
-        configuration
-            .getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
+        configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE));
   }
 }

@@ -30,10 +30,8 @@ public interface ActivityControl {
    * This method should alter the activity state.
    *
    * <ul>
-   * <li>If the startup was successful, the activity state should be
-   * {@code ActivityStatus.RUNNING}.</li>
-   * <li>If the startup was unsuccessful, the activity state should be
-   * {@code ActivityStatus.STARTUP_FAILURE}.</li>
+   * <li>If the startup was successful, the activity state should be {@code ActivityStatus.RUNNING}.</li>
+   * <li>If the startup was unsuccessful, the activity state should be {@code ActivityStatus.STARTUP_FAILURE}.</li>
    * </ul>
    */
   void startup();
@@ -45,15 +43,12 @@ public interface ActivityControl {
    * This method should alter the activity state.
    *
    * <ul>
-   * <li>If the shutdown was successful, the activity state should be
-   * {@code ActivityStatus.READY}.</li>
-   * <li>If the shutdown was unsuccessful, the activity state should be
-   * {@code ActivityStatus.SHUTDOWN_FAILURE}.</li>
+   * <li>If the shutdown was successful, the activity state should be {@code ActivityStatus.READY}.</li>
+   * <li>If the shutdown was unsuccessful, the activity state should be {@code ActivityStatus.SHUTDOWN_FAILURE}.</li>
    * </ul>
    *
    * <p>
-   * This method can be called several times in a row. Any time after the first
-   * call should do nothing.
+   * This method can be called several times in a row. Any time after the first call should do nothing.
    */
   void shutdown();
 
@@ -64,10 +59,8 @@ public interface ActivityControl {
    * This method should alter the activity state.
    *
    * <ul>
-   * <li>If the activation was successful, the activity state should be
-   * {@code ActivityStatus.ACTIVE}.</li>
-   * <li>If the activation was unsuccessful, the activity state should be
-   * {@code ActivityStatus.ACTIVATE_FAILURE}.</li>
+   * <li>If the activation was successful, the activity state should be {@code ActivityStatus.ACTIVE}.</li>
+   * <li>If the activation was unsuccessful, the activity state should be {@code ActivityStatus.ACTIVATE_FAILURE}.</li>
    * </ul>
    */
   void activate();
@@ -79,10 +72,8 @@ public interface ActivityControl {
    * This method should alter the activity state.
    *
    * <ul>
-   * <li>If the deactivation was successful, the activity state should be
-   * {@code ActivityStatus.RUNNING}.</li>
-   * <li>If the deactivation was unsuccessful, the activity state should be
-   * {@code ActivityStatus.DEACTIVATE_FAILURE}.</li>
+   * <li>If the deactivation was successful, the activity state should be {@code ActivityStatus.RUNNING}.</li>
+   * <li>If the deactivation was unsuccessful, the activity state should be {@code ActivityStatus.DEACTIVATE_FAILURE}.</li>
    * </ul>
    */
   void deactivate();

@@ -14,16 +14,16 @@
  * the License.
  */
 
-package interactivespaces.controller.client.node;
+package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.ActivityControl;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -33,16 +33,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * An activity which is live in the controller.
+ * A runner for a Live Activity.
  *
  * @author Keith M. Hughes
  */
-public class ActiveControllerActivity implements ActivityControl {
-
-  /**
-   * Initial status for an activity.
-   */
-  private static final ActivityStatus INITIAL_ACTIVITY_STATUS = new ActivityStatus(ActivityState.READY, "");
+public class BasicLiveActivityRunner implements LiveActivityRunner {
 
   /**
    * The amount of time to wait for the instance lock in milliseconds.
@@ -75,10 +70,12 @@ public class ActiveControllerActivity implements ActivityControl {
   private final LiveActivityConfiguration configuration;
 
   /**
-   * The controller which contains the activity
-   *
-   * <p>
-   * This can be null if an instance hasn't been created yet.
+   * The listener for runner events.
+   */
+  private final LiveActivityRunnerListener liveActivityRunnerListener;
+
+  /**
+   * The controller which contains the activity.
    */
   private final SpaceController controller;
 
@@ -86,14 +83,14 @@ public class ActiveControllerActivity implements ActivityControl {
    * The activity being run.
    *
    * <p>
-   * This can be null if an instance hasn't been created yet.
+   * This can be {@code null} if an instance hasn't been created yet.
    */
   private Activity instance;
 
   /**
    * The activity status of an activity.
    */
-  private ActivityStatus cachedActivityStatus = INITIAL_ACTIVITY_STATUS;
+  private ActivityStatus cachedActivityStatus;
 
   /**
    * A lock for anything working with the instance being controlled.
@@ -116,37 +113,33 @@ public class ActiveControllerActivity implements ActivityControl {
    *          the activity's file system
    * @param configuration
    *          the configuration for the activity
+   * @param liveActivityRunnerListener
+   *          listener for live activity runner events
    * @param controller
    *          the controller the activity is running under
    */
-  public ActiveControllerActivity(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
+  public BasicLiveActivityRunner(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
       InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      SpaceController controller) {
+      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;
     this.activityFilesystem = activityFilesystem;
     this.configuration = configuration;
+    this.liveActivityRunnerListener = liveActivityRunnerListener;
     this.controller = controller;
+
+    cachedActivityStatus = INITIAL_ACTIVITY_STATUS;
 
     instanceLockState = InstanceLockState.NEUTRAL;
   }
 
-  /**
-   * Get the UUID of the underlying live activity.
-   *
-   * @return the uuid
-   */
+  @Override
   public String getUuid() {
     return uuid;
   }
 
-  /**
-   * Update the configuration of the activity.
-   *
-   * @param update
-   *          a map of the configuration update
-   */
+  @Override
   public void updateConfiguration(Map<String, Object> update) {
     if (obtainInstanceLock(InstanceLockState.CONFIGURE)) {
       try {
@@ -166,18 +159,39 @@ public class ActiveControllerActivity implements ActivityControl {
     if (obtainInstanceLock(InstanceLockState.STARTUP)) {
       try {
         if (instance == null) {
-          configuration.load();
-          instance = activityWrapper.newInstance();
-          controller.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
-              activityWrapper.newExecutionContext());
-          instance.startup();
+          try {
+            configuration.load();
+            instance = activityWrapper.newInstance();
+            controller.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
+                activityWrapper.newExecutionContext());
+
+            instance.startup();
+
+            // Instances notify status changes through their event listeners, so the startup notification is already
+            // handled. .
+
+            // If not running, we want to punt on having an instance as the runner only holds onto an instance reference
+            // if it successfully starts.
+            if (!instance.getActivityStatus().getState().isRunning()) {
+              instance = null;
+            }
+
+          } catch (Throwable e) {
+            setActivityStatusUnprotected(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
+
+            if (instance != null) {
+              try {
+                instance.handleStartupFailure();
+              } catch (Throwable e1) {
+                controller.getSpaceEnvironment().getLog().error("Error cleaning up activity which could not start", e1);
+              }
+            }
+
+          }
         } else {
-          throw new SimpleInteractiveSpacesException(String.format(
-              "Attempt to start activity %s which is already started", uuid));
+          controller.getSpaceEnvironment().getLog()
+              .warn(String.format("Attempt to start activity %s that is already started", uuid));
         }
-      } catch (Throwable e) {
-        controller.getSpaceEnvironment().getLog().error("Error starting activity", e);
-        setActivityStatusUnprotected(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
       } finally {
         releaseInstanceLock();
       }
@@ -190,12 +204,19 @@ public class ActiveControllerActivity implements ActivityControl {
     if (obtainInstanceLock(InstanceLockState.SHUTDOWN)) {
       try {
         if (instance != null) {
-          instance.shutdown();
+          try {
+            instance.shutdown();
 
-          // Sample the status after a complete shutdown.
-          getActivityStatusUnprotected();
+            // Sample the status after a complete shutdown.
+            sampleActivityStatusUnprotected();
 
-          instance = null;
+            instance = null;
+          } catch (Throwable e) {
+            setActivityStatusUnprotected(new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, null, e));
+          }
+        } else {
+          controller.getSpaceEnvironment().getLog()
+              .warn(String.format("Attempt to shut down activity %s that wasn't running", uuid));
         }
       } finally {
         releaseInstanceLock();
@@ -208,7 +229,11 @@ public class ActiveControllerActivity implements ActivityControl {
     if (obtainInstanceLock(InstanceLockState.ACTIVATE)) {
       try {
         if (instance != null) {
-          instance.activate();
+          try {
+            instance.activate();
+          } catch (Throwable e) {
+            setActivityStatusUnprotected(new ActivityStatus(ActivityState.ACTIVATE_FAILURE, null, e));
+          }
         } else {
           throw new SimpleInteractiveSpacesException(String.format(
               "Attempt to activate activity %s which is not started", uuid));
@@ -224,7 +249,11 @@ public class ActiveControllerActivity implements ActivityControl {
     if (obtainInstanceLock(InstanceLockState.DEACTIVATE)) {
       try {
         if (instance != null) {
-          instance.deactivate();
+          try {
+            instance.deactivate();
+          } catch (Throwable e) {
+            setActivityStatusUnprotected(new ActivityStatus(ActivityState.DEACTIVATE_FAILURE, null, e));
+          }
         } else {
           throw new SimpleInteractiveSpacesException(String.format(
               "Attempt to deactivate activity %s which is not started", uuid));
@@ -235,29 +264,11 @@ public class ActiveControllerActivity implements ActivityControl {
     }
   }
 
-  /**
-   * Return the current status of the live activity.
-   *
-   * This will sample the activity if it can.
-   *
-   * @return the status of the activity
-   */
-  public ActivityState getActivityState() {
-    return getActivityStatus().getState();
-  }
-
-  /**
-   * Get the state of the live activity.
-   *
-   * <p>
-   * This will be the last known state of the activity. The activity itself will be sampled.
-   *
-   * @return the state of the activity
-   */
-  public ActivityStatus getActivityStatus() {
+  @Override
+  public ActivityStatus sampleActivityStatus() {
     if (obtainInstanceLock(InstanceLockState.STATUS)) {
       try {
-        return getActivityStatusUnprotected();
+        return sampleActivityStatusUnprotected();
       } finally {
         releaseInstanceLock();
       }
@@ -274,7 +285,7 @@ public class ActiveControllerActivity implements ActivityControl {
    *
    * @return the state of the activity
    */
-  private ActivityStatus getActivityStatusUnprotected() {
+  private ActivityStatus sampleActivityStatusUnprotected() {
     if (instance != null) {
       instance.checkActivityState();
 
@@ -284,21 +295,12 @@ public class ActiveControllerActivity implements ActivityControl {
     return cachedActivityStatus;
   }
 
-  /**
-   * Get the last known activity status. Does not sample the activity.
-   *
-   * @return the cached activity status
-   */
+  @Override
   public ActivityStatus getCachedActivityStatus() {
     return cachedActivityStatus;
   }
 
-  /**
-   * get the instance of the activity.
-   *
-   * @return the instance (can be {@code null} if the activity has not been
-   *         started)
-   */
+  @Override
   public Activity getInstance() {
     if (obtainInstanceLock(InstanceLockState.OBTAIN)) {
       try {
@@ -312,17 +314,72 @@ public class ActiveControllerActivity implements ActivityControl {
   }
 
   /**
+   * Set the instance to be used for this active activity.
+   *
+   * @param instance
+   *          the instance of the activity
+   */
+  @VisibleForTesting
+  void setInstance(Activity instance) {
+    this.instance = instance;
+  }
+
+  /**
+   * Set the cached activity status.
+   *
+   * @param cachedActivityStatus
+   *          the new cached activity status
+   */
+  @VisibleForTesting
+  public void setCachedActivityStatus(ActivityStatus cachedActivityStatus) {
+    this.cachedActivityStatus = cachedActivityStatus;
+  }
+
+  @Override
+  public void setActivityStatus(ActivityStatus status) {
+    if (obtainInstanceLock(InstanceLockState.STATUS)) {
+      try {
+        setActivityStatusUnprotected(status);
+      } finally {
+        releaseInstanceLock();
+      }
+    } else {
+      throw new SimpleInteractiveSpacesException("Could not set activity status because could not get instance lock");
+    }
+  }
+
+  /**
+   * Set the activity status of the live activity, not protected by the instance lock.
+   *
+   * @param status
+   *          activity status to set
+   */
+  private void setActivityStatusUnprotected(ActivityStatus status) {
+    cachedActivityStatus = status;
+    if (instance != null) {
+      // Setting the status on the instance will trigger sending activity events to all activity listeners.
+      instance.setActivityStatus(status);
+    } else {
+      liveActivityRunnerListener.onNoInstanceActivityStatusEvent(this);
+    }
+  }
+
+  @Override
+  @VisibleForTesting
+  public ActivityWrapper getActivityWrapper() {
+    return activityWrapper;
+  }
+
+  /**
    * Get the instance lock.
    *
    * <p>
-   * This method blocks until the lock is obtained, but logs when it cannot get
-   * the lock in a timely manner.
+   * This method blocks until the lock is obtained, but logs when it cannot get the lock in a timely manner.
    *
    * @param newInstanceLockState
    *          the state to go into while the lock is held
    *
-   * @return {@code true} if the lock was obtained, {@code false} if the thread
-   *         trying to acquire was interrupted
+   * @return {@code true} if the lock was obtained, {@code false} if the thread trying to acquire was interrupted
    */
   private boolean obtainInstanceLock(InstanceLockState newInstanceLockState) {
     try {
@@ -345,7 +402,7 @@ public class ActiveControllerActivity implements ActivityControl {
 
         throw new SimpleInteractiveSpacesException(String.format(
             "Nested calls to instanceLock protected methods in %s for activity %s",
-            ActiveControllerActivity.class.getName(), uuid));
+            BasicLiveActivityRunner.class.getName(), uuid));
       }
 
       instanceLockState = newInstanceLockState;
@@ -366,69 +423,6 @@ public class ActiveControllerActivity implements ActivityControl {
     instanceLockState = InstanceLockState.NEUTRAL;
 
     instanceLock.unlock();
-  }
-
-  /**
-   * Set the instance to be used for this active activity.
-   *
-   * @param instance
-   *          the instance of the activity
-   */
-  @VisibleForTesting
-  void setInstance(Activity instance) {
-    this.instance = instance;
-  }
-
-  /**
-   * Set the cached activity status.
-   *
-   * @param cachedActivityStatus
-   *          the new cached activity status
-   */
-  @VisibleForTesting
-  void setCachedActivityStatus(ActivityStatus cachedActivityStatus) {
-    this.cachedActivityStatus = cachedActivityStatus;
-  }
-
-  /**
-   * Set the state of the live activity.
-   *
-   * @param status
-   *          activity status to set
-   */
-  public void setActivityStatus(ActivityStatus status) {
-    if (obtainInstanceLock(InstanceLockState.STATUS)) {
-      try {
-        setActivityStatusUnprotected(status);
-      } finally {
-        releaseInstanceLock();
-      }
-    } else {
-      throw new SimpleInteractiveSpacesException("Could not set activity status because could not get instance lock");
-    }
-  }
-
-  /**
-   * Set the activity status of the live activity, not protected by the instance lock.
-   *
-   * @param status
-   *          activity status to set
-   */
-  private void setActivityStatusUnprotected(ActivityStatus status) {
-    cachedActivityStatus = status;
-    if (instance != null) {
-      instance.setActivityStatus(status);
-    }
-  }
-
-  /**
-   * Get the activity wrapper for this instance.
-   *
-   * @return the activity wrapper
-   */
-  @VisibleForTesting
-  public ActivityWrapper getActivityWrapper() {
-    return activityWrapper;
   }
 
   /**
@@ -474,6 +468,5 @@ public class ActiveControllerActivity implements ActivityControl {
      * The instance reference is being obtained.
      */
     OBTAIN
-
   }
 }

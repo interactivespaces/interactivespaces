@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,22 +14,9 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
-
-import interactivespaces.liveactivity.runtime.LiveActivityRunner;
-
 /**
- * Handle important status reporting for Interactive Spaces activities and controllers.
+ * A Simple Goal State machine consists of a linear ordering of goals that need to be attained to achieve a final result.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
-
-  /**
-   * Send activity state to the emergency reporting system.
-   *
-   * @param liveActivityRunner
-   *          the runner for the activity the alert is being raised for
-   */
-  void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner);
-}
+package interactivespaces.util.statemachine.simplegoal;

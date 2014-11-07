@@ -16,22 +16,21 @@
 
 package interactivespaces.controller.logging;
 
-import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.client.node.ActiveControllerActivity;
+import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 
 import org.apache.commons.logging.Log;
 
 /**
- * Use the console to report status.
+ * Use the logger to report status.
  *
  * <p>
  * This should not be used in production. Someone should be emailed, or paged, or something.
  *
  * @author Keith M. Hughes
  */
-public class SimpleAlertStatusManager implements AlertStatusManager {
+public class LoggingAlertStatusManager implements AlertStatusManager {
 
   /**
    * The designator for unknown items.
@@ -43,22 +42,27 @@ public class SimpleAlertStatusManager implements AlertStatusManager {
    */
   private Log log;
 
+  /**
+   * Construct a new manager.
+   *
+   * @param log
+   *          the logger to use
+   */
+  public LoggingAlertStatusManager(Log log) {
+    this.log = log;
+  }
+
   @Override
-  public void announceStatus(ActiveControllerActivity activity) {
-    // TODO(keith): Stupid for now.
-    ActivityStatus status = activity.getActivityStatus();
-    String activityName = activity.getUuid();
-    Activity activityInstance = activity.getInstance();
-    if (activityInstance != null) {
-      activityName = activityName + ":" + activityInstance.getName();
-    }
+  public void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner) {
+    ActivityStatus status = liveActivityRunner.getCachedActivityStatus();
+
     String activityState = UNKNOWN;
     ActivityState state = status.getState();
     if (state != null) {
       activityState = state.toString();
     }
 
-    log.error(String.format("ALERT: Activity %s has serious issues: %s\n", activityName, activityState));
+    log.error(String.format("ALERT: Activity %s has serious issues: %s\n", liveActivityRunner.getUuid(), activityState));
     log.error(status.getDescription());
 
     Throwable e = null;
@@ -70,13 +74,4 @@ public class SimpleAlertStatusManager implements AlertStatusManager {
     }
   }
 
-  /**
-   * Set the logger to use.
-   *
-   * @param log
-   *          the log to use
-   */
-  public void setLog(Log log) {
-    this.log = log;
-  }
 }

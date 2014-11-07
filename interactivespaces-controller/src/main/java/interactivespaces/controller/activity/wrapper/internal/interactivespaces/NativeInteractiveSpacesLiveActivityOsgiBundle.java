@@ -25,11 +25,11 @@ import org.osgi.framework.BundleContext;
 import java.io.File;
 
 /**
- * The bundle to be used for a live activity.
+ * The OSGi bundle to be used for a native IS live activity.
  *
  * @author Keith M. Hughes
  */
-public class LiveActivityBundle {
+public class NativeInteractiveSpacesLiveActivityOsgiBundle {
 
   /**
    * The context to be used for loading the bundle.
@@ -42,7 +42,7 @@ public class LiveActivityBundle {
   private File currentBundleFile;
 
   /**
-   * The current OSGi bundle containing the activity
+   * The current OSGi bundle containing the activity.
    */
   private Bundle currentBundle;
 
@@ -56,7 +56,15 @@ public class LiveActivityBundle {
    */
   private ResourceSignature bundleSignature;
 
-  public LiveActivityBundle(BundleContext bundleContext, ResourceSignature bundleSignature) {
+  /**
+   * Construct a new live activity bundle.
+   *
+   * @param bundleContext
+   *          the bundle context which will load the bundle
+   * @param bundleSignature
+   *          the signature of the bundle
+   */
+  public NativeInteractiveSpacesLiveActivityOsgiBundle(BundleContext bundleContext, ResourceSignature bundleSignature) {
     this.bundleContext = bundleContext;
     this.bundleSignature = bundleSignature;
   }
@@ -74,8 +82,7 @@ public class LiveActivityBundle {
 
     if (currentBundle != null) {
       if (!newBundleSignature.equals(currentBundleSignature)) {
-        // It is a totally different bundle, so time to clean out the
-        // old one.
+        // It is a totally different bundle, so time to clean out the old one.
         unloadCurrentBundle();
         loadNewBundle(bundleFile, newBundleSignature);
       }
@@ -107,8 +114,7 @@ public class LiveActivityBundle {
       currentBundleFile = newBundleFile;
       currentBundleSignature = newBundleFileSignature;
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Cannot load bundle %s",
-          newBundleFile.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Cannot load bundle %s", newBundleFile.getAbsolutePath()), e);
     }
   }
 
@@ -121,8 +127,8 @@ public class LiveActivityBundle {
       currentBundle = null;
       currentBundleFile = null;
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not unload bundle at %s",
-          currentBundle.getLocation()), e);
+      throw new InteractiveSpacesException(String.format("Could not unload bundle at %s", currentBundle.getLocation()),
+          e);
     }
   }
 }

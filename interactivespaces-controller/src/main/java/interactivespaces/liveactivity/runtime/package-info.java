@@ -14,22 +14,9 @@
  * the License.
  */
 
-package interactivespaces.controller.logging;
-
-import interactivespaces.liveactivity.runtime.LiveActivityRunner;
-
 /**
- * Handle important status reporting for Interactive Spaces activities and controllers.
+ * The runtime for live activities.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
-
-  /**
-   * Send activity state to the emergency reporting system.
-   *
-   * @param liveActivityRunner
-   *          the runner for the activity the alert is being raised for
-   */
-  void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner);
-}
+package interactivespaces.liveactivity.runtime;

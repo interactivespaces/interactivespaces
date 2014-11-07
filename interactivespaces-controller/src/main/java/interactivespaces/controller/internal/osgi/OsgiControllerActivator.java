@@ -34,7 +34,6 @@ import interactivespaces.controller.client.node.SimpleActivityStorageManager;
 import interactivespaces.controller.client.node.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.SpaceControllerDataBundleManager;
 import interactivespaces.controller.client.node.StandardSpaceController;
-import interactivespaces.controller.client.node.internal.SimpleActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.internal.SimpleSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.client.node.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.logging.InteractiveSpacesEnvironmentActivityLogFactory;
@@ -44,6 +43,8 @@ import interactivespaces.controller.resource.deployment.ContainerResourceDeploym
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.SimpleLiveActivityRunnerFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
@@ -86,7 +87,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   /**
    * Activity factory for the controller.
    */
-  private ActiveControllerActivityFactory controllerActivityFactory;
+  private LiveActivityRunnerFactory liveActivityRunnerFactory;
 
   /**
    * Native activity runner factory.
@@ -125,13 +126,14 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private void initializeBaseSpaceControllerComponents() {
     spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
-    controllerActivityFactory = new SimpleActiveControllerActivityFactory();
-    controllerActivityFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
-    controllerActivityFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
-    controllerActivityFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
-    controllerActivityFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
+    liveActivityRunnerFactory = new SimpleLiveActivityRunnerFactory();
+    liveActivityRunnerFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
+    liveActivityRunnerFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
+    liveActivityRunnerFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
+    liveActivityRunnerFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
         getBundleContext()));
-    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), controllerActivityFactory);
+    registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), liveActivityRunnerFactory);
 
     nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
     registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
@@ -180,7 +182,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
 
     SpaceController spaceController =
-        new StandardSpaceController(activityInstallationManager, controllerRepository, controllerActivityFactory,
+        new StandardSpaceController(activityInstallationManager, controllerRepository, liveActivityRunnerFactory,
             nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
             spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
             dataBundleManager, spaceEnvironment);

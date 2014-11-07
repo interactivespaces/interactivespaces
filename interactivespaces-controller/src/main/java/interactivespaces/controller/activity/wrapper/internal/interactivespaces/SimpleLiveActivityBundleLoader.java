@@ -17,10 +17,14 @@
 package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.Version;
 import interactivespaces.util.data.resource.ResourceSignature;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
 import org.osgi.framework.Bundle;
@@ -47,9 +51,15 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
   private final ResourceSignature bundleSignature;
 
   /**
-   * The bundles currently loaded by the loader, indexed by the bundle IS
+   * The bundles currently loaded by the loader, indexed by the esource representing the bundle.
    */
-  private final Map<NamedVersionedResource, LiveActivityBundle> loadedBundles = Maps.newHashMap();
+  private final Map<NamedVersionedResource, NativeInteractiveSpacesLiveActivityOsgiBundle> loadedBundles = Maps
+      .newHashMap();
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a bundle loader.
@@ -67,15 +77,20 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
   @Override
   public synchronized Class<?> getBundleClass(File bundleFile, String bundleName, Version bundleVersion,
       String className) {
-    NamedVersionedResource bundleId = new NamedVersionedResource(bundleName, bundleVersion);
-
-    LiveActivityBundle labundle = loadedBundles.get(bundleId);
-    if (labundle == null) {
-      labundle = new LiveActivityBundle(loadingBundleContext, bundleSignature);
-      loadedBundles.put(bundleId, labundle);
+    if (!fileSupport.isFile(bundleFile)) {
+      throw new SimpleInteractiveSpacesException(String.format("Could not find bundle file %s",
+          fileSupport.getAbsolutePath(bundleFile)));
     }
 
-    Bundle bundle = labundle.getBundle(bundleFile);
+    NamedVersionedResource bundleId = new NamedVersionedResource(bundleName, bundleVersion);
+
+    NativeInteractiveSpacesLiveActivityOsgiBundle liveActivityBundle = loadedBundles.get(bundleId);
+    if (liveActivityBundle == null) {
+      liveActivityBundle = new NativeInteractiveSpacesLiveActivityOsgiBundle(loadingBundleContext, bundleSignature);
+      loadedBundles.put(bundleId, liveActivityBundle);
+    }
+
+    Bundle bundle = liveActivityBundle.getBundle(bundleFile);
 
     try {
       return bundle.loadClass(className);
@@ -89,7 +104,19 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
    *
    * @return the number of bundles known to the loader.
    */
+  @VisibleForTesting
   int getNumberEntries() {
     return loadedBundles.size();
+  }
+
+  /**
+   * Set the file support to use.
+   *
+   * @param fileSupport
+   *          the file support to use
+   */
+  @VisibleForTesting
+  void setFileSupport(FileSupport fileSupport) {
+    this.fileSupport = fileSupport;
   }
 }

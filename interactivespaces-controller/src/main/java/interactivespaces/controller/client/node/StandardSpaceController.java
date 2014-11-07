@@ -17,43 +17,51 @@
 package interactivespaces.controller.client.node;
 
 import interactivespaces.activity.Activity;
+import interactivespaces.activity.ActivityControl;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStateTransition;
-import interactivespaces.activity.ActivityStateTransition.TransitionResult;
-import interactivespaces.activity.ActivityStateTransitioner;
-import interactivespaces.activity.ActivityStateTransitionerCollection;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.MinimalLiveActivity;
+import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.configuration.LiveActivityConfigurationManager;
 import interactivespaces.controller.activity.installation.ActivityInstallationListener;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager;
 import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
-import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatcher;
-import interactivespaces.controller.client.node.ros.SpaceControllerActivityWatcherListener;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.logging.ActivityLogFactory;
-import interactivespaces.controller.logging.SimpleAlertStatusManager;
+import interactivespaces.controller.logging.AlertStatusManager;
+import interactivespaces.controller.logging.LoggingAlertStatusManager;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerListener;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerSampler;
+import interactivespaces.liveactivity.runtime.SimpleLiveActivityRunnerSampler;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.concurrency.SequentialEventQueue;
+import interactivespaces.util.concurrency.SimpleSequentialEventQueue;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransition;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransition.TransitionResult;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransitioner;
+import interactivespaces.util.statemachine.simplegoal.SimpleGoalStateTransitionerCollection;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -61,31 +69,18 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A base implementation of {@link SpaceController} which gives basic
- * implementation. Does not supply communication for the remote master.
+ * A base implementation of {@link SpaceController} which gives basic implementation. Does not supply communication for
+ * the remote master.
  *
  * @author Keith M. Hughes
  */
-public class StandardSpaceController extends BaseSpaceController implements SpaceControllerActivityWatcherListener,
-    SpaceControllerControl {
+public class StandardSpaceController extends BaseSpaceController implements SpaceControllerControl,
+    LiveActivityRunnerListener {
 
   /**
-   * The default number of milliseconds the activity activityWatcher thread
-   * delays between scans.
-   */
-  private static final int WATCHER_DELAY_DEFAULT = 1000;
-
-  /**
-   * The default number of milliseconds the controllerHeartbeat thread delays
-   * between beats.
+   * The default number of milliseconds the controllerHeartbeat thread delays between beats.
    */
   public static final int HEARTBEAT_DELAY_DEFAULT = 10000;
-
-  /**
-   * A live activity status for installed live activities that currently aren't
-   * running.
-   */
-  private static final ActivityStatus LIVE_ACTIVITY_READY_STATUS = new ActivityStatus(ActivityState.READY, null);
 
   /**
    * The heartbeatLoop for this controller.
@@ -108,30 +103,19 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   private final ControllerDataBundleManager dataBundleManager;
 
   /**
-   * All activities in this controller, indexed by UUID.
+   * All live activity runners in this controller, indexed by UUID.
    */
-  private final Map<String, ActiveControllerActivity> activeActivities = Maps.newHashMap();
+  private final Map<String, LiveActivityRunner> liveActivityRunners = Maps.newHashMap();
 
   /**
-   * Watches activities for this controller.
+   * Sampler for live activity runners for this controller.
    */
-  private SpaceControllerActivityWatcher activityWatcher;
-
-  /**
-   * Control for the activity watcher.
-   */
-  private ScheduledFuture<?> activityWatcherControl;
-
-  /**
-   * Number of milliseconds the activityWatcher waits before scanning for
-   * activity state.
-   */
-  private final long activityWatcherDelay = WATCHER_DELAY_DEFAULT;
+  private LiveActivityRunnerSampler liveActivityRunnerSampler;
 
   /**
    * For important alerts worthy of paging, etc.
    */
-  private SimpleAlertStatusManager alertStatusManager;
+  private AlertStatusManager alertStatusManager;
 
   /**
    * Receives activities deployed to the controller.
@@ -141,7 +125,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   /**
    * A loader for container activities.
    */
-  private final ActiveControllerActivityFactory activeControllerActivityFactory;
+  private final LiveActivityRunnerFactory liveActivityRunnerFactory;
 
   /**
    * Local repository of controller information.
@@ -171,7 +155,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   /**
    * All activity state transitioners.
    */
-  private ActivityStateTransitionerCollection activityStateTransitioners;
+  private SimpleGoalStateTransitionerCollection<ActivityState, ActivityControl> activityStateTransitioners;
 
   /**
    * The controller communicator for remote control.
@@ -239,9 +223,9 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param activityInstallationManager
    *          the installation manager for activity installation
    * @param controllerRepository
-   *        the repository for controller information
+   *          the repository for controller information
    * @param activeControllerActivityFactory
-   *        the factory for making live activity instances for running
+   *          the factory for making live activity instances for running
    * @param nativeActivityRunnerFactory
    *          the factory for working with native activities
    * @param configurationManager
@@ -262,8 +246,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    *          the space environment to use
    */
   public StandardSpaceController(ActivityInstallationManager activityInstallationManager,
-      LocalSpaceControllerRepository controllerRepository,
-      ActiveControllerActivityFactory activeControllerActivityFactory,
+      LocalSpaceControllerRepository controllerRepository, LiveActivityRunnerFactory activeControllerActivityFactory,
       NativeActivityRunnerFactory nativeActivityRunnerFactory, LiveActivityConfigurationManager configurationManager,
       ActivityStorageManager activityStorageManager, ActivityLogFactory activityLogFactory,
       SpaceControllerCommunicator controllerCommunicator, SpaceControllerInfoPersister controllerInfoPersister,
@@ -272,7 +255,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     super(spaceEnvironment, nativeActivityRunnerFactory);
     this.activityInstallationManager = activityInstallationManager;
     this.controllerRepository = controllerRepository;
-    this.activeControllerActivityFactory = activeControllerActivityFactory;
+    this.liveActivityRunnerFactory = activeControllerActivityFactory;
     this.configurationManager = configurationManager;
     this.activityStorageManager = activityStorageManager;
     this.activityLogFactory = activityLogFactory;
@@ -287,6 +270,16 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     this.controllerInfoPersister = controllerInfoPersister;
 
     this.spaceSystemControl = spaceSystemControl;
+
+    final Log log = getSpaceEnvironment().getLog();
+
+    // TODO(keith): Set this container-wide.
+    eventQueue = new SimpleSequentialEventQueue(spaceEnvironment, log);
+
+    // TODO(keith): Set this container-wide.
+    alertStatusManager = new LoggingAlertStatusManager(log);
+
+    liveActivityRunnerSampler = new SimpleLiveActivityRunnerSampler(spaceEnvironment, log);
   }
 
   @Override
@@ -295,24 +288,12 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
     confirmUuid();
 
-    activityStateTransitioners = new ActivityStateTransitionerCollection();
+    activityStateTransitioners = new SimpleGoalStateTransitionerCollection<ActivityState, ActivityControl>();
+
+    final Log log = getSpaceEnvironment().getLog();
 
     // TODO(keith): Set this container-wide.
-    eventQueue = new SequentialEventQueue(getSpaceEnvironment(), getSpaceEnvironment().getLog());
     eventQueue.startup();
-
-    // TODO(keith): Set this container-wide.
-    alertStatusManager = new SimpleAlertStatusManager();
-    alertStatusManager.setLog(getSpaceEnvironment().getLog());
-
-    activityWatcher = new SpaceControllerActivityWatcher(getSpaceEnvironment());
-    activityWatcher.addListener(this);
-    activityWatcherControl = getSpaceEnvironment().getExecutorService().scheduleAtFixedRate(new Runnable() {
-      @Override
-      public void run() {
-        activityWatcher.scan();
-      }
-    }, activityWatcherDelay, activityWatcherDelay, TimeUnit.MILLISECONDS);
 
     activityInstallationManager.addActivityInstallationListener(activityInstallationListener);
 
@@ -325,7 +306,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
         try {
           controllerHeartbeat.sendHeartbeat();
         } catch (Exception e) {
-          getSpaceEnvironment().getLog().error("Exception while trying to send a Space Controller heartbeat", e);
+          log.error("Exception while trying to send a Space Controller heartbeat", e);
         }
       }
     }, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
@@ -352,19 +333,73 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param newStatus
    *          the new status
    */
-  private void handleActivityListenerOnActivityStatusChange(final Activity activity, ActivityStatus oldStatus,
+  private void handleActivityListenerOnActivityStatusChange(final Activity activity, final ActivityStatus oldStatus,
       final ActivityStatus newStatus) {
-
-    // TODO(keith): Android hates garbage collection. This may need an
-    // object pool.
+    // TODO(keith): Android hates garbage collection. This may need an object pool.
     eventQueue.addEvent(new Runnable() {
       @Override
       public void run() {
-        controllerCommunicator.publishActivityStatus(activity.getUuid(), newStatus);
-
-        activityStateTransitioners.transition(activity.getUuid(), newStatus.getState());
+        handleActivityStateChange(activity, oldStatus, newStatus);
       }
     });
+  }
+
+  /**
+   * Handle the status change from an activity.
+   *
+   * @param activity
+   *          the activity whose status changed
+   * @param oldStatus
+   *          the old status
+   * @param newStatus
+   *          the new status
+   */
+  private void handleActivityStateChange(Activity activity, ActivityStatus oldStatus, ActivityStatus newStatus) {
+    ActivityState newState = newStatus.getState();
+    boolean error = newState.isError();
+
+    // Want the log before anything else is tried.
+    if (error) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error for live activity %s, state is now %s", activity.getUuid(), newState),
+          newStatus.getException());
+
+    } else {
+      getSpaceEnvironment().getLog().info(
+          String.format("Live activity %s, state is now %s", activity.getUuid(), newState));
+    }
+
+    // If went from not running to running we need to watch the activity
+    if (!oldStatus.getState().isRunning() && newState.isRunning()) {
+      liveActivityRunnerSampler.startSamplingRunner(getLiveActivityRunnerByUuid(activity.getUuid()));
+    }
+
+    publishActivityStatus(activity.getUuid(), newStatus);
+
+    if (error) {
+      alertStatusManager.announceLiveActivityStatus(getLiveActivityRunnerByUuid(activity.getUuid()));
+    } else {
+      activityStateTransitioners.transition(activity.getUuid(), newState);
+    }
+  }
+
+  @Override
+  public void onNoInstanceActivityStatusEvent(LiveActivityRunner runner) {
+    // The only thing that should come in here are errors
+    ActivityStatus status = runner.getCachedActivityStatus();
+    if (status.getState().isError()) {
+      publishActivityStatus(runner.getUuid(), status);
+      alertStatusManager.announceLiveActivityStatus(runner);
+    } else {
+      getSpaceEnvironment()
+          .getLog()
+          .warn(
+              String
+                  .format(
+                      "How odd,  a live activity runner for live activity %s has a no instance status event that isn't an error: %s",
+                      runner.getUuid(), status));
+    }
+
   }
 
   /**
@@ -409,9 +444,8 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
         dataBundleManager.shutdown();
 
-        activityWatcherControl.cancel(true);
-        activityWatcherControl = null;
-        activityWatcher = null;
+        liveActivityRunnerSampler.shutdown();
+        liveActivityRunnerSampler = null;
 
         eventQueue.shutdown();
         eventQueue = null;
@@ -447,7 +481,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
   @Override
   public void startupAllActivities() {
-    for (ActiveControllerActivity app : getAllActiveActivities()) {
+    for (LiveActivityRunner app : getAllActiveActivities()) {
       attemptActivityStartup(app);
     }
   }
@@ -456,7 +490,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   public void shutdownAllActivities() {
     getSpaceEnvironment().getLog().info("Shutting down all activities");
 
-    for (ActiveControllerActivity app : getAllActiveActivities()) {
+    for (LiveActivityRunner app : getAllActiveActivities()) {
       attemptActivityShutdown(app);
     }
   }
@@ -473,9 +507,8 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   }
 
   /**
-   * Execute a capture controller data bundle request from the master. This will
-   * trigger the data content push back to the master, and send off a
-   * success/failure message.
+   * Execute a capture controller data bundle request from the master. This will trigger the data content push back to
+   * the master, and send off a success/failure message.
    *
    * @param bundleUri
    *          Uri bundle to send the captured data bundle to.
@@ -504,11 +537,10 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   }
 
   /**
-   * Execute the restore data bundle operation. Will trigger the restore, and
-   * send back a success/failure message.
+   * Execute the restore data bundle operation. Will trigger the restore, and send back a success/failure message.
    *
    * @param bundleUri
-   *          URI for the data bundle to be fetched from.
+   *          URI for the data bundle to be fetched from
    */
   private void executeRestoreControllerDataBundle(final String bundleUri) {
     try {
@@ -527,11 +559,10 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     getSpaceEnvironment().getLog().info(String.format("Starting up activity %s", uuid));
 
     try {
-      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
       if (activity != null) {
         ActivityStatus status = activity.getCachedActivityStatus();
         if (!status.getState().isRunning()) {
-          activityWatcher.watchActivity(activity);
           attemptActivityStartup(activity);
         } else {
           // The activity is running so just report what it is doing
@@ -555,7 +586,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     getSpaceEnvironment().getLog().info(String.format("Shutting down activity %s", uuid));
 
     try {
-      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, false);
       if (activity != null) {
         attemptActivityShutdown(activity);
       } else {
@@ -563,7 +594,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
         // send that it is ready.
         InstalledLiveActivity ia = controllerRepository.getInstalledLiveActivityByUuid(uuid);
         if (ia != null) {
-          publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+          publishActivityStatus(uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY);
         } else {
           // TODO(keith): Tell master the controller doesn't exist.
           getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
@@ -584,17 +615,17 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   public void statusLiveActivity(String uuid) {
     getSpaceEnvironment().getLog().info(String.format("Getting status of activity %s", uuid));
 
-    ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
+    LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, false);
     if (activity != null) {
-      final ActivityStatus activityStatus = activity.getActivityStatus();
+      final ActivityStatus activityStatus = activity.sampleActivityStatus();
       getSpaceEnvironment().getLog().info(String.format("Reporting activity status %s for %s", uuid, activityStatus));
       publishActivityStatus(activity.getUuid(), activityStatus);
     } else {
       InstalledLiveActivity liveActivity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
       if (liveActivity != null) {
         getSpaceEnvironment().getLog().info(
-            String.format("Reporting activity status %s for %s", uuid, LIVE_ACTIVITY_READY_STATUS));
-        publishActivityStatus(uuid, LIVE_ACTIVITY_READY_STATUS);
+            String.format("Reporting activity status %s for %s", uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY));
+        publishActivityStatus(uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY);
       } else {
         getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
 
@@ -610,7 +641,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
     // Can create since can immediately request activate
     try {
-      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
       if (activity != null) {
         attemptActivityActivate(activity);
       } else {
@@ -632,9 +663,9 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     getSpaceEnvironment().getLog().info(String.format("Deactivating activity %s", uuid));
 
     try {
-      ActiveControllerActivity activity = getActiveActivityByUuid(uuid, false);
-      if (activity != null) {
-        attemptActivityDeactivate(activity);
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
+      if (runner != null) {
+        attemptActivityDeactivate(runner);
       } else {
         getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
 
@@ -653,7 +684,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   public void configureActivity(String uuid, Map<String, Object> configuration) {
     getSpaceEnvironment().getLog().info(String.format("Configuring activity %s", uuid));
 
-    ActiveControllerActivity activity = getActiveActivityByUuid(uuid, true);
+    LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
     if (activity != null) {
       activity.updateConfiguration(configuration);
     } else {
@@ -666,7 +697,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
   @Override
   public void cleanLiveActivityTmpData(String uuid) {
-    ActiveControllerActivity active = getActiveActivityByUuid(uuid);
+    LiveActivityRunner active = getLiveActivityRunnerByUuid(uuid);
     if (active != null) {
       if (active.getCachedActivityStatus().getState().isRunning()) {
         getSpaceEnvironment().getLog().warn(
@@ -682,7 +713,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
   @Override
   public void cleanLiveActivityPermanentData(String uuid) {
-    ActiveControllerActivity active = getActiveActivityByUuid(uuid);
+    LiveActivityRunner active = getLiveActivityRunnerByUuid(uuid);
     if (active != null) {
       if (active.getCachedActivityStatus().getState().isRunning()) {
         getSpaceEnvironment().getLog().warn(
@@ -728,8 +759,8 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   }
 
   @Override
-  public ActiveControllerActivity getActiveActivityByUuid(String uuid) {
-    return getActiveActivityByUuid(uuid, false);
+  public LiveActivityRunner getLiveActivityRunnerByUuid(String uuid) {
+    return getLiveActivityRunnerByUuid(uuid, false);
   }
 
   /**
@@ -750,34 +781,35 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   }
 
   /**
-   * Get an activity by UUID.
+   * Get an activity runner by UUID.
    *
    * @param uuid
    *          the UUID of the activity
    * @param create
-   *          {@code true} if should create the activity entry from the
-   *          controller repository if none found, {@code false} otherwise.
+   *          {@code true} if should create the activity entry from the controller repository if none found,
+   *          {@code false} otherwise.
    *
-   * @return The activity with the given UUID. null if no such activity.
+   * @return the runner for the activity with the given UUID, {@code null} if no such activity
    */
-  ActiveControllerActivity getActiveActivityByUuid(String uuid, boolean create) {
-    ActiveControllerActivity activity = null;
-    synchronized (activeActivities) {
-      activity = activeActivities.get(uuid);
-      if (activity == null && create) {
-        activity = newActiveActivityFromRepository(uuid);
+  @VisibleForTesting
+  LiveActivityRunner getLiveActivityRunnerByUuid(String uuid, boolean create) {
+    LiveActivityRunner runner = null;
+    synchronized (liveActivityRunners) {
+      runner = liveActivityRunners.get(uuid);
+      if (runner == null && create) {
+        runner = newLiveActivityRunner(uuid);
 
-        if (activity != null) {
-          addActiveActivity(uuid, activity);
+        if (runner != null) {
+          addLiveActivityRunner(uuid, runner);
         }
       }
     }
 
-    if (activity == null) {
-      getSpaceEnvironment().getLog().warn(String.format("Could not find active live activity with uuid %s", uuid));
+    if (runner == null) {
+      getSpaceEnvironment().getLog().warn(String.format("Could not find live activity runner with uuid %s", uuid));
     }
 
-    return activity;
+    return runner;
   }
 
   /**
@@ -785,23 +817,23 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    *
    * @param uuid
    *          uuid of the activity
-   * @param activity
-   *          the active activity
+   * @param runner
+   *          the live activity runner
    */
   @VisibleForTesting
-  void addActiveActivity(String uuid, ActiveControllerActivity activity) {
-    activeActivities.put(uuid, activity);
+  void addLiveActivityRunner(String uuid, LiveActivityRunner runner) {
+    liveActivityRunners.put(uuid, runner);
   }
 
   /**
-   * Create an active activity from the repository.
+   * Create anew live activity runner from the repository.
    *
    * @param uuid
-   *          UUID of the activity to create
+   *          UUID of the activity to create a runner for
    *
-   * @return The active app with a runner.
+   * @return the new live activity runner
    */
-  private ActiveControllerActivity newActiveActivityFromRepository(String uuid) {
+  private LiveActivityRunner newLiveActivityRunner(String uuid) {
     InstalledLiveActivity liveActivity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
     if (liveActivity != null) {
       InternalActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
@@ -809,11 +841,11 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
       LiveActivityConfiguration activityConfiguration = configurationManager.getConfiguration(activityFilesystem);
       activityConfiguration.load();
 
-      ActiveControllerActivity activity =
-          activeControllerActivityFactory.newActiveActivity(liveActivity, activityFilesystem, activityConfiguration,
-              this);
+      LiveActivityRunner runner =
+          liveActivityRunnerFactory.newLiveActivityRunner(liveActivity, activityFilesystem, activityConfiguration,
+              this, this);
 
-      return activity;
+      return runner;
     } else {
       return null;
     }
@@ -825,40 +857,12 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param activity
    *          the activity to start up
    */
-  private void attemptActivityStartup(ActiveControllerActivity activity) {
+  private void attemptActivityStartup(LiveActivityRunner activity) {
     String uuid = activity.getUuid();
     getSpaceEnvironment().getLog().info(String.format("Attempting startup of activity %s", uuid));
 
-    try {
-      switch (activity.getActivityState()) {
-        case STARTUP_FAILURE:
-        case SHUTDOWN_FAILURE:
-        case CRASHED:
-          // If crashed, try a shutdown first.
-          activity.shutdown();
-
-        case READY:
-          activity.startup();
-
-          break;
-
-        case RUNNING:
-          // If was already running, just signal RUNNING
-          getSpaceEnvironment().getLog().warn(
-              String.format("Attempt to startup live activity %s which was running, sending RUNNINg",
-                  activity.getUuid()));
-          publishActivityStatus(activity.getUuid(), activity.getActivityStatus());
-
-          break;
-
-        default:
-          reportIllegalActivityStateTransition(activity, ActivityStateTransition.STARTUP);
-      }
-    } catch (Exception e) {
-      getSpaceEnvironment().getLog().error(String.format("Unable to start activity %s", uuid), e);
-      ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, e.getMessage());
-      publishActivityStatus(uuid, status);
-    }
+    attemptActivityStateTransition(activity, ActivityStateTransition.STARTUP,
+        "Attempt to startup live activity %s which was running, sending RUNNING", activity.getCachedActivityStatus());
   }
 
   /**
@@ -867,50 +871,25 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param activity
    *          the activity to shutdown
    */
-  private void attemptActivityShutdown(ActiveControllerActivity activity) {
-    ActivityStateTransition transition = ActivityStateTransition.SHUTDOWN;
-    TransitionResult transitionResult = transition.attemptTransition(activity.getActivityState(), activity);
-
-    if (transitionResult.equals(TransitionResult.ILLEGAL)) {
-      reportIllegalActivityStateTransition(activity, transition);
-    } else if (transitionResult.equals(TransitionResult.NOOP)) {
-      // If was already shut down, just signal READY
-      getSpaceEnvironment().getLog()
-          .warn(
-              String.format("Attempt to shutdown live activity %s which wasn't running, sending READY",
-                  activity.getUuid()));
-      publishActivityStatus(activity.getUuid(), LIVE_ACTIVITY_READY_STATUS);
-    }
+  private void attemptActivityShutdown(LiveActivityRunner activity) {
+    attemptActivityStateTransition(activity, ActivityStateTransition.SHUTDOWN,
+        "Attempt to shutdown live activity %s which wasn't running, sending READY",
+        LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY);
   }
 
   /**
    * Attempt to activate an activity.
    *
    * @param activity
-   *          The app to activate.
+   *          the activity to activate
    */
-  private void attemptActivityActivate(ActiveControllerActivity activity) {
-    switch (activity.getActivityState()) {
-      case RUNNING:
-      case ACTIVATE_FAILURE:
-        activity.activate();
-
-        break;
-
-      case ACTIVE:
-        // If was already active, then just re-publish the status.
-        getSpaceEnvironment().getLog().warn(
-            String.format("Attempt to activate live activity %s which was activated, sending ACTIVE",
-                activity.getUuid()));
-        publishActivityStatus(activity.getUuid(), activity.getActivityStatus());
-        break;
-
-      case READY:
-        setupSequencedActiveTarget(activity);
-        break;
-
-      default:
-        reportIllegalActivityStateTransition(activity, ActivityStateTransition.ACTIVATE);
+  private void attemptActivityActivate(LiveActivityRunner activity) {
+    if (ActivityStateTransition.STARTUP.canTransition(activity.sampleActivityStatus().getState()) == TransitionResult.OK) {
+      setupSequencedActiveTarget(activity);
+    } else {
+      attemptActivityStateTransition(activity, ActivityStateTransition.ACTIVATE,
+          "Attempt to activate live activity %s which was activated, sending ACTIVE",
+          LiveActivityRunner.LIVE_ACTIVITY_STATUS_ACTIVE);
     }
   }
 
@@ -923,20 +902,20 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param activity
    *          the activity to go to startup
    */
-  private void setupSequencedActiveTarget(final ActiveControllerActivity activity) {
+  @SuppressWarnings("unchecked")
+  private void setupSequencedActiveTarget(final LiveActivityRunner activity) {
     final String uuid = activity.getUuid();
-    activityWatcher.watchActivity(activity);
-    activityStateTransitioners.addTransitioner(
-        uuid,
-        new ActivityStateTransitioner(activity, ActivityStateTransitioner.transitions(ActivityStateTransition.STARTUP,
-            ActivityStateTransition.ACTIVATE), getSpaceEnvironment().getLog()));
 
-    // TODO(keith): Android hates garbage collection. This may need an
-    // object pool.
+    SimpleGoalStateTransitioner<ActivityState, ActivityControl> transitioner =
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, getSpaceEnvironment().getLog())
+            .addTransitions(ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
+    activityStateTransitioners.addTransitioner(uuid, transitioner);
+
+    // TODO(keith): Android hates garbage collection. This may need an object pool.
     eventQueue.addEvent(new Runnable() {
       @Override
       public void run() {
-        activityStateTransitioners.transition(uuid, activity.getActivityState());
+        activityStateTransitioners.transition(uuid, activity.sampleActivityStatus().getState());
       }
     });
   }
@@ -947,16 +926,46 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param activity
    *          the activity to deactivate
    */
-  private void attemptActivityDeactivate(ActiveControllerActivity activity) {
-    switch (activity.getActivityState()) {
-      case ACTIVE:
-      case DEACTIVATE_FAILURE:
-        activity.deactivate();
-        break;
+  private void attemptActivityDeactivate(LiveActivityRunner activity) {
+    attemptActivityStateTransition(activity, ActivityStateTransition.DEACTIVATE,
+        "Attempt to deactivate live activity %s which wasn't activated, sending RUNNING",
+        LiveActivityRunner.LIVE_ACTIVITY_STATUS_RUNNING);
+  }
 
-      default:
-        reportIllegalActivityStateTransition(activity, ActivityStateTransition.DEACTIVATE);
+  /**
+   * Attempt to do a state transition on an activity.
+   *
+   * @param runner
+   *          the runner for the activity
+   * @param transition
+   *          the transition to take place
+   * @param noopMessage
+   *          the message to log if this is a no-op
+   * @param noopStatus
+   *          the status to report if this is a no-op
+   *
+   * @return {@code true} if the transition actually happened
+   */
+  private boolean attemptActivityStateTransition(LiveActivityRunner runner,
+      SimpleGoalStateTransition<ActivityState, ActivityControl> transition, String noopMessage,
+      ActivityStatus noopStatus) {
+    TransitionResult transitionResult = transition.attemptTransition(runner.sampleActivityStatus().getState(), runner);
+
+    if (transitionResult == TransitionResult.OK) {
+      return true;
+    } else if (transitionResult == TransitionResult.ILLEGAL) {
+      reportIllegalActivityStateTransition(runner, transition);
+    } else if (transitionResult == TransitionResult.NOOP) {
+      // If didn't do anything, report the message requested.
+      getSpaceEnvironment().getLog().warn(String.format(noopMessage, runner.getUuid()));
+      publishActivityStatus(runner.getUuid(), noopStatus);
+    } else {
+      getSpaceEnvironment().getLog().warn(
+          String.format("Unexpected activity state transition %s for live activity %s", transitionResult,
+              runner.getUuid()));
     }
+
+    return false;
   }
 
   /**
@@ -967,11 +976,11 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param attemptedChange
    *          where the activity was going
    */
-  private void reportIllegalActivityStateTransition(ActiveControllerActivity activity,
-      ActivityStateTransition attemptedChange) {
+  private void reportIllegalActivityStateTransition(LiveActivityRunner activity,
+      SimpleGoalStateTransition<ActivityState, ActivityControl> attemptedChange) {
     getSpaceEnvironment().getLog().error(
         String.format("Tried to %s activity %s, was in state %s\n", attemptedChange, activity.getUuid(), activity
-            .getActivityStatus().toString()));
+            .getCachedActivityStatus().toString()));
   }
 
   /**
@@ -982,10 +991,10 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    *
    * @return All activities running in the controller.
    */
-  public Collection<ActiveControllerActivity> getAllActiveActivities() {
+  public Collection<LiveActivityRunner> getAllActiveActivities() {
     // TODO(keith): Think about how this should be in the controller.
-    synchronized (activeActivities) {
-      return new ArrayList<ActiveControllerActivity>(activeActivities.values());
+    synchronized (liveActivityRunners) {
+      return Lists.newArrayList(liveActivityRunners.values());
     }
   }
 
@@ -997,56 +1006,6 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   @Override
   public List<InstalledLiveActivity> getAllInstalledLiveActivities() {
     return controllerRepository.getAllInstalledLiveActivities();
-  }
-
-  @Override
-  public void onWatcherActivityError(ActiveControllerActivity activity, ActivityStatus oldStatus,
-      ActivityStatus newStatus) {
-    // TODO(keith): No need to publish here?
-    // publishActivityStatus(activity.getUuid(), newStatus);
-
-    if (oldStatus.getState() == ActivityState.STARTUP_ATTEMPT && newStatus.getState() == ActivityState.STARTUP_FAILURE) {
-      handleActivityCantStart(activity);
-    } else {
-      handleActivityFailure(activity);
-    }
-  }
-
-  @Override
-  public void onWatcherActivityStatusChange(ActiveControllerActivity activity, ActivityStatus oldStatus,
-      ActivityStatus newStatus) {
-    // TODO(keith): No need to publish here?
-    // publishActivityStatus(activity.getUuid(), newStatus);
-  }
-
-  /**
-   * An activity was unable to start up.
-   *
-   * @param activity
-   *          the problematic activity
-   */
-  private void handleActivityCantStart(ActiveControllerActivity activity) {
-    Activity instance = activity.getInstance();
-    alertStatusManager.announceStatus(activity);
-
-    // Need better policy, for now, just clean up app and we will let the
-    // controller handle it.
-    instance.handleStartupFailure();
-
-    alertStatusManager.announceStatus(activity);
-  }
-
-  /**
-   * An activity has had some sort of error.
-   *
-   * @param activity
-   *          the problematic activity
-   */
-  private void handleActivityFailure(ActiveControllerActivity activity) {
-    // Activity instance = activity.getInstance();
-    alertStatusManager.announceStatus(activity);
-
-    // TODO(keith): Something in instance needs to happen.
   }
 
   /**
@@ -1106,6 +1065,49 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   @VisibleForTesting
   void setFileSupport(FileSupport fileSupport) {
     this.fileSupport = fileSupport;
+  }
+
+  /**
+   * Set the alert status manager.
+   *
+   * @param alertStatusManager
+   *          the alert status manager
+   */
+  @VisibleForTesting
+  void setAlertStatusManager(AlertStatusManager alertStatusManager) {
+    this.alertStatusManager = alertStatusManager;
+  }
+
+  /**
+   * Set the live activity runner sampler to use.
+   *
+   * @param liveActivityRunnerSampler
+   *          the sampler to use
+   */
+  @VisibleForTesting
+  void setLiveActivityRunnerSampler(LiveActivityRunnerSampler liveActivityRunnerSampler) {
+    this.liveActivityRunnerSampler = liveActivityRunnerSampler;
+  }
+
+  /**
+   * Set the event queue.
+   *
+   * @param eventQueue
+   *          the event queue to use
+   */
+  @VisibleForTesting
+  void setEventQueue(SequentialEventQueue eventQueue) {
+    this.eventQueue = eventQueue;
+  }
+
+  /**
+   * Get the activity listener used by the controller.
+   *
+   * @return the activity listener used by the controller
+   */
+  @VisibleForTesting
+  ActivityListener getActivityListener() {
+    return activityListener;
   }
 
   @Override

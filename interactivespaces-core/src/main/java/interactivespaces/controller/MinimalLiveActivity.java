@@ -22,10 +22,11 @@ package interactivespaces.controller;
  * @author Trevor Pering
  */
 public interface MinimalLiveActivity {
+
   /**
    * Get the UUID of the activity.
    *
-   * @return The UUID.
+   * @return the UUID
    */
   String getUuid();
 }

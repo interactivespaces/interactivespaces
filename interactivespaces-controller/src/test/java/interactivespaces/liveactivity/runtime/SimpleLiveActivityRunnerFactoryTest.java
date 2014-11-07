@@ -14,13 +14,12 @@
  * the License.
  */
 
-package interactivespaces.controller.client.node.internal;
+package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.client.node.ActiveControllerActivity;
 import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.resource.Version;
@@ -33,13 +32,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * Tests for the {@link SimpleActiveControllerActivityFactory}
+ * Tests for the {@link SimpleLiveActivityRunnerFactory}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleActiveControllerActivityFactoryTest {
+public class SimpleLiveActivityRunnerFactoryTest {
 
-  private SimpleActiveControllerActivityFactory afactory;
+  private SimpleLiveActivityRunnerFactory runnerFactory;
+  private LiveActivityRunnerListener runnerListener;
   private SpaceController controller;
   private LiveActivityConfiguration configuration;
   private InternalActivityFilesystem filesystem;
@@ -49,7 +49,8 @@ public class SimpleActiveControllerActivityFactoryTest {
 
   @Before
   public void setup() {
-    afactory = new SimpleActiveControllerActivityFactory();
+    runnerFactory = new SimpleLiveActivityRunnerFactory();
+    runnerListener = Mockito.mock(LiveActivityRunnerListener.class);
     controller = Mockito.mock(SpaceController.class);
     filesystem = Mockito.mock(InternalActivityFilesystem.class);
     liveActivity = Mockito.mock(InstalledLiveActivity.class);
@@ -75,10 +76,10 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(wrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller)).thenReturn(
         wrapper);
 
-    afactory.registerActivityWrapperFactory(wrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(wrapperFactory);
 
-    ActiveControllerActivity aactivity =
-        afactory.createActiveLiveActivity("foo", liveActivity, filesystem, configuration, controller);
+    LiveActivityRunner aactivity =
+        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
     Assert.assertEquals(wrapper, aactivity.getActivityWrapper());
   }
 
@@ -96,7 +97,7 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(unversionedWrapper);
 
-    afactory.registerActivityWrapperFactory(unversionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
 
     ActivityWrapperFactory versionedWrapperFactory = Mockito.mock(ActivityWrapperFactory.class);
     Mockito.when(versionedWrapperFactory.getVersion()).thenReturn(new Version(1, 2, 3));
@@ -106,10 +107,10 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(versionedWrapper);
 
-    afactory.registerActivityWrapperFactory(versionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
-    ActiveControllerActivity aactivity =
-        afactory.createActiveLiveActivity("foo", liveActivity, filesystem, configuration, controller);
+    LiveActivityRunner aactivity =
+        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
     Assert.assertEquals(versionedWrapper, aactivity.getActivityWrapper());
   }
 
@@ -127,7 +128,7 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(unversionedWrapper);
 
-    afactory.registerActivityWrapperFactory(unversionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
 
     ActivityWrapperFactory versionedWrapperFactory = Mockito.mock(ActivityWrapperFactory.class);
     Mockito.when(versionedWrapperFactory.getVersion()).thenReturn(new Version(1, 2, 3));
@@ -137,10 +138,11 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(versionedWrapper);
 
-    afactory.registerActivityWrapperFactory(versionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
-    ActiveControllerActivity aactivity =
-        afactory.createActiveLiveActivity("foo;0.0.0", liveActivity, filesystem, configuration, controller);
+    LiveActivityRunner aactivity =
+        runnerFactory.newLiveActivityRunner("foo;0.0.0", liveActivity, filesystem, configuration, runnerListener,
+            controller);
     Assert.assertEquals(unversionedWrapper, aactivity.getActivityWrapper());
   }
 
@@ -158,7 +160,7 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(version1WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(version1Wrapper);
 
-    afactory.registerActivityWrapperFactory(version1WrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(version1WrapperFactory);
 
     ActivityWrapperFactory version2WrapperFactory = Mockito.mock(ActivityWrapperFactory.class);
     Mockito.when(version2WrapperFactory.getVersion()).thenReturn(new Version(2, 3, 4));
@@ -168,10 +170,11 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(version2WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(version2Wrapper);
 
-    afactory.registerActivityWrapperFactory(version2WrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(version2WrapperFactory);
 
-    ActiveControllerActivity aactivity =
-        afactory.createActiveLiveActivity("foo;[1.1, 1.3)", liveActivity, filesystem, configuration, controller);
+    LiveActivityRunner aactivity =
+        runnerFactory.newLiveActivityRunner("foo;[1.1, 1.3)", liveActivity, filesystem, configuration, runnerListener,
+            controller);
     Assert.assertEquals(version1Wrapper, aactivity.getActivityWrapper());
   }
 
@@ -189,7 +192,7 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(unversionedWrapper);
 
-    afactory.registerActivityWrapperFactory(unversionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
 
     ActivityWrapperFactory versionedWrapperFactory = Mockito.mock(ActivityWrapperFactory.class);
     Mockito.when(versionedWrapperFactory.getVersion()).thenReturn(new Version(1, 2, 3));
@@ -199,10 +202,11 @@ public class SimpleActiveControllerActivityFactoryTest {
     Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
         .thenReturn(versionedWrapper);
 
-    afactory.registerActivityWrapperFactory(versionedWrapperFactory);
+    runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
     try {
-      afactory.createActiveLiveActivity("foo;[5, 6)", liveActivity, filesystem, configuration, controller);
+      runnerFactory.newLiveActivityRunner("foo;[5, 6)", liveActivity, filesystem, configuration, runnerListener,
+          controller);
 
       Assert.fail();
     } catch (Exception e) {
@@ -216,7 +220,7 @@ public class SimpleActiveControllerActivityFactoryTest {
   @Test
   public void testUnknownType() {
     try {
-      afactory.createActiveLiveActivity("foo", liveActivity, filesystem, configuration, controller);
+      runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
 
       Assert.fail();
     } catch (Exception e) {

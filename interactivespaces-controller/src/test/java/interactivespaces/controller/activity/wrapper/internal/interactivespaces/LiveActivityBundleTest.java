@@ -33,7 +33,7 @@ import org.osgi.framework.BundleContext;
 import java.io.File;
 
 /**
- * Unit tests for {@link LiveActivityBundle}.
+ * Unit tests for {@link NativeInteractiveSpacesLiveActivityOsgiBundle}.
  *
  * @author Keith M. Hughes
  */
@@ -42,14 +42,14 @@ public class LiveActivityBundleTest {
 
   private ResourceSignature bundleSignature;
 
-  private LiveActivityBundle liveActivityBundle;
+  private NativeInteractiveSpacesLiveActivityOsgiBundle liveActivityBundle;
 
   @Before
   public void setup() {
     bundleContext = mock(BundleContext.class);
     bundleSignature = mock(ResourceSignature.class);
 
-    liveActivityBundle = new LiveActivityBundle(bundleContext, bundleSignature);
+    liveActivityBundle = new NativeInteractiveSpacesLiveActivityOsgiBundle(bundleContext, bundleSignature);
   }
 
   /**
