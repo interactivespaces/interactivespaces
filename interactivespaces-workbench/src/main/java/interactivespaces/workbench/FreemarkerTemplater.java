@@ -69,7 +69,7 @@ public class FreemarkerTemplater implements ManagedResource {
   private Configuration freemarkerConfig;
 
   @Override
-  public void startup() {
+  public synchronized void startup() {
     try {
       freemarkerConfig = new Configuration();
       freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);
@@ -82,8 +82,20 @@ public class FreemarkerTemplater implements ManagedResource {
   }
 
   @Override
-  public void shutdown() {
-    // Nothing to be done on shutdown.
+  public synchronized void shutdown() {
+    freemarkerConfig = null;
+  }
+
+  /**
+   * Get the configuration to use, and also check that the system has been started.
+   *
+   * @return freemarker configuration
+   */
+  private synchronized Configuration getConfiguration() {
+    if (freemarkerConfig == null) {
+      throw new SimpleInteractiveSpacesException("Templater has not been started");
+    }
+    return freemarkerConfig;
   }
 
   /**
@@ -124,7 +136,7 @@ public class FreemarkerTemplater implements ManagedResource {
   public String processStringTemplate(Map<String, Object> data, String templateContent) {
     try {
       Template temp = new Template("generator for " + templateContent,
-          new StringReader(templateContent), freemarkerConfig);
+          new StringReader(templateContent), getConfiguration());
       StringWriter stringWriter = new StringWriter();
       temp.process(data, stringWriter);
       return stringWriter.toString();
@@ -191,9 +203,9 @@ public class FreemarkerTemplater implements ManagedResource {
       Template temp;
       if (template.startsWith("/")) {
         in = new FileReader(template);
-        temp = new Template(template, in, freemarkerConfig);
+        temp = new Template(template, in, getConfiguration());
       } else {
-        temp = freemarkerConfig.getTemplate(template);
+        temp = getConfiguration().getTemplate(template);
       }
 
       out = new FileWriter(outputFile);

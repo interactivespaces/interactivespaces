@@ -17,6 +17,7 @@
 package interactivespaces.service.template.internal.freemarker;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.template.Templater;
 
 import com.google.common.io.Closeables;
@@ -59,7 +60,7 @@ public class FreemarkerTemplater implements Templater {
   }
 
   @Override
-  public void startup() {
+  public synchronized void startup() {
     try {
       freemarkerConfig = new Configuration();
       freemarkerConfig.setDirectoryForTemplateLoading(templateDirectory);
@@ -72,8 +73,20 @@ public class FreemarkerTemplater implements Templater {
   }
 
   @Override
-  public void shutdown() {
-    // Nothing to do
+  public synchronized void shutdown() {
+    freemarkerConfig = null;
+  }
+
+  /**
+   * Get the configuration to use, and also check that the system has been started.
+   *
+   * @return freemarker configuration
+   */
+  private synchronized Configuration getConfiguration() {
+    if (freemarkerConfig == null) {
+      throw new SimpleInteractiveSpacesException("Templater has not been started");
+    }
+    return freemarkerConfig;
   }
 
   @Override
@@ -81,7 +94,7 @@ public class FreemarkerTemplater implements Templater {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     Writer out = new OutputStreamWriter(baos);
     try {
-      Template template = freemarkerConfig.getTemplate(templateName);
+      Template template = getConfiguration().getTemplate(templateName);
 
       template.process(data, out);
       out.close();
@@ -98,7 +111,7 @@ public class FreemarkerTemplater implements Templater {
   public void writeTemplate(String templateName, Map<String, Object> data, File outputFile) {
     Writer out = null;
     try {
-      Template template = freemarkerConfig.getTemplate(templateName);
+      Template template = getConfiguration().getTemplate(templateName);
       out = new FileWriter(outputFile);
       template.process(data, out);
       out.close();
