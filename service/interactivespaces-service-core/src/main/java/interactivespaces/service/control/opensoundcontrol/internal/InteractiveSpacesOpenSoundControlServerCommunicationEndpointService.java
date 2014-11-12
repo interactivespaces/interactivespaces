@@ -18,6 +18,7 @@ package interactivespaces.service.control.opensoundcontrol.internal;
 
 import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlConstants;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpoint;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpointService;
 
@@ -39,10 +40,10 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpointService
   @Override
   public OpenSoundControlServerCommunicationEndpoint newUdpEndpoint(int localPort, Log log) {
     UdpServerNetworkCommunicationEndpointService serverService =
-        getSpaceEnvironment().getServiceRegistry()
-            .getRequiredService(UdpServerNetworkCommunicationEndpointService.NAME);
+        getSpaceEnvironment().getServiceRegistry().getRequiredService(
+            UdpServerNetworkCommunicationEndpointService.SERVICE_NAME);
 
-    return new InteractiveSpacesOpenSoundControlServerCommunicationEndpoint(serverService.newServer(localPort, log),
-        log);
+    return new InteractiveSpacesOpenSoundControlServerCommunicationEndpoint(serverService.newServer(localPort,
+        OpenSoundControlConstants.OPEN_SOUND_CONTROL_BYTE_ORDER, log), log);
   }
 }

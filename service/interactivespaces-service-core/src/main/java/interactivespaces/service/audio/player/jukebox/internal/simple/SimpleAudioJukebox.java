@@ -19,7 +19,7 @@ package interactivespaces.service.audio.player.jukebox.internal.simple;
 import interactivespaces.service.audio.player.AudioRepository;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.BaseAudioTrackPlayerListener;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
 import interactivespaces.service.audio.player.jukebox.support.BaseJukeboxOperation;
 import interactivespaces.service.audio.player.jukebox.support.InternalAudioJukebox;
@@ -83,12 +83,12 @@ public class SimpleAudioJukebox implements InternalAudioJukebox {
     trackPlayer.addListener(new BaseAudioTrackPlayerListener() {
 
       @Override
-      public void onAudioTrackStop(AudioTrackPlayer player, PlayableAudioTrack track) {
+      public void onAudioTrackStop(AudioTrackPlayer player, FilePlayableAudioTrack track) {
         handleAudioTrackStop(track);
       }
 
       @Override
-      public void onAudioTrackStart(AudioTrackPlayer player, PlayableAudioTrack track) {
+      public void onAudioTrackStart(AudioTrackPlayer player, FilePlayableAudioTrack track) {
         handleAudioTrackStart(track);
       }
     });
@@ -119,7 +119,7 @@ public class SimpleAudioJukebox implements InternalAudioJukebox {
   public void startPlayTrackOperation(String id) {
     log.info(String.format("Beginning track play of %s", id));
 
-    PlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
+    FilePlayableAudioTrack ptrack = musicRepository.getPlayableTrack(id);
     if (ptrack != null) {
       startNewOperation(new PlayTrackJukeboxOperation(this, ptrack, log));
     } else {
@@ -159,7 +159,7 @@ public class SimpleAudioJukebox implements InternalAudioJukebox {
   }
 
   @Override
-  public void playTrack(PlayableAudioTrack track) {
+  public void playTrack(FilePlayableAudioTrack track) {
     trackPlayer.start(track);
   }
 
@@ -175,7 +175,7 @@ public class SimpleAudioJukebox implements InternalAudioJukebox {
    * @param track
    *          the track
    */
-  private void handleAudioTrackStart(PlayableAudioTrack track) {
+  private void handleAudioTrackStart(FilePlayableAudioTrack track) {
     for (AudioJukeboxListener listener : listeners) {
       try {
         listener.onJukeboxTrackStart(this, track);
@@ -192,7 +192,7 @@ public class SimpleAudioJukebox implements InternalAudioJukebox {
    * @param track
    *          the track
    */
-  private void handleAudioTrackStop(PlayableAudioTrack track) {
+  private void handleAudioTrackStop(FilePlayableAudioTrack track) {
     for (AudioJukeboxListener listener : listeners) {
       try {
         listener.onJukeboxTrackStop(this, track);

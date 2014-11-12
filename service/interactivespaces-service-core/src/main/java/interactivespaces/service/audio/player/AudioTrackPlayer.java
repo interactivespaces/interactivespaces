@@ -55,7 +55,7 @@ public interface AudioTrackPlayer extends ManagedResource {
    *           the player was playing a track already or the track could not be
    *           found
    */
-  void start(PlayableAudioTrack track) throws InteractiveSpacesException;
+  void start(FilePlayableAudioTrack track) throws InteractiveSpacesException;
 
   /**
    * Stop playing the track if one is playing.

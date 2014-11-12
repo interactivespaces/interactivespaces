@@ -19,17 +19,16 @@ package interactivespaces.service.audio.player;
 import java.io.File;
 
 /**
- * A playable track. Includes meta data and the location of the song in the
- * filesystem.
+ * A playable track. Includes meta data and the location of the song in the filesystem.
  *
  * @author Keith M. Hughes
  */
-public class PlayableAudioTrack {
+public class FilePlayableAudioTrack {
 
   /**
-   * The metadata about the track.
+   * The metadata about the track, can be {@code null}.
    */
-  private AudioTrack track;
+  private AudioTrackMetadata metadata;
 
   /**
    * File containing the track
@@ -37,25 +36,40 @@ public class PlayableAudioTrack {
   private File file;
 
   /**
+   * Construct a new track without metadata.
    *
-   * @param track
+   * @param file
+   *          file containing the track
+   */
+  public FilePlayableAudioTrack(File file) {
+    this(null, file);
+  }
+
+  /**
+   * Construct a new track.
+   *
+   * @param metadata
    *          the metadata about the track
    * @param file
    *          file containing the track
    */
-  public PlayableAudioTrack(AudioTrack track, File file) {
-    this.track = track;
+  public FilePlayableAudioTrack(AudioTrackMetadata metadata, File file) {
+    this.metadata = metadata;
     this.file = file;
   }
 
   /**
-   * @return the track's metadata.
+   * Get the track's metadata.
+   *
+   * @return the track's metadata, can be {@code null}
    */
-  public AudioTrack getTrack() {
-    return track;
+  public AudioTrackMetadata getMetadata() {
+    return metadata;
   }
 
   /**
+   * Get the file containing the audio track.
+   *
    * @return the file containing the track
    */
   public File getFile() {
@@ -64,6 +78,6 @@ public class PlayableAudioTrack {
 
   @Override
   public String toString() {
-    return "PlayableAudioTrack [track=" + track + ", file=" + file + "]";
+    return "FilePlayableAudioTrack [metadata=" + metadata + ", file=" + file + "]";
   }
 }

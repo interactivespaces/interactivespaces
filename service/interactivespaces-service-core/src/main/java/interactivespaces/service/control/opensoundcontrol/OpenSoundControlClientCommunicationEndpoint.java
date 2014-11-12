@@ -40,26 +40,111 @@ public interface OpenSoundControlClientCommunicationEndpoint extends ManagedReso
   int getRemotePort();
 
   /**
-   * Create a new OSC packet.
+   * Create a new outgoing OSC message and send it immediately.
    *
-   * @param oscAddress
-   *          oscAddress for the OSC packet
-   * @param types
-   *          OSC type string
+   * <p>
+   * The argument types will be determined by the classes of the arguments.
    *
-   * @return the new OSC packet
+   * @param address
+   *          the OSC address for the message
+   * @param arguments
+   *          arguments for the message
+   *
+   * @return the new OSC message
    */
-  OpenSoundControlClientPacket newPacket(String address, String types);
+  OpenSoundControlOutgoingMessage sendRequestMessage(String address, Object... arguments);
 
   /**
-   * Create a new OSC packet.
+   * Create a new outgoing OSC message.
+   *
+   * <p>
+   * The argument types will be determined by the classes of the arguments.
+   *
+   * @param address
+   *          the OSC address for the message
+   * @param arguments
+   *          arguments for the message
+   *
+   * @return the new OSC message
+   */
+  OpenSoundControlOutgoingMessage newRequestMessage(String address, Object... arguments);
+
+  /**
+   * Create a new outgoing OSC message by specifying all argument types.
+   *
+   * <p>
+   * The arguments will have to be added to the message before it is sent.
+   *
+   * @param address
+   *          the OSC address for the message
+   * @param types
+   *          OSC type tags string
+   *
+   * @return the new OSC message
+   */
+  OpenSoundControlOutgoingMessage newRequestMessageWithTypes(String address, String types);
+
+  /**
+   * Create a new outgoing OSC message by specifying all argument types.
+   *
+   * <p>
+   * The arguments will have to be added to the message before it is sent.
+   *
+   * @param address
+   *          the OSC address for the message
+   * @param types
+   *          OSC type tags
+   *
+   * @return the new OSC message
+   */
+  OpenSoundControlOutgoingMessage newRequestMessageWithTypes(String address, byte... types);
+
+  /**
+   * Register a response method for a specific OSC address.
+   *
+   * <p>
+   * Multiple methods can be attached to a given address.
    *
    * @param oscAddress
-   *          oscAddress for the OSC packet
-   * @param types
-   *          OSC types
-   *
-   * @return the new OSC packet
+   *          the OSC address the method will handle
+   * @param method
+   *          the method for the addressed messages
    */
-  OpenSoundControlClientPacket newPacket(String address, byte... types);
+  void registerResponseMethod(String oscAddress, OpenSoundControlClientResponseMethod method);
+
+  /**
+   * Unregister a response method for a specific OSC address.
+   *
+   * <p>
+   * Does nothing if the method has not been registered for the particular address.
+   *
+   * @param oscAddress
+   *          the OSC address the method was handling
+   * @param method
+   *          the method for the addressed messages
+   */
+  void unregisterResponseMethod(String oscAddress, OpenSoundControlClientResponseMethod method);
+
+  /**
+   * Register a method for handling unknown OSC response messages.
+   *
+   * <p>
+   * Unknown OSC messages for this endpoint are defined to be ones that did not have an explicit address registered for
+   * handling them.
+   *
+   * @param method
+   *          the method
+   */
+  void registerUnknownMessageResponseMethod(OpenSoundControlClientResponseMethod method);
+
+  /**
+   * Unregister a method for handling unknown response messages.
+   *
+   * <p>
+   * Does nothing if the method has not been registered.
+   *
+   * @param method
+   *          the method for the addressed messages
+   */
+  void unregisterUnknownMessageResponseMethod(OpenSoundControlClientResponseMethod method);
 }

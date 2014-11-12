@@ -19,7 +19,7 @@ package interactivespaces.service.audio.player.internal.binary;
 import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerFactory;
@@ -84,7 +84,7 @@ public class NativeAudioTrackPlayer extends BaseAudioTrackPlayer {
   }
 
   @Override
-  public synchronized void start(PlayableAudioTrack track) {
+  public synchronized void start(FilePlayableAudioTrack track) {
     // TODO(keith): Fix once application runners have callbacks to not have all
     // the threading crap here.
     if (runner == null) {

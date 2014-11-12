@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,15 +14,13 @@
  * the License.
  */
 
-package interactivespaces.service.comm.network.client;
-
-import interactivespaces.service.comm.network.WriteableUdpPacket;
+package interactivespaces.service.control.opensoundcontrol;
 
 /**
- * A packet to be sent to a remote UDP server.
+ * An Open Sound control method that is a response to a client message.
  *
  * @author Keith M. Hughes
  */
-@Deprecated
-public interface UdpPacket extends WriteableUdpPacket {
+public interface OpenSoundControlClientResponseMethod extends OpenSoundControlMethod<OpenSoundControlIncomingMessage> {
+
 }

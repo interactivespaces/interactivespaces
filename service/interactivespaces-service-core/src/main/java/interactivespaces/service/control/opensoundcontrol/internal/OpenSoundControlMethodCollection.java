@@ -16,8 +16,8 @@
 
 package interactivespaces.service.control.opensoundcontrol.internal;
 
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlIncomingMessage;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlMethod;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerPacket;
 
 import com.google.common.collect.Lists;
 
@@ -31,14 +31,17 @@ import java.util.List;
  * <p>
  * This class is not thread safe. The callers need to protect it.
  *
+ * @param <M>
+ *          the type of incoming messages
+ *
  * @author Keith M. Hughes
  */
-public class OpenSoundControlMethodCollection {
+public class OpenSoundControlMethodCollection<M extends OpenSoundControlIncomingMessage> {
 
   /**
    * The methods.
    */
-  private List<OpenSoundControlMethod> methods = Lists.newArrayList();
+  private List<OpenSoundControlMethod<M>> methods = Lists.newArrayList();
 
   /**
    * Add a new method to the collection.
@@ -46,7 +49,7 @@ public class OpenSoundControlMethodCollection {
    * @param method
    *          the method to add
    */
-  public void addMethod(OpenSoundControlMethod method) {
+  public void addMethod(OpenSoundControlMethod<M> method) {
     methods.add(method);
   }
 
@@ -59,22 +62,22 @@ public class OpenSoundControlMethodCollection {
    * @param method
    *          the method to remove
    */
-  public void removeMethod(OpenSoundControlMethod method) {
+  public void removeMethod(OpenSoundControlMethod<M> method) {
     methods.remove(method);
   }
 
   /**
-   * Handle a packet.
+   * Handle a message.
    *
-   * @param packet
-   *          the packet to handle
+   * @param message
+   *          the message to handle
    * @param log
    *          a logger to use
    */
-  public void handlePacket(OpenSoundControlServerPacket packet, Log log) {
-    for (OpenSoundControlMethod method : methods) {
+  public void handleMessage(M message, Log log) {
+    for (OpenSoundControlMethod<M> method : methods) {
       try {
-        method.invoke(packet);
+        method.invoke(message);
       } catch (Throwable e) {
         log.error("An Open Sound Control method has failed", e);
       }

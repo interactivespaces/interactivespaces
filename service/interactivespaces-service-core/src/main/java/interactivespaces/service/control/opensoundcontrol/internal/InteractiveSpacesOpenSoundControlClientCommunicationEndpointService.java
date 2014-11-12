@@ -20,11 +20,11 @@ import interactivespaces.service.BaseSupportedService;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointService;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlConstants;
 
 import org.apache.commons.logging.Log;
 
 import java.net.InetSocketAddress;
-import java.nio.ByteOrder;
 
 /**
  * An Interactive Spaces implementation of
@@ -35,28 +35,20 @@ import java.nio.ByteOrder;
 public class InteractiveSpacesOpenSoundControlClientCommunicationEndpointService extends
     BaseSupportedService implements OpenSoundControlClientCommunicationEndpointService {
 
-  /**
-   * Service for obtaining UDP communication endpoints.
-   */
-  private UdpClientNetworkCommunicationEndpointService udpEndpointService;
-
   @Override
   public String getName() {
     return SERVICE_NAME;
   }
 
   @Override
-  public void startup() {
-    udpEndpointService =
-        getSpaceEnvironment().getServiceRegistry().getRequiredService(
-            UdpClientNetworkCommunicationEndpointService.SERVICE_NAME);
-  }
-
-  @Override
   public OpenSoundControlClientCommunicationEndpoint newUdpEndpoint(String remoteHost,
       int remotePort, Log log) {
+    UdpClientNetworkCommunicationEndpointService udpEndpointService =
+        getSpaceEnvironment().getServiceRegistry().getRequiredService(
+            UdpClientNetworkCommunicationEndpointService.SERVICE_NAME);
+
     return new InteractiveSpacesUdpOpenSoundControlClientCommunicationsEndpoint(
         new InetSocketAddress(remoteHost, remotePort), udpEndpointService.newClient(
-            ByteOrder.BIG_ENDIAN, log), log);
+            OpenSoundControlConstants.OPEN_SOUND_CONTROL_BYTE_ORDER, log), log);
   }
 }

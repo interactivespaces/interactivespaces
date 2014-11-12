@@ -24,12 +24,12 @@ package interactivespaces.service.audio.player;
 public class BaseAudioTrackPlayerListener implements AudioTrackPlayerListener {
 
   @Override
-  public void onAudioTrackStart(AudioTrackPlayer player, PlayableAudioTrack track) {
+  public void onAudioTrackStart(AudioTrackPlayer player, FilePlayableAudioTrack track) {
     // Default is do nothing
   }
 
   @Override
-  public void onAudioTrackStop(AudioTrackPlayer player, PlayableAudioTrack track) {
+  public void onAudioTrackStop(AudioTrackPlayer player, FilePlayableAudioTrack track) {
     // Default is do nothing
   }
 }

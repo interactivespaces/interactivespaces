@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox.internal.simple;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.SimpleAudioTrack;
 import interactivespaces.service.audio.player.jukebox.AudioJukebox;
 import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
@@ -44,16 +44,16 @@ public class SimpleAudioJukeboxTest {
 
   private StandaloneInteractiveSpacesEnvironment spaceEnvironment;
   private SimpleAudioJukebox jukebox;
-  private PlayableAudioTrack ptrack1;
-  private PlayableAudioTrack ptrack2;
+  private FilePlayableAudioTrack ptrack1;
+  private FilePlayableAudioTrack ptrack2;
 
   @Before
   public void setup() {
     spaceEnvironment = StandaloneInteractiveSpacesEnvironment.newStandaloneInteractiveSpacesEnvironment();
 
     InMemoryAudioRepository repository = new InMemoryAudioRepository();
-    ptrack1 = new PlayableAudioTrack(new SimpleAudioTrack("1", "foo", null, null), null);
-    ptrack2 = new PlayableAudioTrack(new SimpleAudioTrack("2", "bar", null, null), null);
+    ptrack1 = new FilePlayableAudioTrack(new SimpleAudioTrack("1", "foo", null, null), null);
+    ptrack2 = new FilePlayableAudioTrack(new SimpleAudioTrack("2", "bar", null, null), null);
     repository.addTrack(ptrack1);
     repository.addTrack(ptrack2);
 
@@ -78,13 +78,13 @@ public class SimpleAudioJukeboxTest {
     jukebox.addListener(new AudioJukeboxListener() {
 
       @Override
-      public void onJukeboxTrackStop(AudioJukebox jukebox, PlayableAudioTrack track) {
-        stopContent.add(track.getTrack().getId());
+      public void onJukeboxTrackStop(AudioJukebox jukebox, FilePlayableAudioTrack track) {
+        stopContent.add(track.getMetadata().getId());
       }
 
       @Override
-      public void onJukeboxTrackStart(AudioJukebox jukebox, PlayableAudioTrack track) {
-        startContent.add(track.getTrack().getId());
+      public void onJukeboxTrackStart(AudioJukebox jukebox, FilePlayableAudioTrack track) {
+        startContent.add(track.getMetadata().getId());
       }
 
       @Override
@@ -95,7 +95,7 @@ public class SimpleAudioJukeboxTest {
     jukebox.startup();
     jukebox.startShuffleTrackOperation();
 
-    Set<String> expected = Sets.newHashSet(ptrack1.getTrack().getId(), ptrack2.getTrack().getId());
+    Set<String> expected = Sets.newHashSet(ptrack1.getMetadata().getId(), ptrack2.getMetadata().getId());
 
     Assert.assertTrue(completed.await(5, TimeUnit.SECONDS));
     Assert.assertEquals(expected, startContent);

@@ -16,6 +16,8 @@
 
 package interactivespaces.service.comm.network.server.internal.netty;
 
+import interactivespaces.service.comm.network.WriteableUdpPacket;
+import interactivespaces.service.comm.network.internal.netty.NettyWriteableUdpPacket;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointListener;
 import interactivespaces.service.comm.network.server.UdpServerRequest;
@@ -34,10 +36,12 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.socket.DatagramChannel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -57,6 +61,11 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
    * The port the server is listening to.
    */
   private final int serverPort;
+
+  /**
+   * Byte order for packets.
+   */
+  private final ByteOrder byteOrder;
 
   /**
    * The bootstrap for the UDP client.
@@ -83,13 +92,17 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
    *
    * @param serverPort
    *          the server port to listen to
+   * @param byteOrder
+   *          byte order for packets
    * @param executorService
    *          the executor service to use
    * @param log
    *          the logger to use
    */
-  public NettyUdpServerNetworkCommunicationEndpoint(int serverPort, ExecutorService executorService, Log log) {
+  public NettyUdpServerNetworkCommunicationEndpoint(int serverPort, ByteOrder byteOrder,
+      ExecutorService executorService, Log log) {
     this.serverPort = serverPort;
+    this.byteOrder = byteOrder;
     this.executorService = executorService;
     this.log = log;
   }
@@ -161,7 +174,7 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
    *          the event which happened
    */
   private void handleMessageReceived(MessageEvent event) {
-    NettyUdpServerRequest request = new NettyUdpServerRequest(event);
+    NettyUdpServerRequest request = new NettyUdpServerRequest(byteOrder, event);
 
     for (UdpServerNetworkCommunicationEndpointListener listener : listeners) {
       listener.onUdpRequest(this, request);
@@ -194,6 +207,11 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
   private static class NettyUdpServerRequest implements UdpServerRequest {
 
     /**
+     * Byte order for writeable packets.
+     */
+    private final ByteOrder byteOrder;
+
+    /**
      * The message event from the request.
      */
     private final MessageEvent event;
@@ -201,10 +219,13 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
     /**
      * Construct a new server request.
      *
+     * @param byteOrder
+     *          byte order for packets
      * @param event
      *          the Netty message event which came in
      */
-    public NettyUdpServerRequest(MessageEvent event) {
+    public NettyUdpServerRequest(ByteOrder byteOrder, MessageEvent event) {
+      this.byteOrder = byteOrder;
       this.event = event;
     }
 
@@ -222,6 +243,17 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
     public void writeResponse(byte[] response) {
       ChannelBuffer responseBuffer = ChannelBuffers.copiedBuffer(response);
       event.getChannel().write(responseBuffer, event.getRemoteAddress());
+    }
+
+    @Override
+    public WriteableUdpPacket newDynamicWriteableUdpPacket() {
+      return new NettyWriteableUdpPacket((DatagramChannel) event.getChannel(), ChannelBuffers.dynamicBuffer(byteOrder,
+          NettyWriteableUdpPacket.DYNAMIC_BUFFER_INITIAL_SIZE));
+    }
+
+    @Override
+    public WriteableUdpPacket newWriteableUdpPacket(int size) {
+      return new NettyWriteableUdpPacket((DatagramChannel) event.getChannel(), ChannelBuffers.buffer(byteOrder, size));
     }
   }
 }

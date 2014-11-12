@@ -18,7 +18,6 @@ package interactivespaces.service.comm.network;
 
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointListener;
-import interactivespaces.service.comm.network.client.UdpPacket;
 import interactivespaces.service.comm.network.client.internal.netty.NettyUdpClientNetworkCommunicationEndpointService;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointListener;
@@ -126,9 +125,9 @@ public class NettyUdpSocketTest {
       });
       clientEndpoint.startup();
 
-      UdpPacket packet = clientEndpoint.newUdpPacket(serverRequestExpectedData.length);
+      WriteableUdpPacket packet = clientEndpoint.newWriteableUdpPacket(serverRequestExpectedData.length);
       packet.writeBytes(serverRequestExpectedData);
-      ;
+
       packet.write(new InetSocketAddress("127.0.0.1", serverPort));
 
       Assert.assertTrue(clientReceiveLatch.await(5, TimeUnit.SECONDS));

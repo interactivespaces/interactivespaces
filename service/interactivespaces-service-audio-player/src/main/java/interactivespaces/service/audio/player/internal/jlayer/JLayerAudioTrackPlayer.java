@@ -18,7 +18,7 @@ package interactivespaces.service.audio.player.internal.jlayer;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
 
 import com.google.common.io.Closeables;
@@ -75,7 +75,7 @@ public class JLayerAudioTrackPlayer extends BaseAudioTrackPlayer {
   }
 
   @Override
-  public synchronized void start(final PlayableAudioTrack track) {
+  public synchronized void start(final FilePlayableAudioTrack track) {
     if (playing.get()) {
       throw new SimpleInteractiveSpacesException((String.format(
           "Cannot start playing audio file %s: Already playing a track", track.getFile().getAbsolutePath())));

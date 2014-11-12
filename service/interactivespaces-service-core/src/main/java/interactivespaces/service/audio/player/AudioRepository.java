@@ -36,14 +36,14 @@ public interface AudioRepository extends ManagedResource {
    * @return the information about the track, or {@code null} if there is no
    *         track with the ID.
    */
-  AudioTrack getTrackData(String id);
+  AudioTrackMetadata getTrackMetadata(String id);
 
   /**
    * Get all tracks in the repository.
    *
    * @return all tracks in the repository
    */
-  Collection<PlayableAudioTrack> getAllPlayableTracks();
+  Collection<FilePlayableAudioTrack> getAllPlayableTracks();
 
   /**
    * Get the track from its ID.
@@ -53,5 +53,5 @@ public interface AudioRepository extends ManagedResource {
    *
    * @return the track, or {@code null} if there is no track with the ID
    */
-  PlayableAudioTrack getPlayableTrack(String id);
+  FilePlayableAudioTrack getPlayableTrack(String id);
 }

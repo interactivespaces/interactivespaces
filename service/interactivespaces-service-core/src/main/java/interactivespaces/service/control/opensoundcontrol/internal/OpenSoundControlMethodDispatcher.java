@@ -16,8 +16,8 @@
 
 package interactivespaces.service.control.opensoundcontrol.internal;
 
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlIncomingMessage;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlMethod;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerPacket;
 
 import com.google.common.collect.Maps;
 
@@ -31,19 +31,22 @@ import java.util.Map;
  * <p>
  * This class is threadsafe.
  *
+ * @param <M>
+ *      the type of incoming messages
+ *
  * @author Keith M. Hughes
  */
-public class OpenSoundControlMethodDispatcher {
+public class OpenSoundControlMethodDispatcher<M extends OpenSoundControlIncomingMessage> {
 
   /**
-   * The collection of methods.
+   * The collections of methods.
    */
-  private Map<String, OpenSoundControlMethodCollection> collections = Maps.newHashMap();
+  private Map<String, OpenSoundControlMethodCollection<M>> collections = Maps.newHashMap();
 
   /**
-   * methods for handling unhandled messages.
+   * The methods for handling unhandled messages.
    */
-  private OpenSoundControlMethodCollection unknownMessageMethods = new OpenSoundControlMethodCollection();
+  private OpenSoundControlMethodCollection<M> unknownMessageMethods = new OpenSoundControlMethodCollection<M>();
 
   /**
    * The logger to use.
@@ -68,10 +71,10 @@ public class OpenSoundControlMethodDispatcher {
    * @param method
    *          the method to be added
    */
-  public synchronized void addMethod(String oscAddress, OpenSoundControlMethod method) {
-    OpenSoundControlMethodCollection collection = collections.get(oscAddress);
+  public synchronized void addMethod(String oscAddress, OpenSoundControlMethod<M> method) {
+    OpenSoundControlMethodCollection<M> collection = collections.get(oscAddress);
     if (collection == null) {
-      collection = new OpenSoundControlMethodCollection();
+      collection = new OpenSoundControlMethodCollection<M>();
       collections.put(oscAddress, collection);
     }
 
@@ -86,8 +89,8 @@ public class OpenSoundControlMethodDispatcher {
    * @param method
    *          the method to be removed
    */
-  public synchronized void removeMethod(String oscAddress, OpenSoundControlMethod method) {
-    OpenSoundControlMethodCollection collection = collections.get(oscAddress);
+  public synchronized void removeMethod(String oscAddress, OpenSoundControlMethod<M> method) {
+    OpenSoundControlMethodCollection<M> collection = collections.get(oscAddress);
     if (collection != null) {
       collection.removeMethod(method);
     }
@@ -103,7 +106,7 @@ public class OpenSoundControlMethodDispatcher {
    * @param method
    *          the method
    */
-  public synchronized void addUnknownMessageMethod(OpenSoundControlMethod method) {
+  public synchronized void addUnknownMessageMethod(OpenSoundControlMethod<M> method) {
     unknownMessageMethods.addMethod(method);
   }
 
@@ -114,26 +117,26 @@ public class OpenSoundControlMethodDispatcher {
    * Does nothing if the method has not been registered.
    *
    * @param method
-   *          the method for the addressed packets
+   *          the method for the addressed messages
    */
-  public synchronized void removeUnknownMessageMethod(OpenSoundControlMethod method) {
+  public synchronized void removeUnknownMessageMethod(OpenSoundControlMethod<M> method) {
     unknownMessageMethods.removeMethod(method);
   }
 
   /**
-   * Handle an incoming OSC packet.
+   * Handle an incoming OSC message.
    *
-   * @param packet
-   *          the packet to be handled
+   * @param message
+   *          the message to be handled
    */
-  public synchronized void handleIncomingPacket(OpenSoundControlServerPacket packet) {
-    OpenSoundControlMethodCollection collection = collections.get(packet.getAddress());
+  public synchronized void handleIncomingMessage(M message) {
+    OpenSoundControlMethodCollection<M> collection = collections.get(message.getAddress());
     if (collection != null) {
-      collection.handlePacket(packet, log);
+      collection.handleMessage(message, log);
     } else {
-      log.warn(String.format("Got unhandled OSC packet with address %s", packet.getAddress()));
+      log.warn(String.format("Got unhandled OSC message with address %s", message.getAddress()));
 
-      unknownMessageMethods.handlePacket(packet, log);
+      unknownMessageMethods.handleMessage(message, log);
     }
   }
 }

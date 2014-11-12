@@ -19,8 +19,9 @@ package interactivespaces.service.control.opensoundcontrol.internal;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.server.UdpServerNetworkCommunicationEndpointListener;
 import interactivespaces.service.comm.network.server.UdpServerRequest;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlMethod;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpoint;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerRequestMethod;
+import interactivespaces.service.control.opensoundcontrol.RespondableOpenSoundControlIncomingMessage;
 
 import org.apache.commons.logging.Log;
 
@@ -33,9 +34,9 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
     OpenSoundControlServerCommunicationEndpoint {
 
   /**
-   * The dispatcher for handling incoming OSC packets.
+   * The dispatcher for handling incoming OSC messages.
    */
-  private final OpenSoundControlMethodDispatcher dispatcher;
+  private final OpenSoundControlMethodDispatcher<RespondableOpenSoundControlIncomingMessage> dispatcher;
 
   /**
    * The communication endpoint for speaking with the DMX controller.
@@ -43,10 +44,10 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
   private final UdpServerNetworkCommunicationEndpoint udpServer;
 
   /**
-   * The packet parser.
+   * The message parser.
    */
-  private final InteractiveSpacesOpenSoundControlPacketParser packetParser =
-      new InteractiveSpacesOpenSoundControlPacketParser();
+  private final InteractiveSpacesOpenSoundControlMessageParser messageParser =
+      new InteractiveSpacesOpenSoundControlMessageParser();
 
   /**
    * Log for the endpoint.
@@ -74,7 +75,7 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
       }
     });
 
-    dispatcher = new OpenSoundControlMethodDispatcher(log);
+    dispatcher = new OpenSoundControlMethodDispatcher<RespondableOpenSoundControlIncomingMessage>(log);
   }
 
   @Override
@@ -85,7 +86,7 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
 
   @Override
   public void shutdown() {
-    log.info("Shutting up Open Sound Control Server");
+    log.info("Shutting down Open Sound Control Server");
     udpServer.shutdown();
   }
 
@@ -95,22 +96,22 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
   }
 
   @Override
-  public void registerMethod(String oscAddress, OpenSoundControlMethod handler) {
-    dispatcher.addMethod(oscAddress, handler);
+  public void registerMethod(String oscAddress, OpenSoundControlServerRequestMethod method) {
+    dispatcher.addMethod(oscAddress, method);
   }
 
   @Override
-  public void unregisterMethod(String oscAddress, OpenSoundControlMethod handler) {
-    dispatcher.removeMethod(oscAddress, handler);
+  public void unregisterMethod(String oscAddress, OpenSoundControlServerRequestMethod method) {
+    dispatcher.removeMethod(oscAddress, method);
   }
 
   @Override
-  public void registerUnknownMessageMethod(OpenSoundControlMethod method) {
+  public void registerUnknownMessageMethod(OpenSoundControlServerRequestMethod method) {
     dispatcher.addUnknownMessageMethod(method);
   }
 
   @Override
-  public void unregisterUnknownMessageMethod(OpenSoundControlMethod method) {
+  public void unregisterUnknownMessageMethod(OpenSoundControlServerRequestMethod method) {
     dispatcher.removeUnknownMessageMethod(method);
   }
 
@@ -127,9 +128,9 @@ public class InteractiveSpacesOpenSoundControlServerCommunicationEndpoint implem
    */
   private void handleServerRequest(UdpServerRequest serverRequest) {
     try {
-      dispatcher.handleIncomingPacket(packetParser.parsePacket(serverRequest.getRequest()));
+      dispatcher.handleIncomingMessage(messageParser.parseRespondableMessage(serverRequest));
     } catch (Throwable e) {
-      log.error("Error while handling incoming Open Sound Control packet", e);
+      log.error("Error while handling incoming Open Sound Control message", e);
     }
   }
 }

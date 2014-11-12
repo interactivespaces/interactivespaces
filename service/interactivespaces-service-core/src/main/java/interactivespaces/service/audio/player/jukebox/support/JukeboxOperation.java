@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox.support;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 /**
  * An operation happening within the jukebox.
@@ -46,5 +46,5 @@ public interface JukeboxOperation {
    * @param track
    *          the track which has stopped
    */
-  void handleTrackStop(PlayableAudioTrack track);
+  void handleTrackStop(FilePlayableAudioTrack track);
 }

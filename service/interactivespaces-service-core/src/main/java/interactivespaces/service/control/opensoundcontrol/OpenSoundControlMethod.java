@@ -17,17 +17,20 @@
 package interactivespaces.service.control.opensoundcontrol;
 
 /**
- * An Open Sound Control method. These are invoked by the Open Sound Control server when packets come in.
+ * An Open Sound Control method.
+ *
+ * @param <M>
+ *          type of the incoming message
  *
  * @author Keith M. Hughes
  */
-public interface OpenSoundControlMethod {
+public interface OpenSoundControlMethod<M extends OpenSoundControlIncomingMessage> {
 
   /**
-   * Invoke the method on an Open Sound Control packet.
+   * Invoke the method on an Open Sound Control message.
    *
-   * @param packet
-   *          the packet
+   * @param message
+   *          the message
    */
-  void invoke(OpenSoundControlServerPacket packet);
+  void invoke(M message);
 }

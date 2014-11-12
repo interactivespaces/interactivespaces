@@ -16,6 +16,7 @@
 
 package interactivespaces.service.comm.network.client;
 
+import interactivespaces.service.comm.network.WriteableUdpPacket;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.net.InetSocketAddress;
@@ -70,7 +71,10 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
    * The packet will be of a dynamic size.
    *
    * @return UDP packet of the proper endian
+   *
+   * @depecated Use {@link #newDynamicWriteableUdpPacket()}.
    */
+  @Deprecated
   UdpPacket newDynamicUdpPacket();
 
   /**
@@ -80,8 +84,31 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
    *          size of the packet
    *
    * @return UDP packet of the proper endian
+   *
+   * @depecated Use {@link #newWriteableUdpPacket()}.
    */
+  @Deprecated
   UdpPacket newUdpPacket(int size);
+
+  /**
+   * Create a new UDP packet.
+   *
+   * <p>
+   * The packet will be of a dynamic size.
+   *
+   * @return UDP packet of the proper endian
+   */
+  WriteableUdpPacket newDynamicWriteableUdpPacket();
+
+  /**
+   * Create a new UDP packet.
+   *
+   * @param size
+   *          size of the packet
+   *
+   * @return UDP packet of the proper endian
+   */
+  WriteableUdpPacket newWriteableUdpPacket(int size);
 
   /**
    * Add a listener to the endpoint.

@@ -32,7 +32,7 @@ public interface AudioTrackPlayerListener {
    * @param track
    *          the track being started
    */
-  void onAudioTrackStart(AudioTrackPlayer player, PlayableAudioTrack track);
+  void onAudioTrackStart(AudioTrackPlayer player, FilePlayableAudioTrack track);
 
   /**
    * A track is done.
@@ -42,5 +42,5 @@ public interface AudioTrackPlayerListener {
    * @param track
    *          the track being completed
    */
-  void onAudioTrackStop(AudioTrackPlayer player, PlayableAudioTrack track);
+  void onAudioTrackStop(AudioTrackPlayer player, FilePlayableAudioTrack track);
 }

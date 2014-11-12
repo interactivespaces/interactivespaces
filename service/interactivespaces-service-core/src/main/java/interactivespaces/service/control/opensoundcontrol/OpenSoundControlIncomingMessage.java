@@ -18,12 +18,21 @@ package interactivespaces.service.control.opensoundcontrol;
 
 import interactivespaces.InteractiveSpacesException;
 
+import java.net.InetSocketAddress;
+
 /**
- * A request that has come into the Open Sound Control Server.
+ * An incoming Open Sound Control message.
  *
  * @author Keith M. Hughes
  */
-public interface OpenSoundControlServerPacket {
+public interface OpenSoundControlIncomingMessage {
+
+  /**
+   * Get the address of the sender that sent the incoming message.
+   *
+   * @return the sender address
+   */
+  InetSocketAddress getSenderAddress();
 
   /**
    * Get the OSC address for the packet.
@@ -115,6 +124,19 @@ public interface OpenSoundControlServerPacket {
   String getStringArgument(int arg) throws InteractiveSpacesException;
 
   /**
+   * Get a blob argument.
+   *
+   * @param arg
+   *          the argument position
+   *
+   * @return the value
+   *
+   * @throws InteractiveSpacesException
+   *           either the argument position is out of bounds or the argument is not a blob
+   */
+  byte[] getBlobArgument(int arg) throws InteractiveSpacesException;
+
+  /**
    * Is the specified argument an int?
    *
    * @param arg
@@ -178,4 +200,17 @@ public interface OpenSoundControlServerPacket {
    *           the argument position is out of bounds
    */
   boolean isStringArgument(int arg) throws InteractiveSpacesException;
+
+  /**
+   * Is the specified argument a blob?
+   *
+   * @param arg
+   *          the argument position
+   *
+   * @return {@code true} if the argument is a blob
+   *
+   * @throws InteractiveSpacesException
+   *           the argument position is out of bounds
+   */
+  boolean isBlobArgument(int arg) throws InteractiveSpacesException;
 }

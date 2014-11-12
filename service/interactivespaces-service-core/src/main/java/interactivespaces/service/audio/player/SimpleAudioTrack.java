@@ -4,11 +4,11 @@
 package interactivespaces.service.audio.player;
 
 /**
- * Simple implementation of an {@link AudioTrack}.
+ * Simple implementation of an {@link AudioTrackMetadata}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleAudioTrack implements AudioTrack {
+public class SimpleAudioTrack implements AudioTrackMetadata {
 
   /**
    * The track ID.

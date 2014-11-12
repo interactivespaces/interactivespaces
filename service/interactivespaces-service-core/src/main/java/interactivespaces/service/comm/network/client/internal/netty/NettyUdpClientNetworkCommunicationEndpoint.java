@@ -16,11 +16,13 @@
 
 package interactivespaces.service.comm.network.client.internal.netty;
 
-import com.google.common.collect.Lists;
-
+import interactivespaces.service.comm.network.WriteableUdpPacket;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointListener;
 import interactivespaces.service.comm.network.client.UdpPacket;
+import interactivespaces.service.comm.network.internal.netty.NettyWriteableUdpPacket;
+
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -48,13 +50,12 @@ import java.util.concurrent.ExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class NettyUdpClientNetworkCommunicationEndpoint implements
-    UdpClientNetworkCommunicationEndpoint {
+public class NettyUdpClientNetworkCommunicationEndpoint implements UdpClientNetworkCommunicationEndpoint {
 
   /**
-   * Default number of bytes in a dynamic buffer
+   * The size in bytes for UDP packets for buffering.
    */
-  public static final int DYNAMIC_BUFFER_INITIAL_SIZE = 512;
+  private static final int PACKET_BUFFER_SIZE = 1024;
 
   /**
    * Byte order for endpoint packets.
@@ -71,11 +72,13 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
    */
   private DatagramChannel outputChannel;
 
-  private List<UdpClientNetworkCommunicationEndpointListener> listeners = Lists
-      .newCopyOnWriteArrayList();
+  /**
+   * The listeners for endpoint events.
+   */
+  private List<UdpClientNetworkCommunicationEndpointListener> listeners = Lists.newCopyOnWriteArrayList();
 
   /**
-   * Executor service for this endpoint
+   * Executor service for this endpoint.
    */
   private ExecutorService executorService;
 
@@ -84,8 +87,17 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
    */
   private Log log;
 
-  NettyUdpClientNetworkCommunicationEndpoint(ByteOrder byteOrder, ExecutorService executorService,
-      Log log) {
+  /**
+   * Construct a new endpoint.
+   *
+   * @param byteOrder
+   *          the byte ordering for data in the packets
+   * @param executorService
+   *          the executor service to use
+   * @param log
+   *          the logger to use
+   */
+  NettyUdpClientNetworkCommunicationEndpoint(ByteOrder byteOrder, ExecutorService executorService, Log log) {
     this.byteOrder = byteOrder;
     this.executorService = executorService;
     this.log = log;
@@ -99,6 +111,7 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
 
     // Configure the pipeline factory.
     bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+      @Override
       public ChannelPipeline getPipeline() throws Exception {
         return Channels.pipeline(new NettyUdpClientNetworkHandler());
       }
@@ -107,18 +120,18 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     // Enable broadcast
     // bootstrap.setOption("broadcast", "true");
 
-    // Allow packets as large as up to 1024 bytes (default is 768).
+    // Allow packets as large as 1024 bytes (default from the network stack is 768).
     // You could increase or decrease this value to avoid truncated packets
     // or to improve memory footprint respectively.
     //
     // Please also note that a large UDP packet might be truncated or
-    // dropped by your router no matter how you configured this option.
+    // dropped by your router no matter how you have configured this option.
     // In UDP, a packet is truncated or dropped if it is larger than a
     // certain size, depending on router configuration. IPv4 routers
     // truncate and IPv6 routers drop a large packet. That's why it is
     // safe to send small packets in UDP.
-    bootstrap.setOption("receiveBufferSizePredictorFactory",
-        new FixedReceiveBufferSizePredictorFactory(1024));
+    bootstrap.setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(
+        PACKET_BUFFER_SIZE));
 
     outputChannel = (DatagramChannel) bootstrap.bind(new InetSocketAddress(0));
   }
@@ -149,12 +162,24 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
 
   @Override
   public UdpPacket newDynamicUdpPacket() {
-    return new NettyUdpPacket(ChannelBuffers.dynamicBuffer(byteOrder, DYNAMIC_BUFFER_INITIAL_SIZE));
+    return new NettyUdpPacket(outputChannel, ChannelBuffers.dynamicBuffer(byteOrder,
+        NettyWriteableUdpPacket.DYNAMIC_BUFFER_INITIAL_SIZE));
   }
 
   @Override
   public UdpPacket newUdpPacket(int size) {
-    return new NettyUdpPacket(ChannelBuffers.buffer(byteOrder, size));
+    return new NettyUdpPacket(outputChannel, ChannelBuffers.buffer(byteOrder, size));
+  }
+
+  @Override
+  public WriteableUdpPacket newDynamicWriteableUdpPacket() {
+    return new NettyWriteableUdpPacket(outputChannel, ChannelBuffers.dynamicBuffer(byteOrder,
+        NettyWriteableUdpPacket.DYNAMIC_BUFFER_INITIAL_SIZE));
+  }
+
+  @Override
+  public WriteableUdpPacket newWriteableUdpPacket(int size) {
+    return new NettyWriteableUdpPacket(outputChannel, ChannelBuffers.buffer(byteOrder, size));
   }
 
   @Override
@@ -202,74 +227,24 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements
     }
   }
 
-  class NettyUdpPacket implements UdpPacket {
+  /**
+   * A UDP packet for Netty.
+   *
+   * @author Keith M. Hughes
+   */
+  @Deprecated
+  class NettyUdpPacket extends NettyWriteableUdpPacket implements UdpPacket {
+
     /**
-     * Buffer for the packet.
+     * Construct a new writeable packet.
+     *
+     * @param outputChannel
+     *          the output channel to write to
+     * @param buffer
+     *          the buffer to store data in
      */
-    private ChannelBuffer buffer;
-
-    public NettyUdpPacket(ChannelBuffer buffer) {
-      this.buffer = buffer;
-    }
-
-    @Override
-    public void write(InetSocketAddress remoteAddress) {
-      outputChannel.write(buffer, remoteAddress);
-    }
-
-    @Override
-    public void writeByte(int value) {
-      buffer.writeByte(value);
-    }
-
-    @Override
-    public void writeShort(int value) {
-      buffer.writeShort(value);
-    }
-
-    @Override
-    public void writeMedium(int value) {
-      buffer.writeMedium(value);
-    }
-
-    @Override
-    public void writeInt(int value) {
-      buffer.writeInt(value);
-    }
-
-    @Override
-    public void writeLong(long value) {
-      buffer.writeLong(value);
-    }
-
-    @Override
-    public void writeChar(int value) {
-      buffer.writeChar(value);
-    }
-
-    @Override
-    public void writeFloat(float value) {
-      buffer.writeFloat(value);
-    }
-
-    @Override
-    public void writeDouble(double value) {
-      buffer.writeDouble(value);
-    }
-
-    @Override
-    public void writeBytes(byte[] src) {
-      buffer.writeBytes(src);
-    }
-
-    @Override
-    public void writeBytes(byte[] src, int srcIndex, int length) {
-      buffer.writeBytes(src, srcIndex, length);
-    }
-
-    @Override
-    public int getPacketSize() {
-      return buffer.readableBytes();
+    public NettyUdpPacket(DatagramChannel outputChannel, ChannelBuffer buffer) {
+      super(outputChannel, buffer);
     }
   }
 }

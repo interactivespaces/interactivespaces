@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.jukebox.support.JukeboxOperation;
 
 /**
@@ -34,7 +34,7 @@ public interface AudioJukeboxListener {
    * @param track
    *          the track being started
    */
-  void onJukeboxTrackStart(AudioJukebox jukebox, PlayableAudioTrack track);
+  void onJukeboxTrackStart(AudioJukebox jukebox, FilePlayableAudioTrack track);
 
   /**
    * A track is done.
@@ -44,7 +44,7 @@ public interface AudioJukeboxListener {
    * @param track
    *          the track being completed
    */
-  void onJukeboxTrackStop(AudioJukebox jukebox, PlayableAudioTrack track);
+  void onJukeboxTrackStop(AudioJukebox jukebox, FilePlayableAudioTrack track);
 
   /**
    * This operation is done running.

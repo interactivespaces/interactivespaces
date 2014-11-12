@@ -17,13 +17,13 @@
 package interactivespaces.example.activity.control.opensoundcontrol.server;
 
 import interactivespaces.activity.impl.BaseActivity;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlMethod;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpoint;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpointService;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerPacket;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.AudioTrackPlayerService;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpoint;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerCommunicationEndpointService;
+import interactivespaces.service.control.opensoundcontrol.OpenSoundControlServerRequestMethod;
+import interactivespaces.service.control.opensoundcontrol.RespondableOpenSoundControlIncomingMessage;
 
 import com.google.common.collect.Maps;
 
@@ -66,7 +66,7 @@ public class OpenSoundControlServerExampleActivity extends BaseActivity {
   /**
    * The map of recording names to the track to be played.
    */
-  private Map<String, PlayableAudioTrack> soundIdToTrack = Maps.newHashMap();
+  private Map<String, FilePlayableAudioTrack> soundIdToTrack = Maps.newHashMap();
 
   /**
    * The audio player for playing the requested sounds.
@@ -86,10 +86,10 @@ public class OpenSoundControlServerExampleActivity extends BaseActivity {
     addManagedResource(oscServer);
 
     String methodAddress = getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_OPEN_SOUND_CONTROL_METHOD_ADDRESS);
-    oscServer.registerMethod(methodAddress, new OpenSoundControlMethod() {
+    oscServer.registerMethod(methodAddress, new OpenSoundControlServerRequestMethod() {
       @Override
-      public void invoke(OpenSoundControlServerPacket packet) {
-        handleOscPacket(packet);
+      public void invoke(RespondableOpenSoundControlIncomingMessage message) {
+        handleOscMessage(message);
       }
     });
 
@@ -111,21 +111,21 @@ public class OpenSoundControlServerExampleActivity extends BaseActivity {
     while (!trackMap.isEmpty()) {
       String soundId = trackMap.remove(0);
       String trackFile = trackMap.remove(0);
-      soundIdToTrack.put(soundId, new PlayableAudioTrack(null, new File(trackFile)));
+      soundIdToTrack.put(soundId, new FilePlayableAudioTrack(new File(trackFile)));
     }
   }
 
   /**
-   * Handle an incoming OSC packet.
+   * Handle an incoming OSC message.
    *
-   * @param packet
-   *          the packet to handle
+   * @param message
+   *          the message to handle
    */
-  private void handleOscPacket(OpenSoundControlServerPacket packet) {
+  private void handleOscMessage(RespondableOpenSoundControlIncomingMessage message) {
     if (isActivated()) {
-      String trackToPlay = packet.getStringArgument(0);
+      String trackToPlay = message.getStringArgument(0);
 
-      final PlayableAudioTrack track = soundIdToTrack.get(trackToPlay);
+      final FilePlayableAudioTrack track = soundIdToTrack.get(trackToPlay);
       if (track != null) {
         // Run in another thread so that we don't block the OSC server.
         getManagedCommands().submit(new Runnable() {

@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox.support;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 import org.apache.commons.logging.Log;
 
@@ -30,7 +30,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
   /**
    * The track to be played.
    */
-  private PlayableAudioTrack track;
+  private FilePlayableAudioTrack track;
 
   /**
    * Construct the jukebox operation.
@@ -42,7 +42,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
    * @param log
    *          the logger to use
    */
-  public PlayTrackJukeboxOperation(InternalAudioJukebox audioJukebox, PlayableAudioTrack track,
+  public PlayTrackJukeboxOperation(InternalAudioJukebox audioJukebox, FilePlayableAudioTrack track,
        Log log) {
     super(audioJukebox, log);
 
@@ -65,7 +65,7 @@ public class PlayTrackJukeboxOperation extends BaseJukeboxOperation {
   }
 
   @Override
-  public synchronized void handleTrackStop(PlayableAudioTrack track) {
+  public synchronized void handleTrackStop(FilePlayableAudioTrack track) {
     audioJukebox.notifyOperationComplete();
   }
 }

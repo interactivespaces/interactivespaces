@@ -19,11 +19,11 @@ package interactivespaces.activity.music.jukebox;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.impl.ros.BaseRosActivity;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.service.audio.player.AudioTrack;
+import interactivespaces.service.audio.player.AudioTrackMetadata;
 import interactivespaces.service.audio.player.AudioTrackPlayer;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackPlayerService;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.internal.ScanningFileAudioRepository;
-import interactivespaces.service.audio.player.internal.jlayer.JLayerAudioTrackPlayer;
 import interactivespaces.service.audio.player.jukebox.AudioJukebox;
 import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
 import interactivespaces.service.audio.player.jukebox.internal.simple.SimpleAudioJukebox;
@@ -98,10 +98,12 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
     setupRosTopics(configuration);
     startMusicRepository(configuration);
 
-    AudioTrackPlayer trackPlayer = new JLayerAudioTrackPlayer(getSpaceEnvironment().getExecutorService(), getLog());
-    addManagedResource(trackPlayer);
+    AudioTrackPlayerService audioService =
+        getSpaceEnvironment().getServiceRegistry().getRequiredService(AudioTrackPlayerService.SERVICE_NAME);
+    AudioTrackPlayer audioPlayer = audioService.newTrackPlayer(getLog());
+    addManagedResource(audioPlayer);
 
-    jukebox = new SimpleAudioJukebox(musicRepository, trackPlayer, getLog());
+    jukebox = new SimpleAudioJukebox(musicRepository, audioPlayer, getLog());
     jukebox.addListener(this);
 
     addManagedResource(jukebox);
@@ -166,7 +168,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
     if (baseRepositoryFiles != null) {
       List<File> baseRespositories = Lists.newArrayList();
       for (String baseRepositoryFile : baseRepositoryFiles) {
-
+        baseRespositories.add(new File(baseRepositoryFile));
       }
       musicRepository = new ScanningFileAudioRepository();
 
@@ -215,13 +217,13 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
   }
 
   @Override
-  public void onJukeboxTrackStart(AudioJukebox jukebox, PlayableAudioTrack ptrack) {
+  public void onJukeboxTrackStart(AudioJukebox jukebox, FilePlayableAudioTrack ptrack) {
     if (getLog().isInfoEnabled()) {
       getLog().info(String.format("Playing %s", ptrack));
     }
 
     MusicJukeboxAnnounce announce = rosMessageFactory.newFromType(MusicJukeboxAnnounce._TYPE);
-    AudioTrack track = ptrack.getTrack();
+    AudioTrackMetadata track = ptrack.getMetadata();
     announce.setTitle(track.getTitle());
     announce.setArtist(track.getArtist());
     announce.setAlbum(track.getAlbum());
@@ -230,7 +232,7 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
   }
 
   @Override
-  public void onJukeboxTrackStop(AudioJukebox jukebox, PlayableAudioTrack ptrack) {
+  public void onJukeboxTrackStop(AudioJukebox jukebox, FilePlayableAudioTrack ptrack) {
     // Everyone gets told we have completed the track.
     if (getLog().isInfoEnabled()) {
       getLog().info(String.format("Done playing %s", ptrack));

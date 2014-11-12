@@ -17,7 +17,7 @@
 package interactivespaces.service.audio.player.test;
 
 import interactivespaces.service.audio.player.AudioTrackPlayer;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
@@ -70,7 +70,7 @@ public class TestAudioTrackPlayer extends BaseAudioTrackPlayer {
   }
 
   @Override
-  public void start(final PlayableAudioTrack track) {
+  public void start(final FilePlayableAudioTrack track) {
     executorService.submit(new Runnable() {
       @Override
       public void run() {

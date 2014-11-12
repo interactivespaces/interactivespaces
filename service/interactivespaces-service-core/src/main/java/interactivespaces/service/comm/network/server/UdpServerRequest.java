@@ -16,6 +16,8 @@
 
 package interactivespaces.service.comm.network.server;
 
+import interactivespaces.service.comm.network.WriteableUdpPacket;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -47,4 +49,24 @@ public interface UdpServerRequest {
    *          the response
    */
   void writeResponse(byte[] response);
+
+  /**
+   * Create a new UDP packet.
+   *
+   * <p>
+   * The packet will be of a dynamic size.
+   *
+   * @return UDP packet of the proper endian
+   */
+  WriteableUdpPacket newDynamicWriteableUdpPacket();
+
+  /**
+   * Create a new UDP packet.
+   *
+   * @param size
+   *          size of the packet
+   *
+   * @return UDP packet of the proper endian
+   */
+  WriteableUdpPacket newWriteableUdpPacket(int size);
 }

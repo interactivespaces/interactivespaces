@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 /**
  * A base {@link AudioJukeboxListener} with blank methods for all callbacks.
@@ -26,12 +26,12 @@ import interactivespaces.service.audio.player.PlayableAudioTrack;
 public class BaseAudioJukeboxListener implements AudioJukeboxListener {
 
   @Override
-  public void onJukeboxTrackStart(AudioJukebox jukebox, PlayableAudioTrack track) {
+  public void onJukeboxTrackStart(AudioJukebox jukebox, FilePlayableAudioTrack track) {
     // Default is do nothing
   }
 
   @Override
-  public void onJukeboxTrackStop(AudioJukebox jukebox, PlayableAudioTrack track) {
+  public void onJukeboxTrackStop(AudioJukebox jukebox, FilePlayableAudioTrack track) {
     // Default is do nothing
   }
 

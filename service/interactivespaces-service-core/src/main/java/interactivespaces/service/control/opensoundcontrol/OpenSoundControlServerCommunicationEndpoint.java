@@ -48,7 +48,7 @@ public interface OpenSoundControlServerCommunicationEndpoint extends ManagedReso
    * @param method
    *          the method for the addressed packets
    */
-  void registerMethod(String oscAddress, OpenSoundControlMethod method);
+  void registerMethod(String oscAddress, OpenSoundControlServerRequestMethod method);
 
   /**
    * Unregister a method for a specific OSC address.
@@ -61,19 +61,19 @@ public interface OpenSoundControlServerCommunicationEndpoint extends ManagedReso
    * @param method
    *          the method for the addressed packets
    */
-  void unregisterMethod(String oscAddress, OpenSoundControlMethod method);
+  void unregisterMethod(String oscAddress, OpenSoundControlServerRequestMethod method);
 
   /**
    * Register a method for handling unknown OSC messages.
    *
    * <p>
-   * Unknown OSC messages for this endpoint are defined to be ones which did not have an explicit address registered for
+   * Unknown OSC messages for this endpoint are defined to be ones that did not have an explicit address registered for
    * handling them.
    *
    * @param method
    *          the method
    */
-  void registerUnknownMessageMethod(OpenSoundControlMethod method);
+  void registerUnknownMessageMethod(OpenSoundControlServerRequestMethod method);
 
   /**
    * Unregister a method for handling unknown messages.
@@ -84,5 +84,5 @@ public interface OpenSoundControlServerCommunicationEndpoint extends ManagedReso
    * @param method
    *          the method for the addressed packets
    */
-  void unregisterUnknownMessageMethod(OpenSoundControlMethod method);
+  void unregisterUnknownMessageMethod(OpenSoundControlServerRequestMethod method);
 }

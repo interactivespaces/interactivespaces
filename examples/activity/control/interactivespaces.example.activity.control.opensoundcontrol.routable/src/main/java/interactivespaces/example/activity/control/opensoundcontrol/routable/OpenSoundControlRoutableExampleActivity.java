@@ -14,19 +14,16 @@
  * the License.
  */
 
-package interactivespaces.example.activity.control.osc.routable;
+package interactivespaces.example.activity.control.opensoundcontrol.routable;
 
 import interactivespaces.activity.impl.ros.BaseRoutableRosActivity;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpoint;
 import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientCommunicationEndpointService;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClientPacket;
-import interactivespaces.service.control.opensoundcontrol.OpenSoundControlConstants;
 
 import java.util.Map;
 
 /**
- * An Interactive Spaces Java-based activity which controls an OSC device from a
- * route.
+ * An Interactive Spaces Java-based activity that controls an OSC device from a route.
  *
  * @author Keith M. Hughes
  */
@@ -58,13 +55,12 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
   public static final String CONFIGURATION_PROPERTY_ANALOG_MAX = "analog.max";
 
   /**
-   * Configuration property giving the multipler for frequencies to be sent to
-   * the OSC.
+   * Configuration property giving the multipler for frequencies to be sent in the OSC message.
    */
   public static final String CONFIGURATION_PROPERTY_OSC_SIGNAL_MULTIPLER = "osc.signal.multiplier";
 
   /**
-   * Configuration property giving the base frequency for the OSC signal.
+   * Configuration property giving the base frequency for the OSC message.
    */
   public static final String CONFIGURATION_PROPERTY_OSC_FREQUENCY_BASE = "osc.frequency.base";
 
@@ -153,12 +149,12 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
 
   @Override
   public void onActivityActivate() {
-    sendOscPacket(FREQUENCY_ACTIVATE, VOLUME_ACTIVATE);
+    sendOscMessage(FREQUENCY_ACTIVATE, VOLUME_ACTIVATE);
   }
 
   @Override
   public void onActivityDeactivate() {
-    sendOscPacket(FREQUENCY_DEACTIVATE, VOLUME_DEACTIVATE);
+    sendOscMessage(FREQUENCY_DEACTIVATE, VOLUME_DEACTIVATE);
   }
 
   @Override
@@ -168,7 +164,7 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
     int analog2 = (Integer) message.get(MESSAGE_FIELD_ANALOG2);
 
     if (isActivated()) {
-      sendOscPacket(analog1, analog2);
+      sendOscMessage(analog1, analog2);
     }
   }
 
@@ -180,20 +176,13 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
    * @param analog2
    *          the second analog signal to send
    */
-  private void sendOscPacket(float analog1, float analog2) {
-    OpenSoundControlClientPacket packet1 =
-        controlEndpoint.newPacket(oscAddress1, OpenSoundControlConstants.OPEN_SOUND_CONTROL_ARGUMENT_TYPE_FLOAT32);
-    packet1.writeFloat(analog1 * signalMultiplier + frequencyBase);
-    packet1.write();
-
+  private void sendOscMessage(float analog1, float analog2) {
     // The second analog signal should be a value from 0 to 1
     if (analog2 > analog2Maximum) {
       analog2Maximum = analog2;
     }
 
-    OpenSoundControlClientPacket packet2 =
-        controlEndpoint.newPacket(oscAddress2, OpenSoundControlConstants.OPEN_SOUND_CONTROL_ARGUMENT_TYPE_FLOAT32);
-    packet2.writeFloat(analog2 / analog2Maximum);
-    packet2.write();
+    controlEndpoint.sendRequestMessage(oscAddress1, analog1 * signalMultiplier + frequencyBase);
+    controlEndpoint.sendRequestMessage(oscAddress2, analog2 / analog2Maximum);
   }
 }

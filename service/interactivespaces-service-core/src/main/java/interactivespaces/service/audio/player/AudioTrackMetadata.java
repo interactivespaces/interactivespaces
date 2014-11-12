@@ -17,11 +17,11 @@
 package interactivespaces.service.audio.player;
 
 /**
- * The metadata for a song.
+ * The metadata for an audio track.
  *
  * @author Keith M. Hughes
  */
-public interface AudioTrack {
+public interface AudioTrackMetadata {
 
   /**
    * Get the track ID.

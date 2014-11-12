@@ -4,8 +4,8 @@
 package interactivespaces.service.audio.player.support;
 
 import interactivespaces.service.audio.player.AudioRepository;
-import interactivespaces.service.audio.player.AudioTrack;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackMetadata;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -27,7 +27,7 @@ public class InMemoryAudioRepository implements AudioRepository {
   /**
    * Map of track ID to playable tracks.
    */
-  private final Map<String, PlayableAudioTrack> tracks = Maps.newHashMap();
+  private final Map<String, FilePlayableAudioTrack> tracks = Maps.newHashMap();
 
   @Override
   public void startup() {
@@ -60,22 +60,22 @@ public class InMemoryAudioRepository implements AudioRepository {
   }
 
   @Override
-  public AudioTrack getTrackData(String id) {
-    PlayableAudioTrack ptrack = getPlayableTrack(id);
+  public AudioTrackMetadata getTrackMetadata(String id) {
+    FilePlayableAudioTrack ptrack = getPlayableTrack(id);
     if (ptrack != null) {
-      return ptrack.getTrack();
+      return ptrack.getMetadata();
     } else {
       return null;
     }
   }
 
   @Override
-  public PlayableAudioTrack getPlayableTrack(String id) {
+  public FilePlayableAudioTrack getPlayableTrack(String id) {
     return tracks.get(id);
   }
 
   @Override
-  public Collection<PlayableAudioTrack> getAllPlayableTracks() {
+  public Collection<FilePlayableAudioTrack> getAllPlayableTracks() {
     return Lists.newArrayList(tracks.values());
   }
 
@@ -86,7 +86,7 @@ public class InMemoryAudioRepository implements AudioRepository {
    *        the track to add
    */
   @VisibleForTesting
-  public void addTrack(PlayableAudioTrack track) {
-    tracks.put(track.getTrack().getId(), track);
+  public void addTrack(FilePlayableAudioTrack track) {
+    tracks.put(track.getMetadata().getId(), track);
   }
 }

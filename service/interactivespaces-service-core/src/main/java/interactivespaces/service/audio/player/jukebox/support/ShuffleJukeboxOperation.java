@@ -17,7 +17,7 @@
 package interactivespaces.service.audio.player.jukebox.support;
 
 import interactivespaces.service.audio.player.AudioRepository;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -49,7 +49,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
   /**
    * Current track being played.
    */
-  private PlayableAudioTrack currentTrack;
+  private FilePlayableAudioTrack currentTrack;
 
   /**
    * The random number generator for shuffling the songs.
@@ -85,10 +85,10 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
 
       tracksToPlay =
           Lists.newArrayList(Iterables.transform(audioRepository.getAllPlayableTracks(),
-              new Function<PlayableAudioTrack, String>() {
+              new Function<FilePlayableAudioTrack, String>() {
                 @Override
-                public String apply(PlayableAudioTrack input) {
-                  return input.getTrack().getId();
+                public String apply(FilePlayableAudioTrack input) {
+                  return input.getMetadata().getId();
                 }
               }));
 
@@ -116,7 +116,7 @@ public class ShuffleJukeboxOperation extends BaseJukeboxOperation {
   }
 
   @Override
-  public synchronized void handleTrackStop(PlayableAudioTrack track) {
+  public synchronized void handleTrackStop(FilePlayableAudioTrack track) {
     startPlayingNewTrack();
   }
 

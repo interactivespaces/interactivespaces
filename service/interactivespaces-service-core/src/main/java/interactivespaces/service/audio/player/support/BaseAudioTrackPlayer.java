@@ -18,7 +18,7 @@ package interactivespaces.service.audio.player.support;
 
 import interactivespaces.service.audio.player.AudioTrackPlayer;
 import interactivespaces.service.audio.player.AudioTrackPlayerListener;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 
 import com.google.common.collect.Lists;
 
@@ -79,7 +79,7 @@ public abstract class BaseAudioTrackPlayer implements AudioTrackPlayer {
    * @param track
    *          the track
    */
-  protected void notifyTrackStart(PlayableAudioTrack track) {
+  protected void notifyTrackStart(FilePlayableAudioTrack track) {
     for (AudioTrackPlayerListener listener : listeners) {
       try {
         listener.onAudioTrackStart(this, track);
@@ -95,7 +95,7 @@ public abstract class BaseAudioTrackPlayer implements AudioTrackPlayer {
    * @param track
    *          the track
    */
-  protected void notifyTrackStop(PlayableAudioTrack track) {
+  protected void notifyTrackStop(FilePlayableAudioTrack track) {
     for (AudioTrackPlayerListener listener : listeners) {
       try {
         listener.onAudioTrackStop(this, track);

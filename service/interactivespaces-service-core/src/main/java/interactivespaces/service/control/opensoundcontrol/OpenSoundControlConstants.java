@@ -16,6 +16,8 @@
 
 package interactivespaces.service.control.opensoundcontrol;
 
+import java.nio.ByteOrder;
+
 /**
  * Useful constants for using Open Sound Control.
  *
@@ -52,4 +54,39 @@ public class OpenSoundControlConstants {
    * blob argument type for an Open Sound Control message argument.
    */
   public static final byte OPEN_SOUND_CONTROL_ARGUMENT_TYPE_BLOB = 0x62;
+
+  /**
+   * The character that starts an OSC packet type string.
+   */
+  public static final byte OPEN_SOUND_CONTROL_TYPE_STRING_DESIGNATOR = 0x2c;
+
+  /**
+   * The number of bytes in an OSC int32.
+   */
+  public static final int OPEN_SOUND_CONTROL_NUMBER_BYTES_INT32 = 4;
+
+  /**
+   * The number of bytes in an OSC int64.
+   */
+  public static final int OPEN_SOUND_CONTROL_NUMBER_BYTES_INT64 = 8;
+
+  /**
+   * The number of bytes in an OSC float32.
+   */
+  public static final int OPEN_SOUND_CONTROL_NUMBER_BYTES_FLOAT32 = 4;
+
+  /**
+   * The number of bytes in an OSC float64.
+   */
+  public static final int OPEN_SOUND_CONTROL_NUMBER_BYTES_FLOAT64 = 8;
+
+  /**
+   * The size of an OSC byte boundary.
+   */
+  public static final int OPEN_SOUND_CONTROL_BYTE_BOUNDARY = 4;
+
+  /**
+   * Byte order for Open Sound Control data types.
+   */
+  public static final ByteOrder OPEN_SOUND_CONTROL_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 }

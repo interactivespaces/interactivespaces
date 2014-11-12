@@ -19,8 +19,8 @@ package interactivespaces.service.audio.player.internal;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.audio.player.AudioRepository;
-import interactivespaces.service.audio.player.AudioTrack;
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.AudioTrackMetadata;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.SimpleAudioTrack;
 import interactivespaces.service.audio.player.support.InMemoryAudioRepository;
 
@@ -118,11 +118,11 @@ public class ScanningFileAudioRepository extends InMemoryAudioRepository {
       throw new SimpleInteractiveSpacesException(String.format("Cannot read music file %s", file.getAbsolutePath()));
     }
 
-    AudioTrack track = new SimpleAudioTrack();
+    AudioTrackMetadata track = new SimpleAudioTrack();
     track.setId(generateTrackId(file));
     getMusicMetadata(file, track);
 
-    addTrack(new PlayableAudioTrack(track, file));
+    addTrack(new FilePlayableAudioTrack(track, file));
   }
 
   /**
@@ -146,7 +146,7 @@ public class ScanningFileAudioRepository extends InMemoryAudioRepository {
    * @param track
    *          the track object getting the metadata
    */
-  private void getMusicMetadata(File file, AudioTrack track) {
+  private void getMusicMetadata(File file, AudioTrackMetadata track) {
     try {
       MP3File metadata = new MP3File(file);
 

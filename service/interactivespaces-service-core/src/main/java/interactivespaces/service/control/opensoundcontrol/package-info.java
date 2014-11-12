@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,15 +14,13 @@
  * the License.
  */
 
-package interactivespaces.service.comm.network.client;
-
-import interactivespaces.service.comm.network.WriteableUdpPacket;
-
 /**
- * A packet to be sent to a remote UDP server.
+ * The Open Sound Control service provides both Open Sound Control client and server implementations.
  *
- * @author Keith M. Hughes
+ * <p>
+ * Open Sound Control outgoing messages may be sent multiple times once they are created. This can be useful
+ * if you wish to create a collection of messages that need to be sent frequently, they only need to be created once.
+ *
+ * @author keith M. Hughes
  */
-@Deprecated
-public interface UdpPacket extends WriteableUdpPacket {
-}
+package interactivespaces.service.control.opensoundcontrol;

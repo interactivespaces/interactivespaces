@@ -16,7 +16,7 @@
 
 package interactivespaces.service.audio.player.jukebox.support;
 
-import interactivespaces.service.audio.player.PlayableAudioTrack;
+import interactivespaces.service.audio.player.FilePlayableAudioTrack;
 import interactivespaces.service.audio.player.jukebox.AudioJukebox;
 
 /**
@@ -38,7 +38,7 @@ public interface InternalAudioJukebox extends AudioJukebox {
    * @param track
    *          the track to play
    */
-  void playTrack(PlayableAudioTrack track);
+  void playTrack(FilePlayableAudioTrack track);
 
   /**
    * Stop playing the current track, if any.
