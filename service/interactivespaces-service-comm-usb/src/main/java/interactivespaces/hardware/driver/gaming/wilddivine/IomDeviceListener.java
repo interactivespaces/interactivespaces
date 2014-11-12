@@ -26,22 +26,22 @@ public interface IomDeviceListener {
   /**
    * The minimum value of the heart rate value.
    */
-  public static final double HEART_RATE_VALUE_MINIMUM = 1.6;
+  double HEART_RATE_VALUE_MINIMUM = 1.6;
 
   /**
    * The maximum value of the heart rate value.
    */
-  public static final double HEART_RATE_VALUE_MAXIMUM = 2.5;
+  double HEART_RATE_VALUE_MAXIMUM = 2.5;
 
   /**
    * The minimum value of the skin conductivity level.
    */
-  public static final double SKIN_CONDUCTIVITY_LEVEL_MINIMUM = 3.0;
+  double SKIN_CONDUCTIVITY_LEVEL_MINIMUM = 3.0;
 
   /**
    * The maximum value of the skin conductivity level.
    */
-  public static final double SKIN_CONDUCTIVITY_LEVEL_MAXIMUM = 3.0;
+  double SKIN_CONDUCTIVITY_LEVEL_MAXIMUM = 3.0;
 
   /**
    * A sensor reading has taken place.
@@ -56,5 +56,5 @@ public interface IomDeviceListener {
    *          {@link #SKIN_CONDUCTIVITY_LEVEL_MINIMUM} and
    *          {@link #SKIN_CONDUCTIVITY_LEVEL_MAXIMUM})
    */
-  void onEvent(IomDriver driver, double heartRateValue, double skinConductivityLevel);
+  void onIomMeasurement(IomDriver driver, double heartRateValue, double skinConductivityLevel);
 }

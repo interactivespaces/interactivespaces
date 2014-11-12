@@ -295,12 +295,12 @@ The following example is part of the ``<activity>`` element for the
 
 The properties for your activity are defined by the ``<property>`` elements in the ``<configuration>`` section.
 
-.. _workbench1-resource-copying:
+.. _workbench1-resource-copying-label:
 
 Resource Copying
 ----------------
 
-Often you will find that you have resources which several of your projects will use. An
+Often you will find that you have resources that several of your projects will use. An
 example would be Javascript libraries that are being used in several of your web browser-based
 activities.
 
@@ -386,13 +386,13 @@ Which would copy the file ``artifact`` from the subfolder ``native/build`` in yo
 folder. ``native/build`` might be the folder that your C build places the final library or
 executable that it builds.
 
-.. _workbench1-resource-assemblies:
+.. _workbench1-resource-assemblies-label:
 
 Resource Assemblies
 ^^^^^^^^^^^^^^^^^^^
 
 In addition to copied resources, it's possible to include an ``assembly``, which is a single bundle file
-that's expanded into a collection of files. See :ref:`workbench1-assembly-projects` for documentation
+that's expanded into a collection of files. See :ref:`workbench1-assembly-projects-label` for documentation
 on how assembly projects are created. To use a resource assembly, specify an ``<assembly>`` tag as in the
 example below.
 
@@ -411,7 +411,7 @@ build source path. For example, this can be used to create a shared source java 
 across a number of different activities. The additional sources are passed to the underlying project builder,
 which will typically process them in the same manner as source files in the activity home directory itself.
 
-Note that is is also possible to use :ref:`workbench1-library-projects` to create shared activity functionality.
+Note that is is also possible to use :ref:`workbench1-library-projects-label` to create shared activity functionality.
 
 ::
 
@@ -419,6 +419,50 @@ Note that is is also possible to use :ref:`workbench1-library-projects` to creat
     <source sourceDirectory="${project.home}/../shared/src/main/java" />
   </sources>
 
+
+.. _workbench1-dependencies-label:
+
+Project Dependencies
+---------------------
+
+Sometimes your activity will have dependencies on code that is not part of the Core Interactive Spaces
+distribution. These dependencies can be from external libraries or ones you have
+created yourself by creating :ref:`workbench1-library-projects-label` that contain common functionality for
+many of your activities.
+
+Interactive Spaces needs to know about these dependencies so that the dependencies can be deployed
+to the controller along with
+your activities if the Interactive Spaces controller where the activity is being deployed doesn't already have
+the dependencies.
+
+Dependencies are placed in the ``project.xml`` file using a ``<dependencies>`` section. An example dependencies section
+that is dependent on any version of the ``interactivespaces.sandbox.service.control.dmx`` library 
+between versions ``1.0.0`` and ``1.1.0`` would be as follows.
+
+::
+
+  <dependencies>
+    <dependency name="interactivespaces.sandbox.service.control.dmx" 
+        minimumVersion="1.0.0" maximumVersion="1.1.0" 
+        required="true" />
+  </dependencies>
+
+The ``<dependency>`` item names the dependency, in this case ``interactivespaces.sandbox.service.control.dmx``.
+The ``minimumVersion`` attribute says that the ``1.0.0`` version of the library is the minimum version which 
+can be used. ``maximumVersion`` gives the maximum version. In this case, any version
+before ``1.1.0`` would be allowed. In other words, the maximum version is exclusive, the version number has to be strictly smaller
+than the value given.
+
+If you leave off ``maximumVersion`` it is given the value of ``minimumVersion``. If ``minimumVersion`` and
+``maximumVersion`` have the same value, this means that the activity is dependent on exactly that version,
+not a range of versions.
+
+The ``required`` field says whether your code is dependent on the dependency. This sounds a little strange, but
+not requiring a dependency just says that the activity could run if the dependency is available, but it can
+also run without it. The ``required`` attribute is not required and will have a value of ``false`` if not
+specified.
+
+The ``<dependencies>`` section can have as many ``<dependency>`` items as needed.
 
 .. _workbench1-import-deploy-label:
 
@@ -491,17 +535,22 @@ Here is an example of a complete Activity project file with resource and deploym
     </activity>
 
     <resources>
-        <resource destinationDirectory="webapp/fonts/OpenSans"
-            sourceDirectory="${repo.cec}/resources/fonts/OpenSans" />
-        <resource destinationDirectory="webapp/js/libs"
-            sourceDirectory="${repo.cec}/resources/web/js/base" />
-        <resource destinationDirectory="webapp/js/libs"
-            sourceFile="${repo.cec}/resources/web/js/external/jquery/core/jquery-1.9.1.min.js" />
+      <resource destinationDirectory="webapp/fonts/OpenSans"
+          sourceDirectory="${repo.cec}/resources/fonts/OpenSans" />
+      <resource destinationDirectory="webapp/js/libs"
+          sourceDirectory="${repo.cec}/resources/web/js/base" />
+      <resource destinationDirectory="webapp/js/libs"
+          sourceFile="${repo.cec}/resources/web/js/external/jquery/core/jquery-1.9.1.min.js" />
     </resources>
 
+    <dependencies>
+      <dependency name="foo.bar" minimumVersion="1.2.3" maximumVersion="1.3.0" required="true" />
+      <dependency name="yada.yada" minimumVersion="2.3.0" maximumVersion="2.4.0" required="true" />
+    </dependencies>
+    
     <deployments>
-        <deployment type="testdeploy" location="${deployment.test.deploy}" />
-        <deployment type="testimport" location="${deployment.test.import}" />
+      <deployment type="testdeploy" location="${deployment.test.deploy}" />
+      <deployment type="testimport" location="${deployment.test.import}" />
     </deployments>
   </project>
 
@@ -509,7 +558,7 @@ Here is an example of a complete Activity project file with resource and deploym
 Other Project Types
 ===================
 
-.. _workbench1-library-projects:
+.. _workbench1-library-projects-label:
 
 Library Projects
 ----------------
@@ -540,9 +589,12 @@ and version sections that all projects must have. But the ``type`` attribute of 
 
 The artifact built for a Library project will be a Java jar file. It is copied into
 the ``startup`` folder of an Interactive Spaces controller and will then be available for
-Activities to use.
+Activities to use when compiling. An activity using the library should list the library in its dependencies
+section (see :ref:`workbench1-dependencies-label`). When ready to deploy the library with an activity, add 
+the dependency to the 
+``master/repository/interactivespaces/resources/bundles`` folder on your Interactive Spaces Master.
 
-A Resource section (see :ref:`workbench1-resource-copying`) in your Library ``project.xml`` will copy the files
+A Resource section (see :ref:`workbench1-resource-copying-label`) in your Library ``project.xml`` will copy the files
 such that they will appear in the JAR file created for the library. Destination pathnames will be relative to the
 root of the JAR file.
 
@@ -574,12 +626,12 @@ is to have some code called when your library starts up. This is done with an OS
     <version>1.0.0</version>
     
     <library> 
-      <osgi> 
+      <container> 
         <activator>my.support.internal.osgi.MySupportBundleActivator</activator>
         <privatePackages> 
           <package>my.support.internal.*</package>
         </privatePackages>
-      </osgi> 
+      </container> 
     </library>
   </project>
 
@@ -591,14 +643,14 @@ Service Projects
 Resource Projects
 -----------------
 
-.. _workbench1-assembly-projects:
+.. _workbench1-assembly-projects-label:
 
 Assembly Projects
 -----------------
 
 Assembly projects create a bundle file (typically as a compressed ``zip`` file) that consists of several constituent files.
 The resulting bundles can then be included using an ``assembly`` resource directive
-(see :ref:`workbench1-resource-assemblies`). The project snippet below will create an assembly
+(see :ref:`workbench1-resource-assemblies-label`). The project snippet below will create an assembly
 named ``javascript.bundle-1.0.0.zip`` that can then be included elsewhere.
 
 ::

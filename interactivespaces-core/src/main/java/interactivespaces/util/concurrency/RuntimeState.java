@@ -33,7 +33,7 @@ public enum RuntimeState {
   RUNNING(true, false),
 
   /**
-   * The component is shut down
+   * The component is shut down.
    */
   SHUTDOWN(false, false),
 
@@ -45,13 +45,21 @@ public enum RuntimeState {
   /**
    * {@code true} if the runtime state is considered running.
    */
-  boolean running;
+  private boolean running;
 
   /**
    * {@code true} if the runtime state is considered an error.
    */
-  boolean error;
+  private boolean error;
 
+  /**
+   * Construct a new state.
+   *
+   * @param running
+   *          {@code true} if a running state
+   * @param error
+   *          {@code true} if an error state
+   */
   RuntimeState(boolean running, boolean error) {
     this.running = running;
     this.error = error;
@@ -60,7 +68,7 @@ public enum RuntimeState {
   /**
    * Is the state a running state?
    *
-   * @return  {@code true} if running
+   * @return {@code true} if running
    */
   public boolean isRunning() {
     return running;
@@ -74,6 +82,4 @@ public enum RuntimeState {
   public boolean isError() {
     return error;
   }
-
-
 }

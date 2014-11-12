@@ -16,24 +16,18 @@
 
 package interactivespaces.hardware.driver.gaming.wilddivine;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.hardware.driver.DriverSupport;
-import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.service.comm.usb.UsbCommunicationEndpoint;
 import interactivespaces.service.comm.usb.UsbCommunicationEndpointService;
 import interactivespaces.service.comm.usb.internal.libusb4j.Usb4JavaUsbCommunicationEndpointService;
-import interactivespaces.system.SimpleInteractiveSpacesEnvironment;
+import interactivespaces.system.StandaloneInteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.util.concurrency.CancellableLoop;
 
-import org.apache.commons.logging.impl.Jdk14Logger;
+import com.google.common.collect.Lists;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 
 /**
  * A driver for the Wild Divine Iom biofeedback sensor.
@@ -43,26 +37,19 @@ import java.util.concurrent.Executors;
 public class IomDriver extends DriverSupport {
 
   public static void main(String[] args) {
-    final SimpleInteractiveSpacesEnvironment spaceEnvironment =
-        new SimpleInteractiveSpacesEnvironment();
-    spaceEnvironment.setExecutorService(Executors.newScheduledThreadPool(100));
-    SimpleServiceRegistry serviceRegistry = new SimpleServiceRegistry(spaceEnvironment);
-    spaceEnvironment.setServiceRegistry(serviceRegistry);
-    Configuration configuration = SimpleConfiguration.newConfiguration();
-    spaceEnvironment.setLog(new Jdk14Logger("foo"));
+    final StandaloneInteractiveSpacesEnvironment spaceEnvironment = StandaloneInteractiveSpacesEnvironment.newStandaloneInteractiveSpacesEnvironment();
     Usb4JavaUsbCommunicationEndpointService service = new Usb4JavaUsbCommunicationEndpointService();
-    serviceRegistry.registerService(service);
+    spaceEnvironment.getServiceRegistry().registerService(service);
     service.startup();
 
     IomDriver driver = new IomDriver();
-    driver.prepare(spaceEnvironment, configuration, spaceEnvironment.getLog());
+    driver.prepare(spaceEnvironment, spaceEnvironment.getSystemConfiguration(), spaceEnvironment.getLog());
 
     driver.addListener(new IomDeviceListener() {
 
       @Override
-      public void onEvent(IomDriver driver, double heartRateValue, double skinConductivityLevel) {
-        spaceEnvironment.getLog().info(
-            String.format("Heart is %f, skin is %f", heartRateValue, skinConductivityLevel));
+      public void onIomMeasurement(IomDriver driver, double heartRateValue, double skinConductivityLevel) {
+        spaceEnvironment.getLog().info(String.format("Heart is %f, skin is %f", heartRateValue, skinConductivityLevel));
       }
     });
 
@@ -74,7 +61,7 @@ public class IomDriver extends DriverSupport {
       e.printStackTrace();
     } finally {
       driver.shutdown();
-      spaceEnvironment.getExecutorService().shutdown();
+      spaceEnvironment.shutdown();
     }
   }
 
@@ -99,22 +86,22 @@ public class IomDriver extends DriverSupport {
   public static final byte CHARACTER_RAW_START = 0x52;
 
   /**
-   * Hex digit for A
+   * Hex digit for A.
    */
   public static final byte HEX_DIGIT_A = 'A';
 
   /**
-   * Hex digit for F
+   * Hex digit for F.
    */
   public static final byte HEX_DIGIT_F = 'F';
 
   /**
-   * Hex digit for 0
+   * Hex digit for 0.
    */
   public static final byte HEX_DIGIT_0 = '0';
 
   /**
-   * Hex digit for 9
+   * Hex digit for 9.
    */
   public static final byte HEX_DIGIT_9 = '9';
 
@@ -152,15 +139,14 @@ public class IomDriver extends DriverSupport {
   private List<IomDeviceListener> listeners = Lists.newArrayList();
 
   /**
-   * The sensor read loop
+   * The sensor read loop.
    */
   private CancellableLoop sensorReadLoop;
 
   @Override
   public void startup() {
     UsbCommunicationEndpointService service =
-        spaceEnvironment.getServiceRegistry().getRequiredService(
-            UsbCommunicationEndpointService.SERVICE_NAME);
+        spaceEnvironment.getServiceRegistry().getRequiredService(UsbCommunicationEndpointService.SERVICE_NAME);
 
     endpoint = service.newEndpoint("14fa", "0001");
 
@@ -228,15 +214,10 @@ public class IomDriver extends DriverSupport {
    */
   private void readSensorMessage() {
     while (true) {
-      // System.out.println("Reading from character " + curReadPosition);
       byte b = readByte();
       if (b != CHARACTER_TAG_BEGIN) {
-        // System.out
-        // .println("Did not find open tag begin in expected place");
         return;
       }
-
-      // System.out.println("Found message begin");
 
       b = readByte();
       if (b == CHARACTER_RAW_START) {
@@ -244,11 +225,7 @@ public class IomDriver extends DriverSupport {
         readByte();
         readByte();
         b = readByte();
-        // System.out.println(Integer.toHexString(b) + " "
-        // + Integer.toHexString(CHARACTER_TAG_END));
         if (b != CHARACTER_TAG_END) {
-          // System.out
-          // .println("Did not find open tag end in expected place");
           return;
         }
 
@@ -263,8 +240,6 @@ public class IomDriver extends DriverSupport {
         byte d2 = readByte();
         b = readByte();
         if (b != CHARACTER_TAG_BEGIN) {
-          // System.out
-          // .println("Did not find close tag begin in expected place");
           return;
         }
 
@@ -288,8 +263,6 @@ public class IomDriver extends DriverSupport {
 
         break;
       } else {
-        // System.out.println("Have message "
-        // + new String(new byte[] { b }));
         // Ignore any other messages
         readUntilEndOfMessage();
       }
@@ -307,7 +280,7 @@ public class IomDriver extends DriverSupport {
   public void signalListeners(double heartRateValue, double skinConductivityLevel) {
     for (IomDeviceListener listener : listeners) {
       try {
-        listener.onEvent(this, heartRateValue, skinConductivityLevel);
+        listener.onIomMeasurement(this, heartRateValue, skinConductivityLevel);
       } catch (Exception e) {
         log.error("Error while running IomDevice listener", e);
       }
@@ -321,14 +294,14 @@ public class IomDriver extends DriverSupport {
     // Read to the end of the current message
     while (true) {
       // First look for the end of a tag
-      while (readByte() != CHARACTER_TAG_END)
-        ;
+      while (readByte() != CHARACTER_TAG_END) {
+        // Nothing to do
+      }
 
       byte b = readByte();
       if (b == 0x0a) {
         b = readByte();
         if (b == 0x0d) {
-          // System.out.println("Found end of message ");
           break;
         }
       }
@@ -336,12 +309,9 @@ public class IomDriver extends DriverSupport {
   }
 
   /**
-   * Read a byte from the endpoint
+   * Read a byte from the endpoint.
    *
    * @return the byte read
-   *
-   * @throws InteractiveSpacesException
-   *           some sort of read error has happened
    */
   private byte readByte() {
     try {
@@ -349,16 +319,9 @@ public class IomDriver extends DriverSupport {
         int length = endpoint.readReportSync(readBuffer);
 
         curPacketSize = (readBuffer[0] & 0xff) + 1;
-        // System.out.println("CurPacketSize " + curPacketSize);
 
-        // Want to start at position 1 because first byte is
-        // ignored.
+        // Want to start at position 1 because first byte is ignored.
         curReadPosition = 1;
-
-        // System.out.println(ByteUtils.toHexString(readBuffer));
-        // byte[] b = new byte[curPacketSize - 1];
-        // System.arraycopy(readBuffer, 1, b, 0, curPacketSize - 1);
-        // System.out.println(new String(b));
       }
 
       return readBuffer[curReadPosition++];
@@ -366,5 +329,4 @@ public class IomDriver extends DriverSupport {
       throw new InteractiveSpacesException("Could not read USB device", e);
     }
   }
-
 }

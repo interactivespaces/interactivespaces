@@ -20,15 +20,19 @@ Uploading The Activity
 -------------------------------
 
 The first step is to load the sample activity into the Master. To do this, go to the Master Web
-Interface and click on the **Activity** menu, then **Upload**. This will show you the following
-screen.
+Interface and click on the **Activity** menu. This shows you the following page if this is for a 
+brand new install where the Master contains no activities.
+
+.. image:: images/EmptyActivitiesPage.png
+
+Now click  **Upload**. This will show you the following screen.
 
 .. image:: images/ActivityUploadStep1.png
 
 Click the **Choose File** button and go to where you installed the Interactive Spaces Workbench.
 Find the ``interactivespaces.example.activity.hello`` in the ``examples/basics/hello`` folder
 of the Workbench, go
-into the target folder, and select the file ending with .zip. You should end up with something
+into the target folder, and select the file ending with ``.zip``. You should end up with something
 like the following.
 
 
@@ -67,7 +71,13 @@ You need to deploy the Live Activity to the Controller before you can run it. To
 click on the **Deploy** button on the Live Activity Screen. If you look in the  Master and
 Controller consoles, you should see some logging message about deploying the activity. The
 logs will use the UUID you see in the example above, in my installation it was
-``67d4232c-b61b-46cd-ae20-c0834f9e972d``, yours will be different.
+``1cb6d86e-bd5c-4a7b-9378-29f5a2ef25a0``, yours will be different.
+
+
+.. image:: images/LiveActivityDeploy.png
+
+Notice the *Deployment* field has changed. This field will tell you when the Live Activity was last deployed
+and if it is out of date.
 
 Starting Up The Live Activity
 -------------------------------
@@ -75,8 +85,13 @@ Starting Up The Live Activity
 You can now start the activity up by clicking the **Startup** command. You should see the startup
 happen in the logs in both the Master and Controller consoles, once again by using the UUID
 to identify the Live Activity. You should also see an error log in the Controller Console
-saying that the Live Activity has started up. This message is coming from the Python script,
+saying that the Live Activity has started up. This message is coming from the activity,
 which you can see in the Workbench examples folder.
+
+If you refresh the Live Activity page you can see that your Live Activity is now running.
+
+.. image:: images/LiveActivityRunning.png
+
 
 Activating The Live Activity
 -------------------------------
@@ -84,8 +99,14 @@ Activating The Live Activity
 Live Activities must be Activated before they can handle any requests. You will find out
 more about what that means later. For now you can now activate the activity up by clicking the
 **Activate** command. You should see the activation happen in the logs in both the Master
-and Controller consoles, including an error log in the Controller Console from the Python
-script saying that the Live Activity has activated.
+and Controller consoles, including an error log in the Controller Console from the activity
+ saying that the Live Activity has activated.
+
+
+If you refresh the Live Activity page you can see that your Live Activity is now active.
+
+.. image:: images/LiveActivityActive.png
+
 
 Deactivating The Live Activity
 -------------------------------
@@ -94,14 +115,25 @@ Activated Live Activities can be either Deactivated if you want them to stop pro
 but keep running, or Shutdown. You can now deactivate the activity up by clicking the
 **Deactivate** command. You should see the deactivation happen in the logs in both the
 Master and Controller consoles, including an error log in the Controller Console from the
-Python script saying that the Live Activity has deactivated.
+activity saying that the Live Activity has deactivated.
+
+If you refresh the Live Activity page you can see that your Live Activity is now just running, though the
+timestamp has changed.
+
+.. image:: images/LiveActivityDeactivate.png
+
 
 Shutting Down The Live Activity
 -------------------------------
 
 Shut down the activity up by clicking the **Shutdown** command. You should see the shutdown
 happen in the logs in both the Master and Controller consoles, including an error log in the
-Controller Console from the Python script saying that the Live Activity has shut down.
+Controller Console from the activity saying that the Live Activity has shut down.
+
+If you refresh the Live Activity page you can see that your Live Activity is now shut down, though the
+timestamp has changed.
+
+.. image:: images/LiveActivityShutdown.png
 
 Creating an Activity Project From Scratch
 =========================================
@@ -124,7 +156,7 @@ Once there, type the following command.
 
   bin/isworkbench.bash create activity java me.activity.first
 
-This will create a new directory *me.activity.first*, containing a *project.xml* file and also the
+This will create a new directory ``me.activity.first``, containing a ``project.xml`` file and also the
 requisite Java source files. The project file contains a number of fields, such as description and version,
 that can then be edited appropriately.
 There are also templates available for ``javascript``, ``python``, or ``android``.
@@ -141,15 +173,15 @@ Building the Activity
 
 The activity is built using the Workbench.
 
-Suppose the name of your project is *me.activity.first*. The command to
+Suppose the name of your project is ``me.activity.first``. The command to
 build your project is
 
 ::
 
   bin/isworkbench.bash me.activity.first build
 
-This will put a file called *me.activity.first-0.0.1.zip* in the
-*me.activity.first/build* directory.
+This will put a file called ``me.activity.first-0.0.1.zip`` in the
+``me.activity.first/build`` directory.
 
 You can upload this activity into Interactive Spaces the same way you did
 the sample activity.
@@ -160,7 +192,7 @@ Using an IDE
 You can create an IDE project for your activity projects, even if they
 aren't Java projects.
 
-Suppose the name of your project is *me.activity.first*. The command to
+Suppose the name of your project is ``me.activity.first``. The command to
 create the IDE project is
 
 ::

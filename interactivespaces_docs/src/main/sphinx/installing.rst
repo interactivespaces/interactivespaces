@@ -16,10 +16,6 @@ Before you can install Interactive Spaces on your computer, you should make sure
 
 Interactive Spaces requires at least Java 1.6.
 
-If you want to be able to easily build activities, you should install the Ant
-building tool. This is going away for non-Java activities and possibly even
-for Java activities.
-
 Installing a Local Master
 -------------
 
@@ -37,10 +33,10 @@ If you are using a command line interface for your operating system, use the com
 
 ::
 
-  java -jar interactivespaces-master-installer-x.y.z-standard.jar
+  java -jar interactivespaces-master-installer-x.y.z.jar
 
 
-where *x.y.z* is the version of the Interactive Spaces Master you are installing.
+where ``x.y.z`` is the version of the Interactive Spaces Master you are installing.
 
 For now just accept all of the default settings by clicking Next on the configuration page.
 
@@ -78,11 +74,14 @@ If you are using a command line interface for your operating system, use the com
 
 ::
 
-  java -jar interactivespaces-controller-installer-x.y.z-standard.jar
+  java -jar interactivespaces-controller-installer-x.y.z.jar
 
-where *x.y.z* is the version of the Interactive Spaces Controller you are installing.
+where ``x.y.z`` is the version of the Interactive Spaces Controller you are installing.
 
 If you are auto-configuring the controller, make sure you don't check the manual configuration checkbox.
+
+If you want your setup to match the pictures we will have in this manual, please name your controller 
+``controller1``.
 
 Testing the Controller Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,6 +111,10 @@ Click on this and click Connect. If everything is working you should see
 
 appear in the controller window. Also, if you refresh the controller page in the Master Web
 Interface you should see it say that the controller is in the running state.
+
+
+.. image:: images/NewController.png
+
 
 Manually Configuring a Controller
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,9 +147,9 @@ If you are using a command line interface for your operating system, use the com
 
 ::
 
-  java -jar interactivespaces-workbench-installer-x.y.z-standard.jar
+  java -jar interactivespaces-workbench-installer-x.y.z.jar
 
-where *x.y.z* is the version of the Interactive Spaces Workbench you are installing.
+where ``x.y.z`` is the version of the Interactive Spaces Workbench you are installing.
 
 
 Updating An Installation

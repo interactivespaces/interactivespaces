@@ -39,7 +39,7 @@ public interface UsbCommunicationEndpoint extends ManagedResource {
   /**
    * Create a buffer of the max size required by the USB device.
    *
-   * @return the buffer.
+   * @return the buffer
    */
   byte[] newBuffer();
 

@@ -79,5 +79,4 @@ public class BlobDetectionResult {
   public int[] getBlobData() {
     return blobData;
   }
-
 }

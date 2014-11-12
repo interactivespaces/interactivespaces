@@ -38,5 +38,4 @@ public interface BlobDetector {
    * @return the detection result
    */
   BlobDetectionResult getBlobs(int[] data, int numRows, int numColumns, BlobSampleClassifier sampler);
-
 }

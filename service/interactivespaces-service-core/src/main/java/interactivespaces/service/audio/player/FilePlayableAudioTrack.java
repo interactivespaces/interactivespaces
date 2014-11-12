@@ -31,7 +31,7 @@ public class FilePlayableAudioTrack {
   private AudioTrackMetadata metadata;
 
   /**
-   * File containing the track
+   * File containing the track.
    */
   private File file;
 

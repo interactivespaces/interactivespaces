@@ -1,7 +1,7 @@
 Interactive Spaces
 ============
 
-Interactive Spaces are physical spaces which can interact with their occupants in some way.
+Interactive Spaces are physical spaces that can interact with their occupants in some way.
 
 An example can be seen in the picture below.
 
@@ -42,10 +42,13 @@ want. Hopefully peeling that onion won’t bring too many tears to your eyes.
    activityadditional
    activitycomponents
    spaceenvironment
-   services
    supportclasses
-   networkcomm
-   hardwarecomm
+   utilitiesconcurrency
+   servicesnetworkcommunication
+   serviceshardwarecommunication
+   servicesaudio
+   servicesvision
+   servicesmisc
    spacecontrolleradvanced
    android
    expressionlanguage

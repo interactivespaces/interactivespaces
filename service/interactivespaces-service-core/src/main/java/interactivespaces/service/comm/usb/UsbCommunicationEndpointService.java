@@ -28,7 +28,7 @@ public interface UsbCommunicationEndpointService extends SupportedService {
   /**
    * The name of the service.
    */
-  public static final String SERVICE_NAME = "comm.usb";
+  String SERVICE_NAME = "comm.usb";
 
   /**
    * Get a new USB endpoint.
@@ -37,7 +37,8 @@ public interface UsbCommunicationEndpointService extends SupportedService {
    *          the vendor ID for the device
    * @param product
    *          the product ID for the device
-   * @return
+   *
+   * @return the USB communication endpoint
    */
   UsbCommunicationEndpoint newEndpoint(String vendor, String product);
 }
