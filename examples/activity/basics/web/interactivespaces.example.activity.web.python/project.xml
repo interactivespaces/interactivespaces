@@ -1,10 +1,31 @@
 <?xml version="1.0"?>
 <project type="activity">
-    <name>Web Python Activity Example</name>
-    <description>
-An example Python-based web activity which uses web sockets to communicate between the Live Activity and the browser application.
-    </description>
+  <name>Web Python Activity Example</name>
+  <description>
+    An example Python-based web activity that uses web sockets to communicate between the Live Activity
+    and the browser application.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.web.python</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.web.python
+  </identifyingName>
+  <version>1.0.0</version>
+  
+  <activity type="script">
+    <name>interactivespacesExampleActivityWebPython</name>
+    <executable>ExamplePythonWebActivity.py</executable>
+
+    <configuration>
+      <property name="space.activity.webapp.web.server.port" value="9102" />
+
+      <property name="space.activity.webapp.content.location" value="webapp" />
+      <property name="space.activity.webapp.url.initial" value="index.html" />
+      <property name="space.activity.webapp.url.query_string">
+        <value>test</value>
+      </property>
+      <property name="space.activity.webapp.browser.debug" value="true" />
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

@@ -5,31 +5,30 @@
     A music jukebox activity.
   </description>
 
-  <identifyingName>interactivespaces.activity.music.jukebox
+  <identifyingName>
+    interactivespaces.activity.music.jukebox
   </identifyingName>
   <version>1.0.0</version>
 
-
   <activity type="interactivespaces_native">
     <name>interactivespacesExampleActivityMusicJukebox</name>
-    <class>interactivespaces.activity.music.jukebox.MusicJukeboxActivity
+    <class>
+      interactivespaces.activity.music.jukebox.MusicJukeboxActivity
     </class>
 
     <configuration>
       <property name="space.activity.ros.node.name">
         <value>music/jukebox</value>
       </property>
-      <property name="music.jukebox.control.ros.topic.name"
-        value="music/jukebox/control" />
-      <property name="music.jukebox.announce.ros.topic.name"
-        value="music/jukebox/playing" />
+      <property name="music.jukebox.control.ros.topic.name" value="music/jukebox/control" />
+      <property name="music.jukebox.announce.ros.topic.name" value="music/jukebox/playing" />
       <property name="space.music.repository.base">
-        <description>A colon-separated list of filepaths to directories
-          which contain music to be played.
-          Subdirectories of these
-          directories are scanned as well.
+        <description>
+          A colon-separated list of filepaths to directories that contain music to be
+          played. Subdirectories of these directories are scanned as well.
         </description>
-        <value>/somewhere/where/you/have/music
+        <value>
+          /somewhere/where/you/have/music
         </value>
       </property>
     </configuration>

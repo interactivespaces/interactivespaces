@@ -2,30 +2,34 @@
 <project type="activity" builder="java">
   <name>Depth Camera Example: User Tracking</name>
   <description>
-    An activity which uses a depth camera attached to the
-    controller to
-    track users. The user position is sent on a route.
+    An activity that uses a depth camera attached to the
+    controller to track users. The user position is sent on a route.
   </description>
 
   <identifyingName>interactivespaces.example.activity.image.depth.usertrack
   </identifyingName>
   <version>1.0.0</version>
 
-  <activity type="interactivespaces_native" logLevel="info">
-    <name>vision.depth.usertrack</name>
-    <class>interactivespaces.activity.image.depth.usertrack.ImageDepthUserTrackerExampleActivity
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityVisionDepthUsertrack</name>
+    <class>
+      interactivespaces.activity.image.depth.usertrack.ImageDepthUserTrackerExampleActivity
     </class>
 
     <configuration>
       <property name="space.activity.ros.node.name">
-        <value>example/routable/output/vision/depth/usertrack
+        <value>
+          example/routable/output/vision/depth/usertrack
         </value>
       </property>
       <property name="space.activity.routes.outputs" value="output1" />
       <property name="space.activity.route.output.output1">
-        <value>/example/routable/channel1
+        <value>
+          /example/routable/channel1
         </value>
       </property>
+
+      <property name="space.activity.log.level" value="debug" />
     </configuration>
   </activity>
 </project>

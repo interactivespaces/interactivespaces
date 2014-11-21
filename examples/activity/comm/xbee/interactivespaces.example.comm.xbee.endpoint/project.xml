@@ -1,10 +1,32 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>XBee Endpoint Radio Example Activity</name>
-    <description>
-This Java-based activity drives an XBee endpoint radio and talks to the coordinator.
-    </description>
+  <name>XBee Endpoint Radio Example Activity</name>
+  <description>
+    This Java-based activity drives an XBee radio and talks to the coordinator.
+    The local radio can be configured as either a router or endpoint.
+  </description>
 
-    <identifyingName>interactivespaces.example.comm.xbee.endpoint</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.comm.xbee.endpoint
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleCommXbeeEndpoint</name>
+    <class>
+      interactivespaces.example.comm.xbee.endpoint.XBeeEndpointExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the XBee is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

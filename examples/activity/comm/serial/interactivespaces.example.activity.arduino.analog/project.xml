@@ -1,10 +1,38 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Analog Sensor with Arduino and Java Example</name>
-    <description>
-A Java Activity which reads from an analog sensor on an Arduino board with serial communication and sends the value on a route.
-    </description>
+  <name>Analog Sensor with Arduino and Java Example</name>
+  <description>
+    A Java Activity that reads from an analog sensor on an Arduino board with serial
+    communication and sends the value on a route.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.arduino.analog</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.arduino.analog
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivitySignalAnalog</name>
+    <class>
+      interactivespaces.example.activity.arduino.analog.AnalogSerialReadActivity
+    </class>
+
+    <configuration>
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the Arduino is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.ros.node.name">
+        <value>example/serial/analog</value>
+      </property>
+      <property name="space.activity.routes.outputs" value="signal" />
+      <property name="space.activity.route.output.signal" value="/example/routable/signal/analog" />
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

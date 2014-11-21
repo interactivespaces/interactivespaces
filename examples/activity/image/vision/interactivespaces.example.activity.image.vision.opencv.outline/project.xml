@@ -1,10 +1,20 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>OpenCV Vision Example: Realtime Edge Detection</name>
-    <description>
-An activity which uses the camera attached to the controller and displays the scene in outline form. This activity demonstratres the use of raw OpenCV.
-    </description>
+  <name>OpenCV Vision Example: Realtime Edge Detection</name>
+  <description>
+    An activity that uses the camera attached to the controller and displays the scene in
+    outline form. This activity demonstrates the use of raw OpenCV.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.image.vision.opencv.outline</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.image.vision.opencv.outline
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityVisionOpencvOutline</name>
+    <class>
+      interactivespaces.activity.image.vision.opencv.outline.ImageOpenCvVisionOutlineActivity
+    </class>
+  </activity>
 </project>

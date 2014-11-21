@@ -3,7 +3,7 @@
   <name>Routable Output Python Activity Example</name>
   <description>
     An example of a Routable Interactive Spaces Activity written in Python
-    which outputs on a route to another activity.
+    that outputs on a route to other activities.
   </description>
 
   <identifyingName>interactivespaces.example.activity.routable.output.python
@@ -12,20 +12,24 @@
 
 
   <activity type="script">
-    <name>activityOutputRoutablePythonScriptExample</name>
-    <executable>ExampleOutputRoutablePythonActivity.py
+    <name>interactivespacesExampleActivityRoutableOutputPython</name>
+    <executable>
+      ExampleOutputRoutablePythonActivity.py
     </executable>
 
     <configuration>
       <property name="space.activity.ros.node.name">
-        <value>example/routable/output
+        <value>
+          example/routable/output
         </value>
       </property>
       <property name="space.activity.routes.outputs" value="output1" />
       <property name="space.activity.route.output.output1">
-        <value>/example/routable/channel1
+        <value>
+          /example/routable/channel1
         </value>
       </property>
+
       <property name="space.activity.log.level" value="info" />
     </configuration>
   </activity>

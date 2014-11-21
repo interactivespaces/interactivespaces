@@ -1,10 +1,51 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Triggering Arduino Analog Sensor with Java Example</name>
-    <description>
-A Java Activity which reads from an analog sensor on an Arduino board with serial communication and triggers an event when the signal gets beyond a certain value.
-    </description>
+  <name>Triggering Arduino Analog Sensor with Java Example</name>
+  <description>
+    A Java Activity that reads from an analog sensor on an Arduino board with serial
+    communication and
+    triggers an event when the signal passes a certain value.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.arduino.analog.trigger</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.arduino.analog.trigger
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityArduinoAnalogTrigger</name>
+    <class>
+      interactivespaces.example.activity.arduino.analog.trigger.TriggerArduinoAnalogActivity
+    </class>
+
+    <configuration>
+      <property name="activity.example.arduino.analog.trigger.threshold" value="220">
+        <description>
+          The value read from the Arduino that is necessary for the trigger to go off.
+        </description>
+      </property>
+      <property name="activity.example.arduino.analog.trigger.fuzz" value="20">
+        <description>
+          The amount below the trigger value that the value read from the Arduino must go before the trigger
+          is reset.
+        </description>
+      </property>
+
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the Arduino is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.ros.node.name">
+        <value>example/arduino/analog/trigger</value>
+      </property>
+      <property name="space.activity.routes.outputs" value="triggermessage" />
+      <property name="space.activity.route.output.triggermessage" value="/example/routable/channel1" />
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

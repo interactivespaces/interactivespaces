@@ -1,20 +1,34 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Simple Hello World Shared Base-Class Activity Example in Java</name>
-    <description>
-A very simple Java-based activity which just logs at INFO level its
-callback messages. Uses a shared source file specified in the project description.
-    </description>
+  <name>Simple Hello World Shared Base-Class Activity Example in Java</name>
+  <description>
+    A very simple Java-based activity that just logs at the current log level its
+    callback messages.
+    Uses a shared source file specified in the project description.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.hello.shared</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.hello.shared
+  </identifyingName>
+  <version>1.0.0</version>
 
-    <sources>
-      <source sourceDirectory="../common/java" />
-    </sources>
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityHelloShared</name>
+    <class>
+      interactivespaces.activity.example.hello.HelloActivity
+    </class>
 
-    <resources>
-      <resource sourceFile="src/main/resources/resource.txt" />
-    </resources>
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+
+  <sources>
+    <source sourceDirectory="../common/java" />
+  </sources>
+
+  <resources>
+    <resource sourceFile="src/main/resources/resource.txt" />
+  </resources>
 
 </project>
