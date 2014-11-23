@@ -133,7 +133,30 @@ By default, the command will stop repeating if any execution of the task throws 
 The task will also terminate if you call ``cancel()`` on the returned ``ManagedCommand`` object or
 when your activity shuts down.
 
-The method has the arguments 
+One way of calling the method has the arguments 
+``scheduleAtFixedRate(Runnable command, long initialDelay, EventFrequency commandFrequency)``.
+
+``commandFrequency`` specifies how long
+to wait before repeating the command. It provides the period and the time units for the period. 
+
+The schedule for running the command will be
+
+* ``0``
+* ``period``
+* ``2 * period``
+* ``3 * period``
+* ...
+
+Here ``0`` means that the command will start immediately.
+
+For example, the following code snippet will repeat your command at 30 calls per second.
+
+
+.. code-block:: java
+
+  getManagedCommands().scheduleAtFixedRate(command, EventFrequency.eventsPerSecond(30.0));
+
+Another way to call the method has the arguments 
 ``scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)``.
 
 ``initialDelay`` says how far in the future to start running the command. ``period`` gives how long
@@ -154,8 +177,8 @@ a minute after that.
 
   getManagedCommands().scheduleAtFixedRate(command, 5, 1, TimeUnit.MINUTES);
 
-There is an extra argument that allows you to determine what happens if an exception is thrown while
-your command is running. This version of the method has the arguments 
+There is an extra argument for both method variations that allows you to determine what happens if an 
+exception is thrown while your command is running. This version of the method has the arguments 
 ``scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit, boolean allowTerminate)``.
 
 If ``allowTerminate`` is ``false``, the command will continue running but the exception will be logged.
@@ -171,7 +194,23 @@ repeating if any execution of the task encounters an
 exception. The task will also terminate if you call ``cancel()`` on the returned ``ManagedCommand`` 
 object or when your activity shuts down.
 
-The method has the arguments 
+One way to call the method has the arguments 
+``scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency)``.
+
+``commandFrequency`` specifies how long
+to delay before repeating the command. It provides the period and the time units for the delay.
+
+For example, the following code snippet will repeat your command with a delay equivalent to 5 per minute.
+
+
+.. code-block:: java
+
+  getManagedCommands().scheduleWithFixedDelay(command, EventFrequency.eventsPerMinute(5.0));
+
+Do be aware that this does not mean you will actually get 5 invocations per minute since the thread will actually
+take time to run. Instead the delay will be 12 seconds between invocations.
+
+Another way to call the method has the arguments 
 ``scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)``.
 
 ``initialDelay`` says how far in the future to start running the command. ``delay`` gives how long
@@ -186,7 +225,8 @@ a minute after that.
 
   getManagedCommands().scheduleWithFixedDelay(command, 5, 1, TimeUnit.MINUTES);
 
-There is an extra argument that allows you to determine what happens if an exception is thrown while
+There is an extra argument for both method variations that allows you to determine what happens if an 
+exception is thrown while
 your command is running. This version of the method has the arguments 
 ``scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit, boolean allowTerminate)``.
 

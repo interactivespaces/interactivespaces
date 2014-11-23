@@ -25,6 +25,7 @@ import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.hardware.driver.Driver;
 import interactivespaces.util.concurrency.ManagedCommands;
+import interactivespaces.util.concurrency.SimpleManagedCommands;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
@@ -47,8 +48,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   private static final int SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME = 3000;
 
   /**
-   * How long to wait between samples when checking for event handlers to
-   * complete, in msecs.
+   * How long to wait between samples when checking for event handlers to complete, in msecs.
    */
   private static final int SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME = 500;
 
@@ -75,55 +75,25 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * The commands which are being managed.
    */
-  private ManagedCommands managedCommands;
+  private SimpleManagedCommands managedCommands;
 
   /**
    * File support for use with the activity.
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
-  /**
-   * Get one of the components for the activity.
-   *
-   * @param componentType
-   *          the type of the component
-   * @param <T>
-   *          type of activity component retrieved
-   *
-   * @return the component with the given name, or {@code null} if none
-   */
-  public <T extends ActivityComponent> T getComponent(String componentType) {
+  @Override
+  public <T extends ActivityComponent> T getActivityComponent(String componentType) {
     return componentContext.getActivityComponent(componentType);
   }
 
-  /**
-   * Get one of the components for the activity.
-   *
-   * @param componentType
-   *          the name of the component
-   * @param <T>
-   *          type of activity component retrieved
-   *
-   * @return the component with the given name
-   *
-   * @throws InteractiveSpacesException
-   *           if named component is not present
-   */
-  public <T extends ActivityComponent> T getRequiredComponent(String componentType) throws InteractiveSpacesException {
+  @Override
+  public <T extends ActivityComponent> T getRequiredActivityComponent(String componentType)
+      throws InteractiveSpacesException {
     return componentContext.getRequiredActivityComponent(componentType);
   }
 
-  /**
-   * Add a new managed resource to the activity.
-   *
-   * <p>
-   * Resources added in the setup phase will not be started until after setup is
-   * complete. Any resources added after setup is complete will be immediately
-   * started.
-   *
-   * @param resource
-   *          the resource to add
-   */
+  @Override
   public void addManagedResource(ManagedResource resource) {
     managedResources.addResource(resource);
   }
@@ -170,7 +140,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     managedResources = new ManagedResources(getLog());
 
-    managedCommands = new ManagedCommands(getSpaceEnvironment().getExecutorService(), getLog());
+    managedCommands = new SimpleManagedCommands(getSpaceEnvironment().getExecutorService(), getLog());
 
     componentContext.beginStartupPhase();
     try {
@@ -218,9 +188,10 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   /**
    * Get the collection of managed commands.
    *
-   * @return the managed commands (will be {@code null} if the activity has not
-   *         been started, though will be available for any startup callbacks.
+   * @return the managed commands (will be {@code null} if the activity has not been started, though will be available
+   *         for any startup callbacks.
    */
+  @Override
   public ManagedCommands getManagedCommands() {
     return managedCommands;
   }
@@ -294,9 +265,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   /**
-   * Get the active status detail for this activity. By default this is simply
-   * an 'active' indicator along with status details from any managed
-   * components.
+   * Get the active status detail for this activity. By default this is simply an 'active' indicator along with status
+   * details from any managed components.
    *
    * @param baseDetail
    *          basic detail for this activity, sans components
@@ -306,19 +276,19 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   protected String getActivityStatusDetailComposite(String baseDetail) {
     StringBuilder detailString = new StringBuilder();
     detailString.append(String.format(StatusDetail.HEADER_FORMAT, "status-detail"))
-        .append(String.format(StatusDetail.PREFIX_FORMAT, "activity-status"))
-        .append(ACTIVITY_STATUS_HEADER).append(StatusDetail.SEPARATOR).append(baseDetail).append(StatusDetail.POSTFIX);
+        .append(String.format(StatusDetail.PREFIX_FORMAT, "activity-status")).append(ACTIVITY_STATUS_HEADER)
+        .append(StatusDetail.SEPARATOR).append(baseDetail).append(StatusDetail.POSTFIX);
     for (ActivityComponent component : componentContext.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
         detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "component-status"))
-            .append(component.getDescription()).append(StatusDetail.SEPARATOR)
-            .append(detail).append(StatusDetail.POSTFIX);
+            .append(component.getDescription()).append(StatusDetail.SEPARATOR).append(detail)
+            .append(StatusDetail.POSTFIX);
       }
     }
 
-    detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources"))
-        .append("Managed Resources").append(StatusDetail.SEPARATOR);
+    detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources")).append("Managed Resources")
+        .append(StatusDetail.SEPARATOR);
     for (ManagedResource managedResource : managedResources.getResources()) {
       detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
     }
@@ -596,10 +566,9 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Setup any needed activity components and other startup.
    *
    * <p>
-   * This method is not normally used by activity developers, they should
-   * install components in {@link #addActivityComponent(ActivityComponent)}.
-   * This allows a support base class to add in things unknown to the casual
-   * user.
+   * This method is not normally used by activity developers, they should install components in
+   * {@link #addActivityComponent(ActivityComponent)}. This allows a support base class to add in things unknown to the
+   * casual user.
    */
   public void commonActivitySetup() {
     // Default is do nothing.
@@ -609,8 +578,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common startup tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityStartup() {
     // Default is do nothing.
@@ -620,8 +589,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common post startup tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityPostStartup() {
     // Default is do nothing.
@@ -631,8 +600,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common activate tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityActivate() {
     // Default is do nothing.
@@ -642,8 +611,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common deactivate tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityDeactivate() {
     // Default is do nothing.
@@ -653,8 +622,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common pre-shutdown tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityPreShutdown() {
     // Default is do nothing.
@@ -664,8 +633,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Any common shutdown tasks.
    *
    * <p>
-   * This method is not normally used by activity developers. This should only
-   * be touched if you know what you are doing.
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
    */
   public void commonActivityShutdown() {
     // Default is do nothing.
@@ -675,9 +644,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Cleanup any activity in support implementations.
    *
    * <p>
-   * This method is not normally used by activity developers, they should clean
-   * up their activity in {@link #onActivityCleanup()}. This allows a support
-   * base class to add in things unknown to the casual user.
+   * This method is not normally used by activity developers, they should clean up their activity in
+   * {@link #onActivityCleanup()}. This allows a support base class to add in things unknown to the casual user.
    */
   public void commonActivityCleanup() {
     // Default is do nothing.
