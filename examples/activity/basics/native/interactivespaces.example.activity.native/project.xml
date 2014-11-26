@@ -10,7 +10,7 @@
 
 
   <activity type="native">
-    <name>nativeExample</name>
+    <name>interactivespacesExampleActivityNative</name>
 
     <configuration>
       <property name="space.activity.executable.linux" required="true">

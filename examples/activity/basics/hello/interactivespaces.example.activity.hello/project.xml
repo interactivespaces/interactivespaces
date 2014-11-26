@@ -1,16 +1,24 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Simple Hello World Activity Example in Java</name>
-    <description>
-A very simple Java-based activity which just logs at INFO level its
-callback messages.
-    </description>
+  <name>Simple Hello World Activity Example in Java</name>
+  <description>
+    A very simple Java-based activity that just logs at the current log level its
+    callback messages.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.hello</identifyingName>
-    <version>1.0.0</version>
-    
-    <activity type="interactivespaces_native" logLevel="info">
-        <name>example_activity_hello</name>
-        <class>interactivespaces.activity.example.hello.HelloActivity</class>
-    </activity>
+  <identifyingName>
+    interactivespaces.example.activity.hello
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityHello</name>
+    <class>
+      interactivespaces.activity.example.hello.HelloActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

@@ -1,10 +1,35 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Routable Output Java Example</name>
-    <description>
-An example of writing to a route in Java.
-    </description>
+  <name>Routable Output Java Example</name>
+  <description>
+    An example of a Java-based activity that writes to a route.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.routable.output</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.routable.output
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityRoutableOutput</name>
+    <class>
+      interactivespaces.example.activity.routable.output.SimpleJavaRoutableOutputActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.ros.node.name">
+        <value>
+          example/routable/output
+        </value>
+      </property>
+      <property name="space.activity.routes.outputs" value="output1" />
+      <property name="space.activity.route.output.output1">
+        <value>
+          /example/routable/channel1
+        </value>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

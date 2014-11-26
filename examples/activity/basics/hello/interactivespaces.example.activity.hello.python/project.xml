@@ -2,16 +2,17 @@
 <project type="activity">
   <name>Simple Hello World Activity Example in Python</name>
   <description>
-    A very simple Python-based activity which just logs at INFO level its
+    A very simple Python-based activity that just logs at the current log level its
     callback messages.
   </description>
 
-  <identifyingName>interactivespaces.example.activity.hello.python
+  <identifyingName>
+    interactivespaces.example.activity.hello.python
   </identifyingName>
   <version>1.0.0</version>
 
   <activity type="script">
-    <name>example_activity_hello_python</name>
+    <name>interactivespacesExampleActivityHelloPython</name>
     <executable>HelloActivity.py</executable>
 
     <configuration>

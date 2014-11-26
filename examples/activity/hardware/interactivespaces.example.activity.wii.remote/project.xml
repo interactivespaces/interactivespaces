@@ -1,9 +1,23 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Wii Remote Example Activity</name>
-    <description>
-An example activity using a Wii remote.
-    </description>
-    <version>1.0.0</version>
-    <identifyingName>interactivespaces.example.activity.wii.remote</identifyingName>
+  <name>Wii Remote Example Activity</name>
+  <description>
+    An example activity using a Wii remote.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.wii.remote
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityWiiRemote</name>
+    <class>
+      interactivespaces.example.activity.wii.remote.ExampleWiiRemoteActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

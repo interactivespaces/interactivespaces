@@ -1,10 +1,24 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Simple Hello Speech Activity Example</name>
-    <description>
-A speech synthesis activity which speaks some of the Activity lifecycle events.
-    </description>
+  <name>Simple Hello Speech Activity Example</name>
+  <description>
+    A speech synthesis activity that speaks some of the Activity lifecycle events.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.hello.speech</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.hello.speech
+  </identifyingName>
+  <version>1.0.0</version>
+  
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityHelloSpeech</name>
+    <class>
+      interactivespaces.example.activity.hello.speech.HelloSpeechExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+  
 </project>

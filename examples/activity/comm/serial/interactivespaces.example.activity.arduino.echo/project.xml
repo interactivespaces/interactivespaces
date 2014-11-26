@@ -1,10 +1,32 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Arduino Echo Example</name>
-    <description>
-A Java Activity which writes bytes to the arduino. The arduino echoes the bytes back. This demonstrates reading and writing from a serial connection.
-    </description>
+  <name>Arduino Echo Example</name>
+  <description>
+    A Java Activity that writes bytes to the Arduino. The Arduino echoes the bytes back.
+    This demonstrates reading and writing from a serial connection.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.arduino.echo</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.arduino.echo
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityArduinoEcho</name>
+    <class>
+      interactivespaces.example.activity.arduino.echo.ArduinoEchoActivity
+    </class>
+
+    <configuration>
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the Arduino is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

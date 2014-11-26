@@ -16,7 +16,7 @@
 
 package interactivespaces.service.comm.serial.xbee.internal;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.comm.serial.SerialCommunicationEndpoint;
 import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
 
@@ -24,8 +24,7 @@ import interactivespaces.service.comm.serial.xbee.XBeeApiConstants;
  * An XBee frame reader which supports the Escaped API.
  *
  * <p>
- * Instances of this class are not thread safe and should only be used by one
- * reader thread.
+ * Instances of this class are not thread safe and should only be used by one reader thread.
  *
  * @author Keith M. Hughes
  */
@@ -41,6 +40,12 @@ public class EscapedXBeeFrameReader {
    */
   private SerialCommunicationEndpoint endpoint;
 
+  /**
+   * Construct a new frame reader.
+   *
+   * @param endpoint
+   *          the endpoint that the frames come from
+   */
   public EscapedXBeeFrameReader(SerialCommunicationEndpoint endpoint) {
     this.endpoint = endpoint;
   }
@@ -48,8 +53,7 @@ public class EscapedXBeeFrameReader {
   /**
    * Scan until either the start frame is found, or the end of stream is found.
    *
-   * @return {@code true} if the start of frame was found, {@code false} if
-   *         stream ended
+   * @return {@code true} if the start frame was found, {@code false} if stream ended
    */
   public boolean waitForStartFrame() throws InterruptedException {
     // Read until either the frame start byte is read or the end of stream
@@ -75,14 +79,14 @@ public class EscapedXBeeFrameReader {
     int b = endpoint.read();
 
     if (b == -1) {
-      throw new InteractiveSpacesException("End of stream reached while reading XBee frame");
+      throw new SimpleInteractiveSpacesException("End of stream reached while reading XBee frame");
     }
 
     if (b == XBeeApiConstants.ESCAPE_BYTE) {
       b = endpoint.read();
 
       if (b == -1) {
-        throw new InteractiveSpacesException("End of stream reached while reading XBee frame");
+        throw new SimpleInteractiveSpacesException("End of stream reached while reading XBee frame");
       }
 
       b = XBeeApiConstants.ESCAPE_BYTE_VALUE ^ b;

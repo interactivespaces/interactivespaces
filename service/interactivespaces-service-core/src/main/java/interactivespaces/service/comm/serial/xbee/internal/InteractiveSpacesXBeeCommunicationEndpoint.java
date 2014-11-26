@@ -80,6 +80,16 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
    */
   private AtomicInteger autoFrameNumber = new AtomicInteger(1);
 
+  /**
+   * Construct a new endpoint.
+   *
+   * @param commEndpoint
+   *          the serial endpoint
+   * @param executorService
+   *          the executor service to use
+   * @param log
+   *          the logger to use
+   */
   public InteractiveSpacesXBeeCommunicationEndpoint(SerialCommunicationEndpoint commEndpoint,
       ScheduledExecutorService executorService, Log log) {
     this.commEndpoint = commEndpoint;
@@ -91,7 +101,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
   @Override
   public void startup() {
-    log.info("Starting up XBee connection");
+    log.info(String.format("Starting up XBee connection with serial connection %s", commEndpoint));
     commEndpoint.startup();
 
     readerLoop = new CancellableLoop() {
@@ -116,7 +126,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
 
   @Override
   public void shutdown() {
-    log.info("Shutting down XBee connection");
+    log.info(String.format("Shutting down XBee connection with serial connection %s", commEndpoint));
 
     if (readerLoop != null) {
       readerLoop.cancel();
@@ -156,8 +166,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   @Override
-  public XBeeAddress64 newXBeeAddress64(int a1, int a2, int a3, int a4, int a5, int a6, int a7,
-      int a8) {
+  public XBeeAddress64 newXBeeAddress64(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8) {
     return new XBeeAddress64Impl(a1, a2, a3, a4, a5, a6, a7, a8);
   }
 
@@ -182,10 +191,9 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   @Override
-  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64,
-      XBeeAddress16 address16, int[] command, int options) {
-    return newAtRemoteRequestXBeeFrame(address64, address16, command,
-        autoFrameNumber.getAndIncrement(), options);
+  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
+      int[] command, int options) {
+    return newAtRemoteRequestXBeeFrame(address64, address16, command, autoFrameNumber.getAndIncrement(), options);
   }
 
   @Override
@@ -195,65 +203,59 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   @Override
-  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64,
-      XBeeAddress16 address16, int[] command, int frameNumber, int options) {
-    return new AtRemoteRequestXBeeFrameImpl(address64, command, frameNumber, options);
-  }
-
-  @Override
-  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64,
-      int[] command, int options) {
-    return newAtRemoteRequestXBeeFrame(address64, command, autoFrameNumber.getAndIncrement(),
-        options);
-  }
-
-  @Override
-  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrameNoResponse(XBeeAddress64 address64,
-      int[] command, int options) {
-    return newAtRemoteRequestXBeeFrame(address64, command, 0, options);
-  }
-
-  @Override
-  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64,
+  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
       int[] command, int frameNumber, int options) {
     return new AtRemoteRequestXBeeFrameImpl(address64, command, frameNumber, options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
-      int broadcastRadius, int options) {
-    return newTxRequestXBeeFrame(address64, address16, autoFrameNumber.getAndIncrement(),
-        broadcastRadius, options);
+  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, int[] command, int options) {
+    return newAtRemoteRequestXBeeFrame(address64, command, autoFrameNumber.getAndIncrement(), options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64,
-      XBeeAddress16 address16, int broadcastRadius, int options) {
+  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrameNoResponse(XBeeAddress64 address64, int[] command,
+      int options) {
+    return newAtRemoteRequestXBeeFrame(address64, command, 0, options);
+  }
+
+  @Override
+  public AtRemoteRequestXBeeFrame newAtRemoteRequestXBeeFrame(XBeeAddress64 address64, int[] command, int frameNumber,
+      int options) {
+    return new AtRemoteRequestXBeeFrameImpl(address64, command, frameNumber, options);
+  }
+
+  @Override
+  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
+      int broadcastRadius, int options) {
+    return newTxRequestXBeeFrame(address64, address16, autoFrameNumber.getAndIncrement(), broadcastRadius, options);
+  }
+
+  @Override
+  public TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64, XBeeAddress16 address16,
+      int broadcastRadius, int options) {
     return newTxRequestXBeeFrame(address64, address16, 0, broadcastRadius, options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16,
-      int frameNumber, int broadcastRadius, int options) {
+  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, XBeeAddress16 address16, int frameNumber,
+      int broadcastRadius, int options) {
     return new TxRequestXBeeFrameImpl(address64, address16, frameNumber, broadcastRadius, options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, int broadcastRadius,
-      int options) {
-    return newTxRequestXBeeFrame(address64, autoFrameNumber.getAndIncrement(), broadcastRadius,
-        options);
+  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, int broadcastRadius, int options) {
+    return newTxRequestXBeeFrame(address64, autoFrameNumber.getAndIncrement(), broadcastRadius, options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64,
-      int broadcastRadius, int options) {
+  public TxRequestXBeeFrame newTxRequestXBeeFrameNoResponse(XBeeAddress64 address64, int broadcastRadius, int options) {
     return newTxRequestXBeeFrame(address64, 0, broadcastRadius, options);
   }
 
   @Override
-  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, int frameNumber,
-      int broadcastRadius, int options) {
+  public TxRequestXBeeFrame newTxRequestXBeeFrame(XBeeAddress64 address64, int frameNumber, int broadcastRadius,
+      int options) {
     return new TxRequestXBeeFrameImpl(address64, frameNumber, broadcastRadius, options);
   }
 
@@ -277,5 +279,10 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   @Override
   public SerialCommunicationEndpoint getSerialCommunicationEndpoint() {
     return commEndpoint;
+  }
+
+  @Override
+  public String toString() {
+    return "InteractiveSpacesXBeeCommunicationEndpoint [serial=" + commEndpoint + "]";
   }
 }

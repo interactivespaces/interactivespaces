@@ -1,10 +1,38 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>OpenCV Vision Example: Face Detection</name>
-    <description>
-An activity which uses the camera attached to the controller and detects faces. The faces are announced by callback giving their rectangle.
-    </description>
+  <name>OpenCV Vision Example: Face Detection</name>
+  <description>
+    An activity that uses the camera attached to the controller and detects faces. The
+    faces are
+    announced by a callback giving their rectangle.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.image.vision.opencv.face.detect</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.image.vision.opencv.face.detect
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityVisionFaceDetect</name>
+    <class>
+      interactivespaces.activity.image.vision.opencv.outline.ImageOpenCvVisionFaceDetectActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.ros.node.name">
+        <value>
+          example/routable/output/vision/facedetect
+        </value>
+      </property>
+      <property name="space.activity.routes.outputs" value="output1" />
+      <property name="space.activity.route.output.output1">
+        <value>
+          /example/routable/channel1
+        </value>
+      </property>
+
+      <property name="space.activity.log.level" value="debug" />
+    </configuration>
+  </activity>
+
 </project>

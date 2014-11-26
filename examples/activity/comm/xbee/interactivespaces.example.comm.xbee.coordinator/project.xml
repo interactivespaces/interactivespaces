@@ -1,10 +1,39 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>XBee Coordinator Radio Example Activity</name>
-    <description>
-This Java-based activity drives an XBee coordinator radio and talks to a remote radio.
-    </description>
+  <name>XBee Coordinator Radio Example Activity</name>
+  <description>
+    This Java-based activity drives an XBee coordinator radio and talks to a remote
+    radio.
+  </description>
 
-    <identifyingName>interactivespaces.example.comm.xbee.coordinator</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.comm.xbee.coordinator
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleCommXbeeCoordinator</name>
+    <class>
+      interactivespaces.example.comm.xbee.coordinator.XBeeCoordinatorExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the XBee is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+      <property name="xbee.remote.address64" required="true">
+        <description>
+          The 64 bit hexadecimal address for the remote XBee to be talked to. It will
+          have a value like 0013a200407bd2e3. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

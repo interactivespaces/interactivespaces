@@ -1,10 +1,47 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>Ball Web Java Activity Example</name>
-    <description>
-An example Java-based web activity which uses web sockets to communicate between the Live Activity and the browser application. The activity receives events from a route giving x,y,z coordinates which move the ball.
-    </description>
+  <name>Ball Web Java Activity Example</name>
+  <description>
+    An example Java-based web activity that uses web sockets to communicate between the
+    Live Activity
+    and the browser application. The activity receives events from a route giving x,y,z
+    coordinates that move the ball.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.routable.input.web.ball</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.routable.input.web.ball
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityRoutableInputWebBall</name>
+    <class>
+      interactivespaces.activity.example.routable.input.web.ball.RoutableInputWebBallExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.ros.node.name">
+        <value>
+          example/routable/input/web/ball/input
+        </value>
+      </property>
+      <property name="space.activity.routes.inputs" value="input1" />
+      <property name="space.activity.route.input.input1">
+        <value>
+          /example/routable/point3d
+        </value>
+      </property>
+      
+      <property name="space.activity.webapp.web.server.port" value="9001" />
+      
+      <property name="space.activity.webapp.content.location" value="webapp" />
+      <property name="space.activity.webapp.url.initial" value="index.html" />
+      <property name="space.activity.webapp.url.query_string">
+        <value>test</value>
+      </property>
+      <property name="space.activity.webapp.browser.debug" value="true" />
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

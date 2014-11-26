@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.activity.hello.speech;
+package interactivespaces.example.activity.hello.speech;
 
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.service.speech.synthesis.SpeechSynthesisPlayer;
@@ -28,7 +28,7 @@ import interactivespaces.service.speech.synthesis.SpeechSynthesisService;
  *
  * @author Keith M. Hughes
  */
-public class HelloSpeechActivity extends BaseActivity {
+public class HelloSpeechExampleActivity extends BaseActivity {
 
   /**
    * The speech player.

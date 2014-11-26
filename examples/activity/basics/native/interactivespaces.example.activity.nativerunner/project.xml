@@ -11,7 +11,8 @@
 
   <activity type="interactivespaces_native" logLevel="info">
     <name>exampleActivityNativeRunner</name>
-    <class>interactivespaces.example.activity.nativerunner.NativeApplicationRunnerExampleActivity
+    <class>
+      interactivespaces.example.activity.nativerunner.NativeApplicationRunnerExampleActivity
     </class>
 
     <configuration>

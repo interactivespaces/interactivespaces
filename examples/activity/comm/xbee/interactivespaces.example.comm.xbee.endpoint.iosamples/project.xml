@@ -1,10 +1,33 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>XBee IO Samples Endpoint Radio Example Activity</name>
-    <description>
-This Java-based activity configures an XBee endpoint radio for IO sampling and sends the sample packets to the coordinator.
-    </description>
+  <name>XBee IO Samples Endpoint Radio Example Activity</name>
+  <description>
+    This Java-based activity configures an XBee endpoint radio for IO sampling and sends
+    the sample
+    packets to the coordinator.
+  </description>
 
-    <identifyingName>interactivespaces.example.comm.xbee.endpoint.iosamples</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.comm.xbee.endpoint.iosamples
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleCommXbeeEndpointIoSamples</name>
+    <class>
+      interactivespaces.example.comm.xbee.endpoint.iosamples.XBeeIoSamplesEndpointExampleActivity
+    </class>
+
+    <configuration>
+      <property name="space.hardware.serial.port" required="true">
+        <description>
+          The serial port the XBee is attached to. In Linux it will have a value like
+          /dev/ttyUSB0. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
 </project>

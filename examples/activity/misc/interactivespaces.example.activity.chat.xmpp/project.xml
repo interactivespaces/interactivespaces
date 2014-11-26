@@ -1,10 +1,38 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-    <name>XMPP Chat Example Activity</name>
-    <description>
-This example activity shows the use of the Chat Service. The service can connect to a chat account and send and receive messages.
-    </description>
+  <name>XMPP Chat Example Activity</name>
+  <description>
+    This example activity shows the use of the Chat Service. The service can connect to a chat account and
+    send and receive messages.
+  </description>
 
-    <identifyingName>interactivespaces.example.activity.chat.xmpp</identifyingName>
-    <version>1.0.0</version>
+  <identifyingName>
+    interactivespaces.example.activity.chat.xmpp
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityChatXmpp</name>
+    <class>
+      interactivespaces.example.activity.chat.xmpp.ExampleXmppChatActivity
+    </class>
+
+    <configuration>
+      <property name="activity.example.chat.xmpp.username" required="true">
+        <description>
+          The user name for the chat account to be used. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+      <property name="activity.example.chat.xmpp.password" required="true">
+        <description>
+          The password for the chat account to be used. This is usually added in the Live Activity configuration in the
+          Master Web Admin.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+
 </project>

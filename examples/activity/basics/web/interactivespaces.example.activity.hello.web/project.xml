@@ -1,9 +1,28 @@
 <?xml version="1.0"?>
 <project type="activity">
-    <name>Hello Web Activity Example</name>
-    <description>
-An example of an activity which consists only of a web page and a browser.
-    </description>
-    <version>1.0.0</version>
-    <identifyingName>interactivespaces.example.activity.hello.web</identifyingName>
+  <name>Hello Web Activity Example</name>
+  <description>
+    An example of an activity that consists only of a web page and a browser.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.hello.web
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="web">
+    <name>interactivespacesExampleActivityHelloWeb</name>
+
+    <configuration>
+      <property name="space.activity.webapp.web.server.port" value="9091" />
+      
+      <property name="space.activity.webapp.content.location" value="webapp" />
+      <property name="space.activity.webapp.url.initial" value="index.html" />
+      <property name="space.activity.webapp.url.query_string" value="foo" />
+      <property name="space.activity.webapp.browser.debug" value="true" />
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+
 </project>
