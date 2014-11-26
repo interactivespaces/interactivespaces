@@ -111,8 +111,42 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   @Override
+  public <T extends ActivityComponent> T addActivityComponent(T component) {
+    return componentContext.addComponent(component);
+  }
+
+  @Override
+  public void addActivityComponents(ActivityComponent... components) {
+    componentContext.addComponents(components);
+  }
+
+  @Override
+  public <T extends ActivityComponent> T addActivityComponent(String componentType) {
+    return componentContext.addComponent(componentType);
+  }
+
+  @Override
+  public void addActivityComponents(String... componentTypes) {
+    componentContext.addComponents(componentTypes);
+  }
+
+  /**
+   * Get the component context.
+   *
+   * @return the component context
+   */
+  public ActivityComponentContext getActivityComponentContext() {
+    return componentContext;
+  }
+
+  @Override
   public void addManagedResource(ManagedResource resource) {
     managedResources.addResource(resource);
+  }
+
+  @Override
+  public ManagedCommands getManagedCommands() {
+    return managedCommands;
   }
 
   /**
@@ -134,12 +168,26 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   @Override
   public void updateConfiguration(Map<String, Object> update) {
+    try {
+      commonActivityConfiguration(update);
+
+      callOnActivityConfiguration(update);
+    } catch (Throwable e) {
+      logException("Failure when calling onActivityConfiguration", e);
+    }
+  }
+
+  /**
+   * Properly call {@link #onActivityConfiguration(Map)}.
+   *
+   * @param update
+   *          the update map
+   */
+  private void callOnActivityConfiguration(Map<String, Object> update) {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
       onActivityConfiguration(update);
-    } catch (Throwable e) {
-      logException("Failure when calling onActivityConfiguration", e);
     } finally {
       getExecutionContext().exitMethod(invocation);
     }
@@ -200,17 +248,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
     }
-  }
-
-  /**
-   * Get the collection of managed commands.
-   *
-   * @return the managed commands (will be {@code null} if the activity has not been started, though will be available
-   *         for any startup callbacks.
-   */
-  @Override
-  public ManagedCommands getManagedCommands() {
-    return managedCommands;
   }
 
   /**
@@ -318,6 +355,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void activate() {
     try {
+      commonActivityActivate();
+
       callOnActivityActivate();
 
       setCompositeActivityState(ActivityState.ACTIVE);
@@ -356,6 +395,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void deactivate() {
     try {
+      commonActivityDeactivate();
+
       callOnActivityDeactivate();
 
       setCompositeActivityState(ActivityState.RUNNING);
@@ -580,6 +621,20 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   /**
+   * Perform any common tasks for activity configuration.
+   *
+   * <p>
+   * This method is not normally used by activity developers. This should only be touched if you know what you are
+   * doing.
+   *
+   * @param update
+   *          the update map
+   */
+  public void commonActivityConfiguration(Map<String, Object> update) {
+    // Default is to do nothing.
+  }
+
+  /**
    * Setup any needed activity components and other startup.
    *
    * <p>
@@ -699,26 +754,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   @Override
-  public <T extends ActivityComponent> T addActivityComponent(T component) {
-    return componentContext.addComponent(component);
-  }
-
-  @Override
-  public void addActivityComponents(ActivityComponent... components) {
-    componentContext.addComponents(components);
-  }
-
-  @Override
-  public <T extends ActivityComponent> T addActivityComponent(String componentType) {
-    return componentContext.addComponent(componentType);
-  }
-
-  @Override
-  public void addActivityComponents(String... componentTypes) {
-    componentContext.addComponents(componentTypes);
-  }
-
-  @Override
   public void onActivityComponentError(ActivityComponent component, String message, Throwable t) {
     // Default is to do nothing. Basic logging is handled elsewhere.
   }
@@ -737,15 +772,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void onActivityCleanup() {
     // Default is to do nothing.
-  }
-
-  /**
-   * Get the component context.
-   *
-   * @return the component context
-   */
-  public ActivityComponentContext getActivityComponentContext() {
-    return componentContext;
   }
 
   /**
