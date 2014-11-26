@@ -87,6 +87,23 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     return componentContext.getActivityComponent(componentType);
   }
 
+  /**
+   * Get the activity component with the specified type.
+   *
+   * @param componentType
+   *          the component type
+   * @param <T>
+   *          type of the activity component
+   *
+   * @return the component with the specified type, or {@code null} if none registered
+   *
+   * @deprecated Use {@link #getActivityComponent(String)}.
+   */
+  @Deprecated
+  public <T extends ActivityComponent> T getComponent(String componentType) {
+    return getActivityComponent(componentType);
+  }
+
   @Override
   public <T extends ActivityComponent> T getRequiredActivityComponent(String componentType)
       throws InteractiveSpacesException {
