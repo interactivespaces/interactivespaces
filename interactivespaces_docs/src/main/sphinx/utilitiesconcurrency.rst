@@ -195,20 +195,17 @@ exception. The task will also terminate if you call ``cancel()`` on the returned
 object or when your activity shuts down.
 
 One way to call the method has the arguments 
-``scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency)``.
+``scheduleWithFixedDelay(Runnable command, EventDelay commandDelay)``.
 
-``commandFrequency`` specifies how long
+``commandDelay`` specifies how long
 to delay before repeating the command. It provides the period and the time units for the delay.
 
-For example, the following code snippet will repeat your command with a delay equivalent to 5 per minute.
+For example, the following code snippet will repeat your command with a delay of 1 minute between runs.
 
 
 .. code-block:: java
 
-  getManagedCommands().scheduleWithFixedDelay(command, EventFrequency.eventsPerMinute(5.0));
-
-Do be aware that this does not mean you will actually get 5 invocations per minute since the thread will actually
-take time to run. Instead the delay will be 12 seconds between invocations.
+  getManagedCommands().scheduleWithFixedDelay(command, EventDelay.minutes(1.0));
 
 Another way to call the method has the arguments 
 ``scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)``.

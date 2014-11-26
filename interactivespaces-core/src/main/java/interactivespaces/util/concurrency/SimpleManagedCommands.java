@@ -3,6 +3,7 @@
  */
 package interactivespaces.util.concurrency;
 
+import interactivespaces.util.events.EventDelay;
 import interactivespaces.util.events.EventFrequency;
 
 import com.google.common.collect.Sets;
@@ -98,16 +99,16 @@ public class SimpleManagedCommands implements ManagedCommands {
   }
 
   @Override
-  public ManagedCommand scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency) {
-    return scheduleWithFixedDelay(command, commandFrequency, true);
+  public ManagedCommand scheduleWithFixedDelay(Runnable command, EventDelay commandDelay) {
+    return scheduleWithFixedDelay(command, commandDelay, true);
   }
 
   @Override
-  public synchronized ManagedCommand scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency,
+  public synchronized ManagedCommand scheduleWithFixedDelay(Runnable command, EventDelay commandDelay,
       boolean allowTerminate) {
     SimpleManagedCommand managedCommand = new SimpleManagedCommand(command, this, true, allowTerminate, log);
     managedCommand.setFuture(executorService.scheduleWithFixedDelay(managedCommand.getTask(), 0,
-        commandFrequency.getPeriod(), commandFrequency.getUnit()));
+        commandDelay.getDelay(), commandDelay.getUnit()));
 
     managedCommands.add(managedCommand);
 

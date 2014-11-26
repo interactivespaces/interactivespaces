@@ -16,6 +16,7 @@
 
 package interactivespaces.util.concurrency;
 
+import interactivespaces.util.events.EventDelay;
 import interactivespaces.util.events.EventFrequency;
 
 import java.util.concurrent.TimeUnit;
@@ -53,6 +54,7 @@ public interface ManagedCommands {
    * @return the managed command
    */
   ManagedCommand schedule(Runnable command, long delay, TimeUnit unit);
+
   /**
    * Executes a periodic command executes at the given frequency period between the commencement of one execution and
    * the commencement of the next. This means it is possible for more than one execution to be happening at the same
@@ -93,8 +95,7 @@ public interface ManagedCommands {
    *
    * @return the managed command
    */
-  ManagedCommand scheduleAtFixedRate(Runnable command, EventFrequency commandFrequency,
-      boolean allowTerminate);
+  ManagedCommand scheduleAtFixedRate(Runnable command, EventFrequency commandFrequency, boolean allowTerminate);
 
   /**
    * Executes a periodic command that starts after the given initial delay, and subsequently with the given delay
@@ -140,8 +141,8 @@ public interface ManagedCommands {
    *
    * @return the managed command
    */
-  ManagedCommand scheduleAtFixedRate(Runnable command, long initialDelay, long period,
-      TimeUnit unit, boolean allowTerminate);
+  ManagedCommand scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit,
+      boolean allowTerminate);
 
   /**
    * Executes a periodic command that starts after the given initial delay, and subsequently with the given delay
@@ -154,12 +155,12 @@ public interface ManagedCommands {
    *
    * @param command
    *          the command to run
-   * @param commandFrequency
-   *          the frequency at which the commands should happen
+   * @param commandDelay
+   *          the delay between invocations
    *
    * @return the managed command
    */
-  ManagedCommand scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency);
+  ManagedCommand scheduleWithFixedDelay(Runnable command, EventDelay commandDelay);
 
   /**
    * Executes a periodic command where the time between the termination of one execution and the commencement of the
@@ -173,15 +174,14 @@ public interface ManagedCommands {
    *
    * @param command
    *          the command to run
-   * @param commandFrequency
-   *          the frequency at which the commands should happen
+   * @param commandDelay
+   *          the delay between invocations
    * @param allowTerminate
    *          {@code true} if the task should be allowed to terminate if it throws an exception
    *
    * @return the managed command
    */
-  ManagedCommand scheduleWithFixedDelay(Runnable command, EventFrequency commandFrequency,
-      boolean allowTerminate);
+  ManagedCommand scheduleWithFixedDelay(Runnable command, EventDelay commandDelay, boolean allowTerminate);
 
   /**
    * Executes a periodic command that starts after the given initial delay, and subsequently with the given delay
@@ -224,6 +224,6 @@ public interface ManagedCommands {
    *
    * @return the managed command
    */
-  ManagedCommand scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-      TimeUnit unit, boolean allowTerminate);
+  ManagedCommand scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit,
+      boolean allowTerminate);
 }
