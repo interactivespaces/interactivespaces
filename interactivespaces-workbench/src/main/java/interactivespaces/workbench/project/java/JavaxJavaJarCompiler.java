@@ -86,7 +86,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
             .getWorkbench()
             .getLog()
             .info(
-                String.format("Found %d files for main source directory %s\n", compilationFiles.size(),
+                String.format("Found %d files for main source directory %s", compilationFiles.size(),
                     mainSourceDirectory.getAbsolutePath()));
       }
 
@@ -104,7 +104,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
             .getWorkbench()
             .getLog()
             .info(
-                String.format("Found %d files in added source directory %s\n", additionalSources.size(),
+                String.format("Found %d files in added source directory %s", additionalSources.size(),
                     addedSource.getAbsolutePath()));
       }
 
@@ -310,7 +310,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
           for (String packageExport : packageExports) {
             if (dependencyInfo.put(packageExport, associatedDependency) != null) {
               context.getWorkbench().getLog()
-                  .warn(String.format("Package export %s found in multiple classpath entities\n", packageExport));
+                  .warn(String.format("Package export %s found in multiple classpath entities", packageExport));
             }
           }
         }
