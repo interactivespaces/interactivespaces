@@ -17,6 +17,7 @@
 package interactivespaces.activity;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.util.concurrency.ManagedCommands;
 import interactivespaces.util.resource.ManagedResource;
@@ -229,4 +230,11 @@ public interface SupportedActivity extends Activity {
    *         for any startup callbacks
    */
   ManagedCommands getManagedCommands();
+
+  /**
+   * Get the annotation processor for handling configuration parameters.
+   *
+   * @return the annotation processor
+   */
+  ConfigurationPropertyAnnotationProcessor getActivityConfigurationPropertyAnnotationProcessor();
 }

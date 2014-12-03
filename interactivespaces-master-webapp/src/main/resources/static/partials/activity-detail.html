@@ -32,8 +32,11 @@
 
 			<tr ng-repeat="liveactivity in activityInfo.liveactivities"
 				ng-class-odd="'odd'">
-				<td><a class="uglylink"
-					href="#/liveactivity/{{liveactivity.id}}">{{liveactivity.name}}</a></td>
+				<td>
+					<live-activity model="liveactivity"></live-activity>
+				</td>
+				
+				
 			</tr>
 		</table>
 	</div>

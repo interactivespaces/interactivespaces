@@ -19,6 +19,8 @@ package interactivespaces.activity.impl;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.SupportedActivity;
+import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
+import interactivespaces.activity.annotation.StandardConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
@@ -82,6 +84,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
+  /**
+   * The annotation processor for configuration parameters.
+   */
+  private ConfigurationPropertyAnnotationProcessor configurationAnnotationProcessor;
+
   @Override
   public <T extends ActivityComponent> T getActivityComponent(String componentType) {
     return componentContext.getActivityComponent(componentType);
@@ -128,6 +135,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void addActivityComponents(String... componentTypes) {
     componentContext.addComponents(componentTypes);
+  }
+
+  @Override
+  public ConfigurationPropertyAnnotationProcessor getActivityConfigurationPropertyAnnotationProcessor() {
+    return configurationAnnotationProcessor;
   }
 
   /**
@@ -209,6 +221,9 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     componentContext.beginStartupPhase();
     try {
+      configurationAnnotationProcessor = new StandardConfigurationPropertyAnnotationProcessor(getConfiguration());
+      configurationAnnotationProcessor.process(this);
+
       updateConfiguration(null);
 
       commonActivitySetup();

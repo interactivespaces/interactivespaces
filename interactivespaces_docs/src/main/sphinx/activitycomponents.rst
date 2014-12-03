@@ -36,7 +36,7 @@ web.server
 The ``web.server`` component starts up a web server within your Activity. This
 web server can both serve content found in your Activity and also provide
 a web socket connection for the Activity or anything else within your Interactive
-Space which needs web socket support.
+Space that needs web socket support.
 
 native.runner
 =============

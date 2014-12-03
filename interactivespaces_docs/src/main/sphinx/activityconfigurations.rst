@@ -7,22 +7,22 @@ One of the more powerful parts of Interactive Spaces is the Activity Configurati
 Common Configuration Parameters
 ===============================
 
-There are some values found in every activity configuration which you might
+There are some values found in every activity configuration that you might
 find useful.
 
 *activity.installdir*
 
   This is the directory where the live activity was installed. It will contain
   the base activity configuration, the activity descriptor, and all other resources
-  which were part of the Activity.
+  that were part of the Activity.
 
 *activity.logdir*
 
-  This is the directory which stores the live  activity's log files.
+  This is the directory that stores the live activity's log files.
 
 *activity.datadir*
 
-  This is a private directory where the live activity can store data which needs
+  This is a private directory where the live activity can store data that needs
   to persist for some time. This data will only be deleted if the live
   activity is deployed again.
 
