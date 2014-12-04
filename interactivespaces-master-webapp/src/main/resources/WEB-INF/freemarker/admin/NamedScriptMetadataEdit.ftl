@@ -16,17 +16,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Interactive Spaces Admin: Space Controllers</title>
+<title>Interactive Spaces Admin: Named Scripts</title>
 
 <#include "/allpages_head.ftl" >
 </head>
 
 <body class="admin-content">
 
-<h1>Edit Space Controller Config: ${spacecontroller.name?html}</h1>
+<h1>Edit Named Script Metadata: ${script.name?html}</h1>
 
 <p>
-${spacecontroller.description?html}
+${script.description?html}
 </p>
 
 <form  method="post">
@@ -34,14 +34,14 @@ ${spacecontroller.description?html}
 <table>
 <tr>
 <th>ID</th>
-<td>${spacecontroller.id}</td>
+<td>${script.id}</td>
 </tr>
 
 </tr>
 <tr>
-<td valign="top">Configuration</td>
+<td valign="top">Metadata</td>
 <td>
-<pre><@spring.formTextarea path="config.values" attributes='rows="20" cols="80"' /></pre>
+<pre><@spring.formTextarea path="metadata.values" attributes='rows="20" cols="80"' /></pre>
 <@spring.showErrors '<br>', 'fieldError' />
 </td>
 </tr>
@@ -50,7 +50,7 @@ ${spacecontroller.description?html}
 <th>&nbsp;</th>
 <td>
 <input type="submit" value="Save" />
-<button type="button" id="cancelButton" onclick="window.location='/interactivespaces/spacecontroller/${id}/view.html'" title="Cancel the edit">Cancel</button>
+<button type="button" id="cancelButton" onclick="window.location='/interactivespaces/admin/namedscript/${id}/view.html'" title="Cancel the edit">Cancel</button>
 </td>
 </table>
 

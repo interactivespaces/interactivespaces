@@ -25,35 +25,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A group of activities installed in a space.
+ * A group of live activities.
  *
  * <p>
- * The activities are not necessarily on the controllers at this point. It is
- * assumed they will be at some point before they can be activated.
+ * The live activities are not necessarily on the controllers at this point. It is assumed they will be at some point
+ * before they can be activated.
  *
  * @author Keith M. Hughes
  */
 public interface LiveActivityGroup extends PersistedObject, Serializable {
 
   /**
-   * Get the name of the activity group.
+   * Get the name of the live activity group.
    *
-   * @return The name of the activity group.
+   * @return the name of the live activity group
    */
   String getName();
 
   /**
-   * Set the name of the activity group.
+   * Set the name of the live activity group.
    *
    * @param name
-   *          The name of the activity group.
+   *          the name of the live activity group
    */
   void setName(String name);
 
   /**
-   * Get the description of the activity group.
+   * Get the description of the live activity group.
    *
-   * @return The description of the activity group.
+   * @return the description of the live activity group
    */
   String getDescription();
 
@@ -61,16 +61,16 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * Set the description of the activity group.
    *
    * @param description
-   *          The description of the activity group.
+   *          the description of the activity group
    */
   void setDescription(String description);
 
   /**
    * Get all the current activities in the group.
    *
-   * @return A freshly allocated list of the activities.
+   * @return a freshly allocated list of the activities
    */
-  List<? extends GroupLiveActivity> getActivities();
+  List<? extends GroupLiveActivity> getLiveActivities();
 
   /**
    * Add a new activity to the group.
@@ -79,18 +79,17 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * A given activity can only be added once.
    *
    * <p>
-   * The activity will be required. See
-   * {@link GroupLiveActivityDependency#REQUIRED}.
+   * The activity will be required. See {@link GroupLiveActivityDependency#REQUIRED}.
    *
    * @param activity
-   *          The new activity.
+   *          the new activity
    *
-   * @returns This activity group.
+   * @return this activity group
    *
    * @throws InteractiveSpacesException
-   *           The activity was already in the group.
+   *           the activity was already in the group
    */
-  LiveActivityGroup addActivity(LiveActivity activity);
+  LiveActivityGroup addLiveActivity(LiveActivity activity) throws InteractiveSpacesException;
 
   /**
    * Add a new activity to the group.
@@ -99,16 +98,17 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * A given activity can only be added once.
    *
    * @param activity
-   *          The new activity.
+   *          the new activity
    * @param dependency
-   *          The dependency this group has on this activity.
+   *          the dependency this group has on this activity
    *
-   * @returns This activity group.
+   * @return this activity group
    *
    * @throws InteractiveSpacesException
-   *           The activity was already in the group.
+   *           the activity was already in the group
    */
-  LiveActivityGroup addActivity(LiveActivity activity, GroupLiveActivityDependency dependency);
+  LiveActivityGroup addLiveActivity(LiveActivity activity, GroupLiveActivityDependency dependency)
+      throws InteractiveSpacesException;
 
   /**
    * Remove an activity from the group.
@@ -117,9 +117,9 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * This does nothing if the activity isn't part of the group already.
    *
    * @param activity
-   *          The activity to remove.
+   *          the live activity to remove
    */
-  void removeActivity(LiveActivity activity);
+  void removeLiveActivity(LiveActivity activity);
 
   /**
    * Clear all live activities from the group.

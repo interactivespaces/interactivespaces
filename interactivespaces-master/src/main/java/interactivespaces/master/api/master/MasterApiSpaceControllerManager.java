@@ -34,7 +34,7 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return all activities in the repository matching the filter
    */
-  Map<String, Object> getSpaceControllers(String filter);
+  Map<String, Object> getSpaceControllersByFilter(String filter);
 
   /**
    * Get the view of all space controllers.
@@ -71,7 +71,7 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return the configuration
    */
-  //Map<String, Object> getSpacecontrollerConfiguration(String id);
+  Map<String, Object> getSpaceControllerConfiguration(String id);
 
   /**
    * Configure a space controller.
@@ -83,10 +83,10 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return API response
    */
-  //Map<String, Object> configureSpaceController(String id, Map<String, String> map);
+  Map<String, Object> configureSpaceController(String id, Map<String, String> map);
 
   /**
-   * Modify a space's metadata.
+   * Modify a space controller's metadata.
    *
    * <p>
    * The command map contains a field called command. This field will be one of
@@ -100,7 +100,7 @@ public interface MasterApiSpaceControllerManager {
    * </ul>
    *
    * @param id
-   *          ID of the activity
+   *          ID of the space controller
    * @param metadataCommandObj
    *          the modification command
    *

@@ -17,6 +17,7 @@
 package interactivespaces.master.server.services.internal.jpa.domain;
 
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.domain.basic.SpaceControllerMode;
 
 import com.google.common.collect.Lists;
@@ -35,6 +36,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -129,8 +131,8 @@ public class JpaSpaceController implements SpaceController {
   // TODO(keith): make configurations completely separately contained items
   // that aren't dependent on their containing object so can have catalogs of
   // them.
-  //@ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  //private JpaSpaceControllerConfiguration configuration;
+  @ManyToOne(optional = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private JpaSpaceControllerConfiguration configuration;
 
   /**
    * The metadata.
@@ -190,7 +192,6 @@ public class JpaSpaceController implements SpaceController {
     this.description = description;
   }
 
-  /*
   @Override
   public SpaceControllerConfiguration getConfiguration() {
     return configuration;
@@ -200,7 +201,6 @@ public class JpaSpaceController implements SpaceController {
   public void setConfiguration(SpaceControllerConfiguration configuration) {
     this.configuration = (JpaSpaceControllerConfiguration) configuration;
   }
-  */
 
   @Override
   public void setMetadata(Map<String, Object> m) {

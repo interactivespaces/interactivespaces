@@ -18,14 +18,24 @@ package interactivespaces.master.server.services.internal.jpa.domain;
 
 import interactivespaces.domain.system.NamedScript;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -40,9 +50,9 @@ import javax.persistence.Version;
 public class JpaNamedScript implements NamedScript {
 
   /**
-	 *
-	 */
-  private static final long serialVersionUID = -4597355313687577793L;
+   * For serialization.
+   */
+  private static final long serialVersionUID = 5957657826470642807L;
 
   /**
    * The persistence ID for the script.
@@ -88,6 +98,13 @@ public class JpaNamedScript implements NamedScript {
    */
   @Column
   private boolean scheduled;
+
+  /**
+   * The metadata.
+   */
+  @OneToMany(targetEntity = JpaNamedScriptMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
+  private List<JpaNamedScriptMetadataItem> metadata = Lists.newArrayList();
 
   /**
    * The database version. Used for detecting concurrent modifications.
@@ -161,9 +178,34 @@ public class JpaNamedScript implements NamedScript {
   }
 
   @Override
+  public void setMetadata(Map<String, Object> m) {
+
+    synchronized (metadata) {
+      metadata.clear();
+
+      for (Entry<String, Object> entry : m.entrySet()) {
+        metadata.add(new JpaNamedScriptMetadataItem(this, entry.getKey(), entry.getValue().toString()));
+      }
+    }
+  }
+
+  @Override
+  public Map<String, Object> getMetadata() {
+    synchronized (metadata) {
+      Map<String, Object> result = Maps.newHashMap();
+
+      for (JpaNamedScriptMetadataItem item : metadata) {
+        result.put(item.getName(), item.getValue());
+      }
+
+      return result;
+    }
+  }
+
+  @Override
   public String toString() {
-    return "JpaNamedScript [id=" + id + ", name=" + name + ", description=" + description
-        + ", language=" + language + ", scheduled=" + scheduled + ", schedule=" + schedule
-        + ", content=\n" + content + "\n]";
+    return "JpaNamedScript [id=" + id + ", name=" + name + ", description=" + description + ", language=" + language
+        + ", scheduled=" + scheduled + ", schedule=" + schedule + ", content=\n" + content + ", metadata="
+        + getMetadata() + "]";
   }
 }

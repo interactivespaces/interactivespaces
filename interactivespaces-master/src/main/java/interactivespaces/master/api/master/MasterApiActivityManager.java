@@ -190,6 +190,28 @@ public interface MasterApiActivityManager extends ManagedResource {
   Map<String, Object> getBasicSpaceControllerApiData(SpaceController controller);
 
   /**
+   * Get the configuration of a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   *
+   * @return the configuration
+   */
+  Map<String, Object> getSpaceControllerConfiguration(String id);
+
+  /**
+   * Configure a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   * @param map
+   *          the new configuration
+   *
+   * @return API response
+   */
+  Map<String, Object> configureSpaceController(String id, Map<String, String> map);
+
+  /**
    * Add in all data needed for the Master API response of the live activity.
    *
    * @param activity
@@ -250,7 +272,7 @@ public interface MasterApiActivityManager extends ManagedResource {
    *
    * @return a JSON response object
    */
-  Map<String, Object> updateMetadataLiveActivity(String id, Object metadataCommandObj);
+  Map<String, Object> updateLiveActivityMetadata(String id, Object metadataCommandObj);
 
   /**
    * Delete an activity group from the activity repository.
@@ -286,7 +308,7 @@ public interface MasterApiActivityManager extends ManagedResource {
    *
    * @return a JSON response object
    */
-  Map<String, Object> updateMetadataLiveActivityGroup(String id, Object metadataCommandObj);
+  Map<String, Object> updateLiveActivityGroupMetadata(String id, Object metadataCommandObj);
 
 
   /**
@@ -375,5 +397,5 @@ public interface MasterApiActivityManager extends ManagedResource {
    *
    * @return the master API response
    */
-  Map<String, Object> updateMetadataSpace(String id, Object metadataCommandObj);
+  Map<String, Object> updateSpaceMetadata(String id, Object metadataCommandObj);
 }

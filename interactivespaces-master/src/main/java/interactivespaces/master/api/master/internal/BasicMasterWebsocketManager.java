@@ -113,6 +113,8 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
     registerLiveActivityHandlers();
     registerLiveActivityGroupHandlers();
     registerSpaceHandlers();
+    registerSpaceControllerHandlers();
+    registerMiscHandlers();
   }
 
   /**
@@ -164,7 +166,8 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, String> config = getRequiredMapArg(commandArgs, "config");
+        Map<String, String> config =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
         return masterApiActivityManager.configureLiveActivity(id, config);
       }
     });
@@ -173,9 +176,10 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, Object> metadata = getRequiredMapArg(commandArgs, "metadata");
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
-        return masterApiActivityManager.updateMetadataLiveActivity(id, metadata);
+        return masterApiActivityManager.updateLiveActivityMetadata(id, metadata);
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
@@ -277,9 +281,10 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, Object> metadata = getRequiredMapArg(commandArgs, "metadata");
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
-        return masterApiActivityManager.updateMetadataLiveActivityGroup(id, metadata);
+        return masterApiActivityManager.updateLiveActivityGroupMetadata(id, metadata);
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
@@ -362,9 +367,10 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, Object> metadata = getRequiredMapArg(commandArgs, "metadata");
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
-        return masterApiActivityManager.updateMetadataSpace(id, metadata);
+        return masterApiActivityManager.updateSpaceMetadata(id, metadata);
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_STARTUP) {
@@ -402,12 +408,93 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         return masterApiSpaceControllerManager.statusSpace(id);
       }
     });
+  }
 
+  /**
+   * Register all handlers for Space Controller commands.
+   */
+  private void registerSpaceControllerHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
+        return masterApiSpaceControllerManager.getSpaceControllersByFilter(filter);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        return masterApiSpaceControllerManager.getSpaceControllerView(id);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_GET) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        return masterApiSpaceControllerManager.getSpaceControllerConfiguration(id);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_SET) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        Map<String, String> config =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
+        return masterApiSpaceControllerManager.configureSpaceController(id, config);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
+
+        return masterApiSpaceControllerManager.updateSpaceControllerMetadata(id, metadata);
+      }
+    });
+  }
+
+  /**
+   * Register all handlers for misc commands.
+   */
+  private void registerMiscHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
+        return masterApiAutomationManager.getNamedScriptsByFilter(filter);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_VIEW) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        return masterApiAutomationManager.getNamedScriptView(id);
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_RUN) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiAutomationManager.runScript(id);
+        return masterApiAutomationManager.runNamedScript(id);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_METADATA_SET) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
+
+        return masterApiAutomationManager.updateNamedScriptMetadata(id, metadata);
       }
     });
   }

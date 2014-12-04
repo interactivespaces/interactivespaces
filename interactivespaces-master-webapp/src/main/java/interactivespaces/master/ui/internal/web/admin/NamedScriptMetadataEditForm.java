@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,12 +16,11 @@
 
 package interactivespaces.master.ui.internal.web.admin;
 
-import interactivespaces.domain.support.AutomationUtils;
 import interactivespaces.domain.system.NamedScript;
-import interactivespaces.domain.system.pojo.SimpleNamedScript;
 import interactivespaces.master.api.master.MasterApiAutomationManager;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
+import interactivespaces.master.ui.internal.web.ConfigurationForm;
+import interactivespaces.master.ui.internal.web.MetadataEditFormSupport;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,15 +34,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import java.util.Map;
+
 /**
- * A form for editing named scripts.
+ * A form for editing named script metadata.
  *
  * @author Keith M. Hughes
  */
 @Controller
-@RequestMapping("/admin/namedscript/{id}/edit")
-@SessionAttributes({ "script", "id" })
-public class NamedScriptEditForm extends BaseSpaceMasterController {
+@RequestMapping("/admin/namedscript/{id}/metadata/edit")
+@SessionAttributes({ "script", "id", "metadata" })
+public class NamedScriptMetadataEditForm extends MetadataEditFormSupport {
 
   /**
    * The repository for automation entities.
@@ -62,28 +63,83 @@ public class NamedScriptEditForm extends BaseSpaceMasterController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
-    NamedScript controller = automationRepository.getNamedScriptById(id);
-    model.addAttribute("script", AutomationUtils.toTemplate(controller));
+    NamedScript script = automationRepository.getNamedScriptById(id);
+    model.addAttribute("script", script);
     model.addAttribute("id", id);
 
     addGlobalModelItems(model);
 
-    return "admin/NamedScriptEdit";
+    ConfigurationForm metadataForm = newMetadataForm(script.getMetadata());
+
+    model.addAttribute("metadata", metadataForm);
+
+    return "admin/NamedScriptMetadataEdit";
   }
 
   @RequestMapping(method = { RequestMethod.PUT, RequestMethod.POST })
   public String processSubmit(@PathVariable("id") String id,
-      @ModelAttribute("script") SimpleNamedScript template, BindingResult result,
-      SessionStatus status) {
-    new NamedScriptValidator().validate(template, result);
+      @ModelAttribute("metadata") ConfigurationForm metadataForm, BindingResult result, SessionStatus status) {
+    metadataForm.validate(result, false, "namedscript.metadata");
     if (result.hasErrors()) {
-      return "admin/NamedScriptEdit";
+      return "admin/NamedScriptMetadataEdit";
     } else {
-      masterApiAutomationManager.updateNamedScript(id, template);
+      NamedScript script = automationRepository.getNamedScriptById(id);
+
+      if (saveMetadataForm(metadataForm, script)) {
+        automationRepository.saveNamedScript(script);
+      }
 
       status.setComplete();
 
       return "redirect:/admin/namedscript/" + id + "/view.html";
+    }
+  }
+
+  /**
+   * Save the metadata form
+   *
+   * @param form
+   *          the metadata form
+   * @param script
+   *          the script which contains the metadata
+   *
+   * @return {@code true} if there were changes
+   */
+  private boolean saveMetadataForm(ConfigurationForm form, NamedScript script) {
+    Map<String, Object> map = getSubmittedMap(form);
+
+    return saveMetadata(script, map);
+  }
+
+  /**
+   * Save the metadata.
+   *
+   * @param script
+   *          the script being reconfigured
+   * @param map
+   *          the map of new configurations
+   *
+   * @return {@code true} if there was a change in the configuration
+   */
+  private boolean saveMetadata(NamedScript script, Map<String, Object> map) {
+    Map<String, Object> metadata = script.getMetadata();
+    if (metadata != null) {
+      if (metadata.isEmpty() && map.isEmpty()) {
+        return false;
+      }
+
+      script.setMetadata(map);
+
+      return true;
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty())
+        return false;
+
+      script.setMetadata(map);
+
+      return true;
     }
   }
 

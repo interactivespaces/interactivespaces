@@ -19,7 +19,7 @@ package interactivespaces.domain.basic;
 import java.io.Serializable;
 
 /**
- * An activity installed in an {@link LiveActivityGroup}.
+ * A live activity that is part of a {@link LiveActivityGroup}.
  *
  * @author Keith M. Hughes
  */
@@ -28,7 +28,7 @@ public interface GroupLiveActivity extends Serializable {
   /**
    * Get the activity group this activity is part of.
    *
-   * @return
+   * @return the live activity group
    */
   LiveActivityGroup getActivityGroup();
 
@@ -36,28 +36,29 @@ public interface GroupLiveActivity extends Serializable {
    * Set the activity group this activity is part of.
    *
    * @param activityGroup
-   *          .
+   *          the live activity group
    */
   void setActivityGroup(LiveActivityGroup activityGroup);
 
   /**
    * Get the activity this represents.
    *
-   * @return
+   * @return the live activity
    */
   LiveActivity getActivity();
 
   /**
-   * Set the activity this represents.
+   * Set the live activity this represents.
    *
    * @param activity
+   *          the live activity
    */
   void setActivity(LiveActivity activity);
 
   /**
    * Get the dependency status of the activity in its containing activity group.
    *
-   * @return
+   * @return the dependency status
    */
   GroupLiveActivityDependency getDependency();
 
@@ -65,23 +66,45 @@ public interface GroupLiveActivity extends Serializable {
    * Set the dependency status of the activity in its containing activity group.
    *
    * @param dependency
+   *          the dependency
    */
   void setDependency(GroupLiveActivityDependency dependency);
 
+  /**
+   * The status of a live activity dependency in a live activity group.
+   *
+   * @author Keith M. Hughes
+   */
   public enum GroupLiveActivityDependency {
-    REQUIRED("activity.group.activity.dependency.required"), OPTIONAL(
-        "activity.group.activity.dependency.optional");
+
+    /**
+     * The live activity is required in the group.
+     */
+    REQUIRED("activity.group.activity.dependency.required"),
+
+    /**
+     * The live activity is optional in the group.
+     */
+    OPTIONAL("activity.group.activity.dependency.optional");
 
     /**
      * Message ID for the description.
      */
     private String description;
 
+    /**
+     * Construct a new enum.
+     *
+     * @param description
+     *          the description
+     */
     GroupLiveActivityDependency(String description) {
       this.description = description;
     }
 
     /**
+     * Get the dependency description.
+     *
      * @return the description
      */
     public String getDescription() {

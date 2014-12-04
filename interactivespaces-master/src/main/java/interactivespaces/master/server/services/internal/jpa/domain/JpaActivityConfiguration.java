@@ -68,9 +68,9 @@ public class JpaActivityConfiguration implements ActivityConfiguration {
   /**
    * The parameters in the configuration.
    */
-  @OneToMany(targetEntity = JpaConfigurationParameter.class, cascade = CascadeType.ALL,
+  @OneToMany(targetEntity = JpaActivityConfigurationParameter.class, cascade = CascadeType.ALL,
       fetch = FetchType.EAGER, orphanRemoval = true)
-  private Set<JpaConfigurationParameter> parameters = Sets.newHashSet();
+  private Set<JpaActivityConfigurationParameter> parameters = Sets.newHashSet();
 
   /**
    * The database version. Used for detecting concurrent modifications.
@@ -110,7 +110,7 @@ public class JpaActivityConfiguration implements ActivityConfiguration {
 
   @Override
   public void addParameter(ConfigurationParameter parameter) {
-    JpaConfigurationParameter p = (JpaConfigurationParameter) parameter;
+    JpaActivityConfigurationParameter p = (JpaActivityConfigurationParameter) parameter;
     p.setConfiguration(this);
 
     parameters.add(p);
@@ -118,7 +118,7 @@ public class JpaActivityConfiguration implements ActivityConfiguration {
 
   @Override
   public void removeParameter(ConfigurationParameter parameter) {
-    parameters.remove((JpaConfigurationParameter) parameter);
+    parameters.remove((JpaActivityConfigurationParameter) parameter);
   }
 
   @Override

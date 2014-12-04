@@ -21,7 +21,7 @@ like
 
 ::
 
-  bin/isworkbench.bash <projectdir> build
+  bin/isworkbench <projectdir> build
 
 where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
 you can build
@@ -29,7 +29,7 @@ the Simple Java Activity Example project with the command
 
 ::
 
-  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello build
+  bin/isworkbench examples/basics/hello/interactivespaces.example.activity.hello build
 
 Cleaning a Project
 ----------------------------
@@ -40,7 +40,7 @@ command
 
 ::
 
-  bin/isworkbench.bash <projectdir> clean
+  bin/isworkbench <projectdir> clean
 
 where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
 you can clean
@@ -48,7 +48,7 @@ the Simple Java Activity Example project with the command
 
 ::
 
-  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello clean
+  bin/isworkbench examples/basics/hello/interactivespaces.example.activity.hello clean
 
 Combining Workbench Commands
 ----------------------------
@@ -58,7 +58,7 @@ wish to first clean your project and then build it, you can use the command
 
 ::
 
-  bin/isworkbench.bash <projectdir> clean build
+  bin/isworkbench <projectdir> clean build
 
 where ``<projectdir>`` is the folder which contains the project. For example, if you are in the Workbench root directory,
 you can clean and build
@@ -66,7 +66,7 @@ the Simple Java Activity Example project with the command
 
 ::
 
-  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello clean build
+  bin/isworkbench examples/basics/hello/interactivespaces.example.activity.hello clean build
 
 
 Creating a Project
@@ -76,7 +76,7 @@ You can create projects very simply.
 
 ::
 
-  bin/isworkbench.bash create <type> <language> <projectdir>
+  bin/isworkbench create <type> <language> <projectdir>
 
 ``<type>`` is the type of the project and would be one of ``activity`` or ``library``.
 ``<language>`` is one of ``java``, ``javascript``, ``python``, or ``android``. ``<projectdir>`` is the file path to 
@@ -91,7 +91,7 @@ For example,
 
 ::
 
-  bin/isworkbench.bash create activity java foo.bar
+  bin/isworkbench create activity java foo.bar
 
 will create the skeleton for a Java-based activity in the folder ``foo.bar``. ``foo.bar`` will be the initial
 identifying name of the activity.
@@ -110,7 +110,7 @@ non-Java project, the same command works.
 
 ::
 
-  bin/isworkbench.bash <projectdir> ide eclipse
+  bin/isworkbench <projectdir> ide eclipse
 
 where ``<projectdir>`` is the directory containing the Activity project.
 
@@ -118,7 +118,7 @@ For example
 
 ::
 
-  bin/isworkbench.bash foo.bar.yowza ide eclipse
+  bin/isworkbench foo.bar.yowza ide eclipse
 
 will take the ``foo.bar.yowza`` project and generate the Eclipse
 files for it. You can then import the project into Eclipse.
@@ -476,7 +476,7 @@ I do a lot is use the command
 
 ::
 
-  bin/isworkbench.bash my/project/location clean build deploy testdeploy
+  bin/isworkbench my/project/location clean build deploy testdeploy
 
 This command would do a clean build of the project contained in the folder
 ``my/project/location`` and then deploy it to the ``testdeploy`` target.
@@ -713,14 +713,14 @@ The Workbench can create documentation fort your project.
 
 ::
 
-  bin/isworkbench.bash <projectdir> docs
+  bin/isworkbench <projectdir> docs
 
 where ``<projectdir>`` is the folder which contains the project. For example, you can build
 the Simple Web Activity Example project with the command
 
 ::
 
-  bin/isworkbench.bash examples/basics/hello/interactivespaces.example.activity.hello docs
+  bin/isworkbench examples/basics/hello/interactivespaces.example.activity.hello docs
 
 The Workbench can only create Javadocs at the moment, which means it currently
 only works on Java-based Activities
@@ -735,7 +735,7 @@ If all of the projects are contained within a given root folder this is easy to 
 
 ::
 
-  bin/isworkbench.bash <rootdir> walk <commands>
+  bin/isworkbench <rootdir> walk <commands>
 
 Here ``<rootdir>`` is the root directory containing all of the projects
 and ``<commands>`` is the list of commands to be done on all of the
@@ -750,7 +750,7 @@ which come with the Workbench, you could use the command
 
 ::
 
-  bin/isworkbench.bash /my/home/interactivespaces/workbench/examples walk clean build
+  bin/isworkbench /my/home/interactivespaces/workbench/examples walk clean build
 
 where ``/my/home/interactivespaces/workbench`` would be the directory
 where you installed the Workbench.

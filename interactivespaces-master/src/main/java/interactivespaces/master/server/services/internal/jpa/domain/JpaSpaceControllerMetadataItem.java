@@ -23,7 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * JPO implementation of a metadata item for a {@link JpaSpaceController}
+ * JPA implementation of a metadata item for a {@link JpaSpaceController}.
  *
  * @author Keith M. Hughes
  */
@@ -31,6 +31,9 @@ import javax.persistence.Table;
 @Table(name = "space_controller_metadata")
 public class JpaSpaceControllerMetadataItem {
 
+  /**
+   * The space controller the metadata item is for.
+   */
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   private JpaSpaceController spaceController;
 
@@ -43,12 +46,25 @@ public class JpaSpaceControllerMetadataItem {
   /**
    * Value of the metadata item.
    */
-  @Column(nullable = false, length = 2048)
+  @Column(nullable = false, length = 32672)
   private String value;
 
+  /**
+   * Construct a new metadata item.
+   */
   public JpaSpaceControllerMetadataItem() {
   }
 
+  /**
+   * Construct a new metadata item.
+   *
+   * @param spaceController
+   *          the space controller the metadata item is for
+   * @param name
+   *          the name of the metadata item
+   * @param value
+   *          the value of the metadata item
+   */
   JpaSpaceControllerMetadataItem(JpaSpaceController spaceController, String name, String value) {
     this.spaceController = spaceController;
     this.name = name;
@@ -56,6 +72,8 @@ public class JpaSpaceControllerMetadataItem {
   }
 
   /**
+   * Get the space controller the metadata item is for.
+   *
    * @return the space controller
    */
   public JpaSpaceController getSpaceController() {
@@ -63,14 +81,18 @@ public class JpaSpaceControllerMetadataItem {
   }
 
   /**
+   * Set the space controller the metadata item is for.
+   *
    * @param spaceController
-   *          the space controller to set
+   *          the space controller
    */
   public void setSpaceController(JpaSpaceController spaceController) {
     this.spaceController = spaceController;
   }
 
   /**
+   * Get the name of the metadata item.
+   *
    * @return the name
    */
   public String getName() {
@@ -78,14 +100,18 @@ public class JpaSpaceControllerMetadataItem {
   }
 
   /**
+   * Set the name of the metadata item.
+   *
    * @param name
-   *          the name to set
+   *          the name
    */
   public void setName(String name) {
     this.name = name;
   }
 
   /**
+   * Get the value of the metadata item.
+   *
    * @return the value
    */
   public String getValue() {
@@ -93,8 +119,10 @@ public class JpaSpaceControllerMetadataItem {
   }
 
   /**
+   * Set the value of the metadata item.
+   *
    * @param value
-   *          the value to set
+   *          the value
    */
   public void setValue(String value) {
     this.value = value;

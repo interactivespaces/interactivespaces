@@ -43,14 +43,14 @@ public class LiveActivityAction extends BaseSpaceMasterController {
   private ActivityRepository activityRepository;
 
   /**
-   * Repository for controllers.
+   * Repository for space controllers.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
-   * Get a new controller model.
+   * Create a new live activity form.
    *
-   * @return
+   * @return a new form
    */
   public LiveActivityForm newLiveActivity() {
     return new LiveActivityForm();
@@ -66,10 +66,9 @@ public class LiveActivityAction extends BaseSpaceMasterController {
     MutableAttributeMap viewScope = context.getViewScope();
     addGlobalModelItems(viewScope);
 
-    viewScope.put("activities",
-        WebSupport.getActivitySelections(activityRepository.getAllActivities()));
-    viewScope.put("controllers",
-        WebSupport.getControllerSelections(controllerRepository.getAllSpaceControllers()));
+    viewScope.put("activities", WebSupport.getActivitySelections(activityRepository.getAllActivities()));
+    viewScope
+        .put("controllers", WebSupport.getControllerSelections(spaceControllerRepository.getAllSpaceControllers()));
   }
 
   /**
@@ -85,8 +84,7 @@ public class LiveActivityAction extends BaseSpaceMasterController {
     finalLiveActivity.setName(liveactivity.getName());
     finalLiveActivity.setDescription(liveactivity.getDescription());
 
-    SpaceController controller =
-        controllerRepository.getSpaceControllerById(form.getControllerId());
+    SpaceController controller = spaceControllerRepository.getSpaceControllerById(form.getControllerId());
     finalLiveActivity.setController(controller);
 
     Activity activity = activityRepository.getActivityById(form.getActivityId());
@@ -107,11 +105,13 @@ public class LiveActivityAction extends BaseSpaceMasterController {
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**
@@ -120,6 +120,12 @@ public class LiveActivityAction extends BaseSpaceMasterController {
    * @author Keith M. Hughes
    */
   public static class LiveActivityForm implements Serializable {
+
+    /**
+     * The serialization ID.
+     */
+    private static final long serialVersionUID = -8354616250551919707L;
+
     /**
      * Info about the installed activity.
      */

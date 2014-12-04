@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,12 +14,12 @@
  * the License.
  */
 
-package interactivespaces.master.ui.internal.web.liveactivity;
+package interactivespaces.master.ui.internal.web.spacecontroller;
 
-import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
-import interactivespaces.domain.basic.LiveActivity;
-import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 import interactivespaces.master.ui.internal.web.ConfigurationForm;
 
@@ -45,14 +45,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A form for editing live activities.
+ * A form for editing space controller configurations.
  *
  * @author Keith M. Hughes
  */
 @Controller
-@RequestMapping("/liveactivity/{id}/config/edit")
-@SessionAttributes({ "liveactivity", "id", "config" })
-public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
+@RequestMapping("/spacecontroller/{id}/config/edit")
+@SessionAttributes({ "spacecontroller", "id", "config" })
+public class SpaceControllerConfigEditForm extends BaseSpaceMasterController {
 
   /**
    * The separator between lines of name/value pairs.
@@ -65,9 +65,9 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
   public static final char NAME_VALUE_PAIR_SEPARATOR = '=';
 
   /**
-   * The activity repository.
+   * The space controller repository.
    */
-  private ActivityRepository activityRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Set fields that can be bound by the edit.
@@ -84,7 +84,7 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
    * Set up the form.
    *
    * @param id
-   *          ID of the live activity
+   *          ID of the space controller
    * @param model
    *          the model for the form
    *
@@ -92,26 +92,26 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
    */
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
-    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
-    model.addAttribute("liveactivity", liveactivity);
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    model.addAttribute("spacecontroller", spaceController);
     model.addAttribute("id", id);
 
     addGlobalModelItems(model);
 
-    ConfigurationForm configurationForm = newConfigurationForm(liveactivity);
+    ConfigurationForm configurationForm = newConfigurationForm(spaceController);
 
     model.addAttribute("config", configurationForm);
 
-    return "liveactivity/LiveActivityConfigurationEdit";
+    return "spacecontroller/SpaceControllerConfigurationEdit";
   }
 
   /**
    * Process a form submission.
    *
    * @param id
-   *          ID of the live activity
+   *          ID of the space controller
    * @param configurationForm
-   *          the configuation form
+   *          the configuration form
    * @param result
    *          the result of performing the data binding
    * @param status
@@ -124,32 +124,32 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
       @ModelAttribute("config") ConfigurationForm configurationForm, BindingResult result, SessionStatus status) {
     configurationForm.validate(result, true, "space.config");
     if (result.hasErrors()) {
-      return "liveactivity/LiveActivityConfigurationEdit";
+      return "spacecontroller/SpaceControllerConfigurationEdit";
     } else {
-      LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+      SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
 
-      if (saveConfigurationForm(configurationForm, liveactivity)) {
-        activityRepository.saveLiveActivity(liveactivity);
+      if (saveConfigurationForm(configurationForm, spaceController)) {
+        spaceControllerRepository.saveSpaceController(spaceController);
       }
 
       status.setComplete();
 
-      return "redirect:/liveactivity/" + id + "/view.html";
+      return "redirect:/spacecontroller/" + id + "/view.html";
     }
   }
 
   /**
    * Create a configuration form with the values of the configuration parameters in it.
    *
-   * @param liveactivity
-   *          the live activity which contains the configuration
+   * @param spaceController
+   *          the space controller that contains the configuration
    *
    * @return a filled out form object
    */
-  private ConfigurationForm newConfigurationForm(LiveActivity liveactivity) {
+  private ConfigurationForm newConfigurationForm(SpaceController spaceController) {
     ConfigurationForm configurationForm = new ConfigurationForm();
 
-    ActivityConfiguration configuration = liveactivity.getConfiguration();
+    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
     if (configuration != null) {
       List<ConfigurationParameter> configParameters = Lists.newArrayList(configuration.getParameters());
 
@@ -179,29 +179,29 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
    *
    * @param form
    *          the form
-   * @param liveActivity
-   *          the live activity which contains the configuration
+   * @param spaceController
+   *          the space controller which contains the configuration
    *
    * @return {@code true} if there were changes
    */
-  private boolean saveConfigurationForm(ConfigurationForm form, LiveActivity liveActivity) {
+  private boolean saveConfigurationForm(ConfigurationForm form, SpaceController spaceController) {
     Map<String, String> map = getSubmittedMap(form);
 
-    return saveConfiguration(liveActivity, map);
+    return saveConfiguration(spaceController, map);
   }
 
   /**
    * save the configuration.
    *
-   * @param liveactivity
-   *          the live activity being reconfigured
+   * @param spaceController
+   *          the space controller being reconfigured
    * @param map
    *          the map of new configurations
    *
    * @return {@code true} if there was a change in the configuration
    */
-  private boolean saveConfiguration(LiveActivity liveactivity, Map<String, String> map) {
-    ActivityConfiguration configuration = liveactivity.getConfiguration();
+  private boolean saveConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
     if (configuration != null) {
       return mergeParameters(map, configuration);
     } else {
@@ -211,7 +211,7 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
         return false;
       }
 
-      createNewConfiguration(liveactivity, map);
+      createNewConfiguration(spaceController, map);
 
       return true;
     }
@@ -227,7 +227,7 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
    *
    * @return {@code true} if there were any parameters changed in the configuration
    */
-  private boolean mergeParameters(Map<String, String> map, ActivityConfiguration configuration) {
+  private boolean mergeParameters(Map<String, String> map, SpaceControllerConfiguration configuration) {
     boolean changed = false;
 
     Map<String, ConfigurationParameter> existingMap = configuration.getParameterMap();
@@ -258,7 +258,7 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
         // Didn't exist
         changed = true;
 
-        parameter = activityRepository.newActivityConfigurationParameter();
+        parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
         parameter.setName(entry.getKey());
         parameter.setValue(entry.getValue());
 
@@ -272,18 +272,17 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
   /**
    * Create a new configuration for the activity.
    *
-   * @param liveactivity
-   *          the live activity to be configured
+   * @param spaceController
+   *          the space controller to be configured
    * @param map
    *          the new metadata
    */
-  private void createNewConfiguration(LiveActivity liveactivity, Map<String, String> map) {
-    ActivityConfiguration configuration;
-    configuration = activityRepository.newActivityConfiguration();
-    liveactivity.setConfiguration(configuration);
+  private void createNewConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
+    spaceController.setConfiguration(configuration);
 
     for (Entry<String, String> entry : map.entrySet()) {
-      ConfigurationParameter parameter = activityRepository.newActivityConfigurationParameter();
+      ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
       parameter.setName(entry.getKey());
       parameter.setValue(entry.getValue());
 
@@ -317,12 +316,12 @@ public class LiveActivityConfigEditForm extends BaseSpaceMasterController {
   }
 
   /**
-   * Set the activity repository.
+   * Set the space controller repository.
    *
-   * @param activityRepository
-   *          the activityRepository to set
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setActivityRepository(ActivityRepository activityRepository) {
-    this.activityRepository = activityRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

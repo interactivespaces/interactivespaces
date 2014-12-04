@@ -41,7 +41,7 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
   /**
    * The space controller repository to use.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   @Override
   public String handleExecutionOutcome(FlowExecutionOutcome outcome, HttpServletRequest request,
@@ -50,8 +50,7 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
   }
 
   @Override
-  public String handleException(FlowException e, HttpServletRequest request,
-      HttpServletResponse response) {
+  public String handleException(FlowException e, HttpServletRequest request, HttpServletResponse response) {
     if (e instanceof NoSuchFlowExecutionException) {
       return DEFAULT_URL;
     } else {
@@ -60,17 +59,21 @@ public class NewSpaceControllerFlowHandler extends AbstractFlowHandler {
   }
 
   /**
-   * @return the controllerRepository
+   * Get the space controller repository being used.
+   *
+   * @return the space controller repository
    */
-  public SpaceControllerRepository getControllerRepository() {
-    return controllerRepository;
+  public SpaceControllerRepository getSpaceControllerRepository() {
+    return spaceControllerRepository;
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository being used.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

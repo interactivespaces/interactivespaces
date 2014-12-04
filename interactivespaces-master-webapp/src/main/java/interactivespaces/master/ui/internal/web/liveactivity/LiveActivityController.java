@@ -124,7 +124,7 @@ public class LiveActivityController extends BaseActiveSpaceMasterController {
   Map<String, ? extends Object> modifyLiveActivityMetadata(@PathVariable String id,
       @RequestBody Object metadataCommand, HttpServletResponse response) {
 
-    return masterApiActivityManager.updateMetadataLiveActivity(id, metadataCommand);
+    return masterApiActivityManager.updateLiveActivityMetadata(id, metadataCommand);
   }
 
   @RequestMapping(value = "/liveactivity/{id}/startup.json", method = RequestMethod.GET)

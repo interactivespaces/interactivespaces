@@ -19,6 +19,7 @@ package interactivespaces.master.server.services.internal.jpa.domain;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.SpaceControllerConfiguration;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -43,11 +44,13 @@ public class JpaSpaceControllerConfigurationParameter implements ConfigurationPa
   /**
    * The name of the parameter.
    */
+  @Column(nullable = false, length = 512)
   private String name;
 
   /**
    * The value of the parameter.
    */
+  @Column(nullable = true, length = 32672)
   private String value;
 
   /**

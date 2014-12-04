@@ -44,7 +44,7 @@ public interface MasterSupportManager {
    * Import a master domain description.
    *
    * @param description
-   *          the description to import.
+   *          the description to import
    */
   void importMasterDomainDescription(String description);
 }

@@ -17,6 +17,7 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.domain.system.NamedScript;
+import interactivespaces.expression.FilterExpression;
 
 import java.util.List;
 
@@ -44,18 +45,28 @@ public interface AutomationRepository {
    * The script will be assigned a UUID.
    *
    * @param template
-   *          the template script whose values will be copied in.
+   *          the template script whose values will be copied in
    *
-   * @return The new script instance. It will not be saved in the repository.
+   * @return the new script instance, it will not be saved in the repository
    */
   NamedScript newNamedScript(NamedScript template);
 
   /**
    * Get all scripts in the repository.
    *
-   * @return Get all scripts in the repository.
+   * @return all scripts in the repository
    */
   List<NamedScript> getAllNamedScripts();
+
+  /**
+   * Get all scripts in the repository that pass a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return all scripts in the repository matching the filter
+   */
+  List<NamedScript> getNamedScripts(FilterExpression filter);
 
   /**
    * Get a script by its ID.
@@ -71,8 +82,7 @@ public interface AutomationRepository {
    * Save a script in the repository.
    *
    * <p>
-   * Is used both to save a new script into the repository for the first time or
-   * to update edits to the script.
+   * Is used both to save a new script into the repository for the first time or to update edits to the script.
    *
    * @param script
    *          The script to save.

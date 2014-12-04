@@ -24,12 +24,12 @@ import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -104,26 +104,14 @@ public class AutomationController extends BaseSpaceMasterController {
 
   @RequestMapping(value = "/admin/namedscript/all.json", method = RequestMethod.GET)
   public @ResponseBody
-  Map<String, ? extends Object> listAllControllersJson() {
-    List<Map<String, Object>> data = Lists.newArrayList();
-
-    for (NamedScript script : automationRepository.getAllNamedScripts()) {
-      Map<String, Object> scriptData = Maps.newHashMap();
-
-      scriptData.put("id", script.getId());
-      scriptData.put("name", script.getName());
-      scriptData.put("description", script.getDescription());
-
-      data.add(scriptData);
-    }
-
-    return MasterApiMessageSupport.getSuccessResponse(data);
+  Map<String, ? extends Object> listAllControllersJson(@RequestParam(value = "filter", required = false) String filter) {
+    return masterApiAutomationManager.getNamedScriptsByFilter(filter);
   }
 
   @RequestMapping(value = "/admin/namedscript/{id}/run.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> runNamedScript(@PathVariable String id) {
-    return masterApiAutomationManager.runScript(id);
+    return masterApiAutomationManager.runNamedScript(id);
   }
 
   /**

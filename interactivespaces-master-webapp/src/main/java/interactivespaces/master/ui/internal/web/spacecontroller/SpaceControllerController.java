@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,6 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * A controller for Interactive Spaces space controller operations.
@@ -98,6 +101,35 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   public @ResponseBody
   Map<String, ? extends Object> viewControllerJson(@PathVariable String id) {
     return masterApiSpaceControllerManager.getSpaceControllerView(id);
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/configuration.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> getSpaceControllerConfiguration(@PathVariable String id) {
+    return masterApiSpaceControllerManager.getSpaceControllerConfiguration(id);
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/configuration.json", method = RequestMethod.POST)
+  public @ResponseBody
+  Map<String, ? extends Object> setSpaceControllerConfiguration(@PathVariable String id, @RequestBody Object config,
+      HttpServletResponse response) {
+
+    if (Map.class.isAssignableFrom(config.getClass())) {
+      @SuppressWarnings("unchecked")
+      Map<String, String> map = (Map<String, String>) config;
+
+      return masterApiSpaceControllerManager.configureSpaceController(id, map);
+    } else {
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+    }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/metadata.json", method = RequestMethod.POST)
+  public @ResponseBody
+  Map<String, ? extends Object> modifySpaceControllerMetadata(@PathVariable String id,
+      @RequestBody Object metadataCommand, HttpServletResponse response) {
+
+    return masterApiSpaceControllerManager.updateSpaceControllerMetadata(id, metadataCommand);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/connect.json", method = RequestMethod.GET)

@@ -95,7 +95,7 @@ public class SpaceClonerTest {
           }
         });
 
-    Mockito.when(activityRepository.newConfigurationParameter()).thenAnswer(
+    Mockito.when(activityRepository.newActivityConfigurationParameter()).thenAnswer(
         new Answer<ConfigurationParameter>() {
           public ConfigurationParameter answer(InvocationOnMock invocation) {
             return new SimpleConfigurationParameter();
@@ -314,7 +314,7 @@ public class SpaceClonerTest {
     srcLiveActivityGroup.setDescription(DESCRIPTION);
     srcLiveActivityGroup.setMetadata(metadata);
     for (LiveActivity srcLiveActivity : liveActivities) {
-      srcLiveActivityGroup.addActivity(srcLiveActivity);
+      srcLiveActivityGroup.addLiveActivity(srcLiveActivity);
     }
     return srcLiveActivityGroup;
   }
@@ -387,9 +387,9 @@ public class SpaceClonerTest {
    */
   protected void compareGroupLiveActivities(LiveActivityGroup srcLiveActivityGroup,
       LiveActivityGroup clonedLiveActivityGroup) {
-    List<? extends GroupLiveActivity> srcGroupLiveActivities = srcLiveActivityGroup.getActivities();
+    List<? extends GroupLiveActivity> srcGroupLiveActivities = srcLiveActivityGroup.getLiveActivities();
     List<? extends GroupLiveActivity> clonedGroupLiveActivities =
-        clonedLiveActivityGroup.getActivities();
+        clonedLiveActivityGroup.getLiveActivities();
     assertEquals(srcGroupLiveActivities.size(), clonedGroupLiveActivities.size());
     for (int i = 0; i < srcGroupLiveActivities.size(); ++i) {
       GroupLiveActivity srcGroupLiveActivity = srcGroupLiveActivities.get(i);

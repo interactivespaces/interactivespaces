@@ -19,6 +19,7 @@ package interactivespaces.domain.system;
 import interactivespaces.domain.PersistedObject;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A named script which can be scheduled.
@@ -121,4 +122,22 @@ public interface NamedScript extends PersistedObject, Serializable {
    *          {@code true} if the script should be scheduled
    */
   void setScheduled(boolean scheduled);
+
+  /**
+   * Set the metadata for the script.
+   *
+   * <p>
+   * This removes the old metadata completely.
+   *
+   * @param metadata
+   *          the metadata for the script (can be {@link null}
+   */
+  void setMetadata(Map<String, Object> metadata);
+
+  /**
+   * Get the metadata for the script.
+   *
+   * @return the script's meta data
+   */
+  Map<String, Object> getMetadata();
 }

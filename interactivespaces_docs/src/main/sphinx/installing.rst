@@ -47,7 +47,7 @@ To test if your installation happened correctly, open up a command shell and go 
 
 ::
 
-  bin/startup_linux.bash
+  bin/startup
 
 You should see a bunch of text scroll by as the master starts up. When you see no more text going by, go to a web browser and go to
 
@@ -92,7 +92,7 @@ Once there, type the command
 
 ::
 
-  bin/startup_linux.bash
+  bin/startup
 
 You should see a bunch of text scroll by as the controller starts up.
 

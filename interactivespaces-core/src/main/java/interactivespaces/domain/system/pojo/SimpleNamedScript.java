@@ -19,14 +19,21 @@ package interactivespaces.domain.system.pojo;
 import interactivespaces.domain.pojo.SimpleObject;
 import interactivespaces.domain.system.NamedScript;
 
+import com.google.common.collect.Maps;
+
+import java.util.Map;
+
 /**
- * A POJO {@link NamedScript}
+ * A POJO {@link NamedScript}.
  *
  * @author Keith M. Hughes
  */
 public class SimpleNamedScript extends SimpleObject implements NamedScript {
 
-  private static final long serialVersionUID = -8506899266993754281L;
+  /**
+   * For serialization.
+   */
+  private static final long serialVersionUID = -158711982524612460L;
 
   /**
    * The name of the script.
@@ -57,6 +64,11 @@ public class SimpleNamedScript extends SimpleObject implements NamedScript {
    * {@code true} if the script is scheduled.
    */
   private boolean scheduled;
+
+  /**
+   * The meta data for this script.
+   */
+  private Map<String, Object> metadata = Maps.newHashMap();
 
   @Override
   public String getName() {
@@ -116,5 +128,15 @@ public class SimpleNamedScript extends SimpleObject implements NamedScript {
   @Override
   public void setScheduled(boolean scheduled) {
     this.scheduled = scheduled;
+  }
+
+  @Override
+  public void setMetadata(Map<String, Object> metadata) {
+    this.metadata = metadata;
+  }
+
+  @Override
+  public Map<String, Object> getMetadata() {
+    return metadata;
   }
 }
