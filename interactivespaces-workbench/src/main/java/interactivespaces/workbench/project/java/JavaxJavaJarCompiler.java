@@ -294,7 +294,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
     Map<String, ProjectDependency> dependencies = Maps.newHashMap();
     for (ProjectDependency dependency : project.getDependencies()) {
-      dependencies.put(dependency.getName(), dependency);
+      dependencies.put(dependency.getIdentifyingName(), dependency);
 
     }
     for (File bundle : classpath) {

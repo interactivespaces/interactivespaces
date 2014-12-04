@@ -27,9 +27,9 @@ import interactivespaces.resource.VersionRange;
 public class ProjectDependency {
 
   /**
-   * The name of the dependency.
+   * The identifying name of the dependency.
    */
-  private String name;
+  private String identifyingName;
 
   /**
    * The minimum version necessary for the activity.
@@ -50,22 +50,22 @@ public class ProjectDependency {
   private boolean required;
 
   /**
-   * Get the name of the dependency.
+   * Get the identifying name of the dependency.
    *
-   * @return the name of the dependency
+   * @return the identifying name of the dependency
    */
-  public String getName() {
-    return name;
+  public String getIdentifyingName() {
+    return identifyingName;
   }
 
   /**
-   * Set the name of the dependency.
+   * Set the identifying name of the dependency.
    *
-   * @param name
-   *          the name of the dependency
+   * @param identifyingName
+   *          the identifying name of the dependency
    */
-  public void setName(String name) {
-    this.name = name;
+  public void setIdentifyingName(String identifyingName) {
+    this.identifyingName = identifyingName;
   }
 
   /**
@@ -162,7 +162,7 @@ public class ProjectDependency {
 
   @Override
   public String toString() {
-    return "ProjectDependency [name=" + name + ", minimumVersion=" + minimumVersion + ", maximumVersion="
-        + maximumVersion + ", required=" + required + "]";
+    return "ProjectDependency [identifyingName=" + identifyingName + ", minimumVersion=" + minimumVersion
+        + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
   }
 }

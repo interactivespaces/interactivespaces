@@ -137,7 +137,10 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
 
       List<ActivityDependency> dependencies = Lists.newArrayList();
       for (Element dependencyElement : dependencyElements) {
-        dependencies.add(getDependency(dependencyElement, errors));
+        ActivityDependency dependency = getDependency(dependencyElement, errors);
+        if (dependency != null) {
+          dependencies.add(dependency);
+        }
       }
 
       adescription.setDependencies(dependencies);
@@ -152,12 +155,16 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    * @param errors
    *          any errors found in the metadata
    *
-   * @return the dependency found in the element
+   * @return the dependency found in the element, or {@code null} if an error
    */
   private ActivityDependency getDependency(Element dependencyElement, List<String> errors) {
-    String name = dependencyElement.getAttributeValue("name");
-    if (name == null) {
-      errors.add("Dependency has no name");
+    String identifyingName = dependencyElement.getAttributeValue("identifyingName");
+    if (identifyingName == null) {
+      identifyingName = dependencyElement.getAttributeValue("name");
+      if (identifyingName == null) {
+        errors.add("Dependency has no name");
+        return null;
+      }
     }
 
     String minimumVersion = dependencyElement.getAttributeValue("minimumVersion");
@@ -172,13 +179,14 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
       minimumVersion = maximumVersion;
     } else {
       errors.add("Dependency has no version constraints");
+      return null;
     }
 
     String requiredString = dependencyElement.getAttributeValue("required", "true");
 
     ActivityDependency dependency = new SimpleActivityDependency();
 
-    dependency.setName(name);
+    dependency.setIdentifyingName(identifyingName);
     dependency.setMinimumVersion(minimumVersion);
     dependency.setMaximumVersion(maximumVersion);
     dependency.setRequired("true".equals(requiredString));

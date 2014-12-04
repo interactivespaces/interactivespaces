@@ -242,7 +242,7 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
         activityDependenciesElement.addContent(dependencyElement);
 
         dependencyElement
-            .addContent(new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME).addContent(dependency.getName()))
+            .addContent(new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME).addContent(dependency.getIdentifyingName()))
             .addContent(
                 new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM).addContent(dependency.getMinimumVersion()))
             .addContent(

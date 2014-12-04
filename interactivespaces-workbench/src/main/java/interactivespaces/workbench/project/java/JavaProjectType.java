@@ -98,13 +98,13 @@ public abstract class JavaProjectType implements ProjectType {
             workbench.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
     for (ProjectDependency dependency : context.getProject().getDependencies()) {
       NamedVersionedResourceWithData<String> dependencyProvider =
-          startupResources.getResource(dependency.getName(), dependency.getVersionRange());
+          startupResources.getResource(dependency.getIdentifyingName(), dependency.getVersionRange());
       if (dependencyProvider != null) {
         classpath.add(fileSupport.newFile(dependencyProvider.getData()));
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
         throw new SimpleInteractiveSpacesException(String.format(
-            "Project has listed dependency that isn't available %s:%s", dependency.getName(),
+            "Project has listed dependency that isn't available %s:%s", dependency.getIdentifyingName(),
             dependency.getVersionRange()));
       }
     }

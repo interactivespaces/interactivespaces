@@ -49,8 +49,7 @@ import java.util.Map;
 public class JdomProjectReader extends JdomReader implements ProjectReader {
 
   /**
-   * The default version range for projects which do not specify a version
-   * range.
+   * The default version range for projects which do not specify a version range.
    */
   public static final VersionRange INTERACTIVESPACES_VERSION_RANGE_DEFAULT = new VersionRange(new Version(1, 0, 0),
       new Version(2, 0, 0), false);
@@ -103,8 +102,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   public static final String PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER = "builder";
 
   /**
-   * The project attribute for the version of Interactive Spaces which is
-   * required.
+   * The project attribute for the version of Interactive Spaces which is required.
    */
   public static final String PROJECT_ATTRIBUTE_NAME_PROJECT_INTERACTIVE_SPACES_VERSION = "interactiveSpacesVersion";
 
@@ -154,25 +152,27 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM = "dependency";
 
   /**
-   * Project definition file attribute name for the name of a dependency.
+   * Project definition file attribute name for the identifying name of a dependency.
    */
-  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_NAME = "name";
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME = "identifyingName";
 
   /**
-   * Project definition file attribute name for the minimum version of a
-   * dependency.
+   * Project definition file deprecated attribute name for the identifying name of a dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED = "name";
+
+  /**
+   * Project definition file attribute name for the minimum version of a dependency.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM = "minimumVersion";
 
   /**
-   * Project definition file attribute name for the maximum version of a
-   * dependency.
+   * Project definition file attribute name for the maximum version of a dependency.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM = "maximumVersion";
 
   /**
-   * Project definition file attribute name for whether a dependency is
-   * required.
+   * Project definition file attribute name for whether a dependency is required.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED = "required";
 
@@ -207,8 +207,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ELEMENT_NAME_CONFIGURATION = "configuration";
 
   /**
-   * Project definition file attribute name for the name of a configuration
-   * item.
+   * Project definition file attribute name for the name of a configuration item.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
@@ -478,12 +477,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * @param dependencyElement
    *          the element containing the data
    *
-   * @return the dependency found in the element
+   * @return the dependency found in the element, or {@code null} if errors
    */
   private ProjectDependency getDependency(Element dependencyElement) {
-    String name = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_NAME);
-    if (name == null) {
-      addError("Dependency has no name");
+    String identifyingName = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
+    if (identifyingName == null) {
+      identifyingName = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED);
+      if (identifyingName == null) {
+        addError("Dependency has no identifying name");
+        return null;
+      }
     }
 
     String minimumVersion =
@@ -500,6 +503,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       minimumVersion = maximumVersion;
     } else {
       addError("Dependency has no version constraints");
+      return null;
     }
 
     String requiredString =
@@ -507,7 +511,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     ProjectDependency dependency = new ProjectDependency();
 
-    dependency.setName(name);
+    dependency.setIdentifyingName(identifyingName);
     dependency.setMinimumVersion(Version.parseVersion(minimumVersion));
     dependency.setMaximumVersion(Version.parseVersion(maximumVersion));
     dependency.setRequired("true".equals(requiredString));

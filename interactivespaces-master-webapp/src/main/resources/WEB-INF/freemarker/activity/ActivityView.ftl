@@ -175,7 +175,7 @@ None
 <#if activity.dependencies?has_content>
 <table>
     <tr>
-      <th>Name</th>
+      <th>Identifying Name</th>
       <th>Minimum Version</th>
       <th>Maximum Version</th>
       <th>Required?</th>
@@ -183,7 +183,7 @@ None
 
 <#list activity.dependencies as dependency>
     <tr>
-      <td>${dependency.name}</td>
+      <td>${dependency.identifyingName}</td>
       <td>${dependency.minimumVersion}</td>
       <td>${dependency.maximumVersion}</td>
       <td><#if dependency.required>Required<#else>Not Required</#if></td>

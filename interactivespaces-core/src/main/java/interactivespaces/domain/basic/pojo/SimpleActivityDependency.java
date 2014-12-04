@@ -32,9 +32,9 @@ public class SimpleActivityDependency implements ActivityDependency {
   private Activity activity;
 
   /**
-   * The name of the dependency.
+   * The identifying name of the dependency.
    */
-  private String name;
+  private String identifyingName;
 
   /**
    * The minimum version necessary for the activity.
@@ -65,13 +65,13 @@ public class SimpleActivityDependency implements ActivityDependency {
   }
 
   @Override
-  public String getName() {
-    return name;
+  public String getIdentifyingName() {
+    return identifyingName;
   }
 
   @Override
-  public void setName(String name) {
-    this.name = name;
+  public void setIdentifyingName(String identifyingName) {
+    this.identifyingName = identifyingName;
   }
 
   @Override

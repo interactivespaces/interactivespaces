@@ -125,7 +125,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
       ContainerResourceDeploymentQueryRequest query = new ContainerResourceDeploymentQueryRequest(transactionId);
       for (ActivityDependency dependency : dependencies) {
         query
-            .addQuery(new ResourceDependencyReference(dependency.getName(), new VersionRange(Version
+            .addQuery(new ResourceDependencyReference(dependency.getIdentifyingName(), new VersionRange(Version
                 .parseVersion(dependency.getMinimumVersion()), Version.parseVersion(dependency.getMaximumVersion()),
                 false)));
       }

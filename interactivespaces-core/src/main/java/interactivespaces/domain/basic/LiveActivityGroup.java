@@ -58,17 +58,17 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
   String getDescription();
 
   /**
-   * Set the description of the activity group.
+   * Set the description of the live activity group.
    *
    * @param description
-   *          the description of the activity group
+   *          the description of the live activity group
    */
   void setDescription(String description);
 
   /**
    * Get all the current activities in the group.
    *
-   * @return a freshly allocated list of the activities
+   * @return a freshly allocated list of the live activities
    */
   List<? extends GroupLiveActivity> getLiveActivities();
 
@@ -81,15 +81,15 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * <p>
    * The activity will be required. See {@link GroupLiveActivityDependency#REQUIRED}.
    *
-   * @param activity
-   *          the new activity
+   * @param liveActivity
+   *          the new live activity
    *
    * @return this activity group
    *
    * @throws InteractiveSpacesException
-   *           the activity was already in the group
+   *           the live activity was already in the group
    */
-  LiveActivityGroup addLiveActivity(LiveActivity activity) throws InteractiveSpacesException;
+  LiveActivityGroup addLiveActivity(LiveActivity liveActivity) throws InteractiveSpacesException;
 
   /**
    * Add a new activity to the group.
@@ -97,29 +97,29 @@ public interface LiveActivityGroup extends PersistedObject, Serializable {
    * <p>
    * A given activity can only be added once.
    *
-   * @param activity
-   *          the new activity
+   * @param liveActivity
+   *          the new live activity
    * @param dependency
    *          the dependency this group has on this activity
    *
-   * @return this activity group
+   * @return this live activity group
    *
    * @throws InteractiveSpacesException
-   *           the activity was already in the group
+   *           the live activity was already in the group
    */
-  LiveActivityGroup addLiveActivity(LiveActivity activity, GroupLiveActivityDependency dependency)
+  LiveActivityGroup addLiveActivity(LiveActivity liveActivity, GroupLiveActivityDependency dependency)
       throws InteractiveSpacesException;
 
   /**
-   * Remove an activity from the group.
+   * Remove a live activity from the group.
    *
    * <p>
-   * This does nothing if the activity isn't part of the group already.
+   * This does nothing if the live activity isn't part of the group already.
    *
-   * @param activity
+   * @param liveActivity
    *          the live activity to remove
    */
-  void removeLiveActivity(LiveActivity activity);
+  void removeLiveActivity(LiveActivity liveActivity);
 
   /**
    * Clear all live activities from the group.

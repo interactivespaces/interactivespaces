@@ -27,6 +27,8 @@ public interface ActivityDependency extends Serializable {
 
   /**
    * Get the activity which has the dependency.
+   *
+   * @return the activity
    */
   Activity getActivity();
 
@@ -39,24 +41,24 @@ public interface ActivityDependency extends Serializable {
   void setActivity(Activity activity);
 
   /**
-   * Get the name of the dependency.
+   * Get the identifying name of the dependency.
    *
-   * @return The name of the dependency.
+   * @return the identifying name of the dependency
    */
-  String getName();
+  String getIdentifyingName();
 
   /**
-   * Set the name of the dependency.
+   * Set the identifying name of the dependency.
    *
-   * @param name
-   *          he name of the dependency
+   * @param identifyingName
+   *          the identifying name of the dependency
    */
-  void setName(String name);
+  void setIdentifyingName(String identifyingName);
 
   /**
    * Get the minimum version necessary for the activity.
    *
-   * @return
+   * @return the minimum version
    */
   String getMinimumVersion();
 
@@ -71,7 +73,7 @@ public interface ActivityDependency extends Serializable {
   /**
    * Get the maximum version necessary for the activity.
    *
-   * @return
+   * @return the maximum version
    */
   String getMaximumVersion();
 

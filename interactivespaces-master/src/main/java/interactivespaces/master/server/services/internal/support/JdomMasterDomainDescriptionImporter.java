@@ -319,7 +319,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
         String dependencyRequired = dependencyElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED);
 
         ActivityDependency dependency = activityRepository.newActivityDependency();
-        dependency.setName(dependencyName);
+        dependency.setIdentifyingName(dependencyName);
         dependency.setMinimumVersion(dependencyVersionMinimum);
         dependency.setMaximumVersion(dependencyVersionMaximum);
         dependency.setRequired(VALUE_TRUE.equals(dependencyRequired));

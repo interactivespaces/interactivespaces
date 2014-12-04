@@ -201,7 +201,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         Map<String, Object> dependencyData = Maps.newHashMap();
         dependencies.add(dependencyData);
 
-        dependencyData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, activityDependency.getName());
+        dependencyData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_IDENTIFYING_NAME, activityDependency.getIdentifyingName());
         dependencyData.put("minimumVersion", activityDependency.getMinimumVersion());
         dependencyData.put("maximumVersion", activityDependency.getMaximumVersion());
         dependencyData.put("required", activityDependency.isRequired());

@@ -42,10 +42,10 @@ public class JpaActivityDependency implements ActivityDependency {
   private JpaActivity activity;
 
   /**
-   * The name of the dependency.
+   * The identifying name of the dependency.
    */
   @Column(nullable = false, length = 512)
-  private String name;
+  private String identifyingName;
 
   /**
    * The minimum version necessary for the activity.
@@ -85,13 +85,13 @@ public class JpaActivityDependency implements ActivityDependency {
   }
 
   @Override
-  public String getName() {
-    return name;
+  public String getIdentifyingName() {
+    return identifyingName;
   }
 
   @Override
-  public void setName(String name) {
-    this.name = name;
+  public void setIdentifyingName(String identifyingName) {
+    this.identifyingName = identifyingName;
   }
 
   @Override
@@ -126,7 +126,7 @@ public class JpaActivityDependency implements ActivityDependency {
 
   @Override
   public String toString() {
-    return "JpaActivityDependency [name=" + name + ", minimumVersion=" + minimumVersion
+    return "JpaActivityDependency [identifyingName=" + identifyingName + ", minimumVersion=" + minimumVersion
         + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
   }
 }

@@ -26,7 +26,7 @@ ${project.description?html}
 <#if project.dependencies?has_content>
   <dependencies>
   <#list project.dependencies as dependency>
-    <dependency name="${dependency.name?html}"
+    <dependency identifyingName="${dependency.identifyingName?html}"
     <#if dependency.minimumVersion?has_content>
           minimumVersion="${dependency.minimumVersion}"
     </#if>

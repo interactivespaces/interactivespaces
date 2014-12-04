@@ -128,7 +128,7 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
     for (ActivityDependency dependency : activityDescription.getDependencies()) {
       ActivityDependency newDependency = activityRepository.newActivityDependency();
 
-      newDependency.setName(dependency.getName());
+      newDependency.setIdentifyingName(dependency.getIdentifyingName());
       newDependency.setMinimumVersion(dependency.getMinimumVersion());
       newDependency.setMaximumVersion(dependency.getMaximumVersion());
       newDependency.setRequired(dependency.isRequired());

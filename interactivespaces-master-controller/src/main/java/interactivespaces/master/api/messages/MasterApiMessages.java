@@ -306,6 +306,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION = "description";
 
   /**
+   * Status parameter name for the identifying name of the entity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ENTITY_IDENTIFYING_NAME = "identifyingName";
+
+  /**
    * Status parameter name for the metadata of the entity in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_METADATA = "metadata";
