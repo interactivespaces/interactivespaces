@@ -16,10 +16,8 @@
 
 package interactivespaces.master.server.services.internal.support;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ActivityDependency;
@@ -28,12 +26,17 @@ import interactivespaces.domain.basic.GroupLiveActivity.GroupLiveActivityDepende
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
+import interactivespaces.domain.basic.SpaceControllerMode;
 import interactivespaces.domain.space.Space;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.jdom.Document;
 import org.jdom.Element;
@@ -54,8 +57,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   // TODO(keith): Get some error checking in here.
 
   /**
-   * Map of space controller IDs from the description to the created space
-   * controller.
+   * Map of space controller IDs from the description to the created space controller.
    */
   private Map<String, SpaceController> spaceControllers = Maps.newHashMap();
 
@@ -70,8 +72,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   private Map<String, LiveActivity> liveActivities = Maps.newHashMap();
 
   /**
-   * Map of live activity group IDs from the description to the created live
-   * activity groups.
+   * Map of live activity group IDs from the description to the created live activity groups.
    */
   private Map<String, LiveActivityGroup> liveActivityGroups = Maps.newHashMap();
 
@@ -100,8 +101,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element rootElement = readDescription(description);
 
     if (!ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT.equals(rootElement.getName())) {
-      throw new InteractiveSpacesException(String.format(
-          "The description file doesn't have root element %s",
+      throw new SimpleInteractiveSpacesException(String.format("The description file doesn't have root element %s",
           ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT));
     }
 
@@ -125,8 +125,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element spaceControllersElement = rootElement.getChild(ELEMENT_NAME_ROOT_SPACE_CONTROLLERS);
 
     if (spaceControllersElement != null) {
-      List<Element> controllerElements =
-          spaceControllersElement.getChildren(ELEMENT_NAME_INDIVIDUAL_SPACE_CONTROLLER);
+      List<Element> controllerElements = spaceControllersElement.getChildren(ELEMENT_NAME_INDIVIDUAL_SPACE_CONTROLLER);
       for (Element controllerElement : controllerElements) {
         getSpaceController(controllerElement, controllerRepository);
       }
@@ -141,21 +140,33 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param controllerRepository
    *          repository for controller entities
    */
-  private void getSpaceController(Element controllerElement,
-      SpaceControllerRepository controllerRepository) {
+  private void getSpaceController(Element controllerElement, SpaceControllerRepository controllerRepository) {
     String id = controllerElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
     SpaceController controller = controllerRepository.newSpaceController();
 
-    String uuid = controllerElement.getChildText(ELEMENT_NAME_UUID);
-    String name = controllerElement.getChildText(ELEMENT_NAME_NAME);
-    String description = controllerElement.getChildText(ELEMENT_NAME_DESCRIPTION);
-    String hostId = controllerElement.getChildText(ELEMENT_NAME_SPACE_CONTROLLER_HOST_ID);
+    String uuid = controllerElement.getChildTextTrim(ELEMENT_NAME_UUID);
+    String name = controllerElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = controllerElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
+    String hostId = controllerElement.getChildTextTrim(ELEMENT_NAME_SPACE_CONTROLLER_HOST_ID);
 
     controller.setUuid(uuid);
     controller.setName(name);
     controller.setDescription(description);
     controller.setHostId(hostId);
+
+    SpaceControllerMode controllerMode = SpaceControllerMode.ENABLED;
+    String mode = controllerElement.getChildTextTrim(ELEMENT_NAME_SPACE_CONTROLLER_MODE);
+    if (mode != null && !mode.isEmpty()) {
+      controllerMode = SpaceControllerMode.valueOf(mode);
+    }
+    controller.setMode(controllerMode);
+
+    SpaceControllerConfiguration configuration =
+        getSpaceControllerConfiguration(controllerElement, controllerRepository);
+    if (configuration != null) {
+      controller.setConfiguration(configuration);
+    }
 
     Map<String, Object> metadata = getMetadata(controllerElement.getChild(ELEMENT_NAME_METADATA));
     if (metadata != null) {
@@ -168,6 +179,47 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   }
 
   /**
+   * Get a space controller configuration.
+   *
+   * @param rootElement
+   *          the XML element that might contain an space controller configuration
+   * @param spaceControllerRepository
+   *          repository for space controller entities
+   *
+   * @return a space controller configuration, if there was one, or {@code null}
+   */
+  private SpaceControllerConfiguration getSpaceControllerConfiguration(Element rootElement,
+      SpaceControllerRepository spaceControllerRepository) {
+    Element configurationElement = rootElement.getChild(ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION);
+    if (configurationElement != null) {
+      SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
+      Element parametersElement =
+          configurationElement.getChild(ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION_ROOT_PARAMETERS);
+      if (parametersElement != null) {
+        @SuppressWarnings("unchecked")
+        List<Element> parameterElements =
+            parametersElement.getChildren(ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION_INDIVIDUAL_PARAMETER);
+        for (Element parameterElement : parameterElements) {
+          ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
+
+          String name =
+              parameterElement.getAttributeValue(ATTRIBUTE_NAME_SPACE_CONTROLLER_CONFIGURATION_PARAMETER_NAME);
+          String value = parameterElement.getText();
+
+          parameter.setName(name);
+          parameter.setValue(value);
+
+          configuration.addParameter(parameter);
+        }
+      }
+
+      return configuration;
+    }
+
+    return null;
+  }
+
+  /**
    * Get all activities from the description.
    *
    * @param rootElement
@@ -177,13 +229,12 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param timeProvider
    *          the time provider to use
    */
-  private void getActivities(Element rootElement, ActivityRepository activityRepository,
-      TimeProvider timeProvider) {
+  private void getActivities(Element rootElement, ActivityRepository activityRepository, TimeProvider timeProvider) {
     Element activitiesElement = rootElement.getChild(ELEMENT_NAME_ROOT_ACTIVITIES);
 
     if (activitiesElement != null) {
-      List<Element> activityElements =
-          activitiesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_ACTIVITY);
+      @SuppressWarnings("unchecked")
+      List<Element> activityElements = activitiesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_ACTIVITY);
       for (Element activityElement : activityElements) {
         getActivity(activityElement, activityRepository, timeProvider);
       }
@@ -200,16 +251,15 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param timeProvider
    *          the time provider
    */
-  private void getActivity(Element activityElement, ActivityRepository activityRepository,
-      TimeProvider timeProvider) {
+  private void getActivity(Element activityElement, ActivityRepository activityRepository, TimeProvider timeProvider) {
     String id = activityElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
     Activity activity = activityRepository.newActivity();
 
-    String name = activityElement.getChildText(ELEMENT_NAME_NAME);
-    String description = activityElement.getChildText(ELEMENT_NAME_DESCRIPTION);
-    String identifyingName = activityElement.getChildText(ELEMENT_NAME_ACTIVITY_IDENTIFYING_NAME);
-    String version = activityElement.getChildText(ELEMENT_NAME_ACTIVITY_VERSION);
+    String name = activityElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = activityElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
+    String identifyingName = activityElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_IDENTIFYING_NAME);
+    String version = activityElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_VERSION);
 
     activity.setIdentifyingName(identifyingName);
     activity.setVersion(version);
@@ -224,6 +274,11 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     String lastStartDateString = activityElement.getAttributeValue(ATTRIBUTE_NAME_LAST_START_DATE);
     if (lastStartDateString != null) {
       activity.setLastStartDate(new Date(Long.parseLong(lastStartDateString)));
+    }
+
+    String bundleContentHash = activityElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_BUNDLE_CONTENT_HASH);
+    if (bundleContentHash != null) {
+      activity.setBundleContentHash(bundleContentHash);
     }
 
     Map<String, Object> metadata = getMetadata(activityElement.getChild(ELEMENT_NAME_METADATA));
@@ -248,23 +303,20 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param activityRepository
    *          the repository for activity entities
    */
-  private void addActivityDependencies(Element activityElement, Activity activity,
-      ActivityRepository activityRepository) {
+  private void
+      addActivityDependencies(Element activityElement, Activity activity, ActivityRepository activityRepository) {
     Element dependenciesElement = activityElement.getChild(ELEMENT_NAME_ROOT_ACTIVITY_DEPENDENCIES);
     if (dependenciesElement != null) {
       List<ActivityDependency> dependencies = Lists.newArrayList();
 
-      List<Element> dependencyElements =
-          dependenciesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_ACTIVITY_DEPENDENCY);
+      List<Element> dependencyElements = dependenciesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_ACTIVITY_DEPENDENCY);
       for (Element dependencyElement : dependencyElements) {
-        String dependencyName =
-            dependencyElement.getChildText(ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME);
+        String dependencyName = dependencyElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME);
         String dependencyVersionMinimum =
-            dependencyElement.getChildText(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM);
+            dependencyElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM);
         String dependencyVersionMaximum =
-            dependencyElement.getChildText(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM);
-        String dependencyRequired =
-            dependencyElement.getChildText(ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED);
+            dependencyElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM);
+        String dependencyRequired = dependencyElement.getChildTextTrim(ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED);
 
         ActivityDependency dependency = activityRepository.newActivityDependency();
         dependency.setName(dependencyName);
@@ -291,8 +343,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element activitiesElement = rootElement.getChild(ELEMENT_NAME_ROOT_LIVE_ACTIVITIES);
 
     if (activitiesElement != null) {
-      List<Element> activityElements =
-          activitiesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_LIVE_ACTIVITY);
+      List<Element> activityElements = activitiesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_LIVE_ACTIVITY);
       for (Element activityElement : activityElements) {
         getLiveActivity(activityElement, activityRepository);
       }
@@ -302,53 +353,56 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   /**
    * Get an individual live activity.
    *
-   * @param activityElement
+   * @param liveActivityElement
    *          the live activity XML element
    * @param activityRepository
    *          repository for activity entities
    */
-  private void getLiveActivity(Element activityElement, ActivityRepository activityRepository) {
-    String id = activityElement.getAttributeValue(ATTRIBUTE_NAME_ID);
+  private void getLiveActivity(Element liveActivityElement, ActivityRepository activityRepository) {
+    String id = liveActivityElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
-    LiveActivity activity = activityRepository.newLiveActivity();
+    LiveActivity liveActivity = activityRepository.newLiveActivity();
 
-    String uuid = activityElement.getChildText(ELEMENT_NAME_UUID);
-    String name = activityElement.getChildText(ELEMENT_NAME_NAME);
-    String description = activityElement.getChildText(ELEMENT_NAME_DESCRIPTION);
+    String uuid = liveActivityElement.getChildTextTrim(ELEMENT_NAME_UUID);
+    String name = liveActivityElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = liveActivityElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
 
-    activity.setUuid(uuid);
-    activity.setName(name);
-    activity.setDescription(description);
+    liveActivity.setUuid(uuid);
+    liveActivity.setName(name);
+    liveActivity.setDescription(description);
 
-    Map<String, Object> metadata = getMetadata(activityElement.getChild(ELEMENT_NAME_METADATA));
+    Map<String, Object> metadata = getMetadata(liveActivityElement.getChild(ELEMENT_NAME_METADATA));
     if (metadata != null) {
-      activity.setMetadata(metadata);
+      liveActivity.setMetadata(metadata);
     }
 
-    Element mySpaceControllerElement =
-        activityElement.getChild(ELEMENT_NAME_LIVE_ACTIVITY_CONTROLLER);
+    Element mySpaceControllerElement = liveActivityElement.getChild(ELEMENT_NAME_LIVE_ACTIVITY_CONTROLLER);
     if (mySpaceControllerElement != null) {
       String mySpaceControllerId = mySpaceControllerElement.getAttributeValue(ATTRIBUTE_NAME_ID);
       SpaceController myController = spaceControllers.get(mySpaceControllerId);
-      activity.setController(myController);
+      liveActivity.setController(myController);
     }
 
-    Element myActivityElement = activityElement.getChild(ELEMENT_NAME_LIVE_ACTIVITY_ACTIVITY);
+    Element myActivityElement = liveActivityElement.getChild(ELEMENT_NAME_LIVE_ACTIVITY_ACTIVITY);
     if (myActivityElement != null) {
       String myActivityId = myActivityElement.getAttributeValue(ATTRIBUTE_NAME_ID);
       Activity myActivity = activities.get(myActivityId);
-      activity.setActivity(myActivity);
+      liveActivity.setActivity(myActivity);
     }
 
-    ActivityConfiguration configuration =
-        getActivityConfiguration(activityElement, activityRepository);
+    ActivityConfiguration configuration = getActivityConfiguration(liveActivityElement, activityRepository);
     if (configuration != null) {
-      activity.setConfiguration(configuration);
+      liveActivity.setConfiguration(configuration);
     }
 
-    liveActivities.put(id, activity);
+    String lastDeployDateString = liveActivityElement.getChildTextTrim(ELEMENT_NAME_LIVE_ACTIVITY_LAST_DEPLOY_DATE);
+    if (lastDeployDateString != null) {
+      liveActivity.setLastDeployDate(new Date(Long.parseLong(lastDeployDateString)));
+    }
 
-    activityRepository.saveLiveActivity(activity);
+    liveActivities.put(id, liveActivity);
+
+    activityRepository.saveLiveActivity(liveActivity);
   }
 
   /**
@@ -361,22 +415,19 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    *
    * @return an activity configuration, if there was one, or {@code null}
    */
-  private ActivityConfiguration getActivityConfiguration(Element rootElement,
-      ActivityRepository activityRepository) {
+  private ActivityConfiguration getActivityConfiguration(Element rootElement, ActivityRepository activityRepository) {
     Element configurationElement = rootElement.getChild(ELEMENT_NAME_ACTIVITY_CONFIGURATION);
     if (configurationElement != null) {
       ActivityConfiguration configuration = activityRepository.newActivityConfiguration();
-      Element parametersElement =
-          configurationElement.getChild(ELEMENT_NAME_ACTIVITY_CONFIGURATION_ROOT_PARAMETERS);
+      Element parametersElement = configurationElement.getChild(ELEMENT_NAME_ACTIVITY_CONFIGURATION_ROOT_PARAMETERS);
       if (parametersElement != null) {
+        @SuppressWarnings("unchecked")
         List<Element> parameterElements =
             parametersElement.getChildren(ELEMENT_NAME_ACTIVITY_CONFIGURATION_INDIVIDUAL_PARAMETER);
         for (Element parameterElement : parameterElements) {
-          ConfigurationParameter parameter = activityRepository.newConfigurationParameter();
+          ConfigurationParameter parameter = activityRepository.newActivityConfigurationParameter();
 
-          String name =
-              parameterElement
-                  .getAttributeValue(ATTRIBUTE_NAME_ACTIVITY_CONFIGURATION_PARAMETER_NAME);
+          String name = parameterElement.getAttributeValue(ATTRIBUTE_NAME_ACTIVITY_CONFIGURATION_PARAMETER_NAME);
           String value = parameterElement.getText();
 
           parameter.setName(name);
@@ -404,8 +455,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element groupsElement = rootElement.getChild(ELEMENT_NAME_ROOT_LIVE_ACTIVITY_GROUPS);
 
     if (groupsElement != null) {
-      List<Element> groupElements =
-          groupsElement.getChildren(ELEMENT_NAME_INDIVIDUAL_LIVE_ACTIVITY_GROUP);
+      List<Element> groupElements = groupsElement.getChildren(ELEMENT_NAME_INDIVIDUAL_LIVE_ACTIVITY_GROUP);
       for (Element groupElement : groupElements) {
         getLiveActivityGroup(groupElement, activityRepository);
       }
@@ -425,8 +475,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
 
     LiveActivityGroup group = activityRepository.newLiveActivityGroup();
 
-    String name = groupElement.getChildText(ELEMENT_NAME_NAME);
-    String description = groupElement.getChildText(ELEMENT_NAME_DESCRIPTION);
+    String name = groupElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = groupElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
 
     group.setName(name);
     group.setDescription(description);
@@ -455,21 +505,18 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element groupLiveActivitiesElement =
         groupElement.getChild(ELEMENT_NAME_LIVE_ACTIVITY_GROUP_ROOT_GROUP_LIVE_ACTIVITIES);
     if (groupLiveActivitiesElement != null) {
+      @SuppressWarnings("unchecked")
       List<Element> groupLiveActivityElements =
-          groupLiveActivitiesElement
-              .getChildren(ELEMENT_NAME_LIVE_ACTIVITY_GROUP_INDIVIDUAL_GROUP_LIVE_ACTIVITY);
+          groupLiveActivitiesElement.getChildren(ELEMENT_NAME_LIVE_ACTIVITY_GROUP_INDIVIDUAL_GROUP_LIVE_ACTIVITY);
 
       for (Element groupLiveActivityElement : groupLiveActivityElements) {
-        String myLiveActivityId =
-            groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_ID);
-        String myDependency =
-            groupLiveActivityElement
-                .getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_DEPENDENCY);
+        String myLiveActivityId = groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_ID);
+        String myDependency = groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_DEPENDENCY);
 
         LiveActivity activity = liveActivities.get(myLiveActivityId);
         GroupLiveActivityDependency dependency = GroupLiveActivityDependency.valueOf(myDependency);
 
-        group.addActivity(activity, dependency);
+        group.addLiveActivity(activity, dependency);
       }
     }
   }
@@ -491,6 +538,7 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element spacesElement = rootElement.getChild(ELEMENT_NAME_ROOT_SPACES);
 
     if (spacesElement != null) {
+      @SuppressWarnings("unchecked")
       List<Element> spaceElements = spacesElement.getChildren(ELEMENT_NAME_INDIVIDUAL_SPACE);
       for (Element spaceElement : spaceElements) {
         getSpace(spaceElement, activityRepository);
@@ -511,8 +559,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
 
     Space space = activityRepository.newSpace();
 
-    String name = spaceElement.getChildText(ELEMENT_NAME_NAME);
-    String description = spaceElement.getChildText(ELEMENT_NAME_DESCRIPTION);
+    String name = spaceElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = spaceElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
 
     space.setName(name);
     space.setDescription(description);
@@ -541,8 +589,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   private void getSpaceSubspaces(Element spaceElement, Space space) {
     Element subspacesElement = spaceElement.getChild(ELEMENT_NAME_SPACE_ROOT_SUBSPACES);
     if (subspacesElement != null) {
-      List<Element> subspaceElements =
-          subspacesElement.getChildren(ELEMENT_NAME_SPACE_INDIVIDUAL_SUBSPACE);
+      @SuppressWarnings("unchecked")
+      List<Element> subspaceElements = subspacesElement.getChildren(ELEMENT_NAME_SPACE_INDIVIDUAL_SUBSPACE);
       for (Element subspaceElement : subspaceElements) {
         String mySubspaceId = subspaceElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
@@ -563,8 +611,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   private void getSpaceLiveActivityGroups(Element spaceElement, Space space) {
     Element groupsElement = spaceElement.getChild(ELEMENT_NAME_SPACE_ROOT_LIVE_ACTIVITY_GROUPS);
     if (groupsElement != null) {
-      List<Element> groupElements =
-          groupsElement.getChildren(ELEMENT_NAME_SPACE_INDIVIDUAL_LIVE_ACTIVITY_GROUP);
+      @SuppressWarnings("unchecked")
+      List<Element> groupElements = groupsElement.getChildren(ELEMENT_NAME_SPACE_INDIVIDUAL_LIVE_ACTIVITY_GROUP);
       for (Element groupElement : groupElements) {
         String mygroupId = groupElement.getAttributeValue(ATTRIBUTE_NAME_ID);
 
@@ -586,8 +634,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
     Element scriptsElement = rootElement.getChild(ELEMENT_NAME_ROOT_NAMED_SCRIPTS);
 
     if (scriptsElement != null) {
-      List<Element> scriptElements =
-          scriptsElement.getChildren(ELEMENT_NAME_INDIVIDUAL_NAMED_SCRIPT);
+      @SuppressWarnings("unchecked")
+      List<Element> scriptElements = scriptsElement.getChildren(ELEMENT_NAME_INDIVIDUAL_NAMED_SCRIPT);
       for (Element scriptElement : scriptElements) {
         getNamedScript(scriptElement, automationRepository);
       }
@@ -607,17 +655,28 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
 
     NamedScript script = automationRepository.newNamedScript();
 
-    String name = scriptElement.getChildText(ELEMENT_NAME_NAME);
-    String description = scriptElement.getChildText(ELEMENT_NAME_DESCRIPTION);
-    String language = scriptElement.getChildText(ELEMENT_NAME_NAMED_SCRIPT_LANGUAGE);
-    String schedule = scriptElement.getChildText(ELEMENT_NAME_NAMED_SCRIPT_SCHEDULE);
-    String content = scriptElement.getChildText(ELEMENT_NAME_NAMED_SCRIPT_CONTENT);
+    String name = scriptElement.getChildTextTrim(ELEMENT_NAME_NAME);
+    String description = scriptElement.getChildTextTrim(ELEMENT_NAME_DESCRIPTION);
+    String language = scriptElement.getChildTextTrim(ELEMENT_NAME_NAMED_SCRIPT_LANGUAGE);
+    String content = scriptElement.getChildTextTrim(ELEMENT_NAME_NAMED_SCRIPT_CONTENT);
 
     script.setName(name);
     script.setDescription(description);
     script.setLanguage(language);
-    script.setSchedule(schedule);
     script.setContent(content);
+
+    Element scheduleElement = scriptElement.getChild(ELEMENT_NAME_NAMED_SCRIPT_SCHEDULE);
+    if (scheduleElement != null) {
+      script.setSchedule(scheduleElement.getTextTrim());
+
+      script.setScheduled(VALUE_TRUE.equalsIgnoreCase(scheduleElement
+          .getAttributeValue(ATTRIBUTE_NAME_NAMED_SCRIPT_SCHEDULE_SCHEDULED)));
+    }
+
+    Map<String, Object> metadata = getMetadata(scriptElement.getChild(ELEMENT_NAME_METADATA));
+    if (metadata != null) {
+      script.setMetadata(metadata);
+    }
 
     automationRepository.saveNamedScript(script);
   }

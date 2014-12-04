@@ -112,15 +112,15 @@ public class SimpleSpaceController extends SimpleObject implements SpaceControll
     this.description = description;
   }
 
-//  @Override
-//  public SpaceControllerConfiguration getConfiguration() {
-//    return configuration;
-//  }
-//
-//  @Override
-//  public void setConfiguration(SpaceControllerConfiguration configuration) {
-//    this.configuration = configuration;
-//  }
+  @Override
+  public SpaceControllerConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  @Override
+  public void setConfiguration(SpaceControllerConfiguration configuration) {
+    this.configuration = configuration;
+  }
 
   @Override
   public void setMetadata(Map<String, Object> metadata) {

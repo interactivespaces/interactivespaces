@@ -249,7 +249,7 @@ public class MasterFileControl implements DirectoryWatcherListener {
       } else if (command.startsWith(COMMAND_PREFIX_SCRIPT_RUN)) {
         String id = command.substring(COMMAND_PREFIX_SCRIPT_RUN.length());
 
-        masterApiAutomationManager.runScript(id);
+        masterApiAutomationManager.runNamedScript(id);
       } else {
         spaceEnvironment.getLog().warn(String.format("Unknown command to master file control %s", command));
       }

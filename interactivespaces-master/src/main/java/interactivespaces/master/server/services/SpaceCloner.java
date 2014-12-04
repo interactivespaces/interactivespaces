@@ -16,8 +16,6 @@
 
 package interactivespaces.master.server.services;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -27,14 +25,15 @@ import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.space.Space;
 
+import com.google.common.collect.Maps;
+
 import java.util.Map;
 
 /**
  * Clone a space.
  *
  * <p>
- * An instance of this class should be used for only 1 cloning operation as it
- * keeps much state.
+ * An instance of this class should be used for only 1 cloning operation as it keeps much state.
  *
  * @author Keith M. Hughes
  */
@@ -70,6 +69,12 @@ public class SpaceCloner {
    */
   private String namePrefix;
 
+  /**
+   * Construct a cloner.
+   *
+   * @param activityRepository
+   *          the activity repository to use during cloning
+   */
   public SpaceCloner(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
   }
@@ -85,12 +90,10 @@ public class SpaceCloner {
   }
 
   /**
-   * Set the map from controllers in the old space to controllers in the new
-   * space.
+   * Set the map from controllers in the old space to controllers in the new space.
    *
    * @param controllerMap
-   *          keys are the old controller, values are the controller to replace
-   *          (can be {@code null})
+   *          keys are the old controller, values are the controller to replace (can be {@code null})
    */
   public void setControllerMap(Map<SpaceController, SpaceController> controllerMap) {
     this.controllerMap = controllerMap;
@@ -163,7 +166,7 @@ public class SpaceCloner {
     clone.setDescription(src.getDescription());
 
     for (ConfigurationParameter parameter : src.getParameters()) {
-      ConfigurationParameter clonedParameter = activityRepository.newConfigurationParameter();
+      ConfigurationParameter clonedParameter = activityRepository.newActivityConfigurationParameter();
       clonedParameter.setName(parameter.getName());
       clonedParameter.setValue(parameter.getValue());
       clone.addParameter(clonedParameter);
@@ -194,9 +197,9 @@ public class SpaceCloner {
     clone.setDescription(src.getDescription());
     clone.setMetadata(src.getMetadata());
 
-    for (GroupLiveActivity activity : src.getActivities()) {
+    for (GroupLiveActivity activity : src.getLiveActivities()) {
       LiveActivity activityClone = cloneLiveActivity(activity.getActivity());
-      clone.addActivity(activityClone, activity.getDependency());
+      clone.addLiveActivity(activityClone, activity.getDependency());
     }
 
     return clone;

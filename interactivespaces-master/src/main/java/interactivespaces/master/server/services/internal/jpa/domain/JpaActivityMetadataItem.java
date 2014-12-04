@@ -23,7 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * JPO implementation of a metadata item for a {@link JpaActivity}
+ * JPA implementation of a metadata item for a {@link JpaActivity}.
  *
  * @author Keith M. Hughes
  */
@@ -31,6 +31,9 @@ import javax.persistence.Table;
 @Table(name = "activity_metadata")
 public class JpaActivityMetadataItem {
 
+  /**
+   * The activity the metadata item is for.
+   */
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   private JpaActivity activity;
 
@@ -43,12 +46,25 @@ public class JpaActivityMetadataItem {
   /**
    * Value of the metadata item.
    */
-  @Column(nullable = false, length = 2048)
+  @Column(nullable = false, length = 32672)
   private String value;
 
+  /**
+   * Construct a new metadata item.
+   */
   public JpaActivityMetadataItem() {
   }
 
+  /**
+   * Construct a new metadata item.
+   *
+   * @param activity
+   *          the activity the metadata item is for
+   * @param name
+   *          the name of the metadata item
+   * @param value
+   *          the value of the metadata item
+   */
   JpaActivityMetadataItem(JpaActivity activity, String name, String value) {
     this.activity = activity;
     this.name = name;
@@ -56,6 +72,8 @@ public class JpaActivityMetadataItem {
   }
 
   /**
+   * Get the activity the metadata item is for.
+   *
    * @return the activity
    */
   public JpaActivity getActivity() {
@@ -63,14 +81,18 @@ public class JpaActivityMetadataItem {
   }
 
   /**
+   * Set the activity the metadata item is for.
+   *
    * @param activity
-   *          the activity to set
+   *          the activity
    */
   public void setActivity(JpaActivity activity) {
     this.activity = activity;
   }
 
   /**
+   * Get the name of the metadata item.
+   *
    * @return the name
    */
   public String getName() {
@@ -78,14 +100,18 @@ public class JpaActivityMetadataItem {
   }
 
   /**
+   * Set the name of the metadata item.
+   *
    * @param name
-   *          the name to set
+   *          the name
    */
   public void setName(String name) {
     this.name = name;
   }
 
   /**
+   * Get the value of the metadata item.
+   *
    * @return the value
    */
   public String getValue() {
@@ -93,8 +119,10 @@ public class JpaActivityMetadataItem {
   }
 
   /**
+   * Set the value of the metadata item.
+   *
    * @param value
-   *          the value to set
+   *          the value
    */
   public void setValue(String value) {
     this.value = value;

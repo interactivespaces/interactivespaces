@@ -131,7 +131,7 @@ public class LiveActivityGroupController extends BaseActiveSpaceMasterController
   public @ResponseBody
   Map<String, ? extends Object> modifyLiveActivityGroupMetadata(@PathVariable String id,
       @RequestBody Object metadataCommand, HttpServletResponse response) {
-    return masterApiActivityManager.updateMetadataLiveActivityGroup(id, metadataCommand);
+    return masterApiActivityManager.updateLiveActivityGroupMetadata(id, metadataCommand);
   }
 
   @RequestMapping(value = "/liveactivitygroup/all.json", method = RequestMethod.GET)

@@ -95,7 +95,7 @@ public interface SpaceController extends PersistedObject, Serializable {
    *
    * @return can be {@code null}
    */
-  // SpaceControllerConfiguration getConfiguration();
+  SpaceControllerConfiguration getConfiguration();
 
   /**
    * Set the controller configuration.
@@ -103,7 +103,7 @@ public interface SpaceController extends PersistedObject, Serializable {
    * @param configuration
    *          the configuration, can be {@code null}
    */
-  // void setConfiguration(SpaceControllerConfiguration configuration);
+  void setConfiguration(SpaceControllerConfiguration configuration);
 
   /**
    * Set the mode for this controller.

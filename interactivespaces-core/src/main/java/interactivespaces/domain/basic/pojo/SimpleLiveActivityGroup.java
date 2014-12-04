@@ -16,14 +16,15 @@
 
 package interactivespaces.domain.basic.pojo;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.GroupLiveActivity.GroupLiveActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.pojo.SimpleObject;
+
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,6 @@ public class SimpleLiveActivityGroup extends SimpleObject implements LiveActivit
   /**
    * For serialization.
    */
-  // private static final long serialVersionUID = 4309204496214502980L;
   private static final long serialVersionUID = 7892829844156195326L;
 
   /**
@@ -62,6 +62,9 @@ public class SimpleLiveActivityGroup extends SimpleObject implements LiveActivit
    */
   private Map<String, Object> metadata = Maps.newHashMap();
 
+  /**
+   * Construct a new group.
+   */
   public SimpleLiveActivityGroup() {
     activities = new ArrayList<GroupLiveActivity>();
   }
@@ -87,23 +90,24 @@ public class SimpleLiveActivityGroup extends SimpleObject implements LiveActivit
   }
 
   @Override
-  public List<GroupLiveActivity> getActivities() {
+  public List<GroupLiveActivity> getLiveActivities() {
     synchronized (activities) {
       return new ArrayList<GroupLiveActivity>(activities);
     }
   }
 
   @Override
-  public LiveActivityGroup addActivity(LiveActivity activity) {
-    return addActivity(activity, GroupLiveActivityDependency.REQUIRED);
+  public LiveActivityGroup addLiveActivity(LiveActivity activity) throws InteractiveSpacesException {
+    return addLiveActivity(activity, GroupLiveActivityDependency.REQUIRED);
   }
 
   @Override
-  public LiveActivityGroup
-      addActivity(LiveActivity activity, GroupLiveActivityDependency dependency) {
+  public LiveActivityGroup addLiveActivity(LiveActivity activity, GroupLiveActivityDependency dependency)
+      throws InteractiveSpacesException {
     for (GroupLiveActivity ga : activities) {
-      if (ga.getActivity().equals(activity))
-        throw new InteractiveSpacesException("Group already contains activity");
+      if (ga.getActivity().equals(activity)) {
+        throw new SimpleInteractiveSpacesException("Group already contains activity");
+      }
     }
 
     GroupLiveActivity gactivity = new SimpleGroupLiveActivity();
@@ -119,7 +123,7 @@ public class SimpleLiveActivityGroup extends SimpleObject implements LiveActivit
   }
 
   @Override
-  public void removeActivity(LiveActivity activity) {
+  public void removeLiveActivity(LiveActivity activity) {
     synchronized (activities) {
       for (GroupLiveActivity gactivity : activities) {
         if (activity.equals(gactivity.getActivity())) {

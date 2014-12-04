@@ -85,7 +85,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public ConfigurationParameter newConfigurationParameter() {
+  public ConfigurationParameter newActivityConfigurationParameter() {
     return new SimpleConfigurationParameter();
   }
 

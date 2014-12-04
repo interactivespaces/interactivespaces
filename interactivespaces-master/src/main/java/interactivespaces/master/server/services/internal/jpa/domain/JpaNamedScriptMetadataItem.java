@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,19 +23,19 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * JPA implementation of a metadata item for a {@link JpaLiveActivityGroup}.
+ * JPA implementation of a metadata item for a {@link JpaNamedScript}.
  *
  * @author Keith M. Hughes
  */
 @Entity
-@Table(name = "live_activity_group_metadata")
-public class JpaLiveActivityGroupMetadataItem {
+@Table(name = "named_script_metadata")
+public class JpaNamedScriptMetadataItem {
 
   /**
-   * The live activity group the metadata item is for.
+   * The script the metadata item is for.
    */
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
-  private JpaLiveActivityGroup liveActivityGroup;
+  private JpaNamedScript namedScript;
 
   /**
    * Name of the metadata item.
@@ -52,42 +52,42 @@ public class JpaLiveActivityGroupMetadataItem {
   /**
    * Construct a new metadata item.
    */
-  public JpaLiveActivityGroupMetadataItem() {
+  public JpaNamedScriptMetadataItem() {
   }
 
   /**
    * Construct a new metadata item.
    *
-   * @param liveActivityGroup
-   *          the live activity group the metadata item is for
+   * @param namedScript
+   *          the named script this is a metadata item for
    * @param name
    *          the name of the metadata item
    * @param value
    *          the value of the metadata item
    */
-  JpaLiveActivityGroupMetadataItem(JpaLiveActivityGroup liveActivityGroup, String name, String value) {
-    this.liveActivityGroup = liveActivityGroup;
+  JpaNamedScriptMetadataItem(JpaNamedScript namedScript, String name, String value) {
+    this.namedScript = namedScript;
     this.name = name;
     this.value = value;
   }
 
   /**
-   * Get the live activity group the metadata item is for.
+   * Get the named script this is a metadata item for.
    *
-   * @return the live activity group
+   * @return the named script
    */
-  public JpaLiveActivityGroup getLiveActivityGroup() {
-    return liveActivityGroup;
+  public JpaNamedScript getNamedScript() {
+    return namedScript;
   }
 
   /**
-   * Set the live activity group the metadata item is for.
+   * Set the named script this is a metadata item for.
    *
-   * @param liveActivityGroup
-   *          the live activity group
+   * @param namedScript
+   *          the named script this is a metadata item for
    */
-  public void setLiveActivityGroup(JpaLiveActivityGroup liveActivityGroup) {
-    this.liveActivityGroup = liveActivityGroup;
+  public void setNamedScript(JpaNamedScript namedScript) {
+    this.namedScript = namedScript;
   }
 
   /**
@@ -110,7 +110,7 @@ public class JpaLiveActivityGroupMetadataItem {
   }
 
   /**
-   * Get the value of the metadata item.
+   * Set the value of the metadata item.
    *
    * @return the value
    */
@@ -119,7 +119,7 @@ public class JpaLiveActivityGroupMetadataItem {
   }
 
   /**
-   * Set the value of the metadata item.
+   * Get the value of the metadata item.
    *
    * @param value
    *          the value

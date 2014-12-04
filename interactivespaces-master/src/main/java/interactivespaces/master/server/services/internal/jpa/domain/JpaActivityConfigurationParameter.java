@@ -19,6 +19,7 @@ package interactivespaces.master.server.services.internal.jpa.domain;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -31,8 +32,8 @@ import javax.persistence.Version;
  * @author Keith M. Hughes
  */
 @Entity
-@Table(name = "config_parameter")
-public class JpaConfigurationParameter implements ConfigurationParameter {
+@Table(name = "activity_config_parameter")
+public class JpaActivityConfigurationParameter implements ConfigurationParameter {
 
   /**
    * The configuration this parameter is part of.
@@ -43,11 +44,13 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
   /**
    * The name of the parameter.
    */
+  @Column(nullable = false, length = 512)
   private String name;
 
   /**
    * The value of the parameter.
    */
+  @Column(nullable = true, length = 32672)
   private String value;
 
   /**
@@ -59,11 +62,11 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
   /**
    * Construct a parameter without a configuration or any value.
    */
-  public JpaConfigurationParameter() {
+  public JpaActivityConfigurationParameter() {
   }
 
   /**
-   * Construct a parameter with a configuration and es.
+   * Construct a parameter.
    *
    * @param configuration
    *          the configuration this is part of
@@ -72,7 +75,7 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
    * @param value
    *          the value of the parameter
    */
-  JpaConfigurationParameter(JpaActivityConfiguration configuration, String name, String value) {
+  JpaActivityConfigurationParameter(JpaActivityConfiguration configuration, String name, String value) {
     this.configuration = configuration;
     this.name = name;
     this.value = value;
@@ -88,7 +91,7 @@ public class JpaConfigurationParameter implements ConfigurationParameter {
   }
 
   /**
-   * Set the asssociated configuration.
+   * Set the associated configuration.
    *
    * @param configuration
    *          the configuration to set

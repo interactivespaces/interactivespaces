@@ -29,15 +29,24 @@ import java.beans.PropertyEditorSupport;
 public class SpaceControllerEditor extends PropertyEditorSupport {
 
   /**
-   * Repository for activities.
+   * Repository for space controllers.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
+  /**
+   * Construct a new editor.
+   */
   public SpaceControllerEditor() {
   }
 
-  public SpaceControllerEditor(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  /**
+   * Construct a new editor.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
+   */
+  public SpaceControllerEditor(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 
   @Override
@@ -46,27 +55,32 @@ public class SpaceControllerEditor extends PropertyEditorSupport {
 
     if (o != null) {
       return ((SpaceController) o).getId();
-    } else
+    } else {
       return null;
+    }
   }
 
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
     if (text != null && text.trim().length() > 0) {
-      SpaceController group = controllerRepository.getSpaceControllerById(text);
-      if (group != null)
+      SpaceController group = spaceControllerRepository.getSpaceControllerById(text);
+      if (group != null) {
         setValue(group);
-      else
+      } else {
         throw new IllegalArgumentException("No space controller with ID " + text);
-    } else
+      }
+    } else {
       setValue(null);
+    }
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

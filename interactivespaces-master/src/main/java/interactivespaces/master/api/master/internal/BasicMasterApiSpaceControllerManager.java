@@ -78,7 +78,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   private InternalMasterApiActivityManager masterApiActivityManager;
 
   @Override
-  public Map<String, Object> getSpaceControllers(String filter) {
+  public Map<String, Object> getSpaceControllersByFilter(String filter) {
     List<Map<String, Object>> responseData = Lists.newArrayList();
 
     try {
@@ -162,38 +162,38 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     }
   }
 
-//  @Override
-//  public Map<String, Object> getSpacecontrollerConfiguration(String id) {
-//    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
-//    if (spaceController != null) {
-//      Map<String, String> data = Maps.newHashMap();
-//
-//      SpaceControllerConfiguration config = spaceController.getConfiguration();
-//      if (config != null) {
-//        for (ConfigurationParameter parameter : config.getParameters()) {
-//          data.put(parameter.getName(), parameter.getValue());
-//        }
-//      }
-//
-//      return MasterApiMessageSupport.getSuccessResponse(data);
-//    } else {
-//      return getNoSuchSpaceControllerResult();
-//    }
-//  }
+  @Override
+  public Map<String, Object> getSpaceControllerConfiguration(String id) {
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    if (spaceController != null) {
+      Map<String, String> data = Maps.newHashMap();
 
-//  @Override
-//  public Map<String, Object> configureSpaceController(String id, Map<String, String> map) {
-//    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
-//    if (spaceController != null) {
-//      if (saveSpaceControllerConfiguration(spaceController, map)) {
-//        spaceControllerRepository.saveSpaceController(spaceController);
-//      }
-//
-//      return MasterApiMessageSupport.getSimpleSuccessResponse();
-//    } else {
-//      return getNoSuchSpaceControllerResult();
-//    }
-//  }
+      SpaceControllerConfiguration config = spaceController.getConfiguration();
+      if (config != null) {
+        for (ConfigurationParameter parameter : config.getParameters()) {
+          data.put(parameter.getName(), parameter.getValue());
+        }
+      }
+
+      return MasterApiMessageSupport.getSuccessResponse(data);
+    } else {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @Override
+  public Map<String, Object> configureSpaceController(String id, Map<String, String> map) {
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    if (spaceController != null) {
+      if (saveSpaceControllerConfiguration(spaceController, map)) {
+        spaceControllerRepository.saveSpaceController(spaceController);
+      }
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
+    } else {
+      return getNoSuchSpaceControllerResult();
+    }
+  }
 
   /**
    * Get the new configuration into the space controller.
@@ -205,22 +205,22 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    *
    * @return {@code true} if there was a change to the configuration
    */
-//  private boolean saveSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
-//    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
-//    if (configuration != null) {
-//      return mergeParameters(map, configuration);
-//    } else {
-//      // No configuration. If nothing in submission, nothing has changed.
-//      // Otherwise add everything.
-//      if (map.isEmpty()) {
-//        return false;
-//      }
-//
-//      newSpaceControllerConfiguration(spaceController, map);
-//
-//      return true;
-//    }
-//  }
+  private boolean saveSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
+    if (configuration != null) {
+      return mergeParameters(map, configuration);
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty()) {
+        return false;
+      }
+
+      newSpaceControllerConfiguration(spaceController, map);
+
+      return true;
+    }
+  }
 
   /**
    * merge the values in the map with the configuration.
@@ -262,7 +262,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
         // Didn't exist
         changed = true;
 
-        parameter = activityRepository.newConfigurationParameter();
+        parameter = activityRepository.newActivityConfigurationParameter();
         parameter.setName(entry.getKey());
         parameter.setValue(entry.getValue());
 
@@ -281,18 +281,18 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @param map
    *          the new configuration
    */
-//  private void newSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
-//    SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
-//    spaceController.setConfiguration(configuration);
-//
-//    for (Entry<String, String> entry : map.entrySet()) {
-//      ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
-//      parameter.setName(entry.getKey());
-//      parameter.setValue(entry.getValue());
-//
-//      configuration.addParameter(parameter);
-//    }
-//  }
+  private void newSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
+    spaceController.setConfiguration(configuration);
+
+    for (Entry<String, String> entry : map.entrySet()) {
+      ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
+      parameter.setName(entry.getKey());
+      parameter.setValue(entry.getValue());
+
+      configuration.addParameter(parameter);
+    }
+  }
 
   @Override
   public Map<String, Object> updateSpaceControllerMetadata(String id, Object metadataCommandObj) {
@@ -331,7 +331,8 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
         Map<String, Object> metadata = spaceController.getMetadata();
 
         @SuppressWarnings("unchecked")
-        List<String> modifications = (List<String>) metadataCommand.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
+        List<String> modifications =
+            (List<String>) metadataCommand.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
         for (String entry : modifications) {
           metadata.remove(entry);
         }
@@ -940,7 +941,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
     if (group != null) {
 
-      for (GroupLiveActivity gla : group.getActivities()) {
+      for (GroupLiveActivity gla : group.getLiveActivities()) {
         activeSpaceControllerManager.shutdownLiveActivity(gla.getActivity());
       }
 
@@ -955,7 +956,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
     if (group != null) {
 
-      for (GroupLiveActivity gla : group.getActivities()) {
+      for (GroupLiveActivity gla : group.getLiveActivities()) {
         statusLiveActivity(gla.getActivity().getId());
       }
 
@@ -992,7 +993,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    */
   private void statusSpace(Space space, Set<String> liveActivityIds) {
     for (LiveActivityGroup group : space.getActivityGroups()) {
-      for (GroupLiveActivity gla : group.getActivities()) {
+      for (GroupLiveActivity gla : group.getLiveActivities()) {
         String id = gla.getActivity().getId();
         if (liveActivityIds.add(id)) {
           statusLiveActivity(id);
@@ -1181,7 +1182,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   private List<Map<String, Object>> generateLiveActivitiesStatusesApiResponse(LiveActivityGroup group) {
     List<Map<String, Object>> activities = Lists.newArrayList();
 
-    for (GroupLiveActivity activity : group.getActivities()) {
+    for (GroupLiveActivity activity : group.getLiveActivities()) {
       activities.add(generateApiLiveActivityStatus(activity.getActivity()));
     }
 
@@ -1235,15 +1236,16 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   private void getSpaceControllerMasterApiData(SpaceController controller, Map<String, Object> controllerData) {
     controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, controller.getId());
     controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, controller.getUuid());
-    controllerData.put("name", controller.getName());
-    controllerData.put("description", controller.getDescription());
-    controllerData.put("metadata", controller.getMetadata());
-    controllerData.put("hostId", controller.getHostId());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, controller.getName());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, controller.getDescription());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA, controller.getMetadata());
+    controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_HOSTID, controller.getHostId());
 
     SpaceControllerMode mode = controller.getMode();
     if (mode != null) {
-      controllerData.put("mode", mode.name());
-      controllerData.put("modeDescription", mode.getDescription());
+      controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_MODE, mode.name());
+      controllerData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_MODE_DESCRIPTION,
+          mode.getDescription());
     }
   }
 
@@ -1317,16 +1319,20 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   /**
+   * Set the space controller repository to use.
+   *
    * @param spaceControllerRepository
-   *          the controllerRepository to set
+   *          the space controller repository
    */
   public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
     this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**
+   * Set the activity repository to use.
+   *
    * @param activityRepository
-   *          the activityRepository to set
+   *          the activity repository
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;

@@ -57,7 +57,7 @@ public class LiveActivityEditForm extends BaseSpaceMasterController {
   /**
    * The controller repository.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   @InitBinder
   public void initBinder(WebDataBinder dataBinder) {
@@ -66,7 +66,7 @@ public class LiveActivityEditForm extends BaseSpaceMasterController {
     dataBinder.setDisallowedFields("controllers");
     dataBinder.registerCustomEditor(Activity.class, new ActivityEditor(activityRepository));
     dataBinder.registerCustomEditor(SpaceController.class, new SpaceControllerEditor(
-        controllerRepository));
+        spaceControllerRepository));
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -112,22 +112,26 @@ public class LiveActivityEditForm extends BaseSpaceMasterController {
     model.addAttribute("activities",
         WebSupport.getActivitySelections(activityRepository.getAllActivities()));
     model.addAttribute("controllers",
-        WebSupport.getControllerSelections(controllerRepository.getAllSpaceControllers()));
+        WebSupport.getControllerSelections(spaceControllerRepository.getAllSpaceControllers()));
   }
 
   /**
+   * Set the activity repository to use.
+   *
    * @param activityRepository
-   *          the activityRepository to set
+   *          the activity repository to set
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

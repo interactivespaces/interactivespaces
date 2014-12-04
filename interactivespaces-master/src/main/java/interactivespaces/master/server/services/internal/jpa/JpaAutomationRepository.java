@@ -17,8 +17,11 @@
 package interactivespaces.master.server.services.internal.jpa;
 
 import interactivespaces.domain.system.NamedScript;
+import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaNamedScript;
+
+import com.google.common.collect.Lists;
 
 import org.springframework.orm.jpa.JpaTemplate;
 
@@ -70,6 +73,26 @@ public class JpaAutomationRepository implements AutomationRepository {
   @Override
   public List<NamedScript> getAllNamedScripts() {
     return template.findByNamedQuery("namedScriptAll");
+  }
+
+  @Override
+  public List<NamedScript> getNamedScripts(FilterExpression filter) {
+    @SuppressWarnings("unchecked")
+    List<NamedScript> scripts = template.findByNamedQuery("namedScriptAll");
+
+    List<NamedScript> results = Lists.newArrayList();
+
+    if (filter != null) {
+      for (NamedScript script : scripts) {
+        if (filter.accept(script)) {
+          results.add(script);
+        }
+      }
+    } else {
+      results.addAll(scripts);
+    }
+
+    return results;
   }
 
   @Override

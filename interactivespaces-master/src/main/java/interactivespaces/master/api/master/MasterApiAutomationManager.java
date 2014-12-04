@@ -97,5 +97,46 @@ public interface MasterApiAutomationManager {
    *
    * @return the API response
    */
-  Map<String, Object> runScript(String id);
+  Map<String, Object> runNamedScript(String id);
+
+  /**
+   * Get all named scripts that meet a filter.
+   *
+   * @param filter
+   *          the filter, can be {@code null}
+   *
+   * @return the master API message for all scripts that meet the filter
+   */
+  Map<String, Object> getNamedScriptsByFilter(String filter);
+
+  /**
+   * Get the view of a named script.
+   *
+   * @param id
+   *          ID for the named script
+   *
+   * @return the master API message for the named script view
+   */
+  Map<String, Object> getNamedScriptView(String id);
+
+  /**
+   * Modify a named script's metadata.
+   *
+   * <p>
+   * The command map contains a field called command. This field will be one of
+   *
+   * <ul>
+   * <li>replace - data contains a map, replace the entire metadata map with the map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map with the values found in the map</li>
+   * <li>delete - data contains a list of keys, remove all keys found in data</li>
+   * </ul>
+   *
+   * @param id
+   *          ID of the named script
+   * @param metadataCommandObj
+   *          the modification command
+   *
+   * @return the master API response
+   */
+  Map<String, Object> updateNamedScriptMetadata(String id, Object metadataCommandObj);
 }

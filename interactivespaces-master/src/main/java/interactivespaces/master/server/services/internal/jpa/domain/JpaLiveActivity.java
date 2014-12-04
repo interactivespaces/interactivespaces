@@ -16,13 +16,13 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.Date;
 import java.util.List;
@@ -65,10 +65,15 @@ import javax.persistence.Version;
     @NamedQuery(name = "countLiveActivityByController",
         query = "select count(la) from JpaLiveActivity la where la.controller.id = :controller_id"), })
 public class JpaLiveActivity implements LiveActivity {
+
   /**
    * For serialization.
    */
+  private static final long serialVersionUID = -5358955345273170167L;
 
+  /**
+   * ID of the live activity.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(nullable = false, length = 64)
@@ -93,19 +98,19 @@ public class JpaLiveActivity implements LiveActivity {
   private JpaActivity activity;
 
   /**
-   * A name for this live activity.
+   * The name for this live activity.
    */
   @Column(nullable = false, length = 512)
   private String name;
 
   /**
-   * A description of this installed activity.
+   * The description of this live activity.
    */
   @Column(nullable = true, length = 2048)
   private String description;
 
   /**
-   * The activity configuration for this installed activity.
+   * The activity configuration for this live activity.
    */
   // TODO(keith): make configurations completely separately contained items
   // that aren't dependent on their containing object so can have catalogs of

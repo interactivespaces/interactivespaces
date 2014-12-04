@@ -16,6 +16,10 @@
 
 package interactivespaces.master.server.services.internal.support;
 
+import interactivespaces.domain.basic.GroupLiveActivity;
+import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.domain.basic.LiveActivityGroup;
+
 /**
  * Constants for creating a master domain description.
  *
@@ -66,8 +70,7 @@ public interface MasterDomainDescription {
   /**
    * The XML element name for the root element description.
    */
-  String ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT =
-      "interactivespaces-master-domain-model";
+  String ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT = "interactivespaces-master-domain-model";
 
   /**
    * The XML element name for the root space controllers element.
@@ -79,10 +82,36 @@ public interface MasterDomainDescription {
    */
 
   String ELEMENT_NAME_INDIVIDUAL_SPACE_CONTROLLER = "space-controller";
+
   /**
    * The XML element name for a space controller host id.
    */
   String ELEMENT_NAME_SPACE_CONTROLLER_HOST_ID = "host-id";
+
+  /**
+   * The XML element name for a space controller mode.
+   */
+  String ELEMENT_NAME_SPACE_CONTROLLER_MODE = "mode";
+
+  /**
+   * The XML element name for a space controller configuration.
+   */
+  String ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION = "space-controller-configuration";
+
+  /**
+   * The XML element name for the root element for a space controller configuration's parameters.
+   */
+  String ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION_ROOT_PARAMETERS = "space-controller-configuration-parameters";
+
+  /**
+   * The XML element name for an individual parameter element for a space controller configuration's parameters.
+   */
+  String ELEMENT_NAME_SPACE_CONTROLLER_CONFIGURATION_INDIVIDUAL_PARAMETER = "parameter";
+
+  /**
+   * The XML attribute name for a space controller configuration's parameter name.
+   */
+  String ATTRIBUTE_NAME_SPACE_CONTROLLER_CONFIGURATION_PARAMETER_NAME = "name";
 
   /**
    * The XML element name for the root activities element.
@@ -105,6 +134,11 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_ACTIVITY_VERSION = "version";
 
   /**
+   * The XML element name for an activity's bundle content hash.
+   */
+  String ELEMENT_NAME_ACTIVITY_BUNDLE_CONTENT_HASH = "bundle-content-hash";
+
+  /**
    * The XML element name for the root activity dependencies.
    */
   String ELEMENT_NAME_ROOT_ACTIVITY_DEPENDENCIES = "activity-dependencies";
@@ -120,25 +154,19 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME = "activity-dependency-name";
 
   /**
-   * The XML element name for an individual activity dependency's minimum
-   * version.
+   * The XML element name for an individual activity dependency's minimum version.
    */
-  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM =
-      "activity-dependency-version-min";
+  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM = "activity-dependency-version-min";
 
   /**
-   * The XML element name for an individual activity dependency's maximum
-   * version.
+   * The XML element name for an individual activity dependency's maximum version.
    */
-  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM =
-      "activity-dependency-version-max";
+  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM = "activity-dependency-version-max";
 
   /**
-   * The XML element name for an individual activity dependency's required
-   * property.
+   * The XML element name for an individual activity dependency's required property.
    */
-  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED =
-      "activity-dependency-required";
+  String ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED = "activity-dependency-required";
 
   /**
    * The XML element name for the root {@link LiveActivity} element.
@@ -161,6 +189,11 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_LIVE_ACTIVITY_ACTIVITY = "activity";
 
   /**
+   * The XML element name for a live activity's last deploy date.
+   */
+  String ELEMENT_NAME_LIVE_ACTIVITY_LAST_DEPLOY_DATE = "last-deploy-date";
+
+  /**
    * The XML element name for the root {@link LiveActivityGroup} element.
    */
   String ELEMENT_NAME_ROOT_LIVE_ACTIVITY_GROUPS = "live-activity-groups";
@@ -171,28 +204,22 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_INDIVIDUAL_LIVE_ACTIVITY_GROUP = "live-activity-group";
 
   /**
-   * The XML element name for the root live activity group's
-   * {@link GroupLiveActivity} collection element.
+   * The XML element name for the root live activity group's {@link GroupLiveActivity} collection element.
    */
-  String ELEMENT_NAME_LIVE_ACTIVITY_GROUP_ROOT_GROUP_LIVE_ACTIVITIES =
-      "group-live-activities";
+  String ELEMENT_NAME_LIVE_ACTIVITY_GROUP_ROOT_GROUP_LIVE_ACTIVITIES = "group-live-activities";
 
   /**
-   * The XML element name for an individual live activity group's
-   * {@link GroupLiveActivity}.
+   * The XML element name for an individual live activity group's {@link GroupLiveActivity}.
    */
-  String ELEMENT_NAME_LIVE_ACTIVITY_GROUP_INDIVIDUAL_GROUP_LIVE_ACTIVITY =
-      "group-live-activity";
+  String ELEMENT_NAME_LIVE_ACTIVITY_GROUP_INDIVIDUAL_GROUP_LIVE_ACTIVITY = "group-live-activity";
 
   /**
-   * The XML attribute name of the live activity ID attribute in a
-   * {@link GroupLiveActivity}.
+   * The XML attribute name of the live activity ID attribute in a {@link GroupLiveActivity}.
    */
   String ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_ID = "live-activity";
 
   /**
-   * The XML attribute name of the dependency attribute in a
-   * {@link GroupLiveActivity}.
+   * The XML attribute name of the dependency attribute in a {@link GroupLiveActivity}.
    */
   String ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_DEPENDENCY = "dependency";
 
@@ -202,15 +229,12 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_ACTIVITY_CONFIGURATION = "activity-configuration";
 
   /**
-   * The XML element name for the root element for an activity configuration's
-   * parameters.
+   * The XML element name for the root element for an activity configuration's parameters.
    */
-  String ELEMENT_NAME_ACTIVITY_CONFIGURATION_ROOT_PARAMETERS =
-      "activity-configuration-parameters";
+  String ELEMENT_NAME_ACTIVITY_CONFIGURATION_ROOT_PARAMETERS = "activity-configuration-parameters";
 
   /**
-   * The XML element name for an individual parameter element for an activity
-   * configuration's parameters.
+   * The XML element name for an individual parameter element for an activity configuration's parameters.
    */
   String ELEMENT_NAME_ACTIVITY_CONFIGURATION_INDIVIDUAL_PARAMETER = "parameter";
 
@@ -247,8 +271,7 @@ public interface MasterDomainDescription {
   /**
    * The XML element name for a space's individual live activity group element.
    */
-  String ELEMENT_NAME_SPACE_INDIVIDUAL_LIVE_ACTIVITY_GROUP =
-      "live-activity-group";
+  String ELEMENT_NAME_SPACE_INDIVIDUAL_LIVE_ACTIVITY_GROUP = "live-activity-group";
 
   /**
    * The XML element name for the root named scripts element.
@@ -266,9 +289,14 @@ public interface MasterDomainDescription {
   String ELEMENT_NAME_NAMED_SCRIPT_LANGUAGE = "language";
 
   /**
-   * The XML element name for a named script's language schedule.
+   * The XML element name for a named script's schedule.
    */
   String ELEMENT_NAME_NAMED_SCRIPT_SCHEDULE = "schedule";
+
+  /**
+   * The XML attribute name for whether a named script's schedule is active.
+   */
+  String ATTRIBUTE_NAME_NAMED_SCRIPT_SCHEDULE_SCHEDULED = "scheduled";
 
   /**
    * The XML element name for a named script's content element.

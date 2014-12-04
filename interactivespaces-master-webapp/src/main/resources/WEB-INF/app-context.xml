@@ -28,7 +28,7 @@
   <osgi:reference id="automationRepository"
     interface="interactivespaces.master.server.services.AutomationRepository"
     availability="mandatory" />
-  <osgi:reference id="controllerRepository"
+  <osgi:reference id="spaceControllerRepository"
     interface="interactivespaces.master.server.services.SpaceControllerRepository"
     availability="mandatory" />
   <osgi:reference id="interactivespaces.master.controller.active"

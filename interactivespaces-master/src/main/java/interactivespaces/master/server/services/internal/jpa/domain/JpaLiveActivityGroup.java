@@ -16,14 +16,15 @@
 
 package interactivespaces.master.server.services.internal.jpa.domain;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.GroupLiveActivity.GroupLiveActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
@@ -51,13 +52,17 @@ import javax.persistence.Version;
 @Table(name = "live_activity_groups")
 @NamedQueries({
     @NamedQuery(name = "liveActivityGroupAll", query = "select g from JpaLiveActivityGroup g"),
-    @NamedQuery(
-        name = "liveActivityGroupByLiveActivity",
+    @NamedQuery(name = "liveActivityGroupByLiveActivity",
         query = "select distinct gla.activityGroup from JpaGroupLiveActivity gla where gla.activity.id = :activity_id"),
     @NamedQuery(
         name = "countLiveActivityGroupByLiveActivity",
         query = "select count(distinct gla.activityGroup) from JpaGroupLiveActivity gla where gla.activity.id = :activity_id"), })
 public class JpaLiveActivityGroup implements LiveActivityGroup {
+
+  /**
+   * The serialization ID.
+   */
+  private static final long serialVersionUID = -6227859459674831985L;
 
   /**
    * The persistence ID for the live activity group.
@@ -82,15 +87,15 @@ public class JpaLiveActivityGroup implements LiveActivityGroup {
   /**
    * All live activities installed in the activity group.
    */
-  @OneToMany(targetEntity = JpaGroupLiveActivity.class, cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER, orphanRemoval = true)
-  private List<JpaGroupLiveActivity> activities = Lists.newArrayList();
+  @OneToMany(targetEntity = JpaGroupLiveActivity.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
+  private List<JpaGroupLiveActivity> liveActivities = Lists.newArrayList();
 
   /**
    * The metadata.
    */
-  @OneToMany(targetEntity = JpaLiveActivityGroupMetadataItem.class, cascade = CascadeType.ALL,
-      fetch = FetchType.EAGER, orphanRemoval = true)
+  @OneToMany(targetEntity = JpaLiveActivityGroupMetadataItem.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+      orphanRemoval = true)
   private List<JpaLiveActivityGroupMetadataItem> metadata = Lists.newArrayList();
 
   /**
@@ -125,38 +130,39 @@ public class JpaLiveActivityGroup implements LiveActivityGroup {
   }
 
   @Override
-  public List<? extends GroupLiveActivity> getActivities() {
-    synchronized (activities) {
-      return Lists.newArrayList(activities);
+  public List<? extends GroupLiveActivity> getLiveActivities() {
+    synchronized (liveActivities) {
+      return Lists.newArrayList(liveActivities);
     }
   }
 
   @Override
-  public LiveActivityGroup addActivity(LiveActivity activity) {
-    return addActivity(activity, GroupLiveActivityDependency.REQUIRED);
+  public LiveActivityGroup addLiveActivity(LiveActivity liveActivity) throws InteractiveSpacesException {
+    return addLiveActivity(liveActivity, GroupLiveActivityDependency.REQUIRED);
   }
 
   @Override
-  public LiveActivityGroup
-      addActivity(LiveActivity activity, GroupLiveActivityDependency dependency) {
-    synchronized (activities) {
-      for (GroupLiveActivity ga : getActivities()) {
-        if (ga.getActivity().equals(activity))
-          throw new InteractiveSpacesException("Group already contains activity");
+  public LiveActivityGroup addLiveActivity(LiveActivity liveActivity, GroupLiveActivityDependency dependency)
+      throws InteractiveSpacesException {
+    synchronized (liveActivities) {
+      for (GroupLiveActivity ga : getLiveActivities()) {
+        if (ga.getActivity().equals(liveActivity)) {
+          throw new SimpleInteractiveSpacesException("Group already contains activity");
+        }
       }
 
-      activities.add(new JpaGroupLiveActivity(this, (JpaLiveActivity) activity, dependency));
+      liveActivities.add(new JpaGroupLiveActivity(this, (JpaLiveActivity) liveActivity, dependency));
     }
 
     return this;
   }
 
   @Override
-  public void removeActivity(LiveActivity activity) {
-    synchronized (activities) {
-      for (GroupLiveActivity gactivity : activities) {
-        if (activity.equals(gactivity.getActivity())) {
-          activities.remove(activity);
+  public void removeLiveActivity(LiveActivity liveActivity) {
+    synchronized (liveActivities) {
+      for (GroupLiveActivity gactivity : liveActivities) {
+        if (liveActivity.equals(gactivity.getActivity())) {
+          liveActivities.remove(liveActivity);
 
           return;
         }
@@ -166,20 +172,18 @@ public class JpaLiveActivityGroup implements LiveActivityGroup {
 
   @Override
   public void clearActivities() {
-    synchronized (activities) {
-      activities.clear();
+    synchronized (liveActivities) {
+      liveActivities.clear();
     }
   }
 
   @Override
   public void setMetadata(Map<String, Object> m) {
-
     synchronized (metadata) {
       metadata.clear();
 
       for (Entry<String, Object> entry : m.entrySet()) {
-        metadata.add(new JpaLiveActivityGroupMetadataItem(this, entry.getKey(), entry.getValue()
-            .toString()));
+        metadata.add(new JpaLiveActivityGroupMetadataItem(this, entry.getKey(), entry.getValue().toString()));
       }
     }
   }
@@ -199,7 +203,7 @@ public class JpaLiveActivityGroup implements LiveActivityGroup {
 
   @Override
   public String toString() {
-    return "JpaLiveActivityGroup [id=" + id + ", name=" + name + ", description=" + description
-        + ", metadata=" + getMetadata() + ", activities=" + activities + "]";
+    return "JpaLiveActivityGroup [id=" + id + ", name=" + name + ", description=" + description + ", metadata="
+        + getMetadata() + ", activities=" + liveActivities + "]";
   }
 }

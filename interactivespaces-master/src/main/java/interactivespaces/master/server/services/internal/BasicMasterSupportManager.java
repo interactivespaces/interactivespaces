@@ -18,8 +18,8 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
-import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.MasterSupportManager;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionCreator;
 import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionImporter;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -65,16 +65,15 @@ public class BasicMasterSupportManager implements MasterSupportManager {
   public String getMasterDomainDescription() {
     JdomMasterDomainDescriptionCreator creator = new JdomMasterDomainDescriptionCreator();
 
-    return creator
-        .createDescription(activityRepository, spaceControllerRepository, automationRepository);
+    return creator.newDescription(activityRepository, spaceControllerRepository, automationRepository);
   }
 
   @Override
   public void importMasterDomainDescription(String description) {
     JdomMasterDomainDescriptionImporter importer = new JdomMasterDomainDescriptionImporter();
 
-    importer.importDescription(description, activityRepository, spaceControllerRepository,
-        automationRepository, spaceEnvironment.getTimeProvider());
+    importer.importDescription(description, activityRepository, spaceControllerRepository, automationRepository,
+        spaceEnvironment.getTimeProvider());
   }
 
   /**

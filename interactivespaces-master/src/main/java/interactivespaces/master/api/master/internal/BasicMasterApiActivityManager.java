@@ -27,6 +27,7 @@ import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
@@ -172,9 +173,9 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, activity.getId());
     data.put("identifyingName", activity.getIdentifyingName());
     data.put("version", activity.getVersion());
-    data.put("name", activity.getName());
-    data.put("description", activity.getDescription());
-    data.put("metadata", activity.getMetadata());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, activity.getName());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, activity.getDescription());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA, activity.getMetadata());
     data.put("lastUploadDate", activity.getLastUploadDate());
     data.put("lastStartDate", activity.getLastStartDate());
     data.put("bundleContentHash", activity.getBundleContentHash());
@@ -186,9 +187,9 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    * Add in the activity dependency data.
    *
    * @param activity
-   *        the activity
+   *          the activity
    * @param activityData
-   *        the dependencies
+   *          the dependencies
    */
   private void extractActivityDependencyData(Activity activity, Map<String, Object> activityData) {
     List<Map<String, Object>> dependencies = Lists.newArrayList();
@@ -200,7 +201,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         Map<String, Object> dependencyData = Maps.newHashMap();
         dependencies.add(dependencyData);
 
-        dependencyData.put("name", activityDependency.getName());
+        dependencyData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, activityDependency.getName());
         dependencyData.put("minimumVersion", activityDependency.getMinimumVersion());
         dependencyData.put("maximumVersion", activityDependency.getMaximumVersion());
         dependencyData.put("required", activityDependency.isRequired());
@@ -402,7 +403,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   private boolean saveLiveActivityConfiguration(LiveActivity liveactivity, Map<String, String> map) {
     ActivityConfiguration configuration = liveactivity.getConfiguration();
     if (configuration != null) {
-      return mergeParameters(map, configuration);
+      return mergeActivityConfigurationParameters(map, configuration);
     } else {
       // No configuration. If nothing in submission, nothing has changed.
       // Otherwise add everything.
@@ -424,10 +425,9 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    * @param configuration
    *          the configuration which may be changed
    *
-   * @return {@code true} if there were any parameters changed in the
-   *         configuration
+   * @return {@code true} if there were any parameters changed in the configuration
    */
-  private boolean mergeParameters(Map<String, String> map, ActivityConfiguration configuration) {
+  private boolean mergeActivityConfigurationParameters(Map<String, String> map, ActivityConfiguration configuration) {
     boolean changed = false;
 
     Map<String, ConfigurationParameter> existingMap = configuration.getParameterMap();
@@ -457,7 +457,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         // Didn't exist
         changed = true;
 
-        parameter = activityRepository.newConfigurationParameter();
+        parameter = activityRepository.newActivityConfigurationParameter();
         parameter.setName(entry.getKey());
         parameter.setValue(entry.getValue());
 
@@ -482,7 +482,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     liveactivity.setConfiguration(configuration);
 
     for (Entry<String, String> entry : map.entrySet()) {
-      ConfigurationParameter parameter = activityRepository.newConfigurationParameter();
+      ConfigurationParameter parameter = activityRepository.newActivityConfigurationParameter();
       parameter.setName(entry.getKey());
       parameter.setValue(entry.getValue());
 
@@ -491,7 +491,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   }
 
   @Override
-  public Map<String, Object> updateMetadataLiveActivity(String id, Object metadataCommandObj) {
+  public Map<String, Object> updateLiveActivityMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
       return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
@@ -566,9 +566,142 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
 
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, controller.getId());
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, controller.getUuid());
-    data.put("name", controller.getName());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, controller.getName());
 
     return data;
+  }
+
+  @Override
+  public Map<String, Object> getSpaceControllerConfiguration(String id) {
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    if (spaceController != null) {
+      Map<String, String> data = Maps.newHashMap();
+
+      SpaceControllerConfiguration config = spaceController.getConfiguration();
+      if (config != null) {
+        for (ConfigurationParameter parameter : config.getParameters()) {
+          data.put(parameter.getName(), parameter.getValue());
+        }
+      }
+
+      return MasterApiMessageSupport.getSuccessResponse(data);
+    } else {
+      return noSuchLiveActivityResult();
+    }
+  }
+
+  @Override
+  public Map<String, Object> configureSpaceController(String id, Map<String, String> map) {
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    if (spaceController != null) {
+      if (saveSpaceControllerConfiguration(spaceController, map)) {
+        spaceControllerRepository.saveSpaceController(spaceController);
+      }
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
+    } else {
+      return noSuchLiveActivityResult();
+    }
+  }
+
+  /**
+   * Get the new configuration into the space controller.
+   *
+   * @param spaceController
+   *          the space controller being configured
+   * @param map
+   *          the map representing the new configuration
+   *
+   * @return {@code true} if there was a change to the configuration
+   */
+  private boolean saveSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceController.getConfiguration();
+    if (configuration != null) {
+      return mergeSpaceControllerConfigurationParameters(map, configuration);
+    } else {
+      // No configuration. If nothing in submission, nothing has changed.
+      // Otherwise add everything.
+      if (map.isEmpty()) {
+        return false;
+      }
+
+      newSpaceControllerConfiguration(spaceController, map);
+
+      return true;
+    }
+  }
+
+  /**
+   * Merge the values in the map with the configuration.
+   *
+   * @param map
+   *          map of new name/value pairs
+   * @param configuration
+   *          the configuration which may be changed
+   *
+   * @return {@code true} if there were any parameters changed in the configuration
+   */
+  private boolean mergeSpaceControllerConfigurationParameters(Map<String, String> map,
+      SpaceControllerConfiguration configuration) {
+    boolean changed = false;
+
+    Map<String, ConfigurationParameter> existingMap = configuration.getParameterMap();
+
+    // Delete all items removed
+    for (Entry<String, ConfigurationParameter> entry : existingMap.entrySet()) {
+      if (!map.containsKey(entry.getKey())) {
+        changed = true;
+
+        configuration.removeParameter(entry.getValue());
+      }
+    }
+
+    // Now everything in the submitted map will be check. if the name exists
+    // in the old configuration, we will try and change the value. if the
+    // name doesn't exist, add it.
+    for (Entry<String, String> entry : map.entrySet()) {
+      ConfigurationParameter parameter = existingMap.get(entry.getKey());
+      if (parameter != null) {
+        // Existed
+        String oldValue = parameter.getValue();
+        if (!oldValue.equals(entry.getValue())) {
+          changed = true;
+          parameter.setValue(entry.getValue());
+        }
+      } else {
+        // Didn't exist
+        changed = true;
+
+        parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
+        parameter.setName(entry.getKey());
+        parameter.setValue(entry.getValue());
+
+        configuration.addParameter(parameter);
+      }
+
+    }
+    return changed;
+  }
+
+  /**
+   * Create a new configuration for a space controller.
+   *
+   * @param spaceController
+   *          the space controller
+   * @param map
+   *          the new configuration
+   */
+  private void newSpaceControllerConfiguration(SpaceController spaceController, Map<String, String> map) {
+    SpaceControllerConfiguration configuration = spaceControllerRepository.newSpaceControllerConfiguration();
+    spaceController.setConfiguration(configuration);
+
+    for (Entry<String, String> entry : map.entrySet()) {
+      ConfigurationParameter parameter = spaceControllerRepository.newSpaceControllerConfigurationParameter();
+      parameter.setName(entry.getKey());
+      parameter.setValue(entry.getValue());
+
+      configuration.addParameter(parameter);
+    }
   }
 
   /**
@@ -582,9 +715,9 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   private void extractLiveActivityApiData(LiveActivity liveActivity, Map<String, Object> data) {
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, liveActivity.getUuid());
-    data.put("name", liveActivity.getName());
-    data.put("description", liveActivity.getDescription());
-    data.put("metadata", liveActivity.getMetadata());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, liveActivity.getName());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, liveActivity.getDescription());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA, liveActivity.getMetadata());
     data.put("outOfDate", liveActivity.isOutOfDate());
 
     Activity activity = liveActivity.getActivity();
@@ -640,7 +773,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
       responseData.put("liveactivitygroup", getLiveActivityGroupApiData(liveActivityGroup));
 
       List<LiveActivity> liveActivities = Lists.newArrayList();
-      for (GroupLiveActivity gla : liveActivityGroup.getActivities()) {
+      for (GroupLiveActivity gla : liveActivityGroup.getLiveActivities()) {
         liveActivities.add(gla.getActivity());
       }
 
@@ -700,7 +833,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     data.put("liveActivities", activityData);
 
     List<LiveActivity> liveActivities = Lists.newArrayList();
-    for (GroupLiveActivity gactivity : liveActivityGroup.getActivities()) {
+    for (GroupLiveActivity gactivity : liveActivityGroup.getLiveActivities()) {
       liveActivities.add(gactivity.getActivity());
     }
     Collections.sort(liveActivities, MasterApiUtilities.LIVE_ACTIVITY_BY_NAME_COMPARATOR);
@@ -803,7 +936,7 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   }
 
   @Override
-  public Map<String, Object> updateMetadataSpace(String id, Object metadataCommandObj) {
+  public Map<String, Object> updateSpaceMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
       return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
@@ -904,9 +1037,9 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    */
   private void getBasicSpaceApiResponse(Space space, Map<String, Object> response) {
     response.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, space.getId());
-    response.put("name", space.getName());
-    response.put("description", space.getDescription());
-    response.put("metadata", space.getMetadata());
+    response.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, space.getName());
+    response.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, space.getDescription());
+    response.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA, space.getMetadata());
   }
 
   @Override
@@ -1087,13 +1220,13 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
    */
   private void extractLiveActivityGroup(LiveActivityGroup group, Map<String, Object> data) {
     data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, group.getId());
-    data.put("name", group.getName());
-    data.put("description", group.getDescription());
-    data.put("metadata", group.getMetadata());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, group.getName());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, group.getDescription());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA, group.getMetadata());
   }
 
   @Override
-  public Map<String, Object> updateMetadataLiveActivityGroup(String id, Object metadataCommandObj) {
+  public Map<String, Object> updateLiveActivityGroupMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
       return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }

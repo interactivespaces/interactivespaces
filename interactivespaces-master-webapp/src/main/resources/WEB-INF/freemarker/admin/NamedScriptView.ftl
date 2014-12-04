@@ -50,6 +50,7 @@ function deleteScript() {
   <tr>
     <td><button type="button" onclick="doAjaxCommand('run')" title="Run the named script">Run</button></td>
     <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/admin/namedscript/${script.id}/edit.html'" title="Edit the script">Edit</button></td>
+    <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/admin/namedscript/${script.id}/metadata/edit.html'" title="Edit the named script metadata">Metadata</button></td>
     <td><button type="button" onclick="deleteScript()" title="Delete the script">Delete</button></td>
   </tr>
 </table>
@@ -77,6 +78,12 @@ ${script.description?html}
 <tr>
 <th>Schedule</th>
 <td><#if script.schedule?has_content>${script.schedule}<#else>None</#if></td>
+</tr>
+<tr>
+<th valign="top">Metadata</th>
+<td><table><#assign metadataKeys = script.metadata?keys?sort><#list metadataKeys as metadataKey>
+<tr><th>${metadataKey}</th><td>${script.metadata[metadataKey]?html}</td></tr>
+</#list></table></td>
 </tr>
 </table>
 

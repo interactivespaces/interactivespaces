@@ -130,7 +130,7 @@ public class BaseSpaceTest {
       LiveActivity... apps) {
     SimpleLiveActivityGroup activityGroup = new SimpleLiveActivityGroup();
     for (LiveActivity iapp : apps)
-      activityGroup.addActivity(iapp, dependency);
+      activityGroup.addLiveActivity(iapp, dependency);
 
     return activityGroup;
   }
@@ -164,7 +164,7 @@ public class BaseSpaceTest {
       int... appIds) {
     LiveActivityGroup activityGroup = new SimpleLiveActivityGroup();
     for (int id : appIds) {
-      activityGroup.addActivity(liveActivity(id), dependency);
+      activityGroup.addLiveActivity(liveActivity(id), dependency);
     }
     return activityGroup;
   }
@@ -184,7 +184,7 @@ public class BaseSpaceTest {
       List<LiveActivity> liveActivities) {
     LiveActivityGroup activityGroup = new SimpleLiveActivityGroup();
     for (LiveActivity liveActivity : liveActivities) {
-      activityGroup.addActivity(liveActivity, dependency);
+      activityGroup.addLiveActivity(liveActivity, dependency);
     }
 
     return activityGroup;

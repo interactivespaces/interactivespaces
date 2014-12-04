@@ -234,6 +234,53 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_SPACE_STATUS = "/space/status";
 
   /**
+   * Web socket command for getting view data for all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL = "/spacecontroller/all";
+
+  /**
+   * Web socket command for getting view data for a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW = "/spacecontroller/view";
+
+  /**
+   * Web socket command for configuring a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURE = "/spacecontroller/configure";
+
+  /**
+   * Web socket command for getting configuration data for a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_GET =
+      "/spacecontroller/configuration/get";
+
+  /**
+   * Web socket command for setting configuration data for a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_SET =
+      "/spacecontroller/configuration/set";
+
+  /**
+   * Web socket command for setting metadata for a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET = "/spacecontroller/metadata/set";
+
+  /**
+   * Web socket command for getting all named scripts.
+   */
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_ALL = "/admin/namedscript/all";
+
+  /**
+   * Web socket command for viewing a named script.
+   */
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_VIEW = "/admin/namedscript/view";
+
+  /**
+   * Web socket command for setting metadata for a named script.
+   */
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_METADATA_SET = "/admin/namedscript/metadata/set";
+
+  /**
    * Web socket command for running a named script.
    */
   public static final String MASTER_API_COMMAND_NAMEDSCRIPT_RUN = "/admin/namedscript/run";
@@ -247,6 +294,46 @@ public class MasterApiMessages {
    * Status parameter name for the UUID of the entity in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_UUID = "uuid";
+
+  /**
+   * Status parameter name for the descriptive name of the entity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ENTITY_NAME = "name";
+
+  /**
+   * Status parameter name for the description of the entity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION = "description";
+
+  /**
+   * Status parameter name for the metadata of the entity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ENTITY_METADATA = "metadata";
+
+  /**
+   * Status parameter name for the configuration of a configurable entity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ENTITY_CONFIG = "config";
+
+  /**
+   * Parameter name for the host ID of a space controller in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_HOSTID = "hostId";
+
+  /**
+   * Parameter name for the mode of a space controller in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_MODE = "mode";
+
+  /**
+   * Parameter name for the mode decription of a space controller in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_MODE_DESCRIPTION = "modeDescription";
+
+  /**
+   * Parameter name for the language of a named script in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_NAMED_SCRIPT_LANGUAGE = "language";
 
   /**
    * Message type for a command response.

@@ -46,9 +46,9 @@ import java.util.Map;
 public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
 
   /**
-   * The Controller repository.
+   * The Space Controller repository.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Set the fields which allowed and which are disallowed.
@@ -62,7 +62,7 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
   }
 
   /**
-   * Set up the editting form.
+   * Set up the editing form.
    *
    * @param id
    *          ID for the space controller
@@ -73,7 +73,7 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
    */
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
-    SpaceController controller = controllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
     model.addAttribute("spacecontroller", controller);
     model.addAttribute("id", id);
 
@@ -107,10 +107,10 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
     if (result.hasErrors()) {
       return "spacecontroller/SpaceControllerMetadataEdit";
     } else {
-      SpaceController controller = controllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
 
       if (saveMetadataForm(metadataForm, controller)) {
-        controllerRepository.saveSpaceController(controller);
+        spaceControllerRepository.saveSpaceController(controller);
       }
 
       status.setComplete();
@@ -167,10 +167,12 @@ public class SpaceControllerMetadataEditForm extends MetadataEditFormSupport {
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

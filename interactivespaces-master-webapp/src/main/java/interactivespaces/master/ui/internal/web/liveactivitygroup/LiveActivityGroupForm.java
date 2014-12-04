@@ -16,8 +16,6 @@
 
 package interactivespaces.master.ui.internal.web.liveactivitygroup;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.domain.basic.GroupLiveActivity;
 import interactivespaces.domain.basic.GroupLiveActivity.GroupLiveActivityDependency;
 import interactivespaces.domain.basic.LiveActivity;
@@ -25,6 +23,8 @@ import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivityGroup;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.ui.internal.web.UiUtilities;
+
+import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.util.List;
@@ -52,45 +52,52 @@ public class LiveActivityGroupForm implements Serializable {
   private List<String> liveActivityIds;
 
   /**
-   * @return the liveActivityGroup
+   * Get the live activity group from the form.
+   *
+   * @return the live activity group
    */
   public SimpleLiveActivityGroup getLiveActivityGroup() {
     return liveActivityGroup;
   }
 
   /**
+   * Set the live activity group from the form.
+   *
    * @param liveActivityGroup
-   *          the liveActivityGroup to set
+   *          the live activity group
    */
   public void setActivityGroup(SimpleLiveActivityGroup liveActivityGroup) {
     this.liveActivityGroup = liveActivityGroup;
   }
 
   /**
-   * @return the liveActivityIds
+   * Get the live activity IDs.
+   *
+   * @return the live activity IDs
    */
   public List<String> getLiveActivityIds() {
     return liveActivityIds;
   }
 
   /**
+   * Set the live activity IDs.
+   *
    * @param liveActivityIds
-   *          the liveActivityIds to set
+   *          the live activity IDs
    */
   public void setLiveActivityIds(List<String> liveActivityIds) {
     this.liveActivityIds = liveActivityIds;
   }
 
   /**
-   * Copy the contents of the form into the supplied group
+   * Copy the contents of the form into the supplied group.
    *
    * @param destinationGroup
    *          the live activity group that the contents should be copied into
    * @param activityRepository
    *          repository for activity entities
    */
-  public void saveLiveActivityGroup(LiveActivityGroup destinationGroup,
-      ActivityRepository activityRepository) {
+  public void saveLiveActivityGroup(LiveActivityGroup destinationGroup, ActivityRepository activityRepository) {
     destinationGroup.setName(liveActivityGroup.getName());
     destinationGroup.setDescription(liveActivityGroup.getDescription());
 
@@ -99,26 +106,24 @@ public class LiveActivityGroupForm implements Serializable {
       for (String liveActivityId : liveActivityIds) {
         LiveActivity activity = activityRepository.getLiveActivityById(liveActivityId);
         if (activity != null) {
-          destinationGroup.addActivity(activity, GroupLiveActivityDependency.REQUIRED);
+          destinationGroup.addLiveActivity(activity, GroupLiveActivityDependency.REQUIRED);
         }
       }
     }
   }
 
   /**
-   * Copy the contents of the supplied group into the form
+   * Copy the contents of the supplied group into the form.
    *
-   * @param sourceroup
+   * @param sourceGroup
    *          the live activity group that the contents should be copied from
-   * @param activityRepository
-   *          repository for activity entities
    */
   public void copyLiveActivityGroup(LiveActivityGroup sourceGroup) {
     liveActivityGroup.setName(sourceGroup.getName());
     liveActivityGroup.setDescription(sourceGroup.getDescription());
 
     liveActivityIds = Lists.newArrayList();
-    for (GroupLiveActivity activity : sourceGroup.getActivities()) {
+    for (GroupLiveActivity activity : sourceGroup.getLiveActivities()) {
       liveActivityIds.add(activity.getActivity().getId());
     }
   }

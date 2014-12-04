@@ -30,7 +30,7 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivity;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfiguration;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityDependency;
-import interactivespaces.master.server.services.internal.jpa.domain.JpaConfigurationParameter;
+import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfigurationParameter;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivity;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroup;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpace;
@@ -77,8 +77,8 @@ public class JpaActivityRepository implements ActivityRepository {
   }
 
   @Override
-  public ConfigurationParameter newConfigurationParameter() {
-    return new JpaConfigurationParameter();
+  public ConfigurationParameter newActivityConfigurationParameter() {
+    return new JpaActivityConfigurationParameter();
   }
 
   @SuppressWarnings("unchecked")

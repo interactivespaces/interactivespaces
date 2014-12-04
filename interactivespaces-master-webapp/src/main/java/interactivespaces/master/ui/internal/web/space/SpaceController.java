@@ -123,7 +123,7 @@ public class SpaceController extends BaseActiveSpaceMasterController {
   public @ResponseBody
   Map<String, ? extends Object> modifySpaceGroupMetadata(@PathVariable String id,
       @RequestBody Object metadataCommand, HttpServletResponse response) {
-    return masterApiActivityManager.updateMetadataSpace(id, metadataCommand);
+    return masterApiActivityManager.updateSpaceMetadata(id, metadataCommand);
   }
 
   @RequestMapping(value = "/space/{id}/load.json", method = RequestMethod.GET)

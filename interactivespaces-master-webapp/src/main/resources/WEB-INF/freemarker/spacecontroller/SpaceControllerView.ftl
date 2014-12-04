@@ -102,6 +102,7 @@ function shutdownActivities() {
     <td><button type="button" onclick="doAjaxCommand('disconnect')">Disconnect</button></td>
     <td><button type="button" onclick="doAjaxCommand('status')">Status</button></td>
     <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/edit.html'" title="Edit the application details">Edit</button></td>
+    <td><button type="button" id="editConfigButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/config/edit.html'" title="Edit the space controller config">Edit Config</button></td>
     <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/spacecontroller/${spacecontroller.id}/metadata/edit.html'" title="Edit the space controller metadata">Metadata</button></td>
     <td><button type="button" id="deployButton" onclick="doAjaxCommand('deploy')" title="Deploy all Live Activities on this Controller">Deploy</button></td>
     <td><button type="button" onclick="captureData()" title="Capture controller data">Capture Data</button></td>

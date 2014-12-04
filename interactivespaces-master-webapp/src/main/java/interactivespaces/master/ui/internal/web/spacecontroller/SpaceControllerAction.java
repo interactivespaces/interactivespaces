@@ -34,7 +34,7 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
   /**
    * Repository for space controllers.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Get a new space controller model.
@@ -63,19 +63,21 @@ public class SpaceControllerAction extends BaseSpaceMasterController {
    *          the controller form
    */
   public void saveSpaceController(SimpleSpaceController controller) {
-    SpaceController finalController = controllerRepository.newSpaceController(controller);
+    SpaceController finalController = spaceControllerRepository.newSpaceController(controller);
 
-    controllerRepository.saveSpaceController(finalController);
+    spaceControllerRepository.saveSpaceController(finalController);
 
     // So the ID gets copied out of the flow.
     controller.setId(finalController.getId());
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

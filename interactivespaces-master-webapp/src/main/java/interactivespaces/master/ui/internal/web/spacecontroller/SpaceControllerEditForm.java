@@ -44,9 +44,9 @@ import org.springframework.web.bind.support.SessionStatus;
 public class SpaceControllerEditForm extends BaseSpaceMasterController {
 
   /**
-   * The controller repository.
+   * The space controller repository.
    */
-  private SpaceControllerRepository controllerRepository;
+  private SpaceControllerRepository spaceControllerRepository;
 
   /**
    * Set the allowed fields for the given data binder.
@@ -71,7 +71,7 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
    */
   @RequestMapping(method = RequestMethod.GET)
   public String setupForm(@PathVariable("id") String id, Model model) {
-    SpaceController controller = controllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
     model.addAttribute("spacecontroller", SpaceControllerUtils.toTemplate(controller));
     model.addAttribute("id", id);
     addNeededEntities(model);
@@ -104,9 +104,9 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
       addNeededEntities(model);
       return "spacecontroller/SpaceControllerEdit";
     } else {
-      SpaceController controller = controllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
       SpaceControllerUtils.copy(template, controller);
-      controllerRepository.saveSpaceController(controller);
+      spaceControllerRepository.saveSpaceController(controller);
 
       status.setComplete();
 
@@ -125,10 +125,12 @@ public class SpaceControllerEditForm extends BaseSpaceMasterController {
   }
 
   /**
-   * @param controllerRepository
-   *          the controllerRepository to set
+   * Set the space controller repository to use.
+   *
+   * @param spaceControllerRepository
+   *          the space controller repository
    */
-  public void setControllerRepository(SpaceControllerRepository controllerRepository) {
-    this.controllerRepository = controllerRepository;
+  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
+    this.spaceControllerRepository = spaceControllerRepository;
   }
 }

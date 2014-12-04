@@ -1,52 +1,72 @@
-<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
-  2.0 (the "License"); you may not use this file except in compliance with 
-  the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-  Unless required by applicable law or agreed to in writing, software distributed 
-  under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-  OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
-  the specific language governing permissions and limitations under the License. -->
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
-  <persistence-unit name="InteractiveSpaces"
-    transaction-type="RESOURCE_LOCAL">
-    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 2.0 (the "License"); you 
+  may not use this file except in compliance with the License. You may obtain a copy of the License at 
+  http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
+  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY KIND, either express or implied. See the * License for the specific language governing permissions 
+  and limitations under the License. -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="1.0"
+>
+  <persistence-unit name="InteractiveSpaces" transaction-type="RESOURCE_LOCAL">
+    <provider>
+      org.apache.openjpa.persistence.PersistenceProviderImpl
     </provider>
 
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaActivity
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaActivity
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfiguration
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfiguration
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaConfigurationParameter
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfigurationParameter
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaActivityDependency
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaActivityDependency
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaActivityMetadataItem
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaActivityMetadataItem
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivity
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivity
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityMetadataItem
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityMetadataItem
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroup
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroup
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroupMetadataItem
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroupMetadataItem
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaGroupLiveActivity
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaGroupLiveActivity
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpace
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpace
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceMetadataItem
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceMetadataItem
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController
     </class>
-    <!-- <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfigurationParameter
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfigurationParameter
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfiguration
-    </class> -->
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerMetadataItem
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfiguration
     </class>
-    <class>interactivespaces.master.server.services.internal.jpa.domain.JpaNamedScript
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerMetadataItem
     </class>
-
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaNamedScript
+    </class>
+    <class>
+      interactivespaces.master.server.services.internal.jpa.domain.JpaNamedScriptMetadataItem
+    </class>
+    
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
     <properties>

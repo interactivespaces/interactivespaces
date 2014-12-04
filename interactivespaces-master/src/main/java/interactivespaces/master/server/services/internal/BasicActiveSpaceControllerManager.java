@@ -410,7 +410,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     spaceEnvironment.getLog().info(
         String.format("Requesting activity group %s deployment", activeActivityGroup.getActivityGroup().getId()));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
       try {
         attemptDeployActiveActivityFromGroup(getActiveLiveActivity(activity), deployedLiveActivities);
@@ -462,7 +462,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     spaceEnvironment.getLog().info(
         String.format("Requesting activity group %s configure", activeActivityGroup.getActivityGroup().getId()));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
       try {
         attemptConfigureActiveActivityFromGroup(getActiveLiveActivity(activity), configuredLiveActivities);
@@ -508,7 +508,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     String groupId = activeActivityGroup.getActivityGroup().getId();
     spaceEnvironment.getLog().info(String.format("Requesting activity group %s startup", groupId));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
@@ -536,7 +536,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     String groupId = activeActivityGroup.getActivityGroup().getId();
     spaceEnvironment.getLog().info(String.format("requesting activity group %s activation", groupId));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
@@ -564,7 +564,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     String groupId = activeActivityGroup.getActivityGroup().getId();
     spaceEnvironment.getLog().info(String.format("Requesting activity group %s deactivation", groupId));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {
@@ -592,7 +592,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     String groupId = activeActivityGroup.getActivityGroup().getId();
     spaceEnvironment.getLog().info(String.format("Requesting activity group %s shutdown", groupId));
 
-    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getActivities()) {
+    for (GroupLiveActivity groupActivity : activeActivityGroup.getActivityGroup().getLiveActivities()) {
       LiveActivity activity = groupActivity.getActivity();
 
       if (spaceEnvironment.getLog().isInfoEnabled()) {

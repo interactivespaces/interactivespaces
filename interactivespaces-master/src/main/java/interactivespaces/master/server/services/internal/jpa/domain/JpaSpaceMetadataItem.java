@@ -23,7 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * JPO implementation of a metadata item for a {@link JpaSpace}
+ * JPO implementation of a metadata item for a {@link JpaSpace}.
  *
  * @author Keith M. Hughes
  */
@@ -31,6 +31,9 @@ import javax.persistence.Table;
 @Table(name = "space_metadata")
 public class JpaSpaceMetadataItem {
 
+  /**
+   * The space the metadata item is for.
+   */
   @ManyToOne(optional = false, fetch = FetchType.EAGER)
   private JpaSpace space;
 
@@ -43,12 +46,25 @@ public class JpaSpaceMetadataItem {
   /**
    * Value of the metadata item.
    */
-  @Column(nullable = false, length = 2048)
+  @Column(nullable = false, length = 32672)
   private String value;
 
+  /**
+   * Construct a new metadata item.
+   */
   public JpaSpaceMetadataItem() {
   }
 
+  /**
+   * Construct a new metadata item.
+   *
+   * @param space
+   *          the space the metadata is for
+   * @param name
+   *          the name of the metadata item
+   * @param value
+   *          the value of the metadata item
+   */
   JpaSpaceMetadataItem(JpaSpace space, String name, String value) {
     this.space = space;
     this.name = name;
@@ -56,6 +72,8 @@ public class JpaSpaceMetadataItem {
   }
 
   /**
+   * Get the space for this metadata item.
+   *
    * @return the space
    */
   public JpaSpace getSpace() {
@@ -63,14 +81,18 @@ public class JpaSpaceMetadataItem {
   }
 
   /**
+   * Set the space for this metadata item.
+   *
    * @param space
-   *          the space to set
+   *          the space
    */
   public void setSpace(JpaSpace space) {
     this.space = space;
   }
 
   /**
+   * Get the name of the metadata item.
+   *
    * @return the name
    */
   public String getName() {
@@ -78,14 +100,18 @@ public class JpaSpaceMetadataItem {
   }
 
   /**
+   * Set the name of the metadata item.
+   *
    * @param name
-   *          the name to set
+   *          the name
    */
   public void setName(String name) {
     this.name = name;
   }
 
   /**
+   * Get the value of the metadata item.
+   *
    * @return the value
    */
   public String getValue() {
@@ -93,8 +119,10 @@ public class JpaSpaceMetadataItem {
   }
 
   /**
+   * Set the value of the metadata item.
+   *
    * @param value
-   *          the value to set
+   *          the value
    */
   public void setValue(String value) {
     this.value = value;

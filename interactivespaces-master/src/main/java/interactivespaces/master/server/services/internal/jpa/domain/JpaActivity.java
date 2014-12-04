@@ -58,6 +58,7 @@ public class JpaActivity implements Activity {
   /**
    * For serialization.
    */
+  private static final long serialVersionUID = 5475391377408137799L;
 
   /**
    * The persistence ID for the activity.

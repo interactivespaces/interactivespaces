@@ -194,6 +194,6 @@ public class MasterFileControlTest {
     String id = "123454321";
     fileControl.handleCommand(MasterFileControl.COMMAND_PREFIX_SCRIPT_RUN + id);
 
-    verify(masterApiAutomationManager, times(1)).runScript(id);
+    verify(masterApiAutomationManager, times(1)).runNamedScript(id);
   }
 }

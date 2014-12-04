@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 
-  2.0 (the "License"); you may not use this file except in compliance with 
-  the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
-  Unless required by applicable law or agreed to in writing, software distributed 
-  under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-  OR CONDITIONS OF ANY KIND, either express or implied. See the * License for 
-  the specific language governing permissions and limitations under the License. -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi"
-  xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
-  xmlns:context="http://www.springframework.org/schema/context"
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 2.0 (the "License"); you 
+  may not use this file except in compliance with the License. You may obtain a copy of the License at 
+  http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
+  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY KIND, either express or implied. See the * License for the specific language governing permissions 
+  and limitations under the License. -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgi="http://www.springframework.org/schema/osgi" xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
   xmlns:mvc="http://www.springframework.org/schema/mvc"
   xsi:schemaLocation="
   http://www.springframework.org/schema/beans
@@ -23,14 +21,13 @@
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd
   http://www.springframework.org/schema/aop 
-  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+>
   <mvc:annotation-driven />
 
-  <mvc:default-servlet-handler
-    default-servlet-name="default" />
+  <mvc:default-servlet-handler default-servlet-name="default" />
 
-  <bean id="messageSource"
-    class="org.springframework.context.support.ResourceBundleMessageSource">
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basename" value="messages" />
   </bean>
 
@@ -52,186 +49,179 @@
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
-  <bean id="abstractLiveControllerClass" abstract="true"
-    parent="abstractControllerClass">
+  <bean id="abstractLiveControllerClass" abstract="true" parent="abstractControllerClass">
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
     <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity"
-    class="interactivespaces.master.ui.internal.web.activity.ActivityController"
-    parent="abstractLiveControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity" class="interactivespaces.master.ui.internal.web.activity.ActivityController"
+    parent="abstractLiveControllerClass"
+  >
   </bean>
 
-  <bean id="activityAction"
-    class="interactivespaces.master.ui.internal.web.activity.ActivityAction"
-    parent="abstractControllerClass">
+  <bean id="activityAction" class="interactivespaces.master.ui.internal.web.activity.ActivityAction"
+    parent="abstractControllerClass"
+  >
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
   </bean>
 
-  <bean id="activityFormValidator"
-    class="interactivespaces.master.ui.internal.web.activity.ActivityValidator" />
+  <bean id="activityFormValidator" class="interactivespaces.master.ui.internal.web.activity.ActivityValidator" />
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.edit"
-    class="interactivespaces.master.ui.internal.web.activity.ActivityEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.edit" class="interactivespaces.master.ui.internal.web.activity.ActivityEditForm"
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.metadata.edit"
-    class="interactivespaces.master.ui.internal.web.activity.ActivityMetadataEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.activity.metadata.edit"
+    class="interactivespaces.master.ui.internal.web.activity.ActivityMetadataEditForm" parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean name="activity/upload"
-    class="interactivespaces.master.ui.internal.web.activity.NewActivityFlowHandler">
+  <bean name="activity/upload" class="interactivespaces.master.ui.internal.web.activity.NewActivityFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.index"
-    class="interactivespaces.master.ui.internal.web.IndexController"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.index" class="interactivespaces.master.ui.internal.web.IndexController"
+    parent="abstractControllerClass"
+  >
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.support"
-    class="interactivespaces.master.ui.internal.web.admin.MasterSupportController"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.support" class="interactivespaces.master.ui.internal.web.admin.MasterSupportController"
+    parent="abstractControllerClass"
+  >
     <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.automation"
-    class="interactivespaces.master.ui.internal.web.admin.AutomationController"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.automation" class="interactivespaces.master.ui.internal.web.admin.AutomationController"
+    parent="abstractControllerClass"
+  >
     <property name="automationRepository" ref="automationRepository" />
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
-  <bean id="automationAction"
-    class="interactivespaces.master.ui.internal.web.admin.AutomationAction"
-    parent="abstractControllerClass">
+  <bean id="automationAction" class="interactivespaces.master.ui.internal.web.admin.AutomationAction"
+    parent="abstractControllerClass"
+  >
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
-  <bean name="admin/namedscript/new"
-    class="interactivespaces.master.ui.internal.web.admin.NewNamedScriptFlowHandler">
+  <bean name="admin/namedscript/new" class="interactivespaces.master.ui.internal.web.admin.NewNamedScriptFlowHandler">
     <property name="automationRepository" ref="automationRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.namedscript.edit"
-    class="interactivespaces.master.ui.internal.web.admin.NamedScriptEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.namedscript.edit"
+    class="interactivespaces.master.ui.internal.web.admin.NamedScriptEditForm" parent="abstractControllerClass"
+  >
     <property name="automationRepository" ref="automationRepository" />
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
   </bean>
 
-  <bean id="namedScriptFormValidator"
-    class="interactivespaces.master.ui.internal.web.admin.NamedScriptValidator" />
+  <bean id="namedScriptFormValidator" class="interactivespaces.master.ui.internal.web.admin.NamedScriptValidator" />
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller"
-    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerController"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.namedscript.metadata.edit"
+    class="interactivespaces.master.ui.internal.web.admin.NamedScriptMetadataEditForm" parent="abstractControllerClass"
+  >
+    <property name="automationRepository" ref="automationRepository" />
+    <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
+  </bean>
+
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller" class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerController"
     parent="abstractLiveControllerClass" />
 
-  <bean id="spaceControllerAction"
-    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerAction"
-    parent="abstractControllerClass">
-    <property name="controllerRepository" ref="controllerRepository" />
+  <bean id="spaceControllerAction" class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerAction"
+    parent="abstractControllerClass"
+  >
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
-  <bean id="spaceControllerFormValidator"
-    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerValidator" />
+  <bean id="spaceControllerFormValidator" class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerValidator" />
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.edit"
-    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerEditForm"
-    parent="abstractControllerClass">
-    <property name="controllerRepository" ref="controllerRepository" />
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.edit"
+    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerEditForm" parent="abstractControllerClass"
+  >
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
   <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.metadata.edit"
+    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.configuration.edit"
+    class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerConfigEditForm"
+    parent="abstractControllerClass"
+  >
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
+  </bean>
+
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.controller.metadata.edit"
     class="interactivespaces.master.ui.internal.web.spacecontroller.SpaceControllerMetadataEditForm"
-    parent="abstractControllerClass">
-    <property name="controllerRepository" ref="controllerRepository" />
+    parent="abstractControllerClass"
+  >
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
   <bean name="spaceController/new"
-    class="interactivespaces.master.ui.internal.web.spacecontroller.NewSpaceControllerFlowHandler">
-    <property name="controllerRepository" ref="controllerRepository" />
+    class="interactivespaces.master.ui.internal.web.spacecontroller.NewSpaceControllerFlowHandler"
+  >
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity"
-    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityController"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity" class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityController"
     parent="abstractLiveControllerClass" />
 
-  <bean id="liveActivityAction"
-    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityAction"
-    parent="abstractControllerClass">
+  <bean id="liveActivityAction" class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityAction"
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
-    <property name="controllerRepository" ref="controllerRepository" />
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
-  <bean id="liveActivityFormValidator"
-    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityValidator" />
+  <bean id="liveActivityFormValidator" class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityValidator" />
 
-  <bean name="liveActivity/new"
-    class="interactivespaces.master.ui.internal.web.liveactivity.NewLiveActivityFlowHandler">
+  <bean name="liveActivity/new" class="interactivespaces.master.ui.internal.web.liveactivity.NewLiveActivityFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.edit"
-    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.edit"
+    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityEditForm" parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
-    <property name="controllerRepository" ref="controllerRepository" />
+    <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.config.edit"
-    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityConfigEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.config.edit"
+    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityConfigEditForm" parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.metadata.edit"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.metadata.edit"
     class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityMetadataEditForm"
-    parent="abstractControllerClass">
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupController"
     parent="abstractLiveControllerClass" />
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.edit"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.edit"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupEditForm"
-    parent="abstractControllerClass">
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.metadata.edit"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.metadata.edit"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupMetadataEditForm"
-    parent="abstractControllerClass">
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean id="liveActivityGroupAction"
-    class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupAction"
-    parent="abstractControllerClass">
+  <bean id="liveActivityGroupAction" class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupAction"
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
@@ -239,68 +229,57 @@
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupValidator" />
 
   <bean name="liveactivitygroup/new"
-    class="interactivespaces.master.ui.internal.web.liveactivitygroup.NewLiveActivityGroupFlowHandler">
+    class="interactivespaces.master.ui.internal.web.liveactivitygroup.NewLiveActivityGroupFlowHandler"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space"
-    class="interactivespaces.master.ui.internal.web.space.SpaceController"
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space" class="interactivespaces.master.ui.internal.web.space.SpaceController"
     parent="abstractLiveControllerClass" />
 
-  <bean id="spaceAction"
-    class="interactivespaces.master.ui.internal.web.space.SpaceAction"
-    parent="abstractControllerClass">
+  <bean id="spaceAction" class="interactivespaces.master.ui.internal.web.space.SpaceAction"
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean id="spaceFormValidator"
-    class="interactivespaces.master.ui.internal.web.space.SpaceValidator" />
+  <bean id="spaceFormValidator" class="interactivespaces.master.ui.internal.web.space.SpaceValidator" />
 
-  <bean name="space/new"
-    class="interactivespaces.master.ui.internal.web.space.NewSpaceFlowHandler">
+  <bean name="space/new" class="interactivespaces.master.ui.internal.web.space.NewSpaceFlowHandler">
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.edit"
-    class="interactivespaces.master.ui.internal.web.space.SpaceEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.edit" class="interactivespaces.master.ui.internal.web.space.SpaceEditForm"
+    parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.metadata.edit"
-    class="interactivespaces.master.ui.internal.web.space.SpaceMetadataEditForm"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.metadata.edit"
+    class="interactivespaces.master.ui.internal.web.space.SpaceMetadataEditForm" parent="abstractControllerClass"
+  >
     <property name="activityRepository" ref="activityRepository" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.troubleshoot"
-    class="interactivespaces.master.ui.internal.web.admin.TroubleshootController"
-    parent="abstractControllerClass">
-    <property name="networkInformationClient"
-      ref="interactivespaces.master.networkinfo.client" />
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.troubleshoot" class="interactivespaces.master.ui.internal.web.admin.TroubleshootController"
+    parent="abstractControllerClass"
+  >
+    <property name="networkInformationClient" ref="interactivespaces.master.networkinfo.client" />
   </bean>
 
-  <bean
-    id="interactivespaces.master.webapp.spring.mvc.servlet.controller.extension"
-    class="interactivespaces.master.ui.internal.web.misc.ExtensionController"
-    parent="abstractControllerClass">
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.extension" class="interactivespaces.master.ui.internal.web.misc.ExtensionController"
+    parent="abstractControllerClass"
+  >
     <property name="extensionManager" ref="interactivespaces.master.extension" />
   </bean>
 
-  <bean id="multipartResolver"
-    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+  <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 
-    <!-- one of the properties available; the maximum file size in bytes. 
-      -1 is no limit -->
+    <!-- one of the properties available; the maximum file size in bytes. -1 is no limit -->
     <property name="maxUploadSize" value="-1" />
   </bean>
 
-  <bean id="freemarkerConfiguration"
-    class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+  <bean id="freemarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
     <description>Using the Config directly so we can use it outside the
       web tier
     </description>
@@ -316,13 +295,11 @@
     </property>
   </bean>
 
-  <bean id="freemarkerConfig"
-    class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+  <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
     <property name="configuration" ref="freemarkerConfiguration" />
   </bean>
 
-  <bean id="viewResolver"
-    class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+  <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
     <property name="cache" value="true" />
     <property name="prefix" value="" />
     <property name="suffix" value=".ftl" />
