@@ -17,10 +17,15 @@
 package interactivespaces.workbench.project.builder;
 
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A base builder class for common project types.
@@ -31,6 +36,26 @@ import java.util.List;
  * @author peringknife@google.com (Trevor Pering)
  */
 public abstract class BaseProjectBuilder<T extends Project> implements ProjectBuilder<T> {
+
+  /**
+   * Template data key entry for the list of resource sources.
+   */
+  public static final String TEMPLATE_SRC_LIST_KEY = "srclist";
+
+  /**
+   * Template destination entry key for resource entries.
+   */
+  public static final String TEMPLATE_ENTRY_DST_KEY = "dst";
+
+  /**
+   * Template source entry key for resource entries.
+   */
+  public static final String TEMPLATE_ENTRY_SRC_KEY = "src";
+
+  /**
+   * Resource map template.
+   */
+  public static final String ACTIVITY_RESOURCE_MAP_TEMPLATE = "activity/resource.map.ftl";
 
   /**
    * Build has begun. Do any specific parts of the build.
@@ -142,5 +167,37 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    */
   private String getProjectArtifactFilename(Project project, String extension) {
     return project.getIdentifyingName() + "-" + project.getVersion() + "." + extension;
+  }
+
+  /**
+   * Write out the resource source map contained in the project build context.
+   *
+   * @param project
+   *          current build project
+   * @param stagingDirectory
+   *          destination directory for build output
+   * @param context
+   *          project context containing the resource source map
+   */
+  protected void writeResourceMap(Project project, File stagingDirectory, ProjectBuildContext context) {
+    File resourceMapFile = new File(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
+
+    Map<String, Object> templateData = Maps.newHashMap();
+    List<Map<String, String>> srcList = Lists.newArrayList();
+    templateData.put(TEMPLATE_SRC_LIST_KEY, srcList);
+
+    String stagingPrefix = stagingDirectory.getAbsolutePath() + File.separatorChar;
+
+    for (Map.Entry<File, File> sourceEntry : context.getResourceSourceMap().entrySet()) {
+      Map<String, String> stringMap = Maps.newHashMapWithExpectedSize(1);
+      String destPath = sourceEntry.getKey().getAbsolutePath();
+      if (destPath.startsWith(stagingPrefix)) {
+        destPath = destPath.substring(stagingPrefix.length());
+      }
+      stringMap.put(TEMPLATE_ENTRY_DST_KEY, destPath);
+      stringMap.put(TEMPLATE_ENTRY_SRC_KEY, sourceEntry.getValue().getAbsolutePath());
+      srcList.add(stringMap);
+    }
+    context.getWorkbench().getTemplater().writeTemplate(templateData, resourceMapFile, ACTIVITY_RESOURCE_MAP_TEMPLATE);
   }
 }

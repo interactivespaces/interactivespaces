@@ -19,16 +19,13 @@ package interactivespaces.workbench.project.activity.builder;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -149,35 +146,4 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
             BaseActivityProjectBuilder.ACTIVITY_CONF_TEMPLATE_PATHNAME);
   }
 
-  /**
-   * Write out the resource source map contained in the project build context.
-   *
-   * @param project
-   *          current build project
-   * @param stagingDirectory
-   *          destination directory for build output
-   * @param context
-   *          project context containing the resource source map
-   */
-  private void writeResourceMap(Project project, File stagingDirectory, ProjectBuildContext context) {
-    File resourceMapFile = new File(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
-
-    Map<String, Object> templateData = Maps.newHashMap();
-    List<Map<String, String>> srcList = Lists.newArrayList();
-    templateData.put("srclist", srcList);
-
-    String stagingPrefix = stagingDirectory.getAbsolutePath() + File.separatorChar;
-
-    for (Map.Entry<File, File> sourceEntry : context.getResourceSourceMap().entrySet()) {
-      Map<String, String> stringMap = Maps.newHashMapWithExpectedSize(1);
-      String destPath = sourceEntry.getKey().getAbsolutePath();
-      if (destPath.startsWith(stagingPrefix)) {
-        destPath = destPath.substring(stagingPrefix.length());
-      }
-      stringMap.put("dst", destPath);
-      stringMap.put("src", sourceEntry.getValue().getAbsolutePath());
-      srcList.add(stringMap);
-    }
-    context.getWorkbench().getTemplater().writeTemplate(templateData, resourceMapFile, "activity/resource.map.ftl");
-  }
 }

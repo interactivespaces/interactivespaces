@@ -52,6 +52,7 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
     Files.directoryExists(stagingDirectory);
 
     processSources(project, stagingDirectory, context);
+    writeResourceMap(project, stagingDirectory, context);
 
     return assemble(project, stagingDirectory, context);
   }
