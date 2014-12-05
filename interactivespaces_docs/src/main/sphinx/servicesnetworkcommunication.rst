@@ -21,6 +21,291 @@ UDP Communication
 Interactive Spaces has services which simplify the creation and usage of UDP-based network servers and clients,
 including UDP Broadcast clients.
 
+UDP Clients
+-----------
+
+The UDP Client service makes it easy to create a UDP Client for accessing a remote UDP server. A given client
+can communicate with multiple UDP servers on the network, it is not tied to just one server. 
+
+It is necessary to first get the UDP Client Service before creating the UDP Client. The service is
+obtained from the Service Registry.
+
+.. code-block:: java
+
+    UdpClientNetworkCommunicationEndpointService udpClientSevice = getSpaceEnvironment()
+        .getServiceRegistry().getRequiredService(UdpClientNetworkCommunicationEndpointService.NAME);
+
+It is now possible to create as many clients as are needed. However, since a single client can talk to multiple servers, only one
+client is generally needed.
+
+.. code-block:: java
+
+    UdpClientNetworkCommunicationEndpoint remoteUdpClient = udpClientSevice.newClient(getLog());
+
+The client typically should be registered as a ManagedResource with the hosting activity so that it
+will be automatically shut down and cleaned up when the activity shuts down.
+
+.. code-block:: java
+
+    UdpClientNetworkCommunicationEndpoint remoteUdpClient = udpClientSevice.newClient(getLog());
+    addManagedResource(remoteUdpClient);
+
+A socket address needs to be specified for any remote UDP server to be addressed.
+
+.. code-block:: java
+
+    InetSocketAddress remoteUdpServerAddress =
+        new InetSocketAddress(remoteUdpServerHost, remoteUdpServerPort);
+
+``remoteUdpServerHost`` is a string giving either the DNS name or IP address for the remote server,
+while ``remoteUdpServerPort`` is an integer giving the network port for the remote server.
+
+Sending simple packets to the remote server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``write()`` method can be used to send UDP packets to the remote server.
+
+.. code-block:: java
+
+    remoteUdpClient.write(remoteUdpServerAddress, message);
+
+``message`` is a ``byte`` array. For example, if the message ``hello, remote server`` should be sent to
+the remote server, you could use the call
+
+.. code-block:: java
+
+    remoteUdpClient.write(remoteUdpServerAddress, "hello, remote server".getBytes());
+
+Receiving responses from the remote server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to receive responses back from the server, you must register an instance of 
+``UdpClientNetworkCommunicationEndpointListener`` with the client. The listener must implement the method
+``onUdpResponse()``, which will be called whenever a new response packet comes in.
+
+The method has the arguments
+``onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response, InetSocketAddress remoteAddress)``.
+
+The ``endpoint`` argument is the UDP client that received the response. This argument is there so
+that the listener can be registered with multiple clients. ``response`` is the raw data from the response
+packet. ``remoteAddress`` is the network address of the UDP server that sent the response.
+
+Suppose, for example, you merely want to log the responses from the remote server, and the responses are
+known to be strings.
+
+.. code-block:: java
+
+    remoteUdpClient.addListener(new UdpClientNetworkCommunicationEndpointListener() {
+      @Override
+      public void onUdpResponse(UdpClientNetworkCommunicationEndpoint endpoint, byte[] response,
+          InetSocketAddress remoteAddress) {
+        getLog().info("Got response " + new String(response));
+      }
+    });
+
+More complex messaging
+~~~~~~~~~~~~~~~~~~~~~~
+
+So far we have only discussed sending raw byte packets. However, it is possible to easily send data packets
+made of ints, longs, floats, and byte arrays.
+
+If you are going to use the higher level UDP packets, you must understand the byte order of the remote UDP
+server. This byte order is used to specify whether numbers are sent in *big-endian* or *little-endian*
+order. The byte order is specified for the client when it is created. For instance, if the remote server
+is big-endian, use
+
+.. code-block:: java
+
+    UdpClientNetworkCommunicationEndpoint remoteUdpClient =
+        udpClientSevice.newClient(ByteOrder.BIG_ENDIAN, getLog());
+
+The other byte order is ``ByteOrder.LITTLE_ENDIAN``. The default, if you don't specify a byte ordering
+when creating the client, is big-endian.
+
+Are the UDP packets your client needs to send of a fixed
+length or can they have a variable length? If they are fixed length, you create the packet with the 
+following method.
+
+.. code-block:: java
+
+    WriteableUdpPacket packet = remoteUdpClient.newWriteableUdpPacket(int size);
+
+where ``size`` specifies the size of the packet in bytes.
+
+if the packets can be of arbitrary length, use a dynamic packet.
+
+.. code-block:: java
+
+    WriteableUdpPacket packet = remoteUdpClient.newDynamicWriteableUdpPacket();
+
+It is now possible to write data into the packet.
+
+``packet.writeByte(int value)`` will write the lower 8 bits of ``value`` into the packet.
+
+``packet.writeShort(int value)`` will write the lower 16 bits of ``value`` into the packet.
+
+``packet.writeMedium(int value)`` will write the lower 24 bits of ``value`` into the packet.
+
+``packet.writeInt(int value)`` will write all 32 bits of ``value`` into the packet.
+
+``packet.writeLong(long value)`` will write all 64 bits of ``value`` into the packet.
+
+``packet.writeChar(int value)`` will write the lower 16 bits of ``value`` as a UTF-16 character
+into the packet.
+
+``packet.writeFloat(float value)`` will write all 32 bits of ``value`` into the packet.
+
+``packet.writeDouble(double value)`` will write all 64 bits of ``value`` into the packet.
+
+``packet.writeBytes(byte[] src))`` will write all bytes from the ``value`` array into the packet.
+
+``packet.writeBytes(byte[] src, int srcIndex, int length)`` will write ``length`` bytes from the ``value``
+array into the packet, starting at position ``srcIndex``.
+
+You should call the methods that write data to the packet in the order in which the data should appear in the packet.
+Then send the packet to the remote server with the ``write()`` method.
+
+.. code-block:: java
+
+    packet.write(remoteUdpServerAddess);
+
+
+
+UDP Servers
+-----------
+
+The UDP Server service can be used to easily create UDP servers.
+
+
+It is necessary to first get the UDP Server Service before creating the UDP server. The service is
+obtained from the Service Registry.
+
+.. code-block:: java
+
+    UdpServerNetworkCommunicationEndpointService udpServerSevice = getSpaceEnvironment()
+        .getServiceRegistry().getRequiredService(UdpServerNetworkCommunicationEndpointService.NAME);
+
+A UDP server can now be created from the service.
+
+.. code-block:: java
+            
+    UdpServerNetworkCommunicationEndpoint localUdpServer = udpServerSevice
+        .newServer(localPort, getLog());
+
+``localPort`` is an integer saying which port on the local machine the server will listen on.
+
+Typically the server should then be registered as a ManagedResource with the hosting activity so that it
+will be automatically shut down and cleaned up when the activity shuts down.
+
+.. code-block:: java
+            
+    UdpServerNetworkCommunicationEndpoint localUdpServer = udpServerSevice
+        .newServer(localPort, getLog());
+    addManagedResource(localUdpServer);
+
+Receiving Requests
+~~~~~~~~~~~~~~~~~~
+
+The server needs at least one instance of the ``UdpServerNetworkCommunicationEndpointListener`` class
+in order to process client requests. The listener must implement the method
+``onUdpRequest()``, which will be called whenever a new request packet comes in.
+
+The method has the arguments
+``onUdpRequest(UdpServerNetworkCommunicationEndpoint endpoint, UdpServerRequest request)``.
+
+The ``endpoint`` argument gives a reference to the UDP server that received the message, so that a
+single listener can be used for multiple servers. ``request`` is the actual request that has come into the server.
+
+The ``request.getRemoteAddress()`` will get an instance of the Java ``InetSocketAddress`` class. This
+gives information about which client sent the request to the server.
+
+``request.getRequest()`` returns a ``byte`` array containing the contents of the UDP request. This array
+will have to be processed in some way to get the contents of the message.
+
+The following shows one way of creating a listener.
+
+.. code-block:: java
+
+    localUdpServer.addListener(new UdpServerNetworkCommunicationEndpointListener() {
+          @Override
+          public void onUdpRequest(
+              UdpServerNetworkCommunicationEndpoint endpoint,
+              UdpServerRequest request) {
+            // ...handle request...
+          }
+        });
+
+Sending back a response
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There are two ways of sending a response back to the client.
+
+``request.writeResponse(byte[] message)`` will send back a response to the client that sent the request.
+For example, if the server wanted to send back the response "Well, hello to you, too!", it could use the call
+
+.. code-block:: java
+
+    request.writeResponse("Well, hello to you, too!".getBytes());
+
+It is possible to use the ``WriteableUdpPacket`` class with a UDP server request. First of all, you must
+decide whether your server should be big-endian or little-endian. For example, a little-endian server is
+created with the following call:
+
+
+.. code-block:: java
+            
+    UdpServerNetworkCommunicationEndpoint localUdpServer = udpServerSevice
+        .newServer(localPort, ByteOrder.LITTLE_ENDIAN, getLog());
+
+The default UDP server is big-endian.
+
+Are the UDP packets your server needs to send back as a response of a fixed
+length or can they have a variable length? If they are fixed length, you create the response packet with the 
+following method.
+
+.. code-block:: java
+
+    WriteableUdpPacket packet = request.newWriteableUdpPacket(int size);
+
+where ``size`` specifies the size of the packet in bytes.
+
+if the packets can be of arbitrary length, use a dynamic packet.
+
+.. code-block:: java
+
+    WriteableUdpPacket packet = request.newDynamicWriteableUdpPacket();
+
+It is now possible to write data into the packet.
+
+``packet.writeByte(int value)`` will write the lower 8 bits of ``value`` into the packet.
+
+``packet.writeShort(int value)`` will write the lower 16 bits of ``value`` into the packet.
+
+``packet.writeMedium(int value)`` will write the lower 24 bits of ``value`` into the packet.
+
+``packet.writeInt(int value)`` will write all 32 bits of ``value`` into the packet.
+
+``packet.writeLong(long value)`` will write all 64 bits of ``value`` into the packet.
+
+``packet.writeChar(int value)`` will write the lower 16 bits of ``value`` as a UTF-16 character
+into the packet.
+
+``packet.writeFloat(float value)`` will write all 32 bits of ``value`` into the packet.
+
+``packet.writeDouble(double value)`` will write all 64 bits of ``value`` into the packet.
+
+``packet.writeBytes(byte[] src))`` will write all bytes from the ``value`` array into the packet.
+
+``packet.writeBytes(byte[] src, int srcIndex, int length)`` will write ``length`` bytes from the ``value``
+array into the packet, starting at position ``srcIndex``.
+
+You should call the methods that write data to the packet in the order in which the data should appear in the packet.
+Then send the packet to the remote server with the ``write()`` method.
+
+.. code-block:: java
+
+    packet.write(request.getRemoteAddress());
+
 Web Communication
 =================
 

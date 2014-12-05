@@ -18,6 +18,8 @@ package interactivespaces.service.comm.network.server;
 
 import interactivespaces.util.resource.ManagedResource;
 
+import java.nio.ByteOrder;
+
 /**
  * A communication endpoint for UDP servers.
  *
@@ -31,6 +33,13 @@ public interface UdpServerNetworkCommunicationEndpoint extends ManagedResource {
    * @return the server port being listened to
    */
   int getServerPort();
+
+  /**
+   * Get the byte order of the server.
+   *
+   * @return the byte order of the server
+   */
+  ByteOrder getByteOrder();
 
   /**
    * Add a listener to the endpoint.

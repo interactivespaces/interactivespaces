@@ -122,7 +122,7 @@ public interface WriteableUdpPacket {
   void writeDouble(double value);
 
   /**
-   * TWrite the entire byte array into the packet.
+   * Write the entire byte array into the packet.
    *
    * @param src
    *          the byte array

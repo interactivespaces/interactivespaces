@@ -20,6 +20,8 @@ import interactivespaces.service.comm.network.WriteableUdpPacket;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * A communication endpoint for UDP clients.
@@ -27,6 +29,23 @@ import java.net.InetSocketAddress;
  * @author Keith M. Hughes
  */
 public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
+
+  /**
+   * Get the byte order of the client.
+   *
+   * @return the byte order of the client
+   */
+  ByteOrder getByteOrder();
+
+  /**
+   * Get a byte buffer for the data in the proper endianness for the client.
+   *
+   * @param data
+   *          the data to be wrapped by the buffer
+   *
+   * @return a new byte buffer
+   */
+  ByteBuffer newByteBuffer(byte[] data);
 
   /**
    * Write a packet to the remote server.

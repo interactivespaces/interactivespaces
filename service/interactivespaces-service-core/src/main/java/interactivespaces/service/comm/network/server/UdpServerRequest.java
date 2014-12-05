@@ -19,10 +19,10 @@ package interactivespaces.service.comm.network.server;
 import interactivespaces.service.comm.network.WriteableUdpPacket;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
- * A request which has come into a {@link UdpServerNetworkCommunicationEndpoint}
- * .
+ * A request that has come into a {@link UdpServerNetworkCommunicationEndpoint} .
  *
  * @author Keith M. Hughes
  */
@@ -41,6 +41,13 @@ public interface UdpServerRequest {
    * @return the request data
    */
   byte[] getRequest();
+
+  /**
+   * Get the request data as a {@link ByteBuffer} with the proper endianness.
+   *
+   * @return the request data as a {@link ByteBuffer}
+   */
+  ByteBuffer newRequestByteBuffer();
 
   /**
    * Write a response to the request.

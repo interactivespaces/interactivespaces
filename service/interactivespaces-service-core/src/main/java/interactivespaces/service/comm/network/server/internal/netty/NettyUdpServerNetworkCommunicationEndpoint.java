@@ -41,6 +41,7 @@ import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -148,6 +149,11 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
   }
 
   @Override
+  public ByteOrder getByteOrder() {
+    return byteOrder;
+  }
+
+  @Override
   public void addListener(UdpServerNetworkCommunicationEndpointListener listener) {
     listeners.add(listener);
   }
@@ -237,6 +243,11 @@ public class NettyUdpServerNetworkCommunicationEndpoint implements UdpServerNetw
     @Override
     public byte[] getRequest() {
       return ((ChannelBuffer) event.getMessage()).array();
+    }
+
+    @Override
+    public ByteBuffer newRequestByteBuffer() {
+      return ByteBuffer.wrap(getRequest()).order(byteOrder);
     }
 
     @Override

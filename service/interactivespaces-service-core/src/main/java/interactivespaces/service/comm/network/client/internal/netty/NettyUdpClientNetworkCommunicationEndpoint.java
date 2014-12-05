@@ -41,6 +41,7 @@ import org.jboss.netty.channel.socket.DatagramChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -142,6 +143,16 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements UdpClientNetw
       bootstrap.shutdown();
       bootstrap = null;
     }
+  }
+
+  @Override
+  public ByteOrder getByteOrder() {
+    return byteOrder;
+  }
+
+  @Override
+  public ByteBuffer newByteBuffer(byte[] data) {
+    return ByteBuffer.wrap(data).order(byteOrder);
   }
 
   @Override
