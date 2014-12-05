@@ -39,10 +39,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeByte(int value);
+  WriteableUdpPacket writeByte(int value);
 
   /**
    * Write the lower 16 bits of the int into the packet.
@@ -50,10 +52,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeShort(int value);
+  WriteableUdpPacket writeShort(int value);
 
   /**
    * Write the lower 24 bits of the int into the packet.
@@ -61,10 +65,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeMedium(int value);
+  WriteableUdpPacket writeMedium(int value);
 
   /**
    * Write the int into the packet.
@@ -72,10 +78,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeInt(int value);
+  WriteableUdpPacket writeInt(int value);
 
   /**
    * Write the long into the packet.
@@ -83,10 +91,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeLong(long value);
+  WriteableUdpPacket writeLong(long value);
 
   /**
    * Write the lower 16 bits of the int as a UTF-16 character in the packet.
@@ -94,10 +104,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeChar(int value);
+  WriteableUdpPacket writeChar(int value);
 
   /**
    * Write the floating point number in the packet.
@@ -105,10 +117,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeFloat(float value);
+  WriteableUdpPacket writeFloat(float value);
 
   /**
    * Write the double in the packet.
@@ -116,10 +130,12 @@ public interface WriteableUdpPacket {
    * @param value
    *          the value to write
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeDouble(double value);
+  WriteableUdpPacket writeDouble(double value);
 
   /**
    * Write the entire byte array into the packet.
@@ -127,10 +143,12 @@ public interface WriteableUdpPacket {
    * @param src
    *          the byte array
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeBytes(byte[] src);
+  WriteableUdpPacket writeBytes(byte[] src);
 
   /**
    * Write part of a byte array into the packet.
@@ -142,10 +160,12 @@ public interface WriteableUdpPacket {
    * @param length
    *          the number of bytes to transfer
    *
+   * @return this packet
+   *
    * @throws IndexOutOfBoundsException
    *           if there is not enough room in the packet for the data
    */
-  void writeBytes(byte[] src, int srcIndex, int length);
+  WriteableUdpPacket writeBytes(byte[] src, int srcIndex, int length);
 
   /**
    * Get the current size of the packet.

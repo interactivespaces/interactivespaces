@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>UDP Client Hello Example</name>
+  <description>
+    A Java Activity contacts a remote UDP server and tells the server when when the
+    activity activates and deactivates.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.network.udp.client.hello
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommUdpClientHello</name>
+    <class>
+      interactivespaces.example.activity.comm.network.udp.client.hello.HelloUdpClientActivity
+    </class>
+
+    <configuration>
+      <property name="space.comm.udp.server.host" required="false">
+        <description>
+          The DNS name or IP address for the UDP server to be contacted. The default is
+          localhost.
+        </description>
+      </property>
+      <property name="space.comm.udp.server.port" required="true">
+        <value>9000</value>
+        <description>
+          The network port for the UDP server to be contacted.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

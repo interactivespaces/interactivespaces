@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>UDP Server Hello Example</name>
+  <description>
+    A Java Activity starts up a UDP server that responds to client calls with a simple text message
+    based on the message that the client sent.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.network.udp.server.hello
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommUdpServerHello</name>
+    <class>
+      interactivespaces.example.activity.comm.network.udp.server.hello.HelloUdpServerActivity
+    </class>
+
+    <configuration>
+      <property name="space.comm.udp.server.port" required="true">
+        <value>9000</value>
+        <description>
+          The network port for the UDP server to be contacted.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

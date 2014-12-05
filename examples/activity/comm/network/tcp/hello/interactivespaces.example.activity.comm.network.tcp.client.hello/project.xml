@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>TCP Client Hello Example</name>
+  <description>
+    A Java Activity contacts a remote TCP server and tells the server when the activity
+    activates and deactivates.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.network.tcp.client.hello
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommUdpClientHello</name>
+    <class>
+      interactivespaces.example.activity.comm.network.tcp.client.hello.HelloTcpClientActivity
+    </class>
+
+    <configuration>
+      <property name="space.comm.tcp.server.host" required="false">
+        <description>
+          The DNS name or IP address for the TCP server to be contacted. It defaults to
+          localhost.
+        </description>
+      </property>
+      <property name="space.comm.tcp.server.port" required="true">
+        <value>9000</value>
+        <description>
+          The network port for the TCP server to be contacted.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

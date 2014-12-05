@@ -64,53 +64,73 @@ public class NettyWriteableUdpPacket implements WriteableUdpPacket {
   }
 
   @Override
-  public void writeByte(int value) {
+  public WriteableUdpPacket writeByte(int value) {
     buffer.writeByte(value);
+
+    return this;
   }
 
   @Override
-  public void writeShort(int value) {
+  public WriteableUdpPacket writeShort(int value) {
     buffer.writeShort(value);
+
+    return this;
   }
 
   @Override
-  public void writeMedium(int value) {
+  public WriteableUdpPacket writeMedium(int value) {
     buffer.writeMedium(value);
+
+    return this;
   }
 
   @Override
-  public void writeInt(int value) {
+  public WriteableUdpPacket writeInt(int value) {
     buffer.writeInt(value);
+
+    return this;
   }
 
   @Override
-  public void writeLong(long value) {
+  public WriteableUdpPacket writeLong(long value) {
     buffer.writeLong(value);
+
+    return this;
   }
 
   @Override
-  public void writeChar(int value) {
+  public WriteableUdpPacket writeChar(int value) {
     buffer.writeChar(value);
+
+    return this;
   }
 
   @Override
-  public void writeFloat(float value) {
+  public WriteableUdpPacket writeFloat(float value) {
     buffer.writeFloat(value);
+
+    return this;
   }
 
   @Override
-  public void writeDouble(double value) {
+  public WriteableUdpPacket writeDouble(double value) {
     buffer.writeDouble(value);
+
+    return this;
   }
 
   @Override
-  public void writeBytes(byte[] src) {
+  public WriteableUdpPacket writeBytes(byte[] src) {
     buffer.writeBytes(src);
+
+    return this;
   }
 
   @Override
-  public void writeBytes(byte[] src, int srcIndex, int length) {
+  public WriteableUdpPacket writeBytes(byte[] src, int srcIndex, int length) {
     buffer.writeBytes(src, srcIndex, length);
+
+    return this;
   }
 
   @Override
