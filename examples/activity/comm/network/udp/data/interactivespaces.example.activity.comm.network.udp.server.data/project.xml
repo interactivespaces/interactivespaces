@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>UDP Server Data Example</name>
+  <description>
+    A Java Activity that starts up a UDP server, which responds to client calls with a
+    simple data multiplication based on the data that the client sent.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.network.udp.server.data
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommUdpServerData</name>
+    <class>
+      interactivespaces.example.activity.comm.network.udp.server.data.DataUdpServerActivity
+    </class>
+
+    <configuration>
+      <property name="space.comm.udp.server.port" required="true">
+        <value>9000</value>
+        <description>
+          The network port for the UDP server to be contacted.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

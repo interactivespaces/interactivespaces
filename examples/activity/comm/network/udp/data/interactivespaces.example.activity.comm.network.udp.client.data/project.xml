@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>UDP Client Data Example</name>
+  <description>
+    A Java Activity that contacts a remote UDP server and sends data to the server when
+    the activity activates and deactivates.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.network.udp.client.data
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommUdpClientData</name>
+    <class>
+      interactivespaces.example.activity.comm.network.udp.client.data.DataUdpClientActivity
+    </class>
+
+    <configuration>
+      <property name="space.comm.udp.server.host" required="false">
+        <description>
+          The DNS name or IP address for the UDP server to be contacted. The default is
+          localhost.
+        </description>
+      </property>
+      <property name="space.comm.udp.server.port" required="true">
+        <value>9000</value>
+        <description>
+          The network port for the UDP server to be contacted.
+        </description>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

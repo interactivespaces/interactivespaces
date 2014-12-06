@@ -14,6 +14,191 @@ TCP Communication
 
 Interactive Spaces has services which simplify the creation and usage of TCP-based network servers and clients.
 
+TCP Clients
+-----------
+
+The TCP Client service makes it easy to create a TCP Client for accessing a remote TCP server. A given client
+can only communicate with a single TCP server on the network. 
+
+It is necessary to first get the TCP Client Service before creating the TCP Client. The service is
+obtained from the Service Registry.
+
+.. code-block:: java
+
+    TcpClientNetworkCommunicationEndpointService tcpClientSevice = getSpaceEnvironment()
+        .getServiceRegistry().getRequiredService(
+            TcpClientNetworkCommunicationEndpointService.SERVICE_NAME);
+
+This service can now create multiple clients to communicate with multiple servers.
+
+One of the simplest clients to create is a client that communicates by transferring strings back
+and forth. Clients are created with the 
+``tcpClientService.newStringClient(byte[][] delimiters, Charset charset, InetAddress remoteHost, int remotePort, Log log)`` 
+call.
+
+``delimiters`` specifies all groups of characters that can terminate a complete message.
+``charset`` defines the character set that the strings will be encoded in. ``remoteHost`` gives the host
+for the TCP server to be contacted, and ``remotePort`` gives the port on the remote machine.
+``log`` is the logger to use and is typically the activity's log.
+
+The reason that ``delimiters`` is an array of arrays is because it is possible to have multiple
+message terminator sequences.
+
+The following call will create a client on the local machine at port 9000. Messages are
+terminated with a newline.
+
+.. code-block:: java
+
+    TcpClientNetworkCommunicationEndpoint<String> tcpClient = tcpClientSevice.newStringClient(
+        new byte[][] { new byte[] { '\n' } },
+        Charsets.UTF_8,
+        InetAddress.getByName("localhost"), 9000,
+        getLog());
+
+The client typically should be registered as a ManagedResource with the hosting activity so that it
+will be automatically shut down and cleaned up when the activity shuts down.
+
+.. code-block:: java
+
+    TcpClientNetworkCommunicationEndpoint<String> tcpClient = tcpClientSevice.newStringClient(
+        new byte[][] { new byte[] { '\n' } },
+        Charsets.UTF_8,
+        InetAddress.getByName("localhost"), 9000,
+        getLog());
+    addManagedResource(remoteTcpClient);
+
+Sending packets to the remote server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``write()`` method can be used to send TCP packets to the remote server.
+
+.. code-block:: java
+
+    tcpClient.write(message);
+
+``message`` is a string. For example, if the message ``hello, remote server`` should be sent to
+the remote server, you could use the call
+
+.. code-block:: java
+
+    tcpClient.write("hello, remote server\n");
+
+Receiving responses from the remote server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to receive responses back from the server, you must register an instance of 
+``TcpClientNetworkCommunicationEndpointListener<String>`` with the client. The listener must implement the method
+``onTcpResponse()``, which will be called whenever a new response packet comes in.
+
+The method has the arguments
+``onTcpResponse(TcpClientNetworkCommunicationEndpoint<String> endpoint, String response)``.
+
+The ``endpoint`` argument is the TCP client that received the response. This argument is there so
+that the listener can be registered with multiple clients. ``response`` is the data from the response
+packet minus the delimiters set when the client was created.
+
+Suppose, for example, you merely want to log the responses from the remote server.
+
+.. code-block:: java
+
+    tcpClient.addListener(new TcpClientNetworkCommunicationEndpointListener<String>() {
+      @Override
+      public void onTcpResponse(TcpClientNetworkCommunicationEndpoint<String> endpoint, 
+          String response) {
+        getLog().info("Got response " + response);
+      }
+    });
+
+TCP Servers
+-----------
+
+The TCP Server service can be used to easily create TCP servers.
+
+It is necessary to first get the TCP Server Service before creating the TCP server. The service is
+obtained from the Service Registry.
+
+.. code-block:: java
+
+    TcpServerNetworkCommunicationEndpointService tcpServerSevice = getSpaceEnvironment()
+        .getServiceRegistry().getRequiredService(
+            TcpServerNetworkCommunicationEndpointService.SERVICE_NAME);
+
+One of the simplest servers to create is a server that communicates by transferring strings back
+and forth. Servers are created with the 
+``tcpServerService.newStringServer(byte[][] delimiters, Charset charset, int serverPort, Log log)``
+call.
+
+``delimiters`` specifies all groups of characters that can terminate a complete message.
+``charset`` defines the character set that the strings will be encoded in. ``remotePort`` gives 
+the port on which the server will listen.
+``log`` is the logger to use and is typically the activity's log.
+
+The reason that the ``delimiters`` is an array of arrays is because it is possible to have multiple
+message terminator sequences.
+
+The following call will create a server on the local machine at port 9000. Messages are
+terminated with a newline.
+
+.. code-block:: java
+
+    TcpServerNetworkCommunicationEndpoint<String> tcpClient = tcpClientSevice.newStringClient(
+        new byte[][] { new byte[] { '\n' } },
+        Charsets.UTF_8,
+        9000,
+        getLog());
+
+The server typically should be registered as a ManagedResource with the hosting activity so that it
+will be automatically shut down and cleaned up when the activity shuts down.
+
+.. code-block:: java
+
+    TcpServerNetworkCommunicationEndpoint<String> tcpServer = tcpServerSevice.newStringServer(
+        new byte[][] { new byte[] { '\n' } },
+        Charsets.UTF_8,
+        9000,
+        getLog());
+    addManagedResource(remoteTcpServer);
+
+Receiving Requests
+~~~~~~~~~~~~~~~~~~
+
+The server needs at least one instance of the ``TcpServerNetworkCommunicationEndpointListener`` class
+in order to process client requests. The listener must implement the method
+``onTcpRequest()``, which will be called whenever a new request packet comes in.
+
+The method for a string server has the arguments
+``onTcpRequest(TcpServerNetworkCommunicationEndpoint<String> endpoint, TcpServerRequest request)``.
+
+The ``endpoint`` argument gives a reference to the UDP server that received the message, so that a
+single listener can be used for multiple servers. ``request`` is the actual request that has come into the server.
+
+The ``request.getRemoteAddress()`` will get an instance of the Java ``InetSocketAddress`` class. This
+gives information about which client sent the request to the server.
+
+``request.getRequest()`` returns a string containing the contents of the TCP request.
+
+The following shows one way of creating a listener.
+
+.. code-block:: java
+
+    tcpServer.addListener(new TcpServerNetworkCommunicationEndpointListener<String>() {
+          @Override
+          public void onTcpRequest(
+              TcpServerNetworkCommunicationEndpoint<String> endpoint,
+              TcpServerRequest request) {
+            // ...handle request...
+          }
+        });
+
+Sending back a response
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``request.writeMessage(String message)`` will send back a response to the client that sent the request.
+For example, if the server wanted to send back the response "Well, hello to you, too!", it could use the call
+
+.. code-block:: java
+
+    request.writeMessage("Well, hello to you, too!");
 
 UDP Communication
 =================
@@ -33,7 +218,7 @@ obtained from the Service Registry.
 .. code-block:: java
 
     UdpClientNetworkCommunicationEndpointService udpClientSevice = getSpaceEnvironment()
-        .getServiceRegistry().getRequiredService(UdpClientNetworkCommunicationEndpointService.NAME);
+        .getServiceRegistry().getRequiredService(UdpClientNetworkCommunicationEndpointService.SERVICE_NAME);
 
 It is now possible to create as many clients as are needed. However, since a single client can talk to multiple servers, only one
 client is generally needed.
@@ -176,14 +361,13 @@ UDP Servers
 
 The UDP Server service can be used to easily create UDP servers.
 
-
 It is necessary to first get the UDP Server Service before creating the UDP server. The service is
 obtained from the Service Registry.
 
 .. code-block:: java
 
     UdpServerNetworkCommunicationEndpointService udpServerSevice = getSpaceEnvironment()
-        .getServiceRegistry().getRequiredService(UdpServerNetworkCommunicationEndpointService.NAME);
+        .getServiceRegistry().getRequiredService(UdpServerNetworkCommunicationEndpointService.SERVICE_NAME);
 
 A UDP server can now be created from the service.
 
