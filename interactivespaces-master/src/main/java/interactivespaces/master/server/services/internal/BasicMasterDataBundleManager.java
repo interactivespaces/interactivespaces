@@ -1,7 +1,5 @@
 package interactivespaces.master.server.services.internal;
 
-import static com.google.common.io.Closeables.closeQuietly;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.common.ResourceRepositoryUploadChannel;
 import interactivespaces.master.server.services.ActiveSpaceController;
@@ -10,10 +8,11 @@ import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.util.data.resource.CopyableResource;
 import interactivespaces.util.data.resource.CopyableResourceListener;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import org.apache.commons.logging.Log;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -32,12 +31,17 @@ public abstract class BasicMasterDataBundleManager implements MasterDataBundleMa
   /**
    * Resource repository server to use.
    */
-  protected ResourceRepositoryServer resourceRepositoryServer;
+  private ResourceRepositoryServer resourceRepositoryServer;
 
   /**
    * Logger for the manager.
    */
-  protected Log log;
+  private Log log;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public void startup() {
@@ -106,16 +110,17 @@ public abstract class BasicMasterDataBundleManager implements MasterDataBundleMa
    */
   private void handleDataBundleUploadSuccess(String controllerUuid, CopyableResource resourceUpload) {
     OutputStream outputStream = null;
+    boolean noException = true;
     try {
       outputStream =
           resourceRepositoryServer.createResourceOutputStream(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_DATA,
               controllerUuid, DATA_BUNDLE_STATIC_VERSION);
       resourceUpload.copyTo(outputStream);
-      outputStream.close();
-    } catch (IOException e) {
+    } catch (Exception e) {
+      noException = false;
       throw new InteractiveSpacesException("Unable to upload bundle for " + controllerUuid, e);
     } finally {
-      closeQuietly(outputStream);
+      fileSupport.close(outputStream, noException);
     }
   }
 

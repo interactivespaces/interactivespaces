@@ -63,7 +63,7 @@ dependencies {
     exclude group: 'commons-logging' 
   }
   
-  compile('org.apache.felix:org.apache.felix.gogo.command:0.10.0') {
+  compile('org.apache.felix:org.apache.felix.gogo.command:0.14.0') {
     exclude group: 'org.osgi'
     exclude group: 'org.easymock'
   }

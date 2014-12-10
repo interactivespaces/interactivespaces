@@ -19,8 +19,8 @@ package interactivespaces.service.template.internal.freemarker;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.template.Templater;
-
-import com.google.common.io.Closeables;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -48,6 +48,11 @@ public class FreemarkerTemplater implements Templater {
    * The configuration used by Freemarker.
    */
   private Configuration freemarkerConfig;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a new Freemarker templater.
@@ -93,15 +98,16 @@ public class FreemarkerTemplater implements Templater {
   public String instantiateTemplate(String templateName, Map<String, Object> data) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     Writer out = new OutputStreamWriter(baos);
+    boolean noException = true;
     try {
       Template template = getConfiguration().getTemplate(templateName);
 
       template.process(data, out);
-      out.close();
     } catch (Exception e) {
+      noException = false;
       throw new InteractiveSpacesException(String.format("Could not instantiate template %s", templateName), e);
     } finally {
-      Closeables.closeQuietly(out);
+      fileSupport.close(out, noException);
     }
 
     return new String(baos.toString());
@@ -110,15 +116,16 @@ public class FreemarkerTemplater implements Templater {
   @Override
   public void writeTemplate(String templateName, Map<String, Object> data, File outputFile) {
     Writer out = null;
+    boolean noException = true;
     try {
       Template template = getConfiguration().getTemplate(templateName);
       out = new FileWriter(outputFile);
       template.process(data, out);
-      out.close();
     } catch (Exception e) {
+      noException = false;
       throw new InteractiveSpacesException(String.format("Could not instantiate template %s", templateName), e);
     } finally {
-      Closeables.closeQuietly(out);
+      fileSupport.close(out, noException);
     }
   }
 }

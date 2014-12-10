@@ -23,6 +23,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -90,10 +91,11 @@ public class FileSupportImpl implements FileSupport {
       File relPath = new File(".");
       addFileToZipStream(zipOutputStream, sourceDirectory, relPath, null);
       zipOutputStream.close();
+      zipOutputStream = null;
     } catch (Exception e) {
       throw new InteractiveSpacesException("Error while zipping directory " + sourceDirectory, e);
     } finally {
-      closeQuietly(zipOutputStream);
+      close(zipOutputStream, true);
     }
   }
 
@@ -560,5 +562,18 @@ public class FileSupportImpl implements FileSupport {
     n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
 
     return prefix + Long.toString(n) + suffix;
+  }
+
+  @Override
+  public void close(Closeable closeable, boolean throwException) throws InteractiveSpacesException {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      } catch (IOException e) {
+        if (throwException) {
+          throw new InteractiveSpacesException("Exception while closing closeable", e);
+        }
+      }
+    }
   }
 }

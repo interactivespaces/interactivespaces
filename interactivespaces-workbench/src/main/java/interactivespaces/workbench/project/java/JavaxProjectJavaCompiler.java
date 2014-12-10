@@ -4,10 +4,11 @@
 package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,11 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
    */
   private static final String EDITOR_BACKUP_FILE_POSTFIX = "~";
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
       List<String> compilerOptions) {
@@ -59,7 +65,7 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     } catch (IOException e) {
       throw new InteractiveSpacesException("Error while compiling Java files", e);
     } finally {
-      Closeables.closeQuietly(fileManager);
+      fileSupport.close(fileManager, false);
     }
   }
 

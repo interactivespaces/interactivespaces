@@ -16,8 +16,9 @@
 
 package interactivespaces.workbench.project;
 
-import com.google.common.io.Closeables;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
@@ -51,11 +52,17 @@ public class BaseProjectTemplate implements ProjectTemplate {
   private FreemarkerTemplater templater;
 
   /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Process the given creation specification.
    *
    * @param context
    *          specification to process.
    */
+  @Override
   public void process(ProjectCreationContext context) {
     try {
       templateSetup(context);
@@ -135,16 +142,18 @@ public class BaseProjectTemplate implements ProjectTemplate {
    */
   private void dumpVariables(File outputFile, Map<String, Object> variables) {
     PrintWriter variableWriter = null;
+    boolean noException = true;
     try {
       variableWriter = new PrintWriter(outputFile);
       for (Map.Entry<String, Object> entry : variables.entrySet()) {
         variableWriter.println(String.format("%s=%s", entry.getKey(), entry.getValue()));
       }
     } catch (Exception e) {
+      noException = false;
       throw new SimpleInteractiveSpacesException(
           "Error writing variable dump file " + outputFile.getAbsolutePath(), e);
     } finally {
-      Closeables.closeQuietly(variableWriter);
+      fileSupport.close(variableWriter, noException);
     }
   }
 
@@ -163,6 +172,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
    * @param templater
    *          templater to use
    */
+  @Override
   public void setTemplater(FreemarkerTemplater templater) {
     this.templater = templater;
   }

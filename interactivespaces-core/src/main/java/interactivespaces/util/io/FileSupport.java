@@ -16,8 +16,10 @@
 
 package interactivespaces.util.io;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -586,4 +588,18 @@ public interface FileSupport {
    *          the contents to be written into the file
    */
   void writeFile(File file, String contents);
+
+  /**
+   * Close the closeable. If asked to throw any exceptions from the close, the method will wrap it in an
+   * {@link InteractiveSpacesException}.
+   *
+   * @param closeable
+   *          the item to close, can be {@code null}
+   * @param throwException
+   *          {@code true} if any exceptions thrown during closing should be rethrown.
+   *
+   * @throws InteractiveSpacesException
+   *           an exception happened during close
+   */
+  void close(Closeable closeable, boolean throwException) throws InteractiveSpacesException;
 }

@@ -17,9 +17,10 @@
 package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import com.google.common.collect.Sets;
-import com.google.common.io.Closeables;
 
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
@@ -42,6 +43,11 @@ public class BndOsgiContainerBundleAnalyzer implements ContainerBundleAnalyzer {
    */
   private Set<String> packageExports;
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public ContainerBundleAnalyzer analyze(File bundle) {
     packageExports = null;
@@ -61,9 +67,8 @@ public class BndOsgiContainerBundleAnalyzer implements ContainerBundleAnalyzer {
     } catch (Exception e) {
       throw new InteractiveSpacesException(String.format("Could not analyze bundle %s", bundle.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(analyzer);
-
-      Closeables.closeQuietly(jar);
+      fileSupport.close(analyzer, false);
+      fileSupport.close(jar, false);
     }
 
     return this;

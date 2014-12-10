@@ -4,7 +4,6 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.resource.ManagedResource;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 
 import org.apache.commons.logging.Log;
 
@@ -325,7 +324,11 @@ public class Expect implements ManagedResource {
           log.warn("IOException when piping from InputStream, " + "now the piping thread will end", e);
         } finally {
           log.debug("closing sink of the pipe");
-          Closeables.closeQuietly(output);
+          try {
+            output.close();
+          } catch (IOException e) {
+            log.warn("Trouble closing Expect output", e);
+          }
         }
       }
     };

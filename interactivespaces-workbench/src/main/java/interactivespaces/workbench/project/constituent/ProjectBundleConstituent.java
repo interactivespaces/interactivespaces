@@ -19,6 +19,8 @@ package interactivespaces.workbench.project.constituent;
 import static com.google.common.io.Closeables.closeQuietly;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 
@@ -64,6 +66,11 @@ public class ProjectBundleConstituent extends ContainerConstituent {
    */
   private final List<String> sourcePaths = Lists.newArrayList();
 
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     OutputStream outputStream = null;
@@ -86,13 +93,13 @@ public class ProjectBundleConstituent extends ContainerConstituent {
         fileSupport.copyStream(inputStream, outputStream, false);
         inputStream.close();
       }
-      outputStream.close();
+
       context.getResourceSourceMap().put(outputFile, BUNDLE_SOURCE_MARKER_FILE);
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("While processing bundle resource " + outputPath, e);
     } finally {
       closeQuietly(inputStream);
-      closeQuietly(outputStream);
+      fileSupport.close(outputStream, true);
     }
   }
 

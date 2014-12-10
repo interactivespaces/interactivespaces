@@ -391,10 +391,10 @@ public class HttpClientHttpContentCopier implements HttpContentCopier {
 
         out.close();
         out = null;
-      } catch (Exception e) {
-        throw new InteractiveSpacesException("Error during copy of HTTP resource", e);
       } finally {
-        Closeables.closeQuietly(out);
+        if (out != null) {
+          out.close();
+        }
       }
     }
 

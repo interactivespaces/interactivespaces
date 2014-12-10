@@ -21,8 +21,6 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
-import com.google.common.io.Closeables;
-
 import aQute.lib.osgi.Analyzer;
 import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
@@ -152,7 +150,7 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
     } catch (Exception e) {
       throw new InteractiveSpacesException("Error while creating OSGi bundle", e);
     } finally {
-      Closeables.closeQuietly(analyzer);
+      fileSupport.close(analyzer, false);
 
       if (sources.size() > 1) {
         fileSupport.delete(sourceJarFile);
@@ -202,7 +200,6 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
       return fatJar;
     } catch (Exception e) {
-      e.printStackTrace();
       if (fatJar != null) {
         fileSupport.delete(fatJar);
       }
@@ -268,7 +265,7 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
           jarDestinationFile.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(out);
+      fileSupport.close(out, true);
     }
   }
 
@@ -313,9 +310,8 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
           // Complete the entry
           jarOutputStream.closeEntry();
-          in.close();
         } finally {
-          Closeables.close(in, true);
+          fileSupport.close(in, false);
         }
       }
     }

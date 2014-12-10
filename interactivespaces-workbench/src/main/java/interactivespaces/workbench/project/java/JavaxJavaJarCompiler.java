@@ -19,6 +19,8 @@ package interactivespaces.workbench.project.java;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.resource.Version;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.builder.ProjectBuildContext;
@@ -68,6 +70,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    * The java compiler to use for the project.
    */
   private final ProjectJavaCompiler projectCompiler = new JavaxProjectJavaCompiler();
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
@@ -161,15 +168,12 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       // Create the ZIP file
       out = new JarOutputStream(new FileOutputStream(jarDestinationFile), manifest);
 
-      writeJarFile(compilationFolder, buf, out, "");
-
-      // Complete the ZIP file
-      out.close();
+      writeJarFile(compilationFolder, buf, out, "", context);
     } catch (IOException e) {
       throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
           jarDestinationFile.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(out);
+      fileSupport.close(out, true);
     }
   }
 
@@ -250,7 +254,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     } catch (Exception e) {
       throw new InteractiveSpacesException("Could not create JAR manifest for project", e);
     } finally {
-      analyzer.close();
+      fileSupport.close(analyzer, false);
     }
   }
 
@@ -329,20 +333,22 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the stream where the jar is being written
    * @param parentPath
    *          path up to this point
+   * @param context
+   *          the project build context
    *
    * @throws IOException
    *           for io access errors
    */
-  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream, String parentPath)
-      throws IOException {
+  private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream, String parentPath,
+      ProjectBuildContext context) throws IOException {
     File[] files = directory.listFiles();
     if (files == null || files.length == 0) {
-      System.err.println("WARNING: No source files found in " + directory.getAbsolutePath());
+      context.getWorkbench().getLog().warn("No source files found in " + directory.getAbsolutePath());
       return;
     }
     for (File file : files) {
       if (file.isDirectory()) {
-        writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/");
+        writeJarFile(file, buf, jarOutputStream, parentPath + file.getName() + "/", context);
       } else {
         FileInputStream in = null;
         try {
@@ -359,7 +365,6 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
           // Complete the entry
           jarOutputStream.closeEntry();
-          in.close();
         } finally {
           Closeables.close(in, true);
         }

@@ -27,7 +27,6 @@ import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
 import interactivespaces.util.web.MimeResolver;
 
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -229,7 +228,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
         response.setStatus(HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
         parentHandler.sendError(ctx, HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       } finally {
-        Closeables.closeQuietly(raf);
+        try {
+          raf.close();
+        } catch (Exception e1) {
+          parentHandler.getWebServer().getLog().warn("Unable to close static content file", e1);
+        }
       }
       return;
     }

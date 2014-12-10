@@ -16,16 +16,18 @@
 
 package interactivespaces.workbench;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
+
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
 
 import java.io.File;
 import java.io.FileReader;
@@ -42,12 +44,11 @@ import java.util.Map;
  * A templater using Freemarker.
  *
  * <p>
- * This implementation supports the concepet of multiple evaluation passes. This is
- * useful when cascading definitions need to be resolved in the output.  Say, for a project definition, there is
- * a concept of {@code packageName=${directoryName}.${className}} and then the template itself references
- * {@code ${packageName}}, then the first pass will resolve packageName, and the second
- * pass will resolve ${directoryName} and ${className}. Since this is a templating language, evaluations are not
- * recursive, and so this is necessary to properly handle the output.
+ * This implementation supports the concept of multiple evaluation passes. This is useful when cascading definitions
+ * need to be resolved in the output. Say, for a project definition, there is a concept of {@code packageName=$
+ * directoryName}.${className}} and then the template itself references {@code $ packageName} , then the first pass will
+ * resolve packageName, and the second pass will resolve ${directoryName} and ${className}. Since this is a templating
+ * language, evaluations are not recursive, and so this is necessary to properly handle the output.
  *
  * @author Keith M. Hughes
  */
@@ -112,8 +113,8 @@ public class FreemarkerTemplater implements ManagedResource {
    *
    * @return processed template
    */
-  public String processStringTemplate(Map<String, Object> data, String templateContent,
-      String defineResult, int evaluationPasses) {
+  public String processStringTemplate(Map<String, Object> data, String templateContent, String defineResult,
+      int evaluationPasses) {
     for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
       templateContent = processStringTemplate(data, templateContent);
       if (defineResult != null) {
@@ -135,14 +136,14 @@ public class FreemarkerTemplater implements ManagedResource {
    */
   public String processStringTemplate(Map<String, Object> data, String templateContent) {
     try {
-      Template temp = new Template("generator for " + templateContent,
-          new StringReader(templateContent), getConfiguration());
+      Template temp =
+          new Template("generator for " + templateContent, new StringReader(templateContent), getConfiguration());
       StringWriter stringWriter = new StringWriter();
       temp.process(data, stringWriter);
       return stringWriter.toString();
     } catch (Exception e) {
-      throw new InteractiveSpacesException(
-          String.format("Could not instantiate string template %s", templateContent), e);
+      throw new InteractiveSpacesException(String.format("Could not instantiate string template %s", templateContent),
+          e);
     }
   }
 
@@ -210,13 +211,13 @@ public class FreemarkerTemplater implements ManagedResource {
 
       out = new FileWriter(outputFile);
       temp.process(data, out);
-      out.close();
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException(String.format("Could not instantiate template %s to %s",
-          template, outputFile.getAbsolutePath()), e);
+      throw new SimpleInteractiveSpacesException(String.format("Could not instantiate template %s to %s", template,
+          outputFile.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(out);
       Closeables.closeQuietly(in);
+
+      fileSupport.close(out, true);
     }
   }
 }

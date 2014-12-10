@@ -16,8 +16,6 @@
 
 package interactivespaces.controller.client.node;
 
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.common.ResourceRepositoryUploadChannel;
@@ -26,6 +24,9 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 import interactivespaces.util.web.HttpContentCopier;
+
+import com.google.common.collect.Maps;
+
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -33,8 +34,7 @@ import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Controller-side manager for copying data bundles between master and
- * controller.
+ * Controller-side manager for copying data bundles between master and controller.
  *
  * @author Trevor Pering
  */
@@ -140,13 +140,14 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
             getActivityDataContentDirectory(activity));
       }
       zipOutputStream.close();
+      zipOutputStream = null;
     } catch (Exception e) {
       dataBundle.delete();
 
-      throw new InteractiveSpacesException(
-          String.format("Error while zipping data bundle %s", dataBundle.getAbsolutePath()), e);
+      throw new InteractiveSpacesException(String.format("Error while zipping data bundle %s",
+          dataBundle.getAbsolutePath()), e);
     } finally {
-      Closeables.closeQuietly(zipOutputStream);
+      fileSupport.close(zipOutputStream, true);
     }
 
     return dataBundle;
@@ -164,8 +165,9 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
    */
   private void addDataBundleSection(ZipOutputStream zipOutputStream, String subsection, File contentDirectory) {
     if (contentDirectory.exists()) {
-      getLog().info(String.format("Adding data bundle content source %s from directory %s",
-          subsection, contentDirectory.getAbsolutePath()));
+      getLog().info(
+          String.format("Adding data bundle content source %s from directory %s", subsection,
+              contentDirectory.getAbsolutePath()));
       File relFile = new File(".");
       fileSupport.addFileToZipStream(zipOutputStream, contentDirectory, relFile, subsection);
     } else {
@@ -220,8 +222,8 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
       if (!sourceDirectory.exists()) {
         getLog().warn(String.format("No source directory found for %s, skipping", sourceDirectory));
       } else {
-        getLog().info(String.format("Extracting source %s to %s, backup %s",
-            sourceDirectory, targetDirectory, backupDirectory));
+        getLog().info(
+            String.format("Extracting source %s to %s, backup %s", sourceDirectory, targetDirectory, backupDirectory));
         if (!fileSupport.rename(sourceDirectory, targetDirectory)) {
           throw new SimpleInteractiveSpacesException("Could not move incoming directory to target");
         }
@@ -232,8 +234,7 @@ public class SpaceControllerDataBundleManager implements ControllerDataBundleMan
         backupDirectory.renameTo(targetDirectory);
       }
       fileSupport.delete(sourceDirectory);
-      throw new InteractiveSpacesException(
-          "Renaming content directories for " + targetDirectory.getAbsolutePath(), e);
+      throw new InteractiveSpacesException("Renaming content directories for " + targetDirectory.getAbsolutePath(), e);
     }
   }
 
