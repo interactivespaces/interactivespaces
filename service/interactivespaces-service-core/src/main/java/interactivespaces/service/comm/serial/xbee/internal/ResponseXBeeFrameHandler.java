@@ -37,14 +37,14 @@ public interface ResponseXBeeFrameHandler {
    *          the endpoint which got the frame
    * @param reader
    *          the reader for frame bytes
-   * @param packetLength
-   *          the length of the frame, in bytes
    * @param listeners
    *          the listeners to send the response to
    * @param log
    *          the logger for the parsing
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  void handle(XBeeCommunicationEndpoint endpoint, EscapedXBeeFrameReader reader, int packetLength,
-      List<XBeeResponseListener> listeners, Log log);
-
+  void handle(XBeeCommunicationEndpoint endpoint, EscapedXBeeFrameReader reader,
+      List<XBeeResponseListener> listeners, Log log) throws InterruptedException;
 }

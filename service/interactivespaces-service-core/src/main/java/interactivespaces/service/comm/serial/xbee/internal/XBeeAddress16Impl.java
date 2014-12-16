@@ -23,21 +23,31 @@ import interactivespaces.util.ByteUtils;
 import java.util.Arrays;
 
 /**
- * 16 bit address for an XBee
+ * 16 bit address for an XBee.
  *
  * @author Keith M. Hughes
  */
 public class XBeeAddress16Impl implements XBeeAddress16 {
 
   /**
-   * The magic address for the either broadcase or to unknown radio.
+   * The magic address for broadcasting to all radios.
    */
   public static final XBeeAddress16 BROADCAST_ADDRESS = new XBeeAddress16Impl(0xff, 0xfe);
 
   /**
-   * The address for the xbee.
+   * The address for the XBee.
    */
   private int[] address;
+
+  /**
+   * Construct an XBee 16 address using a hexadecimal string.
+   *
+   * @param address
+   *          the address
+   */
+  public XBeeAddress16Impl(String address) {
+    this(Integer.valueOf(address.substring(0, 2), 16), Integer.valueOf(address.substring(2, 4), 16));
+  }
 
   /**
    * Construct an XBee 16 address using the individual bytes.
@@ -69,15 +79,19 @@ public class XBeeAddress16Impl implements XBeeAddress16 {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     XBeeAddress16Impl other = (XBeeAddress16Impl) obj;
-    if (!Arrays.equals(address, other.address))
+    if (!Arrays.equals(address, other.address)) {
       return false;
+    }
     return true;
   }
 

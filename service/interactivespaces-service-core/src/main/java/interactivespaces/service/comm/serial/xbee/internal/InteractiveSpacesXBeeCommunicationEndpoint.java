@@ -71,7 +71,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   private Log log;
 
   /**
-   * Loop for reading info from the XBee
+   * Loop for reading info from the XBee.
    */
   private CancellableLoop readerLoop;
 
@@ -151,6 +151,11 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   @Override
+  public XBeeAddress16 newXBeeAddress16(String address) {
+    return new XBeeAddress16Impl(address);
+  }
+
+  @Override
   public XBeeAddress16 newXBeeAddress16(int a1, int a2) {
     return new XBeeAddress16Impl(a1, a2);
   }
@@ -161,8 +166,8 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   @Override
-  public XBeeAddress64 newXBeeAddress64(String addr) {
-    return new XBeeAddress64Impl(addr);
+  public XBeeAddress64 newXBeeAddress64(String address) {
+    return new XBeeAddress64Impl(address);
   }
 
   @Override
@@ -260,7 +265,10 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
   }
 
   /**
-   * Read a frame from the connected XBee
+   * Read a frame from the connected XBee.
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
   private void readFrame() throws InterruptedException {
     if (!reader.waitForStartFrame()) {
@@ -268,12 +276,7 @@ public class InteractiveSpacesXBeeCommunicationEndpoint implements XBeeCommunica
       return;
     }
 
-    int length = reader.readPacketLength();
-
-    frameHandler.handle(this, reader, length, listeners, log);
-
-    // Go past checksum
-    reader.readByte();
+    frameHandler.handle(this, reader, listeners, log);
   }
 
   @Override

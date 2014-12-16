@@ -39,6 +39,8 @@ import java.util.Enumeration;
  */
 public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpoint {
 
+  private static final int BUFFER_SIZE_NO_VALUE = -1;
+
   /**
    * The default baud rate for a connection.
    */
@@ -60,16 +62,33 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
   public static final int DATA_BITS_DEFAULT = SerialPort.DATABITS_8;
 
   /**
+   * The default flow control for a connection.
+   */
+  public static final FlowControl FLOW_CONTROL_DEFAULT = FlowControl.NONE;
+
+  /**
    * The map of parity enums to their {@link SerialPort} equivalents.
    */
   private static final EnumMap<Parity, Integer> SERIAL_PORT_PARITY_VALUES = Maps.newEnumMap(Parity.class);
 
+  /**
+   * The map of flow control enums to their {@link SerialPort} equivalents.
+   */
+  private static final EnumMap<FlowControl, Integer> SERIAL_PORT_FLOW_CONTROL_VALUES = Maps
+      .newEnumMap(FlowControl.class);
+
   static {
-    SERIAL_PORT_PARITY_VALUES.put(PARITY_DEFAULT, SerialPort.PARITY_NONE);
+    SERIAL_PORT_PARITY_VALUES.put(Parity.NONE, SerialPort.PARITY_NONE);
     SERIAL_PORT_PARITY_VALUES.put(Parity.ODD, SerialPort.PARITY_ODD);
     SERIAL_PORT_PARITY_VALUES.put(Parity.EVEN, SerialPort.PARITY_EVEN);
     SERIAL_PORT_PARITY_VALUES.put(Parity.MARK, SerialPort.PARITY_MARK);
     SERIAL_PORT_PARITY_VALUES.put(Parity.SPACE, SerialPort.PARITY_SPACE);
+
+    SERIAL_PORT_FLOW_CONTROL_VALUES.put(FlowControl.NONE, SerialPort.FLOWCONTROL_NONE);
+    SERIAL_PORT_FLOW_CONTROL_VALUES.put(FlowControl.RTSCTS_IN, SerialPort.FLOWCONTROL_RTSCTS_IN);
+    SERIAL_PORT_FLOW_CONTROL_VALUES.put(FlowControl.RTSCTS_OUT, SerialPort.FLOWCONTROL_RTSCTS_OUT);
+    SERIAL_PORT_FLOW_CONTROL_VALUES.put(FlowControl.XONXOFF_IN, SerialPort.FLOWCONTROL_XONXOFF_IN);
+    SERIAL_PORT_FLOW_CONTROL_VALUES.put(FlowControl.XONXOFF_OUT, SerialPort.FLOWCONTROL_XONXOFF_OUT);
   }
   /**
    * Number of msecs to wait for a serial port connection.
@@ -85,6 +104,16 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
    * The serial communication port.
    */
   private SerialPort port;
+
+  /**
+   * The size of the input buffer, in bytes.
+   */
+  private int inputBufferSize = BUFFER_SIZE_NO_VALUE;
+
+  /**
+   * The size of the output buffer, in bytes.
+   */
+  private int outputBufferSize = BUFFER_SIZE_NO_VALUE;
 
   /**
    * Baud rate for the serial connection.
@@ -105,6 +134,11 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
    * The parity of the connection.
    */
   private Parity parity = PARITY_DEFAULT;
+
+  /**
+   * The parity of the connection.
+   */
+  private FlowControl[] flowControls = new FlowControl[] { FLOW_CONTROL_DEFAULT };
 
   /**
    * Logger for the connection.
@@ -138,6 +172,22 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
       port = createSerialPort(portName);
 
       port.setSerialPortParams(baud, dataBits, stopBits, SERIAL_PORT_PARITY_VALUES.get(parity));
+
+      if (flowControls != null) {
+        int flowControlsMode = 0;
+        for (FlowControl flowControl : flowControls) {
+          flowControlsMode |= SERIAL_PORT_FLOW_CONTROL_VALUES.get(flowControl);
+        }
+        port.setFlowControlMode(flowControlsMode);
+
+        if (inputBufferSize != BUFFER_SIZE_NO_VALUE) {
+          port.setInputBufferSize(inputBufferSize);
+        }
+
+        if (outputBufferSize != BUFFER_SIZE_NO_VALUE) {
+          port.setOutputBufferSize(outputBufferSize);
+        }
+      }
     } catch (Exception e) {
       throw new InteractiveSpacesException(String.format("Unable to connect to serial port %s with rxtx", portName), e);
     }
@@ -258,6 +308,20 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
   }
 
   @Override
+  public SerialCommunicationEndpoint setInputBufferSize(int size) {
+    this.inputBufferSize = size;
+
+    return this;
+  }
+
+  @Override
+  public SerialCommunicationEndpoint setOutputBufferSize(int size) {
+    this.outputBufferSize = size;
+
+    return this;
+  }
+
+  @Override
   public SerialCommunicationEndpoint setBaud(int baud) {
     this.baud = baud;
 
@@ -286,6 +350,13 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
   }
 
   @Override
+  public SerialCommunicationEndpoint setFlowControl(FlowControl... flowControsl) {
+    this.flowControls = flowControls;
+
+    return this;
+  }
+
+  @Override
   public String toString() {
     return "RxtxSerialCommunicationEndpoint [portName=" + portName + ", baud=" + baud + ", dataBits=" + dataBits
         + ", stopBits=" + stopBits + ", parity=" + parity + "]";
@@ -306,16 +377,17 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
     @SuppressWarnings("unchecked")
     Enumeration<CommPortIdentifier> portIdentifiers = CommPortIdentifier.getPortIdentifiers();
 
-    CommPortIdentifier portId = null; // will be set if port found
+    // will be set if port found
+    CommPortIdentifier portIdentifier = null;
 
     while (portIdentifiers.hasMoreElements()) {
-      CommPortIdentifier pid = portIdentifiers.nextElement();
-      if (pid.getPortType() == CommPortIdentifier.PORT_SERIAL && pid.getName().equals(portName)) {
-        portId = pid;
+      CommPortIdentifier candidatePortIdentifier = portIdentifiers.nextElement();
+      if (candidatePortIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL && candidatePortIdentifier.getName().equals(portName)) {
+        portIdentifier = candidatePortIdentifier;
         break;
       }
     }
-    if (portId == null) {
+    if (portIdentifier == null) {
       throw new SimpleInteractiveSpacesException("Could not find serial port " + portName);
     }
 
@@ -323,7 +395,7 @@ public class RxtxSerialCommunicationEndpoint implements SerialCommunicationEndpo
     try {
       // Name of the application asking for the port
       // Wait max. 10 sec. to acquire port
-      port = (SerialPort) portId.open("interactivespaces", TIME_TO_WAIT_FOR_PORT);
+      port = (SerialPort) portIdentifier.open("interactivespaces", TIME_TO_WAIT_FOR_PORT);
     } catch (PortInUseException e) {
       throw new SimpleInteractiveSpacesException("Serial port already in use: " + portName);
     }

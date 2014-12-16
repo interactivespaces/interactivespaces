@@ -104,6 +104,26 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   void write(byte[] b, int offset, int length);
 
   /**
+   * Set the input buffer size of the connection.
+   *
+   * @param size
+   *          the buffer size in bytes
+   *
+   * @return the endpoint
+   */
+  SerialCommunicationEndpoint setInputBufferSize(int size);
+
+  /**
+   * Set the output buffer size of the connection.
+   *
+   * @param size
+   *          the buffer size in bytes
+   *
+   * @return the endpoint
+   */
+  SerialCommunicationEndpoint setOutputBufferSize(int size);
+
+  /**
    * Set the baud rate of the connection.
    *
    * @param baud
@@ -144,6 +164,16 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
   SerialCommunicationEndpoint setParity(Parity parity);
 
   /**
+   * Set the type of flow control for the connection.
+   *
+   * @param flowControls
+   *          the type of flow controls
+   *
+   * @return the endpoint
+   */
+  SerialCommunicationEndpoint setFlowControl(FlowControl... flowControls);
+
+  /**
    * Types of parity.
    *
    * @author Keith M. Hughes
@@ -174,5 +204,38 @@ public interface SerialCommunicationEndpoint extends CommunicationEndpoint {
      * Mark parity.
      */
     MARK
+  }
+
+  /**
+   * Flow control for the serial endpoint.
+   *
+   * @author Keith M. Hughes
+   */
+  public enum FlowControl {
+
+    /**
+     * No flow control.
+     */
+    NONE,
+
+    /**
+     * Use RTS/CTS flow control for input.
+     */
+    RTSCTS_IN,
+
+    /**
+     * Use RTS/CTS flow control for output.
+     */
+    RTSCTS_OUT,
+
+    /**
+     * Use XON/XOFF flow control for input.
+     */
+    XONXOFF_IN,
+
+    /**
+     * Use XON/XOFF flow control for output.
+     */
+    XONXOFF_OUT,
   }
 }

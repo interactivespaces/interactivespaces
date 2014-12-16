@@ -41,10 +41,13 @@ public interface XBeeResponseFrameParser {
    * @param log
    *          the logger for issues
    *
-   * @return the response
+   * @return the parsed frame
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  AtLocalResponseXBeeFrame parseAtLocalResponse(EscapedXBeeFrameReader reader, int bytesLeft,
-      Log log);
+  AtLocalResponseXBeeFrame parseAtLocalResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException;
 
   /**
    * Parse an AT Remote response.
@@ -55,9 +58,14 @@ public interface XBeeResponseFrameParser {
    *          the number of bytes left in the packet
    * @param log
    *          the logger for issues
+   *
+   * @return the parsed frame
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  AtRemoteResponseXBeeFrame parseAtRemoteResponse(EscapedXBeeFrameReader reader, int bytesLeft,
-      Log log);
+  AtRemoteResponseXBeeFrame parseAtRemoteResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException;
 
   /**
    * Parse an Transmit response.
@@ -69,9 +77,30 @@ public interface XBeeResponseFrameParser {
    * @param log
    *          the logger for issues
    *
-   * @return the response frame
+   * @return the parsed frame
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  TxStatusXBeeFrame parseTxStatus(EscapedXBeeFrameReader reader, int bytesLeft, Log log);
+  TxStatusXBeeFrame parseTxStatus(EscapedXBeeFrameReader reader, int bytesLeft, Log log) throws InterruptedException;
+
+  /**
+   * Parse an RX response.
+   *
+   * @param reader
+   *          the frame reader
+   * @param bytesLeft
+   *          the number of bytes left in the packet
+   * @param log
+   *          the logger for issues
+   *
+   * @return the parsed frame
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
+   */
+  RxResponseXBeeFrame parseRxResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException;
 
   /**
    * Parse an Receive response.
@@ -82,18 +111,12 @@ public interface XBeeResponseFrameParser {
    *          the number of bytes left in the packet
    * @param log
    *          the logger for issues
-   */
-  RxResponseXBeeFrame parseReceiveResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log);
-
-  /**
-   * Parse an Receive response.
    *
-   * @param reader
-   *          the frame reader
-   * @param bytesLeft
-   *          the number of bytes left in the packet
-   * @param log
-   *          the logger for issues
+   * @return the parsed frame
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  RxIoSampleXBeeFrame parseIoSampleResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log);
+  RxIoSampleXBeeFrame parseIoSampleResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException;
 }

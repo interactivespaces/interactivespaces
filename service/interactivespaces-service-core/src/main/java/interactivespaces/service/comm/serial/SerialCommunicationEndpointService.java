@@ -22,7 +22,7 @@ import interactivespaces.service.SupportedService;
 import java.util.List;
 
 /**
- * Get {link serialEndpoint} instances.
+ * The service for working with serial communication.
  *
  * @author Keith M. Hughes
  */
@@ -36,7 +36,7 @@ public interface SerialCommunicationEndpointService extends SupportedService {
   /**
    * Get a list of all serial ports ready to be connected to.
    *
-   * @return a potentially empty list of ports.
+   * @return a potentially empty list of ports
    */
   List<String> getSerialPorts();
 
@@ -49,8 +49,7 @@ public interface SerialCommunicationEndpointService extends SupportedService {
    * @return a serial endpoint for the given port
    *
    * @throws InteractiveSpacesException
-   *           the port has already been opened or no such port exists on the
-   *           host
+   *           the port has already been opened or no such port exists on the host
    */
   SerialCommunicationEndpoint newSerialEndpoint(String portName);
 }

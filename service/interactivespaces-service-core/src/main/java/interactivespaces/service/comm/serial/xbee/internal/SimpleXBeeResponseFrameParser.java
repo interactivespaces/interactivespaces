@@ -39,7 +39,8 @@ import java.util.List;
 public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
   @Override
-  public AtLocalResponseXBeeFrame parseAtLocalResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log) {
+  public AtLocalResponseXBeeFrame parseAtLocalResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException {
     int frameId = reader.readByte();
 
     byte atCommandUpper = (byte) reader.readByte();
@@ -49,12 +50,15 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
     byte[] commandData = reader.readData(bytesLeft - 4);
 
+    handleChecksum(reader);
+
     return new AtLocalResponseXBeeFrameImpl(frameId, new byte[] { atCommandUpper, atCommandLower }, commandStatus,
         commandData);
   }
 
   @Override
-  public AtRemoteResponseXBeeFrame parseAtRemoteResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log) {
+  public AtRemoteResponseXBeeFrame parseAtRemoteResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException {
     int frameId = reader.readByte();
 
     XBeeAddress64 address64 = parseXBeeAddress64(reader);
@@ -67,23 +71,29 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
     byte[] commandData = reader.readData(bytesLeft - 14);
 
+    handleChecksum(reader);
+
     return new AtRemoteResponseXBeeFrameImpl(frameId, address64, address16,
         new byte[] { atCommandUpper, atCommandLower }, commandStatus, commandData);
   }
 
   @Override
-  public TxStatusXBeeFrame parseTxStatus(EscapedXBeeFrameReader reader, int bytesLeft, Log log) {
+  public TxStatusXBeeFrame parseTxStatus(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException {
     int frameId = reader.readByte();
     XBeeAddress16 address16 = parseXBeeAddress16(reader);
     int transmitRetryCount = reader.readByte();
     int deliveryStatus = reader.readByte();
     int discoveryStatus = reader.readByte();
 
+    handleChecksum(reader);
+
     return new TxStatusXBeeFrameImpl(frameId, address16, transmitRetryCount, deliveryStatus, discoveryStatus);
   }
 
   @Override
-  public RxResponseXBeeFrame parseReceiveResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log) {
+  public RxResponseXBeeFrame parseRxResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException {
     XBeeAddress64 address64 = parseXBeeAddress64(reader);
     XBeeAddress16 address16 = parseXBeeAddress16(reader);
 
@@ -91,11 +101,14 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
 
     byte[] receivedData = reader.readData(bytesLeft - 11);
 
+    handleChecksum(reader);
+
     return new RxResponseXBeeFrameImpl(address64, address16, receiveOptions, receivedData);
   }
 
   @Override
-  public RxIoSampleXBeeFrame parseIoSampleResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log) {
+  public RxIoSampleXBeeFrame parseIoSampleResponse(EscapedXBeeFrameReader reader, int bytesLeft, Log log)
+      throws InterruptedException {
     XBeeAddress64 address64 = parseXBeeAddress64(reader);
     XBeeAddress16 address16 = parseXBeeAddress16(reader);
 
@@ -126,32 +139,54 @@ public class SimpleXBeeResponseFrameParser implements XBeeResponseFrameParser {
       analogSamples.add(reader.readByte() << 8 | reader.readByte());
     }
 
+    handleChecksum(reader);
+
     return new RxIoSampleXBeeFrameImpl(address64, address16, receiveOptions, digitalChannelMask, analogChannelMask,
         digitalSamples, analogSamples);
   }
 
   /**
-   * Get an XBee 16 bit address from the frame
+   * Get an XBee 16 bit address from the frame.
    *
    * @param reader
    *          the frame reader
    *
    * @return the XBee 64 bit address
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  private XBeeAddress64 parseXBeeAddress64(EscapedXBeeFrameReader reader) {
+  private XBeeAddress64 parseXBeeAddress64(EscapedXBeeFrameReader reader) throws InterruptedException {
     return new XBeeAddress64Impl(reader.readByte(), reader.readByte(), reader.readByte(), reader.readByte(),
         reader.readByte(), reader.readByte(), reader.readByte(), reader.readByte());
   }
 
   /**
-   * Get an XBee 16 bit address from the frame
+   * Get an XBee 16 bit address from the frame.
    *
    * @param reader
    *          the frame reader
    *
    * @return the XBee 16 bit address
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
    */
-  private XBeeAddress16 parseXBeeAddress16(EscapedXBeeFrameReader reader) {
+  private XBeeAddress16 parseXBeeAddress16(EscapedXBeeFrameReader reader) throws InterruptedException {
     return new XBeeAddress16Impl(reader.readByte(), reader.readByte());
+  }
+
+  /**
+   * Handle the checksum.
+   *
+   * @param reader
+   *          the reader
+   *
+   * @throws InterruptedException
+   *           the read thread was interrupted
+   */
+  private void handleChecksum(EscapedXBeeFrameReader reader) throws InterruptedException {
+    // Go past checksum
+    reader.readByte();
   }
 }

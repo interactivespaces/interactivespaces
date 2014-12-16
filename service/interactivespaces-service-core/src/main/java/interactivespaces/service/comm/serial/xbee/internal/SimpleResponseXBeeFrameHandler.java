@@ -43,7 +43,9 @@ public class SimpleResponseXBeeFrameHandler implements ResponseXBeeFrameHandler 
 
   @Override
   public void handle(XBeeCommunicationEndpoint endpoint, EscapedXBeeFrameReader reader,
-      int packetLength, List<XBeeResponseListener> listeners, Log log) {
+      List<XBeeResponseListener> listeners, Log log)throws InterruptedException {
+
+    int packetLength = reader.readPacketLength();
 
     int frameType = reader.readByte();
 
@@ -62,8 +64,9 @@ public class SimpleResponseXBeeFrameHandler implements ResponseXBeeFrameHandler 
         signalTxStatus(endpoint, parser.parseTxStatus(reader, bytesLeft, log), listeners, log);
         break;
       case XBeeApiConstants.FRAME_TYPE_RX_RECEIVE:
-        signalRxResponse(endpoint, parser.parseReceiveResponse(reader, bytesLeft, log), listeners,
+        signalRxResponse(endpoint, parser.parseRxResponse(reader, bytesLeft, log), listeners,
             log);
+        break;
       case XBeeApiConstants.FRAME_TYPE_RX_IO:
         signalRxIoResponse(endpoint, parser.parseIoSampleResponse(reader, bytesLeft, log),
             listeners, log);
