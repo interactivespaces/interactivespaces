@@ -449,6 +449,14 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        return masterApiSpaceControllerManager.configureSpaceController(id);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
