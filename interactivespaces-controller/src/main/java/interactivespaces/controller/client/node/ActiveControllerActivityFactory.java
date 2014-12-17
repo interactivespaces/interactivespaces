@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.controller.client.node;
 
 import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
 

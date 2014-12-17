@@ -22,12 +22,14 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
+import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.runtime.ActiveControllerActivityFactory;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+
+import org.apache.commons.logging.Log;
 
 /**
  * An {@link LiveActivityRunnerFactory} with versioned factories.
@@ -39,7 +41,7 @@ import interactivespaces.resource.VersionRange;
  *
  * @author Keith M. Hughes
  */
-public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivityFactory, LiveActivityRunnerFactory {
+public class StandardLiveActivityRunnerFactory implements ActiveControllerActivityFactory, LiveActivityRunnerFactory {
 
   /**
    * Default version for wrapper factories.
@@ -56,6 +58,21 @@ public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivity
    */
   private final NamedVersionedResourceCollection<ActivityWrapperFactory> activityWrapperFactories =
       NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
+
+  /**
+   * The logger for the factory.
+   */
+  private Log log;
+
+  /**
+   * Construct a new factory.
+   *
+   * @param log
+   *          the logger
+   */
+  public StandardLiveActivityRunnerFactory(Log log) {
+    this.log = log;
+  }
 
   @Override
   public BasicLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
@@ -116,9 +133,13 @@ public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivity
   public void registerActivityWrapperFactory(ActivityWrapperFactory factory) {
     Version version = getFactoryVersion(factory);
 
-    if (activityWrapperFactories.addResource(factory.getActivityType().toLowerCase(), version, factory) != null) {
-      throw new SimpleInteractiveSpacesException(String.format("The %s %s is already registered",
-          factory.getActivityType(), ActivityWrapperFactory.class.getName()));
+    if (activityWrapperFactories.addResource(factory.getActivityType().toLowerCase(), version, factory) == null) {
+      log.info(String.format("Registered activity wrapper factory version %s for activity type %s", version,
+          factory.getActivityType()));
+    } else {
+      log.warn(String.format(
+          "The %s version %s activity wrapper factory was already registered, the previous version has been replaced.",
+          factory.getActivityType(), version));
     }
   }
 

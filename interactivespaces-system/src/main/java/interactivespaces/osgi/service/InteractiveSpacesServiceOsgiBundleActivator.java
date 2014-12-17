@@ -16,6 +16,7 @@
 
 package interactivespaces.osgi.service;
 
+import interactivespaces.resource.Version;
 import interactivespaces.service.Service;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SupportedService;
@@ -37,8 +38,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A base class for creating OSGi BundleActivator subclasses for Interactive
- * Spaces services and other OSGi bundles from Interactive Spaces.
+ * A base class for creating OSGi BundleActivator subclasses for Interactive Spaces services and other OSGi bundles from
+ * Interactive Spaces.
  *
  * @author Keith M. Hughes
  */
@@ -103,7 +104,6 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
 
   @Override
   public void stop(BundleContext context) throws Exception {
-
     onStop();
 
     unregisterOsgiServices();
@@ -236,6 +236,15 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    */
   protected String getBundleVersion() {
     return bundleContext.getBundle().getVersion().toString();
+  }
+
+  /**
+   * Get the version of the bundle.
+   *
+   * @return the version of the bundle
+   */
+  protected Version getBundleVersionAsVersion() {
+    return Version.parseVersion(getBundleVersion());
   }
 
   /**

@@ -24,11 +24,11 @@ import interactivespaces.controller.activity.wrapper.internal.bridge.topic.Topic
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
+import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
 import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
-import interactivespaces.controller.runtime.ActiveControllerActivityFactory;
 import interactivespaces.controller.runtime.ActivityStorageManager;
 import interactivespaces.controller.runtime.ControllerDataBundleManager;
 import interactivespaces.controller.runtime.FileSystemSpaceControllerInfoPersister;
@@ -43,7 +43,7 @@ import interactivespaces.controller.runtime.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
-import interactivespaces.liveactivity.runtime.SimpleLiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.StandardLiveActivityRunnerFactory;
 import interactivespaces.liveactivity.runtime.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
@@ -128,7 +128,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private void initializeBaseSpaceControllerComponents() {
     spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
-    liveActivityRunnerFactory = new SimpleLiveActivityRunnerFactory();
+    liveActivityRunnerFactory = new StandardLiveActivityRunnerFactory(spaceEnvironment.getLog());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
