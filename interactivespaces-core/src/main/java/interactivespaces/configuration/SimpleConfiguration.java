@@ -35,8 +35,7 @@ public class SimpleConfiguration extends BaseConfiguration {
   private Map<String, String> values = new HashMap<String, String>();
 
   /**
-   * Create a {@link SimpleConfiguration} using a
-   * {@link SimpleExpressionEvaluator} pointing at the configuration.
+   * Create a {@link SimpleConfiguration} using a {@link SimpleExpressionEvaluator} pointing at the configuration.
    *
    * @return the newly created configuration
    */
@@ -50,11 +49,25 @@ public class SimpleConfiguration extends BaseConfiguration {
   }
 
   /**
+   * Construct a new configuration.
+   *
    * @param expressionEvaluator
-   *          the expression evaluator for this configuration.
+   *          the expression evaluator for this configuration
    */
   public SimpleConfiguration(ExpressionEvaluator expressionEvaluator) {
-    super(expressionEvaluator);
+    this(expressionEvaluator, null);
+  }
+
+  /**
+   * Construct a new configuration.
+   *
+   * @param expressionEvaluator
+   *          the expression evaluator for this configuration
+   * @param parent
+   *          the parent configuration
+   */
+  public SimpleConfiguration(ExpressionEvaluator expressionEvaluator, Configuration parent) {
+    super(expressionEvaluator, parent);
   }
 
   @Override
@@ -79,6 +92,7 @@ public class SimpleConfiguration extends BaseConfiguration {
 
   @Override
   public void addCollapsedEntries(Map<String, String> map) {
+    Configuration parent = getParent();
     if (parent != null) {
       parent.addCollapsedEntries(map);
     }

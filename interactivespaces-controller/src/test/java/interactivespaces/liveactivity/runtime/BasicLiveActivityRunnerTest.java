@@ -20,10 +20,12 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.BasicLiveActivityRunner;
+import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
+import interactivespaces.liveactivity.runtime.LiveActivityRunnerListener;
+import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.SettableTimeProvider;
 
@@ -45,7 +47,7 @@ public class BasicLiveActivityRunnerTest {
   private BasicLiveActivityRunner runner;
   private InstalledLiveActivity installedActivity;
   private ActivityWrapper activityWrapper;
-  private InternalActivityFilesystem activityFilesystem;
+  private InternalLiveActivityFilesystem activityFilesystem;
   private LiveActivityConfiguration configuration;
   private LiveActivityRunnerListener liveActivityRunnerListener;
   private SpaceController controller;
@@ -59,7 +61,7 @@ public class BasicLiveActivityRunnerTest {
     installedActivity = Mockito.mock(InstalledLiveActivity.class);
     activityWrapper = Mockito.mock(ActivityWrapper.class);
     Mockito.when(activityWrapper.newInstance()).thenReturn(instance);
-    activityFilesystem = Mockito.mock(InternalActivityFilesystem.class);
+    activityFilesystem = Mockito.mock(InternalLiveActivityFilesystem.class);
     configuration = Mockito.mock(LiveActivityConfiguration.class);
     liveActivityRunnerListener = Mockito.mock(LiveActivityRunnerListener.class);
 

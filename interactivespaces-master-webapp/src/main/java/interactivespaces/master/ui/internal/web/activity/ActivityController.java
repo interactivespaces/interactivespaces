@@ -103,7 +103,7 @@ public class ActivityController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/activity/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployActivities(@PathVariable String id) {
-    return masterApiSpaceControllerManager.deployAllActivityInstances(id);
+    return masterApiSpaceControllerManager.deployAllLiveActivityInstances(id);
   }
 
   @RequestMapping(value = "/activity/{id}/metadata.json", method = RequestMethod.POST)

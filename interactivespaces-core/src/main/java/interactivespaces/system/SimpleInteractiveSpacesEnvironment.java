@@ -16,11 +16,11 @@
 
 package interactivespaces.system;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 

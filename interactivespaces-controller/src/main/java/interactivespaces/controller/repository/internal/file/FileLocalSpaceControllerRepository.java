@@ -18,11 +18,11 @@ package interactivespaces.controller.repository.internal.file;
 
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.controller.client.node.ActivityStorageManager;
 import interactivespaces.controller.domain.ActivityInstallationStatus;
 import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.controller.runtime.ActivityStorageManager;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -39,7 +39,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Controller repository using Db4o.
+ * Controller repository using flat files in the file system.
  *
  * @author Keith M. Hughes
  */
@@ -51,8 +51,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   public static final String DATAFILE_NAME = "activity.data";
 
   /**
-   * Line number in the activity data file giving the identifying name of the
-   * activity.
+   * Line number in the activity data file giving the identifying name of the activity.
    */
   public static final int LOCATION_IDENTIFYING_NAME = 0;
 
@@ -62,26 +61,22 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   public static final int LOCATION_VERSION = 1;
 
   /**
-   * Line number in the activity data file giving the last deployed date of the
-   * activity.
+   * Line number in the activity data file giving the last deployed date of the activity.
    */
   public static final int LOCATION_LAST_DEPLOYED_DATE = 2;
 
   /**
-   * Line number in the activity data file giving the last activity state of the
-   * activity.
+   * Line number in the activity data file giving the last activity state of the activity.
    */
   public static final int LOCATION_LAST_ACTIVITY_STATE = 3;
 
   /**
-   * Line number in the activity data file giving the installation status of the
-   * activity.
+   * Line number in the activity data file giving the installation status of the activity.
    */
   public static final int LOCATION_INSTALLATION_STATUS = 4;
 
   /**
-   * Line number in the activity data file giving the startup type of the
-   * activity.
+   * Line number in the activity data file giving the startup type of the activity.
    */
   public static final int LOCATION_STARTUP_TYPE = 5;
 
@@ -243,7 +238,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   }
 
   /**
-   * write the datafile for an activity.
+   * Write the data file for an activity.
    *
    * @param activity
    *          the activity to write
@@ -261,7 +256,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   }
 
   /**
-   * Get the data file for the given activity
+   * Get the data file for the given activity.
    *
    * @param uuid
    *          the uuid of the activity

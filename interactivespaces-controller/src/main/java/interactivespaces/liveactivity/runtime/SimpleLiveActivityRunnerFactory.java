@@ -20,12 +20,11 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.controller.runtime.ActiveControllerActivityFactory;
+import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
@@ -60,7 +59,7 @@ public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivity
 
   @Override
   public BasicLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
 
     String bareActivityType = activityType;
@@ -100,7 +99,7 @@ public class SimpleLiveActivityRunnerFactory implements ActiveControllerActivity
 
   @Override
   public BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity liveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
     String type = getConfiguredType(configuration);
 

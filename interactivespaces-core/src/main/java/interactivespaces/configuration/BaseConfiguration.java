@@ -14,14 +14,14 @@
 
 package interactivespaces.configuration;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.evaluation.EvaluationEnvironment;
 import interactivespaces.evaluation.EvaluationInteractiveSpacesException;
 import interactivespaces.evaluation.ExpressionEvaluator;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +39,7 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
   /**
    * Parent configuration to this configuration.
    */
-  protected Configuration parent;
+  private Configuration parent;
 
   /**
    * The expression evaluator for this configuration.
@@ -47,11 +47,26 @@ public abstract class BaseConfiguration implements Configuration, EvaluationEnvi
   private ExpressionEvaluator expressionEvaluator;
 
   /**
+   * Construct a new configuration.
+   *
    * @param expressionEvaluator
-   *          the expression evaluator for this configuration.
+   *          the expression evaluator for this configuration
    */
   public BaseConfiguration(ExpressionEvaluator expressionEvaluator) {
+    this(expressionEvaluator, null);
+  }
+
+  /**
+   * Construct a new configuration.
+   *
+   * @param expressionEvaluator
+   *          the expression evaluator for this configuration
+   * @param parent
+   *        the parent (can be {@code null}
+   */
+  public BaseConfiguration(ExpressionEvaluator expressionEvaluator, Configuration parent) {
     this.expressionEvaluator = expressionEvaluator;
+    this.parent = parent;
   }
 
   @Override

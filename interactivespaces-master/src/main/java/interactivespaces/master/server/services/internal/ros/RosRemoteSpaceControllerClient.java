@@ -30,6 +30,7 @@ import interactivespaces.controller.client.master.RemoteActivityDeploymentManage
 import interactivespaces.controller.common.ros.RosSpaceControllerSupport;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
+import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
@@ -42,8 +43,8 @@ import interactivespaces.master.server.services.internal.RemoteSpaceControllerCl
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import interactivespaces_msgs.ActivityConfigurationParameterRequest;
-import interactivespaces_msgs.ActivityConfigurationRequest;
+import interactivespaces_msgs.ConfigurationParameterRequest;
+import interactivespaces_msgs.ConfigurationRequest;
 import interactivespaces_msgs.ContainerResourceCommitRequestMessage;
 import interactivespaces_msgs.ContainerResourceCommitResponseMessage;
 import interactivespaces_msgs.ContainerResourceQueryRequestMessage;
@@ -69,7 +70,6 @@ import org.ros.node.topic.CountDownPublisherListener;
 import org.ros.node.topic.Publisher;
 import org.ros.node.topic.Subscriber;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -174,7 +174,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   /**
    * ROS message serializer for the full controller status.
    */
-  private MessageSerializer<ActivityConfigurationRequest> activityConfigurationRequestSerializer;
+  private MessageSerializer<ConfigurationRequest> configurationRequestSerializer;
 
   /**
    * ROS message serializer for the container deployment query request.
@@ -226,8 +226,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     controllerFullStatusDeserializer = messageSerializationFactory.newMessageDeserializer(ControllerFullStatus._TYPE);
 
-    activityConfigurationRequestSerializer =
-        messageSerializationFactory.newMessageSerializer(ActivityConfigurationRequest._TYPE);
+    configurationRequestSerializer = messageSerializationFactory.newMessageSerializer(ConfigurationRequest._TYPE);
 
     containerResourceQueryRequestSerializer =
         messageSerializationFactory.newMessageSerializer(ContainerResourceQueryRequestMessage._TYPE);
@@ -289,6 +288,29 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   @Override
   public void shutdownAllActivities(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_SHUTDOWN_ACTIVITIES);
+  }
+
+  @Override
+  public void configureSpaceController(ActiveSpaceController controller) {
+    List<ConfigurationParameterRequest> parameterRequests = Lists.newArrayList();
+    SpaceControllerConfiguration configuration = controller.getController().getConfiguration();
+    if (configuration != null) {
+      for (ConfigurationParameter parameter : configuration.getParameters()) {
+        ConfigurationParameterRequest newParameter = rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
+        newParameter.setOperation(ConfigurationParameterRequest.OPERATION_ADD);
+        newParameter.setName(parameter.getName());
+        newParameter.setValue(parameter.getValue());
+
+        parameterRequests.add(newParameter);
+      }
+    }
+
+    ConfigurationRequest request = rosMessageFactory.newFromType(ConfigurationRequest._TYPE);
+    request.setParameters(parameterRequests);
+
+    ChannelBuffer serialize = configurationRequestSerializer.serialize(request);
+
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CONFIGURE, serialize);
   }
 
   @Override
@@ -363,13 +385,12 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
   @Override
   public void fullConfigureLiveActivity(ActiveLiveActivity activity) {
-    ArrayList<ActivityConfigurationParameterRequest> parameterRequests = Lists.newArrayList();
+    List<ConfigurationParameterRequest> parameterRequests = Lists.newArrayList();
     ActivityConfiguration configuration = activity.getLiveActivity().getConfiguration();
     if (configuration != null) {
       for (ConfigurationParameter parameter : configuration.getParameters()) {
-        ActivityConfigurationParameterRequest newParameter =
-            rosMessageFactory.newFromType(ActivityConfigurationParameterRequest._TYPE);
-        newParameter.setOperation(ActivityConfigurationParameterRequest.OPERATION_ADD);
+        ConfigurationParameterRequest newParameter = rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
+        newParameter.setOperation(ConfigurationParameterRequest.OPERATION_ADD);
         newParameter.setName(parameter.getName());
         newParameter.setValue(parameter.getValue());
 
@@ -377,10 +398,10 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
       }
     }
 
-    ActivityConfigurationRequest request = rosMessageFactory.newFromType(ActivityConfigurationRequest._TYPE);
+    ConfigurationRequest request = rosMessageFactory.newFromType(ConfigurationRequest._TYPE);
     request.setParameters(parameterRequests);
 
-    ChannelBuffer serialize = activityConfigurationRequestSerializer.serialize(request);
+    ChannelBuffer serialize = configurationRequestSerializer.serialize(request);
 
     sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CONFIGURE, serialize);
   }
@@ -750,11 +771,9 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @param controller
    *          The controller
    * @param create
-   *          {@code true} is a communicator should be created if there is none
-   *          associated with the controller.
+   *          {@code true} is a communicator should be created if there is none associated with the controller.
    *
-   * @return The communicator for the controller. Will be {@code null} if there
-   *         is none and creation wasn't specified.
+   * @return The communicator for the controller. Will be {@code null} if there is none and creation wasn't specified.
    */
   private SpaceControllerCommunicator getCommunicator(ActiveSpaceController controller, boolean create) {
     String remoteNode = controller.getController().getHostId();
@@ -822,8 +841,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   /**
-   * Bundles the subscribers and publishers for communication with a space
-   * controller.
+   * Bundles the subscribers and publishers for communication with a space controller.
    *
    * @author Keith M. Hughes
    */

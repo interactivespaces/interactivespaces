@@ -18,8 +18,8 @@ package interactivespaces.controller.activity.wrapper.internal.osnative;
 
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.impl.binary.NativeActivity;
-import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 
 /**
  * An {@link ActivityWrapper} for native activities.

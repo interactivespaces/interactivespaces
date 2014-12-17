@@ -19,10 +19,9 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 
 /**
  * A factory for {@link BasicLiveActivityRunner} instances.
@@ -50,7 +49,7 @@ public interface LiveActivityRunnerFactory {
    * @return the active controller activity instance
    */
   LiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity installedLiveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller);
 
   /**
@@ -75,7 +74,7 @@ public interface LiveActivityRunnerFactory {
    * @return a runner for the activity
    */
   BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity installedLiveActivity,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller);
 
   /**

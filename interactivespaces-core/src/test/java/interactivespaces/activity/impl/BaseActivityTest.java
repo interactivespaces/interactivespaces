@@ -20,9 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityState;
@@ -36,6 +33,9 @@ import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;

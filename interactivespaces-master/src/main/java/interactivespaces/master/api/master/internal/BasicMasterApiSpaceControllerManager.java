@@ -182,7 +182,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   @Override
-  public Map<String, Object> configureSpaceController(String id, Map<String, String> map) {
+  public Map<String, Object> setSpaceControllerConfiguration(String id, Map<String, String> map) {
     SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
     if (spaceController != null) {
       if (saveSpaceControllerConfiguration(spaceController, map)) {
@@ -192,6 +192,18 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
       return getNoSuchSpaceControllerResult();
+    }
+  }
+
+  @Override
+  public Map<String, Object> configureSpaceController(String id) {
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    if (spaceController != null) {
+      activeSpaceControllerManager.configureSpaceController(spaceController);
+
+      return MasterApiMessageSupport.getSimpleSuccessResponse();
+    } else {
+      return getNoSuchLiveActivityResult();
     }
   }
 
@@ -724,7 +736,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   @Override
-  public Map<String, Object> deployAllActivityInstances(String id) {
+  public Map<String, Object> deployAllLiveActivityInstances(String id) {
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
 

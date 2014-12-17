@@ -68,6 +68,7 @@ public class PropertiesConfiguration extends BaseConfiguration {
 
   @Override
   public void addCollapsedEntries(Map<String, String> map) {
+    Configuration parent = getParent();
     if (parent != null) {
       parent.addCollapsedEntries(map);
     }

@@ -22,9 +22,9 @@ import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.apache.commons.logging.Log;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * The Interactive Spaces environment being run in.

@@ -118,10 +118,16 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
       @SuppressWarnings("unchecked")
       Map<String, String> map = (Map<String, String>) config;
 
-      return masterApiSpaceControllerManager.configureSpaceController(id, map);
+      return masterApiSpaceControllerManager.setSpaceControllerConfiguration(id, map);
     } else {
       return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
     }
+  }
+
+  @RequestMapping(value = "/spacecontroller/{id}/configure.json", method = RequestMethod.GET)
+  public @ResponseBody
+  Map<String, ? extends Object> configureSpaceController(@PathVariable String id) {
+    return masterApiSpaceControllerManager.configureSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/metadata.json", method = RequestMethod.POST)

@@ -96,7 +96,7 @@ public interface Activity extends ActivityControl {
    *          the full update, will be {@code null} when called during setup,
    *          though the initial activity configuration will be valid
    */
-  void updateConfiguration(Map<String, Object> update);
+  void updateConfiguration(Map<String, String> update);
 
   /**
    * Is the activity activated?

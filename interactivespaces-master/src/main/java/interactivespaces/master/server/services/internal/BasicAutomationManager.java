@@ -207,7 +207,7 @@ public class BasicAutomationManager implements AutomationManager {
 
       String watchedFolder = file.getParent();
       if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
-        masterApiSpaceControllerManager.deployAllActivityInstances(activity.getId());
+        masterApiSpaceControllerManager.deployAllLiveActivityInstances(activity.getId());
       }
     } catch (Exception e) {
       spaceEnvironment.getLog().error(String.format("Could not read imported activity file %s", file), e);

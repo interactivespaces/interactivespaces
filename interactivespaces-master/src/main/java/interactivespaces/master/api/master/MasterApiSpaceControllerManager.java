@@ -74,7 +74,7 @@ public interface MasterApiSpaceControllerManager {
   Map<String, Object> getSpaceControllerConfiguration(String id);
 
   /**
-   * Configure a space controller.
+   * Set the configuration for a space controller.
    *
    * @param id
    *          ID of the space controller
@@ -83,7 +83,17 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return API response
    */
-  Map<String, Object> configureSpaceController(String id, Map<String, String> map);
+  Map<String, Object> setSpaceControllerConfiguration(String id, Map<String, String> map);
+
+  /**
+   * Configure a space controller.
+   *
+   * @param id
+   *          ID of the space controller
+   *
+   * @return API response
+   */
+  Map<String, Object> configureSpaceController(String id);
 
   /**
    * Modify a space controller's metadata.
@@ -342,7 +352,7 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> deployAllActivityInstances(String id);
+  Map<String, Object> deployAllLiveActivityInstances(String id);
 
   /**
    * Deploy the specified live activity to its controller.

@@ -64,7 +64,7 @@ public interface LiveActivityRunner extends ActivityControl {
    * @param update
    *          a map of the configuration update
    */
-  void updateConfiguration(Map<String, Object> update);
+  void updateConfiguration(Map<String, String> update);
 
   /**
    * Get the state of the live activity.

@@ -96,6 +96,14 @@ public interface ActiveSpaceControllerManager {
   void forceStatusSpaceController(SpaceController controller);
 
   /**
+   * Configure a space controller.
+   *
+   * @param spaceController
+   *          the space controller to configure
+   */
+  void configureSpaceController(SpaceController spaceController);
+
+  /**
    * Clean the temp data folder for the controller.
    *
    * @param controller

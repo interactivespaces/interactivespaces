@@ -21,10 +21,9 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.configuration.LiveActivityConfiguration;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.client.node.InternalActivityFilesystem;
 import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -62,7 +61,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
   /**
    * File system for the activity.
    */
-  private final InternalActivityFilesystem activityFilesystem;
+  private final InternalLiveActivityFilesystem activityFilesystem;
 
   /**
    * The activity configuration.
@@ -119,7 +118,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
    *          the controller the activity is running under
    */
   public BasicLiveActivityRunner(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
-      InternalActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
+      InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
@@ -140,7 +139,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
   }
 
   @Override
-  public void updateConfiguration(Map<String, Object> update) {
+  public void updateConfiguration(Map<String, String> update) {
     if (obtainInstanceLock(InstanceLockState.CONFIGURE)) {
       try {
         configuration.update(update);

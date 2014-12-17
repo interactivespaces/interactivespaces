@@ -16,15 +16,16 @@
 
 package interactivespaces.system.internal.osgi;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
+import interactivespaces.system.InternalInteractiveSpacesEnvironment;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.Maps;
 
 import org.apache.commons.logging.Log;
 
@@ -36,7 +37,8 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
+public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment,
+    InternalInteractiveSpacesEnvironment {
 
   /**
    * The system configuration.
@@ -57,8 +59,7 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
    * Network type for the container.
    *
    * <p>
-   * This allows distinguishing between different Interactive Spaces networks,
-   * e.g. localdev, prod, fredbot.
+   * This allows distinguishing between different Interactive Spaces networks, e.g. localdev, prod, fredbot.
    */
   private String networkType;
 
@@ -145,55 +146,38 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
     values.remove(valueName);
   }
 
-  /**
-   * @param filesystem
-   *          the filesystem to set
-   */
+  @Override
   public void setFilesystem(InteractiveSpacesFilesystem filesystem) {
     this.filesystem = filesystem;
   }
 
-  /**
-   * The network type for Interactive Spaces.
-   *
-   * <p>
-   * This allows distinguishing between Interactive Spaces networks, e.g.
-   * localdev, prod, fredbot.
-   *
-   * @param networkType
-   */
+  @Override
   public void setNetworkType(String networkType) {
     this.networkType = networkType;
   }
 
-  /**
-   * @param executorService
-   *          the executorService to set
-   */
+  @Override
   public void setExecutorService(ScheduledExecutorService executorService) {
     this.executorService = executorService;
   }
 
-  /**
-   * @param systemConfiguration
-   *          the systemConfiguration to set
-   */
+  @Override
   public void setSystemConfiguration(Configuration systemConfiguration) {
     this.systemConfiguration = systemConfiguration;
   }
 
-  /**
-   * @param timeProvider
-   *          the timeProvider to set
-   */
+  @Override
+  public void changeSystemConfigurationTop(Configuration newTopSystemConfiguration) {
+    newTopSystemConfiguration.setParent(systemConfiguration);
+    systemConfiguration = newTopSystemConfiguration;
+  }
+
+  @Override
   public void setTimeProvider(TimeProvider timeProvider) {
     this.timeProvider = timeProvider;
   }
 
-  /**
-   * @param loggingProvider
-   *          the loggingProvider to set
-   */
+  @Override
   public void setLoggingProvider(LoggingProvider loggingProvider) {
     this.loggingProvider = loggingProvider;
   }

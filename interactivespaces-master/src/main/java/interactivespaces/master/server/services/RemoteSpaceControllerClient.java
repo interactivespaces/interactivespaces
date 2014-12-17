@@ -88,6 +88,14 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
   void shutdownAllActivities(ActiveSpaceController controller);
 
   /**
+   * Configure the space controller.
+   *
+   * @param controller
+   *          controller to configure
+   */
+  void configureSpaceController(ActiveSpaceController controller);
+
+  /**
    * Clean the temp data folder for the controller.
    *
    * @param controller

@@ -33,6 +33,8 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.resource.ManagedResource;
 import interactivespaces.util.resource.ManagedResources;
 
+import com.google.common.collect.Maps;
+
 import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
@@ -179,11 +181,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   }
 
   @Override
-  public void updateConfiguration(Map<String, Object> update) {
+  public void updateConfiguration(Map<String, String> update) {
     try {
       commonActivityConfiguration(update);
 
-      callOnActivityConfiguration(update);
+      callOnActivityConfigurationUpdate(update);
     } catch (Throwable e) {
       logException("Failure when calling onActivityConfiguration", e);
     }
@@ -195,11 +197,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * @param update
    *          the update map
    */
-  private void callOnActivityConfiguration(Map<String, Object> update) {
+  private void callOnActivityConfigurationUpdate(Map<String, String> update) {
     ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
 
     try {
-      onActivityConfiguration(update);
+      onActivityConfigurationUpdate(update);
     } finally {
       getExecutionContext().exitMethod(invocation);
     }
@@ -645,7 +647,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * @param update
    *          the update map
    */
-  public void commonActivityConfiguration(Map<String, Object> update) {
+  public void commonActivityConfiguration(Map<String, String> update) {
     // Default is to do nothing.
   }
 
@@ -736,6 +738,14 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    */
   public void commonActivityCleanup() {
     // Default is do nothing.
+  }
+
+  @Override
+  public void onActivityConfigurationUpdate(Map<String, String> update) {
+    // Default is to call the old method.
+    Map<String, Object> remap = Maps.newHashMap();
+    remap.putAll(update);
+    onActivityConfiguration(remap);
   }
 
   @Override

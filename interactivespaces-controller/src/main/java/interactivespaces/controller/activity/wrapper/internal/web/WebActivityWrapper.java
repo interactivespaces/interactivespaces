@@ -18,8 +18,8 @@ package interactivespaces.controller.activity.wrapper.internal.web;
 
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.impl.web.BaseWebActivity;
-import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
 
 /**
  * An {@link ActivityWrapper} for web activities.

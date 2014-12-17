@@ -445,7 +445,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
         Map<String, String> config =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
-        return masterApiSpaceControllerManager.configureSpaceController(id, config);
+        return masterApiSpaceControllerManager.setSpaceControllerConfiguration(id, config);
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(

@@ -63,6 +63,10 @@ int32 OPERATION_CONTROLLER_RESOURCE_QUERY = 12
 # Payload will be a ContainerResourceQueryRequest
 int32 OPERATION_CONTROLLER_RESOURCE_COMMIT = 13
 
+# Configure the controller.
+# Payload will be a ConfigurationRequest
+int32 OPERATION_CONTROLLER_CONFIGURE = 14
+
 # Any payload needed by the request.
 byte[] payload
 

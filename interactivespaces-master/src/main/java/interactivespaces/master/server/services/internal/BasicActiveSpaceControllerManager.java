@@ -16,12 +16,6 @@
 
 package interactivespaces.master.server.services.internal;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
@@ -35,11 +29,19 @@ import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
 import interactivespaces.master.server.services.ActiveSpace;
 import interactivespaces.master.server.services.ActiveSpaceController;
+import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.master.server.services.SpaceControllerListenerHelper;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import java.util.List;
 import java.util.Map;
@@ -61,18 +63,18 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   /**
    * All active activities keyed by their live activity's UUID.
    */
-  private final Map<String, ActiveLiveActivity> activeActivities = Maps.newHashMap();
+  private final Map<String, ActiveLiveActivity> activeLiveActivities = Maps.newHashMap();
 
   /**
    * Active live activities mapped by the ID of the controller which contains
    * the live activity.
    */
-  private final Multimap<String, ActiveLiveActivity> activeActivitiesByController = HashMultimap.create();
+  private final Multimap<String, ActiveLiveActivity> activeLiveActivitiesByController = HashMultimap.create();
 
   /**
    * All active activity groups keyed by their activity group's ID.
    */
-  private final Map<String, ActiveLiveActivityGroup> activeActivityGroups = Maps.newHashMap();
+  private final Map<String, ActiveLiveActivityGroup> activeLiveActivityGroups = Maps.newHashMap();
 
   /**
    * The spaces being managed.
@@ -82,7 +84,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   /**
    * Listeners for events in the manager.
    */
-  private final SpaceControllerListenerHelper controllerListeners = new SpaceControllerListenerHelper();
+  private final SpaceControllerListenerHelper spaceControllerListeners = new SpaceControllerListenerHelper();
 
   /**
    * The client for interacting with a controller remotely.
@@ -100,140 +102,149 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   private InteractiveSpacesEnvironment spaceEnvironment;
 
   @Override
-  public void connectSpaceController(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Connecting to controller %s", controller.getHostId()));
+  public void connectSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Connecting to controller %s", spaceController.getHostId()));
 
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    acontroller.setState(SpaceControllerState.CONNECT_ATTEMPT);
-    remoteSpaceControllerClient.connect(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    activeSpaceController.setState(SpaceControllerState.CONNECT_ATTEMPT);
+    remoteSpaceControllerClient.connect(activeSpaceController);
   }
 
   @Override
-  public void disconnectSpaceController(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Disconnecting from controller %s", controller.getHostId()));
+  public void disconnectSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Disconnecting from controller %s", spaceController.getHostId()));
 
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.disconnect(acontroller);
-    acontroller.setState(SpaceControllerState.UNKNOWN);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.disconnect(activeSpaceController);
+    activeSpaceController.setState(SpaceControllerState.UNKNOWN);
   }
 
   @Override
-  public void restartSpaceController(SpaceController controller) {
+  public void restartSpaceController(SpaceController spaceController) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
   @Override
-  public void statusSpaceController(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Requesting status from controller %s", controller.getHostId()));
+  public void statusSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Requesting status from controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    if (!SpaceControllerState.UNKNOWN.equals(acontroller.getState())) {
-      remoteSpaceControllerClient.requestStatus(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    if (!SpaceControllerState.UNKNOWN.equals(activeSpaceController.getState())) {
+      remoteSpaceControllerClient.requestStatus(activeSpaceController);
     }
   }
 
   @Override
-  public void forceStatusSpaceController(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Forcing status request from controller %s", controller.getHostId()));
+  public void forceStatusSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Forcing status request from controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.requestStatus(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.requestStatus(activeSpaceController);
   }
 
   @Override
-  public void cleanSpaceControllerTempData(SpaceController controller) {
+  public void configureSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Setting configuration of space controller %s", spaceController.getHostId()));
+
+    // To make sure something is listening for the request.
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient. configureSpaceController(activeSpaceController);
+  }
+
+  @Override
+  public void cleanSpaceControllerTempData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting controller temp data clean from controller %s", controller.getHostId()));
+        String.format("Requesting space controller temp data clean from space controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.cleanControllerTempData(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.cleanControllerTempData(activeSpaceController);
   }
 
   @Override
-  public void cleanSpaceControllerPermanentData(SpaceController controller) {
+  public void cleanSpaceControllerPermanentData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting controller permanent data clean from controller %s", controller.getHostId()));
+        String.format("Requesting space controller permanent data clean from space controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.cleanControllerPermanentData(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.cleanControllerPermanentData(activeSpaceController);
   }
 
   @Override
-  public void cleanSpaceControllerActivitiesTempData(SpaceController controller) {
+  public void cleanSpaceControllerActivitiesTempData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting all activity temp data clean from controller %s", controller.getHostId()));
+        String.format("Requesting all activity temp data clean from space controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.cleanControllerActivitiesTempData(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.cleanControllerActivitiesTempData(activeSpaceController);
   }
 
   @Override
-  public void cleanSpaceControllerActivitiesPermanentData(SpaceController controller) {
+  public void cleanSpaceControllerActivitiesPermanentData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting all activities permanent data clean from controller %s", controller.getHostId()));
+        String.format("Requesting all activities permanent data clean from space controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.cleanControllerActivitiesPermanentData(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.cleanControllerActivitiesPermanentData(activeSpaceController);
   }
 
   @Override
-  public void captureSpaceControllerDataBundle(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Capturing data bundle for controller %s", controller.getHostId()));
+  public void captureSpaceControllerDataBundle(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Capturing data bundle for space controller %s", spaceController.getHostId()));
 
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    acontroller.setDataBundleState(DataBundleState.CAPTURE_REQUESTED);
-    remoteSpaceControllerClient.captureControllerDataBundle(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    activeSpaceController.setDataBundleState(DataBundleState.CAPTURE_REQUESTED);
+    remoteSpaceControllerClient.captureControllerDataBundle(activeSpaceController);
   }
 
   @Override
-  public void restoreSpaceControllerDataBundle(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Restoring data bundle for controller %s", controller.getHostId()));
+  public void restoreSpaceControllerDataBundle(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Restoring data bundle for space controller %s", spaceController.getHostId()));
 
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    acontroller.setDataBundleState(DataBundleState.RESTORE_REQUESTED);
-    remoteSpaceControllerClient.restoreControllerDataBundle(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    activeSpaceController.setDataBundleState(DataBundleState.RESTORE_REQUESTED);
+    remoteSpaceControllerClient.restoreControllerDataBundle(activeSpaceController);
   }
 
   @Override
-  public void shutdownSpaceController(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Shutting down controller %s", controller.getHostId()));
+  public void shutdownSpaceController(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Shutting down space controller %s", spaceController.getHostId()));
 
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.requestShutdown(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.requestShutdown(activeSpaceController);
 
     // TODO(keith): Yuck!
     remoteSpaceControllerClient.getRemoteControllerClientListeners().signalSpaceControllerStatusChange(
-        controller.getUuid(), SpaceControllerState.UNKNOWN);
+        spaceController.getUuid(), SpaceControllerState.UNKNOWN);
 
-    cleanLiveActivityStateModels(controller);
+    cleanLiveActivityStateModels(spaceController);
   }
 
   @Override
-  public void shutdownAllActivities(SpaceController controller) {
-    spaceEnvironment.getLog().info(String.format("Shutting down all apps on controller %s", controller.getHostId()));
+  public void shutdownAllActivities(SpaceController spaceController) {
+    spaceEnvironment.getLog().info(String.format("Shutting down all apps on space controller %s", spaceController.getHostId()));
 
     // The async results will signal all active apps.
-    ActiveSpaceController acontroller = getActiveSpaceController(controller);
-    remoteSpaceControllerClient.shutdownAllActivities(acontroller);
+    ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
+    remoteSpaceControllerClient.shutdownAllActivities(activeSpaceController);
 
-    cleanLiveActivityStateModels(controller);
+    cleanLiveActivityStateModels(spaceController);
   }
 
   /**
-   * Clear all active live activity state models for the given controller.
+   * Clear all active live activity state models for the given space controller.
    *
-   * @param controller
-   *          the controller which has the activities
+   * @param space controller
+   *          the space controller which has the activities
    */
-  private void cleanLiveActivityStateModels(SpaceController controller) {
-    synchronized (activeActivitiesByController) {
-      for (ActiveLiveActivity activeLiveActivity : activeActivitiesByController.get(controller.getId())) {
+  private void cleanLiveActivityStateModels(SpaceController spaceController) {
+    synchronized (activeLiveActivitiesByController) {
+      for (ActiveLiveActivity activeLiveActivity : activeLiveActivitiesByController.get(spaceController.getId())) {
         activeLiveActivity.clearRunningStateModel();
       }
     }
@@ -250,7 +261,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     try {
       if (spaceEnvironment.getLog().isInfoEnabled()) {
         spaceEnvironment.getLog().info(
-            String.format("Deploying live activity %s to controller %s", liveActivity.getUuid(), liveActivity
+            String.format("Deploying live activity %s to space controller %s", liveActivity.getUuid(), liveActivity
                 .getController().getHostId()));
       }
 
@@ -260,7 +271,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     } catch (Exception e) {
       activeLiveActivity.setDeployState(ActivityState.DEPLOY_FAILURE, e.getMessage());
       spaceEnvironment.getLog().error(
-          String.format("could not deploy live activity %s to controller %s", liveActivity.getUuid(), liveActivity
+          String.format("could not deploy live activity %s to space controller %s", liveActivity.getUuid(), liveActivity
               .getController().getHostId()), e);
     }
   }
@@ -275,7 +286,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     if (spaceEnvironment.getLog().isInfoEnabled()) {
       LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
       spaceEnvironment.getLog().info(
-          String.format("Deleting live activity %s from controller %s", liveActivity.getUuid(), liveActivity
+          String.format("Deleting live activity %s from space controller %s", liveActivity.getUuid(), liveActivity
               .getController().getHostId()));
     }
 
@@ -722,16 +733,16 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   }
 
   @Override
-  public ActiveSpaceController getActiveSpaceController(SpaceController controller) {
-    String uuid = controller.getUuid();
+  public ActiveSpaceController getActiveSpaceController(SpaceController spaceController) {
+    String uuid = spaceController.getUuid();
     synchronized (activeSpaceControllers) {
       ActiveSpaceController activeController = activeSpaceControllers.get(uuid);
       if (activeController == null) {
-        // Active controller doesn't exist yet.
-        activeController = new ActiveSpaceController(controller, spaceEnvironment.getTimeProvider());
-        activeSpaceControllers.put(controller.getUuid(), activeController);
+        // Active space controller doesn't exist yet.
+        activeController = new ActiveSpaceController(spaceController, spaceEnvironment.getTimeProvider());
+        activeSpaceControllers.put(spaceController.getUuid(), activeController);
       } else {
-        activeController.updateController(controller);
+        activeController.updateController(spaceController);
       }
 
       return activeController;
@@ -743,8 +754,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     List<ActiveSpaceController> results = Lists.newArrayList();
 
     synchronized (activeSpaceControllers) {
-      for (SpaceController controller : controllers) {
-        results.add(getActiveSpaceController(controller));
+      for (SpaceController spaceController : controllers) {
+        results.add(getActiveSpaceController(spaceController));
       }
     }
 
@@ -753,11 +764,11 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public ActiveLiveActivityGroup getActiveLiveActivityGroup(LiveActivityGroup liveActivityGroup) {
-    synchronized (activeActivityGroups) {
-      ActiveLiveActivityGroup activeLiveActivityGroup = activeActivityGroups.get(liveActivityGroup.getId());
+    synchronized (activeLiveActivityGroups) {
+      ActiveLiveActivityGroup activeLiveActivityGroup = activeLiveActivityGroups.get(liveActivityGroup.getId());
       if (activeLiveActivityGroup == null) {
         activeLiveActivityGroup = new ActiveLiveActivityGroup(liveActivityGroup);
-        activeActivityGroups.put(activeLiveActivityGroup.getActivityGroup().getId(), activeLiveActivityGroup);
+        activeLiveActivityGroups.put(activeLiveActivityGroup.getActivityGroup().getId(), activeLiveActivityGroup);
       } else {
         activeLiveActivityGroup.updateLiveActivityGroup(liveActivityGroup);
       }
@@ -769,16 +780,16 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   @Override
   public ActiveLiveActivity getActiveLiveActivity(LiveActivity activity) {
     String uuid = activity.getUuid();
-    synchronized (activeActivities) {
-      ActiveLiveActivity active = activeActivities.get(uuid);
+    synchronized (activeLiveActivities) {
+      ActiveLiveActivity active = activeLiveActivities.get(uuid);
       if (active == null) {
         // Active activity doesn't exist yet.
-        SpaceController controller = activity.getController();
+        SpaceController spaceController = activity.getController();
         active =
-            new ActiveLiveActivity(getActiveSpaceController(controller), activity, remoteSpaceControllerClient,
+            new ActiveLiveActivity(getActiveSpaceController(spaceController), activity, remoteSpaceControllerClient,
                 spaceEnvironment.getTimeProvider());
-        activeActivities.put(activity.getUuid(), active);
-        activeActivitiesByController.put(controller.getId(), active);
+        activeLiveActivities.put(activity.getUuid(), active);
+        activeLiveActivitiesByController.put(spaceController.getId(), active);
       } else {
         active.updateLiveActivity(activity);
       }
@@ -791,7 +802,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   public List<ActiveLiveActivity> getActiveLiveActivities(List<LiveActivity> iactivities) {
     List<ActiveLiveActivity> activeLiveActivities = Lists.newArrayList();
 
-    synchronized (activeActivities) {
+    synchronized (activeLiveActivities) {
       for (LiveActivity iactivity : iactivities) {
         activeLiveActivities.add(getActiveLiveActivity(iactivity));
       }
@@ -801,12 +812,12 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   }
 
   /**
-   * Get the active controller for the given UUID in a thread-friendly way.
+   * Get the active space controller for the given UUID in a thread-friendly way.
    *
    * @param uuid
-   *          the UUID of the controller
+   *          the UUID of the space controller
    *
-   * @return the active controller associated with the uuid, or {@code null} if
+   * @return the active space controller associated with the uuid, or {@code null} if
    *         none
    */
   @VisibleForTesting
@@ -826,50 +837,50 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
    *         none
    */
   ActiveLiveActivity getActiveActivityByUuid(String uuid) {
-    synchronized (activeActivities) {
-      return activeActivities.get(uuid);
+    synchronized (activeLiveActivities) {
+      return activeLiveActivities.get(uuid);
     }
   }
 
   @Override
-  public void onSpaceControllerConnectAttempted(ActiveSpaceController controller) {
-    controllerListeners.signalSpaceControllerConnectAttempted(controller);
+  public void onSpaceControllerConnectAttempted(ActiveSpaceController spaceController) {
+    spaceControllerListeners.signalSpaceControllerConnectAttempted(spaceController);
   }
 
   @Override
-  public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
-    controllerListeners.signalSpaceControllerDisconnectAttempted(controller);
+  public void onSpaceControllerDisconnectAttempted(ActiveSpaceController spaceController) {
+    spaceControllerListeners.signalSpaceControllerDisconnectAttempted(spaceController);
   }
 
   @Override
   public void onSpaceControllerHeartbeat(String uuid, long timestamp) {
-    ActiveSpaceController controller = getActiveControllerByUuid(uuid);
-    if (controller != null) {
-      controller.setState(SpaceControllerState.RUNNING);
+    ActiveSpaceController spaceController = getActiveControllerByUuid(uuid);
+    if (spaceController != null) {
+      spaceController.setState(SpaceControllerState.RUNNING);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got heartbeat from %s (%s)", controller.getController().getName(), controller
+            String.format("Got heartbeat from %s (%s)", spaceController.getController().getName(), spaceController
                 .getController().getUuid()));
       }
 
-      controllerListeners.signalSpaceControllerHeartbeat(uuid, timestamp);
+      spaceControllerListeners.signalSpaceControllerHeartbeat(uuid, timestamp);
     } else {
-      spaceEnvironment.getLog().warn(String.format("Heartbeat from unknown controller with UUID %s", uuid));
+      spaceEnvironment.getLog().warn(String.format("Heartbeat from unknown space controller with UUID %s", uuid));
     }
   }
 
   @Override
   public void onSpaceControllerStatusChange(String uuid, SpaceControllerState state) {
-    ActiveSpaceController controller = getActiveControllerByUuid(uuid);
-    if (controller != null) {
-      controller.setState(state);
+    ActiveSpaceController spaceController = getActiveControllerByUuid(uuid);
+    if (spaceController != null) {
+      spaceController.setState(state);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got space controller status update %s (%s) to %s", controller.getController().getName(),
-                controller.getController().getUuid(), state));
+            String.format("Got space controller status update %s (%s) to %s", spaceController.getController().getName(),
+                spaceController.getController().getUuid(), state));
       }
 
-      controllerListeners.signalSpaceControllerStatusChange(uuid, state);
+      spaceControllerListeners.signalSpaceControllerStatusChange(uuid, state);
     } else {
       spaceEnvironment.getLog().warn(String.format("Status change for unknown controller with UUID %s", uuid));
     }
@@ -894,7 +905,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
             .info(String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
       }
 
-      controllerListeners.signalActivityInstall(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
+      spaceControllerListeners.signalActivityInstall(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -929,7 +940,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
           spaceEnvironment.getLog().info(String.format("Live activity %s delete failed", uuid));
       }
 
-      controllerListeners.signalActivityDelete(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
+      spaceControllerListeners.signalActivityDelete(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -950,7 +961,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
         }
       }
 
-      controllerListeners.signalLiveActivityStateChange(uuid, oldState, newState);
+      spaceControllerListeners.signalLiveActivityStateChange(uuid, oldState, newState);
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -958,9 +969,9 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void onDataBundleStateChange(String uuid, DataBundleState state) {
-    ActiveSpaceController controller = getActiveControllerByUuid(uuid);
-    if (controller != null) {
-      controller.setDataBundleState(state);
+    ActiveSpaceController spaceController = getActiveControllerByUuid(uuid);
+    if (spaceController != null) {
+      spaceController.setDataBundleState(state);
     } else {
       spaceEnvironment.getLog().warn(
           String.format("Data bundle state change update from unknown controller with UUID %s", uuid));
@@ -979,12 +990,12 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void addSpaceControllerListener(SpaceControllerListener listener) {
-    controllerListeners.addListener(listener);
+    spaceControllerListeners.addListener(listener);
   }
 
   @Override
   public void removeSpaceControllerListener(SpaceControllerListener listener) {
-    controllerListeners.removeListener(listener);
+    spaceControllerListeners.removeListener(listener);
   }
 
   /**
