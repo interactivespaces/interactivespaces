@@ -183,12 +183,22 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void updateConfiguration(Map<String, String> update) {
     try {
-      commonActivityConfiguration(update);
-
-      callOnActivityConfigurationUpdate(update);
+      handleUpdateConfigurationUnprotected(update);
     } catch (Throwable e) {
       logException("Failure when calling onActivityConfiguration", e);
     }
+  }
+
+  /**
+   * Do a configuration update unprotected by an exception handler.
+   *
+   * @param update
+   *          the update, can be {@code null}
+   */
+  private void handleUpdateConfigurationUnprotected(Map<String, String> update) {
+    commonActivityConfigurationUpdate(update);
+
+    callOnActivityConfigurationUpdate(update);
   }
 
   /**
@@ -226,7 +236,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       configurationAnnotationProcessor = new StandardConfigurationPropertyAnnotationProcessor(getConfiguration());
       configurationAnnotationProcessor.process(this);
 
-      updateConfiguration(null);
+      handleUpdateConfigurationUnprotected(null);
 
       commonActivitySetup();
 
@@ -260,7 +270,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       }
     } catch (Throwable e) {
       componentContext.endStartupPhase(false);
-
       logException("Could not start activity up", e);
 
       setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
@@ -647,7 +656,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * @param update
    *          the update map
    */
-  public void commonActivityConfiguration(Map<String, String> update) {
+  public void commonActivityConfigurationUpdate(Map<String, String> update) {
     // Default is to do nothing.
   }
 
@@ -743,8 +752,13 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   @Override
   public void onActivityConfigurationUpdate(Map<String, String> update) {
     // Default is to call the old method.
-    Map<String, Object> remap = Maps.newHashMap();
-    remap.putAll(update);
+    Map<String, Object> remap = null;
+
+    if (update != null) {
+      remap = Maps.newHashMap();
+      remap.putAll(update);
+    }
+
     onActivityConfiguration(remap);
   }
 
