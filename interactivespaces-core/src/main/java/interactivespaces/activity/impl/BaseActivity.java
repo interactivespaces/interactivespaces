@@ -270,7 +270,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       }
     } catch (Throwable e) {
       componentContext.endStartupPhase(false);
-      logException("Could not start activity up", e);
+      logException("Could not startup activity", e);
 
       setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
     }
