@@ -177,8 +177,7 @@ public class ActivityComponentContext {
    * Block until there are no longer handlers which are processing.
    *
    * @param sampleTime
-   *          how often sampling should take place for whether there are
-   *          processing handler, in milliseconds
+   *          how often sampling should take place for whether there are processing handler, in milliseconds
    * @param maxSamplingTime
    *          how long should sampling take place before punting, in msecs
    *
@@ -194,12 +193,10 @@ public class ActivityComponentContext {
   }
 
   /**
-   * Wait for the context to complete startup, whether successfully or
-   * unsuccessfully.
+   * Wait for the context to complete startup, whether successfully or unsuccessfully.
    *
    * <p>
-   * This method should be called before any handler runs, it will return
-   * immediately if startup has completed.
+   * This method should be called before any handler runs, it will return immediately if startup has completed.
    *
    * <p>
    * The await will not be for longer than a preset amount of time.
@@ -226,8 +223,7 @@ public class ActivityComponentContext {
    * Can a handler run?
    *
    * <p>
-   * This call requires both {@link #areHandlersAllowed()} and
-   * {@link #awaitStartup()} to both be {@code true}.
+   * This call requires both {@link #areHandlersAllowed()} and {@link #awaitStartup()} to both be {@code true}.
    *
    * @return {@code true} if a handle can run.
    */
@@ -256,8 +252,7 @@ public class ActivityComponentContext {
   }
 
   /**
-   * Add a component which has been checked for whether it has been added or
-   * not.
+   * Add a component which has been checked for whether it has been added or not.
    *
    * @param component
    *          the component to add
@@ -361,7 +356,7 @@ public class ActivityComponentContext {
       throw new SimpleInteractiveSpacesException("Attempt to configure already configured components");
     }
 
-    DependencyResolver<ActivityComponent> resolver = new DependencyResolver<ActivityComponent>();
+    DependencyResolver<String, ActivityComponent> resolver = new DependencyResolver<String, ActivityComponent>();
 
     for (ActivityComponent component : addedComponents.values()) {
       resolver.addNode(component.getName(), component);
@@ -536,8 +531,8 @@ public class ActivityComponentContext {
   }
 
   /**
-   * Handle a component error for the given throwable. Makes sure the log object
-   * from the component is valid, otherwise use the global log.
+   * Handle a component error for the given throwable. Makes sure the log object from the component is valid, otherwise
+   * use the global log.
    *
    * @param component
    *          component with error

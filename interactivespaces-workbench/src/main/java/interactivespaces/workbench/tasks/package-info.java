@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,13 +14,9 @@
  * the License.
  */
 
-package interactivespaces.util.graph;
-
 /**
- * Classifications for edges between graph nodes.
+ * This package contains the base support for tasks in the workbench.
  *
  * @author Keith M. Hughes
  */
-public enum GraphEdgeClassification {
-  UNCLASSIFIED, TREE, BACK, FORWARD, CROSS
-}
+package interactivespaces.workbench.tasks;

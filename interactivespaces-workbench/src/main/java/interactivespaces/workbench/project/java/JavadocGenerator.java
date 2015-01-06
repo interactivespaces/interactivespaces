@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 /**
  * A generator for Javadoc.
@@ -31,6 +31,6 @@ public interface JavadocGenerator {
    * @param context
    *          the project context
    */
-  void generate(ProjectBuildContext context);
+  void generate(ProjectTaskContext context);
 
 }

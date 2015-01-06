@@ -18,8 +18,8 @@ package interactivespaces.workbench.project.activity.type;
 
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.ide.EclipseIdeProjectCreatorSpecification;
 
 /**
  * An activity project type.

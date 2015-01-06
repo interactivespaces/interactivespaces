@@ -14,11 +14,12 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.ide;
+package interactivespaces.workbench.project.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
@@ -44,6 +45,11 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
    * Freemarker context variable for sources which are part of the project.
    */
   private static final String FREEMARKER_CONTEXT_SOURCES = "srcs";
+
+  /**
+   * Freemarker context variable for dynamic projects which are part of the project.
+   */
+  private static final String FREEMARKER_CONTEXT_DYNAMIC_PROJECTS = "dynamicProjects";
 
   /**
    * The location of the eclipse classpath template file.
@@ -113,23 +119,34 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
   }
 
   @Override
-  public void addSpecificationData(Project project, ProjectBuildContext context, Map<String, Object> freemarkerContext) {
+  public void addSpecificationData(Project project, ProjectTaskContext context, Map<String, Object> freemarkerContext) {
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_NATURES, Lists.newArrayList(ECLIPSE_NATURE_JAVA));
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_BUILDER, ECLIPSE_BUILDER_JAVA);
   }
 
   @Override
-  public void writeAdditionalFiles(Project project, ProjectBuildContext context, Map<String, Object> freemarkerContext,
+  public void writeAdditionalFiles(Project project, ProjectTaskContext context, Map<String, Object> freemarkerContext,
       FreemarkerTemplater templater) throws Exception {
     JavaProjectType projectType = context.getProjectType();
 
+    List<Project> dynamicProjects = Lists.newArrayList();
+    for (ProjectDependency dependency : project.getDependencies()) {
+      if (dependency.isDynamic()) {
+        Project dependencyProject = context.getWorkbenchTaskContext().getDynamicProjectFromProjectPath(dependency);
+        if (dependencyProject != null) {
+          dynamicProjects.add(dependencyProject);
+        }
+      }
+    }
+
     List<File> projectLibs = Lists.newArrayList();
-    projectType.getProjectClasspath(context, projectLibs, extensions, context.getWorkbench());
+    projectType.getProjectClasspath(false, context, projectLibs, extensions, context.getWorkbenchTaskContext());
 
     List<String> sources = Lists.newArrayList(sourcesRequired);
     addNecessaryOptionalSources(project, sources);
     freemarkerContext.put(FREEMARKER_CONTEXT_SOURCES, sources);
     freemarkerContext.put(FREEMARKER_CONTEXT_LIBS, projectLibs);
+    freemarkerContext.put(FREEMARKER_CONTEXT_DYNAMIC_PROJECTS, dynamicProjects);
 
     templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(), FILENAME_CLASSPATH_FILE),
         TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH);

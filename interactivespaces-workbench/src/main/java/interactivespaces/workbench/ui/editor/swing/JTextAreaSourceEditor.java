@@ -16,11 +16,11 @@
 
 package interactivespaces.workbench.ui.editor.swing;
 
-import com.google.common.collect.Lists;
-
-import interactivespaces.workbench.project.activity.Source;
+import interactivespaces.workbench.project.source.Source;
 import interactivespaces.workbench.ui.SourceEditor;
 import interactivespaces.workbench.ui.SourceEditorListener;
+
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -34,10 +34,9 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.UndoManager;
 
 /**
- * A {@link SourceEditor} using a {@link JTextArea}
+ * A {@link SourceEditor} using a {@link JTextArea}.
  *
  * @author Keith M. Hughes
- * @since Sep 20, 2012
  */
 public class JTextAreaSourceEditor implements SourceEditor {
 
@@ -61,6 +60,12 @@ public class JTextAreaSourceEditor implements SourceEditor {
    */
   private UndoManager undoManager = new UndoManager();
 
+  /**
+   * Construct a new editor.
+   *
+   * @param source
+   *          the source to create the editor for
+   */
   public JTextAreaSourceEditor(Source source) {
     this.source = source;
 
@@ -84,6 +89,7 @@ public class JTextAreaSourceEditor implements SourceEditor {
     });
 
     textArea.getDocument().addUndoableEditListener(new UndoableEditListener() {
+      @Override
       public void undoableEditHappened(UndoableEditEvent e) {
         undoManager.addEdit(e.getEdit());
         // updateButtons();
@@ -108,14 +114,11 @@ public class JTextAreaSourceEditor implements SourceEditor {
 
   @Override
   public boolean isContentModified() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   @Override
   public void setContentModified(boolean modified) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -125,14 +128,10 @@ public class JTextAreaSourceEditor implements SourceEditor {
 
   @Override
   public void selectLine(long line) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void clearSelection() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -149,14 +148,11 @@ public class JTextAreaSourceEditor implements SourceEditor {
 
   @Override
   public boolean isMarkedModified() {
-    // TODO Auto-generated method stub
     return false;
   }
 
   @Override
   public void setMarkedModified(boolean markedModified) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
@@ -203,7 +199,8 @@ public class JTextAreaSourceEditor implements SourceEditor {
    * Something about the content changed.
    */
   private void contentChanged() {
-    for (SourceEditorListener listener : editorListeners)
+    for (SourceEditorListener listener : editorListeners) {
       listener.contentModified(this);
+    }
   }
 }

@@ -22,8 +22,8 @@ import static interactivespaces.workbench.project.constituent.ProjectAssemblyCon
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.Files;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 
@@ -40,7 +40,7 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
   public static final String ASSEMBLY_FILE_EXTENSION = "zip";
 
   @Override
-  public boolean build(AssemblyProject project, ProjectBuildContext context) {
+  public boolean build(AssemblyProject project, ProjectTaskContext context) {
     String packFormat = project.getAttribute(PACK_FORMAT_ATTRIBUTE);
     if (!ZIP_PACK_FORMAT.equals(packFormat)) {
       throw new SimpleInteractiveSpacesException(String.format(
@@ -70,7 +70,7 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
    * @return {@code true} on successful assembly
    */
   protected boolean assemble(Project project, File stagingDirectory,
-      ProjectBuildContext context) {
+      ProjectTaskContext context) {
     File buildDirectory = context.getBuildDirectory();
     File assemblyFile =
         getBuildDestinationFile(project, buildDirectory, ASSEMBLY_FILE_EXTENSION);

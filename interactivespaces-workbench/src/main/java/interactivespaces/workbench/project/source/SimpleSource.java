@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project.source;
 
 import interactivespaces.workbench.project.Project;
 
@@ -45,10 +45,21 @@ public class SimpleSource implements Source {
    */
   private SourceAdapter adapter;
 
+  /**
+   * Construct an empty source.
+   */
   public SimpleSource() {
     // Do nothing
   }
 
+  /**
+   * Construct a source for a given project file.
+   *
+   * @param project
+   *          the project containing the source
+   * @param path
+   *          the path for the project file
+   */
   public SimpleSource(Project project, String path) {
     this.project = project;
     this.path = path;
@@ -79,10 +90,11 @@ public class SimpleSource implements Source {
     String name = null;
     if (path != null) {
       int index = path.lastIndexOf("/");
-      if (index != -1)
+      if (index != -1) {
         name = path.substring(index + 1);
-      else
+      } else {
         name = path;
+      }
     }
 
     return name;
@@ -123,15 +135,17 @@ public class SimpleSource implements Source {
    * Copy the contents of the adapter, if any.
    */
   private void copyFromAdapter() {
-    if (adapter != null && adapter.isContentModified())
+    if (adapter != null && adapter.isContentModified()) {
       content = adapter.getContent();
+    }
   }
 
   /**
    * Copy the contents to the adapter, if any.
    */
   private void copyToAdapter() {
-    if (adapter != null)
+    if (adapter != null) {
       adapter.setContent(content);
+    }
   }
 }

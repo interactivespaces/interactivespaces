@@ -14,9 +14,9 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project;
 
-import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.source.Source;
 
 import org.apache.commons.logging.Log;
 
@@ -27,10 +27,10 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public interface ActivityProjectManager {
+public interface ProjectManager {
 
   /**
-   * Is the folder an activity project folder?
+   * Is the folder a project folder?
    *
    * @param baseDir
    *          the potential base project folder
@@ -52,14 +52,14 @@ public interface ActivityProjectManager {
   Project readProject(File baseProjectDir, Log log);
 
   /**
-   * Get a source for the activity configuration.
+   * Get a source for the project file.
    *
    * @param project
    *          the project
    *
-   * @return source for the activity configuration
+   * @return source for the oroject
    */
-  Source getActivityConfSource(Project project);
+  Source getProjectXmlSource(Project project);
 
   /**
    * Save a source file.

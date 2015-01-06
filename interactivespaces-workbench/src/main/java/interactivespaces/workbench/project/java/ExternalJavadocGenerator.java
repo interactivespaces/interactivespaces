@@ -16,9 +16,9 @@
 
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.Files;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,46 +37,51 @@ import java.util.List;
  */
 public class ExternalJavadocGenerator implements JavadocGenerator {
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
-  public void generate(ProjectBuildContext context) {
-    File docBuildFolder = new File(context.getBuildDirectory(), "docs/html/javadoc");
-    Files.directoryExists(docBuildFolder);
-    Files.deleteDirectoryContents(docBuildFolder);
+  public void generate(ProjectTaskContext context) {
+    File docBuildFolder = fileSupport.newFile(context.getBuildDirectory(), "docs/html/javadoc");
+    fileSupport.directoryExists(docBuildFolder);
+    fileSupport.deleteDirectoryContents(docBuildFolder);
 
     File classesFolder =
-        new File(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+        fileSupport.newFile(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     if (!classesFolder.exists() || !classesFolder.isDirectory()) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "Java class files folder %s does not exist", classesFolder.getAbsolutePath()));
+      context.getWorkbenchTaskContext().handleError(
+          String.format("Java class files folder %s does not exist", classesFolder.getAbsolutePath()));
     }
 
-    File sourcesFolder =
-        new File(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    File sourcesFolder = fileSupport.newFile(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
     if (!sourcesFolder.exists() || !sourcesFolder.isDirectory()) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "Java source files folder %s does not exist", classesFolder.getAbsolutePath()));
+      context.getWorkbenchTaskContext().handleError(
+          String.format("Java source files folder %s does not exist", classesFolder.getAbsolutePath()));
     }
 
-    ArrayList<String> command = Lists.newArrayList();
+    List<String> command = Lists.newArrayList();
     command.add("javadoc");
     command.add("-d");
     command.add(docBuildFolder.getAbsolutePath());
     command.add("-sourcepath");
     command.add(sourcesFolder.getAbsolutePath());
-    command.add("-subpackages");
 
-    getRootSubpackages(classesFolder, command);
+    command.add("-subpackages");
+    command.add(getRootSubpackages(classesFolder));
 
     command.add("-public");
 
-    System.out.format("Javadoc command is %s\n", command);
+    context.getWorkbenchTaskContext().getWorkbench().getLog().info(String.format("Javadoc command is %s", command));
 
     try {
+      // TODO(keith): Move over to using IS process commands.
       Process process = Runtime.getRuntime().exec(command.toArray(new String[0]));
 
       waitForEnd(process, context);
     } catch (IOException e) {
-      context.getWorkbench().handleError("Error while creating project", e);
+      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
     }
   }
 
@@ -86,18 +90,23 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    *
    * @param classesFolder
    *          the folder containing the packages
-   * @param command
-   *          the Javadoc command being built, this is the subpackages argument
+   *
+   * @return the subpackages argument for the Javadoc command
    */
-  private void getRootSubpackages(File classesFolder, List<String> command) {
+  private String getRootSubpackages(File classesFolder) {
+    StringBuilder builder = new StringBuilder();
+
     File[] packageDirs = classesFolder.listFiles();
     if (packageDirs != null) {
       for (File f : packageDirs) {
         if (f.isDirectory()) {
-          command.add(f.getName());
+          builder.append(":").append(f.getName());
         }
       }
     }
+
+    // Strip off the leading :
+    return builder.substring(1);
   }
 
   /**
@@ -108,7 +117,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    * @param context
    *          the build context
    */
-  private void waitForEnd(Process process, ProjectBuildContext context) {
+  private void waitForEnd(Process process, ProjectTaskContext context) {
     try {
       int exitValue = process.waitFor();
       if (exitValue != 0) {
@@ -119,7 +128,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         System.out.println(result.toString());
       }
     } catch (InterruptedException e) {
-      context.getWorkbench().handleError("Error while creating project", e);
+      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
     }
   }
 
@@ -133,7 +142,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
    * @param context
    *          project build context
    */
-  private void getStreamContents(StringBuilder result, InputStream stream, ProjectBuildContext context) {
+  private void getStreamContents(StringBuilder result, InputStream stream, ProjectTaskContext context) {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
     String line = null;
     try {
@@ -141,7 +150,7 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         result.append(line);
       }
     } catch (Exception e) {
-      context.getWorkbench().handleError("Error while creating project", e);
+      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
     } finally {
       Closeables.closeQuietly(reader);
     }

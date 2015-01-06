@@ -17,26 +17,30 @@
 package interactivespaces.util.graph;
 
 /**
- * A {@link GraphWalkerObserver} which provides no nothing defaults for all
- * methods.
+ * A {@link GraphWalkerObserver} which provides no nothing defaults for all methods.
+ *
+ * @param <I>
+ *          type of IDs in the graph
+ * @param <T>
+ *          type of the data in the graph
  *
  * @author Keith M. Hughes
  */
-public class BaseGraphWalkerObserver<Data> implements GraphWalkerObserver<Data> {
+public class BaseGraphWalkerObserver<I, T> implements GraphWalkerObserver<I, T> {
 
   @Override
-  public void observeGraphNodeBefore(GraphNode<Data> node) {
+  public void observeGraphNodeBefore(WalkableGraphNode<I, T> node) {
     // Default is do nothing
   }
 
   @Override
-  public void observeGraphNodeAfter(GraphNode<Data> node) {
+  public void observeGraphNodeAfter(WalkableGraphNode<I, T> node) {
     // Default is do nothing
   }
 
   @Override
-  public void observeGraphEdge(GraphNode<Data> nodeFrom, GraphNode<Data> nodeTo,
-      GraphEdgeClassification classification) {
+  public void observeGraphEdge(WalkableGraphNode<I, T> nodeFrom, WalkableGraphNode<I, T> nodeTo,
+      GraphWalkerEdgeClassification classification) {
     // Default is do nothing
   }
 }

@@ -14,13 +14,30 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project.source;
+
+import interactivespaces.workbench.project.Project;
 
 /**
- * A file manager for activity projects.
+ * A listener for events from a project file manager.
  *
  * @author Keith M. Hughes
  */
-public interface ActivityProjectFileManager {
+public interface ProjectFileManagerListener {
 
+  /**
+   * A new project has been opened.
+   *
+   * @param project
+   *          the new project
+   */
+  void onNewProject(Project project);
+
+  /**
+   * A new source file has been added.
+   *
+   * @param source
+   *          the new sourrce file which has been added
+   */
+  void onNewSource(Source source);
 }

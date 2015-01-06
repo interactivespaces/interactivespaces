@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,24 +14,31 @@
  * the License.
  */
 
-package interactivespaces.workbench.ui;
+package interactivespaces.workbench.tasks;
 
-import interactivespaces.workbench.project.source.Source;
+import com.google.common.collect.Sets;
+
+import java.util.Set;
 
 /**
- * A factory for creating user interface elements.
+ * A base class for workbench tasks that provides some support.
  *
  * @author Keith M. Hughes
  */
-public interface UserInterfaceFactory {
+public abstract class BaseWorkbenchTask implements WorkbenchTask {
 
   /**
-   * Create a new editor for sources.
-   *
-   * @param source
-   *          the source
-   *
-   * @return a ready to use editor for the source
+   * The task dependencies for this task.
    */
-  SourceEditor newSourceEditor(Source source);
+  private Set<WorkbenchTask> taskDependencies = Sets.newHashSet();
+
+  @Override
+  public void addTaskDependency(WorkbenchTask dependency) {
+    taskDependencies.add(dependency);
+  }
+
+  @Override
+  public Set<WorkbenchTask> getTaskDependencies() {
+    return taskDependencies;
+  }
 }

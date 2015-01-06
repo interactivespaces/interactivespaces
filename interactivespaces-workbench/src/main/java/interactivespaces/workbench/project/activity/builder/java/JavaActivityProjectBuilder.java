@@ -18,9 +18,9 @@ package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
@@ -75,7 +75,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   }
 
   @Override
-  public boolean onBuild(ActivityProject project, ProjectBuildContext context, File stagingDirectory) {
+  public boolean onBuild(ActivityProject project, ProjectTaskContext context, File stagingDirectory) {
     try {
       File buildDirectory = context.getBuildDirectory();
       File compilationDirectory = getCompilationOutputDirectory(buildDirectory);
@@ -88,7 +88,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
 
       return false;
     } catch (Exception e) {
-      context.getWorkbench().handleError("Error while building java activity project", e);
+      context.getWorkbenchTaskContext().handleError("Error while building java activity project", e);
 
       return false;
     }
@@ -104,7 +104,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    *
    * @return {@code true} if all tests succeeded
    */
-  private boolean runTests(File jarDestinationFile, ProjectBuildContext context) {
+  private boolean runTests(File jarDestinationFile, ProjectTaskContext context) {
     JavaTestRunner runner = new JavaTestRunner();
 
     return runner.runTests(jarDestinationFile, extensions, context);

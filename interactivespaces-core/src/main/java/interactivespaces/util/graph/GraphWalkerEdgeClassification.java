@@ -14,24 +14,37 @@
  * the License.
  */
 
-package interactivespaces.workbench.ui;
-
-import interactivespaces.workbench.project.source.Source;
+package interactivespaces.util.graph;
 
 /**
- * A factory for creating user interface elements.
+ * Classifications for edges between graph nodes.
  *
  * @author Keith M. Hughes
  */
-public interface UserInterfaceFactory {
+public enum GraphWalkerEdgeClassification {
 
   /**
-   * Create a new editor for sources.
-   *
-   * @param source
-   *          the source
-   *
-   * @return a ready to use editor for the source
+   * The edge is unclassified.
    */
-  SourceEditor newSourceEditor(Source source);
+  UNCLASSIFIED,
+
+  /**
+   * The edge directly connects a node to its parent.
+   */
+  TREE,
+
+  /**
+   * The edge points back to a node already visited..
+   */
+  BACK,
+
+  /**
+   * The edge points forward in the walk.
+   */
+  FORWARD,
+
+  /**
+   * The edge crosses paths in the walk.
+   */
+  CROSS
 }

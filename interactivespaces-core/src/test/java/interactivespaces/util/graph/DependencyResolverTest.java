@@ -31,11 +31,11 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class DependencyResolverTest {
-  private DependencyResolver<String> resolver;
+  private DependencyResolver<String,String> resolver;
 
   @Before
   public void setup() {
-    resolver = new DependencyResolver<String>();
+    resolver = new DependencyResolver<String,String>();
   }
 
   @Test

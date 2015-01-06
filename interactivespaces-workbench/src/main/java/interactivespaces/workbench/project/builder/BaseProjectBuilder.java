@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.builder;
 
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
@@ -69,7 +70,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    *
    * @return {@code true} if build part was successful
    */
-  public boolean onBuild(T project, ProjectBuildContext context, File stagingDirectory) {
+  public boolean onBuild(T project, ProjectTaskContext context, File stagingDirectory) {
     // Default is nothing
     return true;
   }
@@ -84,7 +85,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @param context
    *          context for the build
    */
-  protected void processResources(Project project, File stagingDirectory, ProjectBuildContext context) {
+  protected void processResources(Project project, File stagingDirectory, ProjectTaskContext context) {
     processConstituents(project, project.getResources(), stagingDirectory, context);
   }
 
@@ -98,7 +99,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @param context
    *          context for the build
    */
-  protected void processExtraConstituents(Project project, File stagingDirectory, ProjectBuildContext context) {
+  protected void processExtraConstituents(Project project, File stagingDirectory, ProjectTaskContext context) {
     processConstituents(project, project.getExtraConstituents(), stagingDirectory, context);
   }
 
@@ -112,7 +113,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @param context
    *          context for the build
    */
-  protected void processSources(Project project, File stagingDirectory, ProjectBuildContext context) {
+  protected void processSources(Project project, File stagingDirectory, ProjectTaskContext context) {
     processConstituents(project, project.getSources(), stagingDirectory, context);
   }
 
@@ -129,7 +130,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    *          context for the build
    */
   private void processConstituents(Project project, List<ProjectConstituent> constituents, File stagingDirectory,
-      ProjectBuildContext context) {
+      ProjectTaskContext context) {
     if (constituents == null) {
       return;
     }
@@ -179,7 +180,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @param context
    *          project context containing the resource source map
    */
-  protected void writeResourceMap(Project project, File stagingDirectory, ProjectBuildContext context) {
+  protected void writeResourceMap(Project project, File stagingDirectory, ProjectTaskContext context) {
     File resourceMapFile = new File(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
 
     Map<String, Object> templateData = Maps.newHashMap();
@@ -198,6 +199,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
       stringMap.put(TEMPLATE_ENTRY_SRC_KEY, sourceEntry.getValue().getAbsolutePath());
       srcList.add(stringMap);
     }
-    context.getWorkbench().getTemplater().writeTemplate(templateData, resourceMapFile, ACTIVITY_RESOURCE_MAP_TEMPLATE);
+    context.getWorkbenchTaskContext().getWorkbench().getTemplater()
+        .writeTemplate(templateData, resourceMapFile, ACTIVITY_RESOURCE_MAP_TEMPLATE);
   }
 }

@@ -17,6 +17,7 @@
 package interactivespaces.launcher.bootstrap;
 
 import interactivespaces.system.core.configuration.ConfigurationProvider;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 
 import org.apache.commons.logging.Log;
 
@@ -50,11 +51,6 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    * Default directory for the home directory relative to install of this component.
    */
   private static final String INTERACTIVESPACES_HOME_DEFAULT_DIR = "..";
-
-  /**
-   * Configuration key for interactive spaces home directory.
-   */
-  private static final String INTERACTIVESPACES_HOME_CONFIG_KEY = "interactivespaces.home";
 
   /**
    * The base install folder.
@@ -108,7 +104,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
     File isHomeDir =
         isHomeEnvPath != null ? new File(isHomeEnvPath) : new File(baseInstallFolder,
             INTERACTIVESPACES_HOME_DEFAULT_DIR);
-    currentConfiguration.put(INTERACTIVESPACES_HOME_CONFIG_KEY, isHomeDir.getAbsolutePath());
+    currentConfiguration.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_HOME, isHomeDir.getAbsolutePath());
 
     // Look in the specified bundle directory to create a list
     // of all JAR files to install.

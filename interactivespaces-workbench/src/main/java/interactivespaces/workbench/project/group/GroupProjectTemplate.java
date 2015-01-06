@@ -41,7 +41,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
     try {
       for (Project project : groupProjectTemplateSpecification.getProjectList()) {
         projectIndex++;
-        context.getWorkbench().getProjectCreator().create(makeCreationSpecification(project, context));
+        context.getWorkbenchTaskContext().getWorkbench().getProjectCreator().create(makeCreationSpecification(project, context));
       }
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException(String.format(
@@ -64,7 +64,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
       Project project, ProjectCreationContext groupCreationSpec) {
     ProjectCreationContext creationSpecification = new ProjectCreationContext("sub-project");
     creationSpecification.setProject(project);
-    creationSpecification.setWorkbench(groupCreationSpec.getWorkbench());
+    creationSpecification.setWorkbenchTaskContext(groupCreationSpec.getWorkbenchTaskContext());
     creationSpecification.setBaseDirectory(groupCreationSpec.getBaseDirectory());
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());

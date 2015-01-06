@@ -23,13 +23,16 @@ import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.tasks.WorkbenchTaskContext;
+
+import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Useful constants and methods for working with Java projects.
@@ -61,51 +64,81 @@ public abstract class JavaProjectType implements ProjectType {
   /**
    * Get a classpath that would be used at runtime for the project.
    *
-   * @param context
+   * @param needsDynamicArtifacts
+   *          {@code true} if needs artifacts from the dynamic projects
+   * @param projectTaskContext
    *          the project build context
    * @param classpath
    *          the classpath list to add to
    * @param extension
    *          any Java extension, can be {@code null}
-   * @param workbench
-   *          the workbench
+   * @param workbenchTaskContext
+   *          the workbench task context
    */
-  public void getRuntimeClasspath(ProjectBuildContext context, List<File> classpath, JavaProjectExtension extension,
-      InteractiveSpacesWorkbench workbench) {
-    classpath.addAll(workbench.getControllerSystemBootstrapClasspath());
+  public void getRuntimeClasspath(boolean needsDynamicArtifacts, ProjectTaskContext projectTaskContext,
+      List<File> classpath, JavaProjectExtension extension, WorkbenchTaskContext workbenchTaskContext) {
+    classpath.addAll(workbenchTaskContext.getControllerSystemBootstrapClasspath());
 
-    addDependenciesFromUserBootstrap(context, classpath, workbench);
+    addDependenciesFromDynamicProjectTaskContexts(projectTaskContext, classpath);
+
+    addDependenciesFromUserBootstrap(needsDynamicArtifacts, projectTaskContext, classpath, workbenchTaskContext);
 
     if (extension != null) {
-      extension.addToClasspath(classpath, context);
+      extension.addToClasspath(classpath, projectTaskContext);
     }
+  }
+
+  /**
+   * Add all generated artifacts from all dynamic dependencies to the classpath.
+   *
+   * @param projectTaskContext
+   *          context for the project the classpath is needed for
+   * @param classpath
+   *          the classpath to add to
+   */
+  private void
+      addDependenciesFromDynamicProjectTaskContexts(ProjectTaskContext projectTaskContext, List<File> classpath) {
+    Set<File> filesToAdd = Sets.newHashSet();
+    for (ProjectTaskContext dynamicProjectTaskContext : projectTaskContext.getDynamicProjectDependencyContexts()) {
+      filesToAdd.addAll(dynamicProjectTaskContext.getGeneratedArtifacts());
+    }
+
+    classpath.addAll(filesToAdd);
   }
 
   /**
    * Add dependencies to the classpath if they are found in the user bootstrap folder of the controller.
    *
-   * @param context
+   * @param needsDynamicArtifacts
+   *          {@code true} if needs artifacts from the dynamic projects
+   * @param projectTaskContext
    *          the project build context
    * @param classpath
    *          the classpath list
-   * @param workbench
-   *          the workbench
+   * @param wokbenchTaskContext
+   *          the workbench task context
    */
-  private void addDependenciesFromUserBootstrap(ProjectBuildContext context, List<File> classpath,
-      InteractiveSpacesWorkbench workbench) {
+  private void addDependenciesFromUserBootstrap(boolean needsDynamicArtifacts, ProjectTaskContext projectTaskContext,
+      List<File> classpath, WorkbenchTaskContext wokbenchTaskContext) {
     NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> startupResources =
-        new OsgiResourceAnalyzer(workbench.getLog()).getResourceCollection(fileSupport.newFile(
-            workbench.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
-    for (ProjectDependency dependency : context.getProject().getDependencies()) {
+        new OsgiResourceAnalyzer(wokbenchTaskContext.getWorkbench().getLog()).getResourceCollection(fileSupport
+            .newFile(wokbenchTaskContext.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
+    for (ProjectDependency dependency : projectTaskContext.getProject().getDependencies()) {
+      // Skip the dependency if a dynamic project that exists on the workbench project path.
+      if (dependency.isDynamic() && wokbenchTaskContext.getDynamicProjectFromProjectPath(dependency) != null) {
+        continue;
+      }
+
       NamedVersionedResourceWithData<String> dependencyProvider =
-          startupResources.getResource(dependency.getIdentifyingName(), dependency.getVersionRange());
+          startupResources.getResource(dependency.getIdentifyingName(), dependency.getVersion());
       if (dependencyProvider != null) {
         classpath.add(fileSupport.newFile(dependencyProvider.getData()));
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
         throw new SimpleInteractiveSpacesException(String.format(
             "Project has listed dependency that isn't available %s:%s", dependency.getIdentifyingName(),
-            dependency.getVersionRange()));
+            dependency.getVersion()));
+
       }
     }
   }
@@ -116,19 +149,22 @@ public abstract class JavaProjectType implements ProjectType {
    * <p>
    * This includes runtime classes.
    *
-   * @param context
+   * @param needsDynamicArtifacts
+   *          {@code true} if needs artifacts from the dynamic projects
+   * @param projectTaskContext
    *          the project build context
    * @param classpath
    *          the classpath to add to
    * @param extension
    *          any Java extension, can be {@code null}
-   * @param workbench
-   *          the workbench
+   * @param wokbenchTaskContext
+   *          the workbench task context
    */
-  public void getProjectClasspath(ProjectBuildContext context, List<File> classpath, JavaProjectExtension extension,
-      InteractiveSpacesWorkbench workbench) {
-    getRuntimeClasspath(context, classpath, extension, workbench);
+  public void getProjectClasspath(boolean needsDynamicArtifacts, ProjectTaskContext projectTaskContext,
+      List<File> classpath, JavaProjectExtension extension, WorkbenchTaskContext wokbenchTaskContext) {
+    getRuntimeClasspath(needsDynamicArtifacts, projectTaskContext, classpath, extension, wokbenchTaskContext);
 
-    context.getWorkbench().addExtrasControllerExtensionsClasspath(classpath, TESTING_EXTRAS_COMPONENT);
+    projectTaskContext.getWorkbenchTaskContext().addExtrasControllerExtensionsClasspath(classpath,
+        TESTING_EXTRAS_COMPONENT);
   }
 }

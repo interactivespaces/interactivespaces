@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.builder;
 
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 /**
  * A builder for Interactive Spaces projects.
@@ -48,5 +49,5 @@ public interface ProjectBuilder<T extends Project> {
    *
    * @return {@code true} if a successful build
    */
-  boolean build(T project, ProjectBuildContext context);
+  boolean build(T project, ProjectTaskContext context);
 }

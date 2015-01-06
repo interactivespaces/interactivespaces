@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import java.io.File;
 
@@ -44,5 +44,5 @@ public interface JavaJarCompiler {
    * @return {@code true} if the compilation was successful
    */
   boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
-      ContainerInfo containerInfo, ProjectBuildContext context);
+      ContainerInfo containerInfo, ProjectTaskContext context);
 }

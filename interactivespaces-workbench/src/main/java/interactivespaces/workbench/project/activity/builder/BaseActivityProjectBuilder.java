@@ -19,9 +19,9 @@ package interactivespaces.workbench.project.activity.builder;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import com.google.common.collect.Maps;
 
@@ -29,8 +29,8 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * A base activity project builder which takes care of the portions of the build
- * needed by all types of activity projects.
+ * A base activity project builder which takes care of the portions of the build needed by all types of activity
+ * projects.
  *
  * @author Keith M. Hughes
  */
@@ -52,7 +52,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(ActivityProject project, ProjectBuildContext context) {
+  public boolean build(ActivityProject project, ProjectTaskContext context) {
     File stagingDirectory = new File(context.getBuildDirectory(), BUILD_STAGING_DIRECTORY);
     fileSupport.directoryExists(stagingDirectory);
 
@@ -84,7 +84,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
    * @throws InteractiveSpacesException
    *           if the activity resource directory does not exist
    */
-  private void copyActivityResources(ActivityProject project, File stagingDirectory, ProjectBuildContext context)
+  private void copyActivityResources(ActivityProject project, File stagingDirectory, ProjectTaskContext context)
       throws InteractiveSpacesException {
     File activityDirectory = new File(project.getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
     if (activityDirectory.exists()) {
@@ -102,7 +102,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
    * @param context
    *          context for the build
    */
-  private void handleActivityXml(ActivityProject project, File stagingDirectory, ProjectBuildContext context) {
+  private void handleActivityXml(ActivityProject project, File stagingDirectory, ProjectTaskContext context) {
     File activityXmlDest = new File(stagingDirectory, ActivityProject.FILENAME_ACTIVITY_XML);
 
     File activityXmlSrc = new File(project.getBaseDirectory(), ActivityProject.FILENAME_ACTIVITY_XML);
@@ -112,7 +112,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
       Map<String, Object> templateData = Maps.newHashMap();
       templateData.put("project", project);
 
-      context.getWorkbench().getTemplater()
+      context.getWorkbenchTaskContext().getWorkbench().getTemplater()
           .writeTemplate(templateData, activityXmlDest, ACTIVITY_XML_TEMPLATE_PATHNAME);
     }
   }
@@ -127,11 +127,12 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
    * @param context
    *          the build context
    */
-  private void handleActivityConf(ActivityProject project, File stagingDirectory, ProjectBuildContext context) {
+  private void handleActivityConf(ActivityProject project, File stagingDirectory, ProjectTaskContext context) {
     // If the activity conf exists, do not create another.
     File activityConfFile = project.getActivityConfigFile();
     if (activityConfFile.exists()) {
-      context.getWorkbench().getLog().info("The project already has an activity.conf, so not generating a new one");
+      context.getWorkbenchTaskContext().getWorkbench().getLog()
+          .info("The project already has an activity.conf, so not generating a new one");
       return;
     }
 
@@ -140,6 +141,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
     templateData.put("project", project);
 
     context
+        .getWorkbenchTaskContext()
         .getWorkbench()
         .getTemplater()
         .writeTemplate(templateData, generatedActivityConfFile,

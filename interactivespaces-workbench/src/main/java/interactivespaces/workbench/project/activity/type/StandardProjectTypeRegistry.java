@@ -16,8 +16,6 @@
 
 package interactivespaces.workbench.project.activity.type;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
@@ -30,6 +28,9 @@ import interactivespaces.workbench.project.group.GroupProjectType;
 import interactivespaces.workbench.project.library.LibraryProject;
 import interactivespaces.workbench.project.library.LibraryProjectType;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +39,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
+public class StandardProjectTypeRegistry implements ProjectTypeRegistry {
 
   /**
    * Name for the builder type of script activities.
@@ -63,7 +64,7 @@ public class SimpleProjectTypeRegistry implements ProjectTypeRegistry {
   /**
    * Create a basic registry for project types.
    */
-  public SimpleProjectTypeRegistry() {
+  public StandardProjectTypeRegistry() {
     registerProjectType(new JavaActivityProjectType());
     registerProjectType(new AndroidActivityProjectType());
     registerProjectType(new GenericActivityProjectType(SCRIPT_ACTIVITY_BUILDER_TYPE));

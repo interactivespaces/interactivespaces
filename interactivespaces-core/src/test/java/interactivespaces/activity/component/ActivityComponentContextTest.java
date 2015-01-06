@@ -20,6 +20,8 @@ import interactivespaces.activity.SupportedActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
+import com.google.common.collect.Lists;
+
 import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Assert;
@@ -321,10 +323,12 @@ public class ActivityComponentContextTest {
   @Test
   public void addMultipleComponentFailStartup1() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
-    Mockito.when(component1.getName()).thenReturn("foo");
+    String component1Name = "foo";
+    Mockito.when(component1.getName()).thenReturn(component1Name);
 
     ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component2.getName()).thenReturn("banana");
+    Mockito.when(component2.getDependencies()).thenReturn(Lists.newArrayList(component1Name));
 
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(component1).startupComponent();
@@ -353,10 +357,12 @@ public class ActivityComponentContextTest {
   @Test
   public void addMultipleComponentFailStartup2() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
-    Mockito.when(component1.getName()).thenReturn("foo");
+    String component1Name = "foo";
+   Mockito.when(component1.getName()).thenReturn(component1Name);
 
     ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component2.getName()).thenReturn("banana");
+    Mockito.when(component2.getDependencies()).thenReturn(Lists.newArrayList(component1Name));
 
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(component2).startupComponent();
@@ -387,10 +393,12 @@ public class ActivityComponentContextTest {
   @Test
   public void addMultipleComponentFailConfigure1() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
-    Mockito.when(component1.getName()).thenReturn("blerg");
+    String component1Name = "blerg";
+    Mockito.when(component1.getName()).thenReturn(component1Name);
 
     ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component2.getName()).thenReturn("garg");
+    Mockito.when(component2.getDependencies()).thenReturn(Lists.newArrayList(component1Name));
 
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(component1).configureComponent(activityConfiguration);
@@ -421,10 +429,12 @@ public class ActivityComponentContextTest {
   @Test
   public void addMultipleComponentFailConfigure2() throws Throwable {
     ActivityComponent component1 = Mockito.mock(ActivityComponent.class);
-    Mockito.when(component1.getName()).thenReturn("blerg");
+    String component1Name = "blerg";
+    Mockito.when(component1.getName()).thenReturn(component1Name);
 
     ActivityComponent component2 = Mockito.mock(ActivityComponent.class);
     Mockito.when(component2.getName()).thenReturn("garg");
+    Mockito.when(component2.getDependencies()).thenReturn(Lists.newArrayList(component1Name));
 
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(component2).configureComponent(activityConfiguration);

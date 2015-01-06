@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.ide;
+package interactivespaces.workbench.project.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Lists;
 
@@ -45,7 +45,7 @@ public class NonJavaEclipseIdeProjectCreatorSpecification implements
       "org.eclipse.wst.common.project.facet.core.nature";
 
   @Override
-  public void addSpecificationData(Project project, ProjectBuildContext context,
+  public void addSpecificationData(Project project, ProjectTaskContext context,
       Map<String, Object> freemarkerContext) {
     freemarkerContext.put(ECLIPSE_PROJECT_FIELD_NATURES,
         Lists.newArrayList(ECLIPSE_NATURE_NON_JAVA));
@@ -53,7 +53,7 @@ public class NonJavaEclipseIdeProjectCreatorSpecification implements
   }
 
   @Override
-  public void writeAdditionalFiles(Project project, ProjectBuildContext context,
+  public void writeAdditionalFiles(Project project, ProjectTaskContext context,
       Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception {
     // Nothing to do
   }

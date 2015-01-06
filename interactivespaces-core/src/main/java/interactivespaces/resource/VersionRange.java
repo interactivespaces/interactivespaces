@@ -48,6 +48,24 @@ public class VersionRange {
   /**
    * Parse a range string.
    *
+   * @param minimumVersion
+   *          the minimum version
+   * @param maximumVersion
+   *          the maximum version
+   *
+   * @return the range for the string
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           improperly formatted range or a {@code null} string
+   */
+  public static VersionRange parseVersionRange(String minimumVersion, String maximumVersion)
+      throws SimpleInteractiveSpacesException {
+    return new VersionRange(Version.parseVersion(minimumVersion), Version.parseVersion(maximumVersion), false);
+  }
+
+  /**
+   * Parse a range string.
+   *
    * @param range
    *          the range string
    *
@@ -118,8 +136,8 @@ public class VersionRange {
    * Construct a range with a minimum and maximum.
    *
    * <p>
-   * The range will be marked inclusive if {@code minimum} equals
-   * {@code maximum}, since exclusive could never be satisfied.
+   * The range will be marked inclusive if {@code minimum} equals {@code maximum}, since exclusive could never be
+   * satisfied.
    *
    * @param minimum
    *          the minimum

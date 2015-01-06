@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.project.activity.SourceAdapter;
+import interactivespaces.workbench.project.source.SourceAdapter;
 
 import javax.swing.JComponent;
 
@@ -30,7 +30,7 @@ public interface SourceEditor extends SourceAdapter {
   /**
    * Get the actual code editing UI component.
    *
-   * @return The actual code editing UI component.
+   * @return the actual code editing UI component
    */
   JComponent getComponent();
 
@@ -38,6 +38,7 @@ public interface SourceEditor extends SourceAdapter {
    * Select the specified line in the editor.
    *
    * @param line
+   *          the line to select
    */
   void selectLine(long line);
 
@@ -69,7 +70,8 @@ public interface SourceEditor extends SourceAdapter {
   /**
    * Set whether the editor is marked as modified.
    *
-   * @return {@code true} if the editor is marked as modified
+   * @param markedModified
+   *          {@code true} if the editor is marked as modified
    */
   void setMarkedModified(boolean markedModified);
 
@@ -77,14 +79,14 @@ public interface SourceEditor extends SourceAdapter {
    * Set whether the code editor is read only or not.
    *
    * @param readOnly
-   *          {@code true} if the editor should be read only, false otherwise.
+   *          {@code true} if the editor should be read only
    */
   void setReadOnly(boolean readOnly);
 
   /**
    * Is the code editor read only?
    *
-   * @return {@code true} if the editor is read only, false otherwise.
+   * @return {@code true} if the editor is read only
    */
   boolean isReadOnly();
 
@@ -99,8 +101,7 @@ public interface SourceEditor extends SourceAdapter {
   void redoEdit();
 
   /**
-   * Remove all edits from the editor. This will remove any pending undo and
-   * redo events.
+   * Remove all edits from the editor. This will remove any pending undo and redo events.
    */
   void removeAllEdits();
 }

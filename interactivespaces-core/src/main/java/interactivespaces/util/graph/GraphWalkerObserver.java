@@ -19,9 +19,14 @@ package interactivespaces.util.graph;
 /**
  * Observes as the graph is walked.
  *
+ * @param <I>
+ *          type of IDs in the graph
+ * @param <T>
+ *          type of the data in the graph
+ *
  * @author Keith M. Hughes
  */
-public interface GraphWalkerObserver<Data> {
+public interface GraphWalkerObserver<I, T> {
 
   /**
    * The node is known, but the neighbors haven't been processed yet.
@@ -29,7 +34,7 @@ public interface GraphWalkerObserver<Data> {
    * @param node
    *          the node whose neighbors are about to be processed
    */
-  void observeGraphNodeBefore(GraphNode<Data> node);
+  void observeGraphNodeBefore(WalkableGraphNode<I, T> node);
 
   /**
    * The node is known and the neighbors have been processed.
@@ -37,7 +42,7 @@ public interface GraphWalkerObserver<Data> {
    * @param node
    *          the node whose neighbors have just been processed
    */
-  void observeGraphNodeAfter(GraphNode<Data> node);
+  void observeGraphNodeAfter(WalkableGraphNode<I, T> node);
 
   /**
    * The node is known and the neighbors have been processed.
@@ -46,7 +51,9 @@ public interface GraphWalkerObserver<Data> {
    *          the node being traveled from
    * @param nodeTo
    *          the node being traveled to
+   * @param classification
+   *          the classification of the node edge
    */
-  void observeGraphEdge(GraphNode<Data> nodeFrom, GraphNode<Data> nodeTo,
-      GraphEdgeClassification classification);
+  void observeGraphEdge(WalkableGraphNode<I, T> nodeFrom, WalkableGraphNode<I, T> nodeTo,
+      GraphWalkerEdgeClassification classification);
 }

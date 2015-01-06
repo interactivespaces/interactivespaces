@@ -16,8 +16,8 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.activity.type.ProjectType;
+import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
 import java.io.File;
 import java.util.Map;
@@ -40,11 +40,11 @@ public interface ProjectContext {
   <T extends Project> T getProject();
 
   /**
-   * Get the workbench the project is being built under.
+   * Get the workbench task context the project is being built under.
    *
    * @return the workbench
    */
-  InteractiveSpacesWorkbench getWorkbench();
+  WorkbenchTaskContext getWorkbenchTaskContext();
 
   /**
    * Get the project type for the project.

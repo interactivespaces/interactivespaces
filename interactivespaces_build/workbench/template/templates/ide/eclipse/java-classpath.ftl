@@ -6,6 +6,10 @@
 </#list>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 
+<#list dynamicProjects as dynamicProject>
+    <classpathentry kind="src" path="/${dynamicProject.identifyingName}" exported="true"/>
+</#list>
+
 <#list libs as lib>
 	<classpathentry kind="lib" path="${lib}"/>
 </#list>

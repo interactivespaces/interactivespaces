@@ -16,11 +16,9 @@
 
 package interactivespaces.workbench.osgi;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
-import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
@@ -40,10 +38,10 @@ import java.util.List;
 public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 
   /**
-   * Introduced delay to prevent startup/shutdown race conditions when the workbench immediately errors out
-   * due to something like a missing command line argument.  When that happens, sometimes other components
-   * are in the process of starting up and throw a confusing/misleading error message when the workbench then
-   * shuts down. This delay allows the other components to fully start up before being shutdown.
+   * Introduced delay to prevent startup/shutdown race conditions when the workbench immediately errors out due to
+   * something like a missing command line argument. When that happens, sometimes other components are in the process of
+   * starting up and throw a confusing/misleading error message when the workbench then shuts down. This delay allows
+   * the other components to fully start up before being shutdown.
    */
   public static final int ERROR_RACE_CONDITION_DELAY_MS = 200;
 
@@ -97,10 +95,9 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    * Get all core services needed.
    *
    * <p>
-   * These services should have been provided by the OSGi container bootstrap
-   * and so will be immediately available. They will never go away since they
-   * are only destroyed when bundle 0 goes, which means the entire container is
-   * being shut down.
+   * These services should have been provided by the OSGi container bootstrap and so will be immediately available. They
+   * will never go away since they are only destroyed when bundle 0 goes, which means the entire container is being shut
+   * down.
    *
    * @throws Exception
    *           something bad happened
@@ -134,17 +131,9 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
       new Thread(new Runnable() {
         @Override
         public void run() {
-          boolean success = true;
+          boolean success = false;
           try {
-            workbench.doCommands(commandLineArguments);
-          } catch (Exception e) {
-            success = false;
-            if (e instanceof SimpleInteractiveSpacesException) {
-              workbench.getLog().error(((SimpleInteractiveSpacesException) e).getCompoundMessage());
-            } else {
-              workbench.getLog().error("Error executing workbench commands", e);
-            }
-            InteractiveSpacesUtilities.delay(ERROR_RACE_CONDITION_DELAY_MS);
+            success = workbench.doCommands(commandLineArguments);
           } finally {
             try {
               bundleContext.getBundle(0).stop();

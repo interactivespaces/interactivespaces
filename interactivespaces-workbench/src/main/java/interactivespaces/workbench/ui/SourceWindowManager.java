@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.workbench.project.activity.Source;
+import interactivespaces.workbench.project.source.Source;
 
 /**
  * The window manager for source windows.
@@ -41,15 +41,15 @@ public interface SourceWindowManager {
   /**
    * Are the programmer windows visible?
    *
-   * @return True if the windows are visible, false otherwise.
+   * @return {@code true} if the windows are visible
    */
   boolean areWindowsVisible();
 
   /**
-   * Set all programmer windows visible
+   * Set all programmer windows visible.
    *
    * @param visible
-   *          True if the windows are to be visible, false otherwise.
+   *          {@code true} if the windows are to be visible,
    */
   void setWindowsVisible(boolean visible);
 
@@ -57,14 +57,14 @@ public interface SourceWindowManager {
    * Add in a new code editor listener to be attached to all code editors.
    *
    * @param editorListener
-   *          The editor listener.
+   *          the editor listener to add
    */
   void addSourceEditorListener(SourceEditorListener editorListener);
 
   /**
    * Are there modified windows?
    *
-   * @return True if there are modified windows, false otherwise.
+   * @return {@code true} if there are modified windows
    */
   boolean hasModifiedWindows();
 
@@ -79,9 +79,9 @@ public interface SourceWindowManager {
   void saveCurrentWindow();
 
   /**
-   * Get the path of the currently open programmer window. Null if none.
+   * Get the path of the currently open programmer window.
    *
-   * @return The path of the currently open programmer window. Null if none.
+   * @return the path of the currently open programmer window, {@code null} if none
    */
   String getCurrentWindowPath();
 
@@ -92,30 +92,31 @@ public interface SourceWindowManager {
    * A no-op if there is no window associated with the given path.
    *
    * @param sourceFilePath
+   *        path for the source file
    */
   void removeSourceWindow(String sourceFilePath);
 
   /**
-   * Revert the current window
+   * Revert the current window.
    *
    * <p>
-   * A no-op if there is no current window
+   * A no-op if there is no current window.
    */
   void revertCurrentWindow();
 
   /**
-   * Undo the edit of the the current window
+   * Undo the edit of the the current window.
    *
    * <p>
-   * A no-op if there is no current window
+   * A no-op if there is no current window.
    */
   void undoEditCurrentWindow();
 
   /**
-   * Redo the edit of the the current window
+   * Redo the edit of the the current window.
    *
    * <p>
-   * A no-op if there is no current window
+   * A no-op if there is no current window.
    */
   void redoEditCurrentWindow();
 

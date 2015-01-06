@@ -77,6 +77,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   }
 
   /**
+   * The value in a project file for true.
+   */
+  public static final String PROJECT_VALUE_TRUE = "true";
+
+  /**
+   * The value in a project file for false.
+   */
+  public static final String PROJECT_VALUE_FALSE = "false";
+
+  /**
    * The name of the project.
    */
   public static final String PROJECT_ELEMENT_NAME_NAME = "name";
@@ -162,6 +172,11 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED = "name";
 
   /**
+   * Project definition file attribute name for the version range of a dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION = "version";
+
+  /**
    * Project definition file attribute name for the minimum version of a dependency.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM = "minimumVersion";
@@ -175,6 +190,21 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * Project definition file attribute name for whether a dependency is required.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED = "required";
+
+  /**
+   * Project definition file attribute default value for whether a dependency is required.
+   */
+  private static final String PROJECT_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_REQUIRED = PROJECT_VALUE_TRUE;
+
+  /**
+   * Project definition file attribute name for whether a dependency is dynamic.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_DYNAMIC = "dynamic";
+
+  /**
+   * Project definition file attribute default value for whether a dependency is dynamic.
+   */
+  private static final String PROJECT_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_DYNAMIC = PROJECT_VALUE_FALSE;
 
   /**
    * Project definition file element name for deployments.
@@ -480,41 +510,55 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * @return the dependency found in the element, or {@code null} if errors
    */
   private ProjectDependency getDependency(Element dependencyElement) {
-    String identifyingName = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
+    String identifyingName =
+        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
     if (identifyingName == null) {
-      identifyingName = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED);
+      identifyingName =
+          getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED);
       if (identifyingName == null) {
         addError("Dependency has no identifying name");
         return null;
       }
     }
 
-    String minimumVersion =
-        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM);
-    String maximumVersion =
-        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM);
-
-    if (minimumVersion != null) {
-      if (maximumVersion == null) {
-        maximumVersion = minimumVersion;
-      }
-    } else if (maximumVersion != null) {
-      // If here was no minimum version
-      minimumVersion = maximumVersion;
+    VersionRange version = null;
+    String versionStr = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION);
+    if (versionStr != null) {
+      version = VersionRange.parseVersionRange(versionStr);
     } else {
-      addError("Dependency has no version constraints");
-      return null;
+      String minimumVersionStr =
+          getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM);
+      String maximumVersionStr =
+          getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM);
+
+      if (minimumVersionStr != null) {
+        if (maximumVersionStr == null) {
+          maximumVersionStr = minimumVersionStr;
+        }
+      } else if (maximumVersionStr != null) {
+        // If here was no minimum version
+        minimumVersionStr = maximumVersionStr;
+      } else {
+        addError("Dependency has no version constraints");
+        return null;
+      }
+
+      version = VersionRange.parseVersionRange(minimumVersionStr, minimumVersionStr);
     }
 
-    String requiredString =
-        getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED, "true");
+    boolean required =
+        PROJECT_VALUE_TRUE.equals(getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED,
+            PROJECT_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_REQUIRED));
+    boolean dynamic =
+        PROJECT_VALUE_TRUE.equals(getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_DYNAMIC,
+            PROJECT_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_DYNAMIC));
 
     ProjectDependency dependency = new ProjectDependency();
 
     dependency.setIdentifyingName(identifyingName);
-    dependency.setMinimumVersion(Version.parseVersion(minimumVersion));
-    dependency.setMaximumVersion(Version.parseVersion(maximumVersion));
-    dependency.setRequired("true".equals(requiredString));
+    dependency.setVersionRange(version);
+    dependency.setRequired(required);
+    dependency.setDynamic(dynamic);
 
     return dependency;
   }

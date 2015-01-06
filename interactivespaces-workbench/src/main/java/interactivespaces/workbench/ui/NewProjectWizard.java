@@ -19,6 +19,7 @@ package interactivespaces.workbench.ui;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
+import interactivespaces.workbench.ui.wizard.Wizard;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 import interactivespaces.workbench.ui.wizard.component.ChooseFileWizard;
@@ -84,7 +85,8 @@ public class NewProjectWizard extends WizardCollection {
 
     ProjectCreationContext context = new ProjectCreationContext("from wizard");
     context.setProject(project);
-    context.setWorkbench(workbench);
+    // TODO(keith): Fix this.
+    //context.setWorkbench(workbench);
 
     // Folder will be by identifying name in the folder selected in the directory choose dialog
     String identifyingName = project.getIdentifyingName();

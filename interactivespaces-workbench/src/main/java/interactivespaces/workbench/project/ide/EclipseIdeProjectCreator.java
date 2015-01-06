@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.ide;
+package interactivespaces.workbench.project.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Maps;
 
@@ -38,7 +38,7 @@ public class EclipseIdeProjectCreator {
   private static final String TEMPLATE_FILEPATH_ECLIPSE_PROJECT = "ide/eclipse/project.ftl";
 
   /**
-   * What the Eclpse project file will be called.
+   * What the Eclipse project file will be called.
    */
   private static final String FILENAME_PROJECT_FILE = ".project";
 
@@ -61,17 +61,13 @@ public class EclipseIdeProjectCreator {
    * Create the IDE project.
    *
    * @param project
-   *          project creating the IDE version for param spec the specification
-   *          giving details about the IDE build
+   *          project creating the IDE version for param spec the specification giving details about the IDE build
    * @param context
    *          the build context
    * @param spec
    *          the specification for the IDE project
-   *
-   * @return {@code true} if successful
    */
-  public boolean createProject(Project project, ProjectBuildContext context,
-      EclipseIdeProjectCreatorSpecification spec) {
+  public void createProject(Project project, ProjectTaskContext context, EclipseIdeProjectCreatorSpecification spec) {
     try {
       // Create the freemarkerContext hash
       Map<String, Object> freemarkerContext = Maps.newHashMap();
@@ -82,12 +78,8 @@ public class EclipseIdeProjectCreator {
       writeProjectFile(project, freemarkerContext);
 
       spec.writeAdditionalFiles(project, context, freemarkerContext, templater);
-
-      return true;
     } catch (Exception e) {
-      context.getWorkbench().handleError("Error while creating eclipse project", e);
-
-      return false;
+      context.getWorkbenchTaskContext().handleError("Error while creating eclipse project", e);
     }
   }
 
@@ -102,9 +94,8 @@ public class EclipseIdeProjectCreator {
    * @throws Exception
    *           something bad happened
    */
-  private void writeProjectFile(Project project, Map<String, Object> freemarkerContext)
-      throws Exception {
-    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(),
-        FILENAME_PROJECT_FILE), TEMPLATE_FILEPATH_ECLIPSE_PROJECT);
+  private void writeProjectFile(Project project, Map<String, Object> freemarkerContext) throws Exception {
+    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(), FILENAME_PROJECT_FILE),
+        TEMPLATE_FILEPATH_ECLIPSE_PROJECT);
   }
 }

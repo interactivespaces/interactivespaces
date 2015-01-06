@@ -19,10 +19,10 @@ package interactivespaces.workbench.project.assembly;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
-import interactivespaces.workbench.project.activity.ide.EclipseIdeProjectCreatorSpecification;
-import interactivespaces.workbench.project.activity.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.ide.EclipseIdeProjectCreatorSpecification;
+import interactivespaces.workbench.project.ide.NonJavaEclipseIdeProjectCreatorSpecification;
 
 /**
  * A project type for assembly projects.

@@ -20,8 +20,8 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Keith M. Hughes
  */
-public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
+public class StandardActivityProjectPackager implements ActivityProjectPackager {
 
   /**
    * The activity project subdirectory where the build happened.
@@ -59,7 +59,7 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
   private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   @Override
-  public void packageActivityProject(Project project, ProjectBuildContext context) {
+  public void packageActivityProject(Project project, ProjectTaskContext context) {
     // Create a buffer for reading the files
     byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
 
@@ -76,6 +76,8 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
 
       // Complete the ZIP file
       out.flush();
+
+      context.addGeneratedArtifact(buildDestinationFile);
     } catch (IOException e) {
       throw new InteractiveSpacesException("Failed writing Activity Build file", e);
     } finally {
@@ -102,8 +104,8 @@ public class ActivityProjectPackagerImpl implements ActivityProjectPackager {
    * @throws IOException
    *           error writing artifact to output file
    */
-  private void addArtifacts(ProjectBuildContext context, byte[] buf, ZipOutputStream out) throws IOException {
-    for (File artifact : context.getArtifactsToAdd()) {
+  private void addArtifacts(ProjectTaskContext context, byte[] buf, ZipOutputStream out) throws IOException {
+    for (File artifact : context.getArtifactsToInclude()) {
       writeZipEntry(buf, out, "", artifact);
     }
   }

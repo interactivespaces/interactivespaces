@@ -3,7 +3,7 @@
  */
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import java.io.File;
 import java.util.List;
@@ -61,7 +61,7 @@ public interface ProjectJavaCompiler {
    *
    * @return the complete compiler options
    */
-  List<String> getCompilerOptions(ProjectBuildContext context);
+  List<String> getCompilerOptions(ProjectTaskContext context);
 
   /**
    * get a list of files to compile.

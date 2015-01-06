@@ -23,7 +23,7 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
 
@@ -78,18 +78,19 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
   @Override
   public boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
-      ContainerInfo containerInfo, ProjectBuildContext context) {
+      ContainerInfo containerInfo, ProjectTaskContext context) {
     try {
       JavaProjectType projectType = context.getProjectType();
 
       List<File> classpath = Lists.newArrayList();
-      projectType.getRuntimeClasspath(context, classpath, extensions, context.getWorkbench());
+      projectType.getRuntimeClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
 
       Project project = context.getProject();
       File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
       List<File> compilationFiles = projectCompiler.getCompilationFiles(mainSourceDirectory);
       if (!project.getSources().isEmpty()) {
         context
+            .getWorkbenchTaskContext()
             .getWorkbench()
             .getLog()
             .info(
@@ -108,6 +109,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         List<File> additionalSources = projectCompiler.getCompilationFiles(addedSource);
         compilationFiles.addAll(additionalSources);
         context
+            .getWorkbenchTaskContext()
             .getWorkbench()
             .getLog()
             .info(
@@ -128,14 +130,14 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
           extensions.postProcessJar(context, jarDestinationFile);
         }
 
-        context.addArtifact(jarDestinationFile);
+        context.addArtifactToInclude(jarDestinationFile);
 
         return true;
       } else {
         return false;
       }
     } catch (Exception e) {
-      context.getWorkbench().handleError("Error while creating project", e);
+      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
 
       return false;
     }
@@ -158,7 +160,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the build context
    */
   private void createJarFile(Project project, File jarDestinationFile, File compilationFolder, List<File> classpath,
-      ContainerInfo containerInfo, ProjectBuildContext context) {
+      ContainerInfo containerInfo, ProjectTaskContext context) {
     // Create a buffer for reading the files
     byte[] buf = new byte[IO_BUFFER_SIZE];
 
@@ -194,7 +196,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    * @return the manifest
    */
   private Manifest createManifest(Project project, File compilationFolder, List<File> classpath,
-      ContainerInfo containerInfo, ProjectBuildContext context) {
+      ContainerInfo containerInfo, ProjectTaskContext context) {
     // Map Java package names which are supplied by project dependencies to
     // those dependencies.
     Map<String, ProjectDependency> dependencyInfo = Maps.newHashMap();
@@ -293,7 +295,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *          the build context
    */
   private void analyzeClasspathForDependencies(List<File> classpath, Project project,
-      Map<String, ProjectDependency> dependencyInfo, ProjectBuildContext context) {
+      Map<String, ProjectDependency> dependencyInfo, ProjectTaskContext context) {
     ContainerBundleAnalyzer bundleAnalyzer = new BndOsgiContainerBundleAnalyzer();
 
     Map<String, ProjectDependency> dependencies = Maps.newHashMap();
@@ -313,7 +315,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         if (packageExports != null) {
           for (String packageExport : packageExports) {
             if (dependencyInfo.put(packageExport, associatedDependency) != null) {
-              context.getWorkbench().getLog()
+              context.getWorkbenchTaskContext().getWorkbench().getLog()
                   .warn(String.format("Package export %s found in multiple classpath entities", packageExport));
             }
           }
@@ -340,10 +342,11 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
    *           for io access errors
    */
   private void writeJarFile(File directory, byte[] buf, ZipOutputStream jarOutputStream, String parentPath,
-      ProjectBuildContext context) throws IOException {
+      ProjectTaskContext context) throws IOException {
     File[] files = directory.listFiles();
     if (files == null || files.length == 0) {
-      context.getWorkbench().getLog().warn("No source files found in " + directory.getAbsolutePath());
+      context.getWorkbenchTaskContext().getWorkbench().getLog()
+          .warn("No source files found in " + directory.getAbsolutePath());
       return;
     }
     for (File file : files) {

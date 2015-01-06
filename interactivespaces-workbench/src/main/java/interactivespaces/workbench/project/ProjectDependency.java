@@ -22,6 +22,9 @@ import interactivespaces.resource.VersionRange;
 /**
  * A dependency for the project.
  *
+ * <p>
+ * Dynamic dependencies have meaning only in the workbench.
+ *
  * @author Keith M. Hughes
  */
 public class ProjectDependency {
@@ -32,14 +35,9 @@ public class ProjectDependency {
   private String identifyingName;
 
   /**
-   * The minimum version necessary for the activity.
+   * The range of versions necessary for the activity.
    */
-  private Version minimumVersion;
-
-  /**
-   * The maximum version necessary for the activity.
-   */
-  private Version maximumVersion;
+  private VersionRange versionRange;
 
   /**
    * Is the dependency required?
@@ -48,6 +46,11 @@ public class ProjectDependency {
    * {@code true} if the dependency is required
    */
   private boolean required;
+
+  /**
+   * {@code true} if the dependency is dynamic.
+   */
+  private boolean dynamic;
 
   /**
    * Get the identifying name of the dependency.
@@ -69,42 +72,13 @@ public class ProjectDependency {
   }
 
   /**
-   * Get the minimum version necessary for the activity.
+   * Set the version range for this dependency.
    *
-   * @return the minimum version
+   * @param versionRange
+   *          the version range for this dependency
    */
-  public Version getMinimumVersion() {
-    return minimumVersion;
-  }
-
-  /**
-   * Set the minimum version necessary for the activity.
-   *
-   * @param minimumVersion
-   *          the minimum version
-   */
-  public void setMinimumVersion(Version minimumVersion) {
-    this.minimumVersion = minimumVersion;
-  }
-
-  /**
-   * Get the maximum version necessary for the activity.
-   *
-   * @return the maximum version
-   */
-  public Version getMaximumVersion() {
-    return maximumVersion;
-  }
-
-  /**
-   * Set the maximum version necessary for the activity.
-   *
-   * @param maximumVersion
-   *          the maximum version
-   */
-  public void setMaximumVersion(Version maximumVersion) {
-    this.maximumVersion = maximumVersion;
-
+  public void setVersionRange(VersionRange versionRange) {
+    this.versionRange = versionRange;
   }
 
   /**
@@ -112,10 +86,8 @@ public class ProjectDependency {
    *
    * @return the version range for this dependency
    */
-  public VersionRange getVersionRange() {
-    // TODO(keith): Get rid of setting min and max when there is time to test
-    // everything. Also removing the OSGi method below can then go away.
-    return new VersionRange(minimumVersion, maximumVersion, false);
+  public VersionRange getVersion() {
+    return versionRange;
   }
 
   /**
@@ -138,12 +110,33 @@ public class ProjectDependency {
   }
 
   /**
+   * Is the dependency dynamic?
+   *
+   * @return {@code true} if the dependency is dynamic
+   */
+  public boolean isDynamic() {
+    return dynamic;
+  }
+
+  /**
+   * Set if the dependency is dynamic.
+   *
+   * @param dynamic
+   *          {@code true} if the dependency is dynamic
+   */
+  public void setDynamic(boolean dynamic) {
+    this.dynamic = dynamic;
+  }
+
+  /**
    * Get the OSGi formatted version string for this dependency.
    *
    * @return the OSGI version string
    */
   public String getOsgiVersionString() {
     StringBuilder builder = new StringBuilder();
+    Version minimumVersion = versionRange.getMinimum();
+    Version maximumVersion = versionRange.getMaximum();
     if (maximumVersion != null) {
       builder.append("[").append(minimumVersion).append(',').append(maximumVersion);
       if (minimumVersion.equals(maximumVersion)) {
@@ -162,7 +155,7 @@ public class ProjectDependency {
 
   @Override
   public String toString() {
-    return "ProjectDependency [identifyingName=" + identifyingName + ", minimumVersion=" + minimumVersion
-        + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
+    return "ProjectDependency [identifyingName=" + identifyingName + ", versionRange=" + versionRange
+        + ", required=" + required + ", dynamic=" + dynamic + "]";
   }
 }

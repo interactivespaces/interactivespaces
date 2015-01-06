@@ -104,4 +104,9 @@ public class SimpleActivityDependency implements ActivityDependency {
     this.required = required;
   }
 
+  @Override
+  public String toString() {
+    return "SimpleActivityDependency [activity=" + activity + ", identifyingName=" + identifyingName
+        + ", minimumVersion=" + minimumVersion + ", maximumVersion=" + maximumVersion + ", required=" + required + "]";
+  }
 }

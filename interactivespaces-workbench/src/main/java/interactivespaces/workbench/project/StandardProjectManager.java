@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
@@ -25,19 +25,22 @@ import interactivespaces.resource.Version;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
+import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.jdom.JdomProjectReader;
-import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.source.SimpleSource;
+import interactivespaces.workbench.project.source.Source;
+
 import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 /**
- * A basic {@link ActivityProjectManager}.
+ * A basic {@link ProjectManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicActivityProjectManager implements ActivityProjectManager {
+public class StandardProjectManager implements ProjectManager {
 
   /**
    * Name of a project file.
@@ -65,27 +68,27 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
    * @param workbench
    *          the workbench to use
    */
-  public BasicActivityProjectManager(InteractiveSpacesWorkbench workbench) {
+  public StandardProjectManager(InteractiveSpacesWorkbench workbench) {
     this.workbench = workbench;
   }
 
   @Override
   public boolean isProjectFolder(File baseDir) {
-    File projectFile = new File(baseDir, FILE_NAME_PROJECT);
+    File projectFile = getProjectFile(baseDir);
     if (projectFile.exists()) {
       return true;
     }
-    return new File(baseDir, FILE_NAME_ACTIVITY).exists();
+    return getActivityProjectFile(baseDir).exists();
   }
 
   @Override
   public Project readProject(File baseProjectDir, Log log) {
-    File projectFile = new File(baseProjectDir, FILE_NAME_PROJECT);
+    File projectFile = getProjectFile(baseProjectDir);
     if (projectFile.exists()) {
       return readProjectFile(projectFile, log);
     }
 
-    File activityFile = new File(baseProjectDir, FILE_NAME_ACTIVITY);
+    File activityFile = getActivityProjectFile(baseProjectDir);
     if (activityFile.exists()) {
       return convertActivity(activityFile);
     }
@@ -156,24 +159,31 @@ public class BasicActivityProjectManager implements ActivityProjectManager {
   }
 
   @Override
-  public Source getActivityConfSource(Project project) {
-    // TODO(keith): This sucks in so many ways!!!
-    if (project instanceof ActivityProject) {
-      Source source = new SimpleSource();
-      File sourceFile = ((ActivityProject) project).getActivityConfigFile();
-      source.setPath(sourceFile.getAbsolutePath());
-      source.setProject(project);
-      source.setContent(fileSupport.readFile(sourceFile));
+  public Source getProjectXmlSource(Project project) {
+    Source source = new SimpleSource();
+    File sourceFile = getProjectFile(project.getBaseDirectory());
+    source.setPath(sourceFile.getAbsolutePath());
+    source.setProject(project);
+    source.setContent(fileSupport.readFile(sourceFile));
 
-      return source;
-    } else {
-      throw new SimpleInteractiveSpacesException("Project was not an activity project");
-    }
+    return source;
   }
 
   @Override
   public void saveSource(Source source) {
     fileSupport.writeFile(new File(source.getPath()), source.getContent());
+  }
+
+  /**
+   * Get the project file.
+   *
+   * @param baseDir
+   *          the project base directory
+   *
+   * @return the file for the project file
+   */
+  private File getProjectFile(File baseDir) {
+    return fileSupport.newFile(baseDir, FILE_NAME_PROJECT);
   }
 
   /**

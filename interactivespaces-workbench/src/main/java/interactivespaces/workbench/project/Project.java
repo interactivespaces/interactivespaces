@@ -88,25 +88,22 @@ public abstract class Project {
   private final List<ProjectDependency> dependencies = Lists.newArrayList();
 
   /**
-   * The resources the project requires. A {@code null} value indicates that no
-   * resources have been specified for the project (which is slightly different
-   * than saying an empty set of resources have been specified, which would be
+   * The resources the project requires. A {@code null} value indicates that no resources have been specified for the
+   * project (which is slightly different than saying an empty set of resources have been specified, which would be
    * indicated by the empty list).
    */
   private final List<ProjectConstituent> resources = Lists.newArrayList();
 
   /**
-   * The sources the project requires. A {@code null} value indicates that no sources
-   * have been specified for the project (which is slightly different than
-   * saying an empty set of sources have been specified, which would be
+   * The sources the project requires. A {@code null} value indicates that no sources have been specified for the
+   * project (which is slightly different than saying an empty set of sources have been specified, which would be
    * indicated by the empty list).
    */
   private final List<ProjectConstituent> sources = Lists.newArrayList();
 
   /**
-   * An extra set of project constituents. Some constituents are common to all
-   * projects, these will be specific to an actual project type and will be
-   * processed by the specific project type builder as that builder needs.
+   * An extra set of project constituents. Some constituents are common to all projects, these will be specific to an
+   * actual project type and will be processed by the specific project type builder as that builder needs.
    */
   private final List<ProjectConstituent> extraConstituents = Lists.newArrayList();
 
@@ -295,8 +292,7 @@ public abstract class Project {
    * Set the range of Interactive Spaces versions that this project requires.
    *
    * @param interactiveSpacesVersionRange
-   *          the range of Interactive Spaces versions that this project
-   *          requires
+   *          the range of Interactive Spaces versions that this project requires
    */
   public void setInteractiveSpacesVersionRange(VersionRange interactiveSpacesVersionRange) {
     this.interactiveSpacesVersion = interactiveSpacesVersionRange;
@@ -319,6 +315,21 @@ public abstract class Project {
    */
   public List<ProjectDependency> getDependencies() {
     return Lists.newArrayList(dependencies);
+  }
+
+  /**
+   * Does the project have any dynamic dependencies?
+   *
+   * @return {@code true} if the project has dynamic dependencies
+   */
+  public boolean isDynamicDependencies() {
+    for (ProjectDependency dependency : dependencies) {
+      if (dependency.isDynamic()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

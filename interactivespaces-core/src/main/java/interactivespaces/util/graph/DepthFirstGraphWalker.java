@@ -24,16 +24,21 @@ import java.util.Map;
  * Walk a graph in a depth-first manner with an observer.
  *
  * <p>
- * The graph can be directed or undirected, and should be labeled as such
+ * The graph can be directed or undirected, and should be labeled as such.
+ *
+ * @param <I>
+ *          type of IDs in the graph
+ * @param <T>
+ *          type of the data in the graph
  *
  * @author Keith M. Hughes
  */
-public class DepthFirstGraphWalker<Data> {
+public class DepthFirstGraphWalker<I, T> {
 
   /**
-   * Map from node names to their data.
+   * Map from node IDs to their data.
    */
-  private Map<String, GraphNode<Data>> nameToNode = Maps.newHashMap();
+  private Map<I, WalkableGraphNode<I, T>> idToNode = Maps.newHashMap();
 
   /**
    * Current time in the walker.
@@ -41,7 +46,7 @@ public class DepthFirstGraphWalker<Data> {
   private int time = 0;
 
   /**
-   * True if the graph is directed, false otherwise.
+   * {@code true} if the graph is directed.
    */
   private boolean directed = true;
 
@@ -67,12 +72,15 @@ public class DepthFirstGraphWalker<Data> {
   /**
    * Add a new node to the graph.
    *
-   * @param name
+   * @param id
+   *          the ID of the node
    * @param data
-   * @return
+   *          the data for the node
+   *
+   * @return the graph node
    */
-  public GraphNode<Data> addNode(String name, Data data) {
-    GraphNode<Data> node = getNode(name);
+  public WalkableGraphNode<I, T> addNode(I id, T data) {
+    WalkableGraphNode<I, T> node = getNode(id);
     node.setData(data);
 
     return node;
@@ -84,11 +92,11 @@ public class DepthFirstGraphWalker<Data> {
    * @param node
    *          the node the neighbor will be added to
    * @param neighborNames
-   *          the names of neighbors
+   *          the IDs of neighbors
    */
-  public void addNodeNeighbor(GraphNode<Data> node, String... neighborNames) {
+  public void addNodeNeighbor(WalkableGraphNode<I, T> node, I... neighborNames) {
     if (neighborNames != null) {
-      for (String neighborName : neighborNames) {
+      for (I neighborName : neighborNames) {
         node.addNeighbor(getNode(neighborName));
       }
     }
@@ -102,7 +110,7 @@ public class DepthFirstGraphWalker<Data> {
    * @param observer
    *          the observer watching the walk
    */
-  public void walkNode(GraphNode<Data> node, GraphWalkerObserver<Data> observer) {
+  public void walkNode(WalkableGraphNode<I, T> node, GraphWalkerObserver<I, T> observer) {
     node.setDiscovered(true);
 
     ++time;
@@ -110,7 +118,7 @@ public class DepthFirstGraphWalker<Data> {
 
     observer.observeGraphNodeBefore(node);
 
-    for (GraphNode<Data> neighbor : node.getNeighbors()) {
+    for (WalkableGraphNode<I, T> neighbor : node.getNeighbors()) {
       if (!neighbor.isDiscovered()) {
         neighbor.setParent(node);
 
@@ -133,43 +141,44 @@ public class DepthFirstGraphWalker<Data> {
   /**
    * Get the node associated with a given data item.
    *
-   * @param name
+   * @param id
+   *          the ID of the node
    *
    * @return either an existing node or a brand new one if there was none
    */
-  public GraphNode<Data> getNode(String name) {
-    GraphNode<Data> node = nameToNode.get(name);
+  public WalkableGraphNode<I, T> getNode(I id) {
+    WalkableGraphNode<I, T> node = idToNode.get(id);
     if (node == null) {
-      node = new GraphNode<Data>(name);
-      nameToNode.put(name, node);
+      node = new WalkableGraphNode<I, T>(id);
+      idToNode.put(id, node);
     }
     return node;
   }
 
   /**
-   * Get a classification for an edge
+   * Get a classification for an edge.
    *
-   * @param node1
+   * @param nodeFrom
    *          the node the walker is walking from
-   * @param node2
+   * @param nodeTo
    *          the node the walker is walking to
    *
    * @return the edge classification
    */
-  public GraphEdgeClassification
-      getEdgeClassification(GraphNode<Data> node1, GraphNode<Data> node2) {
-    if (node1.equals(node2.getParent())) {
-      return GraphEdgeClassification.TREE;
-    } else if (node2.isDiscovered() && !node2.isProcessed()) {
-      return GraphEdgeClassification.BACK;
-    } else if (node2.isProcessed()) {
-      if (node2.getEntryTime() > node1.getEntryTime()) {
-        return GraphEdgeClassification.FORWARD;
+  public GraphWalkerEdgeClassification getEdgeClassification(WalkableGraphNode<I, T> nodeFrom,
+      WalkableGraphNode<I, T> nodeTo) {
+    if (nodeFrom.equals(nodeTo.getParent())) {
+      return GraphWalkerEdgeClassification.TREE;
+    } else if (nodeTo.isDiscovered() && !nodeTo.isProcessed()) {
+      return GraphWalkerEdgeClassification.BACK;
+    } else if (nodeTo.isProcessed()) {
+      if (nodeTo.getEntryTime() > nodeFrom.getEntryTime()) {
+        return GraphWalkerEdgeClassification.FORWARD;
       } else {
-        return GraphEdgeClassification.CROSS;
+        return GraphWalkerEdgeClassification.CROSS;
       }
     }
 
-    return GraphEdgeClassification.UNCLASSIFIED;
+    return GraphWalkerEdgeClassification.UNCLASSIFIED;
   }
 }

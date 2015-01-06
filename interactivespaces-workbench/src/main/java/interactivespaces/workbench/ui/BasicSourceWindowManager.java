@@ -16,12 +16,12 @@
 
 package interactivespaces.workbench.ui;
 
+import interactivespaces.workbench.project.ProjectManager;
+import interactivespaces.workbench.project.source.Source;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
-
-import interactivespaces.workbench.project.activity.ActivityProjectManager;
-import interactivespaces.workbench.project.activity.Source;
 
 import java.awt.Component;
 import java.util.List;
@@ -36,7 +36,6 @@ import javax.swing.event.ChangeListener;
  * A basic implementation of a {@link SourceWindowManager}.
  *
  * @author Keith M. Hughes
- * @since Sep 21, 2012
  */
 public class BasicSourceWindowManager implements SourceWindowManager {
 
@@ -66,9 +65,9 @@ public class BasicSourceWindowManager implements SourceWindowManager {
   private List<SourceEditorListener> editorListeners = Lists.newArrayList();
 
   /**
-   * The activity project manager used for file operations.
+   * The project manager used for file operations.
    */
-  private ActivityProjectManager activityProjectManager;
+  private ProjectManager projectManager;
 
   /**
    * The user interface factory for UI elements.
@@ -80,10 +79,19 @@ public class BasicSourceWindowManager implements SourceWindowManager {
    */
   private WorkbenchUi workbenchUi;
 
-  public BasicSourceWindowManager(WorkbenchUi workbenchUi, JTabbedPane sourcePane,
-      ActivityProjectManager activityProjectManager) {
+  /**
+   * Construct a new window manager.
+   *
+   * @param workbenchUi
+   *          the workbench UI
+   * @param sourcePane
+   *          the source pane
+   * @param projectManager
+   *          the project manager
+   */
+  public BasicSourceWindowManager(WorkbenchUi workbenchUi, JTabbedPane sourcePane, ProjectManager projectManager) {
     this.workbenchUi = workbenchUi;
-    this.activityProjectManager = activityProjectManager;
+    this.projectManager = projectManager;
     this.sourcePane = sourcePane;
 
     addSourceEditorListener(new SourceEditorListener() {
@@ -95,6 +103,7 @@ public class BasicSourceWindowManager implements SourceWindowManager {
 
     sourcePane.addChangeListener(new ChangeListener() {
       // This method is called whenever the selected tab changes
+      @Override
       public void stateChanged(ChangeEvent evt) {
         JTabbedPane pane = (JTabbedPane) evt.getSource();
 
@@ -132,8 +141,9 @@ public class BasicSourceWindowManager implements SourceWindowManager {
     sourcePane.addTab(fileName, null, scrollPane, filePath);
     sourcePane.setSelectedComponent(scrollPane);
 
-    for (SourceEditorListener editorListener : editorListeners)
+    for (SourceEditorListener editorListener : editorListeners) {
       editor.addSourceEditorListener(editorListener);
+    }
 
     // TODO(keith): Potential race condition here
     editor.removeAllEdits();
@@ -160,16 +170,18 @@ public class BasicSourceWindowManager implements SourceWindowManager {
   public boolean hasModifiedWindows() {
     boolean hasModified = false;
 
-    for (SourceEditor editor : filenameToEditor.values())
+    for (SourceEditor editor : filenameToEditor.values()) {
       hasModified |= editor.isContentModified();
+    }
 
     return hasModified;
   }
 
   @Override
   public void saveAll() {
-    for (SourceEditor editor : filenameToEditor.values())
+    for (SourceEditor editor : filenameToEditor.values()) {
       saveWindow(editor);
+    }
   }
 
   @Override
@@ -236,8 +248,9 @@ public class BasicSourceWindowManager implements SourceWindowManager {
     editorListeners.add(editorListener);
 
     // Also add into any existing editors
-    for (SourceEditor editor : filenameToEditor.values())
+    for (SourceEditor editor : filenameToEditor.values()) {
       editor.addSourceEditorListener(editorListener);
+    }
   }
 
   /**
@@ -247,8 +260,9 @@ public class BasicSourceWindowManager implements SourceWindowManager {
    *          {@code true} if the editors should be read-only
    */
   private void setAllWindowsReadOnly(boolean readOnly) {
-    for (SourceEditor editor : filenameToEditor.values())
+    for (SourceEditor editor : filenameToEditor.values()) {
       editor.setReadOnly(readOnly);
+    }
   }
 
   /**
@@ -280,11 +294,12 @@ public class BasicSourceWindowManager implements SourceWindowManager {
    * Save the contents of a window.
    *
    * @param editor
+   *          the editor to be saved
    */
   private void saveWindow(SourceEditor editor) {
     editor.synchronizeToSource();
     Source source = editor.getSource();
-    activityProjectManager.saveSource(source);
+    projectManager.saveSource(source);
     editor.setContentModified(false);
 
     changeEditorTitle(editor, false);
@@ -294,6 +309,7 @@ public class BasicSourceWindowManager implements SourceWindowManager {
    * An editor's content has been modified.
    *
    * @param editor
+   *          the editor whose content has been modified
    */
   private void editorContentModified(SourceEditor editor) {
     if (!editor.isMarkedModified()) {
@@ -307,14 +323,15 @@ public class BasicSourceWindowManager implements SourceWindowManager {
    * Change the title of a source editor.
    *
    * @param editor
-   *          the editor to be modified.
+   *          the editor to be modified
    * @param markAsModified
    *          {@code true} if the editor should be marked as modified
    */
   private void changeEditorTitle(SourceEditor editor, boolean markAsModified) {
     String newTitle = editor.getSource().getName();
-    if (markAsModified)
+    if (markAsModified) {
       newTitle = "*" + newTitle;
+    }
 
     JComponent component = editor.getComponent();
     int index = 0;

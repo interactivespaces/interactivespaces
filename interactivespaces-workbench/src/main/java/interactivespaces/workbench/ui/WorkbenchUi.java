@@ -20,6 +20,8 @@ import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.ui.wizard.JWizardDialog;
 
+import com.google.common.collect.Lists;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Event;
@@ -171,9 +173,9 @@ public class WorkbenchUi extends JFrame implements ActionListener {
   private JMenu newMenu;
 
   /**
-   * Menu item for the Project menu's Open Activity Conf.
+   * Menu item for the Project menu's Open Project.xml.
    */
-  private JMenuItem openActivityConfMenuItem;
+  private JMenuItem openProjectXmlMenuItem;
 
   /**
    * Menu item for the Project menu's Build activity.
@@ -229,7 +231,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-         Window w = e.getWindow();
+        Window w = e.getWindow();
         w.setVisible(false);
         w.dispose();
         System.exit(0);
@@ -359,9 +361,9 @@ public class WorkbenchUi extends JFrame implements ActionListener {
     JMenu projectMenu = new JMenu("Project");
     menuBar.add(projectMenu);
 
-    openActivityConfMenuItem = new JMenuItem("Open Activity Conf");
-    openActivityConfMenuItem.addActionListener(this);
-    projectMenu.add(openActivityConfMenuItem);
+    openProjectXmlMenuItem = new JMenuItem("Open Project.xml");
+    openProjectXmlMenuItem.addActionListener(this);
+    projectMenu.add(openProjectXmlMenuItem);
 
     buildActivityMenuItem = new JMenuItem("Build");
     buildActivityMenuItem.addActionListener(this);
@@ -464,10 +466,10 @@ public class WorkbenchUi extends JFrame implements ActionListener {
     } else if (source.equals(redoMenuItem)) {
       desktop.getSourceWindowManager().redoEditCurrentWindow();
     } else if (source.equals(buildActivityMenuItem)) {
-      workbench.buildProject(currentProject);
-    } else if (source.equals(openActivityConfMenuItem)) {
+      workbench.doCommandsOnProject(currentProject, Lists.newArrayList(InteractiveSpacesWorkbench.COMMAND_BUILD));
+    } else if (source.equals(openProjectXmlMenuItem)) {
       desktop.getSourceWindowManager().addNewSourceWindow(
-          workbench.getProjectManager().getActivityConfSource(currentProject));
+          workbench.getProjectManager().getProjectXmlSource(currentProject));
     }
   }
 
@@ -507,8 +509,7 @@ public class WorkbenchUi extends JFrame implements ActionListener {
   }
 
   /**
-   * A source editor has been selected. Get its action map and set up menu
-   * items.
+   * A source editor has been selected. Get its action map and set up menu items.
    *
    * @param map
    *          the map of actions to attach to the menu items

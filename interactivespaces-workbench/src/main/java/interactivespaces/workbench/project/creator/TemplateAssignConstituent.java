@@ -112,7 +112,7 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
-    FreemarkerTemplater templater = context.getWorkbench().getTemplater();
+    FreemarkerTemplater templater = context.getWorkbenchTaskContext().getWorkbench().getTemplater();
     int evaluationPasses = 1;
     Map<String, Object> templateData = projectCreationContext.getTemplateData();
     templater.processStringTemplate(templateData, getValue(), getName(), evaluationPasses);

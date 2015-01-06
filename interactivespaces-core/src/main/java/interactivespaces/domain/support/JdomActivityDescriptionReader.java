@@ -19,6 +19,7 @@ package interactivespaces.domain.support;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivityDependency;
+import interactivespaces.resource.VersionRange;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -37,6 +38,61 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class JdomActivityDescriptionReader implements ActivityDescriptionReader {
+
+  /**
+   * The value in a project file for true.
+   */
+  public static final String ACTIVITY_VALUE_TRUE = "true";
+
+  /**
+   * The value in a project file for false.
+   */
+  public static final String ACTIVITY_VALUE_FALSE = "false";
+
+  /**
+   * Project definition file element name for dependencies.
+   */
+  public static final String ACTIVITY_ELEMENT_NAME_DEPENDENCIES = "dependencies";
+
+  /**
+   * Project definition file element name for a dependency item.
+   */
+  public static final String ACTIVITY_ELEMENT_NAME_DEPENDENCY_ITEM = "dependency";
+
+  /**
+   * Project definition file attribute name for the identifying name of a dependency.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME = "identifyingName";
+
+  /**
+   * Project definition file deprecated attribute name for the identifying name of a dependency.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED = "name";
+
+  /**
+   * Project definition file attribute name for the version range of a dependency.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION = "version";
+
+  /**
+   * Project definition file attribute name for the minimum version of a dependency.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM = "minimumVersion";
+
+  /**
+   * Project definition file attribute name for the maximum version of a dependency.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM = "maximumVersion";
+
+  /**
+   * Project definition file attribute name for whether a dependency is required.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_REQUIRED = "required";
+
+  /**
+   * Project definition file attribute default value for whether a dependency is required.
+   */
+  public static final String ACTIVITY_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_REQUIRED = ACTIVITY_VALUE_TRUE;
 
   @Override
   public ActivityDescription readDescription(InputStream activityDescriptionStream) {
@@ -129,11 +185,10 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    *          any errors found in the metadata
    */
   private void getDependencies(ActivityDescription adescription, Element rootElement, List<String> errors) {
-    Element dependenciesElement = rootElement.getChild("dependencies");
-
+    Element dependenciesElement = rootElement.getChild(ACTIVITY_ELEMENT_NAME_DEPENDENCIES);
     if (dependenciesElement != null) {
       @SuppressWarnings("unchecked")
-      List<Element> dependencyElements = dependenciesElement.getChildren("dependency");
+      List<Element> dependencyElements = dependenciesElement.getChildren(ACTIVITY_ELEMENT_NAME_DEPENDENCY_ITEM);
 
       List<ActivityDependency> dependencies = Lists.newArrayList();
       for (Element dependencyElement : dependencyElements) {
@@ -158,38 +213,52 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
    * @return the dependency found in the element, or {@code null} if an error
    */
   private ActivityDependency getDependency(Element dependencyElement, List<String> errors) {
-    String identifyingName = dependencyElement.getAttributeValue("identifyingName");
+    String identifyingName =
+        dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
     if (identifyingName == null) {
-      identifyingName = dependencyElement.getAttributeValue("name");
+      identifyingName =
+          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED);
       if (identifyingName == null) {
         errors.add("Dependency has no name");
         return null;
       }
     }
 
-    String minimumVersion = dependencyElement.getAttributeValue("minimumVersion");
-    String maximumVersion = dependencyElement.getAttributeValue("maximumVersion");
-
-    if (minimumVersion != null) {
-      if (maximumVersion == null) {
-        maximumVersion = minimumVersion;
-      }
-    } else if (maximumVersion != null) {
-      // If here was no minimum version
-      minimumVersion = maximumVersion;
+    VersionRange version = null;
+    String versionStr = dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION);
+    if (versionStr != null) {
+      version = VersionRange.parseVersionRange(versionStr);
     } else {
-      errors.add("Dependency has no version constraints");
-      return null;
+      String minimumVersionStr =
+          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM);
+      String maximumVersionStr =
+          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM);
+
+      if (minimumVersionStr != null) {
+        if (maximumVersionStr == null) {
+          maximumVersionStr = minimumVersionStr;
+        }
+      } else if (maximumVersionStr != null) {
+        // If here was no minimum version
+        minimumVersionStr = maximumVersionStr;
+      } else {
+        errors.add("Dependency has no version constraints");
+        return null;
+      }
+
+      version = VersionRange.parseVersionRange(minimumVersionStr, minimumVersionStr);
     }
 
-    String requiredString = dependencyElement.getAttributeValue("required", "true");
+    String requiredString =
+        dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_REQUIRED,
+            ACTIVITY_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_REQUIRED);
 
     ActivityDependency dependency = new SimpleActivityDependency();
 
     dependency.setIdentifyingName(identifyingName);
-    dependency.setMinimumVersion(minimumVersion);
-    dependency.setMaximumVersion(maximumVersion);
-    dependency.setRequired("true".equals(requiredString));
+    dependency.setMinimumVersion(version.getMinimum().toString());
+    dependency.setMaximumVersion(version.getMaximum().toString());
+    dependency.setRequired(ACTIVITY_VALUE_TRUE.equals(requiredString));
 
     return dependency;
   }

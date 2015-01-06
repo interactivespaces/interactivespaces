@@ -16,19 +16,20 @@
 
 package interactivespaces.workbench.project.creator;
 
-import com.google.common.collect.Maps;
-import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
+import interactivespaces.workbench.tasks.WorkbenchTaskContext;
+
+import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.util.Map;
 
 /**
- * Encapsulates the data necessary to create a project. Used in conjunction with the project specification and
- * project creator to ultimately create a project.
+ * Encapsulates the data necessary to create a project. Used in conjunction with the project specification and project
+ * creator to ultimately create a project.
  *
  * @author Trevor Pering
  */
@@ -40,7 +41,7 @@ public class ProjectCreationContext implements ProjectContext {
   private final Map<String, Object> templateData = Maps.newTreeMap();
 
   /**
-   * Description of this specificaiton.
+   * Description of this specification.
    */
   private final String description;
 
@@ -65,9 +66,9 @@ public class ProjectCreationContext implements ProjectContext {
   private File baseDirectory;
 
   /**
-   * Containing workbench.
+   * The workbench task context.
    */
-  private InteractiveSpacesWorkbench workbench;
+  private WorkbenchTaskContext workbenchTaskContext;
 
   /**
    * Create a project creation specification with the given description.
@@ -102,14 +103,13 @@ public class ProjectCreationContext implements ProjectContext {
    * @param groupProjectTemplateSpecification
    *          thing to set
    */
-  public void setGroupProjectTemplateSpecification(
-      GroupProjectTemplateSpecification groupProjectTemplateSpecification) {
+  public void setGroupProjectTemplateSpecification(GroupProjectTemplateSpecification groupProjectTemplateSpecification) {
     this.groupProjectTemplateSpecification = groupProjectTemplateSpecification;
   }
 
   @Override
-  public Project getProject() {
-    return project;
+  public <T extends Project> T getProject() {
+    return (T)project;
   }
 
   /**
@@ -180,28 +180,29 @@ public class ProjectCreationContext implements ProjectContext {
   }
 
   /**
-   * Get the workbench used for creating projects.
+   * Get the workbench task context.
    *
-   * @return workbench
+   * @return the context
    */
-  public InteractiveSpacesWorkbench getWorkbench() {
-    return workbench;
+  @Override
+  public WorkbenchTaskContext getWorkbenchTaskContext() {
+    return workbenchTaskContext;
   }
 
   /**
    * Set the workbench used for creating projects.
    *
-   * @param workbench
-   *          workbench used
+   * @param workbenchTaskContext
+   *          the workbench task context
    */
-  public void setWorkbench(InteractiveSpacesWorkbench workbench) {
-    this.workbench = workbench;
+  public void setWorkbenchTaskContext(WorkbenchTaskContext workbenchTaskContext) {
+    this.workbenchTaskContext = workbenchTaskContext;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T extends ProjectType> T getProjectType() {
-    return (T) getWorkbench().getProjectTypeRegistry().getProjectType(project);
+    return (T) getWorkbenchTaskContext().getWorkbench().getProjectTypeRegistry().getProjectType(project);
   }
 
   @Override

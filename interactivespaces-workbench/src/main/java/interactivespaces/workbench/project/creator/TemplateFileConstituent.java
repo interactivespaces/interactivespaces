@@ -114,7 +114,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
-    FreemarkerTemplater templater = context.getWorkbench().getTemplater();
+    FreemarkerTemplater templater = context.getWorkbenchTaskContext().getWorkbench().getTemplater();
     Map<String, Object> templateData = projectCreationContext.getTemplateData();
 
     String outPath = templater.processStringTemplate(templateData, getOutput());

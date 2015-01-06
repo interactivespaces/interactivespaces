@@ -18,8 +18,8 @@ package interactivespaces.workbench.project.library;
 
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
@@ -50,7 +50,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(LibraryProject project, ProjectBuildContext context) {
+  public boolean build(LibraryProject project, ProjectTaskContext context) {
     File buildDirectory = context.getBuildDirectory();
     File compilationFolder = getOutputDirectory(buildDirectory);
     File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
@@ -60,7 +60,11 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
     processResources(project, compilationFolder, context);
 
     if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getContainerInfo(), context)) {
-      return runTests(jarDestinationFile, context);
+      if (runTests(jarDestinationFile, context)) {
+        context.addGeneratedArtifact(jarDestinationFile);
+
+        return true;
+      }
     }
 
     return false;
@@ -76,7 +80,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
    *
    * @return {@code true} if all tests succeeded
    */
-  private boolean runTests(File jarDestinationFile, ProjectBuildContext context) {
+  private boolean runTests(File jarDestinationFile, ProjectTaskContext context) {
     JavaTestRunner runner = new JavaTestRunner();
 
     return runner.runTests(jarDestinationFile, null, context);

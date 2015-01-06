@@ -27,13 +27,10 @@ ${project.description?html}
   <dependencies>
   <#list project.dependencies as dependency>
     <dependency identifyingName="${dependency.identifyingName?html}"
-    <#if dependency.minimumVersion?has_content>
-          minimumVersion="${dependency.minimumVersion}"
+    <#if dependency.version?has_content>
+       version="${dependency.version}"
     </#if>
-    <#if dependency.maximumVersion?has_content>
-          maximumVersion="${dependency.maximumVersion}"
-    </#if>
-          required="${dependency.required?string}" />
+       required="${dependency.required?string}" />
   </#list>
   </dependencies>
 </#if>

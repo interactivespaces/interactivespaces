@@ -6,7 +6,7 @@ package interactivespaces.workbench.project.java;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Lists;
 
@@ -70,7 +70,7 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
   }
 
   @Override
-  public List<String> getCompilerOptions(ProjectBuildContext context) {
+  public List<String> getCompilerOptions(ProjectTaskContext context) {
     List<String> options = Lists.newArrayList();
     options.add("-source");
     options.add(javaVersion);

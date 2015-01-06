@@ -29,7 +29,7 @@ public interface CoreConfiguration {
   String CONFIGURATION_INTERACTIVESPACES_VERSION = "interactivespaces.version";
 
   /**
-   * Property containing the Interactive Spaces root dir. This will be an absolute path.
+   * Property containing the Interactive Spaces root directory. This will be an absolute path.
    */
   String CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR = "interactivespaces.rootdir";
 
@@ -37,4 +37,14 @@ public interface CoreConfiguration {
    * Property containing the Interactive Spaces runtime location. This will be an absolute path.
    */
   String CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR = "interactivespaces.runtime";
+
+  /**
+   * Property containing the Interactive Spaces home directory.
+   *
+   * <p>
+   * This directory is the directory that will contain one or more Interactive Spaces containers, such as a master and a
+   * controller.
+   */
+  String CONFIGURATION_INTERACTIVESPACES_HOME = "interactivespaces.home";
+
 }

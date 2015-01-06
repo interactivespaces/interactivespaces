@@ -16,10 +16,10 @@
 
 package interactivespaces.workbench.project.activity.type.android;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.process.NativeCommandsExecutor;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 
 import com.google.common.collect.Lists;
@@ -41,8 +41,7 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
   public static final String PROPERTY_ANDROID_SDK_HOME = "android.sdk.home";
 
   /**
-   * The configuration property name for the buildtools to use, relative to
-   * {@link #PROPERTY_ANDROID_SDK_HOME}.
+   * The configuration property name for the buildtools to use, relative to {@link #PROPERTY_ANDROID_SDK_HOME}.
    */
   public static final String PROPERTY_ANDROID_SDK_BUILDTOOLS = "android.buildtools";
 
@@ -52,7 +51,7 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
   public static final String PROPERTY_ANDROID_PLATFORM = "android.platform";
 
   @Override
-  public void addToClasspath(List<File> classpath, ProjectBuildContext context) {
+  public void addToClasspath(List<File> classpath, ProjectTaskContext context) {
     Configuration properties = context.getProject().getConfiguration();
     String androidJar =
         properties.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/platforms/"
@@ -62,15 +61,15 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
     if (androidJarFile.exists()) {
       classpath.add(androidJarFile);
     } else {
-      throw new InteractiveSpacesException(String.format("Could not find Android jar file %s",
+      throw new SimpleInteractiveSpacesException(String.format("Could not find Android jar file %s",
           androidJarFile.getAbsolutePath()));
     }
 
-    context.getWorkbench().addExtrasControllerExtensionsClasspath(classpath, "android");
+    context.getWorkbenchTaskContext().addExtrasControllerExtensionsClasspath(classpath, "android");
   }
 
   @Override
-  public void postProcessJar(ProjectBuildContext context, File jarFile) {
+  public void postProcessJar(ProjectTaskContext context, File jarFile) {
     Configuration configuration = context.getProject().getConfiguration();
     String platformToolsDirectory =
         configuration.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/"

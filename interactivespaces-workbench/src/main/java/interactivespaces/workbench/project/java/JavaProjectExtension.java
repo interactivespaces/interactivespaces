@@ -16,7 +16,7 @@
 
 package interactivespaces.workbench.project.java;
 
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import java.io.File;
 import java.util.List;
@@ -36,7 +36,7 @@ public interface JavaProjectExtension {
    * @param context
    *            the project build context
    */
-  void addToClasspath(List<File> classpath, ProjectBuildContext context);
+  void addToClasspath(List<File> classpath, ProjectTaskContext context);
 
   /**
    * Do any needed post-processing of a jar.
@@ -46,5 +46,5 @@ public interface JavaProjectExtension {
    * @param jarFile
    *          the jar file to postprocess
    */
-  void postProcessJar(ProjectBuildContext context, File jarFile);
+  void postProcessJar(ProjectTaskContext context, File jarFile);
 }

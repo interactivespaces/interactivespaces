@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity.ide;
+package interactivespaces.workbench.project.ide;
 
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.builder.ProjectBuildContext;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public interface EclipseIdeProjectCreatorSpecification {
    * @param freemarkerContext
    *          the context containing freemarker data
    */
-  void addSpecificationData(Project project, ProjectBuildContext context,
+  void addSpecificationData(Project project, ProjectTaskContext context,
       Map<String, Object> freemarkerContext);
 
   /**
@@ -57,8 +57,8 @@ public interface EclipseIdeProjectCreatorSpecification {
    *
    * @param project
    *          the project being built
-   * @param context
-   *          the project build context
+   * @param projectTaskContext
+   *          the project task context
    * @param freemarkerContext
    *          the context of objects to be given to freemarker
    * @param templater
@@ -67,6 +67,6 @@ public interface EclipseIdeProjectCreatorSpecification {
    * @throws Exception
    *           something bad happened
    */
-  void writeAdditionalFiles(Project project, ProjectBuildContext context,
+  void writeAdditionalFiles(Project project, ProjectTaskContext projectTaskContext,
       Map<String, Object> freemarkerContext, FreemarkerTemplater templater) throws Exception;
 }

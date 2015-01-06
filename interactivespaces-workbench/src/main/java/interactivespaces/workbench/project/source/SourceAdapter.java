@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.workbench.project.activity;
+package interactivespaces.workbench.project.source;
 
 /**
  * An adapter for {@link Source} instances that provide a bridge to another
