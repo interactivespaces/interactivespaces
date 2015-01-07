@@ -543,7 +543,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         return null;
       }
 
-      version = VersionRange.parseVersionRange(minimumVersionStr, minimumVersionStr);
+      version = VersionRange.parseVersionRange(minimumVersionStr, maximumVersionStr);
     }
 
     boolean required =

@@ -246,7 +246,7 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
         return null;
       }
 
-      version = VersionRange.parseVersionRange(minimumVersionStr, minimumVersionStr);
+      version = VersionRange.parseVersionRange(minimumVersionStr, maximumVersionStr);
     }
 
     String requiredString =
