@@ -74,8 +74,8 @@
 
       <parsable targetfile="$INSTALL_PATH/config/workbench.conf" />
 
-      <parsable targetfile="$INSTALL_PATH/bin/isworkbench.bash" />
-      <executable targetfile="$INSTALL_PATH/bin/isworkbench.bash" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isworkbench" />
+      <executable targetfile="$INSTALL_PATH/bin/isworkbench" stage="never" />
     </pack>
 
     <pack name="Docs" required="no">

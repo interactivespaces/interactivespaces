@@ -97,12 +97,12 @@
       <file src="interactivespaces-launcher-@{app.version}.jar" targetdir="$INSTALL_PATH"
         override="true" />
 
-      <parsable targetfile="$INSTALL_PATH/bin/startup" />
-      <executable targetfile="$INSTALL_PATH/bin/startup" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/shutdown" />
-      <executable targetfile="$INSTALL_PATH/bin/shutdown" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/harsh_shutdown" />
-      <executable targetfile="$INSTALL_PATH/bin/harsh_shutdown" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isstartup" />
+      <executable targetfile="$INSTALL_PATH/bin/isstartup" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isshutdown" />
+      <executable targetfile="$INSTALL_PATH/bin/isshutdown" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" />
+      <executable targetfile="$INSTALL_PATH/bin/isharshshutdown" stage="never" />
 
       <parsable targetfile="$INSTALL_PATH/config/container.conf" />
       <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />

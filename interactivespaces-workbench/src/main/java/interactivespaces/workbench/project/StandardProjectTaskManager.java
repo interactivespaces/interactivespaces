@@ -281,6 +281,8 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      */
     public ProjectDeploymentTask(String deploymentType, Project project, ProjectTaskContext projectTaskContext) {
       super(project, projectTaskContext);
+
+      this.deploymentType = deploymentType;
     }
 
     @Override
@@ -385,12 +387,14 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      * @param ide
      *          the IDE to create the project for
      * @param project
-     *          the project whose docs are being generated
+     *          the project whose IDE files are being generated
      * @param projectTaskContext
      *          context for the project tasks
      */
     public ProjectIdeTask(String ide, Project project, ProjectTaskContext projectTaskContext) {
       super(project, projectTaskContext);
+
+      this.ide = ide;
     }
 
     @Override
