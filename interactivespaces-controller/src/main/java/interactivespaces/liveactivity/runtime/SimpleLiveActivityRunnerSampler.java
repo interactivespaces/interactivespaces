@@ -76,6 +76,7 @@ public class SimpleLiveActivityRunnerSampler implements LiveActivityRunnerSample
    *          the logger to be used
    */
   public SimpleLiveActivityRunnerSampler(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    this.spaceEnvironment = spaceEnvironment;
     this.log = log;
   }
 

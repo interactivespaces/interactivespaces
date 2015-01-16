@@ -322,6 +322,8 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
       }
     }, heartbeatDelay, heartbeatDelay, TimeUnit.MILLISECONDS);
 
+    liveActivityRunnerSampler.startup();
+
     dataBundleManager.startup();
 
     startupControllerControl();
