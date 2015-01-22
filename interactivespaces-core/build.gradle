@@ -31,9 +31,7 @@ dependencies {
   compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpclient:4.1.1') {
     //exclude module: 'com.springsource.org.apache.commons.logging'
   }
-  compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpmime:4.1.1') {
-    exclude module: 'com.springsource.org.apache.httpcomponents.httpcore'
-  }
+  compile('org.apache.httpcomponents:com.springsource.org.apache.httpcomponents.httpmime:4.1.1') { exclude module: 'com.springsource.org.apache.httpcomponents.httpcore' }
 
   runtime 'org.apache.commons:com.springsource.org.apache.commons.codec:1.4.0'
 
@@ -44,6 +42,8 @@ dependencies {
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
 
   compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
+
+  compile 'joda-time:joda-time:2.7'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
@@ -66,6 +66,7 @@ jar {
         'org.codehaus.jackson.*;resolution:="optional"',
         'org.apache.commons.net.ntp;resolution:="optional"',
         'org.ros.*;resolution:="optional"',
+        'org.joda.*;resolution:="optional"',
         'javassist.*;resolution:="optional"',
         'interactivespaces.system.bootstrap.osgi;resolution:="optional"',
         '*'
