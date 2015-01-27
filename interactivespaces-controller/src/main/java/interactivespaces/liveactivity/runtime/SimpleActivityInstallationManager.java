@@ -14,16 +14,16 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.activity.installation.ActivityInstallationListener;
-import interactivespaces.controller.activity.installation.ActivityInstallationManager;
-import interactivespaces.controller.domain.ActivityInstallationStatus;
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.liveactivity.runtime.domain.ActivityInstallationStatus;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationListener;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -81,12 +81,12 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
   /**
    * Local repository of controller information.
    */
-  private final LocalSpaceControllerRepository controllerRepository;
+  private final LocalLiveActivityRepository controllerRepository;
 
   /**
    * The storage manager for activities.
    */
-  private final ActivityStorageManager activityStorageManager;
+  private final LiveActivityStorageManager activityStorageManager;
 
   /**
    * The listeners for this installer.
@@ -108,8 +108,8 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
    * @param spaceEnvironment
    *          the space environment
    */
-  public SimpleActivityInstallationManager(LocalSpaceControllerRepository controllerRepository,
-      ActivityStorageManager activityStorageManager, InteractiveSpacesEnvironment spaceEnvironment) {
+  public SimpleActivityInstallationManager(LocalLiveActivityRepository controllerRepository,
+      LiveActivityStorageManager activityStorageManager, InteractiveSpacesEnvironment spaceEnvironment) {
     this.controllerRepository = controllerRepository;
     this.activityStorageManager = activityStorageManager;
     this.spaceEnvironment = spaceEnvironment;

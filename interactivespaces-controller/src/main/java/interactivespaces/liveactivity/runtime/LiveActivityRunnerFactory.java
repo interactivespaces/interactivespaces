@@ -18,10 +18,9 @@ package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 /**
  * A factory for {@link BasicLiveActivityRunner} instances.
@@ -31,7 +30,7 @@ import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfigur
 public interface LiveActivityRunnerFactory {
 
   /**
-   * Create an active controller activity for a given activity type.
+   * Create alive activity runner for a given activity type.
    *
    * @param activityType
    *          the type of activity being created
@@ -43,14 +42,14 @@ public interface LiveActivityRunnerFactory {
    *          configuration for the activity
    * @param liveActivityRunnerListener
    *          the listener for live activity runner events
-   * @param controller
-   *          the controller which will run the activity
-   *
-   * @return the active controller activity instance
+   * @param liveActivityRuntime
+   *          the live activity runtime the runner will run in
+    *
+   * @return the live activity runner
    */
   LiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity installedLiveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller);
+      LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime);
 
   /**
    * Create an active controller activity for a given activity type.
@@ -68,14 +67,14 @@ public interface LiveActivityRunnerFactory {
    *          configuration for the activity
    * @param liveActivityRunnerListener
    *          the listener for live activity runner events
-   * @param controller
-   *          the controller which will run the activity
+   * @param liveActivityRuntime
+   *          the live activity runtime the runner will run in
    *
    * @return a runner for the activity
    */
   BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity installedLiveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller);
+      LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime);
 
   /**
    * Get the activity type of the activity.

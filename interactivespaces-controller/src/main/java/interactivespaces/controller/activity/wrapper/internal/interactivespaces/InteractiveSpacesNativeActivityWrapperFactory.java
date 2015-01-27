@@ -17,12 +17,12 @@
 package interactivespaces.controller.activity.wrapper.internal.interactivespaces;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.util.data.resource.MessageDigestResourceSignature;
 import interactivespaces.util.data.resource.ResourceSignature;
 
@@ -34,6 +34,11 @@ import org.osgi.framework.BundleContext;
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesNativeActivityWrapperFactory extends BaseActivityWrapperFactory {
+
+  /**
+   * The name of the activity type.
+   */
+  public static final String ACTIVITY_TYPE_NAME = "interactivespaces_native";
 
   /**
    * The bundle loader to use for loading live activities.
@@ -58,12 +63,12 @@ public class InteractiveSpacesNativeActivityWrapperFactory extends BaseActivityW
 
   @Override
   public String getActivityType() {
-    return "interactivespaces_native";
+    return ACTIVITY_TYPE_NAME;
   }
 
   @Override
   public ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-      Configuration configuration, SpaceController controller) {
+      Configuration configuration, ActivityRuntime activityRuntime) {
     return new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem, configuration, bundleLoader);
   }
 }

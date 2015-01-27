@@ -18,12 +18,12 @@ package interactivespaces.controller.runtime;
 
 import static org.junit.Assert.assertEquals;
 
-import interactivespaces.controller.activity.installation.ActivityInstallationListener;
-import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
-import interactivespaces.controller.runtime.ActivityStorageManager;
-import interactivespaces.controller.runtime.SimpleActivityInstallationManager;
+import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
+import interactivespaces.liveactivity.runtime.SimpleActivityInstallationManager;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationListener;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.junit.Before;
@@ -37,11 +37,11 @@ import org.mockito.Mockito;
  */
 public class SimpleActivityInstallationManagerTest {
 
-  private LocalSpaceControllerRepository repository;
+  private LocalLiveActivityRepository repository;
 
   private InteractiveSpacesEnvironment spaceEnvironment;
 
-  private ActivityStorageManager activityStorageManager;
+  private LiveActivityStorageManager activityStorageManager;
 
   private SimpleActivityInstallationManager installationManager;
 
@@ -49,9 +49,9 @@ public class SimpleActivityInstallationManagerTest {
 
   @Before
   public void setup() {
-    repository = Mockito.mock(LocalSpaceControllerRepository.class);
+    repository = Mockito.mock(LocalLiveActivityRepository.class);
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
-    activityStorageManager = Mockito.mock(ActivityStorageManager.class);
+    activityStorageManager = Mockito.mock(LiveActivityStorageManager.class);
     listener = Mockito.mock(ActivityInstallationListener.class);
 
     installationManager =

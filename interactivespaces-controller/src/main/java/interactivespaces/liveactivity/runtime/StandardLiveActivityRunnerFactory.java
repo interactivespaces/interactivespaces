@@ -19,12 +19,11 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
@@ -44,7 +43,7 @@ import org.apache.commons.logging.Log;
 public class StandardLiveActivityRunnerFactory implements ActiveControllerActivityFactory, LiveActivityRunnerFactory {
 
   /**
-   * Default version for wrapper factories.
+   * Default version for wrapper factories.tClass().
    */
   public static final Version DEFAULT_FACTORY_VERSION = new Version(0, 0, 0);
 
@@ -77,7 +76,7 @@ public class StandardLiveActivityRunnerFactory implements ActiveControllerActivi
   @Override
   public BasicLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
+      LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
 
     String bareActivityType = activityType;
     VersionRange versionRange = null;
@@ -97,18 +96,18 @@ public class StandardLiveActivityRunnerFactory implements ActiveControllerActivi
 
     if (wrapperFactory != null) {
       ActivityWrapper wrapper =
-          wrapperFactory.newActivityWrapper(liveActivity, activityFilesystem, configuration, controller);
+          wrapperFactory.newActivityWrapper(liveActivity, activityFilesystem, configuration, liveActivityRuntime);
 
       BasicLiveActivityRunner activeLiveActivity =
           new BasicLiveActivityRunner(liveActivity, wrapper, activityFilesystem, configuration,
-              liveActivityRunnerListener, controller);
+              liveActivityRunnerListener, liveActivityRuntime);
 
       return activeLiveActivity;
     } else {
       String message =
           String
               .format("Unsupported activity type %s for activity %s", activityType.toString(), liveActivity.getUuid());
-      controller.getSpaceEnvironment().getLog().warn(message);
+      liveActivityRuntime.getSpaceEnvironment().getLog().warn(message);
 
       throw new SimpleInteractiveSpacesException(message);
     }
@@ -117,11 +116,11 @@ public class StandardLiveActivityRunnerFactory implements ActiveControllerActivi
   @Override
   public BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity liveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
+      LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
     String type = getConfiguredType(configuration);
 
     return newLiveActivityRunner(type, liveActivity, activityFilesystem, configuration, liveActivityRunnerListener,
-        controller);
+        liveActivityRuntime);
   }
 
   @Override

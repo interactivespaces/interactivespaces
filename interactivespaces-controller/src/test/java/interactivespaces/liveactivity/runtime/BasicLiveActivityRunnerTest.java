@@ -19,13 +19,9 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.liveactivity.runtime.BasicLiveActivityRunner;
-import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
-import interactivespaces.liveactivity.runtime.LiveActivityRunnerListener;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.SettableTimeProvider;
 
@@ -50,7 +46,7 @@ public class BasicLiveActivityRunnerTest {
   private InternalLiveActivityFilesystem activityFilesystem;
   private LiveActivityConfiguration configuration;
   private LiveActivityRunnerListener liveActivityRunnerListener;
-  private SpaceController controller;
+  private LiveActivityRuntime liveActivityRuntime;
   private Activity instance;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private SettableTimeProvider timeProvider;
@@ -64,19 +60,18 @@ public class BasicLiveActivityRunnerTest {
     activityFilesystem = Mockito.mock(InternalLiveActivityFilesystem.class);
     configuration = Mockito.mock(LiveActivityConfiguration.class);
     liveActivityRunnerListener = Mockito.mock(LiveActivityRunnerListener.class);
-
-    controller = Mockito.mock(SpaceController.class);
+    liveActivityRuntime = Mockito.mock(LiveActivityRuntime.class);
 
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
     timeProvider = new SettableTimeProvider();
 
     Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
-    Mockito.when(controller.getSpaceEnvironment()).thenReturn(spaceEnvironment);
+    Mockito.when(liveActivityRuntime.getSpaceEnvironment()).thenReturn(spaceEnvironment);
 
     runner =
         new BasicLiveActivityRunner(installedActivity, activityWrapper, activityFilesystem, configuration,
-            liveActivityRunnerListener, controller);
+            liveActivityRunnerListener, liveActivityRuntime);
   }
 
   /**

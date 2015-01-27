@@ -17,9 +17,9 @@
 package interactivespaces.controller.activity.wrapper;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.VersionedResource;
 
 /**
@@ -45,12 +45,11 @@ public interface ActivityWrapperFactory extends VersionedResource {
    *          the filesystem for the activity
    * @param configuration
    *          configuration for the activity
-   * @param controller
-   *          controller running the activity
+   * @param activityRuntime
+   *          the activity runtime
    *
    * @return a new activity wrapper
    */
   ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-      Configuration configuration, SpaceController controller);
-
+      Configuration configuration, ActivityRuntime activityRuntime);
 }

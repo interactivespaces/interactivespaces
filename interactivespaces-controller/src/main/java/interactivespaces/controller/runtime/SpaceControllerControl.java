@@ -17,8 +17,8 @@
 package interactivespaces.controller.runtime;
 
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param configuration
    *          the configuration request
    */
-  void configureActivity(String uuid, Map<String, String> configuration);
+  void configureLiveActivity(String uuid, Map<String, String> configuration);
 
   /**
    * Get all live activities installed on this controller.
@@ -99,12 +99,12 @@ public interface SpaceControllerControl extends SpaceController {
   /**
    * Start up all activities in the controller that aren't currently started.
    */
-  void startupAllActivities();
+  void startupAllLiveActivities();
 
   /**
    * Shut down all activities in the controller.
    */
-  void shutdownAllActivities();
+  void shutdownAllLiveActivities();
 
   /**
    * Start up an activity given its UUID.
@@ -112,7 +112,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          UUID of the activity to start.
    */
-  void startupActivity(String uuid);
+  void startupLiveActivity(String uuid);
 
   /**
    * Start up an activity given its UUID.
@@ -120,7 +120,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          UUID of the activity to start.
    */
-  void shutdownActivity(String uuid);
+  void shutdownLiveActivity(String uuid);
 
   /**
    * Start up an activity given its UUID.
@@ -128,7 +128,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          UUID of the activity to activate.
    */
-  void activateActivity(String uuid);
+  void activateLiveActivity(String uuid);
 
   /**
    * Start up an activity given its UUID.
@@ -136,7 +136,7 @@ public interface SpaceControllerControl extends SpaceController {
    * @param uuid
    *          UUID of the activity to deactivate
    */
-  void deactivateActivity(String uuid);
+  void deactivateLiveActivity(String uuid);
 
   /**
    * Cause a status check of an activity given its UUID.

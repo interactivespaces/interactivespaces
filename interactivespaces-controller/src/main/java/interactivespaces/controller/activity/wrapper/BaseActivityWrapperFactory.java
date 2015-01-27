@@ -16,10 +16,13 @@
 
 package interactivespaces.controller.activity.wrapper;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.controller.SpaceController;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.Version;
 
 import java.io.File;
@@ -95,5 +98,36 @@ public abstract class BaseActivityWrapperFactory implements ActivityWrapperFacto
     return new File(activityFilesystem.getInstallDirectory(),
         configuration.getRequiredPropertyString(ActivityConfiguration.CONFIGURATION_ACTIVITY_EXECUTABLE) + "."
             + extension);
+  }
+
+  @Override
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
+      Configuration configuration, ActivityRuntime activityRuntime) {
+    return newActivityWrapper((interactivespaces.controller.domain.InstalledLiveActivity) liveActivity,
+        activityFilesystem, configuration, (SpaceController) null);
+  }
+
+  /**
+   * Create an activity wrapper.
+   *
+   * @param liveActivity
+   *          the live to be run
+   * @param activityFilesystem
+   *          the filesystem for the activity
+   * @param configuration
+   *          configuration for the activity
+   * @param controller
+   *          controller running the activity
+   *
+   * @return a new activity wrapper
+   *
+   * @deprecated Override
+   *             {@link #newActivityWrapper(InstalledLiveActivity, ActivityFilesystem, Configuration, ActivityRuntime).
+   */
+  @Deprecated
+  public ActivityWrapper newActivityWrapper(interactivespaces.controller.domain.InstalledLiveActivity liveActivity,
+      ActivityFilesystem activityFilesystem, Configuration configuration, SpaceController controller) {
+    throw new SimpleInteractiveSpacesException(String.format(
+        "Activity wrapper class %s does not override a newActivityWrapper method", getClass().getName()));
   }
 }

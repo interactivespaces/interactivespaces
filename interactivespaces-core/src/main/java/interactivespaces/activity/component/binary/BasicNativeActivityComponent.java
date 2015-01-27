@@ -25,7 +25,6 @@ import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SystemConfiguration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerListener;
 import interactivespaces.util.process.restart.RestartStrategy;
@@ -108,7 +107,8 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
    * @param executableEnvironmentProperty
    *          config property prefix for the environment flags
    */
-  public BasicNativeActivityComponent(String executablePathProperty, String executableFlagsProperty, String executableEnvironmentProperty) {
+  public BasicNativeActivityComponent(String executablePathProperty, String executableFlagsProperty,
+      String executableEnvironmentProperty) {
     this.executablePathProperty = executablePathProperty;
     this.executableFlagsProperty = executableFlagsProperty;
     this.executableEnvironmentProperty = executableEnvironmentProperty;
@@ -124,9 +124,8 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
     super.configureComponent(configuration);
 
     Activity activity = componentContext.getActivity();
-    SpaceController controller = activity.getController();
     String os =
-        controller.getSpaceEnvironment().getSystemConfiguration()
+        activity.getSpaceEnvironment().getSystemConfiguration()
             .getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
     Map<String, Object> appConfig = Maps.newHashMap();
@@ -164,7 +163,7 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
     String commandEnvironment = configuration.getPropertyString(executableEnvironmentProperty + "." + os);
     appConfig.put(NativeActivityRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
 
-    nativeActivity = controller.getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
+    nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
     nativeActivity.configure(appConfig);
 
     if (restartStrategy != null) {

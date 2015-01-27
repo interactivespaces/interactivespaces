@@ -17,7 +17,7 @@
 package interactivespaces.controller.ui.internal.osgi;
 
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.resource.ManagedResource;
 
@@ -33,7 +33,7 @@ public class OsgiControllerShell implements ManagedResource {
   /**
    * Repository for controller items.
    */
-  private final LocalSpaceControllerRepository controllerRepository;
+  private final LocalLiveActivityRepository controllerRepository;
 
   /**
    * Bundle context for hooking into the shell system.
@@ -63,7 +63,7 @@ public class OsgiControllerShell implements ManagedResource {
    *          the bundle context the shell runs under
    */
   public OsgiControllerShell(SpaceController spaceController, InteractiveSpacesSystemControl spaceSystemControl,
-      LocalSpaceControllerRepository controllerRepository, BundleContext bundleContext) {
+      LocalLiveActivityRepository controllerRepository, BundleContext bundleContext) {
     this.spaceController = spaceController;
     this.spaceSystemControl = spaceSystemControl;
     this.controllerRepository = controllerRepository;

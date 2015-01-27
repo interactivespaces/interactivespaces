@@ -19,37 +19,41 @@ package interactivespaces.controller.runtime.internal.osgi;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.controller.activity.installation.ActivityInstallationManager;
 import interactivespaces.controller.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
-import interactivespaces.controller.repository.internal.file.FileLocalSpaceControllerRepository;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
-import interactivespaces.controller.runtime.ActivityStorageManager;
-import interactivespaces.controller.runtime.ControllerDataBundleManager;
 import interactivespaces.controller.runtime.FileSystemSpaceControllerInfoPersister;
-import interactivespaces.controller.runtime.SimpleActivityInstallationManager;
-import interactivespaces.controller.runtime.SimpleActivityStorageManager;
 import interactivespaces.controller.runtime.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.runtime.SpaceControllerDataBundleManager;
 import interactivespaces.controller.runtime.StandardSpaceController;
+import interactivespaces.controller.runtime.StandardSpaceControllerDataBundleManager;
 import interactivespaces.controller.runtime.configuration.StandardSpaceControllerConfigurationManager;
 import interactivespaces.controller.runtime.internal.SimpleSpaceControllerActivityInstallationManager;
+import interactivespaces.controller.runtime.logging.LoggingAlertStatusManager;
 import interactivespaces.controller.runtime.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
+import interactivespaces.liveactivity.runtime.SimpleActivityInstallationManager;
+import interactivespaces.liveactivity.runtime.SimpleLiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.configuration.PropertyFileLiveActivityConfigurationManager;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
+import interactivespaces.liveactivity.runtime.repository.internal.file.FileLocalLiveActivityRepository;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.system.resources.ContainerResourceManager;
+import interactivespaces.util.concurrency.SequentialEventQueue;
+import interactivespaces.util.concurrency.SimpleSequentialEventQueue;
 
 import org.ros.osgi.common.RosEnvironment;
 
@@ -156,18 +160,18 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new ControllerContainerResourceDeploymentManager(containerResourceManager, spaceEnvironment);
     addManagedResource(containerResourceDeploymentManager);
 
-    ActivityStorageManager activityStorageManager = new SimpleActivityStorageManager(spaceEnvironment);
-    addManagedResource(activityStorageManager);
+    LiveActivityStorageManager liveActivityStorageManager = new SimpleLiveActivityStorageManager(spaceEnvironment);
+    addManagedResource(liveActivityStorageManager);
 
-    LocalSpaceControllerRepository controllerRepository =
-        new FileLocalSpaceControllerRepository(activityStorageManager, spaceEnvironment);
-    addManagedResource(controllerRepository);
+    LocalLiveActivityRepository liveActivityRepository =
+        new FileLocalLiveActivityRepository(liveActivityStorageManager, spaceEnvironment);
+    addManagedResource(liveActivityRepository);
 
-    PropertyFileLiveActivityConfigurationManager activityConfigurationManager =
+    PropertyFileLiveActivityConfigurationManager liveActivityConfigurationManager =
         new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
     ActivityInstallationManager activityInstallationManager =
-        new SimpleActivityInstallationManager(controllerRepository, activityStorageManager, spaceEnvironment);
+        new SimpleActivityInstallationManager(liveActivityRepository, liveActivityStorageManager, spaceEnvironment);
     addManagedResource(activityInstallationManager);
 
     SpaceControllerActivityInstallationManager controllerActivityInstaller =
@@ -181,21 +185,30 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
             rosEnvironment, spaceEnvironment);
 
-    ControllerDataBundleManager dataBundleManager = new SpaceControllerDataBundleManager();
+    SpaceControllerDataBundleManager dataBundleManager = new StandardSpaceControllerDataBundleManager();
+    dataBundleManager.setActivityStorageManager(liveActivityStorageManager);
 
     StandardSpaceControllerConfigurationManager spaceControllerConfigurationManager =
         new StandardSpaceControllerConfigurationManager(spaceEnvironment);
     addManagedResource(spaceControllerConfigurationManager);
 
-    SpaceController spaceController =
-        new StandardSpaceController(activityInstallationManager, controllerRepository, liveActivityRunnerFactory,
-            nativeActivityRunnerFactory, activityConfigurationManager, activityStorageManager, activityLogFactory,
-            spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
-            dataBundleManager, spaceControllerConfigurationManager, spaceEnvironment);
+    SequentialEventQueue eventQueue = new SimpleSequentialEventQueue(spaceEnvironment, spaceEnvironment.getLog());
+    addManagedResource(eventQueue);
+    StandardLiveActivityRuntime liveActivityRuntime =
+        new StandardLiveActivityRuntime(liveActivityRunnerFactory, nativeActivityRunnerFactory, liveActivityRepository,
+            activityInstallationManager, activityLogFactory, liveActivityConfigurationManager,
+            liveActivityStorageManager, new LoggingAlertStatusManager(spaceEnvironment.getLog()), eventQueue,
+            spaceEnvironment);
+    addManagedResource(liveActivityRuntime);
+
+    StandardSpaceController spaceController =
+        new StandardSpaceController(spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(),
+            spaceSystemControl, dataBundleManager, spaceControllerConfigurationManager, liveActivityRuntime,
+            eventQueue, spaceEnvironment);
     addManagedResource(spaceController);
 
     OsgiControllerShell controllerShell =
-        new OsgiControllerShell(spaceController, spaceSystemControl, controllerRepository, getBundleContext());
+        new OsgiControllerShell(spaceController, spaceSystemControl, liveActivityRepository, getBundleContext());
     addManagedResource(controllerShell);
   }
 }

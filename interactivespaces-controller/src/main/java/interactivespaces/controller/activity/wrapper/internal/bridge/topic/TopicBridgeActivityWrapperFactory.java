@@ -17,12 +17,12 @@
 package interactivespaces.controller.activity.wrapper.internal.bridge.topic;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 /**
  * A {@link ActivityWrapperFactory} for running topic bridges.
@@ -31,14 +31,19 @@ import interactivespaces.controller.domain.InstalledLiveActivity;
  */
 public class TopicBridgeActivityWrapperFactory extends BaseActivityWrapperFactory {
 
+  /**
+   * The name of the activity type.
+   */
+  public static final String ACTIVITY_TYPE_NAME = "topic_bridge";
+
   @Override
   public String getActivityType() {
-    return "topic_bridge";
+    return ACTIVITY_TYPE_NAME;
   }
 
   @Override
   public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-      Configuration configuration, SpaceController controller) {
+      Configuration configuration, ActivityRuntime activityRuntime) {
     return new TopicBridgeActivityWrapper();
   }
 }

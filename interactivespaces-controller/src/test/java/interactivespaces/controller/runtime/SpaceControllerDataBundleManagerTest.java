@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import interactivespaces.common.ResourceRepositoryUploadChannel;
 import interactivespaces.controller.runtime.SpaceControllerControl;
-import interactivespaces.controller.runtime.SpaceControllerDataBundleManager;
+import interactivespaces.controller.runtime.StandardSpaceControllerDataBundleManager;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.web.HttpContentCopier;
 
@@ -54,7 +54,7 @@ public class SpaceControllerDataBundleManagerTest {
   /**
    * The primary class under test.
    */
-  private SpaceControllerDataBundleManager dataBundleManager;
+  private StandardSpaceControllerDataBundleManager dataBundleManager;
 
   /**
    * Container object used for collecting mocked test results.
@@ -124,7 +124,7 @@ public class SpaceControllerDataBundleManagerTest {
       }
     }).when(contentCopier).copyTo(anyString(), any(File.class), anyString(), any(Map.class));
 
-    dataBundleManager = new SpaceControllerDataBundleManager(contentCopier, fileSupport);
+    dataBundleManager = new StandardSpaceControllerDataBundleManager(contentCopier, fileSupport);
     dataBundleManager.setSpaceController(spaceController);
   }
 

@@ -18,7 +18,6 @@ package interactivespaces.activity;
 
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -73,21 +72,19 @@ public interface Activity extends ActivityControl {
   Configuration getConfiguration();
 
   /**
-   * Get the controller this activity is attached to. Should throw an exception
-   * if the startup was unsuccessful.Should throw an exception if the startup
-   * was unsuccessful.
+   * Get the activity runtime the activity is running under.
    *
-   * @return the controller in charge of the activity
+   * @return the activity runtime
    */
-  SpaceController getController();
+  ActivityRuntime getActivityRuntime();
 
   /**
-   * Set the controller needed for this activity.
+   * Set the activity runtime the activity is running under.
    *
-   * @param controller
-   *          controller for this activity
+   * @param activityRuntime
+   *          the activity runtime
    */
-  void setController(SpaceController controller);
+  void setActivityRuntime(ActivityRuntime activityRuntime);
 
   /**
    * The configuration has been updated.

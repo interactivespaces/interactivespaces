@@ -21,11 +21,11 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityListener;
 import interactivespaces.activity.ActivityListenerCollection;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -73,9 +73,9 @@ public abstract class ActivitySupport implements Activity {
   private ActivityExecutionContext context;
 
   /**
-   * The controller this activity is running under.
+   * The runtime this activity is running under.
    */
-  private SpaceController controller;
+  private ActivityRuntime activityRuntime;
 
   /**
    * The Interactive Spaces environment the activity will run under.
@@ -108,8 +108,8 @@ public abstract class ActivitySupport implements Activity {
   }
 
   @Override
-  public SpaceController getController() {
-    return controller;
+  public ActivityRuntime getActivityRuntime() {
+    return activityRuntime;
   }
 
   @Override
@@ -122,14 +122,9 @@ public abstract class ActivitySupport implements Activity {
     return log;
   }
 
-  /**
-   * Set the controller this activity is running under.
-   *
-   * @param controller
-   *          the controller in charge of this activity
-   */
-  public void setController(SpaceController controller) {
-    this.controller = controller;
+  @Override
+  public void setActivityRuntime(ActivityRuntime activityRuntime) {
+    this.activityRuntime = activityRuntime;
   }
 
   @Override

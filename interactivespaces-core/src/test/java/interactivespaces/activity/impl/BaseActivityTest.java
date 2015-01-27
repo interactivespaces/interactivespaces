@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityListener;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.component.ActivityComponent;
@@ -30,7 +31,6 @@ import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
 
@@ -66,7 +66,7 @@ public class BaseActivityTest {
 
   private Log log;
 
-  private SpaceController controller;
+  private ActivityRuntime activityRuntime;
 
   private ActivityComponent component;
 
@@ -96,7 +96,7 @@ public class BaseActivityTest {
     Mockito.when(spaceEnvironment.getExecutorService()).thenReturn(executorService);
 
     log = Mockito.mock(Log.class);
-    controller = Mockito.mock(SpaceController.class);
+    activityRuntime = Mockito.mock(ActivityRuntime.class);
     configuration = new SimpleConfiguration(null);
     executionContext = Mockito.mock(ActivityExecutionContext.class);
     component = Mockito.spy(new MyBaseActivityComponent("component1"));
@@ -107,7 +107,7 @@ public class BaseActivityTest {
     Mockito.when(component.getDependencies()).thenReturn(new ArrayList<String>());
 
     activity = Mockito.spy(new MyBaseActivity());
-    activity.setController(controller);
+    activity.setActivityRuntime(activityRuntime);
     activity.setSpaceEnvironment(spaceEnvironment);
     activity.setConfiguration(configuration);
     activity.setExecutionContext(executionContext);
@@ -510,6 +510,7 @@ public class BaseActivityTest {
   }
 
   private class MyBaseActivity extends BaseActivity {
+    @Override
     public void onActivitySetup() {
       for (ActivityComponent c : componentsToAdd) {
         addActivityComponent(c);

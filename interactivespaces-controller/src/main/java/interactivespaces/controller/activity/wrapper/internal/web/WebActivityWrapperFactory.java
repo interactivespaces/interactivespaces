@@ -17,12 +17,12 @@
 package interactivespaces.controller.activity.wrapper.internal.web;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 /**
  * An {@link ActivityWrapperFactory} for web activities.
@@ -31,16 +31,19 @@ import interactivespaces.controller.domain.InstalledLiveActivity;
  */
 public class WebActivityWrapperFactory extends BaseActivityWrapperFactory {
 
+  /**
+   * The name of the activity type.
+   */
+  public static final String ACTIVITY_TYPE_NAME = "web";
+
   @Override
   public String getActivityType() {
-    return "web";
+    return ACTIVITY_TYPE_NAME;
   }
 
   @Override
-  public ActivityWrapper
-      newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-          Configuration configuration, SpaceController controller) {
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      Configuration configuration, ActivityRuntime activityRuntime) {
     return new WebActivityWrapper();
   }
-
 }

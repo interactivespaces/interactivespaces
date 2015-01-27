@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Google Inc.
+ * Copyright (C) 2012 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,15 +14,27 @@
  * the License.
  */
 
-package interactivespaces.controller.domain;
+package interactivespaces.liveactivity.runtime.domain;
 
 /**
- * A tag merely to keep com.google.support working with 1.8.0.
+ * Status of the installation.
  *
  * @author Keith M. Hughes
- *
- * @deprecated To be removed after 1.8.0 is exported to all centers and all cgs is updated.
  */
-@Deprecated
-public interface InstalledLiveActivity extends interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity{
+public enum ActivityInstallationStatus {
+
+  /**
+   * The installation is unknown.
+   */
+  UNKNOWN,
+
+  /**
+   * The installation is OK.
+   */
+  OK,
+
+  /**
+   * Something corrupted the installation status, but it is still installed.
+   */
+  CORRUPTED
 }

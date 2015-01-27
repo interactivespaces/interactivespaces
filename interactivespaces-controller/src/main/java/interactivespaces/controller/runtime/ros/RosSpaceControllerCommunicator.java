@@ -29,7 +29,6 @@ import interactivespaces.container.resource.deployment.ContainerResourceDeployme
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.common.ros.RosSpaceControllerConstants;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.runtime.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.runtime.SpaceControllerCommunicator;
@@ -40,6 +39,7 @@ import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteReq
 import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteStatus;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
 import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerClient;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -336,7 +336,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
         break;
 
       case ControllerRequest.OPERATION_CONTROLLER_SHUTDOWN_ACTIVITIES:
-        controllerControl.shutdownAllActivities();
+        controllerControl.shutdownAllLiveActivities();
 
         break;
 
@@ -650,22 +650,22 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
         String uuid = request.getLiveActivityUuid();
         switch (request.getOperation()) {
           case LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_STARTUP:
-            controllerControl.startupActivity(uuid);
+            controllerControl.startupLiveActivity(uuid);
 
             break;
 
           case LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_ACTIVATE:
-            controllerControl.activateActivity(uuid);
+            controllerControl.activateLiveActivity(uuid);
 
             break;
 
           case LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_DEACTIVATE:
-            controllerControl.deactivateActivity(uuid);
+            controllerControl.deactivateLiveActivity(uuid);
 
             break;
 
           case LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_SHUTDOWN:
-            controllerControl.shutdownActivity(uuid);
+            controllerControl.shutdownLiveActivity(uuid);
 
             break;
 
@@ -717,7 +717,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    *          the configuration request
    */
   private void handleLiveActivityConfigurationRequest(String uuid, ConfigurationRequest configurationRequest) {
-    controllerControl.configureActivity(uuid, extractConfigurationUpdate(configurationRequest));
+    controllerControl.configureLiveActivity(uuid, extractConfigurationUpdate(configurationRequest));
   }
 
   /**
@@ -881,7 +881,7 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
    *          the controllerControl to set
    */
   @Override
-  public void setControllerControl(SpaceControllerControl controllerControl) {
+  public void setSpaceControllerControl(SpaceControllerControl controllerControl) {
     this.controllerControl = controllerControl;
   }
 

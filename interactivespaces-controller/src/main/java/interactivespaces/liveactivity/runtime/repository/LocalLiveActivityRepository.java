@@ -14,19 +14,19 @@
  * the License.
  */
 
-package interactivespaces.controller.repository;
+package interactivespaces.liveactivity.runtime.repository;
 
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.util.List;
 
 /**
- * Repository domain objects for the local controller.
+ * Repository for live activities.
  *
  * @author Keith M. Hughes
  */
-public interface LocalSpaceControllerRepository extends ManagedResource {
+public interface LocalLiveActivityRepository extends ManagedResource {
 
   /**
    * Get a new instance of a locally installed activity.

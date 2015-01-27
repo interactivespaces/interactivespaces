@@ -73,7 +73,7 @@ public class BasicNativeWebBrowserRunner implements NativeWebBrowserRunner {
   @Override
   public void startup(String initialUrl, boolean debug) {
     browserRunner =
-        activity.getController().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
+        activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
 
     Configuration configuration = activity.getConfiguration();
 

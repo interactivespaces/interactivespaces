@@ -20,10 +20,9 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -74,9 +73,9 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
   private final LiveActivityRunnerListener liveActivityRunnerListener;
 
   /**
-   * The controller which contains the activity.
+   * The live activity runtime this activity is running under.
    */
-  private final SpaceController controller;
+  private LiveActivityRuntime liveActivityRuntime;
 
   /**
    * The activity being run.
@@ -114,19 +113,19 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
    *          the configuration for the activity
    * @param liveActivityRunnerListener
    *          listener for live activity runner events
-   * @param controller
-   *          the controller the activity is running under
+   * @param liveActivityRuntime
+   *          the live activity runtime this runner is running under
    */
   public BasicLiveActivityRunner(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
-      LiveActivityRunnerListener liveActivityRunnerListener, SpaceController controller) {
+      LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
     this.uuid = installedActivity.getUuid();
     this.installedActivity = installedActivity;
     this.activityWrapper = activityWrapper;
     this.activityFilesystem = activityFilesystem;
     this.configuration = configuration;
     this.liveActivityRunnerListener = liveActivityRunnerListener;
-    this.controller = controller;
+    this.liveActivityRuntime = liveActivityRuntime;
 
     cachedActivityStatus = INITIAL_ACTIVITY_STATUS;
 
@@ -161,7 +160,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
           try {
             configuration.load();
             instance = activityWrapper.newInstance();
-            controller.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
+            liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
                 activityWrapper.newExecutionContext());
 
             instance.startup();
@@ -182,13 +181,13 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
               try {
                 instance.handleStartupFailure();
               } catch (Throwable e1) {
-                controller.getSpaceEnvironment().getLog().error("Error cleaning up activity which could not start", e1);
+                liveActivityRuntime.getSpaceEnvironment().getLog().error("Error cleaning up activity which could not start", e1);
               }
             }
 
           }
         } else {
-          controller.getSpaceEnvironment().getLog()
+          liveActivityRuntime.getSpaceEnvironment().getLog()
               .warn(String.format("Attempt to start activity %s that is already started", uuid));
         }
       } finally {
@@ -214,7 +213,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
             setActivityStatusUnprotected(new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, null, e));
           }
         } else {
-          controller.getSpaceEnvironment().getLog()
+          liveActivityRuntime.getSpaceEnvironment().getLog()
               .warn(String.format("Attempt to shut down activity %s that wasn't running", uuid));
         }
       } finally {
@@ -382,14 +381,14 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
    */
   private boolean obtainInstanceLock(InstanceLockState newInstanceLockState) {
     try {
-      long time = controller.getSpaceEnvironment().getTimeProvider().getCurrentTime();
+      long time = liveActivityRuntime.getSpaceEnvironment().getTimeProvider().getCurrentTime();
       while (!instanceLock.tryLock(INSTANCE_LOCK_WAIT_TIME, TimeUnit.MILLISECONDS)) {
-        controller
+        liveActivityRuntime
             .getSpaceEnvironment()
             .getLog()
             .warn(
                 String.format("A wait on the activity instance lock for %s has been blocked for"
-                    + " %d milliseconds as the instance is in %s", uuid, (controller.getSpaceEnvironment()
+                    + " %d milliseconds as the instance is in %s", uuid, (liveActivityRuntime.getSpaceEnvironment()
                     .getTimeProvider().getCurrentTime() - time), instanceLockState));
       }
 
@@ -408,7 +407,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
 
       return true;
     } catch (InterruptedException e) {
-      controller.getSpaceEnvironment().getLog()
+      liveActivityRuntime.getSpaceEnvironment().getLog()
           .warn(String.format("A wait on the activity instance lock for %s was interrupted", uuid));
 
       return false;

@@ -17,12 +17,12 @@
 package interactivespaces.controller.activity.wrapper.internal.script;
 
 import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.controller.activity.wrapper.BaseActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.service.script.ScriptService;
 
 /**
@@ -33,32 +33,40 @@ import interactivespaces.service.script.ScriptService;
 public class ScriptActivityWrapperFactory extends BaseActivityWrapperFactory {
 
   /**
+   * The name of the activity type.
+   */
+  public static final String ACTIVITY_TYPE_NAME = "script";
+
+  /**
    * Configuration property giving the scripting language.
    */
-  public static final String CONFIGURATION_APPLICATION_SCRIPT_LANGUAGE =
-      "space.activity.script.language";
+  public static final String CONFIGURATION_APPLICATION_SCRIPT_LANGUAGE = "space.activity.script.language";
 
   /**
    * The script engine to be used by this factory.
    */
   private ScriptService scriptService;
 
+  /**
+   * Construct the factory.
+   *
+   * @param scriptService
+   *          the script service
+   */
   public ScriptActivityWrapperFactory(ScriptService scriptService) {
     this.scriptService = scriptService;
   }
 
   @Override
   public String getActivityType() {
-    return "script";
+    return ACTIVITY_TYPE_NAME;
   }
 
   @Override
-  public ActivityWrapper
-      newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
-          Configuration configuration, SpaceController controller) {
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+      Configuration configuration, ActivityRuntime activityRuntime) {
 
-    return new ScriptActivityWrapper(
-        getActivityExecutable(liapp, activityFilesystem, configuration), scriptService,
+    return new ScriptActivityWrapper(getActivityExecutable(liapp, activityFilesystem, configuration), scriptService,
         activityFilesystem, configuration);
   }
 }

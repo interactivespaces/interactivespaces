@@ -28,8 +28,8 @@ import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.resource.Version;
 
 import org.junit.Before;

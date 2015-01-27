@@ -14,12 +14,10 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
-import interactivespaces.liveactivity.runtime.SimpleLiveActivityFilesystem;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -30,11 +28,11 @@ import java.io.File;
 import java.util.List;
 
 /**
- * A basic implementation of an {@link ActivityStorageManager}.
+ * A basic implementation of an {@link LiveActivityStorageManager}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleActivityStorageManager implements ActivityStorageManager {
+public class SimpleLiveActivityStorageManager implements LiveActivityStorageManager {
 
   /**
    * Configuration property giving the location of the base activity
@@ -70,7 +68,7 @@ public class SimpleActivityStorageManager implements ActivityStorageManager {
    * @param spaceEnvironment
    *          the space environment
    */
-  public SimpleActivityStorageManager(InteractiveSpacesEnvironment spaceEnvironment) {
+  public SimpleLiveActivityStorageManager(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 

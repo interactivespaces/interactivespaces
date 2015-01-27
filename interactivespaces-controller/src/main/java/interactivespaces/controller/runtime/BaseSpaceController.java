@@ -16,15 +16,7 @@
 
 package interactivespaces.controller.runtime;
 
-import interactivespaces.activity.Activity;
-import interactivespaces.activity.ActivityFilesystem;
-import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.activity.component.ActivityComponentFactory;
-import interactivespaces.activity.component.CoreExistingActivityComponentFactory;
-import interactivespaces.activity.configuration.ActivityConfiguration;
-import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.service.ServiceRegistry;
@@ -33,9 +25,6 @@ import interactivespaces.service.web.client.internal.netty.NettyWebSocketClientS
 import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.system.InteractiveSpacesFilesystem;
-
-import org.apache.commons.logging.Log;
 
 /**
  * Base implementation for a space controller.
@@ -55,16 +44,6 @@ public abstract class BaseSpaceController implements SpaceController {
   private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
-   * A factory for native app runners.
-   */
-  private final NativeActivityRunnerFactory nativeActivityRunnerFactory;
-
-  /**
-   * The component factory to be used by this controller.
-   */
-  private ActivityComponentFactory activityComponentFactory;
-
-  /**
    * The IS service for web servers.
    */
   private WebServerService webServerService;
@@ -75,24 +54,20 @@ public abstract class BaseSpaceController implements SpaceController {
   private WebSocketClientService webSocketClientService;
 
   /**
-   * Initialize a controller with the given space environment.
+   * Construct a controller with the given space environment.
    *
    * @param spaceEnvironment
    *          space environment to use
-   * @param nativeActivityRunnerFactory
-   *          native activity runner factory
    */
-  public BaseSpaceController(InteractiveSpacesEnvironment spaceEnvironment,
-      NativeActivityRunnerFactory nativeActivityRunnerFactory) {
+  public BaseSpaceController(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
-    this.nativeActivityRunnerFactory = nativeActivityRunnerFactory;
   }
 
   @Override
   public void startup() {
     getSpaceEnvironment().getLog().info("Controller starting up");
     obtainControllerInfo();
-    activityComponentFactory = new CoreExistingActivityComponentFactory();
+
     setEnvironmentValues();
   }
 
@@ -102,80 +77,9 @@ public abstract class BaseSpaceController implements SpaceController {
   }
 
   @Override
-  public void initializeActivityInstance(MinimalLiveActivity activity,
-      ActivityFilesystem activityFilesystem, Activity instance, Configuration configuration,
-      ActivityExecutionContext executionContext) {
-
-    // Set log first to enable logging of any configuration/startup errors.
-    instance.setLog(getActivityLog(activity, configuration));
-
-    String uuid = activity.getUuid();
-    instance.setController(this);
-    instance.setUuid(uuid);
-
-    instance.setConfiguration(configuration);
-    instance.setActivityFilesystem(activityFilesystem);
-    instance.setSpaceEnvironment(spaceEnvironment);
-    instance.setExecutionContext(executionContext);
-
-    initializeActivityConfiguration(configuration, activityFilesystem);
-
-    onActivityInitialization(instance);
-  }
-
-  /**
-   * Initialize the configuration with any special values needed for running.
-   *
-   * @param configuration
-   *          the configuration to be modified
-   * @param activityFilesystem
-   *          the activities file system
-   */
-  private void initializeActivityConfiguration(Configuration configuration,
-      ActivityFilesystem activityFilesystem) {
-    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_INSTALL,
-        activityFilesystem.getInstallDirectory().getAbsolutePath());
-    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_LOG,
-        activityFilesystem.getLogDirectory().getAbsolutePath());
-    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_DATA,
-        activityFilesystem.getPermanentDataDirectory().getAbsolutePath());
-    configuration.setValue(ActivityConfiguration.CONFIGURATION_ACTIVITY_FILESYSTEM_DIR_TMP,
-        activityFilesystem.getTempDataDirectory().getAbsolutePath());
-
-    // TODO(keith): Move to interactivespaces-system during bootstrap
-    InteractiveSpacesFilesystem filesystem = spaceEnvironment.getFilesystem();
-    configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_SYSTEM_FILESYSTEM_DIR_DATA,
-        filesystem.getDataDirectory().getAbsolutePath());
-    configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_SYSTEM_FILESYSTEM_DIR_TMP,
-        filesystem.getTempDirectory().getAbsolutePath());
-  }
-
-  /**
-   * Perform any additional instance initialization needed.
-   *
-   * @param instance
-   *          The activity instance to initialize
-   */
-  protected void onActivityInitialization(Activity instance) {
-    // Default is nothing.
-  }
-
-  @Override
   public InteractiveSpacesEnvironment getSpaceEnvironment() {
     return spaceEnvironment;
   }
-
-  /**
-   * Get the logger for the indicated activity.
-   *
-   * @param activity
-   *          activity to log
-   * @param configuration
-   *          configuration properties
-   *
-   * @return logger for this activity & configuration
-   */
-  protected abstract Log getActivityLog(MinimalLiveActivity activity, Configuration configuration);
 
   /**
    * Get controller information from the configs.
@@ -197,16 +101,6 @@ public abstract class BaseSpaceController implements SpaceController {
     return controllerInfo;
   }
 
-  @Override
-  public ActivityComponentFactory getActivityComponentFactory() {
-    return activityComponentFactory;
-  }
-
-  @Override
-  public NativeActivityRunnerFactory getNativeActivityRunnerFactory() {
-    return nativeActivityRunnerFactory;
-  }
-
   /**
    * Start up the core services that all controllers provide.
    */
@@ -226,8 +120,8 @@ public abstract class BaseSpaceController implements SpaceController {
    * Set values in the space environment that the controller provides.
    */
   private void setEnvironmentValues() {
-    getSpaceEnvironment().setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER,
-        getNativeActivityRunnerFactory());
+//    getSpaceEnvironment().setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER,
+//        getNativeActivityRunnerFactory());
   }
 
   /**

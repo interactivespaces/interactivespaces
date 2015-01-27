@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.installation;
+package interactivespaces.liveactivity.runtime.installation;
 
 import interactivespaces.resource.Version;
 import interactivespaces.util.resource.ManagedResource;
@@ -32,9 +32,9 @@ public interface ActivityInstallationManager extends ManagedResource {
    * Copy a packed activity to the controller.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
    * @param uri
-   *          URI for a zip file containing the activity.
+   *          URI for a zip file containing the activity
    */
   void copyActivity(String uuid, String uri);
 

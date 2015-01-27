@@ -225,7 +225,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
-    componentContext = new ActivityComponentContext(this, getController().getActivityComponentFactory());
+    componentContext = new ActivityComponentContext(this, getActivityRuntime().getActivityComponentFactory());
 
     managedResources = new ManagedResources(getLog());
 

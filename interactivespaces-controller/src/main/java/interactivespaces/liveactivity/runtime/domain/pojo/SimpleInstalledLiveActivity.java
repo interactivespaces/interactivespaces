@@ -14,12 +14,12 @@
  * the License.
  */
 
-package interactivespaces.controller.domain.pojo;
+package interactivespaces.liveactivity.runtime.domain.pojo;
 
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.controller.domain.ActivityInstallationStatus;
-import interactivespaces.controller.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.ActivityInstallationStatus;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.Version;
 
 import java.util.Date;

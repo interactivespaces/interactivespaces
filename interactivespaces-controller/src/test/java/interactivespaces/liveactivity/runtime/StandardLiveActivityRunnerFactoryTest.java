@@ -19,8 +19,8 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.activity.wrapper.ActivityWrapper;
 import interactivespaces.controller.activity.wrapper.ActivityWrapperFactory;
-import interactivespaces.controller.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
@@ -40,6 +40,7 @@ public class StandardLiveActivityRunnerFactoryTest {
   private StandardLiveActivityRunnerFactory runnerFactory;
   private LiveActivityRunnerListener runnerListener;
   private SpaceController controller;
+  private LiveActivityRuntime liveActivityRuntime;
   private LiveActivityConfiguration configuration;
   private InternalLiveActivityFilesystem filesystem;
   private InstalledLiveActivity liveActivity;
@@ -52,6 +53,7 @@ public class StandardLiveActivityRunnerFactoryTest {
     runnerFactory = new StandardLiveActivityRunnerFactory(log);
     runnerListener = Mockito.mock(LiveActivityRunnerListener.class);
     controller = Mockito.mock(SpaceController.class);
+    liveActivityRuntime = Mockito.mock(LiveActivityRuntime.class);
     filesystem = Mockito.mock(InternalLiveActivityFilesystem.class);
     liveActivity = Mockito.mock(InstalledLiveActivity.class);
     configuration = Mockito.mock(LiveActivityConfiguration.class);
@@ -72,13 +74,14 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(wrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper wrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(wrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller)).thenReturn(
-        wrapper);
+    Mockito.when(wrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
+        .thenReturn(wrapper);
 
     runnerFactory.registerActivityWrapperFactory(wrapperFactory);
 
     LiveActivityRunner aactivity =
-        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
+        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener,
+            liveActivityRuntime);
     Assert.assertEquals(wrapper, aactivity.getActivityWrapper());
   }
 
@@ -93,7 +96,8 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(unversionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper unversionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(unversionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
@@ -103,13 +107,15 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(versionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper versionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(versionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
     LiveActivityRunner aactivity =
-        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
+        runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener,
+            liveActivityRuntime);
     Assert.assertEquals(versionedWrapper, aactivity.getActivityWrapper());
   }
 
@@ -124,7 +130,8 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(unversionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper unversionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(unversionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
@@ -134,14 +141,15 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(versionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper versionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(versionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
     LiveActivityRunner aactivity =
         runnerFactory.newLiveActivityRunner("foo;0.0.0", liveActivity, filesystem, configuration, runnerListener,
-            controller);
+            liveActivityRuntime);
     Assert.assertEquals(unversionedWrapper, aactivity.getActivityWrapper());
   }
 
@@ -156,7 +164,8 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(version1WrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper version1Wrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(version1WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        version1WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(version1Wrapper);
 
     runnerFactory.registerActivityWrapperFactory(version1WrapperFactory);
@@ -166,14 +175,15 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(version2WrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper version2Wrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(version2WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        version2WrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(version2Wrapper);
 
     runnerFactory.registerActivityWrapperFactory(version2WrapperFactory);
 
     LiveActivityRunner aactivity =
         runnerFactory.newLiveActivityRunner("foo;[1.1, 1.3)", liveActivity, filesystem, configuration, runnerListener,
-            controller);
+            liveActivityRuntime);
     Assert.assertEquals(version1Wrapper, aactivity.getActivityWrapper());
   }
 
@@ -188,7 +198,8 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(unversionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper unversionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        unversionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(unversionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(unversionedWrapperFactory);
@@ -198,14 +209,15 @@ public class StandardLiveActivityRunnerFactoryTest {
     Mockito.when(versionedWrapperFactory.getActivityType()).thenReturn("foo");
 
     ActivityWrapper versionedWrapper = Mockito.mock(ActivityWrapper.class);
-    Mockito.when(versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, controller))
+    Mockito.when(
+        versionedWrapperFactory.newActivityWrapper(liveActivity, filesystem, configuration, liveActivityRuntime))
         .thenReturn(versionedWrapper);
 
     runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
     try {
       runnerFactory.newLiveActivityRunner("foo;[5, 6)", liveActivity, filesystem, configuration, runnerListener,
-          controller);
+          liveActivityRuntime);
 
       Assert.fail();
     } catch (Exception e) {
@@ -219,7 +231,8 @@ public class StandardLiveActivityRunnerFactoryTest {
   @Test
   public void testUnknownType() {
     try {
-      runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener, controller);
+      runnerFactory.newLiveActivityRunner("foo", liveActivity, filesystem, configuration, runnerListener,
+          liveActivityRuntime);
 
       Assert.fail();
     } catch (Exception e) {

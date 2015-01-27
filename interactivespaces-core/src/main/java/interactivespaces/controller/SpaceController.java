@@ -16,12 +16,7 @@
 
 package interactivespaces.controller;
 
-import interactivespaces.activity.Activity;
-import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.activity.component.ActivityComponentFactory;
-import interactivespaces.activity.execution.ActivityExecutionContext;
-import interactivespaces.configuration.Configuration;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.resource.ManagedResource;
@@ -30,17 +25,14 @@ import interactivespaces.util.resource.ManagedResource;
  * A controller for Interactive Spaces activities.
  *
  * <p>
- * This controller runs on a given machine and controls a group of activities on
- * that machine.
- *
+ * This controller runs on a given machine and controls a group of activities on that machine.
  *
  * @author Keith M. Hughes
  */
 public interface SpaceController extends ManagedResource {
 
   /**
-   * Environment value giving the controller's
-   * {@link NativeActivityRunnerFactory}.
+   * Environment value giving the controller's {@link NativeActivityRunnerFactory}.
    */
   String ENVIRONMENT_CONTROLLER_NATIVE_RUNNER = "controller.native.runner";
 
@@ -57,8 +49,7 @@ public interface SpaceController extends ManagedResource {
   /**
    * Configuration property giving the description of the controller.
    */
-  String CONFIGURATION_CONTROLLER_DESCRIPTION =
-      "interactivespaces.controller.description";
+  String CONFIGURATION_CONTROLLER_DESCRIPTION = "interactivespaces.controller.description";
 
   /**
    * Specification for standard controller mode.
@@ -69,20 +60,6 @@ public interface SpaceController extends ManagedResource {
    * Configuration property name for controller mode.
    */
   String CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE = "interactivespaces.controller.mode";
-
-  /**
-   * Get a factory for native activities runners.
-   *
-   * @return the factory to use
-   */
-  NativeActivityRunnerFactory getNativeActivityRunnerFactory();
-
-  /**
-   * Get the activity component factory for the controller.
-   *
-   * @return the factory for activity components
-   */
-  ActivityComponentFactory getActivityComponentFactory();
 
   /**
    * Get the Interactive Spaces environment.
@@ -97,21 +74,4 @@ public interface SpaceController extends ManagedResource {
    * @return information about the controller
    */
   SimpleSpaceController getControllerInfo();
-
-  /**
-   * Prepare an instance of an activity to run.
-   *
-   * @param activity
-   *          information about the activity whose instance is to be initialized
-   * @param activityFilesystem
-   *          the filesystem for the activity instance
-   * @param instance
- *            the instance of the activity being started up
-   * @param configuration
-*             the configuration for the instance
-   * @param executionContext
-   *          execution context for this activity
-   */
-  void initializeActivityInstance(MinimalLiveActivity activity, ActivityFilesystem activityFilesystem,
-      Activity instance, Configuration configuration, ActivityExecutionContext executionContext);
 }

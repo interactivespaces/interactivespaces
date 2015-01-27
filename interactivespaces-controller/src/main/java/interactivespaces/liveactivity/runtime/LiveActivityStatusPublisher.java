@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,27 +14,24 @@
  * the License.
  */
 
-package interactivespaces.controller.domain;
+package interactivespaces.liveactivity.runtime;
+
+import interactivespaces.activity.ActivityStatus;
 
 /**
- * Status of the installation.
+ * A publisher for live activity statuses.
  *
  * @author Keith M. Hughes
  */
-public enum ActivityInstallationStatus {
+public interface LiveActivityStatusPublisher {
 
   /**
-   * The installation is unknown.
+   * Publish a live activity status in a safe manner.
+   *
+   * @param uuid
+   *          uuid of the live activity
+   * @param status
+   *          the status
    */
-  UNKNOWN,
-
-  /**
-   * The installation is OK.
-   */
-  OK,
-
-  /**
-   * Something corrupted the installation status, but it is still installed.
-   */
-  CORRUPTED
+  void publishActivityStatus(String uuid, ActivityStatus status);
 }

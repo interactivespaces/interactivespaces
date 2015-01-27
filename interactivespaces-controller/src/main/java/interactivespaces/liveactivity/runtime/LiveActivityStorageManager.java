@@ -14,20 +14,19 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.liveactivity.runtime;
 
-import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 import java.util.List;
 
 /**
- * A storage manager for activities on the controller.
+ * A storage manager for activities in the live activity runtime.
  *
  * @author Keith M. Hughes
  */
-public interface ActivityStorageManager extends ManagedResource {
+public interface LiveActivityStorageManager extends ManagedResource {
 
   /**
    * Get the UUIDs of all installed live activities.

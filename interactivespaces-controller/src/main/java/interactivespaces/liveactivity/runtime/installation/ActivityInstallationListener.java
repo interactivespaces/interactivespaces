@@ -14,9 +14,9 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.installation;
+package interactivespaces.liveactivity.runtime.installation;
 
-import interactivespaces.controller.activity.installation.ActivityInstallationManager.RemoveActivityResult;
+import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
 
 /**
  * A listener for events from activity installs.

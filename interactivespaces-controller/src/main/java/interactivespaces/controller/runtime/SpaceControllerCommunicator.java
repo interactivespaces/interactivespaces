@@ -69,10 +69,10 @@ public interface SpaceControllerCommunicator {
   SpaceControllerHeartbeat newSpaceControllerHeartbeat();
 
   /**
-   * @param controllerControl
-   *          the controllerControl to set
+   * @param spaceControllerControl
+   *          the space controller control
    */
-  void setControllerControl(SpaceControllerControl controllerControl);
+  void setSpaceControllerControl(SpaceControllerControl spaceControllerControl);
 
   /**
    * Publish a controller data status message.

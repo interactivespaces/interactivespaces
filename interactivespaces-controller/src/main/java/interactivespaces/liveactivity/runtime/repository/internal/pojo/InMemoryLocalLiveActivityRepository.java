@@ -14,11 +14,11 @@
  * the License.
  */
 
-package interactivespaces.controller.repository.internal.pojo;
+package interactivespaces.liveactivity.runtime.repository.internal.pojo;
 
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.pojo.SimpleInstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class InMemoryLocalSpaceControllerRepository implements LocalSpaceControllerRepository {
+public class InMemoryLocalLiveActivityRepository implements LocalLiveActivityRepository {
 
   /**
    * Map of UUID to activity.

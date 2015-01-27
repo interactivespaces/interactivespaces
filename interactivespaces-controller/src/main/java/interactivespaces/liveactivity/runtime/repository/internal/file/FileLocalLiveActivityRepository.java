@@ -14,15 +14,15 @@
  * the License.
  */
 
-package interactivespaces.controller.repository.internal.file;
+package interactivespaces.liveactivity.runtime.repository.internal.file;
 
 import interactivespaces.activity.ActivityControllerStartupType;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.controller.domain.ActivityInstallationStatus;
-import interactivespaces.controller.domain.InstalledLiveActivity;
-import interactivespaces.controller.domain.pojo.SimpleInstalledLiveActivity;
-import interactivespaces.controller.repository.LocalSpaceControllerRepository;
-import interactivespaces.controller.runtime.ActivityStorageManager;
+import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
+import interactivespaces.liveactivity.runtime.domain.ActivityInstallationStatus;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.domain.pojo.SimpleInstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -39,11 +39,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Controller repository using flat files in the file system.
+ * Live activity repository using flat files in the file system.
  *
  * @author Keith M. Hughes
  */
-public class FileLocalSpaceControllerRepository implements LocalSpaceControllerRepository {
+public class FileLocalLiveActivityRepository implements LocalLiveActivityRepository {
 
   /**
    * Name of the data file for the activity data.
@@ -83,7 +83,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
   /**
    * The storage manager for activities.
    */
-  private final ActivityStorageManager activityStorageManager;
+  private final LiveActivityStorageManager activityStorageManager;
 
   /**
    * A map of all activities by their UUID.
@@ -113,7 +113,7 @@ public class FileLocalSpaceControllerRepository implements LocalSpaceControllerR
    * @param spaceEnvironment
    *          the space environment
    */
-  public FileLocalSpaceControllerRepository(ActivityStorageManager activityStorageManager,
+  public FileLocalLiveActivityRepository(LiveActivityStorageManager activityStorageManager,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.activityStorageManager = activityStorageManager;
     this.spaceEnvironment = spaceEnvironment;
