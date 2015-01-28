@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.wrapper.internal.script;
+package interactivespaces.liveactivity.runtime.activity.wrapper.internal.bridge.topic;
 
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityRuntime;
@@ -23,39 +23,18 @@ import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.BaseActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
-import interactivespaces.service.script.ScriptService;
 
 /**
- * An {@link ActivityWrapperFactory} for scripted activities.
+ * A {@link ActivityWrapperFactory} for running topic bridges.
  *
  * @author Keith M. Hughes
  */
-public class ScriptActivityWrapperFactory extends BaseActivityWrapperFactory {
+public class TopicBridgeActivityWrapperFactory extends BaseActivityWrapperFactory {
 
   /**
    * The name of the activity type.
    */
-  public static final String ACTIVITY_TYPE_NAME = "script";
-
-  /**
-   * Configuration property giving the scripting language.
-   */
-  public static final String CONFIGURATION_APPLICATION_SCRIPT_LANGUAGE = "space.activity.script.language";
-
-  /**
-   * The script engine to be used by this factory.
-   */
-  private ScriptService scriptService;
-
-  /**
-   * Construct the factory.
-   *
-   * @param scriptService
-   *          the script service
-   */
-  public ScriptActivityWrapperFactory(ScriptService scriptService) {
-    this.scriptService = scriptService;
-  }
+  public static final String ACTIVITY_TYPE_NAME = "topic_bridge";
 
   @Override
   public String getActivityType() {
@@ -65,8 +44,6 @@ public class ScriptActivityWrapperFactory extends BaseActivityWrapperFactory {
   @Override
   public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
       Configuration configuration, ActivityRuntime activityRuntime) {
-
-    return new ScriptActivityWrapper(getActivityExecutable(liapp, activityFilesystem, configuration), scriptService,
-        activityFilesystem, configuration);
+    return new TopicBridgeActivityWrapper();
   }
 }

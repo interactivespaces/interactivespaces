@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.activity.wrapper.internal.script;
+package interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces;
 
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityRuntime;
@@ -23,38 +23,42 @@ import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.BaseActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
-import interactivespaces.service.script.ScriptService;
+import interactivespaces.util.data.resource.MessageDigestResourceSignature;
+import interactivespaces.util.data.resource.ResourceSignature;
+
+import org.osgi.framework.BundleContext;
 
 /**
- * An {@link ActivityWrapperFactory} for scripted activities.
+ * A {@link ActivityWrapperFactory} for Interactive Spaces Native apps.
  *
  * @author Keith M. Hughes
  */
-public class ScriptActivityWrapperFactory extends BaseActivityWrapperFactory {
+public class InteractiveSpacesNativeActivityWrapperFactory extends BaseActivityWrapperFactory {
 
   /**
    * The name of the activity type.
    */
-  public static final String ACTIVITY_TYPE_NAME = "script";
+  public static final String ACTIVITY_TYPE_NAME = "interactivespaces_native";
 
   /**
-   * Configuration property giving the scripting language.
+   * The bundle loader to use for loading live activities.
    */
-  public static final String CONFIGURATION_APPLICATION_SCRIPT_LANGUAGE = "space.activity.script.language";
+  private final LiveActivityBundleLoader bundleLoader;
 
   /**
-   * The script engine to be used by this factory.
+   * The bundle comparer.
    */
-  private ScriptService scriptService;
+  private final ResourceSignature bundleComparer;
 
   /**
-   * Construct the factory.
+   * Construct a new IS native activity wrapper factory.
    *
-   * @param scriptService
-   *          the script service
+   * @param bundleContext
+   *          the OSGi bundle context for the factory
    */
-  public ScriptActivityWrapperFactory(ScriptService scriptService) {
-    this.scriptService = scriptService;
+  public InteractiveSpacesNativeActivityWrapperFactory(BundleContext bundleContext) {
+    this.bundleComparer = new MessageDigestResourceSignature();
+    this.bundleLoader = new SimpleLiveActivityBundleLoader(bundleContext, bundleComparer);
   }
 
   @Override
@@ -63,10 +67,8 @@ public class ScriptActivityWrapperFactory extends BaseActivityWrapperFactory {
   }
 
   @Override
-  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liapp, ActivityFilesystem activityFilesystem,
+  public ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
       Configuration configuration, ActivityRuntime activityRuntime) {
-
-    return new ScriptActivityWrapper(getActivityExecutable(liapp, activityFilesystem, configuration), scriptService,
-        activityFilesystem, configuration);
+    return new InteractiveSpacesNativeActivityWrapper(liveActivity, activityFilesystem, configuration, bundleLoader);
   }
 }
