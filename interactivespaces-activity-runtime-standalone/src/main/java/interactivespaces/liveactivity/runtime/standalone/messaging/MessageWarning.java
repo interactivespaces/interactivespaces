@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,33 +14,23 @@
  * the License.
  */
 
-package interactivespaces.activity;
+package interactivespaces.liveactivity.runtime.standalone.messaging;
 
 /**
- * How the activity should respond to activity startup
+ * A warning from the messaging layer, wrapped as an exception.
  *
- * @author Keith M. Hughes
+ * @author Trevor Pering
  */
-public enum ActivityControllerStartupType {
+public class MessageWarning extends RuntimeException {
 
   /**
-   * The activity should only be ready to run at controller startup.
+   * Create a new warning.
+   *
+   * @param message
+   *          warning message
    */
-  READY,
-
-  /**
-   * The activity should transition to startup at controller startup.
-   */
-  STARTUP,
-
-  /**
-   * The activity should transition to activate at controller startup.
-   */
-  ACTIVATE,
-
-  /**
-   * The activity should transition to its last known state at controller
-   * startup.
-   */
-  LAST_KNOWN
+  public MessageWarning(String message) {
+     super(message);
+  }
 }
+

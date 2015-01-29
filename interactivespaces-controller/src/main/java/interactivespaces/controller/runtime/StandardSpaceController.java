@@ -255,7 +255,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    */
   private void startupAutostartActivities() {
     for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
-      switch (activity.getControllerStartupType()) {
+      switch (activity.getRuntimeStartupType()) {
         case STARTUP:
           startupLiveActivity(activity.getUuid());
           break;
@@ -266,7 +266,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
           break;
         default:
           getSpaceEnvironment().getLog().error(
-              String.format("Unknown startup type %s for activity %s/%s", activity.getControllerStartupType(),
+              String.format("Unknown startup type %s for activity %s/%s", activity.getRuntimeStartupType(),
                   activity.getIdentifyingName(), activity.getUuid()));
       }
     }

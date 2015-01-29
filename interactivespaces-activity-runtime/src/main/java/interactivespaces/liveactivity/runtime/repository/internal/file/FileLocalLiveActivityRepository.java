@@ -16,7 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.repository.internal.file;
 
-import interactivespaces.activity.ActivityControllerStartupType;
+import interactivespaces.activity.ActivityRuntimeStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.domain.ActivityInstallationStatus;
@@ -228,7 +228,7 @@ public class FileLocalLiveActivityRepository implements LocalLiveActivityReposit
       activity.setLastDeployedDate(new Date(Long.parseLong(lines[LOCATION_LAST_DEPLOYED_DATE])));
       activity.setLastActivityState(ActivityState.valueOf(lines[LOCATION_LAST_ACTIVITY_STATE]));
       activity.setInstallationStatus(ActivityInstallationStatus.valueOf(lines[LOCATION_INSTALLATION_STATUS]));
-      activity.setControllerStartupType(ActivityControllerStartupType.valueOf(lines[LOCATION_STARTUP_TYPE]));
+      activity.setRuntimeStartupType(ActivityRuntimeStartupType.valueOf(lines[LOCATION_STARTUP_TYPE]));
 
       return activity;
     } else {
@@ -249,7 +249,7 @@ public class FileLocalLiveActivityRepository implements LocalLiveActivityReposit
         .append(activity.getLastDeployedDate().getTime()).append("\n")
         .append(activity.getLastActivityState().toString()).append("\n")
         .append(activity.getInstallationStatus().toString()).append("\n")
-        .append(activity.getControllerStartupType().toString());
+        .append(activity.getRuntimeStartupType().toString());
 
     File dataFile = getActivityDataFile(activity.getUuid());
     fileSupport.writeFile(dataFile, contents.toString());

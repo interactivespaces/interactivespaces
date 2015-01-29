@@ -16,7 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.domain.pojo;
 
-import interactivespaces.activity.ActivityControllerStartupType;
+import interactivespaces.activity.ActivityRuntimeStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.liveactivity.runtime.domain.ActivityInstallationStatus;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
@@ -67,9 +67,9 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   private ActivityState lastActivityState = ActivityState.UNKNOWN;
 
   /**
-   * how the activity should respond to a controller startup.
+   * how the activity should respond to a runtime startup.
    */
-  private ActivityControllerStartupType controllerStartupType = ActivityControllerStartupType.READY;
+  private ActivityRuntimeStartupType runtimeStartupType = ActivityRuntimeStartupType.READY;
 
   /**
    * Construct a blank live activity.
@@ -91,7 +91,7 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
     baseInstallationLocation = src.getBaseInstallationLocation();
     installationStatus = src.getInstallationStatus();
     lastActivityState = src.getLastActivityState();
-    controllerStartupType = src.getControllerStartupType();
+    runtimeStartupType = src.getRuntimeStartupType();
   }
 
   @Override
@@ -165,12 +165,12 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   }
 
   @Override
-  public ActivityControllerStartupType getControllerStartupType() {
-    return controllerStartupType;
+  public ActivityRuntimeStartupType getRuntimeStartupType() {
+    return runtimeStartupType;
   }
 
   @Override
-  public void setControllerStartupType(ActivityControllerStartupType controllerStartupType) {
-    this.controllerStartupType = controllerStartupType;
+  public void setRuntimeStartupType(ActivityRuntimeStartupType runtimeStartupType) {
+    this.runtimeStartupType = runtimeStartupType;
   }
 }

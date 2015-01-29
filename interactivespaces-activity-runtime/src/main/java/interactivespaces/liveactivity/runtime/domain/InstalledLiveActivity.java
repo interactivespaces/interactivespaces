@@ -16,7 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.domain;
 
-import interactivespaces.activity.ActivityControllerStartupType;
+import interactivespaces.activity.ActivityRuntimeStartupType;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.resource.Version;
@@ -129,17 +129,17 @@ public interface InstalledLiveActivity extends MinimalLiveActivity {
   void setLastActivityState(ActivityState lastActivityState);
 
   /**
-   * Get how the activity should respond to controller startup.
+   * Get how the activity should respond to runtime startup.
    *
-   * @return how the activity should respond to controller startup
+   * @return how the activity should respond to runtime startup
    */
-  ActivityControllerStartupType getControllerStartupType();
+  ActivityRuntimeStartupType getRuntimeStartupType();
 
   /**
-   * Set how the activity should respond to controller startup.
+   * Set how the activity should respond to runtime startup.
    *
-   * @param controllerStartupType
-   *          how the activity should respond to controller startup
+   * @param runtimeStartupType
+   *          how the activity should respond to runtime startup
    */
-  void setControllerStartupType(ActivityControllerStartupType controllerStartupType);
+  void setRuntimeStartupType(ActivityRuntimeStartupType runtimeStartupType);
 }
