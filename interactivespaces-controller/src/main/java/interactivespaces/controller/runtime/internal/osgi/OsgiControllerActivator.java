@@ -17,7 +17,6 @@
 package interactivespaces.controller.runtime.internal.osgi;
 
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.activity.binary.SimpleNativeActivityRunnerFactory;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
 import interactivespaces.controller.client.node.DoNotUseActiveControllerActivityFactory;
@@ -34,15 +33,12 @@ import interactivespaces.controller.runtime.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRuntimeComponentFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.SimpleActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.SimpleLiveActivityStorageManager;
-import interactivespaces.liveactivity.runtime.StandardLiveActivityRunnerFactory;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
-import interactivespaces.liveactivity.runtime.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
-import interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
-import interactivespaces.liveactivity.runtime.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
-import interactivespaces.liveactivity.runtime.activity.wrapper.internal.web.WebActivityWrapperFactory;
+import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntimeComponentFactory;
 import interactivespaces.liveactivity.runtime.alert.LoggingAlertStatusManager;
 import interactivespaces.liveactivity.runtime.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
@@ -98,7 +94,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   /**
    * Native activity runner factory.
    */
-  private SimpleNativeActivityRunnerFactory nativeActivityRunnerFactory;
+  private NativeActivityRunnerFactory nativeActivityRunnerFactory;
 
   @Override
   public void onStart() {
@@ -133,16 +129,15 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private void initializeBaseSpaceControllerComponents() {
     spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
-    liveActivityRunnerFactory = new StandardLiveActivityRunnerFactory(spaceEnvironment.getLog());
-    liveActivityRunnerFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
-    liveActivityRunnerFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
-    liveActivityRunnerFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
-    liveActivityRunnerFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
-        getBundleContext()));
-    registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
-    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(), new DoNotUseActiveControllerActivityFactory(liveActivityRunnerFactory));
+    StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
+        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
-    nativeActivityRunnerFactory = new SimpleNativeActivityRunnerFactory(spaceEnvironment);
+    liveActivityRunnerFactory = runtimeComponentFactory.newLiveActivityRunnerFactory();
+    registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
+        new DoNotUseActiveControllerActivityFactory(liveActivityRunnerFactory));
+
+    nativeActivityRunnerFactory = runtimeComponentFactory.newNativeActivityRunnerFactory();
     registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
   }
 
@@ -195,11 +190,17 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
     SequentialEventQueue eventQueue = new SimpleSequentialEventQueue(spaceEnvironment, spaceEnvironment.getLog());
     addManagedResource(eventQueue);
+
+    LoggingAlertStatusManager alertStatusManager = new LoggingAlertStatusManager(spaceEnvironment.getLog());
+    addManagedResource(alertStatusManager);
+
+    LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory =
+        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
+
     StandardLiveActivityRuntime liveActivityRuntime =
-        new StandardLiveActivityRuntime(liveActivityRunnerFactory, nativeActivityRunnerFactory, liveActivityRepository,
+        new StandardLiveActivityRuntime(liveActivityRuntimeComponentFactory, liveActivityRepository,
             activityInstallationManager, activityLogFactory, liveActivityConfigurationManager,
-            liveActivityStorageManager, new LoggingAlertStatusManager(spaceEnvironment.getLog()), eventQueue,
-            spaceEnvironment);
+            liveActivityStorageManager, alertStatusManager, eventQueue, spaceEnvironment);
     addManagedResource(liveActivityRuntime);
 
     StandardSpaceController spaceController =

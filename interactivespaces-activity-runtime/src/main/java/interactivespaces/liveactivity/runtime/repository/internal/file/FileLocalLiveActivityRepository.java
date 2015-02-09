@@ -222,7 +222,6 @@ public class FileLocalLiveActivityRepository implements LocalLiveActivityReposit
       String[] lines = contents.split("\\n");
 
       activity.setUuid(uuid);
-      activity.setBaseInstallationLocation(activityStorageManager.getBaseActivityLocation(uuid).getAbsolutePath());
       activity.setIdentifyingName(lines[LOCATION_IDENTIFYING_NAME]);
       activity.setVersion(Version.parseVersion(lines[LOCATION_VERSION]));
       activity.setLastDeployedDate(new Date(Long.parseLong(lines[LOCATION_LAST_DEPLOYED_DATE])));

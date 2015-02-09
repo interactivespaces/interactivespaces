@@ -1,0 +1,72 @@
+#!/bin/bash -e
+
+TARGET=$PWD
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  SOURCE="$(readlink "$SOURCE")"
+done
+
+EXEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+LIBDIR=$EXEDIR/../lib
+
+export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
+INTERACTIVESPACES_ROUTER=${INTERACTIVESPACES_ROUTER:-standalone}
+
+CMD=${1:-run}
+
+RUNDIR=$TARGET/run
+POSTFIX=
+INSTANCE_SUFFIX=
+COUNT=0
+LSOFWC=1
+while [ $LSOFWC -gt 0 ]; do
+  PIDFILE=$RUNDIR$POSTFIX/run/interactivespaces.pid
+  LSOFWC=`lsof -t $PIDFILE 2> /dev/null | wc -l`
+  if [ $LSOFWC -gt 0 ]; then
+    COUNT=$((COUNT + 1))
+    INSTANCE_SUFFIX=-$COUNT
+    POSTFIX=/instance$INSTANCE_SUFFIX
+  fi
+done
+RUNDIR=$RUNDIR$POSTFIX
+echo Rundir is $RUNDIR
+
+JDLINE="suspend=y,address=5005"
+CONFIGDIR=test
+CDIR=$INTERACTIVESPACES_HOME/controller
+
+# TODO(keith): consider older controllers. If no extras/standalone folder could copy the standalone
+# from cec-common the old way.
+
+export ISDEBUG=n
+if [ $CMD == "debug" ]; then
+  export ISSUSPEND=y
+  export ISDEBUG=y
+  export ISCOUNT=$COUNT
+fi
+
+mkdir -p $RUNDIR
+
+#TODO(keith): get rid of when log4j handled from config properties, not its own file.
+LIBSYSJAVA=lib/system/java
+mkdir -p $RUNDIR/$LIBSYSJAVA
+cp -a $CDIR/$LIBSYSJAVA/log4j.properties $RUNDIR/$LIBSYSJAVA
+
+echo Starting up activity...
+export INTERACTIVESPACES_MAIN_ARGS="--runtime=$RUNDIR"
+INTERACTIVESPACES_MAIN_ARGS+=" --config=${CDIR}/config"
+INTERACTIVESPACES_MAIN_ARGS+=" --bootstrap=${CDIR}/extras/standalone"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.controller.mode=standalone"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.service.mail.receiver.enable=false"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.runtime=$RUNDIR"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.source=$TARGET"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.config=$TARGET/$CONFIGDIR"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.instance=$INSTANCE_SUFFIX"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.router.type=${INTERACTIVESPACES_ROUTER}"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
+
+echo $INTERACTIVESPACES_MAIN_ARGS
+
+$CDIR/bin/startup_linux.bash 
+

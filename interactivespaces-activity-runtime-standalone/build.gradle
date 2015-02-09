@@ -17,7 +17,6 @@ dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
   compile project(':interactivespaces-activity-runtime')
-  compile project(':interactivespaces-controller')
 
   compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
 
@@ -34,7 +33,7 @@ jar {
     symbolicName = 'interactivespaces.activity.runtime.standalone'
 
     instruction 'Bundle-Activator',
-        'interactivespaces.liveactivity.runtime.standalone.StandaloneBundleActivator'
+        'interactivespaces.liveactivity.runtime.standalone.osgi.StandaloneBundleActivator'
 
     instruction 'InteractiveSpaces-StartLevel',
         'STARTUP_LEVEL_LAST'

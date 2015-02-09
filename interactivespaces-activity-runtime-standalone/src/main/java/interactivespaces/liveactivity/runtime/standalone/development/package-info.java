@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,17 +14,13 @@
  * the License.
  */
 
-package interactivespaces.evaluation;
-
 /**
- * An {@link ExpressionEvaluatorFactory} which returns instances of {@link SimpleExpressionEvaluator}.
+ * The standalone activity runner that is for Interactive Spaces development.
  *
+ * <p>
+ * This runner can run activities in their source folders, making it easier to
+ * develop without installation and deployment on a master/controller setup.
  * @author Keith M. Hughes
  */
-public class SimpleExpressionEvaluatorFactory implements ExpressionEvaluatorFactory {
 
-  @Override
-  public ExpressionEvaluator newEvaluator() {
-    return new SimpleExpressionEvaluator();
-  }
-}
+package interactivespaces.liveactivity.runtime.standalone.development;

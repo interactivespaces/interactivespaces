@@ -30,39 +30,29 @@ import java.io.File;
 public class SimpleLiveActivityFilesystem implements InternalLiveActivityFilesystem {
 
   /**
-   * The subdirectory off of the base install directory for the activity
-   * install.
+   * The subdirectory off of the base install directory for the activity install.
    */
   public static final String SUBDIRECTORY_INSTALL = "install";
 
   /**
-   * The subdirectory off of the base install directory where the activity's
-   * logs are stored.
+   * The subdirectory off of the base install directory where the activity's logs are stored.
    */
   public static final String SUBDIRECTORY_LOG = "log";
 
   /**
-   * The subdirectory off of the base install directory where the activity's
-   * permanent data is stored.
+   * The subdirectory off of the base install directory where the activity's permanent data is stored.
    */
   public static final String SUBDIRECTORY_DATA_PERMANENT = "data";
 
   /**
-   * The subdirectory off of the base install directory where the activity's
-   * temporary data is stored.
+   * The subdirectory off of the base install directory where the activity's temporary data is stored.
    */
   public static final String SUBDIRECTORY_DATA_TEMPORARY = "tmp";
 
   /**
-   * The subdirectory off of the base install directory where the activity's
-   * internal Interactive Spaces data is stored.
+   * The subdirectory off of the base install directory where the activity's internal Interactive Spaces data is stored.
    */
   public static final String SUBDIRECTORY_INTERNAL = "internal";
-
-  /**
-   * The base installation directory for the activity.
-   */
-  private final File baseFilesystemDirectory;
 
   /**
    * Where the activity is installed.
@@ -97,17 +87,40 @@ public class SimpleLiveActivityFilesystem implements InternalLiveActivityFilesys
   /**
    * Construct a filesystem.
    *
+   * <p>
+   * The entire filesystem will be rooted at the base install directory.
+   *
    * @param baseInstallationDirectory
    *          the base install directory of the filesystem
    */
   public SimpleLiveActivityFilesystem(File baseInstallationDirectory) {
-    this.baseFilesystemDirectory = baseInstallationDirectory;
+    this(new File(baseInstallationDirectory, SUBDIRECTORY_INSTALL), new File(baseInstallationDirectory,
+        SUBDIRECTORY_LOG), new File(baseInstallationDirectory, SUBDIRECTORY_DATA_PERMANENT), new File(
+        baseInstallationDirectory, SUBDIRECTORY_DATA_TEMPORARY), new File(baseInstallationDirectory,
+        SUBDIRECTORY_INTERNAL));
+  }
 
-    installDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_INSTALL);
-    logDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_LOG);
-    permanentDataDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_DATA_PERMANENT);
-    tempDataDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_DATA_TEMPORARY);
-    internalDirectory = new File(baseInstallationDirectory, SUBDIRECTORY_INTERNAL);
+  /**
+   * Construct a new filesystem.
+   *
+   * @param installDirectory
+   *          the directory where the activity is installed
+   * @param logDirectory
+   *          the log directory for the activity
+   * @param permanentDataDirectory
+   *          the permanent data directory for the activity
+   * @param tempDataDirectory
+   *          the temporary data directory for the activity
+   * @param internalDirectory
+   *          the internal data directory for the activity
+   */
+  public SimpleLiveActivityFilesystem(File installDirectory, File logDirectory, File permanentDataDirectory,
+      File tempDataDirectory, File internalDirectory) {
+    this.installDirectory = installDirectory;
+    this.logDirectory = logDirectory;
+    this.permanentDataDirectory = permanentDataDirectory;
+    this.tempDataDirectory = tempDataDirectory;
+    this.internalDirectory = internalDirectory;
   }
 
   @Override
@@ -163,5 +176,16 @@ public class SimpleLiveActivityFilesystem implements InternalLiveActivityFilesys
   @Override
   public File getInternalFile(String relative) {
     return new File(internalDirectory, relative);
+  }
+
+  /**
+   * Make sure that all directories exist. If not, they will be created.
+   */
+  public void ensureDirectories() {
+    fileSupport.directoryExists(installDirectory, "Create activity installation directory");
+    fileSupport.directoryExists(logDirectory, "Creating activity log directory");
+    fileSupport.directoryExists(permanentDataDirectory, "Creating activity permanent data directory");
+    fileSupport.directoryExists(tempDataDirectory, "Creating activity temporary data directory");
+    fileSupport.directoryExists(internalDirectory, "Creating activity internal Interactive Spaces directory");
   }
 }

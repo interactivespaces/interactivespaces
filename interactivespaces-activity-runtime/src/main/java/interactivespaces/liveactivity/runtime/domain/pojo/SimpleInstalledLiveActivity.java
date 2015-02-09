@@ -52,11 +52,6 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   private Date lastDeployedDate;
 
   /**
-   * The base location where the activity is installed.
-   */
-  private String baseInstallationLocation;
-
-  /**
    * Current known status of the installation.
    */
   private ActivityInstallationStatus installationStatus = ActivityInstallationStatus.UNKNOWN;
@@ -88,7 +83,6 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
     identifyingName = src.getIdentifyingName();
     version = src.getVersion();
     lastDeployedDate = src.getLastDeployedDate();
-    baseInstallationLocation = src.getBaseInstallationLocation();
     installationStatus = src.getInstallationStatus();
     lastActivityState = src.getLastActivityState();
     runtimeStartupType = src.getRuntimeStartupType();
@@ -132,16 +126,6 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   @Override
   public void setLastDeployedDate(Date lastDeployedDate) {
     this.lastDeployedDate = lastDeployedDate;
-  }
-
-  @Override
-  public String getBaseInstallationLocation() {
-    return baseInstallationLocation;
-  }
-
-  @Override
-  public void setBaseInstallationLocation(String baseInstallationLocation) {
-    this.baseInstallationLocation = baseInstallationLocation;
   }
 
   @Override

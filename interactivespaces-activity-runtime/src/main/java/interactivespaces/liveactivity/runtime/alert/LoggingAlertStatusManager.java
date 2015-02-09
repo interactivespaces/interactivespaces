@@ -53,6 +53,16 @@ public class LoggingAlertStatusManager implements AlertStatusManager {
   }
 
   @Override
+  public void startup() {
+    // Nothing to do
+  }
+
+  @Override
+  public void shutdown() {
+    // Nothing to do
+  }
+
+  @Override
   public void announceLiveActivityStatus(LiveActivityRunner liveActivityRunner) {
     ActivityStatus status = liveActivityRunner.getCachedActivityStatus();
 

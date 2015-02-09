@@ -16,7 +16,6 @@
 
 package interactivespaces.liveactivity.runtime;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
@@ -112,31 +111,10 @@ public class SimpleLiveActivityStorageManager implements LiveActivityStorageMana
 
     fileSupport.directoryExists(baseLocation, "Creating activity base location");
 
-    InternalLiveActivityFilesystem activityFilesystem = new SimpleLiveActivityFilesystem(baseLocation);
-    createFilesystemComponent(activityFilesystem.getInstallDirectory(), "Create activity installation directory");
-    createFilesystemComponent(activityFilesystem.getLogDirectory(), "Creating activity log directory");
-    createFilesystemComponent(activityFilesystem.getPermanentDataDirectory(),
-        "Creating activity permanent data directory");
-    createFilesystemComponent(activityFilesystem.getTempDataDirectory(), "Creating activity temporary data directory");
-    createFilesystemComponent(activityFilesystem.getInternalDirectory(),
-        "Creating activity internal Interactive Spaces directory");
+    SimpleLiveActivityFilesystem activityFilesystem = new SimpleLiveActivityFilesystem(baseLocation);
+    activityFilesystem.ensureDirectories();
 
     return activityFilesystem;
-  }
-
-  /**
-   * Create a component of the activity's file system.
-   *
-   * @param component
-   *          the component to create
-   * @param message
-   *          the message saying what component is being created
-   *
-   * @throws InteractiveSpacesException
-   *           if cannot create the component
-   */
-  private void createFilesystemComponent(File component, String message) throws InteractiveSpacesException {
-    fileSupport.directoryExists(component, message);
   }
 
   @Override
@@ -166,7 +144,7 @@ public class SimpleLiveActivityStorageManager implements LiveActivityStorageMana
    * @param dataDirectory
    *          the name of the data directory
    */
-  public void cleanDataDirectory(String uuid, String dataDirectory) {
+  private void cleanDataDirectory(String uuid, String dataDirectory) {
     File baseLocation = getBaseActivityLocation(uuid);
     if (baseLocation.exists()) {
       File tmpDirectory = new File(baseLocation, dataDirectory);

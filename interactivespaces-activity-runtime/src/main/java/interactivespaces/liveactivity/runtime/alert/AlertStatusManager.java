@@ -17,13 +17,14 @@
 package interactivespaces.liveactivity.runtime.alert;
 
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
  * Handle important status reporting for Interactive Spaces activities and controllers.
  *
  * @author Keith M. Hughes
  */
-public interface AlertStatusManager {
+public interface AlertStatusManager extends ManagedResource {
 
   /**
    * Send activity state to the emergency reporting system.

@@ -24,6 +24,7 @@ configurations {
   system
   launcher
   extras
+  extrasDevStandalone
 
   // TODO(keith): Eventually get from the extras themselves
   extrasSupport
@@ -49,7 +50,7 @@ dependencies {
   bootstrap project(":interactivespaces-interaction")
 
   bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
-  
+
   bootstrap('org.apache.felix:org.apache.felix.gogo.command:0.14.0') {
     exclude group: 'org.osgi'
     exclude group: 'org.easymock'
@@ -72,6 +73,8 @@ dependencies {
   extras project(":service:interactivespaces-service-image-vision-opencv")
 
   extrasSupport('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
+
+  extrasDevStandalone project(':interactivespaces-activity-runtime-standalone')
 }
 
 task cleanContainers(type: Exec) {
@@ -145,12 +148,18 @@ task copyContainerDependenciesExtrasSupport(type: Copy) {
   from configurations.extrasSupport
 }
 
+task copyContainerDependenciesExtrasDevStandalone(type: Copy) {
+  into "${project.ext.containerBuildTarget}/extras/standalone"
+  from configurations.extrasDevStandalone - configurations.bootstrap
+}
+
 task assembleContainers(dependsOn: [
   copyNeededComponents,
   copyContainerDependenciesLauncher,
   copyContainerDependenciesBootstrap,
   copyContainerDependenciesSystemJava,
-  copyContainerDependenciesExtrasSupport
+  copyContainerDependenciesExtrasSupport,
+  copyContainerDependenciesExtrasDevStandalone
 ])
 
 assembleContainers.mustRunAfter cleanContainers

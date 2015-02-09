@@ -41,9 +41,14 @@ import java.util.Properties;
 public class Log4jLoggingProvider implements LoggingProvider {
 
   /**
-   * Where the logging properties file is kept.
+   * Where the logging properties file is kept in lib/system/java.
    */
-  public static final String LOGGING_PROPERTIES_FILE = "lib/system/java/log4j.properties";
+  public static final String LOGGING_PROPERTIES_FILE_LIB_SYSTEM_JAVA = "lib/system/java/log4j.properties";
+
+  /**
+   * Where the logging properties file is kept in the config folder.
+   */
+  public static final String LOGGING_PROPERTIES_FILE_CONFIG = "system/log4j.properties";
 
   /**
    * The map of logging levels to their log4j level.
@@ -78,9 +83,11 @@ public class Log4jLoggingProvider implements LoggingProvider {
    *
    * @param baseInstallDir
    *          base installation directory for IS
+   * @param configDir
+   *          the configuration directory for IS
    */
-  public void configure(File baseInstallDir) {
-    File loggingPropertiesFile = new File(baseInstallDir, LOGGING_PROPERTIES_FILE);
+  public void configure(File baseInstallDir, File configDir) {
+    File loggingPropertiesFile = findLoggingConfiguration(baseInstallDir, configDir);
 
     Properties loggingProperties = new Properties();
 
@@ -103,6 +110,33 @@ public class Log4jLoggingProvider implements LoggingProvider {
       throw new RuntimeException(String.format("Error while reading container configuration %s",
           loggingPropertiesFile.getAbsolutePath()), e);
     }
+  }
+
+  /**
+   * Locate the logging configuration for the container.
+   *
+   * @param baseInstallDir
+   *          the base installation directory for the container
+   * @param configDir
+   *          the configuration directory for the container
+   *
+   * @return the logging configuration file
+   */
+  private File findLoggingConfiguration(File baseInstallDir, File configDir) {
+
+    // TODO(keith): Sort out all config locations so can have a base folder for just configs that this can look into.
+    File loggingPropertiesFile = new File(configDir, LOGGING_PROPERTIES_FILE_CONFIG);
+    System.out.println(loggingPropertiesFile.getAbsolutePath());
+    if (loggingPropertiesFile.isFile()) {
+      return loggingPropertiesFile;
+    }
+
+    loggingPropertiesFile = new File(baseInstallDir, LOGGING_PROPERTIES_FILE_LIB_SYSTEM_JAVA);
+    if (loggingPropertiesFile.isFile()) {
+      return loggingPropertiesFile;
+    }
+
+    throw new RuntimeException("Could not locate log4j logging configuration file");
   }
 
   @Override

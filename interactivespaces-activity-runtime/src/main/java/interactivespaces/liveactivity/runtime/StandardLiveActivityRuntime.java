@@ -24,8 +24,6 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStateTransition;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.BaseActivityRuntime;
-import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.activity.component.CoreExistingActivityComponentFactory;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
@@ -153,10 +151,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   /**
    * Construct a new runtime.
    *
-   * @param liveActivityRunnerFactory
-   *          the factory for live activity runners
-   * @param nativeActivityRunnerFactory
-   *          the factory for native activity runners
+   * @param liveActivityRuntimeComponentFactory
+   *          the component factory for live activity runtimes
    * @param liveActivityRepository
    *          the repository for live activities
    * @param activityInstallationManager
@@ -174,14 +170,14 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    * @param spaceEnvironment
    *          the space environment to run under
    */
-  public StandardLiveActivityRuntime(LiveActivityRunnerFactory liveActivityRunnerFactory,
-      NativeActivityRunnerFactory nativeActivityRunnerFactory, LocalLiveActivityRepository liveActivityRepository,
-      ActivityInstallationManager activityInstallationManager, LiveActivityLogFactory activityLogFactory,
-      LiveActivityConfigurationManager configurationManager, LiveActivityStorageManager activityStorageManager,
-      AlertStatusManager alertStatusManager, SequentialEventQueue eventQueue,
-      InteractiveSpacesEnvironment spaceEnvironment) {
-    super(nativeActivityRunnerFactory, new CoreExistingActivityComponentFactory(), spaceEnvironment);
-    this.liveActivityRunnerFactory = liveActivityRunnerFactory;
+  public StandardLiveActivityRuntime(LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory,
+      LocalLiveActivityRepository liveActivityRepository, ActivityInstallationManager activityInstallationManager,
+      LiveActivityLogFactory activityLogFactory, LiveActivityConfigurationManager configurationManager,
+      LiveActivityStorageManager activityStorageManager, AlertStatusManager alertStatusManager,
+      SequentialEventQueue eventQueue, InteractiveSpacesEnvironment spaceEnvironment) {
+    super(liveActivityRuntimeComponentFactory.newNativeActivityRunnerFactory(), liveActivityRuntimeComponentFactory
+        .newActivityComponentFactory(), spaceEnvironment);
+    this.liveActivityRunnerFactory = liveActivityRuntimeComponentFactory.newLiveActivityRunnerFactory();
     this.liveActivityRepository = liveActivityRepository;
     this.activityInstallationManager = activityInstallationManager;
     this.activityLogFactory = activityLogFactory;

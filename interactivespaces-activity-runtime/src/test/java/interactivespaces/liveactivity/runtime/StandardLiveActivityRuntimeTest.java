@@ -68,6 +68,7 @@ public class StandardLiveActivityRuntimeTest {
   private AlertStatusManager alertStatusManager;
   private LiveActivityRunnerSampler liveActivityRunnerSampler;
   private LiveActivityStatusPublisher liveActivityStatusPublisher;
+  private LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory;
 
   private Log log;
 
@@ -86,6 +87,9 @@ public class StandardLiveActivityRuntimeTest {
     liveActivityRunnerSampler = mock(LiveActivityRunnerSampler.class);
     liveActivityStatusPublisher = mock(LiveActivityStatusPublisher.class);
 
+    liveActivityRuntimeComponentFactory = mock(LiveActivityRuntimeComponentFactory.class);
+    when(liveActivityRuntimeComponentFactory.newLiveActivityRunnerFactory()).thenReturn(liveActivityRunnerFactory);
+
     timeProvider = mock(TimeProvider.class);
 
     spaceEnvironment = mock(InteractiveSpacesEnvironment.class);
@@ -96,9 +100,9 @@ public class StandardLiveActivityRuntimeTest {
     when(spaceEnvironment.getServiceRegistry()).thenReturn(serviceRegistry);
 
     liveActivityRuntime =
-        new StandardLiveActivityRuntime(liveActivityRunnerFactory, nativeAppRunnerFactory, liveActivityRepository,
-            liveActivityInstallationManager, liveActivityLogFactory, liveActivityConfigurationManager, liveActivityStorageManager,
-            alertStatusManager, new ImmediateRunSequentialEventQueue(), spaceEnvironment);
+        new StandardLiveActivityRuntime(liveActivityRuntimeComponentFactory, liveActivityRepository,
+            liveActivityInstallationManager, liveActivityLogFactory, liveActivityConfigurationManager,
+            liveActivityStorageManager, alertStatusManager, new ImmediateRunSequentialEventQueue(), spaceEnvironment);
 
     liveActivityRuntime.setAlertStatusManager(alertStatusManager);
     liveActivityRuntime.setLiveActivityRunnerSampler(liveActivityRunnerSampler);

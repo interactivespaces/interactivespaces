@@ -41,10 +41,87 @@ public class InteractiveSpacesException extends RuntimeException {
     return sw.toString();
   }
 
+  /**
+   * Create a new formatted exception.
+   *
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @return the new message
+   */
+  public static InteractiveSpacesException newFormattedException(String message, Object... args) {
+    return new InteractiveSpacesException(String.format(message, args));
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws InteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(String message, Object... args) throws InteractiveSpacesException {
+    throw newFormattedException(message, args);
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param cause
+   *          the cause of the exception
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @return the new message
+   */
+  public static InteractiveSpacesException newFormattedException(Throwable cause, String message, Object... args) {
+    return new InteractiveSpacesException(String.format(message, args), cause);
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param cause
+   *          the cause of the exception
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws InteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(Throwable cause, String message, Object... args)
+      throws InteractiveSpacesException {
+    throw newFormattedException(cause, message, args);
+  }
+
+  /**
+   * Create an exception using the given message.
+   *
+   * @param message
+   *          message for exception
+   */
   public InteractiveSpacesException(String message) {
     super(message);
   }
 
+  /**
+   * Create an exception with message and cause.
+   *
+   * @param message
+   *          message for exception
+   * @param cause
+   *          underlying cause of exception
+   */
   public InteractiveSpacesException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -84,21 +84,6 @@ public interface InstalledLiveActivity extends MinimalLiveActivity {
   void setLastDeployedDate(Date lastDeployedDate);
 
   /**
-   * Get the location of the activity's installation.
-   *
-   * @return the fully qualified path of the install
-   */
-  String getBaseInstallationLocation();
-
-  /**
-   * Set the location of the activity's installation.
-   *
-   * @param installationLocation
-   *          the fully qualified path of the install
-   */
-  void setBaseInstallationLocation(String installationLocation);
-
-  /**
    * Get the status of the installation.
    *
    * @return the last known status of the installation

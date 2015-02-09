@@ -27,6 +27,68 @@ import java.io.PrintWriter;
 public class SimpleInteractiveSpacesException extends InteractiveSpacesException {
 
   /**
+   * Create a new formatted exception.
+   *
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @return the new message
+   */
+  public static SimpleInteractiveSpacesException newFormattedException(String message, Object... args) {
+    return new SimpleInteractiveSpacesException(String.format(message, args));
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(String message, Object... args) throws SimpleInteractiveSpacesException {
+    throw newFormattedException(message, args);
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param cause
+   *          the cause of the exception
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @return the new message
+   */
+  public static SimpleInteractiveSpacesException newFormattedException(Throwable cause, String message, Object... args) {
+    return new SimpleInteractiveSpacesException(String.format(message, args), cause);
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param cause
+   *          the cause of the exception
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(Throwable cause, String message, Object... args) throws SimpleInteractiveSpacesException {
+    throw newFormattedException(cause, message, args);
+  }
+
+  /**
    * Create a simple exception using the given message.
    *
    * @param message
@@ -49,8 +111,7 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
   }
 
   /**
-   * Return a compounded message for this simple exception, including all the messages
-   * from the cause stack.
+   * Return a compounded message for this simple exception, including all the messages from the cause stack.
    *
    * @return compound exception message, separated by newlines
    */

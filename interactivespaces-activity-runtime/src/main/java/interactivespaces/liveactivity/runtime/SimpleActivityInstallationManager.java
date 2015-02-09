@@ -164,9 +164,7 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
     fileSupport.deleteDirectoryContents(installDirectory);
     fileSupport.unzip(stagedLocation, installDirectory);
 
-    Date installedDate =
-        persistInstallation(uuid, activityIdentifyingName, version,
-            activityStorageManager.getBaseActivityLocation(uuid));
+    Date installedDate = persistInstallation(uuid, activityIdentifyingName, version);
 
     spaceEnvironment.getLog().info(
         String.format("Activity %s version %s installed with uuid %s", activityIdentifyingName, version, uuid));
@@ -185,12 +183,10 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
    *          identifying name of the installed activity
    * @param version
    *          version of the installed activity
-   * @param baseInstallationLocation
-   *          the root folder of the installation
    *
    * @return the date of the installation
    */
-  private Date persistInstallation(String uuid, String identifyingName, Version version, File baseInstallationLocation) {
+  private Date persistInstallation(String uuid, String identifyingName, Version version) {
     // Make sure the app is only stored once.
     InstalledLiveActivity activity = controllerRepository.getInstalledLiveActivityByUuid(uuid);
     if (activity == null) {
@@ -201,7 +197,6 @@ public class SimpleActivityInstallationManager implements ActivityInstallationMa
     activity.setUuid(uuid);
     activity.setIdentifyingName(identifyingName);
     activity.setVersion(version);
-    activity.setBaseInstallationLocation(baseInstallationLocation.getAbsolutePath());
     activity.setLastDeployedDate(installedDate);
     activity.setInstallationStatus(ActivityInstallationStatus.OK);
 

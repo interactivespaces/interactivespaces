@@ -80,14 +80,19 @@ public class InteractiveSpacesFrameworkBootstrap {
    * {@code InteractiveSpacesLauncher.COMMAND_LINE_RUNTIME_PREFIX}, but can't be a shared variable because of package
    * dependency considerations.
    */
-  public static final String ARGS_RUNTIME_PREFIX = "--runtime=";
+  public static final String ARGS_PREFIX_RUNTIME = "--runtime=";
 
   /**
    * Command line argument prefix for specifying a specific config path. This should match the value of
    * {@code InteractiveSpacesLauncher.COMMAND_LINE_CONFIG_PREFIX}, but can't be a shared variable because of package
    * dependency considerations.
    */
-  public static final String ARGS_CONFIG_PREFIX = "--config=";
+  public static final String ARGS_PREFIX_CONFIG = "--config=";
+
+  /**
+   * Command line argument prefix for adding in extra bootstrap folders.
+   */
+  public static final String ARGS_PREFIX_BOOTSTRAP = "--bootstrap=";
 
   /**
    * External packages loaded from the Interactive Spaces system folder.
@@ -128,6 +133,11 @@ public class InteractiveSpacesFrameworkBootstrap {
    * The OSGI framework which has been started.
    */
   private Framework framework;
+
+  /**
+   * Extra folders to be added to the bootstrap from the commandline.
+   */
+  private final List<File> extraBootstrapFolders = new ArrayList<File>();
 
   /**
    * All bundles installed.
@@ -211,6 +221,7 @@ public class InteractiveSpacesFrameworkBootstrap {
       setupExceptionHandler();
 
       loadStartupFolder();
+      loadExtraBootstrapFolders();
 
       createCoreServices(args);
 
@@ -258,10 +269,12 @@ public class InteractiveSpacesFrameworkBootstrap {
     for (String arg : args) {
       if (arg.equals(ARGS_NOSHELL)) {
         needShell = false;
-      } else if (arg.startsWith(ARGS_RUNTIME_PREFIX)) {
-        runtimeFolder = new File(arg.substring(ARGS_RUNTIME_PREFIX.length()));
-      } else if (arg.startsWith(ARGS_CONFIG_PREFIX)) {
-        configFolder = new File(arg.substring(ARGS_CONFIG_PREFIX.length()));
+      } else if (arg.startsWith(ARGS_PREFIX_RUNTIME)) {
+        runtimeFolder = new File(arg.substring(ARGS_PREFIX_RUNTIME.length()));
+      } else if (arg.startsWith(ARGS_PREFIX_CONFIG)) {
+        configFolder = new File(arg.substring(ARGS_PREFIX_CONFIG.length()));
+      } else if (arg.startsWith(ARGS_PREFIX_BOOTSTRAP)) {
+        extraBootstrapFolders.add(new File(arg.substring(ARGS_PREFIX_BOOTSTRAP.length())));
       }
     }
   }
@@ -287,6 +300,18 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
+   * Add in all extra bootstrap folders.
+   */
+  private void loadExtraBootstrapFolders() {
+    for (File extraBootstrapFolder : extraBootstrapFolders) {
+      // Only add ones that are directories. This also means they exist.
+      if (extraBootstrapFolder.isDirectory()) {
+        getBootstrapBundleJars(extraBootstrapFolder);
+      }
+    }
+  }
+
+  /**
    * Set up the default exception handler.
    */
   private void setupExceptionHandler() {
@@ -306,7 +331,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   public void createCoreServices(List<String> args) {
     loggingProvider = new Log4jLoggingProvider();
-    loggingProvider.configure(runtimeFolder);
+    loggingProvider.configure(runtimeFolder, configFolder);
 
     configurationProvider = new FileConfigurationProvider(baseInstallFolder, configFolder, loggingProvider.getLog());
     configurationProvider.load();
