@@ -703,6 +703,16 @@ folders watched by the master for when files are copied into them
 which are then automatically imported into the master or deployed to all controllers
 containing Live Activities based on the Activity being copied.
 
+You can also specify command line arguments for the Java compiler and the version of Java
+to compile for in the Workbench. These are usually set through the ``workbench.conf`` file
+in your ``config`` folder, though you can also set them in your ``local.conf``.
+
+The ``interactivespaces.workbench.builder.java.compileflags`` property lets you set any compile 
+flags for the Java compiler. These flags are space separated.
+
+The ``interactivespaces.workbench.builder.java.version`` property lets you set the version of the 
+compiler you want to use. Example values are ``1.7`` or ``1.6``.
+
 
 Creating Documentation for a Project
 ----------------------------

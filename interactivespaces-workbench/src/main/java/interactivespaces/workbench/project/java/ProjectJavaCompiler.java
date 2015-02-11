@@ -28,13 +28,19 @@ public interface ProjectJavaCompiler {
   /**
    * The default version of Java that items are compiled for.
    */
-  String JAVA_VERSION_DEFAULT = "1.6";
+  String JAVA_VERSION_DEFAULT = "1.7";
 
   /**
-   * configuration property for adding options to the JavaC compiler.
+   * Configuration property for adding options to the JavaC compiler.
    */
   String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
       "interactivespaces.workbench.builder.java.compileflags";
+
+  /**
+   * Configuration property for adding options to the JavaC compiler.
+   */
+  String CONFIGURATION_BUILDER_JAVA_VERSION =
+      "interactivespaces.workbench.builder.java.version";
 
   /**
    * Compile a set of Java files.

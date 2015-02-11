@@ -1,9 +1,23 @@
-/**
+/*
+ * Copyright (C) 2012 Google Inc.
  *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
+
 package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.ProjectTaskContext;
@@ -26,11 +40,6 @@ import javax.tools.ToolProvider;
  * @author Keith M. Hughes
  */
 public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
-
-  /**
-   * The version of Java being compiled for.
-   */
-  private final String javaVersion = JAVA_VERSION_DEFAULT;
 
   /**
    * Filename postfix to indicate an editor backup file.
@@ -72,19 +81,23 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
   @Override
   public List<String> getCompilerOptions(ProjectTaskContext context) {
     List<String> options = Lists.newArrayList();
+
+    Configuration config = context.getProject().getConfiguration();
+
+    String javaVersion = config.getPropertyString(CONFIGURATION_BUILDER_JAVA_VERSION, JAVA_VERSION_DEFAULT).trim();
     options.add("-source");
     options.add(javaVersion);
     options.add("-target");
     options.add(javaVersion);
 
-    String extraOptions =
-        context.getProject().getConfiguration().getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
+    String extraOptions = config.getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
     if (extraOptions != null) {
-      String[] optionComponents = extraOptions.split("\\s+");
+      String[] optionComponents = extraOptions.trim().split("\\s+");
       for (String optionComponent : optionComponents) {
         options.add(optionComponent);
       }
     }
+
     return options;
   }
 
