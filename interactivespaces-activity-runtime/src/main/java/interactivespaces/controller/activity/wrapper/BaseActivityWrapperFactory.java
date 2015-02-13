@@ -61,24 +61,8 @@ public abstract class BaseActivityWrapperFactory extends
         activityFilesystem, configuration, (SpaceController) null);
   }
 
-  /**
-   * Create an activity wrapper.
-   *
-   * @param liveActivity
-   *          the live to be run
-   * @param activityFilesystem
-   *          the filesystem for the activity
-   * @param configuration
-   *          configuration for the activity
-   * @param controller
-   *          controller running the activity
-   *
-   * @return a new activity wrapper
-   *
-   * @deprecated Override
-   *             {@link #newActivityWrapper(InstalledLiveActivity, ActivityFilesystem, Configuration, ActivityRuntime).
-   */
   @Deprecated
+  @Override
   public ActivityWrapper newActivityWrapper(interactivespaces.controller.domain.InstalledLiveActivity liveActivity,
       ActivityFilesystem activityFilesystem, Configuration configuration, SpaceController controller) {
     throw new SimpleInteractiveSpacesException(String.format(

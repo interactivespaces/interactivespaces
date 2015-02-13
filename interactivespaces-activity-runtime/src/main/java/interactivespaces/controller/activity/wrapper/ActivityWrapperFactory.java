@@ -19,7 +19,7 @@ package interactivespaces.controller.activity.wrapper;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
-import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.controller.domain.InstalledLiveActivity;
 
 /**
  * A factory for {@link ActivityWrapper} instances of a specific activity type.
@@ -41,11 +41,15 @@ public interface ActivityWrapperFactory extends
    *          the filesystem for the activity
    * @param configuration
    *          configuration for the activity
-   * @param spaceController
-   *          the controller
+   * @param controller
+   *          controller running the activity
    *
    * @return a new activity wrapper
+   *
+   * @deprecated Override
+   *             {@link #newActivityWrapper(InstalledLiveActivity, ActivityFilesystem, Configuration, ActivityRuntime).
    */
+  @Deprecated
   ActivityWrapper newActivityWrapper(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
       Configuration configuration, SpaceController spaceController);
 }
