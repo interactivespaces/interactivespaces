@@ -23,7 +23,8 @@ import interactivespaces.service.control.opensoundcontrol.OpenSoundControlClient
 import java.util.Map;
 
 /**
- * An Interactive Spaces Java-based activity that controls an OSC device from a route.
+ * An Interactive Spaces Java-based activity that controls an OSC device from a
+ * route.
  *
  * @author Keith M. Hughes
  */
@@ -32,12 +33,14 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
   /**
    * Configuration property giving the host of the OSC server.
    */
-  public static final String CONFIGURATION_PROPERTY_OSC_SERVER_HOST = "space.activity.osc.server.host";
+  public static final String CONFIGURATION_PROPERTY_OSC_SERVER_HOST =
+      "space.activity.osc.server.host";
 
   /**
    * Configuration property giving the port of the OSC server.
    */
-  public static final String CONFIGURATION_PROPERTY_OSC_SERVER_PORT = "space.activity.osc.server.port";
+  public static final String CONFIGURATION_PROPERTY_OSC_SERVER_PORT =
+      "space.activity.osc.server.port";
 
   /**
    * Configuration property giving the OSC address to be written to.
@@ -55,7 +58,8 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
   public static final String CONFIGURATION_PROPERTY_ANALOG_MAX = "analog.max";
 
   /**
-   * Configuration property giving the multipler for frequencies to be sent in the OSC message.
+   * Configuration property giving the multipler for frequencies to be sent in
+   * the OSC message.
    */
   public static final String CONFIGURATION_PROPERTY_OSC_SIGNAL_MULTIPLER = "osc.signal.multiplier";
 
@@ -131,16 +135,20 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
         getSpaceEnvironment().getServiceRegistry().getRequiredService(
             OpenSoundControlClientCommunicationEndpointService.SERVICE_NAME);
 
-    String remoteHost = getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_OSC_SERVER_HOST);
-    int remotePort = getConfiguration().getRequiredPropertyInteger(CONFIGURATION_PROPERTY_OSC_SERVER_PORT);
+    String remoteHost =
+        getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_OSC_SERVER_HOST);
+    int remotePort =
+        getConfiguration().getRequiredPropertyInteger(CONFIGURATION_PROPERTY_OSC_SERVER_PORT);
 
     controlEndpoint = endpointService.newUdpEndpoint(remoteHost, remotePort, getLog());
     addManagedResource(controlEndpoint);
 
     frequencyBase =
-        getConfiguration().getRequiredPropertyDouble(CONFIGURATION_PROPERTY_OSC_FREQUENCY_BASE).floatValue();
+        getConfiguration().getRequiredPropertyDouble(CONFIGURATION_PROPERTY_OSC_FREQUENCY_BASE)
+            .floatValue();
     signalMultiplier =
-        getConfiguration().getRequiredPropertyDouble(CONFIGURATION_PROPERTY_OSC_SIGNAL_MULTIPLER).floatValue()
+        getConfiguration().getRequiredPropertyDouble(CONFIGURATION_PROPERTY_OSC_SIGNAL_MULTIPLER)
+            .floatValue()
             / getConfiguration().getRequiredPropertyInteger(CONFIGURATION_PROPERTY_ANALOG_MAX);
 
     oscAddress1 = getConfiguration().getRequiredPropertyString(CONFIGURATION_PROPERTY_OSC_ADDRESS1);
@@ -159,7 +167,7 @@ public class OpenSoundControlRoutableExampleActivity extends BaseRoutableRosActi
 
   @Override
   public void onNewInputJson(String channelName, Map<String, Object> message) {
-    getLog().info("Got message on input channel " + channelName);
+    getLog().debug("Got message on input channel " + channelName);
     int analog1 = (Integer) message.get(MESSAGE_FIELD_ANALOG);
     int analog2 = (Integer) message.get(MESSAGE_FIELD_ANALOG2);
 

@@ -19,11 +19,17 @@ void setup() {
 }
 
 void loop() {
-  int val = analogRead(0);
+  int val1 = analogRead(0);
   
   // The value is sent in raw bytes, not a string.
-  Serial.write(val >> 8);
-  Serial.write(val & 0xff);
+  Serial.write(val1 >> 8);
+  Serial.write(val1 & 0xff);
+    
+  int val2 = analogRead(1);
   
-  delay(500);
+  // The value is sent in raw bytes, not a string.
+  Serial.write(val2 >> 8);
+  Serial.write(val2 & 0xff);
+
+  delay(250);
 }
