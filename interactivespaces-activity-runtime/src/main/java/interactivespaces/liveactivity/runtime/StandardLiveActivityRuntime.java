@@ -124,6 +124,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   private AlertStatusManager alertStatusManager;
 
   /**
+   * The component factory for the runtime.
+   */
+  private LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory;
+
+  /**
    * A listener for activity events.
    */
   private final ActivityListener activityListener = new ActivityListener() {
@@ -177,6 +182,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       SequentialEventQueue eventQueue, InteractiveSpacesEnvironment spaceEnvironment) {
     super(liveActivityRuntimeComponentFactory.newNativeActivityRunnerFactory(), liveActivityRuntimeComponentFactory
         .newActivityComponentFactory(), spaceEnvironment);
+    this.liveActivityRuntimeComponentFactory = liveActivityRuntimeComponentFactory;
     this.liveActivityRunnerFactory = liveActivityRuntimeComponentFactory.newLiveActivityRunnerFactory();
     this.liveActivityRepository = liveActivityRepository;
     this.activityInstallationManager = activityInstallationManager;
@@ -196,6 +202,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     activityInstallationManager.addActivityInstallationListener(activityInstallationListener);
 
     liveActivityRunnerSampler.startup();
+
+    liveActivityRuntimeComponentFactory.registerCoreServices(getSpaceEnvironment().getServiceRegistry());
   }
 
   @Override
@@ -206,6 +214,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     }
 
     activityStateTransitioners.clear();
+
+    liveActivityRuntimeComponentFactory.unregisterCoreServices(getSpaceEnvironment().getServiceRegistry());
   }
 
   @Override

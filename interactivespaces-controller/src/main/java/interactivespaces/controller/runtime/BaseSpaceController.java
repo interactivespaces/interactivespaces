@@ -19,11 +19,6 @@ package interactivespaces.controller.runtime;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
-import interactivespaces.service.ServiceRegistry;
-import interactivespaces.service.web.client.WebSocketClientService;
-import interactivespaces.service.web.client.internal.netty.NettyWebSocketClientService;
-import interactivespaces.service.web.server.WebServerService;
-import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
@@ -42,16 +37,6 @@ public abstract class BaseSpaceController implements SpaceController {
    * The Interactive Spaces environment being run under.
    */
   private final InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The IS service for web servers.
-   */
-  private WebServerService webServerService;
-
-  /**
-   * The IS service for web socket clients.
-   */
-  private WebSocketClientService webSocketClientService;
 
   /**
    * Construct a controller with the given space environment.
@@ -102,38 +87,10 @@ public abstract class BaseSpaceController implements SpaceController {
   }
 
   /**
-   * Start up the core services that all controllers provide.
-   */
-  protected void startupCoreControllerServices() {
-    ServiceRegistry serviceRegistry = getSpaceEnvironment().getServiceRegistry();
-
-    webServerService = new NettyWebServerService();
-    serviceRegistry.registerService(webServerService);
-    webServerService.startup();
-
-    webSocketClientService = new NettyWebSocketClientService();
-    serviceRegistry.registerService(webSocketClientService);
-    webSocketClientService.startup();
-  }
-
-  /**
    * Set values in the space environment that the controller provides.
    */
   private void setEnvironmentValues() {
 //    getSpaceEnvironment().setValue(ENVIRONMENT_CONTROLLER_NATIVE_RUNNER,
 //        getNativeActivityRunnerFactory());
-  }
-
-  /**
-   * Shutdown the core services provided by all controllers.
-   */
-  protected void shutdownCoreControllerServices() {
-    ServiceRegistry serviceRegistry = getSpaceEnvironment().getServiceRegistry();
-
-    serviceRegistry.unregisterService(webServerService);
-    webServerService.shutdown();
-
-    serviceRegistry.unregisterService(webSocketClientService);
-    webSocketClientService.shutdown();
   }
 }

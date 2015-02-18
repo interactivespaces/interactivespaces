@@ -192,7 +192,6 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     dataBundleManager.startup();
 
     startupControllerControl();
-    startupCoreControllerServices();
 
     startupAutostartActivities();
 
@@ -235,8 +234,6 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
         }
 
         shutdownAllLiveActivities();
-
-        shutdownCoreControllerServices();
 
         controllerHeartbeatControl.cancel(true);
         controllerHeartbeatControl = null;

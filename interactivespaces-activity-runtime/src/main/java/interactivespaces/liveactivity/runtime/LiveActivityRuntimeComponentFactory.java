@@ -18,6 +18,7 @@ package interactivespaces.liveactivity.runtime;
 
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
 import interactivespaces.activity.component.ActivityComponentFactory;
+import interactivespaces.service.ServiceRegistry;
 
 /**
  * A factory for creating various components for a live activity runtime.
@@ -49,4 +50,20 @@ public interface LiveActivityRuntimeComponentFactory {
    * @return a new activity component factory
    */
   ActivityComponentFactory newActivityComponentFactory();
+
+  /**
+   * Register and startup core components.
+   *
+   * @param serviceRegistry
+   *        the service registry
+   */
+  void registerCoreServices(ServiceRegistry serviceRegistry);
+
+  /**
+   * Unregister and shut down core components.
+   *
+   * @param serviceRegistry
+   *        the service registry
+   */
+  void unregisterCoreServices(ServiceRegistry serviceRegistry);
 }

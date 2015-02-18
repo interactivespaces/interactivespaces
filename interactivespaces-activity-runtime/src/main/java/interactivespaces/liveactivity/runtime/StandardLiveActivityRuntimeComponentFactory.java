@@ -33,6 +33,11 @@ import interactivespaces.liveactivity.runtime.activity.wrapper.internal.bridge.t
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.web.WebActivityWrapperFactory;
+import interactivespaces.service.ServiceRegistry;
+import interactivespaces.service.web.client.WebSocketClientService;
+import interactivespaces.service.web.client.internal.netty.NettyWebSocketClientService;
+import interactivespaces.service.web.server.WebServerService;
+import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.osgi.framework.BundleContext;
@@ -56,6 +61,16 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
    * The bundle context.
    */
   private BundleContext bundleContext;
+
+  /**
+   * The IS service for web servers.
+   */
+  private WebServerService webServerService;
+
+  /**
+   * The IS service for web socket clients.
+   */
+  private WebSocketClientService webSocketClientService;
 
   /**
    * Construct a new factory.
@@ -115,5 +130,25 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
     factory.register(WebServerActivityComponent.COMPONENT_NAME, BasicWebServerActivityComponent.class);
 
     return factory;
+  }
+
+  @Override
+  public void registerCoreServices(ServiceRegistry serviceRegistry) {
+    webServerService = new NettyWebServerService();
+    serviceRegistry.registerService(webServerService);
+    webServerService.startup();
+
+    webSocketClientService = new NettyWebSocketClientService();
+    serviceRegistry.registerService(webSocketClientService);
+    webSocketClientService.startup();
+ }
+
+  @Override
+  public void unregisterCoreServices(ServiceRegistry serviceRegistry) {
+    serviceRegistry.unregisterService(webServerService);
+    webServerService.shutdown();
+
+    serviceRegistry.unregisterService(webSocketClientService);
+    webSocketClientService.shutdown();
   }
 }
