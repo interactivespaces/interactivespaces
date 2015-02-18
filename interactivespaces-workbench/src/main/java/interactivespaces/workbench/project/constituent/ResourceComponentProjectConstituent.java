@@ -32,9 +32,12 @@ import java.util.Map;
 /**
  * A simple resource for a {@link interactivespaces.workbench.project.Project}.
  *
+ * <p>
+ * The default constituent processing places the content in the build staging directory.
+ *
  * @author Keith M. Hughes
  */
-public class ProjectResourceConstituent extends ContainerConstituent {
+public class ResourceComponentProjectConstituent extends BaseProjectConstituent implements ContentProjectConstituent {
 
   /**
    * Element type for a resource.
@@ -178,7 +181,7 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    *
    * @author Keith M. Hughes
    */
-  public static class ProjectResourceBuilderFactory implements ProjectConstituentFactory {
+  public static class ProjectResourceConstituentBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;
@@ -195,7 +198,7 @@ public class ProjectResourceConstituent extends ContainerConstituent {
    *
    * @author Keith M. Hughes
    */
-  public static class ProjectSourceBuilderFactory implements ProjectConstituentFactory {
+  public static class ProjectSourceConstituentBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return ALTERNATE_NAME;
@@ -241,7 +244,7 @@ public class ProjectResourceConstituent extends ContainerConstituent {
         return null;
       } else {
 
-        ProjectResourceConstituent resource = new ProjectResourceConstituent();
+        ResourceComponentProjectConstituent resource = new ResourceComponentProjectConstituent();
 
         resource.setDestinationDirectory(destDir);
         resource.setSourceDirectory(sourceDir);

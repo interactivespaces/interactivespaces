@@ -16,15 +16,22 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
+import interactivespaces.workbench.project.constituent.ContentProjectConstituent;
+import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.tasks.DependencyWorkbenchTask;
 import interactivespaces.workbench.tasks.WorkbenchTaskContext;
+import interactivespaces.workbench.tasks.WorkbenchTaskModifiers;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.util.Collection;
@@ -42,12 +49,12 @@ public class ProjectTaskContext implements ProjectContext {
   /**
    * Where things are being built.
    */
-  private static final String BUILD_DIRECTORY = "build";
+  public static final String BUILD_DIRECTORY = "build";
 
   /**
-   * Static file support instance.
+   * Subdirectory of build folder which contains the staged components of the build.
    */
-  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
+  public static final String BUILD_STAGING_DIRECTORY = "staging";
 
   /**
    * Extension for creating temp build directories.
@@ -85,9 +92,21 @@ public class ProjectTaskContext implements ProjectContext {
   private final File buildDirectory;
 
   /**
+   * The staging directory for artifacts.
+   */
+  private final File stagingDirectory;
+
+  /**
    * The project type of the project.
    */
   private final ProjectType projectType;
+
+  /**
+   * The collection of tasks for the project indexed by task name.
+   *
+   * TODO(keith): Should this be a multimap?
+   */
+  private final Map<String, DependencyWorkbenchTask> tasksForProject = Maps.newHashMap();
 
   /**
    * Project task contexts for projects which this project is dependent on.
@@ -95,9 +114,19 @@ public class ProjectTaskContext implements ProjectContext {
   private final Set<ProjectTaskContext> dynamicProjectDependencyContexts = Sets.newHashSet();
 
   /**
+   * The name of the current task being run, can be {@code null}.
+   */
+  private String currentTaskName;
+
+  /**
    * Collection of dest to src file mappings, constructed during the build process.
    */
   private final Map<File, File> sourceMap = Maps.newHashMap();
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a new build context.
@@ -114,15 +143,15 @@ public class ProjectTaskContext implements ProjectContext {
     this.project = project;
     this.taskContext = taskContext;
 
-    buildDirectory = new File(project.getBaseDirectory(), BUILD_DIRECTORY);
-    FILE_SUPPORT.directoryExists(buildDirectory);
+    buildDirectory = fileSupport.newFile(project.getBaseDirectory(), BUILD_DIRECTORY);
+    stagingDirectory = fileSupport.newFile(buildDirectory, BUILD_STAGING_DIRECTORY);
 
     prepareProjectConfiguration();
   }
 
   @Override
-  public <T extends Project> T  getProject() {
-    return (T)project;
+  public <T extends Project> T getProject() {
+    return (T) project;
   }
 
   @Override
@@ -140,8 +169,11 @@ public class ProjectTaskContext implements ProjectContext {
    * Add anything needed to the project configuration.
    */
   private void prepareProjectConfiguration() {
-    project.getConfiguration().setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_HOME,
-        project.getBaseDirectory().getAbsolutePath());
+    Configuration configuration = project.getConfiguration();
+    configuration.setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_HOME, project.getBaseDirectory()
+        .getAbsolutePath());
+    configuration.setValue(ProjectBuilder.CONFIGURATION_PROPERTY_PROJECT_GENERATED_RESOURCE,
+        fileSupport.newFile(buildDirectory, ProjectType.GENERATED_SOURCE_ROOT).getAbsolutePath());
   }
 
   @Override
@@ -169,14 +201,23 @@ public class ProjectTaskContext implements ProjectContext {
   }
 
   /**
+   * Get the root staging directory.
+   *
+   * @return the root of the staging directory
+   */
+  public File getStagingDirectory() {
+    return stagingDirectory;
+  }
+
+  /**
    * Get a unique temporary build directory.
    *
    * @return a temporary build directory
    */
   public File getTempBuildDirectory() {
     File tempDirectory = new File(buildDirectory, BUILD_TEMP_DIRECTORY);
-    FILE_SUPPORT.mkdir(tempDirectory);
-    File tempFile = FILE_SUPPORT.createTempFile(tempDirectory);
+    fileSupport.mkdir(tempDirectory);
+    File tempFile = fileSupport.createTempFile(tempDirectory);
     return new File(tempDirectory, tempFile.getName() + TEMP_DIRECTORY_EXTENSION);
   }
 
@@ -222,6 +263,52 @@ public class ProjectTaskContext implements ProjectContext {
   }
 
   /**
+   * Add in tasks that has been created for this project.
+   *
+   * <p>
+   * The tasks will also be added to the workbench task context.
+   *
+   * @param tasks
+   *          the tasks to add
+   *
+   * @return this context
+   */
+  public ProjectTaskContext addProjectTasks(DependencyWorkbenchTask... tasks) {
+    if (tasks != null) {
+      for (DependencyWorkbenchTask task : tasks) {
+        if (tasksForProject.put(task.getName(), task) != null) {
+          getLog().warn(String.format("There was a previous task with name %s which has been dropped", task.getName()));
+        }
+      }
+
+      taskContext.addTasks(tasks);
+    }
+
+    return this;
+  }
+
+  /**
+   * Modify the project tasks associated with this context with the provided modifiers.
+   *
+   * @param modifiersCollection
+   *          the modifiers to be applied
+   *
+   * @return this context
+   */
+  public ProjectTaskContext modifyProjectTasks(Collection<WorkbenchTaskModifiers> modifiersCollection) {
+    for (WorkbenchTaskModifiers modifiers : modifiersCollection) {
+      DependencyWorkbenchTask task = tasksForProject.get(modifiers.getTaskName());
+      if (task != null) {
+        task.applyTaskModifiers(modifiers);
+      } else {
+        getLog().warn(String.format("Task modifier found for missing task %s", modifiers.getTaskName()));
+      }
+    }
+
+    return this;
+  }
+
+  /**
    * Add a task context for a dynamic project dependency.
    *
    * @param dependencyTaskContext
@@ -256,5 +343,102 @@ public class ProjectTaskContext implements ProjectContext {
    */
   public Set<ProjectTaskContext> getDynamicProjectDependencyContexts() {
     return dynamicProjectDependencyContexts;
+  }
+
+  /**
+   * Process the extra constituents for the project.
+   */
+  public void processExtraConstituents() {
+    List<ProjectConstituent> constituents = project.getExtraConstituents();
+    if (constituents != null) {
+      for (ProjectConstituent constituent : constituents) {
+        constituent.processConstituent(project, this);
+      }
+    }
+  }
+
+  /**
+   * Process any generated resources for the project.
+   *
+   * @param stagingDirectory
+   *          the directory where the processed content should go
+   */
+  public void processGeneratedResources(File stagingDirectory) {
+    File generatedResources = fileSupport.newFile(getBuildDirectory(), ProjectType.SOURCE_GENERATED_MAIN_RESOURCES);
+    if (fileSupport.isDirectory(generatedResources)) {
+      fileSupport.copyDirectory(generatedResources, stagingDirectory, true);
+    }
+  }
+
+  /**
+   * Process the needed resources for the project.
+   *
+   * @param stagingDirectory
+   *          the directory where the processed content should go
+   */
+  public void processResources(File stagingDirectory) {
+    processContentConstituents(project.getResources(), stagingDirectory);
+  }
+
+  /**
+   * Process the needed sources for the project.
+   *
+   * @param stagingDirectory
+   *          the directory where the processed content should go
+   */
+  public void processSources(File stagingDirectory) {
+    processContentConstituents(project.getSources(), stagingDirectory);
+  }
+
+  /**
+   * Process the list of constituents for the project.
+   *
+   * @param constituents
+   *          constituents to process
+   * @param stagingDirectory
+   *          the directory where the processed content should go
+   */
+  private void processContentConstituents(List<ContentProjectConstituent> constituents, File stagingDirectory) {
+    if (constituents == null) {
+      return;
+    }
+
+    for (ContentProjectConstituent constituent : constituents) {
+      constituent.processConstituent(project, stagingDirectory, this);
+    }
+  }
+
+  /**
+   * Get the current task name for this context.
+   *
+   * <p>
+   * It will be {@code null} when tasks are not running against the context.
+   *
+   * @return the current task name
+   */
+  public String getCurrentTaskName() {
+    return currentTaskName;
+  }
+
+  /**
+   * Set the current task name for this context.
+   *
+   * <p>
+   * It should be {@code null} when tasks are not running against the context.
+   *
+   * @param currentTaskName
+   *          the current task name
+   */
+  public void setCurrentTaskName(String currentTaskName) {
+    this.currentTaskName = currentTaskName;
+  }
+
+  /**
+   * Get the context log.
+   *
+   * @return the log
+   */
+  public Log getLog() {
+    return getWorkbenchTaskContext().getLog();
   }
 }

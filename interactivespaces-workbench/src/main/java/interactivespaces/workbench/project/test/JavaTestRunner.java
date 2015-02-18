@@ -19,6 +19,7 @@ package interactivespaces.workbench.project.test;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaProjectType;
@@ -81,9 +82,14 @@ public class JavaTestRunner {
    * @return {@code true} if all tests were successful
    */
   public boolean runTests(File jarDestinationFile, JavaProjectExtension extensions, ProjectTaskContext context) {
-    List<File> compilationFiles =
-        projectCompiler.getCompilationFiles(new File(context.getProject().getBaseDirectory(),
-            JavaProjectType.SOURCE_MAIN_TESTS));
+    List<File> compilationFiles = Lists.newArrayList();
+
+    Project project = context.getProject();
+    projectCompiler.getCompilationFiles(new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_TESTS),
+        compilationFiles);
+    projectCompiler.getCompilationFiles(new File(context.getBuildDirectory(),
+        JavaProjectType.SOURCE_GENERATED_MAIN_TESTS), compilationFiles);
+
     if (compilationFiles.isEmpty()) {
       // No tests mean they all succeeded in some weird philosophical sense.
       return true;

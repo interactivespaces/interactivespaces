@@ -52,7 +52,7 @@ public class JdomReader {
   /**
    * Map of resource types to resource builders.
    */
-  private final Map<String, ProjectConstituent.ProjectConstituentFactory> projectConstituentFactoryMap = Maps
+  private final Map<String, ProjectConstituent.ProjectConstituentBuilderFactory> projectConstituentFactoryMap = Maps
       .newHashMap();
 
   /**
@@ -66,8 +66,7 @@ public class JdomReader {
   private final InteractiveSpacesWorkbench workbench;
 
   /**
-   * Prototype manager to use when reading/constructing projects, may be
-   * {@code null} if none available.
+   * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
    */
   private JdomPrototypeProcessor jdomPrototypeProcessor;
 
@@ -87,7 +86,7 @@ public class JdomReader {
    * @param constituentFactory
    *          factory to add
    */
-  protected void addConstituentType(ProjectConstituent.ProjectConstituentFactory constituentFactory) {
+  protected void addConstituentType(ProjectConstituent.ProjectConstituentBuilderFactory constituentFactory) {
     projectConstituentFactoryMap.put(constituentFactory.getName(), constituentFactory);
   }
 
@@ -264,9 +263,11 @@ public class JdomReader {
   }
 
   /**
-   * @return constituent factory map
+   * Get the map of project constituent factories.
+   *
+   * @return the constituent factory map
    */
-  public Map<String, ProjectConstituent.ProjectConstituentFactory> getProjectConstituentFactoryMap() {
+  public Map<String, ProjectConstituent.ProjectConstituentBuilderFactory> getProjectConstituentFactoryMap() {
     return projectConstituentFactoryMap;
   }
 
@@ -338,10 +339,8 @@ public class JdomReader {
   private void getConstituent(Namespace namespace, Element constituentElement, Project project,
       List<ProjectConstituent> constituents) {
     String type = constituentElement.getName();
-    ProjectConstituent.ProjectConstituentFactory factory = getProjectConstituentFactoryMap().get(type);
-    if (factory == null) {
-      addError(String.format("Unknown resource type '%s'", type));
-    } else {
+    ProjectConstituent.ProjectConstituentBuilderFactory factory = getProjectConstituentFactoryMap().get(type);
+    if (factory != null) {
       ProjectConstituent.ProjectConstituentBuilder projectConstituentBuilder = factory.newBuilder();
       projectConstituentBuilder.setLog(getLog());
       ProjectConstituent constituent =
@@ -349,6 +348,8 @@ public class JdomReader {
       if (constituent != null) {
         constituents.add(constituent);
       }
+    } else {
+      addError(String.format("Unknown resource type '%s'", type));
     }
   }
 }

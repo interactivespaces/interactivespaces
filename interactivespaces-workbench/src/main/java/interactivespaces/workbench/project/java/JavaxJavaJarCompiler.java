@@ -24,7 +24,7 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectTaskContext;
-import interactivespaces.workbench.project.constituent.ProjectConstituent;
+import interactivespaces.workbench.project.constituent.ContentProjectConstituent;
 import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
 
 import com.google.common.base.Joiner;
@@ -87,18 +87,20 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
       Project project = context.getProject();
       File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
-      List<File> compilationFiles = projectCompiler.getCompilationFiles(mainSourceDirectory);
+      File generatedSourceDirectory = new File(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
+
+      List<File> compilationFiles = Lists.newArrayList();
+      projectCompiler.getCompilationFiles(mainSourceDirectory, compilationFiles);
+      projectCompiler.getCompilationFiles(generatedSourceDirectory, compilationFiles);
+
       if (!project.getSources().isEmpty()) {
-        context
-            .getWorkbenchTaskContext()
-            .getWorkbench()
-            .getLog()
-            .info(
-                String.format("Found %d files for main source directory %s", compilationFiles.size(),
-                    mainSourceDirectory.getAbsolutePath()));
+        context.getLog().info(
+            String.format("Found %d files for main source directory %s and generated source directory",
+                compilationFiles.size(), mainSourceDirectory.getAbsolutePath(),
+                generatedSourceDirectory.getAbsolutePath()));
       }
 
-      for (ProjectConstituent constituent : project.getSources()) {
+      for (ContentProjectConstituent constituent : project.getSources()) {
         String sourceDirectory = constituent.getSourceDirectory();
         if (sourceDirectory == null) {
           File buildTempDirectory = context.getTempBuildDirectory();
@@ -106,15 +108,14 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
           sourceDirectory = buildTempDirectory.toString();
         }
         File addedSource = context.getProjectTarget(project.getBaseDirectory(), sourceDirectory);
-        List<File> additionalSources = projectCompiler.getCompilationFiles(addedSource);
+
+        List<File> additionalSources = Lists.newArrayList();
+        projectCompiler.getCompilationFiles(addedSource, additionalSources);
         compilationFiles.addAll(additionalSources);
-        context
-            .getWorkbenchTaskContext()
-            .getWorkbench()
-            .getLog()
-            .info(
-                String.format("Found %d files in added source directory %s", additionalSources.size(),
-                    addedSource.getAbsolutePath()));
+
+        context.getLog().info(
+            String.format("Found %d files in added source directory %s", additionalSources.size(),
+                addedSource.getAbsolutePath()));
       }
 
       if (compilationFiles.isEmpty()) {
@@ -172,8 +173,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
       writeJarFile(compilationFolder, buf, out, "", context);
     } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Failed creating jar file %s",
-          jarDestinationFile.getAbsolutePath()), e);
+      InteractiveSpacesException.throwFormattedException(e, "Failed creating jar file %s",
+          jarDestinationFile.getAbsolutePath());
     } finally {
       fileSupport.close(out, true);
     }
@@ -315,8 +316,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         if (packageExports != null) {
           for (String packageExport : packageExports) {
             if (dependencyInfo.put(packageExport, associatedDependency) != null) {
-              context.getWorkbenchTaskContext().getWorkbench().getLog()
-                  .warn(String.format("Package export %s found in multiple classpath entities", packageExport));
+              context.getLog().warn(
+                  String.format("Package export %s found in multiple classpath entities", packageExport));
             }
           }
         }
@@ -345,8 +346,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       ProjectTaskContext context) throws IOException {
     File[] files = directory.listFiles();
     if (files == null || files.length == 0) {
-      context.getWorkbenchTaskContext().getWorkbench().getLog()
-          .warn("No source files found in " + directory.getAbsolutePath());
+      context.getLog().warn("No source files found in " + directory.getAbsolutePath());
       return;
     }
     for (File file : files) {

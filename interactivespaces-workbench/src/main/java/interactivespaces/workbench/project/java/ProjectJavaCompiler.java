@@ -33,14 +33,12 @@ public interface ProjectJavaCompiler {
   /**
    * Configuration property for adding options to the JavaC compiler.
    */
-  String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS =
-      "interactivespaces.workbench.builder.java.compileflags";
+  String CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS = "interactivespaces.workbench.builder.java.compileflags";
 
   /**
    * Configuration property for adding options to the JavaC compiler.
    */
-  String CONFIGURATION_BUILDER_JAVA_VERSION =
-      "interactivespaces.workbench.builder.java.version";
+  String CONFIGURATION_BUILDER_JAVA_VERSION = "interactivespaces.workbench.builder.java.version";
 
   /**
    * Compile a set of Java files.
@@ -56,8 +54,8 @@ public interface ProjectJavaCompiler {
    *
    * @return {@code true} if the compilation was successful
    */
-  boolean compile(File compilationBuildDirectory, List<File> classpath,
-      List<File> compilationFiles, List<String> compilerOptions);
+  boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
+      List<String> compilerOptions);
 
   /**
    * Get all compiler options to be used.
@@ -74,9 +72,8 @@ public interface ProjectJavaCompiler {
    *
    * @param baseSourceDirectory
    *          the base directory to scan for sources from
-   *
-   * @return a list of all Java files to be handed to the Java compiler
+   * @param files
+   *          the list of files to add to
    */
-  List<File> getCompilationFiles(File baseSourceDirectory);
-
+  void getCompilationFiles(File baseSourceDirectory, List<File> files);
 }

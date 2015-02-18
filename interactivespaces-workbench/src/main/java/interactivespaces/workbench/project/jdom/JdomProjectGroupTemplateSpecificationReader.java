@@ -124,7 +124,7 @@ public class JdomProjectGroupTemplateSpecificationReader extends JdomReader impl
     String name = child.getName();
 
     try {
-      if (JdomProjectReader.GROUP_ELEMENT_NAME.equals(name)) {
+      if (JdomProjectReader.PROJECT_GROUP_ELEMENT_NAME.equals(name)) {
         addProjects(spec, child);
       } else if (JdomPrototypeProcessor.GROUP_ELEMENT_NAME.equals(name)) {
         addPrototypes(spec, child);

@@ -35,9 +35,14 @@ public interface ProjectBuilder<T extends Project> {
   String CONFIGURATION_PROPERTY_PROJECT_HOME = "project.home";
 
   /**
-   * Subdirectory of build folder which contains the staged activity.
+   * Configuration property defining the project generated source directory.
    */
-  String BUILD_STAGING_DIRECTORY = "staging";
+  String CONFIGURATION_PROPERTY_PROJECT_GENERATED_SOURCE = "project.source.generated";
+
+  /**
+   * Configuration property defining the project generated source directory.
+   */
+  String CONFIGURATION_PROPERTY_PROJECT_GENERATED_RESOURCE = "project.resource.generated";
 
   /**
    * Build the given project.

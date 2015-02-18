@@ -53,17 +53,18 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
 
   @Override
   public boolean build(ActivityProject project, ProjectTaskContext context) {
-    File stagingDirectory = new File(context.getBuildDirectory(), BUILD_STAGING_DIRECTORY);
+    File stagingDirectory = context.getStagingDirectory();
     fileSupport.directoryExists(stagingDirectory);
 
     if (onBuild(project, context, stagingDirectory)) {
       copyActivityResources(project, stagingDirectory, context);
       handleActivityXml(project, stagingDirectory, context);
       handleActivityConf(project, stagingDirectory, context);
-      processResources(project, stagingDirectory, context);
+      context.processGeneratedResources(stagingDirectory);
+      context.processResources(stagingDirectory);
       writeResourceMap(project, stagingDirectory, context);
 
-      processExtraConstituents(project, stagingDirectory, context);
+      context.processExtraConstituents();
 
       return true;
     } else {

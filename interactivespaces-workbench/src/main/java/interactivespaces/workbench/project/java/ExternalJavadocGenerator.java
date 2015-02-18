@@ -124,8 +124,8 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
         StringBuilder result = new StringBuilder();
         getStreamContents(result, process.getErrorStream(), context);
 
-        System.out.println("Javadoc build process failed");
-        System.out.println(result.toString());
+        context.getWorkbenchTaskContext().getWorkbench().getLog().error("Javadoc build process failed");
+        context.getWorkbenchTaskContext().getWorkbench().getLog().error(result.toString());
       }
     } catch (InterruptedException e) {
       context.getWorkbenchTaskContext().handleError("Error while creating project", e);

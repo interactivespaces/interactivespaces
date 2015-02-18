@@ -17,8 +17,6 @@
 package interactivespaces.workbench.project.constituent;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.FileSupport;
-import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 
@@ -31,12 +29,33 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * An assembly resource for a
- * {@link interactivespaces.workbench.project.Project}.
+ * An assembly resource for a {@link interactivespaces.workbench.project.Project}.
+ *
+ * <p>
+ * The default constituent processing places the content in the build staging directory.
  *
  * @author Trevor Pering
  */
-public class ProjectAssemblyConstituent extends ContainerConstituent {
+public class AssemblyComponentProjectConstituent extends BaseContentProjectConstituent {
+
+  /**
+   * Create a new project assembly constituent from a string.
+   *
+   * @param input
+   *          specification string
+   *
+   * @return parsed constituent
+   */
+  public static AssemblyComponentProjectConstituent fromString(String input) {
+    String[] parts = input.split(",");
+    if (parts.length > 2) {
+      throw new SimpleInteractiveSpacesException("Extra parts when parsing assembly: " + input);
+    }
+    AssemblyComponentProjectConstituent constituent = new AssemblyComponentProjectConstituent();
+    constituent.sourceFile = parts[0];
+    constituent.destinationDirectory = parts.length > 1 ? parts[1] : null;
+    return constituent;
+  }
 
   /**
    * Project type for an assembly resource.
@@ -52,11 +71,6 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
    * Pack format type for zip files.
    */
   public static final String ZIP_PACK_FORMAT = "zip";
-
-  /**
-   * File support instance for file operations.
-   */
-  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
 
   /**
    * A file to be copied.
@@ -75,9 +89,10 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
+
     File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
-    FILE_SUPPORT.directoryExists(outputDirectory);
-    FILE_SUPPORT.unzip(sourceZipFile, outputDirectory, context.getResourceSourceMap());
+    fileSupport.directoryExists(outputDirectory);
+    fileSupport.unzip(sourceZipFile, outputDirectory, context.getResourceSourceMap());
   }
 
   @Override
@@ -90,28 +105,9 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   }
 
   /**
-   * Create a new project assembly constituent from a string.
-   *
-   * @param input
-   *          specification string
-   *
-   * @return parsed constituent
-   */
-  public static ProjectAssemblyConstituent fromString(String input) {
-    String[] parts = input.split(",");
-    if (parts.length > 2) {
-      throw new SimpleInteractiveSpacesException("Extra parts when parsing assembly: " + input);
-    }
-    ProjectAssemblyConstituent constituent = new ProjectAssemblyConstituent();
-    constituent.sourceFile = parts[0];
-    constituent.destinationDirectory = parts.length > 1 ? parts[1] : null;
-    return constituent;
-  }
-
-  /**
    * Factory for creating new assembly resources.
    */
-  public static class ProjectAssemblyConstituentFactory implements ProjectConstituentFactory {
+  public static class ProjectAssemblyConstituentBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;
@@ -119,7 +115,7 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
 
     @Override
     public ProjectConstituentBuilder newBuilder() {
-      return new ProjectAssemblyBuilder();
+      return new AssemblyProjectConstituentBuilder();
     }
   }
 
@@ -146,7 +142,7 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
   /**
    * Builder class for creating new assembly resources.
    */
-  private static class ProjectAssemblyBuilder extends BaseProjectConstituentBuilder {
+  private static class AssemblyProjectConstituentBuilder extends BaseProjectConstituentBuilder {
 
     @Override
     public ProjectConstituent
@@ -169,7 +165,7 @@ public class ProjectAssemblyConstituent extends ContainerConstituent {
       if (hasErrors()) {
         return null;
       } else {
-        ProjectAssemblyConstituent assembly = new ProjectAssemblyConstituent();
+        AssemblyComponentProjectConstituent assembly = new AssemblyComponentProjectConstituent();
 
         assembly.setDestinationDirectory(destinationDirectory);
         assembly.setSourceFile(sourceFile);

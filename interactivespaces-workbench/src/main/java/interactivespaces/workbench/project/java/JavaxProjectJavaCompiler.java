@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.java;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -59,8 +60,9 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     try {
       JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
       if (compiler == null) {
-        throw new InteractiveSpacesException("Could not find Java compiler.  Verify java is being run "
-            + "from the JDK and not JRE.");
+        SimpleInteractiveSpacesException
+            .throwFormattedException("Could not find Java compiler.  Verify java is being run "
+                + "from the JDK and not JRE.");
       }
       fileManager = compiler.getStandardFileManager(null, null, null);
       fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
@@ -101,21 +103,11 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     return options;
   }
 
-  /**
-   * get a list of files to compile.
-   *
-   * @param baseSourceDirectory
-   *          the base directory to scan for sources from
-   *
-   * @return a list of all Java files to be handed to the Java compiler
-   */
   @Override
-  public List<File> getCompilationFiles(File baseSourceDirectory) {
-    List<File> files = Lists.newArrayList();
-
-    scanDirectory(baseSourceDirectory, files);
-
-    return files;
+  public void getCompilationFiles(File baseSourceDirectory, List<File> files) {
+    if (baseSourceDirectory.isDirectory()) {
+      scanDirectory(baseSourceDirectory, files);
+    }
   }
 
   /**
@@ -145,5 +137,4 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
       }
     }
   }
-
 }

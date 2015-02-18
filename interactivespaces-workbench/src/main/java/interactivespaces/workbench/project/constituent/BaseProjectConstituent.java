@@ -16,34 +16,37 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.Project;
+import interactivespaces.workbench.project.ProjectContext;
 
 import java.util.Map;
 
 /**
- * Abstract class for all constituents than can be used in project containers. This class primarily exists
- * for creating output files from templates, to ensure that some methods are always defined (even if they return
- * null).
+ * Abstract class for all constituents than can be used in project containers. This class primarily exists for creating
+ * output files from templates, to ensure that some methods are always defined (even if they return null).
  *
  * @author Trevor Pering
  */
-public abstract class ContainerConstituent implements ProjectConstituent {
+public abstract class BaseProjectConstituent implements ProjectConstituent {
+
   /**
    * File support instance for file operations.
    */
   protected final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
-  @Override
-  public String getSourceDirectory() throws InteractiveSpacesException {
-    return null;
-  }
-
   /**
-   * @return attributes that can be used for reconstructing the constituent
+   * Get attributes that can be used for reconstructing the constituent.
+   *
+   * @return the attributes, or {@code null} if none
    */
   public Map<String, String> getAttributeMap() {
     return null;
+  }
+
+  @Override
+  public void processConstituent(Project project, ProjectContext context) {
+    // Default is do nothing.
   }
 }

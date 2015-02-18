@@ -30,6 +30,11 @@ import org.apache.commons.logging.Log;
 public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRunnerFactory {
 
   /**
+   * The parser for native applications.
+   */
+  private NativeApplicationRunnerParser runnerParser;
+
+  /**
    * The Interactive Spaces environment being run under.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
@@ -41,6 +46,20 @@ public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRu
    *          the space environment to use
    */
   public SimpleNativeApplicationRunnerFactory(InteractiveSpacesEnvironment spaceEnvironment) {
+    this(new StandardNativeApplicationRunnerParser(), spaceEnvironment);
+  }
+
+  /**
+   * Construct a new factory.
+   *
+   * @param runnerParser
+   *          the runner parser to use
+   * @param spaceEnvironment
+   *          the space environment to use
+   */
+  public SimpleNativeApplicationRunnerFactory(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment) {
+    this.runnerParser = runnerParser;
     this.spaceEnvironment = spaceEnvironment;
   }
 
@@ -49,11 +68,11 @@ public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRu
     String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
     if (LinuxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new LinuxNativeApplicationRunner(spaceEnvironment, log);
+      return new LinuxNativeApplicationRunner(runnerParser, spaceEnvironment, log);
     } else if (OsxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new OsxNativeApplicationRunner(spaceEnvironment, log);
+      return new OsxNativeApplicationRunner(runnerParser, spaceEnvironment, log);
     } else if (WindowsNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new WindowsNativeApplicationRunner(spaceEnvironment, log);
+      return new WindowsNativeApplicationRunner(runnerParser, spaceEnvironment, log);
     } else {
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);
     }

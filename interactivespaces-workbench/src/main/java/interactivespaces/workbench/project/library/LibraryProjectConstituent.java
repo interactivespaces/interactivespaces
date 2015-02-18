@@ -16,10 +16,9 @@
 
 package interactivespaces.workbench.project.library;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.project.Project;
-import interactivespaces.workbench.project.ProjectContext;
+import interactivespaces.workbench.project.constituent.BaseProjectConstituent;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.java.ContainerInfo;
@@ -28,7 +27,6 @@ import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -36,7 +34,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class LibraryProjectConstituent implements ProjectConstituent {
+public class LibraryProjectConstituent extends BaseProjectConstituent {
 
   /**
    * Element type for a resource.
@@ -93,22 +91,12 @@ public class LibraryProjectConstituent implements ProjectConstituent {
    */
   public static final String ATTRIBUTE_NAME_CONTAINER_PACKAGES_PACKAGE_VERSION = "version";
 
-  @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
-    // Nothing to do
-  }
-
-  @Override
-  public String getSourceDirectory() throws InteractiveSpacesException {
-    return null;
-  }
-
   /**
    * Factory for building the constituent builder.
    *
    * @author Keith M. Hughes
    */
-  public static class LibraryProjectBuilderFactory implements ProjectConstituentFactory {
+  public static class LibraryProjectBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;

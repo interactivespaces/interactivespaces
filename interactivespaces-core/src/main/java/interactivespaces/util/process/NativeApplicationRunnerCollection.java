@@ -50,6 +50,11 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
   private long samplingPeriod = SAMPLING_PERIOD_DEFAULT;
 
   /**
+   * The parser for native applications.
+   */
+  private NativeApplicationRunnerParser runnerParser = new StandardNativeApplicationRunnerParser();
+
+  /**
    * The space environment to use.
    */
   private final InteractiveSpacesEnvironment spaceEnvironment;
@@ -86,7 +91,7 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
     this.spaceEnvironment = spaceEnvironment;
     this.log = log;
 
-    runnerFactory = new SimpleNativeApplicationRunnerFactory(spaceEnvironment);
+    runnerFactory = new SimpleNativeApplicationRunnerFactory(runnerParser, spaceEnvironment);
   }
 
   @Override
@@ -117,6 +122,26 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
   }
 
   /**
+   * Create a new application runner with the given description.
+   *
+   * <p>
+   * The runner is added to the collection. The collection will handle the lifecycle of the runner.
+   *
+   * @param description
+   *          the description of the runner
+   *
+   * @return a new application runner appropriate for the current platform
+   */
+  public NativeApplicationRunner addNativeApplicationRunner(NativeApplicationDescription description) {
+    NativeApplicationRunner runner = newNativeApplicationRunner();
+    runner.configure(description);
+
+    addNativeApplicationRunner(runner);
+
+    return runner;
+  }
+
+  /**
    * Create a new application runner with the given config.
    *
    * <p>
@@ -126,7 +151,10 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    *          the configuration for the runner
    *
    * @return a new application runner appropriate for the current platform
+   *
+   * @deprecated Use {@link #newNativeApplicationRunner() and use the configuration setters.
    */
+  @Deprecated
   public NativeApplicationRunner addNativeApplicationRunner(Map<String, Object> config) {
     NativeApplicationRunner runner = newNativeApplicationRunner();
     runner.configure(config);

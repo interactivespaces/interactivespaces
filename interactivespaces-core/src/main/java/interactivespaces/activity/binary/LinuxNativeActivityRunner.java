@@ -18,6 +18,7 @@ package interactivespaces.activity.binary;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.process.LinuxNativeApplicationRunner;
+import interactivespaces.util.process.NativeApplicationRunnerParser;
 
 import org.apache.commons.logging.Log;
 
@@ -31,12 +32,14 @@ public class LinuxNativeActivityRunner extends LinuxNativeApplicationRunner impl
   /**
    * Create a new activity runner for linux.
    *
+   * @param runnerParser
+   *          the runner parser to use
    * @param spaceEnvironment
    *          environment to use
    * @param log
    *          logger for logging
    */
-  public LinuxNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public LinuxNativeActivityRunner(NativeApplicationRunnerParser runnerParser, InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 }

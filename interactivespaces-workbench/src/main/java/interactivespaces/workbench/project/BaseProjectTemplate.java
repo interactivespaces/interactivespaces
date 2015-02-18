@@ -72,8 +72,8 @@ public class BaseProjectTemplate implements ProjectTemplate {
     } catch (Exception e) {
       File outputFile = new File(context.getBaseDirectory(), TEMPLATE_VARIABLES_DUMP);
       dumpVariables(outputFile, context.getTemplateData());
-      throw new SimpleInteractiveSpacesException(
-          "Template variables can be found in " + outputFile.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("Template variables can be found in " + outputFile.getAbsolutePath(),
+          e);
     }
   }
 
@@ -107,23 +107,21 @@ public class BaseProjectTemplate implements ProjectTemplate {
    * Process the defined template constituents.
    *
    * @param context
-   *          spec for the project
-   *
+   *          context for creating the project
    */
   private void processTemplateConstituents(ProjectCreationContext context) {
     Project project = context.getProject();
     GroupProjectTemplateSpecification groupProjectTemplateSpecification =
         context.getGroupProjectTemplateSpecification();
-    List<ProjectConstituent> projectConstituents = project != null
-        ? project.getExtraConstituents() : groupProjectTemplateSpecification.getExtraConstituents();
+    List<ProjectConstituent> projectConstituents =
+        project != null ? project.getExtraConstituents() : groupProjectTemplateSpecification.getExtraConstituents();
     for (ProjectConstituent constituent : projectConstituents) {
-      constituent.processConstituent(project, null, context);
+      constituent.processConstituent(project, context);
     }
   }
 
   /**
-   * Function called on template write. Can be overridden to provide different functionality for other project
-   * types.
+   * Function called on template write. Can be overridden to provide different functionality for other project types.
    *
    * @param context
    *          specification that is being written
@@ -150,8 +148,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
       }
     } catch (Exception e) {
       noException = false;
-      throw new SimpleInteractiveSpacesException(
-          "Error writing variable dump file " + outputFile.getAbsolutePath(), e);
+      throw new SimpleInteractiveSpacesException("Error writing variable dump file " + outputFile.getAbsolutePath(), e);
     } finally {
       fileSupport.close(variableWriter, noException);
     }

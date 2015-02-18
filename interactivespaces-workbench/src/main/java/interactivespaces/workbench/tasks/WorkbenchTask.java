@@ -18,29 +18,54 @@ package interactivespaces.workbench.tasks;
 
 import interactivespaces.InteractiveSpacesException;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * A task in the workbench.
+ *
+ * <p>
+ * Before and after tasks are not part of dependencies, they are done in the order given.
  *
  * @author Keith M. Hughes
  */
 public interface WorkbenchTask {
 
-  /**
-   * Add a dependency to the tasks.
-   *
-   * @param dependency
-   *          the task that must be completed before this task
-   */
-  void addTaskDependency(WorkbenchTask dependency);
 
   /**
-   * Get the dependencies for the task.
+   * Add tasks to be executed exactly before the task starts.
    *
-   * @return the dependencies for the task
+   * <p>
+   * Tasks will be executed in the order added.
+   *
+   * @param tasks
+   *        the tasks to add
    */
-  Set<WorkbenchTask> getTaskDependencies();
+  void addWorkbenchTaskBefore(WorkbenchTask... tasks);
+
+  /**
+   * Get the tasks to be done before this task.
+   *
+   * @return the tasks to be done before this task
+   */
+  List<WorkbenchTask> getBeforeTasks();
+
+  /**
+   * Add tasks to be executed exactly after the task completes.
+   *
+   * <p>
+   * Tasks will be executed in the order added.
+   *
+   * @param tasks
+   *        the tasks to add
+   */
+  void addWorkbenchTaskAfter(WorkbenchTask... tasks);
+
+  /**
+   * Get the tasks to be done after this task.
+   *
+   * @return the tasks to be done after this task
+   */
+  List<WorkbenchTask> getAfterTasks();
 
   /**
    * Perform the task.

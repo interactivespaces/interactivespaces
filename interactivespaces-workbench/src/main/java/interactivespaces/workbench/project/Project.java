@@ -20,8 +20,9 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.workbench.project.constituent.ContentProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
-import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+import interactivespaces.workbench.project.constituent.ResourceComponentProjectConstituent;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -92,14 +93,14 @@ public abstract class Project {
    * project (which is slightly different than saying an empty set of resources have been specified, which would be
    * indicated by the empty list).
    */
-  private final List<ProjectConstituent> resources = Lists.newArrayList();
+  private final List<ContentProjectConstituent> resources = Lists.newArrayList();
 
   /**
    * The sources the project requires. A {@code null} value indicates that no sources have been specified for the
    * project (which is slightly different than saying an empty set of sources have been specified, which would be
    * indicated by the empty list).
    */
-  private final List<ProjectConstituent> sources = Lists.newArrayList();
+  private final List<ContentProjectConstituent> sources = Lists.newArrayList();
 
   /**
    * An extra set of project constituents. Some constituents are common to all projects, these will be specific to an
@@ -359,7 +360,9 @@ public abstract class Project {
    */
   public void addResources(List<ProjectConstituent> addResources) {
     if (addResources != null) {
-      resources.addAll(addResources);
+      for (ProjectConstituent constituent : addResources) {
+        resources.add((ContentProjectConstituent) constituent);
+      }
     }
   }
 
@@ -368,7 +371,7 @@ public abstract class Project {
    *
    * @return a new copy of the resources list
    */
-  public List<ProjectConstituent> getResources() {
+  public List<ContentProjectConstituent> getResources() {
     return Lists.newArrayList(resources);
   }
 
@@ -380,7 +383,9 @@ public abstract class Project {
    */
   public void addSources(List<ProjectConstituent> addSources) {
     if (addSources != null) {
-      sources.addAll(addSources);
+      for (ProjectConstituent constituent : addSources) {
+        sources.add((ContentProjectConstituent) constituent);
+      }
     }
   }
 
@@ -389,7 +394,7 @@ public abstract class Project {
    *
    * @return a new copy of the sources list
    */
-  public List<ProjectConstituent> getSources() {
+  public List<ContentProjectConstituent> getSources() {
     return Lists.newArrayList(sources);
   }
 
@@ -399,7 +404,7 @@ public abstract class Project {
    * @param resource
    *          the project resource
    */
-  public void addResource(ProjectResourceConstituent resource) {
+  public void addResource(ResourceComponentProjectConstituent resource) {
     resources.add(resource);
   }
 

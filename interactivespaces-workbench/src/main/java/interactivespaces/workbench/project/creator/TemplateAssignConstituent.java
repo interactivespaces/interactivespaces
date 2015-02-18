@@ -20,14 +20,13 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+import interactivespaces.workbench.project.constituent.BaseProjectConstituent;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
-import interactivespaces.workbench.project.constituent.ContainerConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -35,7 +34,7 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class TemplateAssignConstituent extends ContainerConstituent {
+public class TemplateAssignConstituent extends BaseProjectConstituent {
 
   /**
    * Project type for a template assign entry.
@@ -110,7 +109,7 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
+  public void processConstituent(Project project, ProjectContext context) {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
     FreemarkerTemplater templater = context.getWorkbenchTaskContext().getWorkbench().getTemplater();
     int evaluationPasses = 1;
@@ -126,7 +125,7 @@ public class TemplateAssignConstituent extends ContainerConstituent {
   /**
    * Factory for the constituent components.
    */
-  public static class TemplateAssignConstituentFactory implements ProjectConstituentFactory {
+  public static class TemplateAssignConstituentFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;

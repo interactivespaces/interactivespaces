@@ -32,9 +32,19 @@ import interactivespaces.workbench.project.ide.EclipseIdeProjectCreatorSpecifica
 public interface ProjectType {
 
   /**
+   * Root location for generated source.
+   */
+  String GENERATED_SOURCE_ROOT = "generated-src";
+
+  /**
    * Source location for the resource source files.
    */
   String SOURCE_MAIN_RESOURCES = "src/main/resources";
+
+  /**
+   * Source location for generated resource source files.
+   */
+  String SOURCE_GENERATED_MAIN_RESOURCES = GENERATED_SOURCE_ROOT + "/main/resources";
 
   /**
    * Get the project type name for this project types.

@@ -35,13 +35,16 @@ public class WindowsNativeApplicationRunner extends BaseNativeApplicationRunner 
   /**
    * Construct a new runner.
    *
+   * @param runnerParser
+   *          the runner parser
    * @param spaceEnvironment
    *          the space environment for the runner
    * @param log
    *          the logger to use
    */
-  public WindowsNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public WindowsNativeApplicationRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 
   @Override

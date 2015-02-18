@@ -19,6 +19,8 @@ package interactivespaces.activity.binary;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.SystemConfiguration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.process.NativeApplicationRunnerParser;
+import interactivespaces.util.process.StandardNativeApplicationRunnerParser;
 
 import org.apache.commons.logging.Log;
 
@@ -28,6 +30,11 @@ import org.apache.commons.logging.Log;
  * @author Keith M. Hughes
  */
 public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFactory {
+
+  /**
+   * The runner parser to use
+   */
+  private NativeApplicationRunnerParser runnerParser;
 
   /**
    * The Interactive Spaces environment being run under.
@@ -41,6 +48,20 @@ public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFa
    *          the space environment to use
    */
   public SimpleNativeActivityRunnerFactory(InteractiveSpacesEnvironment spaceEnvironment) {
+    this(new StandardNativeApplicationRunnerParser(), spaceEnvironment);
+  }
+
+  /**
+   * Construct a new factory.
+   *
+   * @param runnerParser
+   *          the runner parser to use
+   * @param spaceEnvironment
+   *          the space environment to use
+   */
+  public SimpleNativeActivityRunnerFactory(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment) {
+    this.runnerParser = runnerParser;
     this.spaceEnvironment = spaceEnvironment;
   }
 
@@ -49,11 +70,11 @@ public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFa
     String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
 
     if (LinuxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new LinuxNativeActivityRunner(spaceEnvironment, log);
+      return new LinuxNativeActivityRunner(runnerParser, spaceEnvironment, log);
     } else if (OsxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new OsxNativeActivityRunner(spaceEnvironment, log);
+      return new OsxNativeActivityRunner(runnerParser, spaceEnvironment, log);
     } else if (WindowsNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
-      return new WindowsNativeActivityRunner(spaceEnvironment, log);
+      return new WindowsNativeActivityRunner(runnerParser, spaceEnvironment, log);
     } else {
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);
     }

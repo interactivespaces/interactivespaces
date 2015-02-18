@@ -23,10 +23,7 @@ import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.restart.LimitedRetryRestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategy;
 
-import com.google.common.collect.Maps;
-
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * Basic implementation of the web browser runner.
@@ -73,26 +70,24 @@ public class BasicNativeWebBrowserRunner implements NativeWebBrowserRunner {
   @Override
   public void startup(String initialUrl, boolean debug) {
     browserRunner =
-        activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
+        activity.getActivityRuntime().getNativeActivityRunnerFactory()
+            .newPlatformNativeActivityRunner(activity.getLog());
 
     Configuration configuration = activity.getConfiguration();
 
-    Map<String, Object> appConfig = Maps.newHashMap();
-    appConfig.put(NativeApplicationRunner.EXECUTABLE_PATHNAME,
-        ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
+    browserRunner.setExecutablePath(ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
 
     String commandFlags =
         MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
             initialUrl);
 
-    appConfig.put(NativeApplicationRunner.EXECUTABLE_FLAGS, commandFlags);
+    browserRunner.parseCommandArguments(commandFlags);
 
     String commandEnvironment = ActivitySystemConfiguration.getActivityNativeBrowserCommandEnvironment(configuration);
     if (commandEnvironment != null) {
-      appConfig.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
+      browserRunner.parseEnvironment(commandEnvironment);
     }
 
-    browserRunner.configure(appConfig);
     browserRunner.setRestartStrategy(getDefaultRestartStrategy());
 
     browserRunner.startup();

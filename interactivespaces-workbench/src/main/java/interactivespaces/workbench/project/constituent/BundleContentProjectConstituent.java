@@ -39,9 +39,12 @@ import java.util.List;
 /**
  * A bundle resource for a {@link interactivespaces.workbench.project.Project}.
  *
+ * <p>
+ * The default constituent processing places the content in the build staging directory.
+ *
  * @author Trevor Pering
  */
-public class ProjectBundleConstituent extends ContainerConstituent {
+public class BundleContentProjectConstituent extends BaseContentProjectConstituent {
 
   /**
    * Project type for a bundle resource.
@@ -106,7 +109,7 @@ public class ProjectBundleConstituent extends ContainerConstituent {
   /**
    * Factory for the constituent components.
    */
-  public static class ProjectBundleConstituentFactory implements ProjectConstituentFactory {
+  public static class BundleProjectConstituentBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;
@@ -114,18 +117,18 @@ public class ProjectBundleConstituent extends ContainerConstituent {
 
     @Override
     public ProjectConstituentBuilder newBuilder() {
-      return new ProjectBundleConstituentBuilder();
+      return new BundleProjectConstituentBuilder();
     }
   }
 
   /**
    * Builder class for new bundle resources.
    */
-  private static class ProjectBundleConstituentBuilder extends BaseProjectConstituentBuilder {
+  private static class BundleProjectConstituentBuilder extends BaseProjectConstituentBuilder {
 
     @Override
     public ProjectConstituent buildConstituentFromElement(Namespace namespace, Element element, Project project) {
-      ProjectBundleConstituent bundle = new ProjectBundleConstituent();
+      BundleContentProjectConstituent bundle = new BundleContentProjectConstituent();
 
       bundle.outputPath = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
       if (bundle.outputPath == null) {

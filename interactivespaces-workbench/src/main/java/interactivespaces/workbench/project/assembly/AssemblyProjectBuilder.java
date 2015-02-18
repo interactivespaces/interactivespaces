@@ -16,11 +16,12 @@
 
 package interactivespaces.workbench.project.assembly;
 
-import static interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent.PACK_FORMAT_ATTRIBUTE;
-import static interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent.ZIP_PACK_FORMAT;
+import static interactivespaces.workbench.project.constituent.AssemblyComponentProjectConstituent.PACK_FORMAT_ATTRIBUTE;
+import static interactivespaces.workbench.project.constituent.AssemblyComponentProjectConstituent.ZIP_PACK_FORMAT;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
@@ -39,6 +40,11 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
    */
   public static final String ASSEMBLY_FILE_EXTENSION = "zip";
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public boolean build(AssemblyProject project, ProjectTaskContext context) {
     String packFormat = project.getAttribute(PACK_FORMAT_ATTRIBUTE);
@@ -47,11 +53,13 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
           "Project '%s' attribute was '%s', must be '%s'",
           PACK_FORMAT_ATTRIBUTE, packFormat, ZIP_PACK_FORMAT));
     }
-    File buildDirectory = context.getBuildDirectory();
-    File stagingDirectory = new File(buildDirectory, BUILD_STAGING_DIRECTORY);
-    Files.directoryExists(stagingDirectory);
 
-    processSources(project, stagingDirectory, context);
+    File stagingDirectory = context.getStagingDirectory();
+    fileSupport.directoryExists(stagingDirectory);
+
+    context.processGeneratedResources(stagingDirectory);
+    context.processSources(stagingDirectory);
+
     writeResourceMap(project, stagingDirectory, context);
 
     return assemble(project, stagingDirectory, context);
@@ -71,10 +79,12 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
    */
   protected boolean assemble(Project project, File stagingDirectory,
       ProjectTaskContext context) {
+    // TODO(keith): Move this into the archiver and don't do it in here.
     File buildDirectory = context.getBuildDirectory();
     File assemblyFile =
         getBuildDestinationFile(project, buildDirectory, ASSEMBLY_FILE_EXTENSION);
-    Files.zip(assemblyFile, stagingDirectory);
+    fileSupport.zip(assemblyFile, stagingDirectory);
+
     return true;
   }
 }

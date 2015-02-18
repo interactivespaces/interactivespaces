@@ -89,12 +89,84 @@ public interface NativeApplicationRunner extends ManagedResource, Restartable {
   void setCleanEnvironment(boolean cleanEnvironment);
 
   /**
+   * Set the executable path for the runner.
+   *
+   * @param executablePath
+   *          the executable path
+   *
+   * @return this runner
+   */
+  NativeApplicationRunner setExecutablePath(String executablePath);
+
+  /**
+   * Add in a collection of environment variables.
+   *
+   * @param environmentVariables
+   *          a map of new environment variables to add, indexed by variable name
+   *
+   * @return this runner
+   */
+  NativeApplicationRunner addEnvironmentVariables(Map<String, String> environmentVariables);
+
+  /**
+   * Add in new command line arguments to the runner.
+   *
+   * <p>
+   * The arguments will be supplied to the executable in the order added.
+   *
+   * @param arguments
+   *          the arguments to add
+   *
+   * @return this runner
+   */
+  NativeApplicationRunner addCommandArguments(String... arguments);
+
+  /**
+   * Parse a string of command line arguments. Arguments are separated by whitespace. The character
+   * {@link #ESCAPE_CHARACTER} is used for the escape character.
+   *
+   * <p>
+   * The arguments will be supplied to the executable in the order added.
+   *
+   * @param arguments
+   *          the arguments to add
+   *
+   * @return this runner
+   */
+  NativeApplicationRunner parseCommandArguments(String arguments);
+
+  /**
+   * Parse a string of command line arguments. Arguments are separated by whitespace. The character
+   * {@link #ESCAPE_CHARACTER} is used for the escape character.
+   *
+   * <p>
+   * The arguments will be supplied to the executable in the order added.
+   *
+   * @param variables
+   *          the environment variables to add
+   *
+   * @return this runner
+   */
+  NativeApplicationRunner parseEnvironment(String variables);
+
+  /**
    * Configure the runner.
    *
    * @param config
    *          the configuration
+   *
+   * @deprecated use the individual setters and parsers or a {@link NativeApplicationDescription}
    */
+  @Deprecated
   void configure(Map<String, Object> config);
+
+  /**
+   * Configure the runner.
+   *
+   * @param description
+   *          the description
+   */
+  void configure(NativeApplicationDescription description);
 
   /**
    * Is the native application still running?

@@ -16,17 +16,21 @@
 
 package interactivespaces.workbench.osgi;
 
+import interactivespaces.configuration.SimpleConfiguration;
+import interactivespaces.system.SimpleInteractiveSpacesEnvironment;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
+import org.apache.commons.lang.SystemUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
+import org.ros.concurrent.DefaultScheduledExecutorService;
 
 import java.util.List;
 
@@ -73,6 +77,11 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    */
   private ContainerCustomizerProvider containerCustomizerProvider;
 
+  /**
+   * The executor service to use.
+   */
+  private DefaultScheduledExecutorService executorService;
+
   @Override
   public void start(BundleContext bundleContext) throws Exception {
     this.bundleContext = bundleContext;
@@ -88,7 +97,9 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 
   @Override
   public void stop(BundleContext bundleContext) throws Exception {
-    // Nothing right now.
+    if (executorService != null) {
+      executorService.shutdownNow();
+    }
   }
 
   /**
@@ -122,9 +133,22 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
   public void run() {
     Bundle systemBundle = bundleContext.getBundle(0);
     ClassLoader systemClassLoader = systemBundle.getClass().getClassLoader();
-    final InteractiveSpacesWorkbench workbench =
-        new InteractiveSpacesWorkbench(configurationProvider.getInitialConfiguration(), systemClassLoader,
-            loggingProvider.getLog());
+
+    SimpleInteractiveSpacesEnvironment spaceEnvironment = new SimpleInteractiveSpacesEnvironment();
+    spaceEnvironment.setLog(loggingProvider.getLog());
+    executorService = new DefaultScheduledExecutorService();
+    spaceEnvironment.setExecutorService(executorService);
+    SimpleConfiguration configuration = SimpleConfiguration.newConfiguration();
+    configuration.setValues(configurationProvider.getInitialConfiguration());
+
+    // TODO(keith): Hide this more deeply in bootstrap.
+    String platformOs = SystemUtils.IS_OS_LINUX ? "linux" : "osx";
+    configuration.setValue("interactivespaces.platform.os", platformOs);
+
+
+    spaceEnvironment.setSystemConfiguration(configuration);
+
+    final InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(spaceEnvironment, systemClassLoader);
 
     final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
     if (!commandLineArguments.isEmpty()) {

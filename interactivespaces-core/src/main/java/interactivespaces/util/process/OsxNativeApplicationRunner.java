@@ -35,12 +35,15 @@ public class OsxNativeApplicationRunner extends UnixNativeApplicationRunner {
   /**
    * Construct the runner.
    *
+   * @param runnerParser
+   *          the runner parser
    * @param spaceEnvironment
    *          the space environment to use
    * @param log
    *          the logger to use
    */
-  public OsxNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public OsxNativeApplicationRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 }

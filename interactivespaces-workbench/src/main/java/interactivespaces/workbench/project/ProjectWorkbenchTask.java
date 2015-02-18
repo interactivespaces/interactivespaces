@@ -16,14 +16,16 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.workbench.tasks.BaseWorkbenchTask;
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.workbench.tasks.BaseDependencyWorkbenchTask;
+import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
 /**
  * A workbench task for project tasks.
  *
  * @author Keith M. Hughes
  */
-public abstract class ProjectWorkbenchTask extends BaseWorkbenchTask {
+public abstract class ProjectWorkbenchTask extends BaseDependencyWorkbenchTask {
 
   /**
    * The project the task is being performed on.
@@ -38,12 +40,16 @@ public abstract class ProjectWorkbenchTask extends BaseWorkbenchTask {
   /**
    * Construct a new task.
    *
+   * @param name
+   *          the name of the task
    * @param project
    *          the project the task is being performed on
    * @param projectTaskContext
-   *        context for the project task
+   *          context for the project task
    */
-  public ProjectWorkbenchTask(Project project, ProjectTaskContext projectTaskContext) {
+  public ProjectWorkbenchTask(String name, Project project, ProjectTaskContext projectTaskContext) {
+    super(name);
+
     this.project = project;
     this.projectTaskContext = projectTaskContext;
   }
@@ -65,4 +71,21 @@ public abstract class ProjectWorkbenchTask extends BaseWorkbenchTask {
   public ProjectTaskContext getProjectTaskContext() {
     return projectTaskContext;
   }
+
+  @Override
+  public void perform(WorkbenchTaskContext workbenchTaskContext) throws InteractiveSpacesException {
+    projectTaskContext.setCurrentTaskName(getName());
+
+    onPerform();
+
+    projectTaskContext.setCurrentTaskName(null);
+  }
+
+  /**
+   * Perform the task.
+   *
+   * @throws InteractiveSpacesException
+   *           something bad happened
+   */
+  protected abstract void onPerform() throws InteractiveSpacesException;
 }

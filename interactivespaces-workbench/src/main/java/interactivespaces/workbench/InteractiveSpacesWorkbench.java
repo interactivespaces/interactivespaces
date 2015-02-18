@@ -18,8 +18,8 @@ package interactivespaces.workbench;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.system.BasicInteractiveSpacesFilesystem;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -50,7 +50,6 @@ import org.apache.commons.logging.Log;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A workbench for working with Interactive Spaces Activity development.
@@ -181,22 +180,24 @@ public class InteractiveSpacesWorkbench {
   private ProjectTaskManager projectTaskManager;
 
   /**
+   * The space environment to use.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
    * Construct a workbench.
    *
-   * @param workbenchProperties
-   *          the map of configuration properties for the workbench
+   * @param spaceEnvironment
+   *          the space environment for the workbench
    * @param baseClassLoader
    *          the base classloader for the workbench
-   * @param log
-   *          the logger to use
    */
-  public InteractiveSpacesWorkbench(Map<String, String> workbenchProperties, ClassLoader baseClassLoader, Log log) {
+  public InteractiveSpacesWorkbench(InteractiveSpacesEnvironment spaceEnvironment, ClassLoader baseClassLoader) {
+    this.spaceEnvironment = spaceEnvironment;
     this.baseClassLoader = baseClassLoader;
-    this.log = log;
+    this.log = spaceEnvironment.getLog();
 
-    workbenchConfig = SimpleConfiguration.newConfiguration();
-
-    workbenchConfig.setValues(workbenchProperties);
+    workbenchConfig = spaceEnvironment.getSystemConfiguration();
     workbenchConfig.setValue(CONFIGURATION_PROPERTY_WORKBENCH_HOME, workbenchFileSystem.getInstallDirectory()
         .getAbsolutePath());
 
@@ -683,5 +684,14 @@ public class InteractiveSpacesWorkbench {
    */
   public Log getLog() {
     return log;
+  }
+
+  /**
+   * Get the space environment for the workbench.
+   *
+   * @return the space environment
+   */
+  public InteractiveSpacesEnvironment getSpaceEnvironment() {
+    return spaceEnvironment;
   }
 }

@@ -35,12 +35,15 @@ public class LinuxNativeApplicationRunner extends UnixNativeApplicationRunner {
   /**
    * Create a new activity runner for linux.
    *
+   * @param runnerParser
+   *          the runner parser
    * @param spaceEnvironment
    *          environment to use
    * @param log
    *          logger for logging
    */
-  public LinuxNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public LinuxNativeApplicationRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 }

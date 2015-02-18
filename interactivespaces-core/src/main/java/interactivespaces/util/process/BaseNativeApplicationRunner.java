@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,16 +54,6 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
    * The default number of milliseconds to attempt a restart.
    */
   public static final int RESTART_DURATION_MAXIMUM_DEFAULT = 10000;
-
-  /**
-   * File support instance to use for this activity runner.
-   */
-  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
-
-  /**
-   * Configuration map for this native activity.
-   */
-  private Map<String, Object> config;
 
   /**
    * Process running the native app.
@@ -126,7 +117,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   /**
    * Name of the application to run.
    */
-  private String appName;
+  private String executablePath;
 
   /**
    * {@code true} if the process environment should be cleaned before the process starts.
@@ -136,7 +127,12 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   /**
    * A map of environment variables set for the runner.
    */
-  private Map<String, String> environment;
+  private Map<String, String> environment = Maps.newHashMap();
+
+  /**
+   * The list of command line arguments for the runner.
+   */
+  private List<String> commandArguments = Lists.newArrayList();
 
   /**
    * The application runner listeners.
@@ -150,14 +146,28 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       new AtomicReference<NativeApplicationRunnerState>(NativeApplicationRunnerState.NOT_STARTED);
 
   /**
+   * The parser for runners.
+   */
+  private NativeApplicationRunnerParser runnerParser;
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Create a native activity runner.
    *
+   * @param runnerParser
+   *          the paser for runners
    * @param spaceEnvironment
    *          environment for runner
    * @param log
    *          logger for logging
    */
-  public BaseNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+  public BaseNativeApplicationRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    this.runnerParser = runnerParser;
     this.spaceEnvironment = spaceEnvironment;
     this.log = log;
   }
@@ -167,49 +177,100 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     this.cleanEnvironment = cleanEnvironment;
   }
 
+  @Override
+  public NativeApplicationRunner setExecutablePath(String executablePath) {
+    this.executablePath = executablePath;
+
+    return this;
+  }
+
+  @Override
+  public NativeApplicationRunner addEnvironmentVariables(Map<String, String> environmentVariables) {
+    environment.putAll(environmentVariables);
+
+    return this;
+  }
+
+  @Override
+  public NativeApplicationRunner addCommandArguments(String... arguments) {
+    if (arguments != null) {
+      Collections.addAll(commandArguments, arguments);
+    }
+
+    return this;
+  }
+
+  @Override
+  public NativeApplicationRunner parseCommandArguments(String arguments) {
+    runnerParser.parseCommandArguments(commandArguments, arguments);
+
+    return this;
+  }
+
+  @Override
+  public NativeApplicationRunner parseEnvironment(String variables) {
+    runnerParser.parseEnvironment(environment, variables);
+
+    return this;
+  }
+
+  @Override
+  public void configure(NativeApplicationDescription description) {
+    executablePath = description.getExecutablePath();
+    commandArguments.addAll(description.getArguments());
+    environment.putAll(description.getEnvironment());
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public void configure(Map<String, Object> config) {
-    this.config = config;
-
-    appName = (String) getConfig().get(EXECUTABLE_PATHNAME);
-    if (appName == null) {
-      throw new SimpleInteractiveSpacesException("Missing required property " + EXECUTABLE_PATHNAME);
+    executablePath = (String) config.get(EXECUTABLE_PATHNAME);
+    if (executablePath == null) {
+      SimpleInteractiveSpacesException.throwFormattedException("Missing required property " + EXECUTABLE_PATHNAME);
     }
-
-    List<String> commandLineComponents = Lists.newArrayList();
-
-    commandLineComponents.add(appName);
-
-    environment = Maps.newHashMap();
 
     // Build up the command line.
-    for (Map.Entry<String, Object> entry : getConfig().entrySet()) {
+    for (Map.Entry<String, Object> entry : config.entrySet()) {
       String key = entry.getKey();
-      if (EXECUTABLE_PATHNAME.equals(key)) {
-        continue;
-      } else if (EXECUTABLE_FLAGS.equals(key)) {
-        extractCommandFlags(commandLineComponents, (String) entry.getValue());
-      } else if (EXECUTABLE_ENVIRONMENT.equals(key)) {
-        extractEnvironment((String) entry.getValue());
-      } else if (EXECUTABLE_ENVIRONMENT_MAP.equals(key)) {
-        environment.putAll((Map<String, String>) entry.getValue());
-      } else {
-        String arg = " --" + key;
-        Object value = entry.getValue();
-        if (value != null) {
-          arg += "=" + value.toString();
-        }
+      switch (key) {
+        case EXECUTABLE_PATHNAME:
+          break;
+        case EXECUTABLE_FLAGS:
+          runnerParser.parseCommandArguments(commandArguments, (String) entry.getValue());
+          break;
+        case EXECUTABLE_ENVIRONMENT:
+          runnerParser.parseEnvironment(environment, (String) entry.getValue());
+          break;
+        case EXECUTABLE_ENVIRONMENT_MAP:
+          environment.putAll((Map<String, String>) entry.getValue());
+          break;
+        default:
+          String arg = " --" + key;
+          Object value = entry.getValue();
+          if (value != null) {
+            arg += "=" + value.toString();
+          }
 
-        commandLineComponents.add(arg);
+          commandArguments.add(arg);
       }
     }
+  }
+
+  /**
+   * Prepare the runner.
+   */
+  @VisibleForTesting
+  void prepare() {
+    List<String> commandLineComponents = Lists.newArrayList();
+
+    commandLineComponents.add(executablePath);
+
+    commandLineComponents.addAll(commandArguments);
 
     commandLine = commandLineComponents.toArray(new String[commandLineComponents.size()]);
 
     String executable = commandLine[0];
     executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
-
   }
 
   @Override
@@ -220,6 +281,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         log.warn("Attempting to start native application runner which is already running");
         return;
       }
+
+      prepare();
 
       notifyApplicationStarting();
 
@@ -268,7 +331,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         runnerState.set(NativeApplicationRunnerState.STARTUP_FAILED);
         handleApplicationStartupFailed();
 
-        throw new InteractiveSpacesException("Can't start up native application " + appName, e);
+        InteractiveSpacesException.throwFormattedException(e, "Can't start up native application " + executablePath);
       }
 
       return null;
@@ -394,13 +457,13 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   private void logProcessResultStreams() {
     try {
       InputStream inputStream = process.getInputStream();
-      String inputString = FILE_SUPPORT.readAvailableToString(inputStream);
+      String inputString = fileSupport.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
         log.info(inputString);
       }
 
       InputStream errorStream = process.getErrorStream();
-      String errorString = FILE_SUPPORT.readAvailableToString(errorStream);
+      String errorString = fileSupport.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
         log.error(errorString);
       }
@@ -560,84 +623,6 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
   }
 
   /**
-   * Extract command line flags from a string.
-   *
-   * @param commandLineComponents
-   *          the list to place the command flags in
-   * @param commandFlags
-   *          the string containing the flags
-   */
-  private void extractCommandFlags(List<String> commandLineComponents, String commandFlags) {
-    if (commandFlags == null) {
-      return;
-    }
-
-    // Now collect the individual arguments. The escape character will always
-    // pass through the following character as part of the current token.
-    StringBuilder component = new StringBuilder();
-    for (int i = 0; i <= commandFlags.length(); i++) {
-      // Force a space on the end to keep the end of a term processing from being duplicated.
-      char ch = (i == commandFlags.length()) ? ' ' : commandFlags.charAt(i);
-      if (Character.isWhitespace(ch)) {
-        if (component.length() != 0) {
-          commandLineComponents.add(component.toString());
-          component.setLength(0);
-        }
-      } else if (ch == ESCAPE_CHARACTER) {
-        i++;
-        if (i < commandFlags.length()) {
-          component.append(commandFlags.charAt(i));
-        }
-      } else {
-        component.append(ch);
-      }
-    }
-  }
-
-  /**
-   * Extract environment variables.
-   *
-   * @param variables
-   *          the string containing the environment variables
-   */
-  private void extractEnvironment(String variables) {
-    if (variables == null) {
-      return;
-    }
-
-    // Now collect the individual arguments. The escape character will always
-    // pass through the following character as part of the current token.
-    String variableName = null;
-    StringBuilder component = new StringBuilder();
-    for (int i = 0; i <= variables.length(); i++) {
-      // Force a space on the end to keep the end of a term processing from being duplicated.
-      char ch = (i == variables.length()) ? ' ' : variables.charAt(i);
-      if (Character.isWhitespace(ch)) {
-        if (component.length() != 0) {
-          if (variableName != null) {
-            environment.put(variableName, component.toString());
-            variableName = null;
-          } else {
-            // No variable name so must have a variable name and a null value.
-            environment.put(component.toString(), null);
-          }
-          component.setLength(0);
-        }
-      } else if (ch == ESCAPE_CHARACTER) {
-        i++;
-        if (i < variables.length()) {
-          component.append(variables.charAt(i));
-        }
-      } else if (ch == EQUALS_CHARACTER && variableName == null) {
-        variableName = component.toString();
-        component.setLength(0);
-      } else {
-        component.append(ch);
-      }
-    }
-  }
-
-  /**
    * Notify all listeners that the application is starting.
    */
   private void notifyApplicationStarting() {
@@ -712,15 +697,6 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         log.error("Error while notifying a listener about native application starting", e);
       }
     }
-  }
-
-  /**
-   * Get the configuration for the runner.
-   *
-   * @return configuration for the runner
-   */
-  public Map<String, Object> getConfig() {
-    return config;
   }
 
   /**

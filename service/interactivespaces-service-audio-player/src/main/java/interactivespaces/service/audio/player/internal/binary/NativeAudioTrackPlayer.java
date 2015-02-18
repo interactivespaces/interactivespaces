@@ -24,12 +24,9 @@ import interactivespaces.service.audio.player.support.BaseAudioTrackPlayer;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerFactory;
 
-import com.google.common.collect.Maps;
-
 import org.apache.commons.logging.Log;
 
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * A {@link AudioTrackPlayer} which uses a {@link NativeActivityRunner}.
@@ -89,20 +86,15 @@ public class NativeAudioTrackPlayer extends BaseAudioTrackPlayer {
     // the threading crap here.
     if (runner == null) {
       runner = runnerFactory.newPlatformNativeApplicationRunner(log);
-      Map<String, Object> appConfig = Maps.newHashMap();
+
       // TODO(keith): This needs to get the OS, or it needs to be wrapped
       // so that can have something else check for OS
-      appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
-          configuration.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
+      runner.setExecutablePath(configuration.getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE));
 
-      String commandFlags =
-          MessageFormat.format(configuration
-              .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS), track.getFile()
-              .getAbsolutePath());
+      runner.parseCommandArguments(MessageFormat.format(configuration
+          .getRequiredPropertyString(CONFIGURATION_PROPERTY_MUSIC_PLAYER_EXECUTABLE_FLAGS), track.getFile()
+          .getAbsolutePath()));
 
-      appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
-
-      runner.configure(appConfig);
       runner.startup();
     }
   }

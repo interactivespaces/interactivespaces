@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -92,7 +93,20 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
   public ProjectTaskContext newProjectTaskContext(Project project, WorkbenchTaskContext workbenchTaskContext) {
     ProjectType type = projectTypeRegistry.getProjectType(project);
 
-    return new ProjectTaskContext(type, project, workbenchTaskContext);
+    ProjectTaskContext projectTaskContext = new ProjectTaskContext(type, project, workbenchTaskContext);
+
+    // Always add a pre-task
+    addPreTasks(project, projectTaskContext, workbenchTaskContext);
+
+    workbenchTaskContext.addProjectTaskContext(projectTaskContext);
+
+    return projectTaskContext;
+  }
+
+  @Override
+  public void addPreTasks(Project project, ProjectTaskContext projectTaskContext,
+      WorkbenchTaskContext workbenchTaskContext) {
+    workbenchTaskContext.addTasks(new ProjectPreTask(project, projectTaskContext));
   }
 
   @Override
@@ -130,9 +144,14 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
   private ProjectBuildTask addProjectBuildTask(Project project, ProjectTaskContext projectTaskContext,
       WorkbenchTaskContext workbenchTaskContext, Map<Project, ProjectBuildTask> existingBuildTasks) {
     ProjectBuildTask newBuildTask = new ProjectBuildTask(project, projectTaskContext);
-    workbenchTaskContext.addTasks(newBuildTask);
+    projectTaskContext.addProjectTasks(newBuildTask);
 
     existingBuildTasks.put(project, newBuildTask);
+
+    // TODO(keith): Should this go in the expanding build tasks? Probably if knew general task category.
+    ProjectPackageTask newPackageTask = new ProjectPackageTask(project, projectTaskContext);
+    newPackageTask.addTaskDependency(newBuildTask);
+    workbenchTaskContext.addTasks(newPackageTask);
 
     for (ProjectDependency dependency : project.getDependencies()) {
       if (dependency.isDynamic()) {
@@ -150,8 +169,7 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
           // dependency.
           ProjectTaskContext dependencyProjectTaskContext = dependencyBuildTask.getProjectTaskContext();
           projectTaskContext.addDynamicProjectDependencyContext(dependencyProjectTaskContext)
-              .addDynamicProjectDependencyContexts(
-                  dependencyProjectTaskContext.getDynamicProjectDependencyContexts());
+              .addDynamicProjectDependencyContexts(dependencyProjectTaskContext.getDynamicProjectDependencyContexts());
 
           newBuildTask.addTaskDependency(dependencyBuildTask);
         }
@@ -180,6 +198,33 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
   }
 
   /**
+   * The pre task for tasks to be done to a chain of project commands.
+   *
+   * @author Keith M. Hughes
+   */
+  public class ProjectPreTask extends ProjectWorkbenchTask {
+
+    /**
+     * Construct a new task.
+     *
+     * @param project
+     *          the project being cleaned
+     * @param projectTaskContext
+     *          context for the project tasks
+     */
+    public ProjectPreTask(Project project, ProjectTaskContext projectTaskContext) {
+      super(StandardProjectTaskNames.TASK_NAME_PRE, project, projectTaskContext);
+    }
+
+    @Override
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+
+      projectTaskContext.processExtraConstituents();
+    }
+  }
+
+  /**
    * The task for cleaning projects.
    *
    * @author Keith M. Hughes
@@ -195,15 +240,17 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          context for the project tasks
      */
     public ProjectCleanTask(Project project, ProjectTaskContext projectTaskContext) {
-      super(project, projectTaskContext);
+      super(StandardProjectTaskNames.TASK_NAME_CLEAN, project, projectTaskContext);
     }
 
     @Override
-    public void perform(WorkbenchTaskContext workbenchTaskContext) {
-      workbenchTaskContext.getWorkbench().getLog()
-          .info(String.format("Cleaning project %s", getProject().getBaseDirectory().getAbsolutePath()));
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
 
-      File buildDirectory = getProjectTaskContext().getBuildDirectory();
+      projectTaskContext.getLog().info(
+          String.format("Cleaning project %s", getProject().getBaseDirectory().getAbsolutePath()));
+
+      File buildDirectory = projectTaskContext.getBuildDirectory();
 
       if (buildDirectory.exists()) {
         fileSupport.deleteDirectoryContents(buildDirectory);
@@ -227,32 +274,71 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          context for project tasks
      */
     public ProjectBuildTask(Project project, ProjectTaskContext projectTaskContext) {
-      super(project, projectTaskContext);
+      super(StandardProjectTaskNames.TASK_NAME_BUILD, project, projectTaskContext);
     }
 
     @Override
-    public void perform(WorkbenchTaskContext workbenchTaskContext) {
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+
       // If no type, there is nothing special to do for building.
       ProjectBuilder builder = null;
-      ProjectType type = getProjectTaskContext().getProjectType();
+      ProjectType type = projectTaskContext.getProjectType();
       if (type != null) {
         builder = type.newBuilder();
       } else {
         builder = new BaseActivityProjectBuilder();
       }
 
+      boolean success = false;
       try {
-        workbenchTaskContext.getWorkbench().getLog()
-            .info(String.format("Building project %s", getProject().getBaseDirectory().getAbsolutePath()));
+        projectTaskContext.getLog().info(
+            String.format("Building project %s", getProject().getBaseDirectory().getAbsolutePath()));
 
-        if (builder.build(getProject(), getProjectTaskContext())) {
-          // TODO(Keith): This should be another task added.
-          if (ActivityProject.PROJECT_TYPE_NAME.equals(getProject().getType())) {
-            activityProjectPackager.packageActivityProject(getProject(), getProjectTaskContext());
-          }
+        // TODO(keith) Move towards exceptions for measuring success of all tasks from the component itself.
+        success = builder.build(getProject(), projectTaskContext);
+      } catch (Throwable e) {
+        projectTaskContext.getWorkbenchTaskContext().handleError("Error while building project", e);
+      }
+
+      if (!success) {
+        SimpleInteractiveSpacesException.throwFormattedException("Project %s failed to build", getProject()
+            .getBaseDirectory().getAbsolutePath());
+      }
+    }
+  }
+
+  /**
+   * The task for packaging projects.
+   *
+   * @author Keith M. Hughes
+   */
+  public class ProjectPackageTask extends ProjectWorkbenchTask {
+
+    /**
+     * Construct a new task.
+     *
+     * @param project
+     *          the project being built
+     * @param projectTaskContext
+     *          context for project tasks
+     */
+    public ProjectPackageTask(Project project, ProjectTaskContext projectTaskContext) {
+      super(StandardProjectTaskNames.TASK_NAME_PACKAGE, project, projectTaskContext);
+    }
+
+    @Override
+    public void onPerform() {
+
+      try {
+        getProjectTaskContext().getLog().info(
+            String.format("Packaging project %s", getProject().getBaseDirectory().getAbsolutePath()));
+
+        if (ActivityProject.PROJECT_TYPE_NAME.equals(getProject().getType())) {
+          activityProjectPackager.packageActivityProject(getProject(), getProjectTaskContext());
         }
       } catch (Throwable e) {
-        workbenchTaskContext.handleError("Error while creating project", e);
+        getProjectTaskContext().getWorkbenchTaskContext().handleError("Error while packaging project", e);
       }
     }
   }
@@ -280,29 +366,30 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          the context for project tasks
      */
     public ProjectDeploymentTask(String deploymentType, Project project, ProjectTaskContext projectTaskContext) {
-      super(project, projectTaskContext);
+      super(StandardProjectTaskNames.TASK_NAME_DEPLOY, project, projectTaskContext);
 
       this.deploymentType = deploymentType;
     }
 
     @Override
-    public void perform(WorkbenchTaskContext workbenchTaskContext) {
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+
       try {
         Project project = getProject();
-        workbenchTaskContext.getWorkbench().getLog()
-            .info(String.format("Deploying project %s", project.getBaseDirectory().getAbsolutePath()));
+        projectTaskContext.getLog().info(
+            String.format("Deploying project %s", project.getBaseDirectory().getAbsolutePath()));
 
-        Configuration workbenchConfig = workbenchTaskContext.getWorkbench().getWorkbenchConfig();
+        Configuration projectConfig = projectTaskContext.getProject().getConfiguration();
         for (ProjectDeployment deployment : project.getDeployments()) {
           if (deploymentType.equals(deployment.getType())) {
-            File deploymentLocation = new File(workbenchConfig.evaluate(deployment.getLocation()));
-            workbenchTaskContext.getWorkbench().getLog()
-                .info(String.format("Deploying to %s\n", deploymentLocation.getAbsolutePath()));
+            File deploymentLocation = new File(projectConfig.evaluate(deployment.getLocation()));
+            projectTaskContext.getLog().info(String.format("Deploying to %s\n", deploymentLocation.getAbsolutePath()));
             copyBuildArtifacts(deploymentLocation);
           }
         }
       } catch (Throwable e) {
-        workbenchTaskContext.handleError("Error while deploying project", e);
+        projectTaskContext.getWorkbenchTaskContext().handleError("Error while deploying project", e);
       }
     }
 
@@ -343,15 +430,17 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          context for the project tasks
      */
     public ProjectDocTask(Project project, ProjectTaskContext projectTaskContext) {
-      super(project, projectTaskContext);
+      super(StandardProjectTaskNames.TASK_NAME_DOC, project, projectTaskContext);
     }
 
     @Override
-    public void perform(WorkbenchTaskContext workbenchTaskContext) {
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+
       Project project = getProject();
 
-      workbenchTaskContext.getWorkbench().getLog()
-          .info(String.format("Building Docs for project %s", project.getBaseDirectory().getAbsolutePath()));
+      projectTaskContext.getLog().info(
+          String.format("Building Docs for project %s", project.getBaseDirectory().getAbsolutePath()));
 
       // TODO(keith): Make work for other project types
       if ("library".equals(project.getType()) || "java".equals(project.getBuilderType())) {
@@ -359,12 +448,9 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
 
         generator.generate(getProjectTaskContext());
       } else {
-        workbenchTaskContext
-            .getWorkbench()
-            .getLog()
-            .warn(
-                String.format("Project located at %s is not a java project\n", project.getBaseDirectory()
-                    .getAbsolutePath()));
+        projectTaskContext.getLog().warn(
+            String
+                .format("Project located at %s is not a java project\n", project.getBaseDirectory().getAbsolutePath()));
       }
     }
   }
@@ -392,16 +478,18 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          context for the project tasks
      */
     public ProjectIdeTask(String ide, Project project, ProjectTaskContext projectTaskContext) {
-      super(project, projectTaskContext);
+      super(StandardProjectTaskNames.TASK_NAME_IDE, project, projectTaskContext);
 
       this.ide = ide;
     }
 
     @Override
-    public void perform(WorkbenchTaskContext workbenchTaskContext) {
+    public void onPerform() {
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+
       Project project = getProject();
 
-      workbenchTaskContext.getWorkbench().getLog()
+      projectTaskContext.getLog()
           .info(String.format("Building project IDE project %s", project.getBaseDirectory().getAbsolutePath()));
 
       EclipseIdeProjectCreatorSpecification spec;
@@ -412,7 +500,7 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
         spec = new NonJavaEclipseIdeProjectCreatorSpecification();
       }
 
-      ideProjectCreator.createProject(project, getProjectTaskContext(), spec);
+      ideProjectCreator.createProject(project, projectTaskContext, spec);
     }
   }
 }

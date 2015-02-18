@@ -30,13 +30,16 @@ public abstract class UnixNativeApplicationRunner extends BaseNativeApplicationR
   /**
    * Create a new activity runner for a unix-based operating system.
    *
+   * @param runnerParser
+   *          the runner parser
    * @param spaceEnvironment
    *          environment to use
    * @param log
    *          logger for logging
    */
- public UnixNativeApplicationRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public UnixNativeApplicationRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 
   @Override

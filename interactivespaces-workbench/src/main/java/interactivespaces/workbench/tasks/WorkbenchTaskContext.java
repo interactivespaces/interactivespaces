@@ -28,14 +28,19 @@ import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.graph.DependencyResolver;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.workbench.InteractiveSpacesContainer;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectManager;
+import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
+
+import org.apache.commons.logging.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +49,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The main context for a workbench task run.
@@ -116,7 +122,7 @@ public class WorkbenchTaskContext {
   /**
    * The list of tasks.
    */
-  private final List<WorkbenchTask> tasks = Lists.newArrayList();
+  private final List<DependencyWorkbenchTask> tasks = Lists.newArrayList();
 
   /**
    * The collection of projects scanned from the project path.
@@ -137,6 +143,16 @@ public class WorkbenchTaskContext {
    * Some task had an error during the task processing process.
    */
   private boolean errors = false;
+
+  /**
+   * The native application runners collection for this context.
+   */
+  private NativeApplicationRunnerCollection nativeApplicationRunners;
+
+  /**
+   * Map of project task contextx for the current run.
+   */
+  private Map<Project, ProjectTaskContext> projectTaskContexts = Maps.newHashMap();
 
   /**
    * Construct a new context.
@@ -210,7 +226,7 @@ public class WorkbenchTaskContext {
    *
    * @return this task context
    */
-  public WorkbenchTaskContext addTasks(WorkbenchTask... tasks) {
+  public WorkbenchTaskContext addTasks(DependencyWorkbenchTask... tasks) {
     if (tasks != null) {
       Collections.addAll(this.tasks, tasks);
     }
@@ -222,7 +238,72 @@ public class WorkbenchTaskContext {
    * Do all tasks in the task list.
    */
   public void doTasks() {
-    for (WorkbenchTask task : orderTasksInDependencyOrder()) {
+    try {
+      prepareForTaskPerformance();
+
+      for (DependencyWorkbenchTask task : getTasksInDependencyOrder()) {
+
+        performTask(task);
+
+        if (errors) {
+          break;
+        }
+      }
+    } finally {
+      endTaskPerformance();
+    }
+  }
+
+  /**
+   * Prepare for performing all tasks.
+   */
+  private void prepareForTaskPerformance() {
+    nativeApplicationRunners =
+        new NativeApplicationRunnerCollection(workbench.getSpaceEnvironment(), workbench.getLog());
+    nativeApplicationRunners.startup();
+  }
+
+  /**
+   * End performing all tasks.
+   */
+  private void endTaskPerformance() {
+    nativeApplicationRunners.shutdown();
+    nativeApplicationRunners = null;
+  }
+
+  /**
+   * Perform a task, including any before and after tasks.
+   *
+   * <p>
+   * Performance is interrupted if any tasks fail.
+   *
+   * @param task
+   *          the task to perform
+   */
+  private void performTask(WorkbenchTask task) {
+    performTaskList(task.getBeforeTasks());
+
+    if (errors) {
+      return;
+    }
+
+    performMainTask(task);
+
+    if (errors) {
+      return;
+    }
+
+    performTaskList(task.getAfterTasks());
+  }
+
+  /**
+   * Perform all tasks in the list in proper order. Return immediately if any errors.
+   *
+   * @param tasks
+   *          the tasks to perform
+   */
+  private void performTaskList(List<WorkbenchTask> tasks) {
+    for (WorkbenchTask task : tasks) {
       performTask(task);
 
       if (errors) {
@@ -237,7 +318,7 @@ public class WorkbenchTaskContext {
    * @param task
    *          the task to perform
    */
-  private void performTask(WorkbenchTask task) {
+  private void performMainTask(WorkbenchTask task) {
     try {
       task.perform(this);
     } catch (Throwable e) {
@@ -254,16 +335,17 @@ public class WorkbenchTaskContext {
    *
    * @return the tasks in dependency order
    */
-  private List<WorkbenchTask> orderTasksInDependencyOrder() {
-    DependencyResolver<WorkbenchTask, WorkbenchTask> resolver = new DependencyResolver<WorkbenchTask, WorkbenchTask>();
+  private List<DependencyWorkbenchTask> getTasksInDependencyOrder() {
+    DependencyResolver<DependencyWorkbenchTask, DependencyWorkbenchTask> resolver =
+        new DependencyResolver<DependencyWorkbenchTask, DependencyWorkbenchTask>();
 
-    for (WorkbenchTask task : tasks) {
+    for (DependencyWorkbenchTask task : tasks) {
       resolver.addNode(task, task);
       resolver.addNodeDependencies(task, task.getTaskDependencies());
     }
 
     resolver.resolve();
-    List<WorkbenchTask> orderedTasks = resolver.getOrdering();
+    List<DependencyWorkbenchTask> orderedTasks = resolver.getOrdering();
     return orderedTasks;
   }
 
@@ -557,6 +639,46 @@ public class WorkbenchTaskContext {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Add in a new project task context to the context.
+   *
+   * @param projectTaskContext
+   *          the new project task context
+   */
+  public void addProjectTaskContext(ProjectTaskContext projectTaskContext) {
+    projectTaskContexts.put(projectTaskContext.getProject(), projectTaskContext);
+  }
+
+  /**
+   * Get project task context for the given project.
+   *
+   * @param project
+   *          the given project
+   *
+   * @return the context for the given project, or {@code null} if none
+   */
+  public ProjectTaskContext getProjectTaskContext(Project project) {
+    return projectTaskContexts.get(project);
+  }
+
+  /**
+   * Get the native application runners for the context.
+   *
+   * @return the native application runners
+   */
+  public NativeApplicationRunnerCollection getNativeApplicationRunners() {
+    return nativeApplicationRunners;
+  }
+
+  /**
+   * Get the context log.
+   *
+   * @return the context log
+   */
+  public Log getLog() {
+    return getWorkbench().getLog();
   }
 
   /**

@@ -16,9 +16,11 @@
 
 package interactivespaces.workbench.tasks;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * A base class for workbench tasks that provides some support.
@@ -28,17 +30,36 @@ import java.util.Set;
 public abstract class BaseWorkbenchTask implements WorkbenchTask {
 
   /**
-   * The task dependencies for this task.
+   * Tasks to be done before this task executes.
    */
-  private Set<WorkbenchTask> taskDependencies = Sets.newHashSet();
+  private List<WorkbenchTask> beforeTasks = Lists.newArrayList();
+
+  /**
+   * Tasks to be done after this task executes.
+   */
+  private List<WorkbenchTask> afterTasks = Lists.newArrayList();
 
   @Override
-  public void addTaskDependency(WorkbenchTask dependency) {
-    taskDependencies.add(dependency);
+  public void addWorkbenchTaskBefore(WorkbenchTask... tasks) {
+    if (tasks != null) {
+      Collections.addAll(beforeTasks, tasks);
+    }
   }
 
   @Override
-  public Set<WorkbenchTask> getTaskDependencies() {
-    return taskDependencies;
+  public List<WorkbenchTask> getBeforeTasks() {
+    return beforeTasks;
+  }
+
+  @Override
+  public void addWorkbenchTaskAfter(WorkbenchTask... tasks) {
+    if (tasks != null) {
+      Collections.addAll(afterTasks, tasks);
+    }
+  }
+
+  @Override
+  public List<WorkbenchTask> getAfterTasks() {
+    return afterTasks;
   }
 }

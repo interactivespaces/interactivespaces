@@ -30,13 +30,10 @@ import interactivespaces.service.speech.synthesis.internal.festival.client.Reque
 import interactivespaces.service.speech.synthesis.internal.festival.client.Session;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
-import com.google.common.collect.Maps;
-
 import org.apache.commons.logging.Log;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
  * A speech synthesis service based on Festival.
@@ -64,14 +61,12 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
       "interactivespaces.service.speech.synthesis.external.festival.flags.linux";
 
   /**
-   * The value of the configuration property saying when the binary should start
-   * when the service starts up.
+   * The value of the configuration property saying when the binary should start when the service starts up.
    */
   public static final String CONFIGURATION_PROPERTY_VALUE_ON_STARTUP = "on_startup";
 
   /**
-   * The name of the configuration property saying when the binary should start
-   * when it is first used.
+   * The name of the configuration property saying when the binary should start when it is first used.
    */
   public static final String CONFIGURATION_PROPERTY_VALUE_ON_FIRST_USE = "on_first_use";
 
@@ -81,28 +76,24 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
   public static final String CONFIGURATION_PROPERTY_DEFAULT_STARTUP = CONFIGURATION_PROPERTY_VALUE_ON_FIRST_USE;
 
   /**
-   * The name of the configuration property for the host where Festival is
-   * running.
+   * The name of the configuration property for the host where Festival is running.
    */
   public static final String CONFIGURATION_PROPERTY_NAME_HOST =
       "interactivespaces.service.speech.synthesis.external.festival.host";
 
   /**
-   * The default value configuration property for the host where Festival is
-   * running.
+   * The default value configuration property for the host where Festival is running.
    */
   public static final String CONFIGURATION_PROPERTY_DEFAULT_HOST = "localhost";
 
   /**
-   * The name of the configuration property for the port where Festival server
-   * is listening.
+   * The name of the configuration property for the port where Festival server is listening.
    */
   public static final String CONFIGURATION_PROPERTY_NAME_PORT =
       "interactivespaces.service.speech.synthesis.external.festival.host";
 
   /**
-   * The default value configuration property for the port where Festival server
-   * is listening.
+   * The default value configuration property for the port where Festival server is listening.
    */
   public static final int CONFIGURATION_PROPERTY_DEFAULT_PORT = 1314;
 
@@ -175,15 +166,13 @@ public class FestivalSpeechSynthesisService extends BaseSupportedService impleme
           getSpaceEnvironment().getValue(SpaceController.ENVIRONMENT_CONTROLLER_NATIVE_RUNNER);
 
       speechServer = runnerFactory.newPlatformNativeActivityRunner(getSpaceEnvironment().getLog());
-      Configuration configuration = getSpaceEnvironment().getSystemConfiguration();
-      Map<String, Object> appConfig = Maps.newHashMap();
-      appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME,
-          configuration.getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_BINARY));
-      String commandFlags =
-          configuration.getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_FLAGS);
 
-      appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
-      speechServer.configure(appConfig);
+      Configuration configuration = getSpaceEnvironment().getSystemConfiguration();
+      speechServer.setExecutablePath(configuration
+          .getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_BINARY));
+      speechServer.addCommandArguments(configuration
+          .getRequiredPropertyString(FestivalSpeechSynthesisService.CONFIGURATION_PROPERTY_NAME_FLAGS));
+
       speechServer.startup();
 
       if (immediate) {

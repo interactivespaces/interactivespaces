@@ -57,7 +57,8 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
 
     // The resources go to the compilation folder. They will then be in the
     // right place for creating the JAR file.
-    processResources(project, compilationFolder, context);
+    context.processGeneratedResources(compilationFolder);
+    context.processResources(compilationFolder);
 
     if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getContainerInfo(), context)) {
       if (runTests(jarDestinationFile, context)) {

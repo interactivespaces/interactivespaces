@@ -16,10 +16,9 @@
 
 package interactivespaces.workbench.project.activity;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
-import interactivespaces.workbench.project.ProjectContext;
+import interactivespaces.workbench.project.constituent.BaseProjectConstituent;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
@@ -28,7 +27,6 @@ import com.google.common.collect.Maps;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class ActivityProjectConstituent implements ProjectConstituent {
+public class ActivityProjectConstituent extends BaseProjectConstituent {
 
   /**
    * Element type for a resource.
@@ -101,22 +99,12 @@ public class ActivityProjectConstituent implements ProjectConstituent {
    */
   public static final String CONFIGURATION_PROPERTY_VALUE = "value";
 
-  @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
-    // Nothing to do
-  }
-
-  @Override
-  public String getSourceDirectory() throws InteractiveSpacesException {
-    return null;
-  }
-
   /**
    * Factory for building the constituent builder.
    *
    * @author Keith M. Hughes
    */
-  public static class ActivityProjectBuilderFactory implements ProjectConstituentFactory {
+  public static class ActivityProjectBuilderFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;

@@ -16,10 +16,11 @@
 
 package interactivespaces.workbench.project.builder;
 
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.ActivityProject;
-import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -59,6 +60,11 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
   public static final String ACTIVITY_RESOURCE_MAP_TEMPLATE = "activity/resource.map.ftl";
 
   /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Build has begun. Do any specific parts of the build.
    *
    * @param project
@@ -76,71 +82,6 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
   }
 
   /**
-   * Process the needed resources for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  protected void processResources(Project project, File stagingDirectory, ProjectTaskContext context) {
-    processConstituents(project, project.getResources(), stagingDirectory, context);
-  }
-
-  /**
-   * Process the extra constituents for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  protected void processExtraConstituents(Project project, File stagingDirectory, ProjectTaskContext context) {
-    processConstituents(project, project.getExtraConstituents(), stagingDirectory, context);
-  }
-
-  /**
-   * Process the needed sources for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  protected void processSources(Project project, File stagingDirectory, ProjectTaskContext context) {
-    processConstituents(project, project.getSources(), stagingDirectory, context);
-  }
-
-  /**
-   * Process the list of constituents for the project.
-   *
-   * @param project
-   *          the project being built
-   * @param constituents
-   *          constituents to process
-   * @param stagingDirectory
-   *          where the items will be copied
-   * @param context
-   *          context for the build
-   */
-  private void processConstituents(Project project, List<ProjectConstituent> constituents, File stagingDirectory,
-      ProjectTaskContext context) {
-    if (constituents == null) {
-      return;
-    }
-
-    for (ProjectConstituent constituent : constituents) {
-      constituent.processConstituent(project, stagingDirectory, context);
-    }
-  }
-
-  /**
    * Get the build destination file.
    *
    * @param project
@@ -153,7 +94,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @return the file where the build should be written
    */
   protected File getBuildDestinationFile(Project project, File buildDirectory, String extension) {
-    return new File(buildDirectory, getProjectArtifactFilename(project, extension));
+    return fileSupport.newFile(buildDirectory, getProjectArtifactFilename(project, extension));
   }
 
   /**
@@ -181,7 +122,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    *          project context containing the resource source map
    */
   protected void writeResourceMap(Project project, File stagingDirectory, ProjectTaskContext context) {
-    File resourceMapFile = new File(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
+    File resourceMapFile = fileSupport.newFile(context.getBuildDirectory(), ActivityProject.FILENAME_RESOURCE_MAP);
 
     Map<String, Object> templateData = Maps.newHashMap();
     List<Map<String, String>> srcList = Lists.newArrayList();

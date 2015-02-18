@@ -23,10 +23,6 @@ import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.restart.RestartStrategy;
 
-import com.google.common.collect.Maps;
-
-import java.util.Map;
-
 /**
  * An example activity which shows how to use the {@link NativeActivityRunner}.
  *
@@ -61,13 +57,11 @@ public class NativeApplicationRunnerExampleActivity extends BaseActivity {
   public void onActivityActivate() {
     getLog().info("Starting up runner on activate");
 
-    Map<String, Object> config = Maps.newHashMap();
-    config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME,
-        getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE));
-    config.put(NativeApplicationRunner.EXECUTABLE_FLAGS,
-        getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE_FLAGS));
     NativeApplicationRunner runner = nativeAppRunnerCollection.newNativeApplicationRunner();
-    runner.configure(config);
+
+    runner.setExecutablePath(getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE));
+    runner.parseCommandArguments(getConfiguration().getRequiredPropertyString(
+        CONFIGURATION_APPLICATION_EXECUTABLE_FLAGS));
 
     // If extending BaseNativeApplicationRunnerListener, it is not necessary to override every
     // method. Just showing this as an example.

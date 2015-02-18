@@ -26,10 +26,11 @@ import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
-import interactivespaces.workbench.project.constituent.ProjectAssemblyConstituent;
-import interactivespaces.workbench.project.constituent.ProjectBundleConstituent;
-import interactivespaces.workbench.project.constituent.ProjectResourceConstituent;
+import interactivespaces.workbench.project.constituent.AssemblyComponentProjectConstituent;
+import interactivespaces.workbench.project.constituent.BundleContentProjectConstituent;
+import interactivespaces.workbench.project.constituent.ResourceComponentProjectConstituent;
 import interactivespaces.workbench.project.library.LibraryProjectConstituent;
+import interactivespaces.workbench.project.tasks.TasksProjectConstituent;
 
 import com.google.common.collect.Maps;
 
@@ -62,16 +63,17 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   /**
    * Element name for a group of projects.
    */
-  public static final String GROUP_ELEMENT_NAME = "projects";
+  public static final String PROJECT_GROUP_ELEMENT_NAME = "projects";
 
   /**
    * Add all the base constituent types to the static map.
    */
   {
-    addConstituentType(new ProjectResourceConstituent.ProjectResourceBuilderFactory());
-    addConstituentType(new ProjectResourceConstituent.ProjectSourceBuilderFactory());
-    addConstituentType(new ProjectAssemblyConstituent.ProjectAssemblyConstituentFactory());
-    addConstituentType(new ProjectBundleConstituent.ProjectBundleConstituentFactory());
+    addConstituentType(new TasksProjectConstituent.TasksProjectConstituentBuilderFactory());
+    addConstituentType(new ResourceComponentProjectConstituent.ProjectResourceConstituentBuilderFactory());
+    addConstituentType(new ResourceComponentProjectConstituent.ProjectSourceConstituentBuilderFactory());
+    addConstituentType(new AssemblyComponentProjectConstituent.ProjectAssemblyConstituentBuilderFactory());
+    addConstituentType(new BundleContentProjectConstituent.BundleProjectConstituentBuilderFactory());
     addConstituentType(new ActivityProjectConstituent.ActivityProjectBuilderFactory());
     addConstituentType(new LibraryProjectConstituent.LibraryProjectBuilderFactory());
   }
@@ -347,6 +349,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         projectElement.getChild(ActivityProjectConstituent.ACTIVITY_ELEMENT, projectNamespace), project));
     project.addExtraConstituents(getIndividualConstituent(projectNamespace,
         projectElement.getChild(LibraryProjectConstituent.LIBRARY_ELEMENT, projectNamespace), project));
+    project.addExtraConstituents(getIndividualConstituent(projectNamespace,
+        projectElement.getChild(TasksProjectConstituent.ELEMENT_NAME_TASKS, projectNamespace), project));
 
     getDeployments(project, projectNamespace, projectElement);
   }

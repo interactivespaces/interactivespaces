@@ -38,6 +38,18 @@ public interface ProjectTaskManager {
   ProjectTaskContext newProjectTaskContext(Project project, WorkbenchTaskContext workbenchTaskContext);
 
   /**
+   * Add any pre-tasks to the context.
+   *
+   * @param project
+   *          the project
+   * @param projectTaskContext
+   *          the context for project tasks
+   * @param workbenchTaskContext
+   *          the context for workbench tasks
+   */
+  void addPreTasks(Project project, ProjectTaskContext projectTaskContext, WorkbenchTaskContext workbenchTaskContext);
+
+  /**
    * Create a new clean task.
    *
    * @param project

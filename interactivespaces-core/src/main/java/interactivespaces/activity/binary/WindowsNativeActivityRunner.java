@@ -17,6 +17,7 @@
 package interactivespaces.activity.binary;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.process.NativeApplicationRunnerParser;
 import interactivespaces.util.process.WindowsNativeApplicationRunner;
 
 import org.apache.commons.logging.Log;
@@ -31,12 +32,15 @@ public class WindowsNativeActivityRunner extends WindowsNativeApplicationRunner 
   /**
    * Create a new activity runner for windows.
    *
+   * @param runnerParser
+   *          the runner parser to use
    * @param spaceEnvironment
    *          environment to use
    * @param log
    *          logger for logging
    */
-  public WindowsNativeActivityRunner(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    super(spaceEnvironment, log);
+  public WindowsNativeActivityRunner(NativeApplicationRunnerParser runnerParser,
+      InteractiveSpacesEnvironment spaceEnvironment, Log log) {
+    super(runnerParser, spaceEnvironment, log);
   }
 }

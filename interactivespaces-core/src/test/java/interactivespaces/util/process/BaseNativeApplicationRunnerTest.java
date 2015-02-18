@@ -34,7 +34,7 @@ public class BaseNativeApplicationRunnerTest {
 
   @Before
   public void setup() {
-    runner = new BaseNativeApplicationRunner(null, null) {
+    runner = new BaseNativeApplicationRunner(new StandardNativeApplicationRunnerParser(), null, null) {
       @Override
       public boolean handleProcessExit(int exitValue, String[] commands) {
         return false;
@@ -47,13 +47,13 @@ public class BaseNativeApplicationRunnerTest {
    */
   @Test
   public void testFlagsParsing() {
-    Map<String, Object> config = Maps.newHashMap();
-    config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME, "foo/bar");
-    config.put(NativeApplicationRunner.EXECUTABLE_FLAGS, " --a -b -c");
+    runner.setExecutablePath("foo/bar");
+    runner.parseCommandArguments(" --a -b -c");
+    runner.addCommandArguments("qwerty", "glorp");
 
-    runner.configure(config);
+    runner.prepare();
 
-    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c"}, runner.getCommandLine());
+    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c", "qwerty", "glorp" }, runner.getCommandLine());
   }
 
   /**
@@ -61,18 +61,17 @@ public class BaseNativeApplicationRunnerTest {
    */
   @Test
   public void testEnvironmentParsing() {
-    Map<String, Object> config = Maps.newHashMap();
-    config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME, "foo/bar");
-    config.put(NativeApplicationRunner.EXECUTABLE_FLAGS, " --a -b -c");
-    config.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, "     foo=bar bar=bletch");
+    runner.setExecutablePath("foo/bar");
+    runner.parseCommandArguments(" --a -b -c");
+    runner.parseEnvironment("     foo=bar bar=bletch");
 
-    runner.configure(config);
+    runner.prepare();
 
-    Map<String,String> env = runner.getEnvironment();
+    Map<String, String> env = runner.getEnvironment();
     Assert.assertEquals("bar", env.get("foo"));
     Assert.assertEquals("bletch", env.get("bar"));
 
-    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c"}, runner.getCommandLine());
+    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c" }, runner.getCommandLine());
   }
 
   /**
@@ -80,13 +79,66 @@ public class BaseNativeApplicationRunnerTest {
    */
   @Test
   public void testEnvironmentParsingNulls() {
+    runner.setExecutablePath("foo/bar");
+    runner.parseEnvironment("foo bar");
+
+    runner.prepare();
+
+    Map<String, String> env = runner.getEnvironment();
+    Assert.assertTrue(env.containsKey("foo"));
+    Assert.assertNull(env.get("foo"));
+    Assert.assertTrue(env.containsKey("bar"));
+    Assert.assertNull(env.get("bar"));
+  }
+
+  /**
+   * Test the parsing of flags through configuring.
+   */
+  @Test
+  public void testFlagsParsingConfigure() {
+    Map<String, Object> config = Maps.newHashMap();
+    config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME, "foo/bar");
+    config.put(NativeApplicationRunner.EXECUTABLE_FLAGS, " --a -b -c");
+
+    runner.configure(config);
+    runner.prepare();
+
+    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c" }, runner.getCommandLine());
+  }
+
+  /**
+   * Test the parsing of environment variables without nulls through configuring.
+   */
+  @Test
+  public void testEnvironmentParsingConfigure() {
+    Map<String, Object> config = Maps.newHashMap();
+    config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME, "foo/bar");
+    config.put(NativeApplicationRunner.EXECUTABLE_FLAGS, " --a -b -c");
+    config.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, "     foo=bar bar=bletch");
+
+    runner.configure(config);
+    runner.prepare();
+
+    Map<String, String> env = runner.getEnvironment();
+    Assert.assertEquals("bar", env.get("foo"));
+    Assert.assertEquals("bletch", env.get("bar"));
+
+    Assert.assertArrayEquals(new String[] { "foo/bar", "--a", "-b", "-c" }, runner.getCommandLine());
+  }
+
+  /**
+   * Test the parsing of environment variables with nulls through configuring.
+   */
+  @Test
+  public void testEnvironmentParsingNullsConfigure() {
     Map<String, Object> config = Maps.newHashMap();
     config.put(NativeApplicationRunner.EXECUTABLE_PATHNAME, "foo/bar");
     config.put(NativeApplicationRunner.EXECUTABLE_ENVIRONMENT, "foo bar");
 
     runner.configure(config);
+    runner.prepare();
 
-    Map<String,String> env = runner.getEnvironment();
+    Map<String, String> env = runner.getEnvironment();
     Assert.assertTrue(env.containsKey("foo"));
     Assert.assertNull(env.get("foo"));
     Assert.assertTrue(env.containsKey("bar"));

@@ -1,0 +1,160 @@
+#!/bin/bash -e
+
+# Usage:  'isbuild' will scan all subdirectories and make any project.xml files found.
+#   or, first argument is subdirectory in which to build.
+
+CMD=build
+if [ "$1" == "debug" ]; then
+  CMD=$1
+  shift
+fi
+
+PROOT=$1
+if [ "$PROOT" == "" ]; then
+  PROOT=.
+fi
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  SOURCE="$(readlink "$SOURCE")"
+done
+
+EXEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
+
+WBDIR=$INTERACTIVESPACES_HOME/workbench
+ROOTDIR=$PWD/$PROOT
+cd $ROOTDIR
+
+if [ $CMD == debug ]; then
+  # Requires proper setup in ~/.interactivespaces.rc
+  export ISSUSPEND=y
+fi
+
+# The isworkbench.bash is legacy, and can be removed when only 1.8.0+ is supported.
+if [ ! -x $WBDIR/bin/isworkbench.bash -a ! -x $WBDIR/bin/isworkbench ]; then
+  echo Did not find valid workbench at $WBDIR.
+  echo Perhaps set your INTERACTIVESPACES_HOME env variable\?
+  false
+fi
+
+BUILDDIR=build
+PREFILE=isbuild-pre.sh
+MIDFILE=isbuild-mid.sh
+POSTFILE=isbuild-post.sh
+
+# Clean old build directory
+rm -rf $BUILDDIR && mkdir -p $BUILDDIR
+
+# If it exists, then source the pre-file to initialize build variables.
+if [ -f $PREFILE ]; then
+  echo Executing $PREFILE...
+  source $PREFILE
+
+  if [ "$SHARED_CEC_LIBRARY" != "" ]; then
+    libpath=$SHARED_CEC_LIBRARY
+    if [ ! -x $libpath ]; then
+      libpath=$INTERACTIVESPACES_HOME/cec-common/lib/$SHARED_CEC_LIBRARY
+    fi
+
+    echo Importing shared components from $libpath...
+    if [ -d $libpath ]; then
+      ln -sf $libpath $BUILDDIR/
+    else
+      unzip -qd $BUILDDIR $libpath
+    fi
+  fi
+fi
+
+# Process any embedded scripts, unless suppressed (e.g., when building a library).
+if [ ! "$SUPPRESS_EMBEDDED_SCRIPTS" ]; then
+  RUNSCRIPTS=`find -L $BUILDDIR -name $PREFILE`
+  for script in $RUNSCRIPTS; do
+    SCRIPT_DIR=${script%/*}
+    echo Executing $script...
+    source $script
+  done
+fi
+
+if [ ! "$SUPPRESS_WORKBENCH" ]; then
+  WBEXE=bin/isworkbench
+  if [ ! -x $WBDIR/$WBEXE ]; then
+    # The isworkbench.bash is legacy, and can be removed when only 1.8.0+ is suppored.
+    WBEXE=$WBEXE.bash
+  fi
+
+  # Re-run workbench to do the build.
+  (cd $WBDIR; $WBEXE $ROOTDIR build)
+fi
+
+eval JAR_FILES=$INTERACTIVESPACES_HOME/controller/startup/*.jar
+JAR_FILES+=" build/staging/*.jar"
+
+# Indicator to re-run build.
+SHOULD_RERUN_WORKBENCH=
+
+# Source the mid-build file, and any embedded scripts (unless suppressed). If any scripts
+# are triggered, then re-run the workbench build.
+RUNSCRIPTS=
+if [ -f $MIDFILE ]; then
+  RUNSCRIPTS=$MIDFILE
+  RUNSCRIPTS+=" "
+fi
+if [ ! "$SUPPRESS_EMBEDDED_SCRIPTS" ]; then
+  RUNSCRIPTS+=`find -L $BUILDDIR -name $MIDFILE`
+fi
+for script in $RUNSCRIPTS; do
+  echo Executing $script...
+  source $script
+  SHOULD_RERUN_WORKBENCH=y
+done
+
+# Re-run workbench to do the build if indicated.
+if [ "$SHOULD_RERUN_WORKBENCH" ]; then
+ (cd $WBDIR; $WBEXE $ROOTDIR build)
+fi
+
+# If it exists, source any post-run files. Also process embedded scripts, unless suppressed.
+RUNSCRIPTS=
+if [ -f $POSTFILE ]; then
+  RUNSCRIPTS=$POSTFILE
+  RUNSCRIPTS+=" "
+fi
+if [ ! "$SUPPRESS_EMBEDDED_SCRIPTS" ]; then
+  RUNSCRIPTS+=`find -L $BUILDDIR -name $POSTFILE`
+fi
+for script in $RUNSCRIPTS; do
+  echo Executing $script...
+  source $script
+done
+
+# Test to make sure something was produced.
+NUMARTIFACTS=`ls build/*.zip build/*.jar 2>/dev/null | wc -l`
+if [ $NUMARTIFACTS == 0 ]; then
+  echo No build artifact found for $ROOTDIR.
+  false
+fi
+
+RMAPFILE=$BUILDDIR/resource.map
+STAGEDIR=$BUILDDIR/staging
+if [ -f $RMAPFILE -a ! "$SUPPRESS_RESOURCE_MAP" ]; then
+  echo Applying resource map from $RMAPFILE
+  cat $RMAPFILE | while read smap; do
+    DPART=${smap%,*}
+    DST=$STAGEDIR/$DPART
+    SRC=${smap#*,}
+    if [ "${DPART:0:1}" == "/" ]; then
+      # Absolute paths are not reachable, so mark as such
+      chmod a-w "$DPART"
+    elif diff -q "$SRC" "$DST" > /dev/null; then
+      # In this case, the source map is valid, so link to it.
+      ln -sf "$SRC" "$DST"
+    else
+      # Not valid for some reason, so mark as read-only. Ignore errors because some paths are wonky.
+      chmod a-w "$DST" || true
+    fi
+  done
+fi
+
+echo Build successful with $NUMARTIFACTS build artifacts.

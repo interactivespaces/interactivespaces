@@ -155,16 +155,15 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
       }
     }
 
-    appConfig.put(NativeActivityRunner.EXECUTABLE_PATHNAME, activityFile.getAbsolutePath());
+    nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
+
+    nativeActivity.setExecutablePath(activityFile.getAbsolutePath());
 
     String commandFlags = configuration.getPropertyString(executableFlagsProperty + "." + os);
-    appConfig.put(NativeActivityRunner.EXECUTABLE_FLAGS, commandFlags);
+    nativeActivity.parseCommandArguments(commandFlags);
 
     String commandEnvironment = configuration.getPropertyString(executableEnvironmentProperty + "." + os);
-    appConfig.put(NativeActivityRunner.EXECUTABLE_ENVIRONMENT, commandEnvironment);
-
-    nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
-    nativeActivity.configure(appConfig);
+    nativeActivity.parseEnvironment(commandEnvironment);
 
     if (restartStrategy != null) {
       nativeActivity.setRestartStrategy(restartStrategy);

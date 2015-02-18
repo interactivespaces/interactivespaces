@@ -16,15 +16,12 @@
 
 package interactivespaces.workbench.project.constituent;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 
 import org.apache.commons.logging.Log;
 import org.jdom.Element;
 import org.jdom.Namespace;
-
-import java.io.File;
 
 /**
  * Interface for project constituents.
@@ -34,53 +31,21 @@ import java.io.File;
 public interface ProjectConstituent {
 
   /**
-   * Attribute value specifying a source file.
-   */
-  String SOURCE_FILE_ATTRIBUTE = "sourceFile";
-
-  /**
-   * Attribute value specifying a source directory.
-   */
-  String SOURCE_DIRECTORY_ATTRIBUTE = "sourceDirectory";
-
-  /**
-   * Attribute value specifying a destination file.
-   */
-  String DESTINATION_FILE_ATTRIBUTE = "destinationFile";
-
-  /**
-   * Attribute value specifying a destination directory.
-   */
-  String DESTINATION_DIRECTORY_ATTRIBUTE = "destinationDirectory";
-
-  /**
    * Process the needed constituent for the project.
    *
    * @param project
    *          the project being built
-   * @param stagingDirectory
-   *          where the items will be copied
    * @param context
    *          project context in which to process the constituent
    */
-  void processConstituent(Project project, File stagingDirectory, ProjectContext context);
-
-  /**
-   * Return the source directory for this constituent.
-   *
-   * @return source directory
-   *
-   * @throws InteractiveSpacesException
-   *           if constituent type does not provide a source directory
-   */
-  String getSourceDirectory() throws InteractiveSpacesException;
+  void processConstituent(Project project, ProjectContext context);
 
   /**
    * Factory for project constituent builders.
    *
    * @author Keith M. Hughes
    */
-  interface ProjectConstituentFactory {
+  interface ProjectConstituentBuilderFactory {
 
     /**
      * Get the type name of this project constituent.

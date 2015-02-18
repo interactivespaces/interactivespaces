@@ -21,8 +21,9 @@ import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
+import interactivespaces.workbench.project.constituent.BaseProjectConstituent;
 import interactivespaces.workbench.project.constituent.BaseProjectConstituentBuilder;
-import interactivespaces.workbench.project.constituent.ContainerConstituent;
+import interactivespaces.workbench.project.constituent.ContentProjectConstituent;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import org.jdom.Element;
@@ -36,7 +37,7 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class TemplateFileConstituent extends ContainerConstituent {
+public class TemplateFileConstituent extends BaseProjectConstituent {
 
   /**
    * Project type for a template file constituent.
@@ -112,7 +113,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
   }
 
   @Override
-  public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
+  public void processConstituent(Project project, ProjectContext context) {
     ProjectCreationContext projectCreationContext = (ProjectCreationContext) context;
     FreemarkerTemplater templater = context.getWorkbenchTaskContext().getWorkbench().getTemplater();
     Map<String, Object> templateData = projectCreationContext.getTemplateData();
@@ -136,7 +137,7 @@ public class TemplateFileConstituent extends ContainerConstituent {
   /**
    * Factory for the constituent components.
    */
-  public static class TemplateFileConstituentFactory implements ProjectConstituentFactory {
+  public static class TemplateFileConstituentFactory implements ProjectConstituentBuilderFactory {
     @Override
     public String getName() {
       return TYPE_NAME;
@@ -160,13 +161,13 @@ public class TemplateFileConstituent extends ContainerConstituent {
       }
       TemplateFileConstituent templateFileConstituent = new TemplateFileConstituent();
 
-      String sourcePath = element.getAttributeValue(SOURCE_FILE_ATTRIBUTE);
+      String sourcePath = element.getAttributeValue(ContentProjectConstituent.SOURCE_FILE_ATTRIBUTE);
       if (sourcePath == null) {
         throw new SimpleInteractiveSpacesException("Template specification has no sourceFile");
       }
       templateFileConstituent.setTemplate(sourcePath);
 
-      String destinationFile = element.getAttributeValue(DESTINATION_FILE_ATTRIBUTE);
+      String destinationFile = element.getAttributeValue(ContentProjectConstituent.DESTINATION_FILE_ATTRIBUTE);
       if (destinationFile == null) {
         throw new SimpleInteractiveSpacesException("Template specification has no destinationFile");
       }

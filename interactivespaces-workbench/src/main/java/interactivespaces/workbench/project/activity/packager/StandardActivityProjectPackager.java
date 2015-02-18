@@ -21,7 +21,6 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
-import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,11 +37,6 @@ import java.util.zip.ZipOutputStream;
 public class StandardActivityProjectPackager implements ActivityProjectPackager {
 
   /**
-   * The activity project subdirectory where the build happened.
-   */
-  private static final String BUILD_DIRECTORY = "build";
-
-  /**
    *
    * The file extension that will be used for the assembled package.
    */
@@ -56,18 +50,32 @@ public class StandardActivityProjectPackager implements ActivityProjectPackager 
   /**
    * File support instance for file operations.
    */
-  private static final FileSupport FILE_SUPPORT = FileSupportImpl.INSTANCE;
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public void packageActivityProject(Project project, ProjectTaskContext context) {
+    context.processGeneratedResources(context.getStagingDirectory());
+
+    buildZip(project, context);
+  }
+
+  /**
+   * Build the zip.
+   *
+   * @param project
+   *          the project
+   * @param context
+   *          the task context
+   */
+  private void buildZip(Project project, ProjectTaskContext context) {
     // Create a buffer for reading the files
     byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
 
     ZipOutputStream out = null;
     try {
       // Create the ZIP file
-      File buildDestinationFile = getBuildDestinationFile(project);
-      File activityFolder = new File(context.getBuildDirectory(), BaseProjectBuilder.BUILD_STAGING_DIRECTORY);
+      File buildDestinationFile = getBuildDestinationFile(project, context.getBuildDirectory());
+      File activityFolder = context.getStagingDirectory();
 
       out = new ZipOutputStream(new FileOutputStream(buildDestinationFile));
       writeDistributionFile(activityFolder, buf, out, "");
@@ -175,20 +183,15 @@ public class StandardActivityProjectPackager implements ActivityProjectPackager 
   /**
    * Get the build destination file.
    *
-   * <p>
-   * Any subdirectories needed will be created.
-   *
    * @param project
    *          the project being built
+   * @param buildFolder
+   *          the folder where the build is happening
    *
    * @return the file where the build should be written
    */
-  private File getBuildDestinationFile(Project project) {
-    File buildFolder = new File(project.getBaseDirectory(), BUILD_DIRECTORY);
-
-    FILE_SUPPORT.directoryExists(buildFolder);
-
-    return new File(buildFolder, project.getIdentifyingName() + "-" + project.getVersion() + "."
+  private File getBuildDestinationFile(Project project, File buildFolder) {
+    return fileSupport.newFile(buildFolder, project.getIdentifyingName() + "-" + project.getVersion() + "."
         + PROJECT_BUILD_FILE_EXTENSION);
   }
 }
