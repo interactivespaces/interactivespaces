@@ -57,7 +57,8 @@ public class ByteUtils {
    * @param length
    *          the number of bytes to use from the array
    * @param width
-   *          the number of bytes to be displayed per line, {@code 0} if no width limit
+   *          the number of bytes to be displayed per line, {@code 0} if no
+   *          width limit
    *
    * @return hex string for the bytes
    */
@@ -74,7 +75,7 @@ public class ByteUtils {
         builder.append(" ");
       }
 
-      String istr = Integer.toHexString(i & 0xff);
+      String istr = Integer.toHexString(b & 0xff);
       if (istr.length() < 2) {
         builder.append('0');
       }
@@ -115,7 +116,8 @@ public class ByteUtils {
    * @param length
    *          the number of bytes to use from the array
    * @param width
-   *          the number of bytes to be displayed per line, {@code 0} if no width limit
+   *          the number of bytes to be displayed per line, {@code 0} if no
+   *          width limit
    *
    * @return hex string for the bytes
    */

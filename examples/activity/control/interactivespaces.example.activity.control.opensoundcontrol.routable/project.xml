@@ -18,7 +18,8 @@
     </class>
 
     <configuration>
-      <property name="space.activity.log.level" value="info" required="true" />
+      <property name="space.activity.log.level" value="info" />
+      
       <property name="space.activity.ros.node.name" required="true">
         <value>example/routable/input/osc</value>
       </property>
