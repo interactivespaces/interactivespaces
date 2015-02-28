@@ -131,7 +131,7 @@ done
 
 # Test to make sure something was produced.
 NUMARTIFACTS=`ls build/*.zip build/*.jar 2>/dev/null | wc -l`
-if [ $NUMARTIFACTS == 0 ]; then
+if [ $NUMARTIFACTS == 0 -a ! "$SUPPRESS_WORKBENCH" ]; then
   echo No build artifact found for $ROOTDIR.
   false
 fi
@@ -157,4 +157,4 @@ if [ -f $RMAPFILE -a ! "$SUPPRESS_RESOURCE_MAP" ]; then
   done
 fi
 
-echo Build successful with $NUMARTIFACTS build artifacts.
+echo Build successful with $NUMARTIFACTS artifacts in $PWD
