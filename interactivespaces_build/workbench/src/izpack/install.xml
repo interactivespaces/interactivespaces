@@ -76,12 +76,18 @@
 
       <parsable targetfile="$INSTALL_PATH/bin/isworkbench" />
       <executable targetfile="$INSTALL_PATH/bin/isworkbench" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isrun" />
+      <executable targetfile="$INSTALL_PATH/bin/isrun" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isbuild" />
+      <executable targetfile="$INSTALL_PATH/bin/isbuild" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isdev" />
+      <executable targetfile="$INSTALL_PATH/bin/isdev" stage="never" />
     </pack>
 
     <pack name="Docs" required="no">
       <description>The documentation</description>
       <file src="docs" targetdir="$INSTALL_PATH" />
-      <!-- Reccursive adding -->
+      <!-- Recursive adding -->
     </pack>
   </packs>
 

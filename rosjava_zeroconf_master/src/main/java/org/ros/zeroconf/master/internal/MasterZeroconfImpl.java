@@ -17,8 +17,8 @@
 package org.ros.zeroconf.master.internal;
 
 import org.ros.osgi.common.RosEnvironment;
-import org.ros.osgi.master.core.CoreController;
-import org.ros.osgi.master.core.CoreControllerListener;
+import org.ros.osgi.master.core.RosMasterController;
+import org.ros.osgi.master.core.RosMasterControllerListener;
 import org.ros.zeroconf.common.RosZeroconf;
 import org.ros.zeroconf.common.ZeroconfRosMasterInfo;
 import org.ros.zeroconf.master.MasterZeroconf;
@@ -30,7 +30,12 @@ import java.net.URI;
  *
  * @author Keith M. Hughes
  */
-public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListener {
+public class MasterZeroconfImpl implements MasterZeroconf, RosMasterControllerListener {
+
+  /**
+   * A comma-separated list of the protocols supported by the ROS Master for the zeroconf system.
+   */
+  public static final String ZEROCONF_PROTOCOL_SUPPORTED = "http";
 
   /**
    * The ROS environment this is running under.
@@ -40,7 +45,7 @@ public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListene
   /**
    * The ROS core controller.
    */
-  private CoreController coreController;
+  private RosMasterController rosMasterController;
 
   /**
    * The ROS zeroconf provider.
@@ -54,61 +59,57 @@ public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListene
 
   @Override
   public void startup() {
+    // Nothing to do.
   }
 
   @Override
   public void shutdown() {
-    if (coreController != null) {
-      coreController.removeListener(this);
+    if (rosMasterController != null) {
+      rosMasterController.removeListener(this);
     }
     unregisterMaster();
   }
 
   /**
-   * Set the Ros Environment the server should run in.
+   * Set the ROS Environment the server should run in.
    *
    * @param rosEnvironment
+   *          the ROS environment to use
    */
   public void setRosEnvironment(RosEnvironment rosEnvironment) {
     this.rosEnvironment = rosEnvironment;
   }
 
   /**
-   * Remove the ROS Environment that was being used.
+   * Set the ROS Master Controller the server should run in.
    *
-   * @param rosEnvironment
+   * @param rosMasterController
+   *          the ROS Master controller
    */
-  public void unsetRosEnvironment(RosEnvironment rosEnvironment) {
-    this.rosEnvironment = null;
+  public void setRosMasterController(RosMasterController rosMasterController) {
+    this.rosMasterController = rosMasterController;
+
+    // Assuming that addListener will call the onRosMasterStartup()
+    rosMasterController.addListener(this);
   }
 
   /**
-   * Set the Core Controller the server should run in.
+   * Remove the ROS Master Controller that was being used.
    *
-   * @param coreController
+   * @param rosMasterController
+   *          the ROS Master controller
    */
-  public void setCoreController(CoreController coreController) {
-    this.coreController = coreController;
-
-    // Assuming that addListener will call the onCoreStartup()
-    coreController.addListener(this);
-  }
-
-  /**
-   * Remove the Core Controller that was being used.
-   *
-   * @param coreController
-   */
-  public void unsetCoreController(CoreController coreController) {
-    this.coreController.removeListener(this);
-    this.coreController = null;
+  public void unsetRosMasterController(RosMasterController rosMasterController) {
+    this.rosMasterController.removeListener(this);
+    this.rosMasterController = null;
     unregisterMaster();
   }
 
   /**
-   * Set the Ros Zeroconf the server should run with.
+   * Set the ROS Zeroconf the server should run with.
    *
    * @param rosZeroconf
+   *          the zeroconf for the ROS Master
    */
   public void setRosZeroconf(RosZeroconf rosZeroconf) {
     this.rosZeroconf = rosZeroconf;
@@ -119,6 +120,7 @@ public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListene
    * Remove the RosZeroconf that was being used.
    *
    * @param rosZeroconf
+   *          the zeroconf for the ROS Master
    */
   public void unsetRosZeroconf(RosZeroconf rosZeroconf) {
     unregisterMaster();
@@ -126,7 +128,7 @@ public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListene
   }
 
   @Override
-  public void onCoreStartup() {
+  public void onRosMasterStartup() {
     unregisterMaster();
 
     String nodeName = rosEnvironment.getNodeName();
@@ -140,13 +142,13 @@ public class MasterZeroconfImpl implements MasterZeroconf, CoreControllerListene
     // weight of the server.
     // TODO(keith): Make this settable.
     masterInfo =
-        new ZeroconfRosMasterInfo(nodeName, rosEnvironment.getNetworkType(), "http",
+        new ZeroconfRosMasterInfo(nodeName, rosEnvironment.getNetworkType(), ZEROCONF_PROTOCOL_SUPPORTED,
             rosMasterUri.getHost(), rosMasterUri.getPort(), 1, 1);
     registerMaster();
   }
 
   @Override
-  public void onCoreShutdown() {
+  public void onRosMasterShutdown() {
     unregisterMaster();
   }
 

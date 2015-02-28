@@ -123,7 +123,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   private OsgiInteractiveSpacesSystemControl systemControl;
 
   /**
-   * The ROS master URI provider in use.
+   * The ROS Master URI provider in use.
    */
   private SwitchableMasterUriProvider masterUriProvider;
 
@@ -410,7 +410,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     MasterUriProvider baseProvider = null;
     URI masterUri = rosEnvironment.getMasterUri();
     if (masterUri != null) {
-      log.info(String.format("Have initial ROS master URI %s", masterUri));
+      log.info(String.format("Have initial ROS Master URI %s", masterUri));
       baseProvider = new StaticMasterUriProvider(masterUri);
     }
 

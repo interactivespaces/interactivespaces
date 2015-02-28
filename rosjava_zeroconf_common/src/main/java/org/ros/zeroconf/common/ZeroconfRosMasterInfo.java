@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * information about a ROS master from Zeroconf.
+ * information about a ROS Master from Zeroconf.
  *
  * <p>
  * The Java identity of this object is only in its name.

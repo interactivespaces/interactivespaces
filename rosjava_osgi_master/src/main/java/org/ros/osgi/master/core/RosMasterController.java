@@ -16,37 +16,56 @@
 
 package org.ros.osgi.master.core;
 
+import org.ros.osgi.common.RosEnvironment;
+
 /**
- * A controller for the ROS Master (Core)
+ * A controller for the ROS Master.
  *
  * @author Keith M. Hughes
  */
-public interface CoreController {
+public interface RosMasterController {
 
   /**
-   * Start the Ros master up.
+   * Start the ROS Master up.
    */
   void startup();
 
   /**
-   * Shut the master down.
+   * Shut the ROS Master down.
    */
   void shutdown();
 
   /**
-   * Add a controller listener to the controller.
+   * Add a listener to the controller.
    *
    * @param listener
+   *          the listener to add
    */
-  void addListener(CoreControllerListener listener);
+  void addListener(RosMasterControllerListener listener);
 
   /**
-   * Remove a controller listener from the controller.
+   * Remove a listener from the controller.
    *
    * <p>
    * Nothing will happen if the listener wasn't added before.
    *
    * @param listener
+   *          the listener to remove
    */
-  void removeListener(CoreControllerListener listener);
+  void removeListener(RosMasterControllerListener listener);
+
+  /**
+   * Set the ROS environment to be used.
+   *
+   * @param rosEnvironment
+   *          the ROS environment to be used
+   */
+  void setRosEnvironment(RosEnvironment rosEnvironment);
+
+  /**
+   * Get the ROS environment being used.
+   *
+   * @return the ROS environment
+   */
+  RosEnvironment getRosEnvironment();
 }

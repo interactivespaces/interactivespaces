@@ -328,7 +328,6 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
 
   @Override
   public void shutdown() {
-    // This will shut everything down.
     managedResources.shutdownResourcesAndClear();
   }
 

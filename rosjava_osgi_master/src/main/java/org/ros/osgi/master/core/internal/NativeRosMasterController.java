@@ -16,7 +16,7 @@
 
 package org.ros.osgi.master.core.internal;
 
-import org.ros.osgi.master.core.CoreController;
+import org.ros.osgi.master.core.RosMasterController;
 
 import java.io.File;
 import java.net.URI;
@@ -26,16 +26,36 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 /**
- * A {@link CoreController} which uses a native ROS Master, e.g. the C++ one.
+ * A {@link RosMasterController} which uses a native ROS Master.
  *
  * @author Keith M. Hughes
  */
-public class NativeCoreController extends BaseCoreController {
+public class NativeRosMasterController extends BaseRosMasterController {
 
   /**
    * Name of the binary for roscore.
    */
   private static final String ROSCORE_BINARY = "roscore";
+
+  /**
+   * The environment variable for the ROS Master URI.
+   */
+  private static final String ENVIRONMENT_VARIABLE_ROS_MASTER_URI = "ROS_MASTER_URI";
+
+  /**
+   * The environment variable if the ROS Master URI is defined with an IP address and not a DNS host name.
+   */
+  private static final String ENVIRONMENT_VARIABLE_ROS_IP = "ROS_IP";
+
+  /**
+   * The environment variable if the ROS Master URI is defined with an DNS host name and not an IP address.
+   */
+  private static final String ENVIRONMENT_VARIABLE_ROS_HOST = "ROS_HOST";
+
+  /**
+   * A simple regex for recognizing an IPv4 IP address.
+   */
+  private static final String IP_ADDRESS_REGEX = "\\d+\\.\\d+\\.\\d+\\.\\d+";
 
   /**
    * Process running the master.
@@ -61,15 +81,17 @@ public class NativeCoreController extends BaseCoreController {
       //
       // Might as well get everything else while at it.
       Map<String, String> env = new HashMap<String, String>(System.getenv());
-      env.put("ROS_MASTER_URI", masterUri.toString());
+      env.put(ENVIRONMENT_VARIABLE_ROS_MASTER_URI, masterUri.toString());
 
       setProperRosHost(env);
 
       String[] envp = createEnvp(env);
 
-      System.out.format("Starting up master %s\n", builder.toString());
+      rosEnvironment.getLog().info(String.format("Starting up ROS Master %s", builder.toString()));
 
       masterProcess = Runtime.getRuntime().exec(builder.toString(), envp);
+
+      signalRosMasterStartup();
     } catch (Exception e) {
       // TODO(keith): Better exceptions
       rosEnvironment.getLog().error("Could not start up master", e);
@@ -78,38 +100,49 @@ public class NativeCoreController extends BaseCoreController {
     }
   }
 
+  @Override
+  public void shutdown() {
+    rosEnvironment.getLog().info("Shutting down ROS Master");
+    masterProcess.destroy();
+
+    masterProcess = null;
+
+    signalRosMasterShutdown();
+  }
+
   /**
-   * @param env
-   * @return
+   * Create the environment variables fo the ROS Master run.
+   *
+   * @param processEnvironmentVariables
+   *          the map of process environment variables
+   *
+   * @return an array of strings giving the environment variables
    */
-  protected String[] createEnvp(Map<String, String> env) {
-    String[] envp = new String[env.size()];
+  protected String[] createEnvp(Map<String, String> processEnvironmentVariables) {
+    String[] envp = new String[processEnvironmentVariables.size()];
+
     int i = 0;
-    for (Entry<String, String> entry : env.entrySet()) {
+    for (Entry<String, String> entry : processEnvironmentVariables.entrySet()) {
       envp[i++] = String.format("%s=%s", entry.getKey(), entry.getValue());
     }
+
     return envp;
   }
 
   /**
-   * @param env
+   * Get the environment variables for the ROS host.
+   *
+   * @param processEnvironmentVariables
+   *          the environment to place the values in
    */
-  protected void setProperRosHost(Map<String, String> env) {
+  protected void setProperRosHost(Map<String, String> processEnvironmentVariables) {
     String host = rosEnvironment.getHost();
 
     // A really dumb regex for an IPv4 address.
-    if (Pattern.matches("\\d+\\.\\d+\\.\\d+\\.\\d+", host)) {
-      env.put("ROS_IP", host);
+    if (Pattern.matches(IP_ADDRESS_REGEX, host)) {
+      processEnvironmentVariables.put(ENVIRONMENT_VARIABLE_ROS_IP, host);
     } else {
-      env.put("ROS_HOST", host);
+      processEnvironmentVariables.put(ENVIRONMENT_VARIABLE_ROS_HOST, host);
     }
-  }
-
-  @Override
-  public void shutdown() {
-    System.out.println("Shutting down master");
-    masterProcess.destroy();
-
-    masterProcess = null;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,23 +14,14 @@
  * the License.
  */
 
-package org.ros.osgi.master.core;
-
 /**
- * A listener for events on the {@link CoreController}.
+ * This package creates the development infrastructure for Interactive Spaces development.
+ * This will include things like ROS Masters and any other functionality needed.
+ *
+ * <p>
+ * This infrastructure will be used by things like the development standalone runner environment.
  *
  * @author Keith M. Hughes
  */
-public interface CoreControllerListener {
+package interactivespaces.workbench.devinfrastructure;
 
-  /**
-   * The master has started up.
-   *
-   */
-  void onCoreStartup();
-
-  /**
-   * The master has shut down.
-   */
-  void onCoreShutdown();
-}

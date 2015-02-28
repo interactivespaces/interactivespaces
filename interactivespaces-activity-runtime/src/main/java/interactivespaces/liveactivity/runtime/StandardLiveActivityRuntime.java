@@ -213,6 +213,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       liveActivityRunnerSampler = null;
     }
 
+    shutdownAllActivities();
+
     activityStateTransitioners.clear();
 
     liveActivityRuntimeComponentFactory.unregisterCoreServices(getSpaceEnvironment().getServiceRegistry());

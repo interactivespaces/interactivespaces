@@ -56,7 +56,7 @@ public interface RosEnvironment {
   String CONFIGURATION_ROS_HOST = "org.ros.host";
 
   /**
-   * URI of the ROS master.
+   * URI of the ROS Master.
    */
   String CONFIGURATION_ROS_MASTER_URI = "org.ros.master.uri";
 
@@ -242,7 +242,7 @@ public interface RosEnvironment {
    * Get the network type for the ROS graph.
    *
    * <p>
-   * This allows distinguishing between ROS masters, e.g. localdev, prod,
+   * This allows distinguishing between ROS Masters, e.g. localdev, prod,
    * fredbot.
    *
    * @return

@@ -1,37 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-Copyright (C) 2012 Google Inc.
+<!-- Copyright (C) 2012 Google Inc. Licensed under the Apache License, Version 2.0 (the "License"); you 
+  may not use this file except in compliance with the License. You may obtain a copy of the License at 
+  http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, 
+  software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY KIND, either express or implied. See the * License for the specific language governing permissions 
+  and limitations under the License. -->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.ros.zeroconf.master"
+  immediate="true" activate="startup" deactivate="shutdown"
+>
+  <implementation class="org.ros.zeroconf.master.internal.MasterZeroconfImpl" />
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License. You may obtain a copy of
-the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the * License for the specific language governing permissions and limitations under
-the License.
- -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
-    name="org.ros.zeroconf.master"
-    immediate="true"
-    activate="startup" deactivate="shutdown">
-  <implementation class="org.ros.zeroconf.master.internal.MasterZeroconfImpl"/>
-  
   <service>
-    <provide interface="org.ros.zeroconf.master.MasterZeroconf"/>
+    <provide interface="org.ros.zeroconf.master.MasterZeroconf" />
   </service>
 
-  <reference interface="org.ros.osgi.common.RosEnvironment"
-     name="rosEnvironment" bind="setRosEnvironment" unbind="unsetRosEnvironment" cardinality="1..1"
-        policy="dynamic"/>
+  <reference interface="org.ros.osgi.common.RosEnvironment" name="rosEnvironment" bind="setRosEnvironment"
+      unbind="unsetRosEnvironment" cardinality="1..1" policy="dynamic" />
 
-  <reference interface="org.ros.osgi.master.core.CoreController"
-     name="coreController" bind="setCoreController" unbind="unsetCoreController" cardinality="1..1"
-        policy="dynamic"/>
+  <reference interface="org.ros.osgi.master.core.RosMasterController" name="rosMasterController"
+      bind="setRosMasterController" unbind="unsetRosMasterdController" cardinality="1..1" policy="dynamic" />
 
-  <reference interface="org.ros.zeroconf.common.RosZeroconf"
-     name="rosZeroconf" bind="setRosZeroconf" unbind="unsetRosZeroconf" cardinality="1..1"
-        policy="dynamic" />
+  <reference interface="org.ros.zeroconf.common.RosZeroconf" name="rosZeroconf" bind="setRosZeroconf"
+      unbind="unsetRosZeroconf" cardinality="1..1" policy="dynamic" />
 </scr:component>

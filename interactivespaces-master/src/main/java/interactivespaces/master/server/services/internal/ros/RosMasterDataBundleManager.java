@@ -58,7 +58,7 @@ public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
    *       master connection node.
    */
   private ConnectedNode getMasterNode() {
-    return masterRosContext.getNode();
+    return masterRosContext.getMasterNode();
   }
 
   /**

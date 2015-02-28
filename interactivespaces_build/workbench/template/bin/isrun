@@ -48,10 +48,14 @@ fi
 
 mkdir -p $RUNDIR
 
-#TODO(keith): get rid of when log4j handled from config properties, not its own file.
+#TODO(keith): get rid of when log4j fully moved to proper location in config/
 LIBSYSJAVA=lib/system/java
-mkdir -p $RUNDIR/$LIBSYSJAVA
-cp -a $CDIR/$LIBSYSJAVA/log4j.properties $RUNDIR/$LIBSYSJAVA
+LOG4J_PROPERTIES=$CDIR/$LIBSYSJAVA/log4j.properties
+if [ -x $LOG4J_PROPERTIES ]; then
+  mkdir -p $RUNDIR/$LIBSYSJAVA
+  cp -a $LOG4J_PROPERTIES $RUNDIR/$LIBSYSJAVA
+fi
+
 
 echo Starting up activity...
 export INTERACTIVESPACES_MAIN_ARGS="--runtime=$RUNDIR"
@@ -68,5 +72,14 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
 
 echo $INTERACTIVESPACES_MAIN_ARGS
 
-$CDIR/bin/startup_linux.bash 
+CONTROLLER_EXE=$CDIR/bin/isstartup
+
+# TODO(keith) Decide whether or not to support pre-1.8 controllers.
+#if [ ! -x $CONTROLLER_EXE ]; then
+#  # The startup_linux.bash is legacy, and can be removed when only 1.8.0+ is supported.
+#  CONTROLLER_EXE=$CDIR/bin/startup_linux.bash
+#fi
+  
+$CONTROLLER_EXE
+ 
 

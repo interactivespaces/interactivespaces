@@ -26,42 +26,47 @@ import java.net.URI;
  *
  * @author Keith M. Hughes
  */
-public class JavaCoreController extends BaseCoreController {
+public class RosJavaRosMasterController extends BaseRosMasterController {
 
   /**
-   * The master.
+   * The ROS Master.
    */
-  private RosCore master;
+  private RosCore rosMaster;
 
   @Override
   public void startup() {
+    rosEnvironment.getLog().info("ROS Master starting up");
+
     try {
       NodeConfiguration configuration = rosEnvironment.getPublicNodeConfiguration();
       URI masterUri = configuration.getMasterUri();
-      master =
+      rosMaster =
           RosCore.newPublic(masterUri.getHost(), masterUri.getPort(),
               rosEnvironment.getExecutorService());
-      master.start();
+      rosMaster.start();
 
-      master.awaitStart();
+      rosMaster.awaitStart();
 
-      signalCoreStartup();
+      signalRosMasterStartup();
 
       started = true;
 
     } catch (InterruptedException e) {
       // TODO(keith): Decide what to do about exception.
-      rosEnvironment.getLog().error("Could not start up master", e);
+      rosEnvironment.getLog().error("ROS Master startup interrupted", e);
     } catch (Exception e) {
-      e.printStackTrace();
+      rosEnvironment.getLog().error("Could not start up ROS Master", e);
     }
   }
 
   @Override
   public void shutdown() {
+    rosEnvironment.getLog().info("ROS Master shutting down");
     started = false;
 
-    master.shutdown();
-    master = null;
+    rosMaster.shutdown();
+    rosMaster = null;
+
+    signalRosMasterShutdown();
   }
 }

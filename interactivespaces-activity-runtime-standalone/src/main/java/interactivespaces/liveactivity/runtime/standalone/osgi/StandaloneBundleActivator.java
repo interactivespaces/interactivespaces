@@ -64,8 +64,8 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
         new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
-    DevelopmentStandaloneActivityRunner runner = new DevelopmentStandaloneActivityRunner(runtimeComponentFactory, spaceEnvironment);
+    DevelopmentStandaloneActivityRunner runner =
+        new DevelopmentStandaloneActivityRunner(runtimeComponentFactory, spaceEnvironment);
     addManagedResource(runner);
   }
-
 }

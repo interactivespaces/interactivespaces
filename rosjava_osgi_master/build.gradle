@@ -26,16 +26,9 @@ jar {
   manifest {
     version = osgiVersion
     symbolicName = 'org.ros.osgi.master'
-	
-	instruction 'Bundle-Activator',
-		'org.ros.osgi.master.core.internal.RosOsgiMasterBundleActivator'
 
     instruction 'Export-Package',
-        '!org.ros.osgi.master.core.internal.*',
         'org.ros.osgi.master.*'
-
-    instruction 'Private-Package',
-        'org.ros.osgi.master.core.internal.*'
-  }
+ }
 }
 

@@ -30,6 +30,8 @@ dependencies {
   
   // Needed by BND for some reason. Wish it was optional.
   runtime 'org.junit:com.springsource.junit:3.8.2'
+
+  compile project(':rosjava_osgi_master')
   
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

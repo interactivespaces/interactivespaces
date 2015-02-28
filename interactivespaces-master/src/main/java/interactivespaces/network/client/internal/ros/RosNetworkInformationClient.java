@@ -16,15 +16,15 @@
 
 package interactivespaces.network.client.internal.ros;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-
 import interactivespaces.master.server.services.internal.ros.MasterRosContext;
 import interactivespaces.network.NetworkNodeInformation;
 import interactivespaces.network.NetworkTopicInformation;
 import interactivespaces.network.client.NetworkInformationClient;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
 import org.ros.master.client.MasterStateClient;
@@ -49,8 +49,7 @@ public class RosNetworkInformationClient implements NetworkInformationClient {
   private MasterRosContext masterRosContext;
 
   /**
-   * Client for getting information about the state of the network from the
-   * master.
+   * Client for getting information about the state of the network from the master.
    */
   private MasterStateClient masterStateClient;
 
@@ -74,6 +73,9 @@ public class RosNetworkInformationClient implements NetworkInformationClient {
    */
   private Comparator<NetworkNodeInformation> networkNodeInformationComparator;
 
+  /**
+   * Construct a new client.
+   */
   public RosNetworkInformationClient() {
     lowerCaseStringComparator = new Comparator<String>() {
 
@@ -103,8 +105,7 @@ public class RosNetworkInformationClient implements NetworkInformationClient {
   @Override
   public void startup() {
     masterStateClient =
-        new MasterStateClient(masterRosContext.getNode(), masterRosContext.getRosEnvironment()
-            .getMasterUri());
+        new MasterStateClient(masterRosContext.getMasterNode(), masterRosContext.getRosEnvironment().getMasterUri());
   }
 
   @Override
@@ -207,16 +208,20 @@ public class RosNetworkInformationClient implements NetworkInformationClient {
   }
 
   /**
+   * Set the Master ROS context.
+   *
    * @param masterRosContext
-   *          the masterRosContext to set
+   *          the Master ROS context
    */
   public void setMasterRosContext(MasterRosContext masterRosContext) {
     this.masterRosContext = masterRosContext;
   }
 
   /**
+   * Set the logger.
+   *
    * @param log
-   *          the log to set
+   *          the log
    */
   public void setLog(Log log) {
     this.log = log;

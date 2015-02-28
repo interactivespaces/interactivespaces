@@ -87,7 +87,7 @@ public class SimpleRosEnvironment implements RosEnvironment {
    * The network type for the ROS graph.
    *
    * <p>
-   * This allows distinguishing between ROS masters, e.g. localdev, prod,
+   * This allows distinguishing between ROS Masters, e.g. localdev, prod,
    * fredbot.
    */
   private String networkType;
@@ -108,7 +108,7 @@ public class SimpleRosEnvironment implements RosEnvironment {
   private boolean master;
 
   /**
-   * A provider for ROS master URIs.
+   * A provider for ROS Master URIs.
    *
    * <p>
    * This can be null.
@@ -249,7 +249,7 @@ public class SimpleRosEnvironment implements RosEnvironment {
       conf.setLog(log);
       return conf;
     } else {
-      throw new RosRuntimeException("No ROS master URI available");
+      throw new RosRuntimeException("No ROS Master URI available");
     }
   }
 
@@ -324,10 +324,10 @@ public class SimpleRosEnvironment implements RosEnvironment {
   }
 
   /**
-   * Set the URI of the ROS master.
+   * Set the URI of the ROS Master.
    *
    * @param masterUri
-   *          The URI of the ROS master.
+   *          The URI of the ROS Master.
    */
   public void setMasterUri(URI masterUri) {
     this.masterUri = masterUri;
@@ -348,7 +348,7 @@ public class SimpleRosEnvironment implements RosEnvironment {
    * The network type for the ROS graph.
    *
    * <p>
-   * This allows distinguishing between ROS masters, e.g. localdev, prod,
+   * This allows distinguishing between ROS Masters, e.g. localdev, prod,
    * fredbot.
    *
    * @param networkType

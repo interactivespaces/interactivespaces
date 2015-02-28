@@ -102,7 +102,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   private RemoteSpaceControllerClientListenerHelper remoteControllerClientListeners;
 
   /**
-   * The ROS environment the client is running in.
+   * The ROS Master context the client is running in.
    */
   private MasterRosContext masterRosContext;
 
@@ -202,7 +202,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     remoteControllerClientListeners = new RemoteSpaceControllerClientListenerHelper(log);
 
-    masterNode = masterRosContext.getNode();
+    masterNode = masterRosContext.getMasterNode();
     rosMessageFactory = masterNode.getTopicMessageFactory();
 
     MessageSerializationFactory messageSerializationFactory = masterNode.getMessageSerializationFactory();
@@ -782,7 +782,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
       if (communicator == null) {
         communicator = new SpaceControllerCommunicator(controller);
-        communicator.startup(masterRosContext.getNode(), remoteNode, controllerStatusListener);
+        communicator.startup(masterRosContext.getMasterNode(), remoteNode, controllerStatusListener);
         controllerCommunicators.put(remoteNode, communicator);
 
       }
@@ -815,14 +815,18 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   /**
+   * Set the Master ROS context.
+   *
    * @param masterRosContext
-   *          the rosEnvironment to set
+   *          the master ROS context
    */
   public void setMasterRosContext(MasterRosContext masterRosContext) {
     this.masterRosContext = masterRosContext;
   }
 
   /**
+   * Set the logger.
+   *
    * @param log
    *          the log to set
    */

@@ -133,7 +133,7 @@ public class NodeZeroconfImpl implements NodeZeroconf, RosZeroconfListener {
   @Override
   public void onNewRosMaster(ZeroconfRosMasterInfo masterInfo) {
     if (rosEnvironment.getNetworkType().equals(masterInfo.getType())) {
-      rosEnvironment.getLog().info(String.format("Adding ROS master %s", masterInfo));
+      rosEnvironment.getLog().info(String.format("Adding ROS Master %s", masterInfo));
       masterSelector.addService(masterInfo);
     }
   }
@@ -141,7 +141,7 @@ public class NodeZeroconfImpl implements NodeZeroconf, RosZeroconfListener {
   @Override
   public void onRemoveRosMaster(ZeroconfRosMasterInfo masterInfo) {
     if (rosEnvironment.getNetworkType().equals(masterInfo.getType())) {
-      rosEnvironment.getLog().info(String.format("Removing ROS master %s", masterInfo));
+      rosEnvironment.getLog().info(String.format("Removing ROS Master %s", masterInfo));
       masterSelector.removeService(masterInfo);
     }
   }

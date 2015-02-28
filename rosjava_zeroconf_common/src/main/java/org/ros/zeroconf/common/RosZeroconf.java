@@ -81,14 +81,14 @@ public interface RosZeroconf {
   List<ZeroconfRosMasterInfo> getKnownMasters();
 
   /**
-   * Do a query for all known ROS masters of a given type.
+   * Do a query for all known ROS Masters of a given type.
    *
    * <p>
    * This call should be used to pickup masters when first starting to use
    * zeroconf. The listeners for this class are for dynamic registrations.
    *
    * @param type
-   *          the type of ROS master, e.g. localdev, prod
+   *          the type of ROS Master, e.g. localdev, prod
    *
    * @return
    */

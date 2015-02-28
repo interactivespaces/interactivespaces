@@ -14,22 +14,23 @@
  * the License.
  */
 
-package org.ros.zeroconf.master;
+package org.ros.osgi.master.core;
 
 /**
- * Zeroconf configuration for the ROS Master.
+ * A listener for events on the {@link RosMasterController}.
  *
  * @author Keith M. Hughes
  */
-public interface MasterZeroconf {
+public interface RosMasterControllerListener {
 
   /**
-   * Start the master zeroconf services up.
+   * The ROS Master has started up.
+   *
    */
-  void startup();
+  void onRosMasterStartup();
 
   /**
-   * Shut the master zeroconf services down.
+   * The ROS Master has shut down.
    */
-  void shutdown();
+  void onRosMasterShutdown();
 }

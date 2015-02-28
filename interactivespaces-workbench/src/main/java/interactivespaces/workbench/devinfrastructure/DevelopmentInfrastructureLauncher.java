@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,22 +14,23 @@
  * the License.
  */
 
-package org.ros.zeroconf.master;
+package interactivespaces.workbench.devinfrastructure;
 
 /**
- * Zeroconf configuration for the ROS Master.
+ * The launcher for development infrastructure.
  *
  * @author Keith M. Hughes
  */
-public interface MasterZeroconf {
+public class DevelopmentInfrastructureLauncher {
 
   /**
-   * Start the master zeroconf services up.
+   * The main method for the development infrastructure.
+   *
+   * @param args
+   *          any command line arguments
    */
-  void startup();
-
-  /**
-   * Shut the master zeroconf services down.
-   */
-  void shutdown();
+  public static void main(String[] args) {
+    DevelopmentInfrastructure devInfrastructure = new StandaloneDevelopmentInfrastructure();
+    devInfrastructure.startup();
+  }
 }

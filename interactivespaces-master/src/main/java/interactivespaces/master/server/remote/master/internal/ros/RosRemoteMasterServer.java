@@ -16,14 +16,14 @@
 
 package interactivespaces.master.server.remote.master.internal.ros;
 
-import com.google.common.collect.Lists;
-
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.master.server.remote.RemoteMasterServerConstants;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
 import interactivespaces.master.server.remote.master.RemoteMasterServerListener;
 import interactivespaces.master.server.services.internal.ros.MasterRosContext;
+
+import com.google.common.collect.Lists;
 
 import interactivespaces_msgs.ControllerDescription;
 import interactivespaces_msgs.MasterServerData;
@@ -42,6 +42,9 @@ import java.util.List;
  */
 public class RosRemoteMasterServer implements RemoteMasterServer {
 
+  /**
+   * The size for the message queue.
+   */
   public static final int SIZE_MESSAGE_QUEUE = 1024;
 
   /**
@@ -55,7 +58,7 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
   private Log log;
 
   /**
-   * ROS message deserializer for the full controller status
+   * ROS message deserializer for the full controller status.
    */
   private MessageDeserializer<ControllerDescription> controllerDescriptionDeserializer;
 
@@ -71,8 +74,8 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 
   @Override
   public void startup() {
-    log.info("Starting up ROS master server");
-    ConnectedNode node = masterRosContext.getNode();
+    log.info("Starting up ROS Master server");
+    ConnectedNode node = masterRosContext.getMasterNode();
 
     // TODO(ROS): Part of ROS update
     // masterTopicSubscriber = node.newSubscriber(
@@ -121,8 +124,7 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
 
     switch (data.getDataType()) {
       case MasterServerData.DATA_TYPE_CONTROLLER_STARTUP:
-        ControllerDescription controllerDescription =
-            controllerDescriptionDeserializer.deserialize(data.getData());
+        ControllerDescription controllerDescription = controllerDescriptionDeserializer.deserialize(data.getData());
 
         handleControllerDescription(controllerDescription);
 
@@ -137,11 +139,12 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
    * A new controller description has come in.
    *
    * @param controllerDescription
+   *          the controller description
    */
   private void handleControllerDescription(ControllerDescription controllerDescription) {
     if (log.isInfoEnabled()) {
-      log.info(String.format("Controller %s (Host ID %s) is online.",
-          controllerDescription.getUuid(), controllerDescription.getHostId()));
+      log.info(String.format("Controller %s (Host ID %s) is online.", controllerDescription.getUuid(),
+          controllerDescription.getHostId()));
     }
 
     SpaceController controller = new SimpleSpaceController();
@@ -166,14 +169,18 @@ public class RosRemoteMasterServer implements RemoteMasterServer {
   }
 
   /**
+   * Set the Master ROS context.
+   *
    * @param masterRosContext
-   *          the masterRosContext to set
+   *          the Master ROS context
    */
   public void setMasterRosContext(MasterRosContext masterRosContext) {
     this.masterRosContext = masterRosContext;
   }
 
   /**
+   * Set the logger.
+   *
    * @param log
    *          the log to set
    */

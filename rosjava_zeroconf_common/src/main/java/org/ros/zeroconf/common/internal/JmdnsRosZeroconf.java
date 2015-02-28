@@ -43,7 +43,7 @@ import javax.jmdns.ServiceListener;
 public class JmdnsRosZeroconf implements RosZeroconf {
 
   /**
-   * The Zeroconf type for ROS masters.
+   * The Zeroconf type for ROS Masters.
    */
   public static final String ZEROCONF_TYPE_ROS_MASTER = "_ros-master._tcp.local.";
 
@@ -119,7 +119,7 @@ public class JmdnsRosZeroconf implements RosZeroconf {
     try {
       jmdns.registerService(getServiceInfo(masterInfo));
     } catch (Exception e) {
-      throw new RosRuntimeException("Unable to register new ROS master with Zeroconf", e);
+      throw new RosRuntimeException("Unable to register new ROS Master with Zeroconf", e);
     }
   }
 
@@ -189,7 +189,7 @@ public class JmdnsRosZeroconf implements RosZeroconf {
    * Convert a ROS zeroconf master object into a JmDNS service info object.
    *
    * @param masterInfo
-   *          the ROS master information
+   *          the ROS Master information
    *
    * @return a properly configured JmDNS service info descriptor for the master.
    */

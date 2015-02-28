@@ -14,36 +14,14 @@
  * the License.
  */
 
-package interactivespaces.master.server.services.internal.ros;
+package interactivespaces.workbench.devinfrastructure;
 
 import interactivespaces.util.resource.ManagedResource;
 
-import org.ros.node.ConnectedNode;
-import org.ros.osgi.common.RosEnvironment;
-
 /**
- * The ROS context for the Interactive Spaces Master.
+ * The development infrastucture.
  *
  * @author Keith M. Hughes
  */
-public interface MasterRosContext extends ManagedResource {
-
-  /**
-   * The ROS node name for the master.
-   */
-  String ROS_NODENAME_INTERACTIVESPACES_MASTER = "interactivespaces/master";
-
-  /**
-   * Get the ROS environment for the context.
-   *
-   * @return the ROS environment for the context
-   */
-  RosEnvironment getRosEnvironment();
-
-  /**
-   * Get the ROS node for the master.
-   *
-   * @return the ROS node for the master
-   */
-  ConnectedNode getMasterNode();
+public interface DevelopmentInfrastructure extends ManagedResource {
 }
