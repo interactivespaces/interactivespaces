@@ -35,6 +35,7 @@ echo Rundir is $RUNDIR
 JDLINE="suspend=y,address=5005"
 CONFIGDIR=test
 CDIR=$INTERACTIVESPACES_HOME/controller
+WDIR=$INTERACTIVESPACES_HOME/workbench
 
 # TODO(keith): consider older controllers. If no extras/standalone folder could copy the standalone
 # from cec-common the old way.
@@ -80,6 +81,6 @@ CONTROLLER_EXE=$CDIR/bin/isstartup
 #  CONTROLLER_EXE=$CDIR/bin/startup_linux.bash
 #fi
   
-$CONTROLLER_EXE
+$CONTROLLER_EXE | ${WDIR}/bin/islog
  
 

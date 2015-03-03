@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+import fileinput
+from sys import argv
+from sys import stdin
+
+ESC = '\x1B['
+
+# foreground colors
+black   = ESC + '30m'
+red     = ESC + '31m'
+green   = ESC + '32m'
+yellow  = ESC + '33m'
+blue    = ESC + '34m'
+magenta = ESC + '35m'
+cyan    = ESC + '36m'
+white   = ESC + '37m'
+
+bold = ESC + '1m'
+
+# reset
+default = ESC + 'm'
+
+
+levels = {
+  'TRACE': black,  
+  'DEBUG': magenta,
+  'INFO ': yellow,
+  'WARN ': white + bold,
+  'ERROR': red + bold
+}
+
+# black bg, cyan fg, bold
+source_color = ESC + '40;36;1m'
+
+ignore = [
+  'Publisher registered:',
+  'Subscriber registered:',
+  'Publisher unregistered:',
+  'Subscriber for topic ',
+  'Publisher for topic ',
+  'Publisher unregistration failed: ',
+  'ROS message router activity component shut down'
+]
+
+def process(logfile):
+  current_level = 'INFO '
+  current_source = ''  
+  while True:
+    line = logfile.readline()
+    if not line: break
+    level = line [:5] if len(line) > 5 else None
+    if level in levels:
+      current_level = level
+      sourceEnd = line.find(' [') 
+      sourceStart = line.rfind(' ', 0, sourceEnd) + 1 
+      source = line[sourceStart : sourceEnd]
+      if source != current_source:
+        current_source = source
+        print
+        print source_color + '[ ' + source + ' ]' + default
+
+      # cut out the level, timestamp and thread name
+      suffix = '] - '
+      line = line[line.find(suffix, sourceEnd) + len(suffix) :];
+      line = '\xE2\x98\x83 ' + line
+      for i in ignore:
+        if line.startswith(i):
+          line = black + line
+          break
+    print levels[current_level] + line.rstrip() + default
+
+try:
+  if len(argv) == 1:
+    process(stdin)
+  else:
+    for f in (open(f) for f in argv[1:]):
+      process(f)
+      f.close()
+finally:
+  print default
+
+

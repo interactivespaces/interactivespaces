@@ -82,7 +82,9 @@
       <executable targetfile="$INSTALL_PATH/bin/isbuild" stage="never" />
       <parsable targetfile="$INSTALL_PATH/bin/isdev" />
       <executable targetfile="$INSTALL_PATH/bin/isdev" stage="never" />
-    </pack>
+      <parsable targetfile="$INSTALL_PATH/bin/islog" />
+      <executable targetfile="$INSTALL_PATH/bin/islog" stage="never" />
+      </pack>
 
     <pack name="Docs" required="no">
       <description>The documentation</description>
