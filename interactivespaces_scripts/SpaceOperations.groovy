@@ -194,7 +194,7 @@ abstract class NixMachineOperator extends MachineOperator {
     def machine = controller.machine
     println "Start for ${controller.name} on ${machine.host}"
 
-    doCommand(machine, "sh -l -c '${controller.folder}/bin/startup_linux.bash background'", options, errors, true)
+    doCommand(machine, "sh -l -c '[ -e ${controller.folder}/bin/isstartup ] && ${controller.folder}/bin/isstartup background || ${controller.folder}/bin/startup_linux.bash background'", options, errors, true)
   }
 
   def stopControllers(controller, space, options, errors) {
