@@ -620,7 +620,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       InternalLiveActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
 
       LiveActivityConfiguration activityConfiguration =
-          configurationManager.newLiveActivityConfiguration(activityFilesystem);
+          configurationManager.newLiveActivityConfiguration(liveActivity, activityFilesystem);
       activityConfiguration.load();
 
       LiveActivityRunner runner =

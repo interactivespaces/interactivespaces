@@ -40,7 +40,8 @@ import interactivespaces.liveactivity.runtime.SimpleLiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntimeComponentFactory;
 import interactivespaces.liveactivity.runtime.alert.LoggingAlertStatusManager;
-import interactivespaces.liveactivity.runtime.configuration.PropertyFileLiveActivityConfigurationManager;
+import interactivespaces.liveactivity.runtime.configuration.ProductionPropertyFileLiveActivityConfigurationManager;
+import interactivespaces.liveactivity.runtime.configuration.BasePropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
@@ -163,8 +164,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new FileLocalLiveActivityRepository(liveActivityStorageManager, spaceEnvironment);
     addManagedResource(liveActivityRepository);
 
-    PropertyFileLiveActivityConfigurationManager liveActivityConfigurationManager =
-        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
+    BasePropertyFileLiveActivityConfigurationManager liveActivityConfigurationManager =
+        new ProductionPropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
     ActivityInstallationManager activityInstallationManager =
         new SimpleActivityInstallationManager(liveActivityRepository, liveActivityStorageManager, spaceEnvironment);

@@ -21,6 +21,7 @@ import interactivespaces.configuration.SingleConfigurationStorageManager;
 import interactivespaces.evaluation.ExpressionEvaluator;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import java.io.File;
@@ -30,7 +31,7 @@ import java.io.File;
  *
  * @author Keith M. Hughes
  */
-public class PropertyFileLiveActivityConfigurationManager implements LiveActivityConfigurationManager {
+public abstract class BasePropertyFileLiveActivityConfigurationManager implements LiveActivityConfigurationManager {
 
   /**
    * File extension configuration files should have.
@@ -55,23 +56,24 @@ public class PropertyFileLiveActivityConfigurationManager implements LiveActivit
    * @param spaceEnvironment
    *          the space environment to use
    */
-  public PropertyFileLiveActivityConfigurationManager(ExpressionEvaluatorFactory expressionEvaluatorFactory,
+  public BasePropertyFileLiveActivityConfigurationManager(ExpressionEvaluatorFactory expressionEvaluatorFactory,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.expressionEvaluatorFactory = expressionEvaluatorFactory;
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public StandardLiveActivityConfiguration newLiveActivityConfiguration(InternalLiveActivityFilesystem activityFilesystem) {
+  public StandardLiveActivityConfiguration newLiveActivityConfiguration(InstalledLiveActivity liveActivity,
+      InternalLiveActivityFilesystem activityFilesystem) {
     ExpressionEvaluator expressionEvaluator = expressionEvaluatorFactory.newEvaluator();
 
+    File baseActivityConfiguration = getBaseActivityConfiguration(liveActivity, activityFilesystem);
     SingleConfigurationStorageManager baseConfigurationStorageManager =
-        newConfiguration(activityFilesystem.getInstallFile(getConfigFileName(CONFIG_TYPE_BASE_ACTIVITY)), true,
-            expressionEvaluator);
+        newConfiguration(baseActivityConfiguration, true, expressionEvaluator);
 
+    File installedActivityConfiguration = getInstalledActivityConfiguration(liveActivity, activityFilesystem);
     SingleConfigurationStorageManager installedActivityConfigurationStorageManager =
-        newConfiguration(activityFilesystem.getInternalFile(getConfigFileName(CONFIG_TYPE_LIVE_ACTIVITY)), false,
-            expressionEvaluator);
+        newConfiguration(installedActivityConfiguration, false, expressionEvaluator);
 
     StandardLiveActivityConfiguration configuration =
         new StandardLiveActivityConfiguration(baseConfigurationStorageManager,
@@ -81,6 +83,32 @@ public class PropertyFileLiveActivityConfigurationManager implements LiveActivit
 
     return configuration;
   }
+
+  /**
+   * Get the activity's base configuration.
+   *
+   * @param liveActivity
+   *          the live activity
+   * @param activityFilesystem
+   *          the activity file system
+   *
+   * @return the file for the activity's base configuration
+   */
+  protected abstract File getBaseActivityConfiguration(InstalledLiveActivity liveActivity,
+      InternalLiveActivityFilesystem activityFilesystem);
+
+  /**
+   * Get the activity's install configuration.
+   *
+   * @param liveActivity
+   *          the live activity
+   * @param activityFilesystem
+   *          the activity file system
+   *
+   * @return the file for the activity's install configuration
+   */
+  protected abstract File getInstalledActivityConfiguration(InstalledLiveActivity liveActivity,
+      InternalLiveActivityFilesystem activityFilesystem);
 
   /**
    * Create a new configuration storage manager.
@@ -107,7 +135,7 @@ public class PropertyFileLiveActivityConfigurationManager implements LiveActivit
    *
    * @return the configuration file name
    */
-  private String getConfigFileName(String configType) {
+  protected String getConfigFileName(String configType) {
     return configType + "." + CONFIGURATION_FILE_EXTENSION;
   }
 }

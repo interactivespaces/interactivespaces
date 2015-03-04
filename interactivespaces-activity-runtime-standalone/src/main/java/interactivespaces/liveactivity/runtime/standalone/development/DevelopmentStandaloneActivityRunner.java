@@ -27,7 +27,6 @@ import interactivespaces.liveactivity.runtime.LiveActivityStatusPublisher;
 import interactivespaces.liveactivity.runtime.SimpleLiveActivityFilesystem;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.alert.LoggingAlertStatusManager;
-import interactivespaces.liveactivity.runtime.configuration.PropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
@@ -67,6 +66,18 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class DevelopmentStandaloneActivityRunner implements ManagedResource {
+
+  /**
+   * The path relative to an activity project folder where development information is kept.
+   */
+  public static final String ACTIVITY_PATH_DEVELOPMENT = "dev";
+
+  /**
+   * The path where the build staging directory is.
+   *
+   * TODO(keith): See how much workbench info could be placed in a common library and move this in there.
+   */
+  public static final String ACTIVITY_PATH_BUILD_STAGING = "build/staging";
 
   /**
    * Config parameter for the instance suffix.
@@ -308,8 +319,8 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
     // TODO(keith): Consider placing in runtime component factory.
     ExpressionEvaluatorFactory expressionEvaluatorFactory = new SimpleExpressionEvaluatorFactory();
 
-    PropertyFileLiveActivityConfigurationManager configurationManager =
-        new PropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
+    DevelopmentPropertyFileLiveActivityConfigurationManager configurationManager =
+        new DevelopmentPropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
 
     LiveActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);
@@ -430,15 +441,14 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
 
     info.setBaseRuntimeActivityDirectory(baseActivityRuntimeFolder);
 
-    File installDirectory = fileSupport.newFile(info.getBaseSourceDirectory(), "build/staging");
+    File installDirectory = fileSupport.newFile(info.getBaseSourceDirectory(), ACTIVITY_PATH_BUILD_STAGING);
 
     File logDirectory = fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_LOG);
     File permanentDataDirectory =
         fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_DATA_PERMANENT);
     File tempDataDirectory =
         fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_DATA_TEMPORARY);
-    File internalDirectory =
-        fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_INTERNAL);
+    File internalDirectory = fileSupport.newFile(projectFolder, ACTIVITY_PATH_DEVELOPMENT);
     SimpleLiveActivityFilesystem filesystem =
         new SimpleLiveActivityFilesystem(installDirectory, logDirectory, permanentDataDirectory, tempDataDirectory,
             internalDirectory);

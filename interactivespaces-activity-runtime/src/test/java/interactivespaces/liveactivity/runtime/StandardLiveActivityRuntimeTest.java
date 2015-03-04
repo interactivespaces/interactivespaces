@@ -203,13 +203,15 @@ public class StandardLiveActivityRuntimeTest {
   private void tryActivityStateAction(ActivityAction action, ActivityState startState, ActivityState finishState)
       throws Exception {
     String activityUuid = "foop";
+    SimpleInstalledLiveActivity liveActivity = new SimpleInstalledLiveActivity();
+    when(liveActivityRepository.getInstalledLiveActivityByUuid(activityUuid)).thenReturn(liveActivity);
+
     InternalLiveActivityFilesystem activityFilesystem = mock(InternalLiveActivityFilesystem.class);
     when(liveActivityStorageManager.getActivityFilesystem(activityUuid)).thenReturn(activityFilesystem);
     LiveActivityConfiguration configuration = mock(LiveActivityConfiguration.class);
-    when(liveActivityConfigurationManager.newLiveActivityConfiguration(activityFilesystem)).thenReturn(configuration);
 
-    SimpleInstalledLiveActivity liveActivity = new SimpleInstalledLiveActivity();
-    when(liveActivityRepository.getInstalledLiveActivityByUuid(activityUuid)).thenReturn(liveActivity);
+    when(liveActivityConfigurationManager.newLiveActivityConfiguration(liveActivity, activityFilesystem)).thenReturn(
+        configuration);
 
     BasicLiveActivityRunner expectedActive = mock(BasicLiveActivityRunner.class);
     when(

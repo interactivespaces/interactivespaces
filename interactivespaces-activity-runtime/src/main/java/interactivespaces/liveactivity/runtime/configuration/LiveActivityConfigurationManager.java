@@ -17,6 +17,7 @@
 package interactivespaces.liveactivity.runtime.configuration;
 
 import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 /**
  * Manage configurations for Interactive Spaces activities.
@@ -31,17 +32,15 @@ public interface LiveActivityConfigurationManager {
   String CONFIG_TYPE_BASE_ACTIVITY = "activity";
 
   /**
-   * The activity type for the live activity.
-   */
-  String CONFIG_TYPE_LIVE_ACTIVITY = "activity";
-
-  /**
    * Get a configuration.
    *
+   * @param liveActivity
+   *          the live activity
    * @param activityFilesystem
    *          filesystem for the activity
    *
    * @return the installation specific configuration
    */
-  LiveActivityConfiguration newLiveActivityConfiguration(InternalLiveActivityFilesystem activityFilesystem);
+  LiveActivityConfiguration newLiveActivityConfiguration(InstalledLiveActivity liveActivity,
+      InternalLiveActivityFilesystem activityFilesystem);
 }
