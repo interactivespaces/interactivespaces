@@ -41,7 +41,7 @@ import java.util.Properties;
 public class Log4jLoggingProvider implements LoggingProvider {
 
   /**
-   * Where the logging properties file is kept in lib/system/java.
+   * Where the logging properties file is kept in lib/system/java. This is deprecated.
    */
   public static final String LOGGING_PROPERTIES_FILE_LIB_SYSTEM_JAVA = "lib/system/java/log4j.properties";
 
@@ -49,6 +49,17 @@ public class Log4jLoggingProvider implements LoggingProvider {
    * Where the logging properties file is kept in the config folder.
    */
   public static final String LOGGING_PROPERTIES_FILE_CONFIG = "system/log4j.properties";
+
+  /**
+   * The file path to the logeer for the Interactive Spaces container.
+   */
+  public static final String FILEPATH_CONTAINER_INTERACTIVESPACES_LOG = "logs/interactivespaces.log";
+
+  /**
+   * The Log4J property for specifying the file system location of the log folder.
+   */
+  public static final String LOG4J_PROPERTY_FILEPATH_INTERACTIVESPACES_LOGGER =
+      "log4j.appender.interactivespaces.File";
 
   /**
    * The map of logging levels to their log4j level.
@@ -97,8 +108,8 @@ public class Log4jLoggingProvider implements LoggingProvider {
       fileInputStream = new FileInputStream(loggingPropertiesFile);
       loggingProperties.load(fileInputStream);
 
-      loggingProperties.put("log4j.appender.interactivespaces.File", new File(baseInstallDir,
-          "logs/interactivespaces.log").getAbsolutePath());
+      loggingProperties.put(LOG4J_PROPERTY_FILEPATH_INTERACTIVESPACES_LOGGER, new File(baseInstallDir,
+          FILEPATH_CONTAINER_INTERACTIVESPACES_LOG).getAbsolutePath());
       PropertyConfigurator.configure(loggingProperties);
       baseInteractiveSpacesLogger = Logger.getLogger(LOGGER_BASE_NAME);
 

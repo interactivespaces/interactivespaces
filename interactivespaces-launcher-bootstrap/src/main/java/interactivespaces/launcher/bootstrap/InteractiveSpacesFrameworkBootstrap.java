@@ -45,6 +45,7 @@ import java.io.InputStreamReader;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -95,18 +96,62 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String ARGS_PREFIX_BOOTSTRAP = "--bootstrap=";
 
   /**
-   * External packages loaded from the Interactive Spaces system folder.
+   * The OSGi wild card for exporting nested packages.
+   */
+  public static final String NESTED_PACKAGE_WILDCARD = ".*";
+
+  /**
+   * Comment character for delegations.conf.
+   */
+  public static final String DELEGATIONS_CONF_FILE_COMMENT = "#";
+
+  /**
+   * The comment character used in files found in meta-inf, at least for OSGi framework factory.
+   */
+  public static final char META_INF_COMMENT_CHARACTER = '#';
+
+  /**
+   * The location of the delegations.conf file relative to the IS install.
+   */
+  public static final String LOCATION_DELEGATIONS_CONF = "lib/system/java/delegations.conf";
+
+  /**
+   * The bundle symbolic name for the OSGi shell being used.
+   */
+  public static final String BUNDLE_SYMBOLIC_NAME_OSGI_SHELL = "org.apache.felix.gogo.shell";
+
+  /**
+   * External packages loaded from the Interactive Spaces system folder that must be exposed for things to work.
+   *
+   * <p>
+   * These packages are critical, IS is crippled without them which is why they are here in the code.
    */
   public static final String[] PACKAGES_SYSTEM_EXTERNAL = new String[] { "org.apache.commons.logging; version=1.1.1",
       "org.apache.commons.logging.impl; version=1.1.1", "javax.transaction; version=1.1.0",
       "javax.transaction.xa; version=1.1.0", "javax.transaction", "javax.transaction.xa" };
 
   /**
+   * The interface describing the container customizer provider.
+   */
+  public static final Class<ContainerCustomizerProvider> CONTAINER_COSTUMIZER_PROVIDER_INTERFACE =
+      ContainerCustomizerProvider.class;
+
+  /**
+   * The interface describing the configuration provider.
+   */
+  public static final Class<ConfigurationProvider> CONFIGURATION_PROVIDER_INTERFACE = ConfigurationProvider.class;
+
+  /**
+   * The interface describing the logging provider.
+   */
+  public static final Class<LoggingProvider> LOGGING_PROVIDER_INTERFACE = LoggingProvider.class;
+
+  /**
    * Packages loaded from the Interactive Spaces system folder that are part of Interactive Spaces.
    */
   public static final String[] PACKAGES_SYSTEM_INTERACTIVESPACES = new String[] {
-      "interactivespaces.system.core.logging", "interactivespaces.system.core.configuration",
-      "interactivespaces.system.core.container" };
+      LOGGING_PROVIDER_INTERFACE.getPackage().getName(), CONFIGURATION_PROVIDER_INTERFACE.getPackage().getName(),
+      CONTAINER_COSTUMIZER_PROVIDER_INTERFACE.getPackage().getName() };
 
   /**
    * The Jar Manifest property that gives the Interactive Spaces version.
@@ -135,6 +180,12 @@ public class InteractiveSpacesFrameworkBootstrap {
   private Framework framework;
 
   /**
+   * A map of bundle symbolic names to start levels for those bundles.
+   */
+  private Map<String, InteractiveSpacesStartLevel> bundleStartLevels =
+      new HashMap<String, InteractiveSpacesStartLevel>();
+
+  /**
    * Extra folders to be added to the bootstrap from the commandline.
    */
   private final List<File> extraBootstrapFolders = new ArrayList<File>();
@@ -142,7 +193,7 @@ public class InteractiveSpacesFrameworkBootstrap {
   /**
    * All bundles installed.
    */
-  private final Set<Bundle> bundles = new HashSet<Bundle>();
+  private final Set<Bundle> installedBundles = new HashSet<Bundle>();
 
   /**
    * The initial set of bundles to load.
@@ -213,6 +264,8 @@ public class InteractiveSpacesFrameworkBootstrap {
 
     initialBundles = new ArrayList<File>();
 
+    initializeBundleStartLevels();
+
     getBootstrapBundleJars(new File(baseInstallFolder, ContainerFilesystemLayout.FOLDER_SYSTEM_BOOTSTRAP));
 
     try {
@@ -237,13 +290,14 @@ public class InteractiveSpacesFrameworkBootstrap {
 
       registerCoreServices();
 
+      loadLibraries(extensionsReader.getLoadLibraries());
       loadClasses(extensionsReader.getLoadClasses());
 
-      addContainerPathBundles(initialBundles, extensionsReader.getContainerPath());
+      addContainerPathBundles(extensionsReader.getContainerPath());
 
       framework.start();
 
-      startBundles(initialBundles);
+      startBundles();
       frameworkStartLevel.setStartLevel(InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST.getStartLevel());
 
       framework.waitForStop(0);
@@ -257,6 +311,15 @@ public class InteractiveSpacesFrameworkBootstrap {
       }
       System.exit(1);
     }
+  }
+
+  /**
+   * Populate the map for bundle start levels.
+   */
+  private void initializeBundleStartLevels() {
+    // TODO(keith): Once Spring is removed, see if this is even necessary.
+    bundleStartLevels.put("interactivespaces.master.webapp", InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST);
+    bundleStartLevels.put("interactivespaces.master", InteractiveSpacesStartLevel.STARTUP_LEVEL_PENULTIMATE);
   }
 
   /**
@@ -318,7 +381,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
       @Override
       public void uncaughtException(Thread t, Throwable e) {
-        loggingProvider.getLog().error(String.format("Caught uncaught exception from thread %s", t), e);
+        loggingProvider.getLog().error(String.format("Caught previously uncaught exception from thread %s", t), e);
       }
     });
   }
@@ -343,22 +406,20 @@ public class InteractiveSpacesFrameworkBootstrap {
    * Register all bootstrap core services with the container.
    */
   public void registerCoreServices() {
-    rootBundleContext.registerService(LoggingProvider.class.getName(), loggingProvider, null);
-    rootBundleContext.registerService(ConfigurationProvider.class.getName(), configurationProvider, null);
-    rootBundleContext.registerService(ContainerCustomizerProvider.class.getName(), containerCustomizerProvider, null);
+    rootBundleContext.registerService(LOGGING_PROVIDER_INTERFACE.getName(), loggingProvider, null);
+    rootBundleContext.registerService(CONFIGURATION_PROVIDER_INTERFACE.getName(), configurationProvider, null);
+    rootBundleContext.registerService(CONTAINER_COSTUMIZER_PROVIDER_INTERFACE.getName(), containerCustomizerProvider,
+        null);
   }
 
   /**
    * Start all bundles.
    *
-   * @param jars
-   *          the jars to start as OSGi bundles
-   *
    * @throws BundleException
    *           something happened while starting bundles that could not be recovered from
    */
-  private void startBundles(List<File> jars) throws BundleException {
-    for (File bundleFile : jars) {
+  private void startBundles() throws BundleException {
+    for (File bundleFile : initialBundles) {
       String bundleUri = bundleFile.getAbsoluteFile().toURI().toString();
 
       try {
@@ -366,15 +427,13 @@ public class InteractiveSpacesFrameworkBootstrap {
 
         String symbolicName = bundle.getSymbolicName();
         if (symbolicName != null) {
-          InteractiveSpacesStartLevel startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_DEFAULT;
-          if (symbolicName.equals("interactivespaces.master.webapp")) {
-            startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_LAST;
-          } else if (symbolicName.equals("interactivespaces.master")) {
-            startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_PENULTIMATE;
-          } else {
+          InteractiveSpacesStartLevel startLevel = bundleStartLevels.get(symbolicName);
+          if (startLevel == null) {
             String interactiveSpacesStartLevel = bundle.getHeaders().get(BUNDLE_MANIFEST_START_LEVEL_HEADER);
             if (interactiveSpacesStartLevel != null) {
               startLevel = InteractiveSpacesStartLevel.valueOf(interactiveSpacesStartLevel);
+            } else {
+              startLevel = InteractiveSpacesStartLevel.STARTUP_LEVEL_DEFAULT;
             }
           }
 
@@ -382,9 +441,9 @@ public class InteractiveSpacesFrameworkBootstrap {
             bundle.adapt(BundleStartLevel.class).setStartLevel(startLevel.getStartLevel());
           }
 
-          bundles.add(bundle);
+          installedBundles.add(bundle);
         } else {
-          logBadBundle(bundleUri, new Exception("No symbolic name"));
+          logBadBundle(bundleUri, new Exception("No symbolic name in bundle"));
         }
       } catch (Exception e) {
         logBadBundle(bundleUri, e);
@@ -392,17 +451,18 @@ public class InteractiveSpacesFrameworkBootstrap {
     }
 
     // Start all installed non-fragment bundles.
-    for (final Bundle bundle : bundles) {
-      if (!isFragment(bundle)) {
-        // TODO(keith): See if way to start up shell from property
-        // since we may want it for remote access.
-        String symbolicName = bundle.getSymbolicName();
-        if (symbolicName.equals("org.apache.felix.gogo.shell") && !needShell) {
-          continue;
-        }
-
-        startBundle(bundle);
+    for (Bundle bundle : installedBundles) {
+      if (isFragment(bundle)) {
+        continue;
       }
+      // TODO(keith): See if way to start up shell from property
+      // since we may want it for remote access.
+      String symbolicName = bundle.getSymbolicName();
+      if (symbolicName.equals(BUNDLE_SYMBOLIC_NAME_OSGI_SHELL) && !needShell) {
+        continue;
+      }
+
+      startBundle(bundle);
     }
   }
 
@@ -443,56 +503,49 @@ public class InteractiveSpacesFrameworkBootstrap {
    *           unable to create and/or start the framework
    */
   private void createFramework(ExtensionsReader extensionsReader) throws Exception {
-    Map<String, String> m = new HashMap<String, String>();
+    Map<String, String> frameworkConfig = new HashMap<String, String>();
 
-    m.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
+    frameworkConfig.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
-    String delegations = getClassloaderDelegations();
-    if (delegations != null) {
-      loggingProvider.getLog().info(String.format("Delegations %s", delegations));
-      m.put(Constants.FRAMEWORK_BOOTDELEGATION, delegations);
-    }
+    // The bootloader delegation loads all classes in the java install. This covers things like the javax classes which
+    // are not automatically exposed through the OSGi bundle classloaders.
+    List<String> bootDelegationPackages = new ArrayList<String>();
 
-    List<String> extraPackages = new ArrayList<String>();
-    for (String pckage : PACKAGES_SYSTEM_EXTERNAL) {
-      extraPackages.add(pckage);
-    }
-    for (String pckage : PACKAGES_SYSTEM_INTERACTIVESPACES) {
-      extraPackages.add(pckage);
-    }
+    // Extra system packages are not found in the boot classloader but need to be exported by the system bundle
+    // classloader.
+    List<String> extraSystemPackages = new ArrayList<String>();
 
-    extraPackages.addAll(extensionsReader.getPackages());
+    bootDelegationPackages.addAll(extensionsReader.getBootPackages());
 
-    loadLibraries(extensionsReader.getLoadLibraries());
+    processDelegationsFile(bootDelegationPackages, extraSystemPackages);
+    configureBootDelegationPackages(frameworkConfig, bootDelegationPackages);
 
-    StringBuilder packages = new StringBuilder();
-    String separator = "";
-    for (String extraPackage : extraPackages) {
-      packages.append(separator).append(extraPackage);
-      separator = ", ";
-    }
+    // Get the initial packages into the extra system packages.
+    Collections.addAll(extraSystemPackages, PACKAGES_SYSTEM_EXTERNAL);
+    Collections.addAll(extraSystemPackages, PACKAGES_SYSTEM_INTERACTIVESPACES);
+    extraSystemPackages.addAll(extensionsReader.getPackages());
+    configureExtraSystemPackages(frameworkConfig, extraSystemPackages);
 
-    m.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
+    frameworkConfig.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR,
+        baseInstallFolder.getAbsolutePath());
 
-    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_BASE_INSTALL_DIR, baseInstallFolder.getAbsolutePath());
+    frameworkConfig.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR, runtimeFolder.getAbsolutePath());
 
-    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_RUNTIME_DIR, runtimeFolder.getAbsolutePath());
+    frameworkConfig.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION, getInteractiveSpacesVersion());
 
-    m.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION, getInteractiveSpacesVersion());
-
-    m.putAll(configurationProvider.getInitialConfiguration());
+    frameworkConfig.putAll(configurationProvider.getInitialConfiguration());
 
     File pluginsCacheFolder =
         new File(new File(runtimeFolder, ContainerFilesystemLayout.FOLDER_INTERACTIVESPACES_RUN), FOLDER_PLUGINS_CACHE);
-    m.put(Constants.FRAMEWORK_STORAGE, pluginsCacheFolder.getCanonicalPath());
+    frameworkConfig.put(Constants.FRAMEWORK_STORAGE, pluginsCacheFolder.getCanonicalPath());
 
-    framework = getFrameworkFactory().newFramework(m);
+    framework = getFrameworkFactory().newFramework(frameworkConfig);
     frameworkStartLevel = framework.adapt(FrameworkStartLevel.class);
 
     framework.init();
     rootBundleContext = framework.getBundleContext();
 
-    if (CONFIG_PROPERTY_VALUE_STARTUP_LOGGING.equals(m.get(CONFIG_PROPERTY_STARTUP_LOGGING))) {
+    if (CONFIG_PROPERTY_VALUE_STARTUP_LOGGING.equals(frameworkConfig.get(CONFIG_PROPERTY_STARTUP_LOGGING))) {
       rootBundleContext.addBundleListener(new SynchronousBundleListener() {
         @Override
         public void bundleChanged(BundleEvent event) {
@@ -509,6 +562,53 @@ public class InteractiveSpacesFrameworkBootstrap {
         }
       });
     }
+  }
+
+  /**
+   * Configure the extra system packages for the framework.
+   *
+   * @param frameworkConfig
+   *          the framework configuration
+   * @param extraPackages
+   *          the list of packages to be used as extra system packages
+   */
+  private void configureExtraSystemPackages(Map<String, String> frameworkConfig, List<String> extraPackages) {
+    StringBuilder packages = new StringBuilder();
+    String separator = "";
+    for (String extraPackage : extraPackages) {
+      packages.append(separator).append(extraPackage);
+      separator = ", ";
+    }
+
+    loggingProvider.getLog().info(String.format("Extra packages: %s", packages));
+    frameworkConfig.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
+  }
+
+  /**
+   * Configure the extra system packages for the framework.
+   *
+   * @param frameworkConfig
+   *          the framework configuration
+   * @param bootPackages
+   *          the list of packages to be used as bootloader packages
+   */
+  private void configureBootDelegationPackages(Map<String, String> frameworkConfig, List<String> bootPackages) {
+    if (bootPackages.isEmpty()) {
+      return;
+    }
+
+    StringBuilder packages = new StringBuilder();
+    String separator = "";
+    for (String bootPackage : bootPackages) {
+      packages.append(separator).append(bootPackage);
+      if (!bootPackage.endsWith(NESTED_PACKAGE_WILDCARD)) {
+        packages.append(NESTED_PACKAGE_WILDCARD);
+      }
+      separator = ", ";
+    }
+
+    loggingProvider.getLog().info(String.format("Boot delegations: %s", packages));
+    frameworkConfig.put(Constants.FRAMEWORK_BOOTDELEGATION, packages.toString());
   }
 
   /**
@@ -544,14 +644,13 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Add in all container path entries from the extensions files as long as the files actually exist.
+   * Add in all container path entries from the extensions files to the initial bundles list as long as the files
+   * actually exist.
    *
-   * @param initialBundles
-   *          the initial bundles list
    * @param containerPath
    *          the elements to be on the container classpath.
    */
-  private void addContainerPathBundles(List<File> initialBundles, List<String> containerPath) {
+  private void addContainerPathBundles(List<String> containerPath) {
     for (String containerBundlePath : containerPath) {
       File bundleFile = new File(containerBundlePath);
       if (bundleFile.isFile()) {
@@ -634,7 +733,7 @@ public class InteractiveSpacesFrameworkBootstrap {
         for (String s = br.readLine(); s != null; s = br.readLine()) {
           // Try to load first non-empty, non-commented line.
           s = s.trim();
-          if (!s.isEmpty() && s.charAt(0) != '#') {
+          if (!s.isEmpty() && s.charAt(0) != META_INF_COMMENT_CHARACTER) {
             return (FrameworkFactory) classLoader.loadClass(s).newInstance();
           }
         }
@@ -649,49 +748,56 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Get the list of packages which must be delegated to the boot classloader.
+   * Get the list of boot delegation packages and extra system packages from the delegations file.
    *
    * <p>
    * The bootloader loads all classes in the java install. This covers things like the javax classes which are not
    * automatically exposed through the OSGi bundle classloaders.
    *
-   * @return a properly formated string for the delegation classpath, or {@code null} if there are no packages to be
-   *         delegated
+   * @param bootDelegationPackages
+   *          packages to be exported in the boot delegation
+   * @param extraSystemPackages
+   *          packages to be exported in the exta system classes
    */
-  private String getClassloaderDelegations() {
-    File delegation = new File(baseInstallFolder, "lib/system/java/delegations.conf");
-    if (delegation.exists()) {
+  private void processDelegationsFile(List<String> bootDelegationPackages, List<String> extraSystemPackages) {
+    File delegationFile = new File(baseInstallFolder, LOCATION_DELEGATIONS_CONF);
+    if (!delegationFile.exists()) {
+      return;
+    }
+    BufferedReader reader = null;
+    try {
+      reader = new BufferedReader(new FileReader(delegationFile));
 
-      StringBuilder builder = new StringBuilder();
-      String separator = "";
-
-      BufferedReader reader = null;
-      try {
-        reader = new BufferedReader(new FileReader(delegation));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-          if (!line.trim().isEmpty()) {
-            builder.append(separator).append(line);
-            separator = ",";
-          }
-        }
-
-        return builder.toString();
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        if (reader != null) {
-          try {
-            reader.close();
-          } catch (IOException e) {
-            // Don't care. Closing.
+      String line;
+      while ((line = reader.readLine()) != null) {
+        line = line.trim();
+        if (!line.isEmpty()) {
+          if (line.startsWith(DELEGATIONS_CONF_FILE_COMMENT)) {
+            continue;
+          } else if (line.startsWith(ExtensionsReader.EXTENSION_FILE_KEYWORD_PACKAGE)) {
+            extraSystemPackages.add(line.substring(ExtensionsReader.EXTENSION_FILE_KEYWORD_PACKAGE.length()).trim());
+          } else if (line.startsWith(ExtensionsReader.EXTENSION_FILE_KEYWORD_PACKAGE_BOOT)) {
+            bootDelegationPackages.add(line.substring(ExtensionsReader.EXTENSION_FILE_KEYWORD_PACKAGE_BOOT.length())
+                .trim());
+          } else {
+            // The default is to be a boot delegation package
+            bootDelegationPackages.add(line);
           }
         }
       }
-    }
 
-    return null;
+    } catch (Exception e) {
+      loggingProvider.getLog().error(
+          String.format("Error file processing delegations file %s", delegationFile.getAbsolutePath()), e);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          // Don't care. Closing.
+        }
+      }
+    }
   }
 
   /**
@@ -700,6 +806,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @return The interactive spaces version
    */
   private String getInteractiveSpacesVersion() {
+    // This little lovely line gives us the name of the jar that gave the class we are looking at.
     String classContainer = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
 
     InputStream in = null;

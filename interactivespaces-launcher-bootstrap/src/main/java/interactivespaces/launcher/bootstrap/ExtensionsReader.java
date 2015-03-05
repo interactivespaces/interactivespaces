@@ -44,6 +44,11 @@ public class ExtensionsReader {
   public static final String EXTENSION_FILE_KEYWORD_PACKAGE = "package:";
 
   /**
+   * The keyword header for a boot package line in an extensions file.
+   */
+  public static final String EXTENSION_FILE_KEYWORD_PACKAGE_BOOT = "bootpackage:";
+
+  /**
    * The keyword header for a loadclass line in an extensions file.
    */
   public static final String EXTENSION_FILE_KEYWORD_LOADCLASS = "loadclass:";
@@ -62,6 +67,11 @@ public class ExtensionsReader {
    * The list of packages from the files.
    */
   private final List<String> packages = new ArrayList<String>();
+
+  /**
+   * The list of packages from the files.
+   */
+  private final List<String> bootPackages = new ArrayList<String>();
 
   /**
    * The list of classes to be preloaded.
@@ -100,6 +110,15 @@ public class ExtensionsReader {
    */
   public List<String> getPackages() {
     return packages;
+  }
+
+  /**
+   * Get the list of Java packages from all processed extension files that should appear on the boot delegation path.
+   *
+   * @return the list of Java packages
+   */
+  public List<String> getBootPackages() {
+    return bootPackages;
   }
 
   /**
@@ -174,6 +193,7 @@ public class ExtensionsReader {
         if (!line.isEmpty()) {
           boolean processed =
               processLine(line, EXTENSION_FILE_KEYWORD_PACKAGE, packages)
+                  || processLine(line, EXTENSION_FILE_KEYWORD_PACKAGE_BOOT, bootPackages)
                   || processLine(line, EXTENSION_FILE_KEYWORD_LOADCLASS, loadClasses)
                   || processLine(line, EXTENSION_FILE_KEYWORD_LOADLIBRARY, loadLibraries)
                   || processLine(line, EXTENSION_FILE_KEYWORD_CONTAINER_PATH, containerPath);
