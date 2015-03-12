@@ -24,7 +24,7 @@ dependencies {
   compile project(':interactivespaces-interaction')
   compile project(':service:interactivespaces-service-image-depth-openni2')
 
-  compile('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx'  }
+  compile('com.nativelibs4java:bridj:0.7.0') { exclude module: 'dx'  }
 
   provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
 

@@ -175,6 +175,16 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String BUNDLE_MANIFEST_START_LEVEL_HEADER = "InteractiveSpaces-StartLevel";
 
   /**
+   * Command line argument prefix string for configuration value definitions.
+   */
+  public static final String COMMAND_LINE_VALUE_DEFINITION_PREFIX = "-D";
+
+  /**
+   * Command line configuration value key/value split specification.
+   */
+  public static final String COMMAND_LINE_VALUE_DEFINITION_SPLIT = "=";
+
+  /**
    * The OSGI framework which has been started.
    */
   private Framework framework;
@@ -399,6 +409,8 @@ public class InteractiveSpacesFrameworkBootstrap {
     configurationProvider = new FileConfigurationProvider(baseInstallFolder, configFolder, loggingProvider.getLog());
     configurationProvider.load();
 
+    args = getCommandLineConfigurationParameters(args);
+
     containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
   }
 
@@ -410,6 +422,30 @@ public class InteractiveSpacesFrameworkBootstrap {
     rootBundleContext.registerService(CONFIGURATION_PROVIDER_INTERFACE.getName(), configurationProvider, null);
     rootBundleContext.registerService(CONTAINER_COSTUMIZER_PROVIDER_INTERFACE.getName(), containerCustomizerProvider,
         null);
+  }
+
+  /**
+   * Modify the system configuration with command line configuration parameters.
+   *
+   * @param args
+   *          the command line arguments
+   *
+   * @return the command line arguments minus the configuration parameters
+   */
+  private List<String> getCommandLineConfigurationParameters(List<String> args) {
+    List<String> newArgs = new ArrayList<String>();
+
+    for (String arg : args) {
+      if (arg.startsWith(COMMAND_LINE_VALUE_DEFINITION_PREFIX)) {
+        String[] parts = arg.split(COMMAND_LINE_VALUE_DEFINITION_SPLIT, 2);
+        configurationProvider.put(parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()),
+            parts.length > 1 ? parts[1] : "");
+      } else {
+        newArgs.add(arg);
+      }
+    }
+
+    return newArgs;
   }
 
   /**

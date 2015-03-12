@@ -76,7 +76,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    * Construct a new provider.
    *
    * @param baseInstallFolder
-   *        base install folder for the Interactive Spaces Container.
+   *          base install folder for the Interactive Spaces Container.
    * @param configFolder
    *          the configuration folder for this component
    * @param log
@@ -134,5 +134,20 @@ public class FileConfigurationProvider implements ConfigurationProvider {
   @Override
   public File getConfigFolder() {
     return configFolder;
+  }
+
+  /**
+   * Add in a new configuration value into the configuration.
+   *
+   * <p>
+   * This should not be used before {@link #load()}.
+   *
+   * @param configuration
+   *          the configuration name
+   * @param value
+   *          the value of the configuration
+   */
+  public void put(String configuration, String value) {
+    currentConfiguration.put(configuration, value);
   }
 }

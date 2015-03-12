@@ -72,7 +72,7 @@ dependencies {
   extras project(":service:interactivespaces-service-image-vision")
   extras project(":service:interactivespaces-service-image-vision-opencv")
 
-  extrasSupport('com.nativelibs4java:bridj:0.7-SNAPSHOT') { exclude module: 'dx' }
+  extrasSupport('com.nativelibs4java:bridj:0.7.0') { exclude module: 'dx' }
 
   extrasDevStandalone project(':interactivespaces-activity-runtime-standalone')
 }

@@ -73,16 +73,6 @@ import java.util.concurrent.TimeUnit;
 public class GeneralInteractiveSpacesSupportActivator implements BundleActivator {
 
   /**
-   * Command line argument prefix string for configuration value definitions.
-   */
-  private static final String COMMAND_LINE_VALUE_DEFINITION_PREFIX = "-D";
-
-  /**
-   * Command line configuration value key/value split specification.
-   */
-  private static final String COMMAND_LINE_VALUE_DEFINITION_SPLIT = "=";
-
-  /**
    * The bundle context for this activator.
    */
   private BundleContext bundleContext;
@@ -467,13 +457,6 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         convertHostnameToAddress(containerProperties.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
     systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, hostAddress);
 
-    for (String argument : containerCustomizerProvider.getCommandLineArguments()) {
-      if (argument.startsWith(COMMAND_LINE_VALUE_DEFINITION_PREFIX)) {
-        String[] parts = argument.split(COMMAND_LINE_VALUE_DEFINITION_SPLIT, 2);
-        systemConfiguration.setValue(parts[0].substring(COMMAND_LINE_VALUE_DEFINITION_PREFIX.length()),
-            parts.length > 1 ? parts[1] : "");
-      }
-    }
 
     spaceEnvironment.setSystemConfiguration(systemConfiguration);
   }
