@@ -142,7 +142,13 @@ public abstract class JavaProjectType implements ProjectType {
       NamedVersionedResourceWithData<String> dependencyProvider =
           startupResources.getResource(dependency.getIdentifyingName(), dependency.getVersion());
       if (dependencyProvider != null) {
-        classpath.add(fileSupport.newFile(dependencyProvider.getData()));
+        File dependencyFile = fileSupport.newFile(dependencyProvider.getData());
+
+        projectTaskContext.getLog().info(
+            String.format("Project Dependency %s:%s is being satisfied by %s", dependency.getIdentifyingName(),
+                dependency.getVersion(), dependencyFile.getAbsolutePath()));
+
+        classpath.add(dependencyFile);
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
         throw new SimpleInteractiveSpacesException(String.format(

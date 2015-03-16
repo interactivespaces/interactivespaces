@@ -51,10 +51,8 @@ public interface ProjectJavaCompiler {
    *          the compilation files for the compile
    * @param compilerOptions
    *          any options for the compiler
-   *
-   * @return {@code true} if the compilation was successful
    */
-  boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
+  void compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
       List<String> compilerOptions);
 
   /**

@@ -19,6 +19,7 @@ package interactivespaces.workbench.project.assembly;
 import static interactivespaces.workbench.project.constituent.AssemblyComponentProjectConstituent.PACK_FORMAT_ATTRIBUTE;
 import static interactivespaces.workbench.project.constituent.AssemblyComponentProjectConstituent.ZIP_PACK_FORMAT;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -46,11 +47,10 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(AssemblyProject project, ProjectTaskContext context) {
+  public void build(AssemblyProject project, ProjectTaskContext context) throws InteractiveSpacesException {
     String packFormat = project.getAttribute(PACK_FORMAT_ATTRIBUTE);
     if (!ZIP_PACK_FORMAT.equals(packFormat)) {
-      throw new SimpleInteractiveSpacesException(String.format(
-          "Project '%s' attribute was '%s', must be '%s'",
+      throw new SimpleInteractiveSpacesException(String.format("Project '%s' attribute was '%s', must be '%s'",
           PACK_FORMAT_ATTRIBUTE, packFormat, ZIP_PACK_FORMAT));
     }
 
@@ -62,7 +62,7 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
 
     writeResourceMap(project, stagingDirectory, context);
 
-    return assemble(project, stagingDirectory, context);
+    assemble(project, stagingDirectory, context);
   }
 
   /**
@@ -74,17 +74,11 @@ public class AssemblyProjectBuilder extends BaseProjectBuilder<AssemblyProject> 
    *          the project staging directory
    * @param context
    *          the context to use when building the activity
-   *
-   * @return {@code true} on successful assembly
    */
-  protected boolean assemble(Project project, File stagingDirectory,
-      ProjectTaskContext context) {
+  protected void assemble(Project project, File stagingDirectory, ProjectTaskContext context) {
     // TODO(keith): Move this into the archiver and don't do it in here.
     File buildDirectory = context.getBuildDirectory();
-    File assemblyFile =
-        getBuildDestinationFile(project, buildDirectory, ASSEMBLY_FILE_EXTENSION);
+    File assemblyFile = getBuildDestinationFile(project, buildDirectory, ASSEMBLY_FILE_EXTENSION);
     fileSupport.zip(assemblyFile, stagingDirectory);
-
-    return true;
   }
 }

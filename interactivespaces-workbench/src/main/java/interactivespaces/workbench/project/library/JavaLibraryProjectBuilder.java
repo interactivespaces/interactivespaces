@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.library;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.ProjectTaskContext;
@@ -23,6 +24,7 @@ import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.test.IsolatedClassloaderJavaTestRunner;
 import interactivespaces.workbench.project.test.JavaTestRunner;
 
 import java.io.File;
@@ -50,7 +52,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(LibraryProject project, ProjectTaskContext context) {
+  public void build(LibraryProject project, ProjectTaskContext context) throws InteractiveSpacesException {
     File buildDirectory = context.getBuildDirectory();
     File compilationFolder = getOutputDirectory(buildDirectory);
     File jarDestinationFile = getBuildDestinationFile(project, buildDirectory, JAR_FILE_EXTENSION);
@@ -60,15 +62,9 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
     context.processGeneratedResources(compilationFolder);
     context.processResources(compilationFolder);
 
-    if (compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getContainerInfo(), context)) {
-      if (runTests(jarDestinationFile, context)) {
-        context.addGeneratedArtifact(jarDestinationFile);
-
-        return true;
-      }
-    }
-
-    return false;
+    compiler.buildJar(jarDestinationFile, compilationFolder, null, project.getContainerInfo(), context);
+    runTests(jarDestinationFile, context);
+    context.addGeneratedArtifact(jarDestinationFile);
   }
 
   /**
@@ -79,12 +75,13 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
    * @param context
    *          the project build context
    *
-   * @return {@code true} if all tests succeeded
+   * @throws InteractiveSpacesException
+   *           the tests failed
    */
-  private boolean runTests(File jarDestinationFile, ProjectTaskContext context) {
-    JavaTestRunner runner = new JavaTestRunner();
+  private void runTests(File jarDestinationFile, ProjectTaskContext context) throws InteractiveSpacesException {
+    JavaTestRunner runner = new IsolatedClassloaderJavaTestRunner();
 
-    return runner.runTests(jarDestinationFile, null, context);
+    runner.runTests(jarDestinationFile, null, context);
   }
 
   /**

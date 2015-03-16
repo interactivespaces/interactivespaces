@@ -53,7 +53,7 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
+  public void compile(File compilationBuildDirectory, List<File> classpath, List<File> compilationFiles,
       List<String> compilerOptions) {
 
     StandardJavaFileManager fileManager = null;
@@ -72,7 +72,9 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
 
       Boolean success = compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits1).call();
 
-      return success;
+      if (!success) {
+        throw new SimpleInteractiveSpacesException("The Java compilation failed");
+      }
     } catch (IOException e) {
       throw new InteractiveSpacesException("Error while compiling Java files", e);
     } finally {

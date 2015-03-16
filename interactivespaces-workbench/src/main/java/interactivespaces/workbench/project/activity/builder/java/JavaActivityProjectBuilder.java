@@ -16,16 +16,18 @@
 
 package interactivespaces.workbench.project.activity.builder.java;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.BaseActivityProjectBuilder;
+import interactivespaces.workbench.project.java.ContainerInfo;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
-import interactivespaces.workbench.project.java.ContainerInfo;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.test.IsolatedClassloaderJavaTestRunner;
 import interactivespaces.workbench.project.test.JavaTestRunner;
 
 import java.io.File;
@@ -75,23 +77,16 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   }
 
   @Override
-  public boolean onBuild(ActivityProject project, ProjectTaskContext context, File stagingDirectory) {
-    try {
-      File buildDirectory = context.getBuildDirectory();
-      File compilationDirectory = getCompilationOutputDirectory(buildDirectory);
-      File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory, JAR_FILE_EXTENSION);
-      project.setActivityExecutable(jarDestinationFile.getName());
+  public void onBuild(ActivityProject project, ProjectTaskContext context, File stagingDirectory)
+      throws InteractiveSpacesException {
+    File buildDirectory = context.getBuildDirectory();
+    File compilationDirectory = getCompilationOutputDirectory(buildDirectory);
+    File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory, JAR_FILE_EXTENSION);
+    project.setActivityExecutable(jarDestinationFile.getName());
 
-      if (compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, new ContainerInfo(), context)) {
-        return runTests(jarDestinationFile, context);
-      }
+    compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, new ContainerInfo(), context);
 
-      return false;
-    } catch (Exception e) {
-      context.getWorkbenchTaskContext().handleError("Error while building java activity project", e);
-
-      return false;
-    }
+    runTests(jarDestinationFile, context);
   }
 
   /**
@@ -102,12 +97,13 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @param context
    *          the project build context
    *
-   * @return {@code true} if all tests succeeded
+   * @throws InteractiveSpacesException
+   *           the tests failed
    */
-  private boolean runTests(File jarDestinationFile, ProjectTaskContext context) {
-    JavaTestRunner runner = new JavaTestRunner();
+  private void runTests(File jarDestinationFile, ProjectTaskContext context) throws InteractiveSpacesException {
+    JavaTestRunner runner = new IsolatedClassloaderJavaTestRunner();
 
-    return runner.runTests(jarDestinationFile, extensions, context);
+    runner.runTests(jarDestinationFile, extensions, context);
   }
 
   /**
@@ -119,8 +115,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @return the output directory for building
    */
   private File getCompilationOutputDirectory(File buildDirectory) {
-    File outputDirectory =
-        new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    File outputDirectory = new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;

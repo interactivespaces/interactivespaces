@@ -239,11 +239,11 @@ tr.odd {
 }
 
 .liveactivity-status-RUNNING {
-  background-color: #00ff00;
+  background-color: #53beff;
 }
 
 .liveactivity-status-ACTIVE {
-  background-color: #53beff;
+  background-color: #00ff00;
 }
 
 .liveactivity-status-CRASHED {

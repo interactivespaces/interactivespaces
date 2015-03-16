@@ -42,6 +42,7 @@ import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 import interactivespaces.workbench.ui.UserInterfaceFactory;
 import interactivespaces.workbench.ui.editor.swing.PlainSwingUserInterfaceFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -276,6 +277,8 @@ public class InteractiveSpacesWorkbench {
    * @return {@code true} if all commands ran successfully
    */
   public boolean doCommands(List<String> commands) {
+    logWorkbenchCommand(commands);
+
     try {
       String command = removeArgument(commands, "command");
 
@@ -324,6 +327,19 @@ public class InteractiveSpacesWorkbench {
 
       return false;
     }
+  }
+
+  /**
+   * Log all information about the workbench invocation.
+   *
+   * @param commands
+   *          the command line for the workbench
+   */
+  private void logWorkbenchCommand(List<String> commands) {
+    getLog().info(
+        String.format("Using workbench %s",
+            getSpaceEnvironment().getSystemConfiguration().getPropertyString(CONFIGURATION_PROPERTY_WORKBENCH_HOME)));
+    getLog().info(String.format("Workbench commands: %s", Joiner.on(" ").join(commands)));
   }
 
   /**

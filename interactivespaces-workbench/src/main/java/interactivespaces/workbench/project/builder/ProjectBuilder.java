@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.builder;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
 
@@ -52,7 +53,8 @@ public interface ProjectBuilder<T extends Project> {
    * @param context
    *          the context to use when building the activity
    *
-   * @return {@code true} if a successful build
+   * @throws InteractiveSpacesException
+   *           the build failed
    */
-  boolean build(T project, ProjectTaskContext context);
+  void build(T project, ProjectTaskContext context) throws InteractiveSpacesException;
 }

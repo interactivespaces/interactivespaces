@@ -16,7 +16,6 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -290,21 +289,13 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
         builder = new BaseActivityProjectBuilder();
       }
 
-      boolean success = false;
-      try {
-        projectTaskContext.getLog().info(
-            String.format("Building project %s", getProject().getBaseDirectory().getAbsolutePath()));
+      projectTaskContext.getLog().info(
+          String.format("Building project %s", getProject().getBaseDirectory().getAbsolutePath()));
+      projectTaskContext.getLog().info(
+          String.format("Using Interactive Spaces Space Controller %s", projectTaskContext.getWorkbenchTaskContext()
+              .getControllerDirectory().getAbsolutePath()));
 
-        // TODO(keith) Move towards exceptions for measuring success of all tasks from the component itself.
-        success = builder.build(getProject(), projectTaskContext);
-      } catch (Throwable e) {
-        projectTaskContext.getWorkbenchTaskContext().handleError("Error while building project", e);
-      }
-
-      if (!success) {
-        SimpleInteractiveSpacesException.throwFormattedException("Project %s failed to build", getProject()
-            .getBaseDirectory().getAbsolutePath());
-      }
+      builder.build(getProject(), projectTaskContext);
     }
   }
 
@@ -489,8 +480,8 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
 
       Project project = getProject();
 
-      projectTaskContext.getLog()
-          .info(String.format("Building project IDE project %s", project.getBaseDirectory().getAbsolutePath()));
+      projectTaskContext.getLog().info(
+          String.format("Building project IDE project %s", project.getBaseDirectory().getAbsolutePath()));
 
       EclipseIdeProjectCreatorSpecification spec;
       ProjectType type = getProjectTaskContext().getProjectType();
