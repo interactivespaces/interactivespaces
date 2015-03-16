@@ -207,9 +207,9 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String inputName : inputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          handleError(String.format(
-              "Input route %s missing topic configuration %s which is defined by configuration property %s", inputName,
-              propertyName), null);
+          handleError(
+              String.format("Input route %s not defined, missing topic configuration %s", inputName, propertyName),
+              null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing input route=").append(inputName)
               .append(" which is defined by configuration property ").append(propertyName);
         }
@@ -222,9 +222,9 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String outputName : outputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          handleError(String.format(
-              "Output route %s missing topic configuration %s which is defined by configuration property %s",
-              outputName, propertyName), null);
+          handleError(
+              String.format("Output route %s not defined, missing topic configuration %s", outputName, propertyName),
+              null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing output route=").append(outputName)
               .append(" which is defined by configuration property ").append(propertyName);
         }
