@@ -51,8 +51,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * An {@link ActivityComponent} instance which supports multiple named message
- * topics which can send and receive a given ROS message.
+ * An {@link ActivityComponent} instance which supports multiple named message topics which can send and receive a given
+ * ROS message.
  *
  * @param <T>
  *          the type of messages handled by the component
@@ -207,9 +207,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String inputName : inputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          handleError(String.format("Input route %s missing topic configuration %s", inputName, propertyName), null);
+          handleError(String.format(
+              "Input route %s missing topic configuration %s which is defined by configuration property %s", inputName,
+              propertyName), null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing input route=").append(inputName)
-              .append(":").append(propertyName);
+              .append(" which is defined by configuration property ").append(propertyName);
         }
       }
     }
@@ -220,9 +222,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       for (String outputName : outputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
         String propertyName = CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName;
         if (configuration.getPropertyString(propertyName) == null) {
-          handleError(String.format("Output route %s missing topic configuration %s", outputName, propertyName), null);
+          handleError(String.format(
+              "Output route %s missing topic configuration %s which is defined by configuration property %s",
+              outputName, propertyName), null);
           routeErrors.append(routeErrors.length() > 0 ? ", " : "").append("missing output route=").append(outputName)
-              .append(":").append(propertyName);
+              .append(" which is defined by configuration property ").append(propertyName);
         }
       }
     }
@@ -312,7 +316,8 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
       return messageFactory.newMessage();
     } else {
       throw new SimpleInteractiveSpacesException(String.format(
-          "No output routes declared so could not create a message of type %s", rosMessageType));
+          "Attempting to write on an output route when no output routes declared. The configuration %s is not set.",
+          CONFIGURATION_ROUTES_OUTPUTS));
     }
   }
 
@@ -459,8 +464,7 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   }
 
   /**
-   * Function to format the various parts of a status row together into a single
-   * entity.
+   * Function to format the various parts of a status row together into a single entity.
    *
    * @param className
    *          class name for the row
