@@ -17,9 +17,9 @@
 package interactivespaces.util.process;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.SystemConfiguration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import org.apache.commons.logging.Log;
 
 /**
@@ -65,13 +65,14 @@ public class SimpleNativeApplicationRunnerFactory implements NativeApplicationRu
 
   @Override
   public NativeApplicationRunner newPlatformNativeApplicationRunner(Log log) {
-    String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+    String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
+        CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
 
-    if (LinuxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_LINUX.equals(os)) {
       return new LinuxNativeApplicationRunner(runnerParser, spaceEnvironment, log);
-    } else if (OsxNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    } else if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_OSX.equals(os)) {
       return new OsxNativeApplicationRunner(runnerParser, spaceEnvironment, log);
-    } else if (WindowsNativeApplicationRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    } else if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_WINDOWS.equals(os)) {
       return new WindowsNativeApplicationRunner(runnerParser, spaceEnvironment, log);
     } else {
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);

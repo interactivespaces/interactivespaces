@@ -47,4 +47,28 @@ public interface CoreConfiguration {
    */
   String CONFIGURATION_INTERACTIVESPACES_HOME = "interactivespaces.home";
 
+  /**
+   * The operating system Interactive Spaces is running on.
+   */
+  String CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS = "interactivespaces.platform.os";
+
+  /**
+   * The value of the InteractiveSpaces configuration property value when it is Linux.
+   */
+  String CONFIGURATION_VALUE_PLATFORM_OS_LINUX = "linux";
+
+  /**
+   * The value of the InteractiveSpaces configuration property value when it is OSX.
+   */
+  String CONFIGURATION_VALUE_PLATFORM_OS_OSX = "osx";
+
+  /**
+   * The value of the InteractiveSpaces configuration property value when it is OSX.
+   */
+  String CONFIGURATION_VALUE_PLATFORM_OS_WINDOWS = "windows";
+
+  /**
+   * The value of the InteractiveSpaces configuration property value when it is unknown.
+   */
+  String CONFIGURATION_VALUE_PLATFORM_OS_UNKNOWN = "unknown";
 }

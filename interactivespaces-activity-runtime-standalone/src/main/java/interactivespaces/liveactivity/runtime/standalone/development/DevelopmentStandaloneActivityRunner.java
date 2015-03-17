@@ -47,7 +47,6 @@ import interactivespaces.util.resource.ManagedResources;
 
 import com.google.common.collect.Lists;
 
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -511,9 +510,6 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
    *          the configuration to dynamically update
    */
   private void addDynamicConfiguration(Configuration configuration) {
-    String platformOs = SystemUtils.IS_OS_LINUX ? "linux" : "osx";
-    configuration.setValue("interactivespaces.platform.os", platformOs);
-
     try {
       String hostname = InetAddress.getLocalHost().getHostName();
       configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME, hostname);

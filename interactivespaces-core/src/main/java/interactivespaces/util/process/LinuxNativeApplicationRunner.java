@@ -28,11 +28,6 @@ import org.apache.commons.logging.Log;
 public class LinuxNativeApplicationRunner extends UnixNativeApplicationRunner {
 
   /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "linux";
-
-  /**
    * Create a new activity runner for linux.
    *
    * @param runnerParser

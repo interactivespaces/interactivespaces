@@ -17,8 +17,8 @@
 package interactivespaces.activity.binary;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.SystemConfiguration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.util.process.NativeApplicationRunnerParser;
 import interactivespaces.util.process.StandardNativeApplicationRunnerParser;
 
@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFactory {
 
   /**
-   * The runner parser to use
+   * The runner parser to use.
    */
   private NativeApplicationRunnerParser runnerParser;
 
@@ -67,13 +67,14 @@ public class SimpleNativeActivityRunnerFactory implements NativeActivityRunnerFa
 
   @Override
   public NativeActivityRunner newPlatformNativeActivityRunner(Log log) {
-    String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+    String os = spaceEnvironment.getSystemConfiguration().getRequiredPropertyString(
+        CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
 
-    if (LinuxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_LINUX.equals(os)) {
       return new LinuxNativeActivityRunner(runnerParser, spaceEnvironment, log);
-    } else if (OsxNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    } else if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_OSX.equals(os)) {
       return new OsxNativeActivityRunner(runnerParser, spaceEnvironment, log);
-    } else if (WindowsNativeActivityRunner.OPERATING_SYSTEM_TAG.equals(os)) {
+    } else if (CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_WINDOWS.equals(os)) {
       return new WindowsNativeActivityRunner(runnerParser, spaceEnvironment, log);
     } else {
       throw new SimpleInteractiveSpacesException("Cannot create native activity launcher. Unknown OS " + os);

@@ -5,6 +5,8 @@ gradle.properties
 .settings
 .gradle
 .islintignore
+.DS_Store
+*.iml
 interactivespaces_docs/src/main/sphinx/conf.py
 interactivespaces_docs/src/main/sphinx/interactivespaces.pyc
 interactivespaces_docs/src/main/sphinx/javadoc.pyc
@@ -18,4 +20,3 @@ interactivespaces_docs/src/main/sphinx/javadoc.pyc
 **/osgi_build/
 **/target/
 interactivespaces-controller-android/libs/**
-

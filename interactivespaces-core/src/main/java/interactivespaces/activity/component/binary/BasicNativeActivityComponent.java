@@ -21,21 +21,18 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.binary.NativeActivityRunner;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SystemConfiguration;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerListener;
 import interactivespaces.util.process.restart.RestartStrategy;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An {@link ActivityComponent} which launches native applications.
@@ -126,9 +123,8 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
     Activity activity = componentContext.getActivity();
     String os =
         activity.getSpaceEnvironment().getSystemConfiguration()
-            .getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+            .getRequiredPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
 
-    Map<String, Object> appConfig = Maps.newHashMap();
     String activityPath = configuration.getRequiredPropertyString(executablePathProperty + "." + os);
 
     File activityFile = new File(activityPath);
@@ -155,7 +151,8 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
       }
     }
 
-    nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory().newPlatformNativeActivityRunner(activity.getLog());
+    nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory()
+        .newPlatformNativeActivityRunner(activity.getLog());
 
     nativeActivity.setExecutablePath(activityFile.getAbsolutePath());
 

@@ -17,7 +17,6 @@
 package interactivespaces.launcher.bootstrap;
 
 import interactivespaces.system.core.configuration.ConfigurationProvider;
-import interactivespaces.system.core.configuration.CoreConfiguration;
 
 import org.apache.commons.logging.Log;
 
@@ -41,16 +40,6 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    * Extensions on config files.
    */
   private static final String CONFIGURATION_FILES_EXTENSION = ".conf";
-
-  /**
-   * Environment variable that indicates the home install directory for interactive spaces.
-   */
-  private static final String INTERACTIVESPACES_HOME_ENVIRONMENT_KEY = "INTERACTIVESPACES_HOME";
-
-  /**
-   * Default directory for the home directory relative to install of this component.
-   */
-  private static final String INTERACTIVESPACES_HOME_DEFAULT_DIR = "..";
 
   /**
    * The base install folder.
@@ -86,6 +75,7 @@ public class FileConfigurationProvider implements ConfigurationProvider {
     this.baseInstallFolder = baseInstallFolder;
     this.configFolder = configFolder;
     this.log = log;
+    currentConfiguration = new HashMap<String, String>();
   }
 
   @Override
@@ -97,15 +87,6 @@ public class FileConfigurationProvider implements ConfigurationProvider {
    * Load all conf files in the configuration folder.
    */
   public void load() {
-    currentConfiguration = new HashMap<String, String>();
-
-    // Calculate the proper home directory for this install of interactive spaces.
-    String isHomeEnvPath = System.getenv(INTERACTIVESPACES_HOME_ENVIRONMENT_KEY);
-    File isHomeDir =
-        isHomeEnvPath != null ? new File(isHomeEnvPath) : new File(baseInstallFolder,
-            INTERACTIVESPACES_HOME_DEFAULT_DIR);
-    currentConfiguration.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_HOME, isHomeDir.getAbsolutePath());
-
     // Look in the specified bundle directory to create a list
     // of all JAR files to install.
     File[] files = configFolder.listFiles(new FilenameFilter() {
@@ -138,9 +119,6 @@ public class FileConfigurationProvider implements ConfigurationProvider {
 
   /**
    * Add in a new configuration value into the configuration.
-   *
-   * <p>
-   * This should not be used before {@link #load()}.
    *
    * @param configuration
    *          the configuration name

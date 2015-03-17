@@ -28,11 +28,6 @@ import org.apache.commons.logging.Log;
 public class OsxNativeApplicationRunner extends UnixNativeApplicationRunner {
 
   /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "osx";
-
-  /**
    * Construct the runner.
    *
    * @param runnerParser

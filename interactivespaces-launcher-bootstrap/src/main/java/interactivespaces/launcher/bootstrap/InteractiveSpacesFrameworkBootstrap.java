@@ -185,6 +185,36 @@ public class InteractiveSpacesFrameworkBootstrap {
   public static final String COMMAND_LINE_VALUE_DEFINITION_SPLIT = "=";
 
   /**
+   * Environment variable that indicates the home install directory for interactive spaces.
+   */
+  private static final String INTERACTIVESPACES_HOME_ENVIRONMENT_KEY = "INTERACTIVESPACES_HOME";
+
+  /**
+   * Default directory for the home directory relative to install of this component.
+   */
+  private static final String INTERACTIVESPACES_HOME_DEFAULT_DIR = "..";
+
+  /**
+   * The name of the System property for the current operating system.
+   */
+  private static final String SYSTEM_PROPERTY_OS_NAME = "os.name";
+
+  /**
+   * The value of the System property value for the current operating system when it is Linux.
+   */
+  private static final String SYSTEM_PROPERTY_OS_VALUE_LINUX = "Linux";
+
+  /**
+   * The value of the System property value for the current operating system when it is OSX (Mac).
+   */
+  private static final String SYSTEM_PROPERTY_OS_VALUE_OSX = "Mac OS X";
+
+  /**
+   * The beginning of the System property value for the current operating system when it is Windows.
+   */
+  private static final String SYSTEM_PROPERTY_OS_PREFIX_WINDOWS = "Windows";
+
+  /**
    * The OSGI framework which has been started.
    */
   private Framework framework;
@@ -397,42 +427,49 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Create the core services to the base bundle which are platform dependent.
+   * Add configuration items that can be automatically determined to the given FileConfigurationProvider.
    *
-   * @param args
-   *          the list of command line arguments
+   * @param configurationProvider
+   *          the FileConfigurationProvider to inject key, value pairs of config data
    */
-  public void createCoreServices(List<String> args) {
-    loggingProvider = new Log4jLoggingProvider();
-    loggingProvider.configure(runtimeFolder, configFolder);
+  private void addAutomaticConfiguration(FileConfigurationProvider configurationProvider) {
+    // Calculate the proper home directory for this install of interactive spaces.
+    String isHomeEnvPath = System.getenv(INTERACTIVESPACES_HOME_ENVIRONMENT_KEY);
+    File isHomeDir =
+        isHomeEnvPath != null ? new File(isHomeEnvPath) : new File(baseInstallFolder,
+            INTERACTIVESPACES_HOME_DEFAULT_DIR);
+    configurationProvider.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_HOME, isHomeDir.getAbsolutePath());
 
-    configurationProvider = new FileConfigurationProvider(baseInstallFolder, configFolder, loggingProvider.getLog());
-    configurationProvider.load();
+    String platformOs = System.getProperty(SYSTEM_PROPERTY_OS_NAME);
+    // Convert the Os string into the format Interactive Spaces is expecting.
+    if (platformOs.equals(SYSTEM_PROPERTY_OS_VALUE_LINUX)) {
+      platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_LINUX;
+    } else if (platformOs.equals(SYSTEM_PROPERTY_OS_VALUE_OSX)) {
+      platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_OSX;
+    } else if (platformOs.startsWith(SYSTEM_PROPERTY_OS_PREFIX_WINDOWS)) {
+      platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_WINDOWS;
+    } else {
+      loggingProvider.getLog().warn(
+          String.format("Unsupported operating system: %s. Native applications will not function properly.",
+              platformOs));
+      platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_UNKNOWN;
+    }
 
-    args = getCommandLineConfigurationParameters(args);
-
-    containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
+    configurationProvider.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS, platformOs);
   }
 
   /**
-   * Register all bootstrap core services with the container.
-   */
-  public void registerCoreServices() {
-    rootBundleContext.registerService(LOGGING_PROVIDER_INTERFACE.getName(), loggingProvider, null);
-    rootBundleContext.registerService(CONFIGURATION_PROVIDER_INTERFACE.getName(), configurationProvider, null);
-    rootBundleContext.registerService(CONTAINER_COSTUMIZER_PROVIDER_INTERFACE.getName(), containerCustomizerProvider,
-        null);
-  }
-
-  /**
-   * Modify the system configuration with command line configuration parameters.
+   * Add command line configuration parameters to the given system configuration.
    *
+   * @param configurationProvider
+   *          the FileConfigurationProvider which will have the command line configurations added
    * @param args
    *          the command line arguments
    *
    * @return the command line arguments minus the configuration parameters
    */
-  private List<String> getCommandLineConfigurationParameters(List<String> args) {
+  private List<String> addCommandLineConfigurationParameters(FileConfigurationProvider configurationProvider,
+                                                             List<String> args) {
     List<String> newArgs = new ArrayList<String>();
 
     for (String arg : args) {
@@ -446,6 +483,55 @@ public class InteractiveSpacesFrameworkBootstrap {
     }
 
     return newArgs;
+  }
+
+  /**
+   * Create a FileConfigurationProvider, assign it to configurationProvider, inject automatic configuration, and
+   * then load configuration from config files.
+   *
+   * @param args
+   *          the command line arguments
+   *
+   * @return the command line arguments minus configuration parameters
+   */
+  private List<String> initializeFileConfigurationProvider(List<String> args) {
+    configurationProvider = new FileConfigurationProvider(baseInstallFolder, configFolder, loggingProvider.getLog());
+
+    // The order is important, as it determines which source of configuration parameters overrides the other sources.
+    // Configuration sources that are invoked later override those that are done sooner. The order is:
+    // 1) automatic configuration
+    // 2) file configuration
+    // 3) command-line configuration
+    addAutomaticConfiguration(configurationProvider);
+    configurationProvider.load();
+    args = addCommandLineConfigurationParameters(configurationProvider, args);
+
+    return args;
+  }
+
+  /**
+   * Create the core services to the base bundle which are platform dependent.
+   *
+   * @param args
+   *          the list of command line arguments
+   */
+  private void createCoreServices(List<String> args) {
+    loggingProvider = new Log4jLoggingProvider();
+    loggingProvider.configure(runtimeFolder, configFolder);
+
+    args = initializeFileConfigurationProvider(args);
+
+    containerCustomizerProvider = new SimpleContainerCustomizerProvider(args, true);
+  }
+
+  /**
+   * Register all bootstrap core services with the container.
+   */
+  public void registerCoreServices() {
+    rootBundleContext.registerService(LOGGING_PROVIDER_INTERFACE.getName(), loggingProvider, null);
+    rootBundleContext.registerService(CONFIGURATION_PROVIDER_INTERFACE.getName(), configurationProvider, null);
+    rootBundleContext.registerService(CONTAINER_COSTUMIZER_PROVIDER_INTERFACE.getName(), containerCustomizerProvider,
+        null);
   }
 
   /**

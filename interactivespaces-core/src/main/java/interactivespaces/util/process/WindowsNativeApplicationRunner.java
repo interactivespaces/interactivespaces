@@ -28,11 +28,6 @@ import org.apache.commons.logging.Log;
 public class WindowsNativeApplicationRunner extends BaseNativeApplicationRunner {
 
   /**
-   * Tag this launcher identifies itself with.
-   */
-  public static final String OPERATING_SYSTEM_TAG = "windows";
-
-  /**
    * Construct a new runner.
    *
    * @param runnerParser

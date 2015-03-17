@@ -17,7 +17,7 @@
 package interactivespaces.activity;
 
 import interactivespaces.configuration.Configuration;
-import interactivespaces.configuration.SystemConfiguration;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 
 /**
  * A collection of property names used in the Interactive Spaces system configuration specifically for activities to
@@ -25,7 +25,7 @@ import interactivespaces.configuration.SystemConfiguration;
  *
  * @author Keith M. Hughes
  */
-public class ActivitySystemConfiguration {
+public final class ActivitySystemConfiguration {
 
   /**
    * Prefix of the name of the configuration property for a native platform browser to use.
@@ -75,7 +75,7 @@ public class ActivitySystemConfiguration {
    * @return the full path to the binary to use for the browser
    */
   public static String getActivityNativeBrowserBinary(Configuration configuration) {
-    String os = configuration.getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+    String os = configuration.getRequiredPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
 
     return configuration.getRequiredPropertyString(CONFIGURATION_PREFIX_ACTIVITY_NATIVE_BROWSER_BINARY + "." + os);
   }
@@ -97,7 +97,7 @@ public class ActivitySystemConfiguration {
       return simpleVersion;
     }
 
-    String os = configuration.getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+    String os = configuration.getRequiredPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
     if (debug) {
       String debugVersion =
           configuration.getPropertyString(CONFIGURATION_PREFIX_ACTIVITY_NATIVE_BROWSER_COMMAND_FLAGS + "." + "debug"
@@ -127,8 +127,14 @@ public class ActivitySystemConfiguration {
       return simpleVersion;
     }
 
-    String os = configuration.getRequiredPropertyString(SystemConfiguration.PLATFORM_OS);
+    String os = configuration.getRequiredPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
 
     return configuration.getPropertyString(CONFIGURATION_PREFIX_ACTIVITY_NATIVE_BROWSER_COMMAND_ENVIRONMENT + "." + os);
+  }
+
+  /**
+   * Required for lint check.
+   */
+  private ActivitySystemConfiguration() {
   }
 }
