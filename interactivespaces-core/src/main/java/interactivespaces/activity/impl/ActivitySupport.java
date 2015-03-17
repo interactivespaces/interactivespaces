@@ -70,7 +70,7 @@ public abstract class ActivitySupport implements Activity {
   /**
    * The context for executing the activity.
    */
-  private ActivityExecutionContext context;
+  private ActivityExecutionContext executionContext;
 
   /**
    * The runtime this activity is running under.
@@ -89,7 +89,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public InteractiveSpacesEnvironment getSpaceEnvironment() {
-    return spaceEnvironment;
+    if (spaceEnvironment != null) {
+      return spaceEnvironment;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The space environment has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -99,7 +104,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public ActivityFilesystem getActivityFilesystem() {
-    return activityFilesystem;
+    if (activityFilesystem != null) {
+      return activityFilesystem;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity filesystem has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -109,7 +119,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public ActivityRuntime getActivityRuntime() {
-    return activityRuntime;
+    if (activityRuntime != null) {
+      return activityRuntime;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity runtime has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -119,7 +134,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public Log getLog() {
-    return log;
+    if (log != null) {
+      return log;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity logger has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -136,12 +156,22 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public Configuration getConfiguration() {
-    return configuration;
+    if (configuration != null) {
+      return configuration;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The configuration has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
   public String getName() {
-    return name;
+    if (name != null) {
+      return name;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity name has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -151,7 +181,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public String getUuid() {
-    return uuid;
+    if (uuid != null) {
+      return uuid;
+    } else {
+      throw new SimpleInteractiveSpacesException("The uuid has not been set yet. Are you accessing in the constructor?");
+    }
+
   }
 
   @Override
@@ -160,13 +195,18 @@ public abstract class ActivitySupport implements Activity {
   }
 
   @Override
-  public void setExecutionContext(ActivityExecutionContext context) {
-    this.context = context;
+  public void setExecutionContext(ActivityExecutionContext executionContext) {
+    this.executionContext = executionContext;
   }
 
   @Override
   public ActivityExecutionContext getExecutionContext() {
-    return context;
+    if (executionContext != null) {
+      return executionContext;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity execution context has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
@@ -181,7 +221,12 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public ActivityStatus getActivityStatus() {
-    return activityStatus;
+    if (activityStatus != null) {
+      return activityStatus;
+    } else {
+      throw new SimpleInteractiveSpacesException(
+          "The activity status has not been set yet. Are you accessing in the constructor?");
+    }
   }
 
   @Override
