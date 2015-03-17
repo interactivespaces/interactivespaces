@@ -18,4 +18,11 @@ if [ -f $RCFILE ]; then
   source $RCFILE
 fi
 
-java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar ${@}
+INTERACTIVESPACES_ARGS="${@}"
+
+# Add in the Interactive Spaces version if one has been set.
+if [ -n "${INTERACTIVESPACES_VERSION}" ]; then
+  INTERACTIVESPACES_ARGS="${INTERACTIVESPACES_ARGS} -Dinteractivespaces.version=${INTERACTIVESPACES_VERSION}"
+fi
+
+java ${EXTRAARGS} -server -jar interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar ${INTERACTIVESPACES_ARGS}

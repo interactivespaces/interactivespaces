@@ -74,6 +74,7 @@
 
       <parsable targetfile="$INSTALL_PATH/config/workbench.conf" />
 
+      <parsable targetfile="$INSTALL_PATH/system/log4j.properties" />
       <parsable targetfile="$INSTALL_PATH/bin/isworkbench" />
       <executable targetfile="$INSTALL_PATH/bin/isworkbench" stage="never" />
       <parsable targetfile="$INSTALL_PATH/bin/isrun" />

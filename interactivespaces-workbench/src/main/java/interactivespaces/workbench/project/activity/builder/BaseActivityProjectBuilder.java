@@ -52,24 +52,20 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean build(ActivityProject project, ProjectTaskContext context) {
+  public void build(ActivityProject project, ProjectTaskContext context) throws InteractiveSpacesException {
     File stagingDirectory = context.getStagingDirectory();
     fileSupport.directoryExists(stagingDirectory);
 
-    if (onBuild(project, context, stagingDirectory)) {
-      copyActivityResources(project, stagingDirectory, context);
-      handleActivityXml(project, stagingDirectory, context);
-      handleActivityConf(project, stagingDirectory, context);
-      context.processGeneratedResources(stagingDirectory);
-      context.processResources(stagingDirectory);
-      writeResourceMap(project, stagingDirectory, context);
+    onBuild(project, context, stagingDirectory);
 
-      context.processExtraConstituents();
+    copyActivityResources(project, stagingDirectory, context);
+    handleActivityXml(project, stagingDirectory, context);
+    handleActivityConf(project, stagingDirectory, context);
+    context.processGeneratedResources(stagingDirectory);
+    context.processResources(stagingDirectory);
+    writeResourceMap(project, stagingDirectory, context);
 
-      return true;
-    } else {
-      return false;
-    }
+    context.processExtraConstituents();
   }
 
   /**

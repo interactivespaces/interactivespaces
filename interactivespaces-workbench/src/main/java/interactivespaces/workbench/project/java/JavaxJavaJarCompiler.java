@@ -77,71 +77,60 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
-  public boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
+  public void buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
       ContainerInfo containerInfo, ProjectTaskContext context) {
-    try {
-      JavaProjectType projectType = context.getProjectType();
+    JavaProjectType projectType = context.getProjectType();
 
-      List<File> classpath = Lists.newArrayList();
-      projectType.getRuntimeClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
+    List<File> classpath = Lists.newArrayList();
+    projectType.getRuntimeClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
 
-      Project project = context.getProject();
-      File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
-      File generatedSourceDirectory = new File(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
+    Project project = context.getProject();
+    File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    File generatedSourceDirectory = new File(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
 
-      List<File> compilationFiles = Lists.newArrayList();
-      projectCompiler.getCompilationFiles(mainSourceDirectory, compilationFiles);
-      projectCompiler.getCompilationFiles(generatedSourceDirectory, compilationFiles);
+    List<File> compilationFiles = Lists.newArrayList();
+    projectCompiler.getCompilationFiles(mainSourceDirectory, compilationFiles);
+    projectCompiler.getCompilationFiles(generatedSourceDirectory, compilationFiles);
 
-      if (!project.getSources().isEmpty()) {
-        context.getLog().info(
-            String.format("Found %d files for main source directory %s and generated source directory",
-                compilationFiles.size(), mainSourceDirectory.getAbsolutePath(),
-                generatedSourceDirectory.getAbsolutePath()));
-      }
-
-      for (ContentProjectConstituent constituent : project.getSources()) {
-        String sourceDirectory = constituent.getSourceDirectory();
-        if (sourceDirectory == null) {
-          File buildTempDirectory = context.getTempBuildDirectory();
-          constituent.processConstituent(project, buildTempDirectory, context);
-          sourceDirectory = buildTempDirectory.toString();
-        }
-        File addedSource = context.getProjectTarget(project.getBaseDirectory(), sourceDirectory);
-
-        List<File> additionalSources = Lists.newArrayList();
-        projectCompiler.getCompilationFiles(addedSource, additionalSources);
-        compilationFiles.addAll(additionalSources);
-
-        context.getLog().info(
-            String.format("Found %d files in added source directory %s", additionalSources.size(),
-                addedSource.getAbsolutePath()));
-      }
-
-      if (compilationFiles.isEmpty()) {
-        throw new SimpleInteractiveSpacesException("No Java source files for Java project");
-      }
-
-      List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
-
-      if (projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions)) {
-        createJarFile(project, jarDestinationFile, compilationFolder, classpath, containerInfo, context);
-
-        if (extensions != null) {
-          extensions.postProcessJar(context, jarDestinationFile);
-        }
-
-        context.addArtifactToInclude(jarDestinationFile);
-
-        return true;
-      } else {
-        return false;
-      }
-    } catch (Exception e) {
-      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
-
-      return false;
+    if (!project.getSources().isEmpty()) {
+      context.getLog().info(
+          String.format("Found %d files for main source directory %s and generated source directory",
+              compilationFiles.size(), mainSourceDirectory.getAbsolutePath(),
+              generatedSourceDirectory.getAbsolutePath()));
     }
+
+    for (ContentProjectConstituent constituent : project.getSources()) {
+      String sourceDirectory = constituent.getSourceDirectory();
+      if (sourceDirectory == null) {
+        File buildTempDirectory = context.getTempBuildDirectory();
+        constituent.processConstituent(project, buildTempDirectory, context);
+        sourceDirectory = buildTempDirectory.toString();
+      }
+      File addedSource = context.getProjectTarget(project.getBaseDirectory(), sourceDirectory);
+
+      List<File> additionalSources = Lists.newArrayList();
+      projectCompiler.getCompilationFiles(addedSource, additionalSources);
+      compilationFiles.addAll(additionalSources);
+
+      context.getLog().info(
+          String.format("Found %d files in added source directory %s", additionalSources.size(),
+              addedSource.getAbsolutePath()));
+    }
+
+    if (compilationFiles.isEmpty()) {
+      throw new SimpleInteractiveSpacesException("No Java source files for Java project");
+    }
+
+    List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
+
+    projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions);
+    createJarFile(project, jarDestinationFile, compilationFolder, classpath, containerInfo, context);
+
+    if (extensions != null) {
+      extensions.postProcessJar(context, jarDestinationFile);
+    }
+
+    context.addArtifactToInclude(jarDestinationFile);
   }
 
   /**

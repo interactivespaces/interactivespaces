@@ -40,9 +40,7 @@ public interface JavaJarCompiler {
    *          any OSGi info for the build
    * @param context
    *          the context for building a project
-   *
-   * @return {@code true} if the compilation was successful
    */
-  boolean buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
+  void buildJar(File jarDestinationFile, File compilationFolder, JavaProjectExtension extensions,
       ContainerInfo containerInfo, ProjectTaskContext context);
 }

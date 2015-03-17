@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.builder;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
@@ -74,11 +75,11 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
    * @param stagingDirectory
    *          the staging directory where build artifacts go
    *
-   * @return {@code true} if build part was successful
+   * @throws InteractiveSpacesException
+   *           the build failed
    */
-  public boolean onBuild(T project, ProjectTaskContext context, File stagingDirectory) {
+  public void onBuild(T project, ProjectTaskContext context, File stagingDirectory) throws InteractiveSpacesException {
     // Default is nothing
-    return true;
   }
 
   /**

@@ -124,6 +124,9 @@ public class VersionTest {
   public void testRange() {
     Version version = new Version(1, 2, 3);
 
+    // Test exact match
+    Assert.assertTrue(new VersionRange(new Version(1, 2, 3)).contains(version));
+
     // In range
     Assert.assertTrue(new VersionRange(new Version(1, 2, 3), new Version(1, 2, 4), true).contains(version));
 
