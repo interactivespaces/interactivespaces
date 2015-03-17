@@ -73,7 +73,8 @@ public class BasicWebBrowserActivityComponent extends BaseWebBrowserActivityComp
 
   @Override
   public boolean isComponentRunning() {
-    return webBrowserRunner != null && webBrowserRunner.isRunning();
+    // Either the web browser is running, or it was requested that the browser not actually start up.
+    return (webBrowserRunner != null && webBrowserRunner.isRunning()) || (!browserStartup);
   }
 
   /**
