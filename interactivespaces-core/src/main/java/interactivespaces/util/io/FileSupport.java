@@ -156,6 +156,28 @@ public interface FileSupport {
   void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> copyMap);
 
   /**
+   * Copy the contents of the source directory to the destination directory.
+   *
+   * <p>
+   * This includes all subdirectories, their subdirectories, etc.
+   *
+   * <p>
+   * Files must pass the file filter to be copied.
+   *
+   * @param sourceDir
+   *          the source directory
+   * @param filter
+   *          the file filter that determines which files get copied, can be {@code null} which passes everything
+   * @param destDir
+   *          the destination directory (which will be created if necessary)
+   * @param overwrite
+   *          {@code true} if should overwrite files if already in the destination folder
+   * @param copyMap
+   *          if not {@code null}, add copied files to map, with dest (key) and source (value)
+   */
+  void copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, Map<File, File> copyMap);
+
+  /**
    * Copy an input stream to an output file.
    *
    * <p>

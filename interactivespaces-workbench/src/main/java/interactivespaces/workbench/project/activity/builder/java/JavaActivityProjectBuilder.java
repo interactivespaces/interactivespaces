@@ -17,6 +17,7 @@
 package interactivespaces.workbench.project.activity.builder.java;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.ProjectTaskContext;
@@ -84,9 +85,32 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
     File jarDestinationFile = getBuildDestinationFile(project, stagingDirectory, JAR_FILE_EXTENSION);
     project.setActivityExecutable(jarDestinationFile.getName());
 
-    compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, new ContainerInfo(), context);
+    ContainerInfo containerInfo = new ContainerInfo();
+    addActivityContainerInformation(project, containerInfo);
+
+    compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, containerInfo, context);
 
     runTests(jarDestinationFile, context);
+  }
+
+  /**
+   * Add in any container info data needed from the activity.
+   *
+   * @param project
+   *          the project
+   * @param containerInfo
+   *          the container info to modify
+   */
+  private void addActivityContainerInformation(ActivityProject project, ContainerInfo containerInfo) {
+    String activityClass = project.getActivityClass();
+    String activityPackage = null;
+    int classnamePos = activityClass.lastIndexOf(".");
+    if (classnamePos != -1) {
+      activityPackage = activityClass.substring(0, classnamePos);
+    } else {
+      SimpleInteractiveSpacesException.throwFormattedException("Activity class in the root package: %s", activityClass);
+    }
+    containerInfo.addExportPackages(activityPackage);
   }
 
   /**

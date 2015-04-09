@@ -259,7 +259,8 @@ The following example is part of the ``<activity>`` element for the
 
   <activity type="interactivespaces_native">
     <name>interactivespacesExampleActivityControlOscRoutable</name>
-    <class>interactivespaces.example.activity.control.osc.routable.OpenSoundControlRoutableExampleActivity
+    <class>
+      interactivespaces.example.activity.control.osc.routable.OpenSoundControlRoutableExampleActivity
     </class>
 
     <configuration>
@@ -442,20 +443,27 @@ between versions ``1.0.0`` and ``1.1.0`` would be as follows.
 ::
 
   <dependencies>
-    <dependency name="interactivespaces.sandbox.service.control.dmx" 
-        minimumVersion="1.0.0" maximumVersion="1.1.0" 
+    <dependency identifyingName="interactivespaces.sandbox.service.control.dmx" 
+        version="[1.0.0, 1.1.0)" 
         required="true" />
   </dependencies>
 
-The ``<dependency>`` item names the dependency, in this case ``interactivespaces.sandbox.service.control.dmx``.
-The ``minimumVersion`` attribute says that the ``1.0.0`` version of the library is the minimum version which 
-can be used. ``maximumVersion`` gives the maximum version. In this case, any version
-before ``1.1.0`` would be allowed. In other words, the maximum version is exclusive, the version number has to be strictly smaller
-than the value given.
+The ``<dependency>`` item names the dependency, in this case ``interactivespaces.sandbox.service.control.dmx``
+through the ``identifyingName`` attribute.
 
-If you leave off ``maximumVersion`` it is given the value of ``minimumVersion``. If ``minimumVersion`` and
-``maximumVersion`` have the same value, this means that the activity is dependent on exactly that version,
-not a range of versions.
+The ``version`` attribute says that the ``1.0.0`` version of the library is the minimum version which 
+can be used, while any version up to but not including ``1.1.0`` would be allowed. In other words, the 
+maximum version is exclusive, the version number has to be strictly smaller than the value given.
+The ``)`` character at the end of the version range is what marks the upper version as exclusive.
+
+If the version value was changed to ``[1.0.0, 1.1.0]", then ``1.1.0`` would also be a matching value. The ``]`` makes
+the range inclusive.
+
+A version range of ``1.0.0`` means that ``1.0.0`` is the minimum value to match, and that any other version
+greater than ``1.0.0`` is a match, all the way up to infinity.
+
+A version range of ``=1.0.0`` means that only version ``1.0.0`` is a match. This is equivalent to the
+range ``[1.0.0, 1.0.1)``.
 
 The ``required`` field says whether your code is dependent on the dependency. This sounds a little strange, but
 not requiring a dependency just says that the activity could run if the dependency is available, but it can
@@ -463,6 +471,40 @@ also run without it. The ``required`` attribute is not required and will have a 
 specified.
 
 The ``<dependencies>`` section can have as many ``<dependency>`` items as needed.
+
+By default, dependencies are dynamically linked to your activity at runtime. This means that only one
+copy of the dependency is found in the controller and any activities that need the dependency all share the same version.
+
+Interactive Spaces also supports static linking, which means that the contents of the dependency are made part
+of the activity itself at compile time. Then, when the activity is deployed, it has its own copy of the
+dependency that it doesn't share with any other activities.
+
+The following  ``<dependencies>`` section shows how to declare our dependency to be statically linked.
+The attribute ``linking`` on the ``<dependency>`` has the value ``static``.
+
+::
+
+  <dependencies>
+    <dependency name="interactivespaces.sandbox.service.control.dmx" 
+        version="[1.0.0, 1.1.0)" 
+        required="true" linking="static" />
+  </dependencies>
+
+The other value that ``linking`` can have is ``dynamic``. ``dynamic`` is the default value and if no ``linking``
+attribute is specified, the linking will be dynamic.
+
+You can also set the default for all ``<dependency>`` elements by placing the ``linking`` attribute on the
+``<dependencies>`` element.
+
+::
+
+  <dependencies linking="static">
+    <dependency name="interactivespaces.sandbox.service.control.dmx" 
+        version="[1.0.0, 1.1.0)" 
+        required="true" />
+  </dependencies>
+
+Now the default for all ``<dependency>`` elements is ``static``.
 
 .. _workbench1-import-deploy-label:
 

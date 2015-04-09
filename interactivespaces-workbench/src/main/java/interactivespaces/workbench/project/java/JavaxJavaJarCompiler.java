@@ -23,6 +23,8 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectDependency.ProjectDependencyLinking;
+import interactivespaces.workbench.project.ProjectDependencyProvider;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.constituent.ContentProjectConstituent;
 import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
@@ -37,6 +39,7 @@ import aQute.lib.osgi.Constants;
 import aQute.lib.osgi.Jar;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,6 +58,26 @@ import java.util.zip.ZipOutputStream;
  * @author Keith M. Hughes
  */
 public class JavaxJavaJarCompiler implements JavaJarCompiler {
+
+  /**
+   * The name of the manifest file in a Java jar.
+   */
+  public static final String JAVA_JAR_MANIFEST_MF = "MANIFEST.MF";
+
+  /**
+   * A file filter that accepts anything but a Java jar manifest file.
+   */
+  public static final FileFilter JAVA_JAR_MANIFEST_IGNORE_FILTER = new FileFilter() {
+    @Override
+    public boolean accept(File pathname) {
+      return !pathname.getName().endsWith(JAVA_JAR_MANIFEST_MF);
+    }
+  };
+
+  /**
+   * The name given to the temporary folder that helps with static linking.
+   */
+  public static final String TEMP_FOLDER_STATIC_LINKING = "staticlinking";
 
   /**
    * The separator between a bundle's name and version in the bundle filename.
@@ -124,6 +147,9 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
     projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions);
+
+    addStaticLinkDependencies(compilationFolder, context);
+
     createJarFile(project, jarDestinationFile, compilationFolder, classpath, containerInfo, context);
 
     if (extensions != null) {
@@ -131,6 +157,49 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     }
 
     context.addArtifactToInclude(jarDestinationFile);
+  }
+
+  /**
+   * Link in any dependencies which are static into the jar.
+   *
+   * @param compilationFolder
+   *          the folder where the activity class files are
+   * @param context
+   *          the context for the project task
+   */
+  private void addStaticLinkDependencies(File compilationFolder, ProjectTaskContext context) {
+    // This folder is created lazily.
+    File expansionFolder = null;
+
+    try {
+      for (ProjectDependency dependency : context.getProject().getDependencies()) {
+        if (ProjectDependencyLinking.STATIC != dependency.getLinking()) {
+          continue;
+        }
+
+        ProjectDependencyProvider provider = dependency.getProvider();
+        if (provider == null) {
+          continue;
+        }
+
+        if (expansionFolder == null) {
+          expansionFolder = fileSupport.newFile(context.getBuildDirectory(), TEMP_FOLDER_STATIC_LINKING);
+          if (!fileSupport.mkdirs(expansionFolder)) {
+            // Folder already exists. Clean it out.
+            fileSupport.deleteDirectoryContents(expansionFolder);
+          }
+        }
+        provider.placeContents(expansionFolder);
+      }
+
+      if (expansionFolder != null) {
+        fileSupport.copyDirectory(expansionFolder, JAVA_JAR_MANIFEST_IGNORE_FILTER, compilationFolder, true, null);
+      }
+    } finally {
+      if (expansionFolder != null) {
+        fileSupport.delete(expansionFolder);
+      }
+    }
   }
 
   /**
@@ -225,7 +294,16 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
       // At this point exportPackages will have entries to avoid exporting
       // private packages. This addition will make sure all packages from the
       // activity will export and will all be given the bundle version.
-      exportPackages.add("*;version=\"" + version + "\"");
+      String versionSpecifier = ";version=\"" + version + "\"";
+      List<String> containerInfoExportPackages = containerInfo.getExportPackages();
+      if (!containerInfoExportPackages.isEmpty()) {
+        for (String containerInfoExportPackage : containerInfoExportPackages) {
+          exportPackages.add(containerInfoExportPackage + versionSpecifier);
+        }
+      } else {
+        // No exports explicitly specified, so export all.
+        exportPackages.add("*" + versionSpecifier);
+      }
       analyzer.setProperty(Constants.EXPORT_PACKAGE, Joiner.on(",").join(exportPackages));
 
       // This will make sure any imports we miss will be added to the imports.

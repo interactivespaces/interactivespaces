@@ -124,13 +124,16 @@ public class VersionTest {
   public void testRange() {
     Version version = new Version(1, 2, 3);
 
-    // Test exact match
+    // Test infinity match.
     Assert.assertTrue(new VersionRange(new Version(1, 2, 3)).contains(version));
+    Assert.assertTrue(new VersionRange(new Version(1, 2, 0)).contains(version));
+    Assert.assertFalse(new VersionRange(new Version(1, 2, 4)).contains(version));
 
     // In range
     Assert.assertTrue(new VersionRange(new Version(1, 2, 3), new Version(1, 2, 4), true).contains(version));
+    Assert.assertTrue(new VersionRange(new Version(1, 2, 3), new Version(1, 2, 4), false).contains(version));
 
-    // Below range
+    // Below range, both inclusive and exclusive.
     Assert.assertFalse(new VersionRange(new Version(1, 3, 3), new Version(1, 3, 4), true).contains(version));
 
     // Above range
@@ -154,6 +157,8 @@ public class VersionTest {
         VersionRange.parseVersionRange("[1.2, 2.3)"));
     Assert.assertEquals(new VersionRange(new Version(1, 2, 0), new Version(2, 3, 0), true),
         VersionRange.parseVersionRange("[1.2, 2.3]"));
+    Assert.assertEquals(new VersionRange(new Version(1, 2, 0), new Version(1, 2, 1), false),
+        VersionRange.parseVersionRange("=1.2"));
 
     tryBadVersionRangeParse("qwerty");
     tryBadVersionRangeParse("[1]");

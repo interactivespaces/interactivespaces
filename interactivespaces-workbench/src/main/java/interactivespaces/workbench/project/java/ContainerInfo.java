@@ -20,6 +20,7 @@ import interactivespaces.resource.VersionRange;
 
 import com.google.common.collect.Lists;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,6 +41,11 @@ public class ContainerInfo {
   private List<String> privatePackages = Lists.newArrayList();
 
   /**
+   * The export packages for the library.
+   */
+  private List<String> exportPackages = Lists.newArrayList();
+
+  /**
    * The import packages for the library.
    */
   private List<ImportPackage> importPackages = Lists.newArrayList();
@@ -47,7 +53,7 @@ public class ContainerInfo {
   /**
    * Get the classname of the bundle activator.
    *
-   * @return the classname of the bundle activator, can be {@code null}.
+   * @return the classname of the bundle activator, can be {@code null}
    */
   public String getActivatorClassname() {
     return activatorClassname;
@@ -57,7 +63,7 @@ public class ContainerInfo {
    * Set the classname of the bundle activator.
    *
    * @param activatorClassname
-   *          the classname of the bundle activator, can be {@code null}.
+   *          the classname of the bundle activator, can be {@code null}
    */
   public void setActivatorClassname(String activatorClassname) {
     this.activatorClassname = activatorClassname;
@@ -73,6 +79,42 @@ public class ContainerInfo {
    */
   public List<String> getPrivatePackages() {
     return privatePackages;
+  }
+
+  /**
+   * Add to the list of private packages.
+   *
+   * @param packages
+   *          the packages to add
+   */
+  public void addPrivatePackages(String... packages) {
+    if (packages != null) {
+      Collections.addAll(privatePackages, packages);
+    }
+  }
+
+  /**
+   * Get the list of export packages.
+   *
+   * <p>
+   * This is the actual list, not a copy. Feel free to modify as needed.
+   *
+   * @return the list of export packages
+   */
+  public List<String> getExportPackages() {
+    return exportPackages;
+  }
+
+  /**
+   * Add to the list of export packages.
+   *
+   * @param packages
+   *          the packages to add
+   */
+  public void addExportPackages(String... packages) {
+    if (packages != null) {
+      Collections.addAll(exportPackages, packages);
+    }
   }
 
   /**

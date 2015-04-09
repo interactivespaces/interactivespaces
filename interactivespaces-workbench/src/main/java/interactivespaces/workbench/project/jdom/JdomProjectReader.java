@@ -23,6 +23,7 @@ import interactivespaces.resource.VersionRange;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectDependency.ProjectDependencyLinking;
 import interactivespaces.workbench.project.ProjectDeployment;
 import interactivespaces.workbench.project.ProjectReader;
 import interactivespaces.workbench.project.activity.ActivityProjectConstituent;
@@ -242,6 +243,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    * Project definition file attribute name for the name of a configuration item.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
+
+  /**
+   * The attribute name that specifies how to link a dependency.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_DEPENDENCY_LINKING = "linking";
+
+  /**
+   * The default value for linking of dependencies.
+   */
+  private static final ProjectDependencyLinking PROJECT_DEPENDENCY_LINKING_DEFAULT = ProjectDependencyLinking.RUNTIME;
 
   /**
    * Construct a project reader.
@@ -494,15 +505,46 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     Element dependenciesElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPENDENCIES, projectNamespace);
 
     if (dependenciesElement != null) {
+      ProjectDependencyLinking defaultLinking =
+          getDependencyLinkingAttribute(dependenciesElement, PROJECT_DEPENDENCY_LINKING_DEFAULT);
+      if (defaultLinking == null) {
+        return;
+      }
+
       @SuppressWarnings("unchecked")
       List<Element> dependencyElements =
           dependenciesElement.getChildren(PROJECT_ELEMENT_NAME_DEPENDENCY_ITEM, projectNamespace);
 
       for (Element dependencyElement : dependencyElements) {
-        ProjectDependency dependency = getDependency(dependencyElement);
-        project.addDependency(dependency);
+        ProjectDependency dependency = getDependency(dependencyElement, defaultLinking);
+        if (dependency != null) {
+          project.addDependency(dependency);
+        }
       }
     }
+  }
+
+  /**
+   * Get the project dependency link attribute value for the given element.
+   *
+   * @param dependencyElement
+   *          the dependency element
+   * @param defaultLinking
+   *          the default linking value if none is specified
+   *
+   * @return the linking value to use or {@code null} if the linkage value was not legal
+   */
+  private ProjectDependencyLinking getDependencyLinkingAttribute(Element dependencyElement,
+      ProjectDependencyLinking defaultLinking) {
+    String linkingString =
+        dependencyElement.getAttributeValue(PROJECT_ATTRIBUTE_NAME_PROJECT_DEPENDENCY_LINKING,
+            defaultLinking.toString());
+    ProjectDependencyLinking linking = ProjectDependencyLinking.valueOf(linkingString.toUpperCase());
+    if (linking == null) {
+      addError(String.format("Unknown project dependency linking %s", linkingString));
+    }
+
+    return linking;
   }
 
   /**
@@ -510,10 +552,12 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    *
    * @param dependencyElement
    *          the element containing the data
+   * @param defaultLinking
+   *          the default linking for project dependencies
    *
    * @return the dependency found in the element, or {@code null} if errors
    */
-  private ProjectDependency getDependency(Element dependencyElement) {
+  private ProjectDependency getDependency(Element dependencyElement, ProjectDependencyLinking defaultLinking) {
     String identifyingName =
         getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
     if (identifyingName == null) {
@@ -528,6 +572,15 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     VersionRange version = null;
     String versionStr = getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION);
     if (versionStr != null) {
+      if (Character.isDigit(versionStr.charAt(0))) {
+        getWorkbench()
+            .getLog()
+            .warn(
+                String
+                    .format(
+                        "A version value of %s was specified that gives a range of [%s, infinity). If an exact match is wanted, use =%s",
+                        versionStr, versionStr, versionStr));
+      }
       version = VersionRange.parseVersionRange(versionStr);
     } else {
       String minimumVersionStr =
@@ -557,12 +610,18 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         PROJECT_VALUE_TRUE.equals(getAttributeValue(dependencyElement, PROJECT_ATTRIBUTE_NAME_DEPENDENCY_ITEM_DYNAMIC,
             PROJECT_ATTRIBUTE_VALUE_DEFAULT_DEPENDENCY_ITEM_DYNAMIC));
 
+    ProjectDependencyLinking linking = getDependencyLinkingAttribute(dependencyElement, defaultLinking);
+    if (linking == null) {
+      return null;
+    }
+
     ProjectDependency dependency = new ProjectDependency();
 
     dependency.setIdentifyingName(identifyingName);
     dependency.setVersionRange(version);
     dependency.setRequired(required);
     dependency.setDynamic(dynamic);
+    dependency.setLinking(linking);
 
     return dependency;
   }
@@ -611,5 +670,4 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     return new ProjectDeployment(type, method, location);
   }
-
 }

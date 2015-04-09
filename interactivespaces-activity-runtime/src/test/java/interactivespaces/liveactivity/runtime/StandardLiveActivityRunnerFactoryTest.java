@@ -148,7 +148,7 @@ public class StandardLiveActivityRunnerFactoryTest {
     runnerFactory.registerActivityWrapperFactory(versionedWrapperFactory);
 
     LiveActivityRunner aactivity =
-        runnerFactory.newLiveActivityRunner("foo;0.0.0", liveActivity, filesystem, configuration, runnerListener,
+        runnerFactory.newLiveActivityRunner("foo;=0.0.0", liveActivity, filesystem, configuration, runnerListener,
             liveActivityRuntime);
     Assert.assertEquals(unversionedWrapper, aactivity.getActivityWrapper());
   }

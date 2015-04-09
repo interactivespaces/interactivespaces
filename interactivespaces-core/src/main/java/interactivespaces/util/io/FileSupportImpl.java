@@ -204,6 +204,12 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> fileMap) {
+    copyDirectory(sourceDir, null, destDir, overwrite, fileMap);
+  }
+
+  @Override
+  public void
+      copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, Map<File, File> fileMap) {
     directoryExists(destDir);
 
     File[] sourceFiles = listFiles(sourceDir);
@@ -212,10 +218,14 @@ public class FileSupportImpl implements FileSupport {
     }
 
     for (File src : sourceFiles) {
+      if (filter != null && !filter.accept(src)) {
+        continue;
+      }
+
       try {
         File dst = new File(destDir, src.getName());
         if (isDirectory(src)) {
-          copyDirectory(src, dst, overwrite, fileMap);
+          copyDirectory(src, filter, dst, overwrite, fileMap);
         } else {
           if (!exists(dst) || overwrite) {
             if (fileMap != null) {

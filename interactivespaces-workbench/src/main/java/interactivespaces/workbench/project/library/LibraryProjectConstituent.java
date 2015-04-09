@@ -155,8 +155,6 @@ public class LibraryProjectConstituent extends BaseProjectConstituent {
      *          the container info object to store the packages in
      */
     private void extractPrivatePackages(Namespace namespace, Element rootElement, ContainerInfo containerInfo) {
-      List<String> packages = containerInfo.getPrivatePackages();
-
       Element packagesElement = rootElement.getChild(CONTAINER_PRIVATE_PACKAGES_ELEMENT, namespace);
       if (packagesElement != null) {
         @SuppressWarnings("unchecked")
@@ -164,7 +162,7 @@ public class LibraryProjectConstituent extends BaseProjectConstituent {
         for (Element packageElement : packageElements) {
           String packageName = packageElement.getTextTrim();
           if (packageName != null && !packageName.isEmpty()) {
-            packages.add(packageName);
+            containerInfo.addPrivatePackages(packageName);
           }
         }
       }

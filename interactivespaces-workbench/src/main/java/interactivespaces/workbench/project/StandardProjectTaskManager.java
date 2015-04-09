@@ -162,6 +162,10 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
             dependencyBuildTask =
                 addProjectBuildTask(dependencyProject, newProjectTaskContext(dependencyProject, workbenchTaskContext),
                     workbenchTaskContext, existingBuildTasks);
+
+            // Set the provider for the dependency.
+            dependency.setProvider(new DynamicProjectProjectDependencyProvider(dependencyBuildTask
+                .getProjectTaskContext()));
           }
 
           // Add the dependency context from the build context so that the current task can get all artifacts from the

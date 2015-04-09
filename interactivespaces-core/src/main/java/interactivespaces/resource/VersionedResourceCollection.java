@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * A collection of versioned resources.
  *
  * <p>
- * This does not mean that everything in the collection implements {@lin
- * VersionedResource}. This allows the class to be used for anything.
+ * This does not mean that everything in the collection implements {@link VersionedResource}. This allows the class to
+ * be used for anything.
  *
  * <p>
  * This class is thread safe.
@@ -88,27 +88,23 @@ public class VersionedResourceCollection<T> {
    * @param range
    *          the range
    *
-   * @return the highest version in the range or {@code null} if there are no
-   *         elements in the range
+   * @return the highest version in the range or {@code null} if there are no elements in the range
    */
   public T getResource(VersionRange range) {
+    Entry<Version, T> result;
     Version maximum = range.getMaximum();
-
-    if (range.isInclusive()) {
-      Entry<Version, T> result = resources.floorEntry(maximum);
-
-      if (result != null) {
-        if (range.getMinimum().lessThanOrEqual(result.getKey())) {
-          return result.getValue();
-        }
-      }
+    if (maximum != null) {
+      // If inclusive, get the largest maximum that can also equal the maximum.
+      // Otherwise is exclusive so get the largest maximum that is less than the maximum.
+      result = range.isInclusive() ? resources.floorEntry(maximum) : resources.lowerEntry(maximum);
     } else {
-      Entry<Version, T> result = resources.lowerEntry(maximum);
+      // Hard to be equal to infinity, so would always be the last entry.
+      result = resources.lastEntry();
+    }
 
-      if (result != null) {
-        if (range.getMinimum().lessThanOrEqual(result.getKey())) {
-          return result.getValue();
-        }
+    if (result != null) {
+      if (range.getMinimum().lessThanOrEqual(result.getKey())) {
+        return result.getValue();
       }
     }
 

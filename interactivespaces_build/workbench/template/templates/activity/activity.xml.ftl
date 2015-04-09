@@ -26,11 +26,17 @@ ${project.description?html}
 <#if project.dependencies?has_content>
   <dependencies>
   <#list project.dependencies as dependency>
-    <dependency identifyingName="${dependency.identifyingName?html}"
+    <#if dependency.linking != 'STATIC'>
+    <dependency
+      identifyingName="${dependency.identifyingName?html}"
+      name="${dependency.identifyingName?html}"
     <#if dependency.version?has_content>
        version="${dependency.version}"
+       minimumVersion="${dependency.version.minimum}"
+       maximumVersion="${dependency.version.maximum}"
     </#if>
        required="${dependency.required?string}" />
+    </#if>
   </#list>
   </dependencies>
 </#if>

@@ -46,6 +46,11 @@ public class VersionRange {
   public static final String RANGE_SEPARATOR = ",";
 
   /**
+   * The symbol to mark the range as exact.
+   */
+  public static final String RANGE_EXACT = "=";
+
+  /**
    * Parse a range string.
    *
    * @param minimumVersion
@@ -98,6 +103,10 @@ public class VersionRange {
         maximum = Version.parseVersion(range.substring(pos + 1, range.length() - 1));
 
         return new VersionRange(minimum, maximum, inclusive);
+      } else if (range.startsWith(RANGE_EXACT)) {
+        Version minimum = Version.parseVersion(range.substring(1));
+
+        return new VersionRange(minimum, minimum.incrementMicro(), false);
       } else {
         // Not a full range, but should be a single version
         return new VersionRange(Version.parseVersion(range));
@@ -114,6 +123,9 @@ public class VersionRange {
 
   /**
    * The maximum of the range.
+   *
+   * <p>
+   * Can be {@code null} to represent infinity.
    */
   private Version maximum;
 
@@ -123,42 +135,28 @@ public class VersionRange {
   private boolean inclusive;
 
   /**
-   * Construct a range which will only match one version.
+   * Construct a range which uses the version supplied as the minimum and sets the upper range to infinity.
    *
    * @param version
-   *          the version
+   *          the minimum version
    */
   public VersionRange(Version version) {
-    this(version, version, true);
+    this(version, null, true);
   }
 
   /**
    * Construct a range with a minimum and maximum.
    *
-   * <p>
-   * The range will be marked inclusive if {@code minimum} equals {@code maximum}, since exclusive could never be
-   * satisfied.
-   *
    * @param minimum
    *          the minimum
    * @param maximum
-   *          the maximum
+   *          the maximum, can be {@code null} to represent infinity
    * @param inclusive
    *          {@code true} if should be inclusive
    */
   public VersionRange(Version minimum, Version maximum, boolean inclusive) {
-    if (minimum.equals(maximum)) {
-      this.minimum = minimum;
-      this.maximum = maximum;
-      inclusive = true;
-    } else if (maximum.lessThan(minimum)) {
-      this.minimum = maximum;
-      this.maximum = minimum;
-
-    } else {
-      this.minimum = minimum;
-      this.maximum = maximum;
-    }
+    this.minimum = minimum;
+    this.maximum = maximum;
     this.inclusive = inclusive;
   }
 
@@ -184,7 +182,7 @@ public class VersionRange {
   /**
    * Get the maximum.
    *
-   * @return the maximum
+   * @return the maximum, can be {@code null} to specify infinity
    */
   public Version getMaximum() {
     return maximum;
@@ -194,7 +192,7 @@ public class VersionRange {
    * Set the maximum.
    *
    * @param maximum
-   *          the new maximum
+   *          the new maximum, can be {@code null} to specify infinity
    */
   public void setMaximum(Version maximum) {
     this.maximum = maximum;
@@ -232,8 +230,13 @@ public class VersionRange {
       return false;
     }
 
-    int maxComp = version.compareTo(maximum);
-    return (maxComp < 0) || (maxComp == 0 && inclusive);
+    // The version is >= to the minimum
+    if (maximum != null) {
+      int maxComp = version.compareTo(maximum);
+      return (maxComp < 0) || (maxComp == 0 && inclusive);
+    } else {
+      return true;
+    }
   }
 
   @Override
@@ -282,7 +285,7 @@ public class VersionRange {
   public String toString() {
     StringBuilder builder = new StringBuilder();
 
-    if (minimum.equals(maximum)) {
+    if (maximum == null) {
       builder.append(minimum.toString());
     } else {
       builder.append(RANGE_LOWER_CLOSED).append(minimum.toString()).append(", ").append(maximum.toString())

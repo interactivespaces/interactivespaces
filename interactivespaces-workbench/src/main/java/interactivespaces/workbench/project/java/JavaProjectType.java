@@ -23,6 +23,7 @@ import interactivespaces.resource.analysis.OsgiResourceAnalyzer;
 import interactivespaces.system.core.container.ContainerFilesystemLayout;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.workbench.project.FileProjectDependencyProvider;
 import interactivespaces.workbench.project.ProjectDependency;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -148,13 +149,14 @@ public abstract class JavaProjectType implements ProjectType {
             String.format("Project Dependency %s:%s is being satisfied by %s", dependency.getIdentifyingName(),
                 dependency.getVersion(), dependencyFile.getAbsolutePath()));
 
+        dependency.setProvider(new FileProjectDependencyProvider(dependencyFile));
+
         classpath.add(dependencyFile);
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
         throw new SimpleInteractiveSpacesException(String.format(
             "Project has listed dependency that isn't available %s:%s", dependency.getIdentifyingName(),
             dependency.getVersion()));
-
       }
     }
   }

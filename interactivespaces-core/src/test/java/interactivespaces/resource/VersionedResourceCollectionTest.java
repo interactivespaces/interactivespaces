@@ -93,17 +93,25 @@ public class VersionedResourceCollectionTest {
     Assert.assertEquals(v0Value, resources.getResource(range3));
 
     // Should get lowest
-    VersionRange range4 = new VersionRange(v0);
+    VersionRange range4 = new VersionRange(v0, v0.incrementMicro(), false);
     Assert.assertEquals(v0Value, resources.getResource(range4));
 
     // Should get middle
-    VersionRange range5 = new VersionRange(v1);
+    VersionRange range5 = new VersionRange(v1, v1.incrementMicro(), false);
     Assert.assertEquals(v1Value, resources.getResource(range5));
 
     // Should get highest
-    VersionRange range6 = new VersionRange(v2);
+    VersionRange range6 = new VersionRange(v2, v2.incrementMicro(), false);
     Assert.assertEquals(v2Value, resources.getResource(range6));
-  }
+
+    // Should get highest from an infinite upper limit
+    VersionRange range7 = new VersionRange(v2);
+    Assert.assertEquals(v2Value, resources.getResource(range7));
+    VersionRange range8 = new VersionRange(v1);
+    Assert.assertEquals(v2Value, resources.getResource(range8));
+    VersionRange range9 = new VersionRange(v0);
+    Assert.assertEquals(v2Value, resources.getResource(range9));
+ }
 
   @Test
   public void testOutsideRange() {

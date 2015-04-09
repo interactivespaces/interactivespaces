@@ -43,7 +43,7 @@ public class ProjectDependency {
    * Is the dependency required?
    *
    * <p>
-   * {@code true} if the dependency is required
+   * {@code true} if the dependency is required.
    */
   private boolean required;
 
@@ -51,6 +51,16 @@ public class ProjectDependency {
    * {@code true} if the dependency is dynamic.
    */
   private boolean dynamic;
+
+  /**
+   * The linking for the dependency.
+   */
+  private ProjectDependencyLinking linking;
+
+  /**
+   * The provider for the dependency. Can be {@code null}.
+   */
+  private ProjectDependencyProvider provider;
 
   /**
    * Get the identifying name of the dependency.
@@ -129,6 +139,44 @@ public class ProjectDependency {
   }
 
   /**
+   * Get the linking for the dependency.
+   *
+   * @return the linking
+   */
+  public ProjectDependencyLinking getLinking() {
+    return linking;
+  }
+
+  /**
+   * Set the linking for the dependency.
+   *
+   * @param linking
+   *          the linking
+   */
+  public void setLinking(ProjectDependencyLinking linking) {
+    this.linking = linking;
+  }
+
+  /**
+   * Get the provider for the dependency.
+   *
+   * @return the provider, or {@null} if not known
+   */
+  public ProjectDependencyProvider getProvider() {
+    return provider;
+  }
+
+  /**
+   * Set the provider for the dependency.
+   *
+   * @param provider
+   *          the provider
+   */
+  public void setProvider(ProjectDependencyProvider provider) {
+    this.provider = provider;
+  }
+
+  /**
    * Get the OSGi formatted version string for this dependency.
    *
    * @return the OSGI version string
@@ -155,7 +203,24 @@ public class ProjectDependency {
 
   @Override
   public String toString() {
-    return "ProjectDependency [identifyingName=" + identifyingName + ", versionRange=" + versionRange
-        + ", required=" + required + ", dynamic=" + dynamic + "]";
+    return "ProjectDependency [identifyingName=" + identifyingName + ", versionRange=" + versionRange + ", required="
+        + required + ", dynamic=" + dynamic + ", linking=" + linking + "]";
+  }
+
+  /**
+   * The types of linking for a project dependency.
+   *
+   * @author Keith M. Hughes
+   */
+  public enum ProjectDependencyLinking {
+    /**
+     * Use runtime linking.
+     */
+    RUNTIME,
+
+    /**
+     * Use static linking.
+     */
+    STATIC
   }
 }
