@@ -83,7 +83,7 @@
       <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" />
       <executable targetfile="$INSTALL_PATH/bin/isharshshutdown" stage="never" />
 
-      <parsable targetfile="$INSTALL_PATH/system/log4j.properties" />
+      <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" />
       <parsable targetfile="$INSTALL_PATH/config/container.conf" />
       <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
       <parsable targetfile="$INSTALL_PATH/config/interactivespaces/master.conf" />
