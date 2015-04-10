@@ -146,6 +146,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
     List<String> compilerOptions = projectCompiler.getCompilerOptions(context);
 
+    context.getLog().info(String.format("Running the Java compiler with arguments %s", compilerOptions));
+
     projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions);
 
     addStaticLinkDependencies(compilationFolder, context);

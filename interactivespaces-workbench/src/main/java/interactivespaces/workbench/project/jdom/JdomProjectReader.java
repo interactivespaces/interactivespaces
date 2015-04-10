@@ -51,6 +51,12 @@ import java.util.Map;
 public class JdomProjectReader extends JdomReader implements ProjectReader {
 
   /**
+   * The configuration property that specifies which linking should be used for project dependencies.
+   */
+  public static final String CONFIGURATION_NAME_PROJECT_DEPENDENCY_LINKING_DEFAULT =
+      "interactivespaces.workbench.dependency.linking.default";
+
+  /**
    * The default version range for projects which do not specify a version range.
    */
   public static final VersionRange INTERACTIVESPACES_VERSION_RANGE_DEFAULT = new VersionRange(new Version(1, 0, 0),
@@ -245,6 +251,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME = "name";
 
   /**
+   * Project definition file attribute name for the value of a configuration item.
+   */
+  private static final String PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_VALUE = "value";
+
+  /**
+   * Project definition file element name for a configuration item value.
+   */
+  private static final String PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM_VALUE = "value";
+
+  /**
    * The attribute name that specifies how to link a dependency.
    */
   private static final String PROJECT_ATTRIBUTE_NAME_PROJECT_DEPENDENCY_LINKING = "linking";
@@ -270,6 +286,7 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
 
     Project project = makeProjectFromElement(rootElement);
     project.setBaseDirectory(projectFile.getParentFile());
+
     return project;
   }
 
@@ -483,11 +500,49 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       for (Element propertyElement : propertyElements) {
         String name = getRequiredAttributeValue(propertyElement, PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_NAME);
         if (name == null) {
+          getWorkbench().getLog().warn("Configuration property does not have a name");
           continue;
         }
-        String value = propertyElement.getTextNormalize();
+
+        String value = getConfigurationValue(projectNamespace, propertyElement, name);
+        if (value == null) {
+          getWorkbench().getLog().warn(String.format("Configuration property %s does not have a value", name));
+          continue;
+        }
+
         configuration.setValue(name, value);
       }
+    }
+  }
+
+  /**
+   * Get the value for a configuration property.
+   *
+   * @param projectNamespace
+   *          the XML namespace for the property
+   * @param propertyElement
+   *          the XML element for the property
+   * @param propertyName
+   *          the name of the property
+   *
+   * @return the configuration value for the property
+   */
+  private String getConfigurationValue(Namespace projectNamespace, Element propertyElement, String propertyName) {
+    String valueAttribute = propertyElement.getAttributeValue(PROJECT_ATTRIBUTE_NAME_CONFIGURATION_ITEM_VALUE);
+    String valueChild =
+        propertyElement.getChildTextNormalize(PROJECT_ELEMENT_NAME_CONFIGURATION_ITEM_VALUE, projectNamespace);
+
+    if (valueAttribute != null) {
+      if (valueChild != null) {
+        getWorkbench().getLog().warn(
+            String.format("Configuration property %s has both an attribute and child element giving the value. "
+                + "The child element is being used.", propertyName));
+        return valueChild;
+      } else {
+        return valueAttribute;
+      }
+    } else {
+      return valueChild;
     }
   }
 
@@ -503,10 +558,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
    */
   private void getDependencies(Project project, Namespace projectNamespace, Element rootElement) {
     Element dependenciesElement = rootElement.getChild(PROJECT_ELEMENT_NAME_DEPENDENCIES, projectNamespace);
-
     if (dependenciesElement != null) {
       ProjectDependencyLinking defaultLinking =
-          getDependencyLinkingAttribute(dependenciesElement, PROJECT_DEPENDENCY_LINKING_DEFAULT);
+          getDependencyLinkingAttribute(dependenciesElement, getDefaultProjectDependencyLinking());
       if (defaultLinking == null) {
         return;
       }
@@ -522,6 +576,16 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
         }
       }
     }
+  }
+
+  /**
+   * Get the default linking for project dependencies.
+   *
+   * @return the default linking to use
+   */
+  private ProjectDependencyLinking getDefaultProjectDependencyLinking() {
+    return ProjectDependencyLinking.valueOf(getWorkbench().getWorkbenchConfig().getPropertyString(
+        CONFIGURATION_NAME_PROJECT_DEPENDENCY_LINKING_DEFAULT, PROJECT_DEPENDENCY_LINKING_DEFAULT.toString()));
   }
 
   /**
