@@ -50,6 +50,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.HttpCookie;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -180,7 +182,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
     }
 
     int luriPrefixLength = uriPrefix.length();
-    String filepath = url.substring(url.indexOf(uriPrefix) + luriPrefixLength);
+    String filepath = URLDecoder.decode(
+        url.substring(url.indexOf(uriPrefix) + luriPrefixLength), StandardCharsets.UTF_8.name());
 
     File file = new File(baseDir, filepath);
 
