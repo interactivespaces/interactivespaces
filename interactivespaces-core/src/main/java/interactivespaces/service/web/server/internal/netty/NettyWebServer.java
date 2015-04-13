@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -48,6 +49,7 @@ import org.jboss.netty.handler.ssl.util.SelfSignedCertificate;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 import java.io.File;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
@@ -232,7 +234,16 @@ public class NettyWebServer implements WebServer {
       }
     });
 
-    serverChannel = bootstrap.bind(new InetSocketAddress(port));
+    try {
+      serverChannel = bootstrap.bind(new InetSocketAddress(port));
+    } catch (ChannelException e) {
+      if (e.getCause() instanceof BindException) {
+        SimpleInteractiveSpacesException.throwFormattedException(e,
+            "web server component could not be started, port %d in use", port);
+      } else {
+        throw e;
+      }
+    }
     allChannels.add(serverChannel);
   }
 
