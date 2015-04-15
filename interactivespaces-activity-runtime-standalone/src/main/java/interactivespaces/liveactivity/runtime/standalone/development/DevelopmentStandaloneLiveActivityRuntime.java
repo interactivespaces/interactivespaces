@@ -23,6 +23,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
 import interactivespaces.evaluation.SimpleExpressionEvaluatorFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntimeComponentFactory;
+import interactivespaces.liveactivity.runtime.LiveActivityRuntimeListener;
 import interactivespaces.liveactivity.runtime.LiveActivityStatusPublisher;
 import interactivespaces.liveactivity.runtime.SimpleLiveActivityFilesystem;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
@@ -64,7 +65,7 @@ import java.util.List;
  * @author Trevor Pering
  * @author Keith M. Hughes
  */
-public class DevelopmentStandaloneActivityRunner implements ManagedResource {
+public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource {
 
   /**
    * The path relative to an activity project folder where development information is kept.
@@ -235,6 +236,11 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
   private StandardLiveActivityRuntime liveActivityRuntime;
 
   /**
+   * The live activity runtime listener.
+   */
+  private LiveActivityRuntimeListener liveActivityRuntimeListener;
+
+  /**
    * Publisher for live activity statuses.
    */
   private LiveActivityStatusPublisher liveActivityStatusPublisher = new LiveActivityStatusPublisher() {
@@ -246,17 +252,20 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
   };
 
   /**
-   * Create a new activity runner.
+   * Construct a new standalone runtime.
    *
    * @param runtimeComponentFactory
    *          component factory for the live activity runtime
    * @param spaceEnvironment
    *          space environment to use for this instance
+   * @param liveActivityRuntimeListener
+   *          a live activity runner listener to add to the runner
    */
-  public DevelopmentStandaloneActivityRunner(LiveActivityRuntimeComponentFactory runtimeComponentFactory,
-      InteractiveSpacesEnvironment spaceEnvironment) {
+  public DevelopmentStandaloneLiveActivityRuntime(LiveActivityRuntimeComponentFactory runtimeComponentFactory,
+      InteractiveSpacesEnvironment spaceEnvironment, LiveActivityRuntimeListener liveActivityRuntimeListener) {
     this.runtimeComponentFactory = runtimeComponentFactory;
     this.spaceEnvironment = spaceEnvironment;
+    this.liveActivityRuntimeListener = liveActivityRuntimeListener;
 
     managedResources = new ManagedResources(spaceEnvironment.getLog());
   }
@@ -290,8 +299,8 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
     }
 
     setActivityConfigFile(new File(activityConfigPath,
-        DevelopmentStandaloneActivityRunner.ACTIVITY_SPECIFIC_CONFIG_FILE_NAME));
-    setLocalConfigFile(new File(activityConfigPath, DevelopmentStandaloneActivityRunner.LOCAL_CONFIG_FILE_NAME));
+        DevelopmentStandaloneLiveActivityRuntime.ACTIVITY_SPECIFIC_CONFIG_FILE_NAME));
+    setLocalConfigFile(new File(activityConfigPath, DevelopmentStandaloneLiveActivityRuntime.LOCAL_CONFIG_FILE_NAME));
 
     List<File> foldersToUse = Lists.newArrayList();
     File rootFolder = new File(activitySourcePath);
@@ -329,6 +338,7 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
             activityLogFactory, configurationManager, liveActivityStorageManager, alertStatusManager, eventQueue,
             spaceEnvironment);
     liveActivityRuntime.setLiveActivityStatusPublisher(liveActivityStatusPublisher);
+    liveActivityRuntime.addRuntimeListener(liveActivityRuntimeListener);
     managedResources.addResource(liveActivityRuntime);
 
     managedResources.startupResources();

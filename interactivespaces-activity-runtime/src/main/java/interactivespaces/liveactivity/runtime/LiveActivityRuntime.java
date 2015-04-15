@@ -38,6 +38,25 @@ import java.util.Map;
 public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
 
   /**
+   * Add a new runtime listener to the runtime.
+   *
+   * @param listener
+   *          the new listener
+   */
+  void addRuntimeListener(LiveActivityRuntimeListener listener);
+
+  /**
+   * Remove a runtime listener from the runtime.
+   *
+   * <p>
+   * This method does nothing if the listener was never added.
+   *
+   * @param listener
+   *          the listener to remove
+   */
+  void removeRuntimeListener(LiveActivityRuntimeListener listener);
+
+  /**
    * Get the logger for the indicated activity.
    *
    * @param activity
@@ -166,7 +185,6 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    *          the publisher
    */
   void setLiveActivityStatusPublisher(LiveActivityStatusPublisher liveActivityStatusPublisher);
-
 
   /**
    * Get the live activity runner factory instance used by the runtime.

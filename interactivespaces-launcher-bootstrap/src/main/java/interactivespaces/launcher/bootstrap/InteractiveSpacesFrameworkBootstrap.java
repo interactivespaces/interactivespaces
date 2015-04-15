@@ -450,8 +450,8 @@ public class InteractiveSpacesFrameworkBootstrap {
       platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_WINDOWS;
     } else {
       loggingProvider.getLog().warn(
-          String.format("Unsupported operating system: %s. Native applications will not function properly.",
-              platformOs));
+          String
+              .format("Unsupported operating system: %s. Native applications will not function properly.", platformOs));
       platformOs = CoreConfiguration.CONFIGURATION_VALUE_PLATFORM_OS_UNKNOWN;
     }
 
@@ -469,7 +469,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    * @return the command line arguments minus the configuration parameters
    */
   private List<String> addCommandLineConfigurationParameters(FileConfigurationProvider configurationProvider,
-                                                             List<String> args) {
+      List<String> args) {
     List<String> newArgs = new ArrayList<String>();
 
     for (String arg : args) {
@@ -486,8 +486,8 @@ public class InteractiveSpacesFrameworkBootstrap {
   }
 
   /**
-   * Create a FileConfigurationProvider, assign it to configurationProvider, inject automatic configuration, and
-   * then load configuration from config files.
+   * Create a FileConfigurationProvider, assign it to configurationProvider, inject automatic configuration, and then
+   * load configuration from config files.
    *
    * @param args
    *          the command line arguments
@@ -702,7 +702,7 @@ public class InteractiveSpacesFrameworkBootstrap {
       separator = ", ";
     }
 
-    loggingProvider.getLog().info(String.format("Extra packages: %s", packages));
+    loggingProvider.getLog().debug(String.format("Extra packages: %s", packages));
     frameworkConfig.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, packages.toString());
   }
 
@@ -729,7 +729,7 @@ public class InteractiveSpacesFrameworkBootstrap {
       separator = ", ";
     }
 
-    loggingProvider.getLog().info(String.format("Boot delegations: %s", packages));
+    loggingProvider.getLog().debug(String.format("Boot delegations: %s", packages));
     frameworkConfig.put(Constants.FRAMEWORK_BOOTDELEGATION, packages.toString());
   }
 
@@ -741,7 +741,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void loadLibraries(List<String> libraries) {
     for (String library : libraries) {
-      loggingProvider.getLog().info(String.format("Loading system library %s", library));
+      loggingProvider.getLog().debug(String.format("Loading system library %s", library));
       System.loadLibrary(library);
     }
   }
@@ -754,7 +754,7 @@ public class InteractiveSpacesFrameworkBootstrap {
    */
   private void loadClasses(List<String> classes) {
     for (String className : classes) {
-      loggingProvider.getLog().info(String.format("Loading class %s", className));
+      loggingProvider.getLog().debug(String.format("Loading class %s", className));
       try {
         Class<?> clazz = InteractiveSpacesFrameworkBootstrap.class.getClassLoader().loadClass(className);
         Object obj = clazz.newInstance();
@@ -950,6 +950,5 @@ public class InteractiveSpacesFrameworkBootstrap {
         }
       }
     }
-
   }
 }

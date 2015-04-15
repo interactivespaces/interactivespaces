@@ -26,7 +26,7 @@ import interactivespaces.activity.component.route.MessageRouterSupportedMessageT
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
 import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneActivityRunner;
+import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageMap;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageSetList;
 import interactivespaces.time.TimeProvider;
@@ -88,7 +88,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
   /**
    * The standalone activity runner that owns this message router.
    */
-  private final DevelopmentStandaloneActivityRunner activityRunner;
+  private final DevelopmentStandaloneLiveActivityRuntime activityRunner;
 
   /**
    * A route input message listener.
@@ -146,7 +146,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
    * @param activityRunner
    *          activity runner that utilizes this router
    */
-  public StandaloneMessageRouter(DevelopmentStandaloneActivityRunner activityRunner) {
+  public StandaloneMessageRouter(DevelopmentStandaloneLiveActivityRuntime activityRunner) {
     this.activityRunner = activityRunner;
   }
 
@@ -437,7 +437,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
   /**
    * @return activity runner associated with this router
    */
-  public DevelopmentStandaloneActivityRunner getActivityRunner() {
+  public DevelopmentStandaloneLiveActivityRuntime getActivityRunner() {
     return activityRunner;
   }
 

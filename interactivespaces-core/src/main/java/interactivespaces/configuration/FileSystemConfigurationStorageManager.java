@@ -104,9 +104,7 @@ public class FileSystemConfigurationStorageManager implements SystemConfiguratio
   private void loadConfigFile(Configuration configuration, File configFile) {
     InputStream in = null;
     try {
-      if (log.isInfoEnabled()) {
-        log.info(String.format("Loading config file %s", configFile));
-      }
+      log.debug(String.format("Loading config file %s", configFile));
 
       in = new FileInputStream(configFile);
 

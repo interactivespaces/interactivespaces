@@ -154,6 +154,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   };
 
   /**
+   * The runtime listeners for this runtime.
+   */
+  private List<LiveActivityRuntimeListener> runtimeListeners = Lists.newCopyOnWriteArrayList();
+
+  /**
    * Construct a new runtime.
    *
    * @param liveActivityRuntimeComponentFactory
@@ -196,6 +201,16 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
+  public void addRuntimeListener(LiveActivityRuntimeListener listener) {
+    runtimeListeners.add(listener);
+  }
+
+  @Override
+  public void removeRuntimeListener(LiveActivityRuntimeListener listener) {
+    runtimeListeners.remove(listener);
+  }
+
+  @Override
   public void startup() {
     activityStateTransitioners = new SimpleGoalStateTransitionerCollection<ActivityState, ActivityControl>();
 
@@ -204,20 +219,41 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     liveActivityRunnerSampler.startup();
 
     liveActivityRuntimeComponentFactory.registerCoreServices(getSpaceEnvironment().getServiceRegistry());
+
+    for (LiveActivityRuntimeListener listener : runtimeListeners) {
+      try {
+        listener.onLiveActivityRuntimeStartup(this);
+      } catch (Throwable e) {
+        getSpaceEnvironment().getLog().error("Error on live activity runtime onStartup call", e);
+      }
+    }
   }
 
   @Override
   public void shutdown() {
-    if (liveActivityRunnerSampler != null) {
-      liveActivityRunnerSampler.shutdown();
-      liveActivityRunnerSampler = null;
+    try {
+      if (liveActivityRunnerSampler != null) {
+        liveActivityRunnerSampler.shutdown();
+        liveActivityRunnerSampler = null;
+      }
+
+      shutdownAllActivities();
+
+      activityStateTransitioners.clear();
+
+      liveActivityRuntimeComponentFactory.unregisterCoreServices(getSpaceEnvironment().getServiceRegistry());
+    } catch (Throwable e) {
+      getSpaceEnvironment().getLog().error("Error while shutting down live activity runtime", e);
     }
 
-    shutdownAllActivities();
-
-    activityStateTransitioners.clear();
-
-    liveActivityRuntimeComponentFactory.unregisterCoreServices(getSpaceEnvironment().getServiceRegistry());
+    // Should signal shutdown regardless of whether the shutdown failed.
+    for (LiveActivityRuntimeListener listener : runtimeListeners) {
+      try {
+        listener.onLiveActivityRuntimeStartup(this);
+      } catch (Throwable e) {
+        getSpaceEnvironment().getLog().error("Error on live activity runtime onStartup call", e);
+      }
+    }
   }
 
   @Override

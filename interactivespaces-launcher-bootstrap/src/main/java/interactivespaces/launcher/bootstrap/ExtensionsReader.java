@@ -169,10 +169,10 @@ public class ExtensionsReader {
       processExtensionFile(extensionFile);
     }
 
-    log.info(String.format("Extensions have added the following Java packages: %s", packages));
-    log.info(String.format("Extensions have added the following classes to be loaded automatically: %s", loadClasses));
-    log.info(String.format("Extensions have loaded the following native libraries: %s ", loadLibraries));
-    log.info(String.format("Extensions have loaded the following container path items: %s ", containerPath));
+    log.debug(String.format("Extensions have added the following Java packages: %s", packages));
+    log.debug(String.format("Extensions have added the following classes to be loaded automatically: %s", loadClasses));
+    log.debug(String.format("Extensions have loaded the following native libraries: %s ", loadLibraries));
+    log.debug(String.format("Extensions have loaded the following container path items: %s ", containerPath));
   }
 
   /**
@@ -182,7 +182,7 @@ public class ExtensionsReader {
    *          the extension file to process
    */
   private void processExtensionFile(File extensionFile) {
-    log.info(String.format("Loading extension file %s", extensionFile.getAbsolutePath()));
+    log.debug(String.format("Loading extension file %s", extensionFile.getAbsolutePath()));
     BufferedReader reader = null;
     try {
       reader = new BufferedReader(new FileReader(extensionFile));

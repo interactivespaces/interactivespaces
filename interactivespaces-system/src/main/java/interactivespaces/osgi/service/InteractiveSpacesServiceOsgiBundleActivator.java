@@ -157,7 +157,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * @param service
    *          the Interactive Spaces service
    */
-  protected void registerOsgiService(String name, Service service) {
+  public void registerOsgiService(String name, Service service) {
     osgiServiceRegistrations.add(bundleContext.registerService(name, service, null));
   }
 
@@ -169,7 +169,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * @param service
    *          the service to be registered
    */
-  protected void registerOsgiFrameworkService(String name, Object service) {
+  public void registerOsgiFrameworkService(String name, Object service) {
     osgiServiceRegistrations.add(bundleContext.registerService(name, service, null));
   }
 
@@ -204,7 +204,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * @param service
    *          the service to be registered
    */
-  protected void registerNewInteractiveSpacesService(Service service) {
+  public void registerNewInteractiveSpacesService(Service service) {
     try {
       interactiveSpacesEnvironmentTracker.getMyService().getServiceRegistry().registerService(service);
 
@@ -225,7 +225,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    * @param resource
    *          the managed resource to add
    */
-  protected void addManagedResource(ManagedResource resource) {
+  public void addManagedResource(ManagedResource resource) {
     managedResources.addResource(resource);
   }
 
@@ -234,7 +234,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    *
    * @return the bundle version
    */
-  protected String getBundleVersion() {
+  public String getBundleVersion() {
     return bundleContext.getBundle().getVersion().toString();
   }
 
@@ -243,7 +243,7 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
    *
    * @return the version of the bundle
    */
-  protected Version getBundleVersionAsVersion() {
+  public Version getBundleVersionAsVersion() {
     return Version.parseVersion(getBundleVersion());
   }
 

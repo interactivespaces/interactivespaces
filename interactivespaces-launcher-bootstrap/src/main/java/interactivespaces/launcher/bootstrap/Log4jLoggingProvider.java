@@ -137,7 +137,6 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
     // TODO(keith): Sort out all config locations so can have a base folder for just configs that this can look into.
     File loggingPropertiesFile = new File(configDir, LOGGING_PROPERTIES_FILE_CONFIG);
-    System.out.println(loggingPropertiesFile.getAbsolutePath());
     if (loggingPropertiesFile.isFile()) {
       return loggingPropertiesFile;
     }

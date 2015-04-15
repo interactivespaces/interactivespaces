@@ -19,7 +19,8 @@ package interactivespaces.liveactivity.runtime.standalone.osgi;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntimeComponentFactory;
-import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneActivityRunner;
+import interactivespaces.liveactivity.runtime.osgi.OsgiServiceRegistrationLiveActivityRuntimeListener;
+import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
@@ -56,7 +57,7 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     String controllerMode =
         systemConfiguration.getPropertyString(SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, null);
-    if (!DevelopmentStandaloneActivityRunner.CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE.equals(controllerMode)) {
+    if (!DevelopmentStandaloneLiveActivityRuntime.CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE.equals(controllerMode)) {
       getLog().info("Not activating standalone space controller, mode is " + controllerMode);
       return;
     }
@@ -64,8 +65,9 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
         new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
-    DevelopmentStandaloneActivityRunner runner =
-        new DevelopmentStandaloneActivityRunner(runtimeComponentFactory, spaceEnvironment);
+    DevelopmentStandaloneLiveActivityRuntime runner =
+        new DevelopmentStandaloneLiveActivityRuntime(runtimeComponentFactory, spaceEnvironment,
+            new OsgiServiceRegistrationLiveActivityRuntimeListener(this));
     addManagedResource(runner);
   }
 }
