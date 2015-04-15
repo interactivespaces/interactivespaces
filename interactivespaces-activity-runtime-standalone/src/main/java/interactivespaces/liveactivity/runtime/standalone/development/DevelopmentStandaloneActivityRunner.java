@@ -751,4 +751,13 @@ public class DevelopmentStandaloneActivityRunner implements ManagedResource {
   private Log getLog() {
     return spaceEnvironment.getLog();
   }
+
+  /**
+   * Get the live activity runtime for the standalone runner.
+   *
+   * @return the live activity runtime
+   */
+  public StandardLiveActivityRuntime getLiveActivityRuntime() {
+    return liveActivityRuntime;
+  }
 }

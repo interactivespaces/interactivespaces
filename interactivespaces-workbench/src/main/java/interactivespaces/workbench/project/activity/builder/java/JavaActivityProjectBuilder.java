@@ -103,6 +103,12 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    */
   private void addActivityContainerInformation(ActivityProject project, ContainerInfo containerInfo) {
     String activityClass = project.getActivityClass();
+    if (activityClass == null || activityClass.trim().isEmpty()) {
+      throw new SimpleInteractiveSpacesException(
+          "The activity class has no value. This is set with the <class> element in the project.xml."
+              + " If your project is not Java-based, remove the builder=\"java\" attribute from <project>.");
+    }
+
     String activityPackage = null;
     int classnamePos = activityClass.lastIndexOf(".");
     if (classnamePos != -1) {

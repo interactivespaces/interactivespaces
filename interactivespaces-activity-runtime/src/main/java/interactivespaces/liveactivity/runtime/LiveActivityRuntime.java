@@ -19,8 +19,6 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityRuntime;
-import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.activity.component.ActivityComponentFactory;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.MinimalLiveActivity;
@@ -162,26 +160,18 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
   void cleanLiveActivityPermanentData(String uuid);
 
   /**
-   * Get a factory for native activities runners.
-   *
-   * @return the factory to use
-   */
-  @Override
-  NativeActivityRunnerFactory getNativeActivityRunnerFactory();
-
-  /**
-   * Get the activity component factory for the controller.
-   *
-   * @return the factory for activity components
-   */
-  @Override
-  ActivityComponentFactory getActivityComponentFactory();
-
-  /**
    * Set the publisher for live activity status information.
    *
    * @param liveActivityStatusPublisher
    *          the publisher
    */
   void setLiveActivityStatusPublisher(LiveActivityStatusPublisher liveActivityStatusPublisher);
+
+
+  /**
+   * Get the live activity runner factory instance used by the runtime.
+   *
+   * @return the live activity runner factory instance
+   */
+  LiveActivityRunnerFactory getLiveActivityRunnerFactory();
 }

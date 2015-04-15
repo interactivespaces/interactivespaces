@@ -40,8 +40,8 @@ import interactivespaces.liveactivity.runtime.SimpleLiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntimeComponentFactory;
 import interactivespaces.liveactivity.runtime.alert.LoggingAlertStatusManager;
-import interactivespaces.liveactivity.runtime.configuration.ProductionPropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.configuration.BasePropertyFileLiveActivityConfigurationManager;
+import interactivespaces.liveactivity.runtime.configuration.ProductionPropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
@@ -87,16 +87,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
 
-  /**
-   * Activity factory for the controller.
-   */
-  private LiveActivityRunnerFactory liveActivityRunnerFactory;
-
-  /**
-   * Native activity runner factory.
-   */
-  private NativeActivityRunnerFactory nativeActivityRunnerFactory;
-
   @Override
   public void onStart() {
     interactiveSpacesSystemControlTracker = newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
@@ -110,7 +100,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
 
   @Override
   protected void allRequiredServicesAvailable() {
-    initializeBaseSpaceControllerComponents();
+    spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
     String controllerMode =
         spaceEnvironment.getSystemConfiguration().getPropertyString(
@@ -121,25 +111,6 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     } else {
       spaceEnvironment.getLog().info("Not activating standard space controller, mode is " + controllerMode);
     }
-  }
-
-  /**
-   * Initialize all the base components for this controller, which are then available to any controller that may be
-   * instantiated.
-   */
-  private void initializeBaseSpaceControllerComponents() {
-    spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
-
-    StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
-        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
-
-    liveActivityRunnerFactory = runtimeComponentFactory.newLiveActivityRunnerFactory();
-    registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
-    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
-        new DoNotUseActiveControllerActivityFactory(liveActivityRunnerFactory));
-
-    nativeActivityRunnerFactory = runtimeComponentFactory.newNativeActivityRunnerFactory();
-    registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
   }
 
   /**
@@ -213,5 +184,13 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     OsgiControllerShell controllerShell =
         new OsgiControllerShell(spaceController, spaceSystemControl, liveActivityRepository, getBundleContext());
     addManagedResource(controllerShell);
+
+    LiveActivityRunnerFactory liveActivityRunnerFactory = liveActivityRuntime.getLiveActivityRunnerFactory();
+    registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
+    registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
+        new DoNotUseActiveControllerActivityFactory(liveActivityRunnerFactory));
+
+    NativeActivityRunnerFactory nativeActivityRunnerFactory = liveActivityRuntime.getNativeActivityRunnerFactory();
+    registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(), nativeActivityRunnerFactory);
   }
 }

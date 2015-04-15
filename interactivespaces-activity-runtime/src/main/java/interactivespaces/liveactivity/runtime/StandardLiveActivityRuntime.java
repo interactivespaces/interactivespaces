@@ -855,4 +855,9 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   void setLiveActivityRunnerSampler(LiveActivityRunnerSampler liveActivityRunnerSampler) {
     this.liveActivityRunnerSampler = liveActivityRunnerSampler;
   }
+
+  @Override
+  public LiveActivityRunnerFactory getLiveActivityRunnerFactory() {
+    return liveActivityRunnerFactory;
+  }
 }

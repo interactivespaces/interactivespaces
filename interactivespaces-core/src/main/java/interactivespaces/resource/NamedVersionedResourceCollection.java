@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A collection of versioned resources where the resources have both a name and
- * a version.
+ * A collection of versioned resources where the resources have both a name and a version.
  *
  * @param <T>
  *          the type of resources in the collection
@@ -60,8 +59,7 @@ public class NamedVersionedResourceCollection<T> {
    * @param resource
    *          the resource
    *
-   * @return the old resource that was there, or {@code null} if this is the
-   *         first
+   * @return the old resource that was there, or {@code null} if this is the first
    */
   public synchronized T addResource(String name, Version version, T resource) {
     VersionedResourceCollection<T> namedResources = resources.get(name);
@@ -100,16 +98,19 @@ public class NamedVersionedResourceCollection<T> {
    * @param range
    *          the range of acceptable versions, can be {@code null}
    *
-   * @return the highest versioned resource satisfying the range constraint, the
-   *         highest version if the range is {@code null}, or {@code null} if
-   *         otherwise
+   * @return the highest versioned resource satisfying the range constraint, the highest version if the range is
+   *         {@code null}, or {@code null} if otherwise
    */
   public synchronized T getResource(String name, VersionRange range) {
-    VersionedResourceCollection<T> namedResources = resources.get(name);
-    if (namedResources != null) {
-      return namedResources.getResource(range);
+    if (range != null) {
+      VersionedResourceCollection<T> namedResources = resources.get(name);
+      if (namedResources != null) {
+        return namedResources.getResource(range);
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      return getHighestResource(name);
     }
   }
 

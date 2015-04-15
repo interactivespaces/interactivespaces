@@ -29,7 +29,8 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
+public class SimpleInstalledLiveActivity implements InstalledLiveActivity,
+    interactivespaces.controller.domain.InstalledLiveActivity {
 
   /**
    * UUID of the activity.
