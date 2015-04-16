@@ -43,9 +43,19 @@ import javax.tools.ToolProvider;
 public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
 
   /**
-   * Filename postfix to indicate an editor backup file.
+   * The file extension for a Java source file.
    */
-  private static final String EDITOR_BACKUP_FILE_POSTFIX = "~";
+  private static final String FILE_EXTENSION_JAVA_SOURCE = ".java";
+
+  /**
+   * The Java compiler flag that specifies which version of the Java runtime the compiler should target.
+   */
+  private static final String JAVA_COMPILER_FLAG_TARGET_VERSION = "-target";
+
+  /**
+   * The Java compiler flag that specifies which version of Java source compatibility the compiler should insist on.
+   */
+  private static final String JAVA_COMPILER_FLAG_SOURCE_VERSION = "-source";
 
   /**
    * The file support to use.
@@ -89,9 +99,9 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     Configuration config = context.getProject().getConfiguration();
 
     String javaVersion = config.getPropertyString(CONFIGURATION_BUILDER_JAVA_VERSION, JAVA_VERSION_DEFAULT).trim();
-    options.add("-source");
+    options.add(JAVA_COMPILER_FLAG_SOURCE_VERSION);
     options.add(javaVersion);
-    options.add("-target");
+    options.add(JAVA_COMPILER_FLAG_TARGET_VERSION);
     options.add(javaVersion);
 
     String extraOptions = config.getPropertyString(CONFIGURATION_BUILDER_JAVA_COMPILEFLAGS);
@@ -127,16 +137,24 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
     File[] directoryListing = directory.listFiles();
     if (directoryListing != null) {
       for (File file : directoryListing) {
-        // Check for hidden/backup files/directories, we don't want those.
-        boolean shouldIgnore = file.isHidden() || file.getName().endsWith(EDITOR_BACKUP_FILE_POSTFIX);
-        if (!shouldIgnore) {
-          if (file.isDirectory()) {
-            scanDirectory(file, files);
-          } else {
-            files.add(file);
-          }
+        if (file.isDirectory()) {
+          scanDirectory(file, files);
+        } else if (shouldProcessFile(file)) {
+          files.add(file);
         }
       }
     }
+  }
+
+  /**
+   * Should the file be processed?
+   *
+   * @param file
+   *          the file to check
+   *
+   * @return {@code true} if the file should be processed
+   */
+  private boolean shouldProcessFile(File file) {
+    return file.getName().endsWith(FILE_EXTENSION_JAVA_SOURCE) && !file.isHidden();
   }
 }
