@@ -21,13 +21,27 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
  * A factory for {@link BasicLiveActivityRunner} instances.
  *
  * @author Keith M. Hughes
  */
-public interface LiveActivityRunnerFactory {
+public interface LiveActivityRunnerFactory extends ManagedResource {
+
+  /**
+   * Configuration name for the property that gives the delay time between retries for obtaining activity wrapper
+   * factories.
+   */
+  String CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_DELAY =
+      "interactivespaces.activity.runtime.wrapper.factory.retry.delay";
+
+  /**
+   * Configuration name for the property that gives the number of retries for obtaining activity wrapper factories.
+   */
+  String CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_NUMBER =
+      "interactivespaces.activity.runtime.wrapper.factory.retry.number";
 
   /**
    * Create alive activity runner for a given activity type.
@@ -44,7 +58,7 @@ public interface LiveActivityRunnerFactory {
    *          the listener for live activity runner events
    * @param liveActivityRuntime
    *          the live activity runtime the runner will run in
-    *
+   *
    * @return the live activity runner
    */
   LiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity installedLiveActivity,

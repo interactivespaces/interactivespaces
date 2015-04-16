@@ -26,8 +26,8 @@ import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
-
-import org.apache.commons.logging.Log;
+import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.InteractiveSpacesUtilities;
 
 /**
  * An {@link LiveActivityRunnerFactory} with versioned factories.
@@ -42,7 +42,17 @@ import org.apache.commons.logging.Log;
 public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFactory {
 
   /**
-   * Default version for wrapper factories.tClass().
+   * The default number of total retries when attempting to get a live activity factory.
+   */
+  public static final int ACTIVITY_WRAPPER_FACTORY_RETRIES_DEFAULT = 5;
+
+  /**
+   * The default amount of time to pause between each attempt to get an activity wrapper factory. In milliseconds.
+   */
+  public static final int ACTIVITY_WRAPPER_FACTORY_RETRY_DELAY_DEFAULT = 500;
+
+  /**
+   * Default version for wrapper factories.
    */
   public static final Version DEFAULT_FACTORY_VERSION = new Version(0, 0, 0);
 
@@ -58,18 +68,44 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
       NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
 
   /**
-   * The logger for the factory.
+   * The space environment for the factory.
    */
-  private Log log;
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * The number of total retries when attempting to get a live activity factory.
+   */
+  private int activityWrapperFactoryRetries = ACTIVITY_WRAPPER_FACTORY_RETRIES_DEFAULT;
+
+  /**
+   * The amount of time to pause between each attempt to get an activity wrapper factory. In milliseconds.
+   */
+  private int activityWrapperFactoryRetryDelay = ACTIVITY_WRAPPER_FACTORY_RETRY_DELAY_DEFAULT;
 
   /**
    * Construct a new factory.
    *
-   * @param log
-   *          the logger
+   * @param spaceEnvironment
+   *          the space environment to run under
    */
-  public StandardLiveActivityRunnerFactory(Log log) {
-    this.log = log;
+  public StandardLiveActivityRunnerFactory(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
+  }
+
+  @Override
+  public void startup() {
+    activityWrapperFactoryRetries =
+        spaceEnvironment.getSystemConfiguration().getPropertyInteger(
+            CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_NUMBER, ACTIVITY_WRAPPER_FACTORY_RETRIES_DEFAULT);
+    activityWrapperFactoryRetryDelay =
+        spaceEnvironment.getSystemConfiguration().getPropertyInteger(
+            CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_DELAY,
+            ACTIVITY_WRAPPER_FACTORY_RETRY_DELAY_DEFAULT);
+  }
+
+  @Override
+  public void shutdown() {
+    // Nothing to do
   }
 
   @Override
@@ -86,13 +122,7 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
     }
     bareActivityType = bareActivityType.toLowerCase();
 
-    ActivityWrapperFactory wrapperFactory = null;
-    if (versionRange != null) {
-      wrapperFactory = activityWrapperFactories.getResource(bareActivityType, versionRange);
-    } else {
-      wrapperFactory = activityWrapperFactories.getHighestResource(bareActivityType);
-    }
-
+    ActivityWrapperFactory wrapperFactory = getActivityWrapperFactory(bareActivityType, versionRange);
     if (wrapperFactory != null) {
       ActivityWrapper wrapper =
           wrapperFactory.newActivityWrapper(liveActivity, activityFilesystem, configuration, liveActivityRuntime);
@@ -109,6 +139,57 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
       liveActivityRuntime.getSpaceEnvironment().getLog().warn(message);
 
       throw new SimpleInteractiveSpacesException(message);
+    }
+  }
+
+  /**
+   * Get a activity wrapper factory for a given activity type.
+   *
+   * @param activityType
+   *          the activity type
+   * @param versionRange
+   *          the version range, can be {@code null} to get the highest version
+   *
+   * @return the factory, or {@code null} if none found
+   */
+  private ActivityWrapperFactory getActivityWrapperFactory(String activityType, VersionRange versionRange) {
+    // This retries because of a potential race. If a wrapper factory is needed, it may not be registered yet because of
+    // bundle startup order, which is inherently undetermined. A limited number of attempts will be made to get the
+    // factory so that the factory has time to register.
+    for (int i = 0; i < activityWrapperFactoryRetries; i++) {
+      // Only delay if this is not the first attempt.
+      if (i > 0) {
+        InteractiveSpacesUtilities.delay(activityWrapperFactoryRetryDelay);
+      }
+
+      ActivityWrapperFactory factory = getActivityWrapperFactoryWithoutRetry(activityType, versionRange);
+      if (factory != null) {
+        return factory;
+      }
+    }
+
+    // Never got one.
+    return null;
+  }
+
+  /**
+   * Attempt to get an activity wrapper factory.
+   *
+   * <p>
+   * This method does the raw attempt with no retries.
+   *
+   * @param activityType
+   *          the activity type
+   * @param versionRange
+   *          the version range, can be {@code null} to get the highest version
+   *
+   * @return the factory, or {@code null} if none found
+   */
+  private ActivityWrapperFactory getActivityWrapperFactoryWithoutRetry(String activityType, VersionRange versionRange) {
+    if (versionRange != null) {
+      return activityWrapperFactories.getResource(activityType, versionRange);
+    } else {
+      return activityWrapperFactories.getHighestResource(activityType);
     }
   }
 
@@ -132,12 +213,17 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
     Version version = getFactoryVersion(factory);
 
     if (activityWrapperFactories.addResource(factory.getActivityType().toLowerCase(), version, factory) == null) {
-      log.info(String.format("Registered activity wrapper factory version %s for activity type %s", version,
-          factory.getActivityType()));
+      spaceEnvironment.getLog().info(
+          String.format("Registered activity wrapper factory version %s for activity type %s", version,
+              factory.getActivityType()));
     } else {
-      log.warn(String.format(
-          "The %s version %s activity wrapper factory was already registered, the previous version has been replaced.",
-          factory.getActivityType(), version));
+      spaceEnvironment
+          .getLog()
+          .warn(
+              String
+                  .format(
+                      "The %s version %s activity wrapper factory was already registered, the previous version has been replaced.",
+                      factory.getActivityType(), version));
     }
   }
 

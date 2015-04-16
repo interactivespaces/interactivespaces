@@ -16,7 +16,6 @@
 
 package interactivespaces.liveactivity.runtime;
 
-import interactivespaces.controller.SpaceController;
 import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
@@ -39,7 +38,6 @@ public class StandardLiveActivityRunnerFactoryTest {
 
   private StandardLiveActivityRunnerFactory runnerFactory;
   private LiveActivityRunnerListener runnerListener;
-  private SpaceController controller;
   private LiveActivityRuntime liveActivityRuntime;
   private LiveActivityConfiguration configuration;
   private InternalLiveActivityFilesystem filesystem;
@@ -50,9 +48,12 @@ public class StandardLiveActivityRunnerFactoryTest {
   @Before
   public void setup() {
     log = Mockito.mock(Log.class);
-    runnerFactory = new StandardLiveActivityRunnerFactory(log);
+    spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
+
+    Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
+
+    runnerFactory = new StandardLiveActivityRunnerFactory(spaceEnvironment);
     runnerListener = Mockito.mock(LiveActivityRunnerListener.class);
-    controller = Mockito.mock(SpaceController.class);
     liveActivityRuntime = Mockito.mock(LiveActivityRuntime.class);
     filesystem = Mockito.mock(InternalLiveActivityFilesystem.class);
     liveActivity = Mockito.mock(InstalledLiveActivity.class);
@@ -60,7 +61,6 @@ public class StandardLiveActivityRunnerFactoryTest {
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
 
     Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
-    Mockito.when(controller.getSpaceEnvironment()).thenReturn(spaceEnvironment);
   }
 
   /**

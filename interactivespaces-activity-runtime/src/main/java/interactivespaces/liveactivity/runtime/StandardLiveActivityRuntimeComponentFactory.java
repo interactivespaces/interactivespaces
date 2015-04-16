@@ -93,8 +93,7 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
    */
   @Override
   public LiveActivityRunnerFactory newLiveActivityRunnerFactory() {
-    LiveActivityRunnerFactory liveActivityRunnerFactory =
-        new StandardLiveActivityRunnerFactory(spaceEnvironment.getLog());
+    LiveActivityRunnerFactory liveActivityRunnerFactory = new StandardLiveActivityRunnerFactory(spaceEnvironment);
     liveActivityRunnerFactory.registerActivityWrapperFactory(new NativeActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
@@ -141,7 +140,7 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
     webSocketClientService = new NettyWebSocketClientService();
     serviceRegistry.registerService(webSocketClientService);
     webSocketClientService.startup();
- }
+  }
 
   @Override
   public void unregisterCoreServices(ServiceRegistry serviceRegistry) {

@@ -58,6 +58,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.FileLock;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * A standalone runner for activities that takes the activities from a development environment.
@@ -252,6 +253,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   };
 
   /**
+   * The future for running the activities.
+   */
+  private Future<?> playerFuture;
+
+  /**
    * Construct a new standalone runtime.
    *
    * @param runtimeComponentFactory
@@ -343,11 +349,20 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
 
     managedResources.startupResources();
 
-    play();
+    playerFuture = spaceEnvironment.getExecutorService().submit(new Runnable() {
+      @Override
+      public void run() {
+        play();
+      }
+    });
   }
 
   @Override
   public void shutdown() {
+    if (playerFuture != null) {
+      playerFuture.cancel(true);
+    }
+
     managedResources.shutdownResourcesAndClear();
   }
 

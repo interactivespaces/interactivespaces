@@ -218,6 +218,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
     liveActivityRunnerSampler.startup();
 
+    liveActivityRunnerFactory.startup();
+
     liveActivityRuntimeComponentFactory.registerCoreServices(getSpaceEnvironment().getServiceRegistry());
 
     for (LiveActivityRuntimeListener listener : runtimeListeners) {
@@ -236,6 +238,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
         liveActivityRunnerSampler.shutdown();
         liveActivityRunnerSampler = null;
       }
+
+      liveActivityRunnerFactory.shutdown();
 
       shutdownAllActivities();
 
