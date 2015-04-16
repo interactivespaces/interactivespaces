@@ -88,6 +88,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
 
   /**
+   * Exception message when WebSocket connections are closed.
+   */
+  private static final String MESSAGE_WEB_SOCKET_CLOSED_EXCEPTION = "Connection reset by peer";
+
+  /**
    * The web socket path used by this handler.
    */
   private String fullWebSocketUriPrefix;
@@ -637,7 +642,13 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-    webServer.getLog().error("Exception caught in the web server", e.getCause());
+    Throwable cause = e.getCause();
+    if (cause instanceof IOException && MESSAGE_WEB_SOCKET_CLOSED_EXCEPTION.equals(cause.getMessage())) {
+      // We don't log this exception
+    } else {
+      webServer.getLog().error("Exception caught in the web server", cause);
+    }
+
     e.getChannel().close();
   }
 
