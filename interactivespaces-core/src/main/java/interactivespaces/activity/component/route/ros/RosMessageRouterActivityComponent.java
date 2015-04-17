@@ -311,6 +311,11 @@ public class RosMessageRouterActivityComponent<T> extends BaseActivityComponent 
   }
 
   @Override
+  public String getNodeName() {
+    return rosActivityComponent.getNodeName();
+  }
+
+  @Override
   public T newMessage() {
     if (messageFactory != null) {
       return messageFactory.newMessage();

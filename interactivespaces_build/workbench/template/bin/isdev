@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+TARGET=$PWD
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  SOURCE="$(readlink "$SOURCE")"
+done
+
+EXEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# Get to the directory above the bin directory.
+cd $EXEDIR/..
+
+export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
+
+BOOTSTRAP=${EXEDIR}/../bootstrap
+LIBSYSTEMJAVA=${EXEDIR}/../lib/system/java
+
+CLASSPATH=$(find "${BOOTSTRAP}" -name '*.jar' | xargs echo | tr ' ' ':')
+CLASSPATH=${CLASSPATH}:${LIBSYSTEMJAVA}/com.springsource.org.apache.commons.logging-1.1.1.jar
+
+# Read user configuration file, if present.
+RCFILE=$HOME/.interactivespaces.rc
+if [ -f $RCFILE ]; then
+  echo Reading config from $RCFILE...
+  source $RCFILE
+fi
+
+java ${EXTRAARGS} -server -cp $CLASSPATH interactivespaces.workbench.devinfrastructure.DevelopmentInfrastructureLauncher ${@}

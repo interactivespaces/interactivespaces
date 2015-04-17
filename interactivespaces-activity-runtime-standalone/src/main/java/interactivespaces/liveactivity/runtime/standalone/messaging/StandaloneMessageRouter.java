@@ -20,6 +20,7 @@ import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.BaseActivityComponent;
+import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterActivityComponentListener;
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
@@ -47,8 +48,8 @@ import java.util.Map;
  *
  * @author Trevor Pering
  */
-public class StandaloneMessageRouter extends BaseActivityComponent
-    implements MessageRouterActivityComponent<GenericMessage> {
+public class StandaloneMessageRouter extends BaseActivityComponent implements
+    MessageRouterActivityComponent<GenericMessage> {
 
   /**
    * Json mapper for message conversion.
@@ -78,7 +79,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
   /**
    * Array to hold last message timestamps.
    */
-  private long[] lastMessageTime = {-1, -1 };
+  private long[] lastMessageTime = { -1, -1 };
 
   /**
    * List of whitelisted messages for trace capture.
@@ -151,6 +152,14 @@ public class StandaloneMessageRouter extends BaseActivityComponent
   }
 
   @Override
+  public String getNodeName() {
+    // TODO(keith): For now only ROS is used for node names as ROS is our only router. Eventually change
+    // to a more generic route name config parameter.
+    return getComponentContext().getActivity().getConfiguration()
+        .getPropertyString(RosActivityComponent.CONFIGURATION_ACTIVITY_ROS_NODE_NAME);
+  }
+
+  @Override
   public GenericMessage newMessage() {
     return new StandaloneGenericMessage();
   }
@@ -217,7 +226,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
   }
 
   /**
-   * Initialize communication.  Essentially opens the multiscast socket and prepare.
+   * Initialize communication. Essentially opens the multiscast socket and prepare.
    */
   private void initializeCommunication() {
     try {
@@ -263,8 +272,8 @@ public class StandaloneMessageRouter extends BaseActivityComponent
 
       // This is horribly inefficient but preserves the right semantics. It's more
       // flexible to keep everything as JSON, instead as a string embedded in Json...
-      Object baseMessage = (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type))
-          ? MAPPER.parseObject(message) : message;
+      Object baseMessage =
+          (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type)) ? MAPPER.parseObject(message) : message;
 
       MessageMap messageObject = new MessageMap();
       messageObject.put("message", baseMessage);
@@ -372,8 +381,9 @@ public class StandaloneMessageRouter extends BaseActivityComponent
     }
 
     Object rawMessage = messageObject.get("message");
-    String message = (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type))
-        ? MAPPER.toString(rawMessage) : (String) rawMessage;
+    String message =
+        (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type)) ? MAPPER.toString(rawMessage)
+            : (String) rawMessage;
     GenericMessage genericMessage = new StandaloneGenericMessage();
     genericMessage.setType(type);
     genericMessage.setMessage(message);
@@ -494,8 +504,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
         inputName = inputName.trim();
         if (!inputName.isEmpty()) {
           String inputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX
-                  + inputName);
+              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName);
           registerInputChannelTopic(inputName, inputTopicNames);
         }
       }
@@ -507,8 +516,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
         outputName = outputName.trim();
         if (!outputName.isEmpty()) {
           String outputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX
-                  + outputName);
+              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName);
 
           boolean latch = false;
           int semiPos = outputTopicNames.indexOf(';');
@@ -541,8 +549,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent
    *          should output be latched
    */
   @Override
-  public synchronized void registerOutputChannelTopic(String outputName,
-      String topicNames, boolean latch) {
+  public synchronized void registerOutputChannelTopic(String outputName, String topicNames, boolean latch) {
     if (outputChannelsToRoutes.containsKey(outputName)) {
       throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
     }
@@ -551,8 +558,8 @@ public class StandaloneMessageRouter extends BaseActivityComponent
       throw new UnsupportedOperationException("Latch functionality not supported for output channel " + outputName);
     }
 
-    getComponentContext().getActivity().getLog().warn(
-        String.format("Registering output %s --> %s", outputName, topicNames));
+    getComponentContext().getActivity().getLog()
+        .warn(String.format("Registering output %s --> %s", outputName, topicNames));
     outputChannelsToRoutes.put(outputName, topicNames);
   }
 
@@ -569,8 +576,8 @@ public class StandaloneMessageRouter extends BaseActivityComponent
     if (inputRoutesToChannels.containsKey(topicNames)) {
       throw new SimpleInteractiveSpacesException("Input route already registered: " + inputName);
     }
-    getComponentContext().getActivity().getLog().warn(
-        String.format("Registering input %s <-- %s", inputName, topicNames));
+    getComponentContext().getActivity().getLog()
+        .warn(String.format("Registering input %s <-- %s", inputName, topicNames));
     inputRoutesToChannels.put(topicNames, inputName);
   }
 

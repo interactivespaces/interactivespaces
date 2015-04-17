@@ -55,6 +55,13 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
   String CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX = "space.activity.route.output.";
 
   /**
+   * Get the node name for the router.
+   *
+   * @return the node name
+   */
+  String getNodeName();
+
+  /**
    * Create a new message to send.
    *
    * <p>
@@ -105,7 +112,7 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    * @throws InteractiveSpacesException
    *           the input name has been used before
    */
-  void registerInputChannelTopic(final String inputName, String topicNames) throws InteractiveSpacesException;
+  void registerInputChannelTopic(String inputName, String topicNames) throws InteractiveSpacesException;
 
   /**
    * Shutdown and clear all the input/output message topics.
