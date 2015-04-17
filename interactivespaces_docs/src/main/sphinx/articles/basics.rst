@@ -32,7 +32,7 @@ either producing events or consuming events, or even both at the same time.
 
 The following diagram will help to understand how all the pieces are put together.
 
-.. image:: images/InteractiveSpacesRuntimeArchitecture.png
+.. image:: ../images/InteractiveSpacesRuntimeArchitecture.png
 
 
 Those previously mentioned Live Activities need to run on a computer somewhere
@@ -141,7 +141,7 @@ it will transfer from RUNNING to ACTIVATED.
 
 This diagram may help explain all of the main states and transitions.
 
-.. image:: images/LiveActivityLifecycle.png
+.. image:: ../images/LiveActivityLifecycle.png
 
 
 A complete list of the states and what they mean will be found in the
@@ -251,13 +251,13 @@ Importing and Deploying Activities
 Activity Repository and places information about the Activity into the
 Master Domain Model.
 
-.. image:: images/ActivityImporting.png
+.. image:: ../images/ActivityImporting.png
 
 **Deploying** a Live Activity from the Master involves copying the Activity that
 the Live Activity is based on from the Master Activity Repository to
 the Local Activities for the Space Controller that hosts the Live Activity.
 
-.. image:: images/LiveActivityDeploying.png
+.. image:: ../images/LiveActivityDeploying.png
 
 Deploying does not copy any configurations associated with the Live Activity, it is
 necessary to Configure the Live Activity from the Master Web Admin for the Live Activity
@@ -287,7 +287,7 @@ However, there is one slight difference in how the lifecycle requests are handle
 A given Live Activity can be in more than 1 group. Let's say we have two Live Activity
 Groups, Live Activity Group 1 and Live Activity Group 2.
 
-.. image:: images/LiveActivityGroupExplanation1.png
+.. image:: ../images/LiveActivityGroupExplanation1.png
 
 
 Live Activity Group 1 consists of Live Activity 1, Live Activity 2, and Live Activity 3.
@@ -299,20 +299,20 @@ Initially nothing is running in the entire space.
 Suppose we start Live Activity Group 1. Because Live Activity 1, Live Activity 2, and
 Live Activity 3 aren't running, they all start.
 
-.. image:: images/LiveActivityGroupExplanation2.png
+.. image:: ../images/LiveActivityGroupExplanation2.png
 
 Suppose we next start Live Activity Group 2. Live Activity 3 is already
 running, so there is no need to start it again and it is left alone.
 But Live Activity 4 is not running yet, so only it will be started.
 
-.. image:: images/LiveActivityGroupExplanation3.png
+.. image:: ../images/LiveActivityGroupExplanation3.png
 
 Suppose we now want to shut Live Activity Group 1 down. We can immediately
 shutdown Live Activity 1 and Live Activity 2 because they aren't being used anywhere else.
 But Live Activity 3 is still needed by Live Activity Group 2, so can't
 be shut down. Live Activity 4 is left running.
 
-.. image:: images/LiveActivityGroupExplanation4.png
+.. image:: ../images/LiveActivityGroupExplanation4.png
 
 So once Live Activities are part of a Live Activity Group and are controlled
 at the Group level, they will only be started for the first Group which
