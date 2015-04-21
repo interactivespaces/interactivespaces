@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>Simple Hello World ROS Subscriber Activity Example in Java</name>
+  <description>
+    A Java-based activity that creates a ROS subscriber for a given ROS topic and logs
+    messages received on that topic.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.comm.ros.hello.subscriber
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityCommRosHelloSubscriber</name>
+    <class>
+      interactivespaces.activity.example.comm.ros.hello.subscriber.CommRosHelloSubscriberActivity
+    </class>
+
+    <configuration>
+      <property name="space.activity.ros.node.name" required="true">
+        <value>example/ros/hello</value>
+        <description>
+          The ROS node name to be used for this activity.
+        </description>
+      </property>
+      <property name="interactivespaces.example.comm.ros.hello.topic" required="true">
+        <description>The ROS topic that this activity will be a subscriber for.</description>
+        <value>/example/ros</value>
+      </property>
+
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>

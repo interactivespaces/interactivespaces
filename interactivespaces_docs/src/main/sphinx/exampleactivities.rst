@@ -148,9 +148,6 @@ web routable input. Or run the web routable output and the speech routable input
 message you type into the browser's text box will then be spoken by the speech activity.
 Pretty cool, eh?
 
-
-
-
 Native Activities
 -----------------
 
@@ -230,6 +227,17 @@ The coordinator activity needs the configuration parameter
 *xbee.remote.address64*, which gives the 64 bit address for the endpoint radio.
 Addresses will look like *0013a200407bd2e3*.
 
+ROS
+---
+
+Interactive Spaces uses ROS for much of its communication, in particular routes. Your activities can also
+be a publisher or a subscriber of ROS messages.
+
+The following activities are provided as examples
+
+* interactivespaces.example.activity.comm.ros.hello.subscriber
+
+The subscriber example shows how to register a ROS subscriber and respond to incoming messages.
 
 Hardware
 ========
