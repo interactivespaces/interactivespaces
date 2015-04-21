@@ -41,6 +41,16 @@ import java.io.File;
 public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
 
   /**
+   * The separator between Java package path elements.
+   */
+  private static final String JAVA_PACKAGE_PATH_SEPARATOR = ".";
+
+  /**
+   * The extension for Java class files.
+   */
+  private static final String CLASS_FILE_EXTENSION = ".class";
+
+  /**
    * File extension to give the build artifact.
    */
   private static final String JAR_FILE_EXTENSION = "jar";
@@ -90,6 +100,8 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
 
     compiler.buildJar(jarDestinationFile, compilationDirectory, extensions, containerInfo, context);
 
+    checkForActivityClassExistence(project, compilationDirectory);
+
     runTests(jarDestinationFile, context);
   }
 
@@ -110,13 +122,32 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
     }
 
     String activityPackage = null;
-    int classnamePos = activityClass.lastIndexOf(".");
+    int classnamePos = activityClass.lastIndexOf(JAVA_PACKAGE_PATH_SEPARATOR);
     if (classnamePos != -1) {
       activityPackage = activityClass.substring(0, classnamePos);
     } else {
       SimpleInteractiveSpacesException.throwFormattedException("Activity class in the root package: %s", activityClass);
     }
     containerInfo.addExportPackages(activityPackage);
+  }
+
+  /**
+   * Check to see if the activity class described in the project ever got created.
+   *
+   * @param project
+   *          the activity project
+   * @param compilationDirectory
+   *          the root folder of the Java classes that have been built
+   */
+  private void checkForActivityClassExistence(ActivityProject project, File compilationDirectory) {
+    String activityClassFilepath = project.getActivityClass().replace(JAVA_PACKAGE_PATH_SEPARATOR, File.separator) + CLASS_FILE_EXTENSION;
+
+    File activityClassFile = fileSupport.newFile(compilationDirectory, activityClassFilepath);
+    if (!fileSupport.isFile(activityClassFile)) {
+      SimpleInteractiveSpacesException.throwFormattedException(String.format(
+          "Could not find the Java class %s described in the <class> element of the project",
+          project.getActivityClass()));
+    }
   }
 
   /**

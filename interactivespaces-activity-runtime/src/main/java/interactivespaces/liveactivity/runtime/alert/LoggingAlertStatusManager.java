@@ -73,15 +73,16 @@ public class LoggingAlertStatusManager implements AlertStatusManager {
     }
 
     log.error(String.format("ALERT: Activity %s has serious issues: %s\n", liveActivityRunner.getUuid(), activityState));
-    log.error(status.getDescription());
-
-    Throwable e = null;
-    if (status != null) {
-      e = status.getException();
+    String description = status.getDescription();
+    if (description != null && !description.trim().isEmpty()) {
+      log.error(description);
     }
-    if (e != null) {
-      log.error("Exception involved", e);
+
+    if (status != null) {
+      String exceptionMessage = status.getExceptionAsString();
+      if (exceptionMessage != null) {
+        log.error(String.format("ALERT Exception involved: %s", exceptionMessage));
+      }
     }
   }
-
 }

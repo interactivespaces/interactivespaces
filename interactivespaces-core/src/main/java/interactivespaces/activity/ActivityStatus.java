@@ -16,6 +16,9 @@
 
 package interactivespaces.activity;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+
 /**
  * Status of an Interactive Spaces activity.
  *
@@ -41,10 +44,31 @@ public class ActivityStatus {
    */
   private final Throwable exception;
 
+  /**
+   * Construct a new status.
+   *
+   * <p>
+   * The exception will be {@code null}.
+   *
+   * @param state
+   *          the activity state
+   * @param description
+   *          the description
+   */
   public ActivityStatus(ActivityState state, String description) {
     this(state, description, null);
   }
 
+  /**
+   * Construct a new status.
+   *
+   * @param state
+   *          the activity state
+   * @param description
+   *          the description
+   * @param exception
+   *          the exception, can be {@code null}
+   */
   public ActivityStatus(ActivityState state, String description, Throwable exception) {
     this.state = state;
     this.description = description;
@@ -52,6 +76,8 @@ public class ActivityStatus {
   }
 
   /**
+   * Get the activity state.
+   *
    * @return the state
    */
   public ActivityState getState() {
@@ -59,6 +85,8 @@ public class ActivityStatus {
   }
 
   /**
+   * Get the status description.
+   *
    * @return the description
    */
   public String getDescription() {
@@ -66,16 +94,35 @@ public class ActivityStatus {
   }
 
   /**
-   * @return the exception
+   * Get the status exception.
+   *
+   * @return the exception, can be {@code null}
    */
   public Throwable getException() {
     return exception;
   }
 
+  /**
+   * Get the exception as a string.
+   *
+   * @return the exception string, or {@code null} if there is no exception
+   */
+  public String getExceptionAsString() {
+    if (exception != null) {
+      if (exception instanceof SimpleInteractiveSpacesException) {
+        return (String.format("Exception message: %s",
+            ((SimpleInteractiveSpacesException) exception).getCompoundMessage()));
+      } else {
+        return InteractiveSpacesException.getStackTrace(exception);
+      }
+    } else {
+      return null;
+    }
+  }
+
   @Override
   public String toString() {
-    return "ActivityState [state=" + state + ", description=" + description + ", exception="
-        + exception + "]";
+    return "ActivityState [state=" + state + ", description=" + description + ", exception=" + exception + "]";
   }
 
   @Override

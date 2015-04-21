@@ -16,7 +16,6 @@
 
 package interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.Version;
@@ -51,7 +50,7 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
   private final ResourceSignature bundleSignature;
 
   /**
-   * The bundles currently loaded by the loader, indexed by the esource representing the bundle.
+   * The bundles currently loaded by the loader, indexed by the resource representing the bundle.
    */
   private final Map<NamedVersionedResource, NativeInteractiveSpacesLiveActivityOsgiBundle> loadedBundles = Maps
       .newHashMap();
@@ -94,8 +93,8 @@ public class SimpleLiveActivityBundleLoader implements LiveActivityBundleLoader 
 
     try {
       return bundle.loadClass(className);
-    } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Could not load class %s from bundle", className));
+    } catch (ClassNotFoundException e) {
+      throw SimpleInteractiveSpacesException.newFormattedException("Could not find the activity Java class %s", className);
     }
   }
 
