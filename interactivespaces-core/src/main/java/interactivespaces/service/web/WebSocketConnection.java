@@ -17,7 +17,10 @@
 package interactivespaces.service.web;
 
 /**
- * A connection connection for a web socket server.
+ * A web socket connection for a web socket server.
+ *
+ * <p>
+ * There is a single instance of implementations of this class per web socket connection.
  *
  * @author Keith M. Hughes
  */
@@ -52,9 +55,9 @@ public interface WebSocketConnection {
   void writeDataAsString(String data);
 
   /**
-   * Return the user id of the user who opened this socket connection
+   * Get the user id of the user who opened this socket connection.
    *
-   * @return the user id of the user who opened this connection.
+   * @return the user id of the user who opened this connection
    */
   String getUser();
 }

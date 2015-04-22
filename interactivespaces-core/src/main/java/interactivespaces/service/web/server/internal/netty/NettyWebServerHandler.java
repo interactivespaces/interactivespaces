@@ -26,6 +26,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpAuthResponse;
 import interactivespaces.service.web.server.HttpFileUploadListener;
@@ -399,11 +400,10 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       handshake.addListener(WebSocketServerHandshaker.HANDSHAKE_LISTENER);
       handshake.addListener(new ChannelFutureListener() {
         @Override
-        public void operationComplete(ChannelFuture arg0) throws Exception {
-
+        public void operationComplete(ChannelFuture future) throws Exception {
           NettyWebServerWebSocketConnection connection =
-              new NettyWebServerWebSocketConnection(channel, user, handshaker, webSocketHandlerFactory, webServer
-                  .getLog());
+              new NettyWebServerWebSocketConnection(channel, user, handshaker, webSocketHandlerFactory, accessManager,
+                  webServer.getLog());
           webSocketConnections.put(channel.getId(), connection);
 
           connection.getHandler().onConnect();
@@ -665,10 +665,9 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 
     NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
     if (handler != null) {
-      handler.handleWebSocketFrame(ctx, frame, accessManager);
+      handler.handleWebSocketFrame(ctx, frame);
     } else {
-
-      throw new RuntimeException("Web socket frame request from unregistered channel");
+      throw new SimpleInteractiveSpacesException("Web socket frame request from unregistered channel");
     }
   }
 

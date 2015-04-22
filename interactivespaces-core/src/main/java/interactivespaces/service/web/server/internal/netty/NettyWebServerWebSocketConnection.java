@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.jboss.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import org.jboss.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -73,10 +74,37 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
    */
   private String user;
 
-  public NettyWebServerWebSocketConnection(Channel channel, String user,
-      WebSocketServerHandshaker handshaker, WebServerWebSocketHandlerFactory handlerFactory, Log log) {
+  /**
+   * The access manager for web resources.
+   */
+  private WebResourceAccessManager accessManager;
+
+  /**
+   * All continuation data seen to date.
+   */
+  private StringBuilder continuationFrameData = new StringBuilder();
+
+  /**
+   * Construct a new connection.
+   *
+   * @param channel
+   *          the channel to the client socket
+   * @param user
+   *          the user ID for the user using the socket
+   * @param handshaker
+   *          the websocket handshaker
+   * @param handlerFactory
+   *          the factory for creating web socket handlers
+   * @param accessManager
+   *          the access manager for web resources
+   * @param log
+   *          the logger for the connection
+   */
+  public NettyWebServerWebSocketConnection(Channel channel, String user, WebSocketServerHandshaker handshaker,
+      WebServerWebSocketHandlerFactory handlerFactory, WebResourceAccessManager accessManager, Log log) {
     this.channel = channel;
     this.handshaker = handshaker;
+    this.accessManager = accessManager;
     this.log = log;
     this.user = user;
     handler = handlerFactory.newWebSocketHandler(this);
@@ -95,21 +123,103 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
    * @param frame
    *          the web socket frame that has come in
    */
-  public void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame,
-      WebResourceAccessManager accessManager) {
+  public void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
     if (frame instanceof CloseWebSocketFrame) {
-      handshaker.close(ctx.getChannel(), (CloseWebSocketFrame) frame);
-      return;
+      handleCloseFrame(ctx, (CloseWebSocketFrame) frame);
     } else if (frame instanceof PingWebSocketFrame) {
-      ctx.getChannel().write(new PongWebSocketFrame(frame.getBinaryData()));
-      return;
-    } else if (!(frame instanceof TextWebSocketFrame)) {
-      log.warn(String.format("Could not process web socket frame. %s frame types not supported",
-          frame.getClass().getName()));
-      return;
+      handlePingFrame(ctx, (PingWebSocketFrame) frame);
+    } else if (frame instanceof TextWebSocketFrame) {
+      handleTextFrameData((TextWebSocketFrame) frame);
+    } else if (frame instanceof ContinuationWebSocketFrame) {
+      handleContinuationFrameData((ContinuationWebSocketFrame) frame);
+    } else {
+      log.warn(String.format("Could not process web socket frame. %s frame types not supported", frame.getClass()
+          .getName()));
     }
+  }
 
-    String textData = ((TextWebSocketFrame) frame).getText();
+  /**
+   * Handle a close frame.
+   *
+   * @param ctx
+   *          the channel handler context
+   * @param frame
+   *          the close frame
+   */
+  private void handleCloseFrame(ChannelHandlerContext ctx, CloseWebSocketFrame frame) {
+    handshaker.close(ctx.getChannel(), frame);
+  }
+
+  /**
+   * Handle a ping frame.
+   *
+   * @param ctx
+   *          the channel handler context
+   * @param frame
+   *          the ping frame
+   */
+  private void handlePingFrame(ChannelHandlerContext ctx, PingWebSocketFrame frame) {
+    ctx.getChannel().write(new PongWebSocketFrame(frame.getBinaryData()));
+  }
+
+  /**
+   * Handle text frame data.
+   *
+   * @param frame
+   *          the text frame
+   */
+  private void handleTextFrameData(TextWebSocketFrame frame) {
+    String text = frame.getText();
+
+    if (frame.isFinalFragment()) {
+      if (isProcessingFragments()) {
+        log.warn("Improper web socket communication, received a final text frame when in process"
+            + " with continuation frames. Dropping continuation data.");
+        continuationFrameData.setLength(0);
+      }
+
+      handleTextData(text);
+    } else {
+      // Text frames not labeled as final are the first frame received when there is a continuation frame.
+      continuationFrameData.setLength(0);
+      continuationFrameData.append(text);
+    }
+  }
+
+  /**
+   * Is the handler processing fragmented packets?
+   *
+   * @return {@code true} if processing fragments
+   */
+  private boolean isProcessingFragments() {
+    return continuationFrameData.length() != 0;
+  }
+
+  /**
+   * Handle continuation frame data.
+   *
+   * @param frame
+   *          the continuation frame
+   */
+  private void handleContinuationFrameData(ContinuationWebSocketFrame frame) {
+    // All data coming in from the first text frame that was marked non final.
+    continuationFrameData.append(frame.getText());
+    if (frame.isFinalFragment()) {
+      handleTextData(continuationFrameData.toString());
+      continuationFrameData.setLength(0);
+    }
+  }
+
+  /**
+   * Handle the complete text from a frame.
+   *
+   * <p>
+   * This includes concatenated continuation frame data.
+   *
+   * @param textData
+   *          the complete data of the message
+   */
+  private void handleTextData(String textData) {
     if (accessManager != null) {
       if (!accessManager.allowWebsocketCall(getUser(), textData)) {
         return;
