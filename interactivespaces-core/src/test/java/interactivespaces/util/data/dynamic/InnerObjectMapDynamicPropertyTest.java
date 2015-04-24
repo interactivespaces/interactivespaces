@@ -51,7 +51,8 @@ public class InnerObjectMapDynamicPropertyTest extends BaseDynamicPropertyTest<M
   private static Map<String, JavaBeanProperties> createFirst() {
     Map<String, JavaBeanProperties> result = new HashMap<String, JavaBeanProperties>();
     result.put("one", w1);
-    result.put("oneMore", w1);
+    // Test to ensure null is a valid value.
+    result.put("oneMore", null);
     result.put("two", w2);
     return result;
   }
@@ -104,7 +105,7 @@ public class InnerObjectMapDynamicPropertyTest extends BaseDynamicPropertyTest<M
   private static Map<String, Map> getFirstMap() {
     Map<String, Map> secondMap = new HashMap<String, Map>();
     secondMap.put("one", InterfaceMap.getBackingMap(w1));
-    secondMap.put("oneMore", InterfaceMap.getBackingMap(w1));
+    secondMap.put("oneMore", null);
     secondMap.put("two", InterfaceMap.getBackingMap(w2));
     return secondMap;
   }

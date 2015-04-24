@@ -27,6 +27,7 @@ import com.google.common.primitives.Primitives;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -387,8 +388,7 @@ final class Conversions {
       }
 
       Function<Object, ?> transformation = RecursiveConversion.create(genericElementType, elementType);
-      // NOTE: ImmutableList disallows null elements.
-      return ImmutableList.copyOf(Lists.transform((List<?>) list, transformation));
+      return Collections.unmodifiableList(Lists.transform((List<?>) list, transformation));
     }
   }
 
@@ -434,8 +434,7 @@ final class Conversions {
       }
 
       Function<Object, ?> transformation = RecursiveConversion.create(genericValueType, elementType);
-      // NOTE: ImmutableMap disallows null values.
-      return ImmutableMap.copyOf(Maps.transformValues((Map) map, transformation));
+      return Collections.unmodifiableMap(Maps.transformValues((Map) map, transformation));
     }
   }
 }
