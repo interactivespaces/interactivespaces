@@ -78,6 +78,12 @@ allprojects {
     osgiVersion = interactiveSpacesVersionQualifier ? 
         interactiveSpacesVersion + "." + interactiveSpacesVersionQualifier :
         interactiveSpacesVersion
+
+    if (project.hasProperty("testSize")) {
+      ext.testSizing = project.testSize
+    } else {
+      ext.testSizing = "small"
+    }
   }
 
   group = 'interactivespaces'
@@ -119,6 +125,20 @@ subprojects {
       additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
     }
 
+    if (name != 'interactivespaces-testing') {
+      dependencies {
+        testCompile project(':interactivespaces-testing')
+      }
+    }
+
+    test {
+      useJUnit {
+        if (testSizing != "large") {
+          excludeCategories 'interactivespaces.testing.sizes.TestSizeLarge'
+        }
+      }
+    }
+
     // Add in configuratations to the standard Java build
     configurations {
       // dependencies which are provided by the container.
@@ -152,7 +172,6 @@ subprojects {
     eclipse.classpath.plusConfigurations += [configurations.expandedJars]
     eclipse.classpath.plusConfigurations += [configurations.extrasCompile]
     eclipse.classpath.plusConfigurations += [configurations.extrasSupportCompile]
-
     install.dependsOn build
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,8 +14,12 @@
  * the License.
  */
 
-dependencies {
-  compile project(':nrosjava')
-  
-  testCompile 'junit:junit:4.8.2'
+package interactivespaces.testing.sizes;
+
+/**
+ * A marker interface for large tests.
+ *
+ * @author Keith M. Hughes
+ */
+public interface TestSizeLarge {
 }

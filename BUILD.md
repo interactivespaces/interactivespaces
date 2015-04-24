@@ -113,3 +113,13 @@ instance, use
 ```
 ./gradlew installDev
 ```
+
+- Controlling Test Sizes
+
+Automatic tests that take place during a build come in a variety of sizes.
+Small tests are run every time a build is done, while large tests are only done
+if explicitly asked for. The following shows how to run the large tests.
+
+...
+./gradlew -PtestSize=large clean install
+---

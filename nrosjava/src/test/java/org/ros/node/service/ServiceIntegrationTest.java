@@ -20,7 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import interactivespaces.testing.sizes.TestSizeLarge;
+
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.ros.RosTest;
 import org.ros.exception.DuplicateServiceException;
 import org.ros.exception.RemoteException;
@@ -41,8 +44,9 @@ public class ServiceIntegrationTest extends RosTest {
 
   private static final String SERVICE_NAME = "/add_two_ints";
 
+  @Category(TestSizeLarge.class)
   @Test
-  public void testPesistentServiceConnection() throws Exception {
+  public void testPersistentServiceConnection() throws Exception {
     final CountDownServiceServerListener<test_ros.AddTwoIntsRequest, test_ros.AddTwoIntsResponse> countDownServiceServerListener =
         CountDownServiceServerListener.newDefault();
     nodeMainExecutor.execute(new AbstractNodeMain() {
