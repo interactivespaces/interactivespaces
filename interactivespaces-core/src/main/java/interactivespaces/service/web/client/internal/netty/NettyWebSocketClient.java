@@ -21,6 +21,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -76,11 +77,7 @@ public class NettyWebSocketClient implements WebSocketClient {
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The connection URI.

@@ -25,7 +25,25 @@ import interactivespaces.InteractiveSpacesException;
  */
 public class JsonInteractiveSpacesException extends InteractiveSpacesException {
 
+  /**
+   * Construct a new exception.
+   *
+   * @param message
+   *          the message for the exception
+   */
   public JsonInteractiveSpacesException(String message) {
     super(message);
+  }
+
+  /**
+   * Construct a new exception.
+   *
+   * @param message
+   *          the message for the exception
+   * @param e
+   *          an exception created during the JSON operation
+   */
+  public JsonInteractiveSpacesException(String message, Throwable e) {
+    super(message, e);
   }
 }

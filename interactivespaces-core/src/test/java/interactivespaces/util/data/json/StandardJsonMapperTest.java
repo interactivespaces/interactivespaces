@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JsonMapperTest {
+public class StandardJsonMapperTest {
 
   private static final String TEST_JSON_I18N = "{\"foo\":\"\\u0164\\u0117\\u015F\\u0167\"}";
 
@@ -43,7 +43,7 @@ public class JsonMapperTest {
 
   @Before
   public void setup() {
-    mapper = new JsonMapper();
+    mapper = new StandardJsonMapper();
   }
 
   /**

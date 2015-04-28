@@ -18,6 +18,9 @@ package interactivespaces.activity.component.route;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.messaging.route.RouteMessagePublisher;
+
+import java.util.Set;
 
 /**
  * An activity component which supports route messaging.
@@ -67,7 +70,7 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    * <p>
    * This will only work if there are output routes for the topic.
    *
-   * @return the new message.
+   * @return the new message
    */
   T newMessage();
 
@@ -75,44 +78,45 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    * Send out a message on one of the output channels.
    *
    * <p>
-   * The message is dropped if there is no such channel, though it will be
-   * logged
+   * The message is dropped if there is no such channel, though it will be logged.
    *
-   * @param outputChannelName
-   *          name of the output channel
+   * @param outputChannelId
+   *          ID of the output channel
    * @param message
    *          message to send
    */
-  void writeOutputMessage(String outputChannelName, T message);
+  void writeOutputMessage(String outputChannelId, T message);
 
   /**
    * Register a new channel output topic route.
    *
-   * @param outputName
-   *          channel name
+   * @param outputChannelId
+   *          the output channel ID
    * @param topicNames
    *          output topic names
    * @param latch
    *          should output be latched
    *
+   * @return the message publisher for the route
+   *
    * @throws InteractiveSpacesException
-   *           the output name has been used before
+   *           the output ID has been used before
    */
-  void registerOutputChannelTopic(String outputName, String topicNames, boolean latch)
+  RouteMessagePublisher<T> registerOutputChannelTopic(String outputChannelId, Set<String> topicNames, boolean latch)
       throws InteractiveSpacesException;
 
   /**
    * Register a new input topic channel.
    *
-   * @param inputName
-   *          input channel name
+   * @param inputChannelId
+   *          input channel ID
    * @param topicNames
    *          input topic names
    *
    * @throws InteractiveSpacesException
    *           the input name has been used before
    */
-  void registerInputChannelTopic(String inputName, String topicNames) throws InteractiveSpacesException;
+  void registerInputChannelTopic(String inputChannelId, Set<String> topicNames) throws InteractiveSpacesException;
 
   /**
    * Shutdown and clear all the input/output message topics.
@@ -137,4 +141,28 @@ public interface MessageRouterActivityComponent<T> extends ActivityComponent {
    *          the listener to remove
    */
   void removeListener(MessageRouterActivityComponentListener listener);
+
+  /**
+   * Get all output channel IDs from the component.
+   *
+   * @return all output channel IDs
+   */
+  Set<String> getOutputChannelIds();
+
+  /**
+   * get the output publisher for a given route.
+   *
+   * @param outputChannelId
+   *          the output channel ID
+   *
+   * @return the output publisher, or {@code null} if none found for the specified ID
+   */
+  RouteMessagePublisher<T> getMessagePublisher(String outputChannelId);
+
+  /**
+   * Get all input channel IDs from the component.
+   *
+   * @return all input channel IDs
+   */
+  Set<String> getInputChannelIds();
 }

@@ -33,13 +33,13 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JsonBuilderTest {
+public class StandardJsonBuilderTest {
 
-  private JsonBuilder builder;
+  private StandardJsonBuilder builder;
 
   @Before
   public void setup() {
-    builder = new JsonBuilder();
+    builder = new StandardJsonBuilder();
   }
 
   /**

@@ -22,6 +22,7 @@ import interactivespaces.interaction.model.entity.TrackedEntityListener;
 import interactivespaces.service.image.depth.DepthCameraService;
 import interactivespaces.service.image.depth.UserTrackerDepthCameraEndpoint;
 import interactivespaces.util.data.json.JsonBuilder;
+import interactivespaces.util.data.json.StandardJsonBuilder;
 import interactivespaces.util.geometry.Vector3;
 
 import java.util.List;
@@ -94,7 +95,7 @@ public class ImageDepthUserTrackerExampleActivity extends BaseRoutableRosActivit
   private void handleTrackedEntityUpdate(List<TrackedEntity<Vector3>> entities) {
 
     if (isActivated()) {
-      JsonBuilder message = new JsonBuilder();
+      JsonBuilder message = new StandardJsonBuilder();
 
       message.newArray(MESSAGE_PROPERTY_ENTITIES);
 

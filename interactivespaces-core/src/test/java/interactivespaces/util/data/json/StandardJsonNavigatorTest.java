@@ -31,10 +31,10 @@ import java.util.Set;
 
 /**
  * Test the {@link JsonNavigator}.
- * 
+ *
  * @author Keith M. Hughes
  */
-public class JsonNavigatorTest {
+public class StandardJsonNavigatorTest {
 
   /**
    * Make sure primitives are properly handled.
@@ -66,7 +66,7 @@ public class JsonNavigatorTest {
     Set<String> properties =
         Sets.newHashSet(keyString1, keyString1, keyInteger, keyDouble, keyBoolean);
 
-    JsonNavigator nav = new JsonNavigator(root);
+    JsonNavigator nav = new StandardJsonNavigator(root);
 
     assertEquals(properties, nav.getProperties());
     assertEquals(valueString1, nav.getString(keyString1));
@@ -115,7 +115,7 @@ public class JsonNavigatorTest {
     String arrayKey = "array";
     root.put(arrayKey, array);
 
-    JsonNavigator nav = new JsonNavigator(root);
+    JsonNavigator nav = new StandardJsonNavigator(root);
 
     assertEquals(array, nav.getItem(arrayKey));
 
@@ -176,7 +176,7 @@ public class JsonNavigatorTest {
     int objectValue2 = 123;
     arrayValueMap.put(objectKey2, objectValue2);
 
-    JsonNavigator nav = new JsonNavigator(root);
+    JsonNavigator nav = new StandardJsonNavigator(root);
     nav.down(keyString);
 
     assertEquals(arrayValueString, nav.getString(0));
@@ -245,7 +245,7 @@ public class JsonNavigatorTest {
     String arrayKey = "array";
     root.put(arrayKey, array);
 
-    JsonNavigator nav = new JsonNavigator(root);
+    JsonNavigator nav = new StandardJsonNavigator(root);
 
     // Simple path into a series of nested objects
     assertEquals(obj2Value,

@@ -18,6 +18,7 @@ package interactivespaces.liveactivity.runtime.standalone.messaging;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import com.google.common.collect.Lists;
 
@@ -221,7 +222,7 @@ public final class MessageUtils {
     /**
      * Json mapper for message conversion.
      */
-    private static final JsonMapper MAPPER = new JsonMapper();
+    private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
     /**
      * Create a new message map from an existing map.

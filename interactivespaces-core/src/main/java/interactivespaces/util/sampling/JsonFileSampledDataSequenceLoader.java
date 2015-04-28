@@ -19,6 +19,9 @@ package interactivespaces.util.sampling;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.JsonNavigator;
+import interactivespaces.util.data.json.StandardJsonBuilder;
+import interactivespaces.util.data.json.StandardJsonMapper;
+import interactivespaces.util.data.json.StandardJsonNavigator;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.sampling.SampledDataSequence.SampledDataFrame;
@@ -56,7 +59,7 @@ public class JsonFileSampledDataSequenceLoader implements SampledDataSequenceLoa
   /**
    * The JSON mapper to use for serializing and deserializing the data.
    */
-  private static final JsonMapper JSON_MAPPER = new JsonMapper();
+  private static final JsonMapper JSON_MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The file support for the object.
@@ -65,7 +68,7 @@ public class JsonFileSampledDataSequenceLoader implements SampledDataSequenceLoa
 
   @Override
   public void save(File dataFile, SampledDataSequence dataSequence) {
-    JsonBuilder builder = new JsonBuilder();
+    JsonBuilder builder = new StandardJsonBuilder();
 
     builder.newArray(PROPERTY_NAME_FRAMES);
 
@@ -97,7 +100,7 @@ public class JsonFileSampledDataSequenceLoader implements SampledDataSequenceLoa
   public int load(File dataFile, SampledDataSequence dataSequence) {
     dataSequence.reset();
 
-    JsonNavigator nav = new JsonNavigator(JSON_MAPPER.parseObject(fileSupport.readFile(dataFile)));
+    JsonNavigator nav = new StandardJsonNavigator(JSON_MAPPER.parseObject(fileSupport.readFile(dataFile)));
 
     nav.down(PROPERTY_NAME_FRAMES);
     int numberFrames = nav.getSize();

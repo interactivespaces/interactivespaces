@@ -112,7 +112,7 @@ class PlaybackRunner implements Runnable {
         standaloneMessageRouter.getLog().info(
             String.format("Done with playback, waiting %sms for completion.", finishDelayMs));
         Thread.sleep(finishDelayMs);
-        finishDelayMs = standaloneMessageRouter.getFinishDeltaMs();
+        finishDelayMs = standaloneMessageRouter.getFinishDelta();
       }
 
       standaloneMessageRouter.verifyFinished();

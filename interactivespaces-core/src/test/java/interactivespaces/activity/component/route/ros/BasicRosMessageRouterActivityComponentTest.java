@@ -18,12 +18,14 @@ package interactivespaces.activity.component.route.ros;
 
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
-import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.ros.RosActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.evaluation.SimpleExpressionEvaluator;
+import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.time.SettableTimeProvider;
+import interactivespaces.time.TimeProvider;
 
 import org.apache.commons.logging.Log;
 import org.junit.Before;
@@ -32,18 +34,20 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 /**
- * tests for {@link RosMessageRouterActivityComponent}.
+ * Tests for {@link BasicRosMessageRouterActivityComponent}.
  *
  * @author Keith M. Hughes
  */
-public class RosMessageRouterActivityComponentTest {
+public class BasicRosMessageRouterActivityComponentTest {
 
-  private RosMessageRouterActivityComponent<String> component;
+  private BasicRosMessageRouterActivityComponent<String> component;
 
   private RoutableInputMessageListener<String> messageListener;
   private ActivityComponentContext activityComponentContext;
   private Configuration configuration;
   private RosActivity activity;
+  private InteractiveSpacesEnvironment spaceEnvironment;
+  private TimeProvider timeProvider;
 
   private InOrder activityComponentContextInOrder;
 
@@ -62,6 +66,12 @@ public class RosMessageRouterActivityComponentTest {
     activity = Mockito.mock(RosActivity.class);
     Mockito.when(activityComponentContext.getActivity()).thenReturn(activity);
 
+    spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
+    Mockito.when(activity.getSpaceEnvironment()).thenReturn(spaceEnvironment);
+
+    timeProvider = new SettableTimeProvider();
+    Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
+
     executionContext = Mockito.mock(ActivityExecutionContext.class);
     Mockito.when(activity.getExecutionContext()).thenReturn(executionContext);
 
@@ -70,7 +80,7 @@ public class RosMessageRouterActivityComponentTest {
 
     configuration = new SimpleConfiguration(new SimpleExpressionEvaluator());
 
-    component = new RosMessageRouterActivityComponent<String>("string", messageListener);
+    component = new BasicRosMessageRouterActivityComponent<String>("string", messageListener);
   }
 
   /**
@@ -88,7 +98,7 @@ public class RosMessageRouterActivityComponentTest {
 
     String channelName = "foo";
     String message = "bar";
-    component.handleNewMessage(channelName, message);
+    component.handleNewIncomingMessage(channelName, message);
 
     Mockito.verify(messageListener).onNewRoutableInputMessage(channelName, message);
 
@@ -115,7 +125,7 @@ public class RosMessageRouterActivityComponentTest {
     Exception e = new RuntimeException();
     Mockito.doThrow(e).when(messageListener).onNewRoutableInputMessage(channelName, message);
 
-    component.handleNewMessage(channelName, message);
+    component.handleNewIncomingMessage(channelName, message);
 
     Mockito.verify(messageListener).onNewRoutableInputMessage(channelName, message);
 
@@ -137,7 +147,7 @@ public class RosMessageRouterActivityComponentTest {
 
     String channelName = "foo";
     String message = "bar";
-    component.handleNewMessage(channelName, message);
+    component.handleNewIncomingMessage(channelName, message);
 
     Mockito.verify(messageListener, Mockito.never())
         .onNewRoutableInputMessage(channelName, message);

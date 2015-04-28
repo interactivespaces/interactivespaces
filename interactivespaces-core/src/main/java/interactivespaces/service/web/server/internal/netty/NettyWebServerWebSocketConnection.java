@@ -21,6 +21,7 @@ import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.Channel;
@@ -43,11 +44,7 @@ public class NettyWebServerWebSocketConnection implements WebSocketConnection {
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The channel for this web socket handler.

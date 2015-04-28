@@ -85,7 +85,7 @@ public class WebSocketTest {
     final AtomicReference<WebServerWebSocketHandler> serverHandler =
         new AtomicReference<WebServerWebSocketHandler>();
 
-    int port = 8082;
+    int port = 9000;
     String webSocketUriPrefix = "websockettest";
 
     URI uri = new URI(String.format("ws://127.0.0.1:%d/%s", port, webSocketUriPrefix));

@@ -16,54 +16,20 @@
 
 package interactivespaces.util.ros;
 
-import interactivespaces.InteractiveSpacesException;
-
-import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
-import org.ros.internal.node.topic.SubscriberIdentifier;
 import org.ros.node.ConnectedNode;
-import org.ros.node.topic.Publisher;
 import org.ros.node.topic.PublisherListener;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * A collection of ROS publishers for a given message type.
  *
+ * @param <T>
+ *      the message type
+ *
  * @author Keith M. Hughes
  */
-public class RosPublishers<T> implements PublisherListener<T> {
-
-  /**
-   * Separator between names or topics.
-   */
-  public static final String SEPARATOR = ":";
-
-  /**
-   * All publishers registered.
-   */
-  private final List<Publisher<T>> publishers = Lists.newArrayList();
-
-  /**
-   * All publisher listeners registered.
-   */
-  private final List<PublisherListener<T>> publisherListeners = Lists.newArrayList();
-
-  /**
-   * Logger for this collection.
-   */
-  private final Log log;
-
-  /**
-   * Construct a new publishers collection.
-   *
-   * @param log
-   *          the logger to use
-   */
-  public RosPublishers(Log log) {
-    this.log = log;
-  }
+public interface RosPublishers<T> extends PublisherListener<T> {
 
   /**
    * Add a publisher listener to the collection.
@@ -71,13 +37,7 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * @param listener
    *          the listener to add
    */
-  public synchronized void addPublisherListener(PublisherListener<T> listener) {
-    publisherListeners.add(listener);
-
-    for (Publisher<T> publisher : publishers) {
-      publisher.addListener(listener);
-    }
-  }
+  void addPublisherListener(PublisherListener<T> listener);
 
   /**
    * Add a series of publishers to a node.
@@ -91,13 +51,11 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * @param node
    *          the node the publishers will be added to
    * @param topicNames
-   *          a colon separated list of topics to be published to
+   *         the topics to be published to
    * @param messageType
    *          the message type for all of the publishers
    */
-  public void addPublishers(ConnectedNode node, String messageType, String topicNames) {
-    addPublishers(node, messageType, topicNames, false);
-  }
+  void addPublishers(ConnectedNode node, String messageType, Set<String> topicNames);
 
   /**
    * Add a series of publishers to a node.
@@ -108,39 +66,14 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * @param node
    *          the node the publishers will be added to
    * @param topicNames
-   *          a colon separated list of topics to be published to
+   *         the topics to be published to
    * @param messageType
    *          the message type for all of the publishers
    * @param latch
    *          {@code true} if the publisher should always send the last message
    *          sent to any new subscribers
    */
-  public synchronized void addPublishers(ConnectedNode node, String messageType, String topicNames, boolean latch) {
-    if (log.isInfoEnabled()) {
-      log.info(String.format("Adding publishers for topic names %s with message type %s", topicNames, messageType));
-    }
-
-    for (String topicName : topicNames.split(SEPARATOR)) {
-      topicName = topicName.trim();
-      if (!topicName.isEmpty()) {
-        if (log.isInfoEnabled()) {
-          log.info(String.format("Adding publisher topic %s", topicName));
-        }
-        Publisher<T> publisher = node.newPublisher(topicName, messageType);
-        if (log.isInfoEnabled()) {
-          log.info(String.format("Added publisher topic %s", topicName));
-        }
-        publisher.addListener(this);
-
-        for (PublisherListener<T> listener : publisherListeners) {
-          publisher.addListener(listener);
-        }
-
-        publisher.setLatchMode(latch);
-        publishers.add(publisher);
-      }
-    }
-  }
+  void addPublishers(ConnectedNode node, String messageType, Set<String> topicNames, boolean latch);
 
   /**
    * Publish a message to all registered publishers.
@@ -148,24 +81,14 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * @param message
    *          The message to be published.
    */
-  public synchronized void publishMessage(T message) {
-    for (Publisher<T> publisher : publishers) {
-      publisher.publish(message);
-    }
-  }
+  void publishMessage(T message);
 
   /**
    * Create an instance of the message.
    *
    * @return an instance of the message
    */
-  public synchronized T newMessage() {
-    if (!publishers.isEmpty()) {
-      return publishers.get(0).newMessage();
-    } else {
-      throw new InteractiveSpacesException("No publishers found to create a message");
-    }
-  }
+  T newMessage();
 
   /**
    * Shut down all publishers registered.
@@ -173,41 +96,5 @@ public class RosPublishers<T> implements PublisherListener<T> {
    * <p>
    * This method does not need to be called if the node is shut down.
    */
-  public synchronized void shutdown() {
-    for (Publisher<T> publisher : publishers) {
-      publisher.shutdown();
-    }
-  }
-
-  @Override
-  public void onMasterRegistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to register with the master", publisher.getTopicName()));
-  }
-
-  @Override
-  public void onMasterRegistrationSuccess(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has successfully registered with the master",
-        publisher.getTopicName()));
-  }
-
-  @Override
-  public void onMasterUnregistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to unregister with the master", publisher.getTopicName()));
-  }
-
-  @Override
-  public void onMasterUnregistrationSuccess(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has successfully unregistered with the master",
-        publisher.getTopicName()));
-  }
-
-  @Override
-  public void onNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
-    log.info(String.format("Publisher for topic %s has a new subscriber", publisher.getTopicName()));
-  }
-
-  @Override
-  public void onShutdown(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has shut down", publisher.getTopicName()));
-  }
+  void shutdown();
 }

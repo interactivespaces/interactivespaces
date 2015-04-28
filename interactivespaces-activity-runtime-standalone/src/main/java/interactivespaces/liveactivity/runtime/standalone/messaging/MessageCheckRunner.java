@@ -95,7 +95,7 @@ class MessageCheckRunner {
               StandaloneMessageRouter.TIME_DELAY_KEY, nextExpectedMessage));
         }
         long finishDelayMs = ((Integer) timeDelay) * 2;
-        standaloneMessageRouter.setFinishDeltaMs(finishDelayMs);
+        standaloneMessageRouter.setFinishDelta(finishDelayMs);
 
         nextExpectedMessage.remove(StandaloneMessageRouter.SEGMENT_KEY);
         nextExpectedMessage.remove(StandaloneMessageRouter.SOURCE_UUID_KEY);

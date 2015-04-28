@@ -19,21 +19,22 @@ package interactivespaces.liveactivity.runtime.standalone.messaging;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.SupportedActivity;
-import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.component.ros.RosActivityComponent;
-import interactivespaces.activity.component.route.MessageRouterActivityComponent;
-import interactivespaces.activity.component.route.MessageRouterActivityComponentListener;
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
+import interactivespaces.activity.component.route.ros.BaseRosMessageRouterActivityComponent;
 import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageMap;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageSetList;
+import interactivespaces.messaging.route.RouteMessagePublisher;
 import interactivespaces.time.TimeProvider;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import interactivespaces_msgs.GenericMessage;
 import org.apache.commons.logging.Log;
@@ -42,19 +43,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A standalone message router that uses multicast.
  *
  * @author Trevor Pering
  */
-public class StandaloneMessageRouter extends BaseActivityComponent implements
-    MessageRouterActivityComponent<GenericMessage> {
+public class StandaloneMessageRouter extends BaseRosMessageRouterActivityComponent<GenericMessage> {
 
   /**
    * Json mapper for message conversion.
    */
-  private static final JsonMapper MAPPER = new JsonMapper();
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * Key for message delay field.
@@ -122,9 +123,9 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
   private SupportedActivity activity;
 
   /**
-   * Mark time of when to check for completion (failure).
+   * Mark time of when to check for completion (failure), in milliseconds.
    */
-  private volatile long finishTimeMs;
+  private volatile long finishTime;
 
   /**
    * All topic inputs.
@@ -134,7 +135,7 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
   /**
    * All topic outputs.
    */
-  private final Map<String, String> outputChannelsToRoutes = Maps.newConcurrentMap();
+  private final Map<String, Set<String>> outputChannelsToRoutes = Maps.newConcurrentMap();
 
   /**
    * Time provider for message timestamps.
@@ -165,18 +166,8 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
   }
 
   @Override
-  public void writeOutputMessage(String outputChannelName, GenericMessage message) {
-    sendOutputMessage(outputChannelName, message.getType(), message.getMessage());
-  }
-
-  @Override
-  public void addListener(MessageRouterActivityComponentListener listener) {
-    throw new UnsupportedOperationException("not implemented yet");
-  }
-
-  @Override
-  public void removeListener(MessageRouterActivityComponentListener listener) {
-    throw new UnsupportedOperationException("not implemented yet");
+  public void writeOutputMessage(String outputChannelId, GenericMessage message) {
+    sendOutputMessage(outputChannelId, message.getType(), message.getMessage());
   }
 
   @Override
@@ -187,17 +178,22 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
 
   @Override
   @SuppressWarnings("unchecked")
-  public void startupComponent() {
+  protected void onPreStartupComponent() {
     timeProvider = getComponentContext().getActivity().getSpaceEnvironment().getTimeProvider();
     activity = getComponentContext().getActivity();
     router = getRouter();
     listener = (RoutableInputMessageListener<GenericMessage>) activity;
-    initializeRoutes();
+  }
+
+  @Override
+  protected void onPostStartupComponent() {
     initializeCommunication();
   }
 
   /**
-   * @return router to use for this standalone instance
+   * Get the router to use for this standalone instance.
+   *
+   * @return the router
    */
   private StandaloneRouter getRouter() {
     Configuration configuration = activity.getConfiguration();
@@ -226,13 +222,13 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
   }
 
   /**
-   * Initialize communication. Essentially opens the multiscast socket and prepare.
+   * Initialize communication. Essentially opens the multicast socket and prepare.
    */
   private void initializeCommunication() {
     try {
       router.startup();
 
-      activity.getSpaceEnvironment().getExecutorService().submit(new Runnable() {
+      activity.getManagedCommands().submit(new Runnable() {
         @Override
         public void run() {
           receiveLoop();
@@ -263,29 +259,33 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
    */
   private void sendOutputMessage(String channelName, String type, String message) {
     try {
-      String route = outputChannelsToRoutes.get(channelName);
-      if (route == null) {
+      Set<String> routes = outputChannelsToRoutes.get(channelName);
+      if (routes == null) {
         getLog().error("Attempt to send on unregistered output channel " + channelName);
-        outputChannelsToRoutes.put(channelName, "unknown");
-        route = "unknown";
+        Set<String> unknown = Sets.newHashSet("unknown");
+        outputChannelsToRoutes.put(channelName, unknown);
+        routes = unknown;
       }
 
-      // This is horribly inefficient but preserves the right semantics. It's more
-      // flexible to keep everything as JSON, instead as a string embedded in Json...
-      Object baseMessage =
-          (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type)) ? MAPPER.parseObject(message) : message;
+      for (String route : routes) {
+        // This is horribly inefficient but preserves the right semantics. It's more
+        // flexible to keep everything as JSON, instead as a string embedded in Json.
+        Object baseMessage =
+            (MessageRouterSupportedMessageTypes.JSON_MESSAGE_TYPE.equals(type)) ? MAPPER.parseObject(message)
+                : message;
 
-      MessageMap messageObject = new MessageMap();
-      messageObject.put("message", baseMessage);
-      messageObject.put("type", type);
-      messageObject.put("route", route);
-      messageObject.put("channel", channelName);
-      messageObject.put(SOURCE_UUID_KEY, activity.getUuid());
-      router.send(messageObject);
+        MessageMap messageObject = new MessageMap();
+        messageObject.put("message", baseMessage);
+        messageObject.put("type", type);
+        messageObject.put("route", route);
+        messageObject.put("channel", channelName);
+        messageObject.put(SOURCE_UUID_KEY, activity.getUuid());
+        router.send(messageObject);
 
-      if (messageCheckRunner != null) {
-        if (messageCheckRunner.checkMessage(messageObject)) {
-          messageCheckRunner.verifyFinished();
+        if (messageCheckRunner != null) {
+          if (messageCheckRunner.checkMessage(messageObject)) {
+            messageCheckRunner.verifyFinished();
+          }
         }
       }
     } catch (Exception e) {
@@ -470,18 +470,22 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
   }
 
   /**
-   * @return delta in ms from current time until a finish check should be performed
+   * Get the finish time delta from current time until a finish check should be performed.
+   *
+   * @return delta in ms
    */
-  public long getFinishDeltaMs() {
-    return finishTimeMs - getCurrentTimestamp();
+  public long getFinishDelta() {
+    return finishTime - getCurrentTimestamp();
   }
 
   /**
-   * @param finishDelayMs
-   *          delta in ms from current time to next check for send finished
+   * Set the finish time delta from current time to next check for send finished.
+   *
+   * @param finishDelay
+   *          delta in ms
    */
-  public void setFinishDeltaMs(long finishDelayMs) {
-    this.finishTimeMs = finishDelayMs + getCurrentTimestamp();
+  public void setFinishDelta(long finishDelay) {
+    this.finishTime = finishDelay + getCurrentTimestamp();
   }
 
   @Override
@@ -492,93 +496,35 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
     activityRunner.handleError(message, t);
   }
 
-  /**
-   * Initialize message routes based off of activity configuration.
-   */
-  private void initializeRoutes() {
-    Configuration configuration = getComponentContext().getActivity().getConfiguration();
-
-    String inputNames = configuration.getPropertyString(CONFIGURATION_ROUTES_INPUTS);
-    if (inputNames != null) {
-      for (String inputName : inputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
-        inputName = inputName.trim();
-        if (!inputName.isEmpty()) {
-          String inputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_INPUT_TOPIC_PREFIX + inputName);
-          registerInputChannelTopic(inputName, inputTopicNames);
-        }
-      }
-    }
-
-    String outputNames = configuration.getPropertyString(CONFIGURATION_ROUTES_OUTPUTS);
-    if (outputNames != null) {
-      for (String outputName : outputNames.split(CONFIGURATION_VALUES_SEPARATOR)) {
-        outputName = outputName.trim();
-        if (!outputName.isEmpty()) {
-          String outputTopicNames =
-              configuration.getRequiredPropertyString(CONFIGURATION_ROUTE_OUTPUT_TOPIC_PREFIX + outputName);
-
-          boolean latch = false;
-          int semiPos = outputTopicNames.indexOf(';');
-          if (semiPos != -1) {
-            String extra = outputTopicNames.substring(0, semiPos);
-            outputTopicNames = outputTopicNames.substring(semiPos + 1);
-
-            String[] pair = extra.split("=");
-            if (pair.length > 1) {
-              if ("latch".equals(pair[0].trim())) {
-                latch = "true".equals(pair[1].trim());
-              }
-            }
-          }
-
-          registerOutputChannelTopic(outputName, outputTopicNames, latch);
-        }
-      }
-    }
-  }
-
-  /**
-   * Register a new channel output topic route.
-   *
-   * @param outputName
-   *          channel name
-   * @param topicNames
-   *          output topic names
-   * @param latch
-   *          should output be latched
-   */
   @Override
-  public synchronized void registerOutputChannelTopic(String outputName, String topicNames, boolean latch) {
-    if (outputChannelsToRoutes.containsKey(outputName)) {
-      throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputName);
+  public synchronized RouteMessagePublisher<GenericMessage> registerOutputChannelTopic(String outputChannelId,
+      Set<String> topicNames, boolean latch) {
+    if (outputChannelsToRoutes.containsKey(outputChannelId)) {
+      throw new SimpleInteractiveSpacesException("Output channel already registered: " + outputChannelId);
     }
 
     if (latch) {
-      throw new UnsupportedOperationException("Latch functionality not supported for output channel " + outputName);
+      throw new UnsupportedOperationException("Latch functionality not supported for output channel "
+          + outputChannelId);
     }
 
     getComponentContext().getActivity().getLog()
-        .warn(String.format("Registering output %s --> %s", outputName, topicNames));
-    outputChannelsToRoutes.put(outputName, topicNames);
+        .warn(String.format("Registering output %s --> %s", outputChannelId, topicNames));
+    outputChannelsToRoutes.put(outputChannelId, topicNames);
+
+    return new StandaloneRouteMessagePublisher(outputChannelId);
   }
 
-  /**
-   * Register a new input topic channel.
-   *
-   * @param inputName
-   *          input channel name
-   * @param topicNames
-   *          input topic names
-   */
   @Override
-  public synchronized void registerInputChannelTopic(final String inputName, String topicNames) {
-    if (inputRoutesToChannels.containsKey(topicNames)) {
-      throw new SimpleInteractiveSpacesException("Input route already registered: " + inputName);
+  public synchronized void registerInputChannelTopic(String inputChannelId, Set<String> topicNames) {
+    for (String topicName : topicNames) {
+      if (inputRoutesToChannels.containsKey(topicNames)) {
+        throw new SimpleInteractiveSpacesException("Input route already registered: " + inputChannelId);
+      }
+      getComponentContext().getActivity().getLog()
+          .warn(String.format("Registering input %s <-- %s", inputChannelId, topicNames));
+      inputRoutesToChannels.put(topicName, inputChannelId);
     }
-    getComponentContext().getActivity().getLog()
-        .warn(String.format("Registering input %s <-- %s", inputName, topicNames));
-    inputRoutesToChannels.put(topicNames, inputName);
   }
 
   @Override
@@ -586,5 +532,58 @@ public class StandaloneMessageRouter extends BaseActivityComponent implements
     getComponentContext().getActivity().getLog().warn("Clearing all channel topics");
     inputRoutesToChannels.clear();
     outputChannelsToRoutes.clear();
+  }
+
+  @Override
+  public Set<String> getOutputChannelIds() {
+    return Sets.newHashSet(outputChannelsToRoutes.keySet());
+  }
+
+  @Override
+  public RouteMessagePublisher<GenericMessage> getMessagePublisher(String outputChannelId) {
+    return new StandaloneRouteMessagePublisher(outputChannelId);
+  }
+
+  @Override
+  public Set<String> getInputChannelIds() {
+    return Sets.newHashSet(inputRoutesToChannels.keySet());
+  }
+
+  /**
+   * A route message publisher for the standalone publisher.
+   *
+   * @author Keith M. Hughes
+   */
+  private class StandaloneRouteMessagePublisher implements RouteMessagePublisher<GenericMessage> {
+
+    /**
+     * The channel ID for the output channel.
+     */
+    private String channelId;
+
+    /**
+     * Construct a new publisher.
+     *
+     * @param channelId
+     *          channel ID for the publisher
+     */
+    public StandaloneRouteMessagePublisher(String channelId) {
+      this.channelId = channelId;
+    }
+
+    @Override
+    public String getChannelId() {
+      return channelId;
+    }
+
+    @Override
+    public void writeOutputMessage(GenericMessage message) {
+      StandaloneMessageRouter.this.writeOutputMessage(channelId, message);
+    }
+
+    @Override
+    public GenericMessage newMessage() {
+      return newMessage();
+    }
   }
 }

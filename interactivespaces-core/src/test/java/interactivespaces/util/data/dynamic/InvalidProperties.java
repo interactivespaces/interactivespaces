@@ -16,8 +16,6 @@
 
 package interactivespaces.util.data.dynamic;
 
-import interactivespaces.util.data.json.JsonMapper;
-
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +33,7 @@ public interface InvalidProperties {
   /**
    * Unsupported type of elements.
    */
-  List<JsonMapper> getListOfNonInterfaceType();
+  List<Error> getListOfNonInterfaceType();
 
   void getNativeVoid();
 

@@ -19,6 +19,9 @@ package interactivespaces.util.sampling;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.JsonNavigator;
+import interactivespaces.util.data.json.StandardJsonBuilder;
+import interactivespaces.util.data.json.StandardJsonMapper;
+import interactivespaces.util.data.json.StandardJsonNavigator;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
@@ -41,7 +44,7 @@ public class JsonFileSampledDataLoader implements SampledDataLoader {
   /**
    * The JSON mapper to use for serializing and deserializing the data.
    */
-  private static final JsonMapper JSON_MAPPER = new JsonMapper();
+  private static final JsonMapper JSON_MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The file support to use for this class.
@@ -50,7 +53,7 @@ public class JsonFileSampledDataLoader implements SampledDataLoader {
 
   @Override
   public void save(File dataFile, Map<String, int[]> data) {
-    JsonBuilder builder = new JsonBuilder();
+    JsonBuilder builder = new StandardJsonBuilder();
 
     for (Entry<String, int[]> entry : data.entrySet()) {
       builder.newObject(entry.getKey());
@@ -79,7 +82,7 @@ public class JsonFileSampledDataLoader implements SampledDataLoader {
   @Override
   public void load(File dataFile, Map<String, int[]> data) {
     data.clear();
-    JsonNavigator nav = new JsonNavigator(JSON_MAPPER.parseObject(fileSupport.readFile(dataFile)));
+    JsonNavigator nav = new StandardJsonNavigator(JSON_MAPPER.parseObject(fileSupport.readFile(dataFile)));
 
     for (String name : nav.getProperties()) {
       nav.down(name);

@@ -26,6 +26,7 @@ import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import java.io.File;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class BaseWebServerActivity extends BaseActivity implements MultipleConne
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER = new JsonMapper();
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * Web socket handler for the connection to the browser.

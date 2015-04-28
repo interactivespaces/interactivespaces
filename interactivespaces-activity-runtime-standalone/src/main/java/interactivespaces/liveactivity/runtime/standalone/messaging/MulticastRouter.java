@@ -20,6 +20,7 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageMap;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import com.google.common.base.Preconditions;
 
@@ -34,7 +35,7 @@ import java.net.MulticastSocket;
  */
 public class MulticastRouter implements StandaloneRouter {
   /**
-   * Maximum message size allowed.  Not sure what happens if you try to make this number larger.
+   * Maximum message size allowed. Not sure what happens if you try to make this number larger.
    */
   static final int DEFAULT_RECEIVE_BUFFER_SIZE = 6000;
 
@@ -46,7 +47,7 @@ public class MulticastRouter implements StandaloneRouter {
   /**
    * Json mapper for message conversion.
    */
-  private static final JsonMapper MAPPER = new JsonMapper();
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The multicast port to use.
@@ -85,8 +86,8 @@ public class MulticastRouter implements StandaloneRouter {
    *          configuration to use for this router
    */
   public MulticastRouter(Configuration configuration) {
-    int receiveBufferSize = configuration.getPropertyInteger(
-        CONFIGURATION_MULTICAST_RECEIVE_BUFFER_SIZE, DEFAULT_RECEIVE_BUFFER_SIZE);
+    int receiveBufferSize =
+        configuration.getPropertyInteger(CONFIGURATION_MULTICAST_RECEIVE_BUFFER_SIZE, DEFAULT_RECEIVE_BUFFER_SIZE);
     receiveBuf = new byte[receiveBufferSize];
     datagramPacket = new DatagramPacket(receiveBuf, receiveBuf.length);
   }

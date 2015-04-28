@@ -18,35 +18,17 @@ package interactivespaces.util.data.json;
 
 import interactivespaces.InteractiveSpacesException;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.util.Map;
 
 /**
  * A mapper for JSON.
  *
  * <p>
- * This object is threadsafe so can be made static.
+ * Instances of this interface are threadsafe so can be made static.
  *
  * @author Keith M. Hughes
  */
-public class JsonMapper {
-
-  /**
-   * A global mapper everyone can use.
-   */
-  public static final JsonMapper INSTANCE = new JsonMapper();
-
-  /**
-   * The JSON mapper.
-   */
-  private static final ObjectMapper MAPPER;
-
-  static {
-    MAPPER = new ObjectMapper();
-    MAPPER.getJsonFactory().enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-  }
+public interface JsonMapper {
 
   /**
    * Parse an object string.
@@ -59,15 +41,7 @@ public class JsonMapper {
    * @throws InteractiveSpacesException
    *           the string did not parse properly
    */
-  public Map<String, Object> parseObject(String object) {
-    try {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> map = MAPPER.readValue(object, Map.class);
-      return map;
-    } catch (Exception e) {
-      throw new InteractiveSpacesException("Could not parse JSON string", e);
-    }
-  }
+  Map<String, Object> parseObject(String object) throws InteractiveSpacesException;
 
   /**
    * Take a map and write it as a string.
@@ -79,12 +53,9 @@ public class JsonMapper {
    *          the object to serialize as JSON
    *
    * @return the string
+   *
+   * @throws InteractiveSpacesException
+   *           the serialization failed
    */
-  public String toString(Object data) {
-    try {
-      return MAPPER.writeValueAsString(data);
-    } catch (Exception e) {
-      throw new InteractiveSpacesException("Could not serialize JSON object as string", e);
-    }
-  }
+  String toString(Object data) throws InteractiveSpacesException;
 }

@@ -18,6 +18,7 @@ package interactivespaces.service.web.client.internal.netty;
 
 import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.channel.Channel;
@@ -45,11 +46,7 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER;
-
-  static {
-    MAPPER = new JsonMapper();
-  }
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * The handshaker for the connection.
@@ -66,8 +63,17 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
    */
   private Log log;
 
-  public NettyWebSocketClientHandler(WebSocketClientHandshaker handshaker,
-      WebSocketHandler handler, Log log) {
+  /**
+   * Construct a new client handler.
+   *
+   * @param handshaker
+   *          the web socket handshaker
+   * @param handler
+   *          the handler for socket requests
+   * @param log
+   *          the logger
+   */
+  public NettyWebSocketClientHandler(WebSocketClientHandshaker handshaker, WebSocketHandler handler, Log log) {
     this.handshaker = handshaker;
     this.handler = handler;
     this.log = log;
@@ -108,6 +114,7 @@ public class NettyWebSocketClientHandler extends SimpleChannelUpstreamHandler {
         log.error("Error while decoding JSON websocket message", e1);
       }
     } else if (frame instanceof PongWebSocketFrame) {
+      // TODO(keith): What should be done with a pong?
     } else if (frame instanceof CloseWebSocketFrame) {
       ch.close();
     }

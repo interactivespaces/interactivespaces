@@ -18,18 +18,20 @@ package interactivespaces.activity.impl.ros;
 
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
+import interactivespaces.activity.component.route.ros.BasicRosMessageRouterActivityComponent;
 import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
 import interactivespaces.util.data.json.JsonBuilder;
 import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import interactivespaces_msgs.GenericMessage;
 
 import java.util.Map;
 
 /**
- * An {@link Activity} which provides a set of named input ROS topics and a set
- * of named output ROS topics which will communicate via strings or JSON.
+ * An {@link Activity} which provides a set of named input ROS topics and a set of named output ROS topics which will
+ * communicate via strings or JSON.
  *
  * @author Keith M. Hughes
  */
@@ -38,7 +40,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
   /**
    * The JSON mapper.
    */
-  private static final JsonMapper MAPPER = new JsonMapper();
+  private static final JsonMapper MAPPER = StandardJsonMapper.INSTANCE;
 
   /**
    * Router for input and output messages.
@@ -50,8 +52,8 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
     super.commonActivitySetup();
 
     router =
-        addActivityComponent(new RosMessageRouterActivityComponent<GenericMessage>(
-            GenericMessage._TYPE, new RoutableInputMessageListener<GenericMessage>() {
+        addActivityComponent(new BasicRosMessageRouterActivityComponent<GenericMessage>(GenericMessage._TYPE,
+            new RoutableInputMessageListener<GenericMessage>() {
               @SuppressWarnings("unchecked")
               @Override
               public void onNewRoutableInputMessage(String channelName, GenericMessage message) {
@@ -78,9 +80,7 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
     } else if (MessageRouterSupportedMessageTypes.STRING_MESSAGE_TYPE.equals(message.getType())) {
       callOnNewInputString(channelName, message);
     } else {
-      getLog().warn(
-          String.format("Dropped message on channel %s of unknown type %s", channelName,
-              message.getType()));
+      getLog().warn(String.format("Dropped message on channel %s of unknown type %s", channelName, message.getType()));
     }
   }
 
@@ -148,9 +148,8 @@ public class BaseRoutableRosActivity extends BaseRosActivity {
       outgoing.setMessage(MAPPER.toString(message));
 
       router.writeOutputMessage(channelName, outgoing);
-    } catch (Exception e) {
-      getLog().error(
-          String.format("Could not write JSON message on output channel %s", channelName), e);
+    } catch (Throwable e) {
+      getLog().error(String.format("Could not write JSON message on output channel %s", channelName), e);
     }
   }
 

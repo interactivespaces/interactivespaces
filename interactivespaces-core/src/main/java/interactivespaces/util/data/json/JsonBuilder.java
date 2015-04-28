@@ -16,61 +16,14 @@
 
 package interactivespaces.util.data.json;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import interactivespaces.InteractiveSpacesException;
-
-import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * A builder for creating JSON objects.
  *
  * @author Keith M. Hughes
  */
-public class JsonBuilder {
-
-  /**
-   * The type of an object is a map.
-   */
-  private static final int TYPE_OBJECT = 0;
-
-  /**
-   * The type of an object is an array.
-   */
-  private static final int TYPE_ARRAY = 1;
-
-  /**
-   * The root object.
-   */
-  private Map<String, Object> root = Maps.newHashMap();
-
-  /**
-   * A stack of objects as we walk the graph.
-   */
-  private Stack<Object> nav = new Stack<Object>();
-
-  /**
-   * Type of the current object.
-   */
-  private int currentType;
-
-  /**
-   * The current object, if it is a map.
-   */
-  private Map<String, Object> currentObject;
-
-  /**
-   * The current object, if it is a map.
-   */
-  private List<Object> currentArray;
-
-  public JsonBuilder() {
-    currentObject = root;
-    currentType = TYPE_OBJECT;
-  }
+public interface JsonBuilder {
 
   /**
    * Put in a name/value pair in an object.
@@ -81,18 +34,11 @@ public class JsonBuilder {
    *          the value
    *
    * @return this builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an object
    */
-  public JsonBuilder put(String name, Object value) {
-    if (currentType == TYPE_OBJECT) {
-      currentObject.put(name, value);
-    } else {
-      // Must be an array
-
-      throw new InteractiveSpacesException("Cannot put named item into an array");
-    }
-
-    return this;
-  }
+  JsonBuilder put(String name, Object value) throws JsonInteractiveSpacesException;
 
   /**
    * Put in a name/value pair in an object.
@@ -101,18 +47,11 @@ public class JsonBuilder {
    *          map of keys and values to add to the current object
    *
    * @return this builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an object
    */
-  public JsonBuilder putAll(Map<String, Object> data) {
-    if (currentType == TYPE_OBJECT) {
-      currentObject.putAll(data);
-    } else {
-      // Must be an array
-
-      throw new InteractiveSpacesException("Cannot put a map of values into an array");
-    }
-
-    return this;
-  }
+  JsonBuilder putAll(Map<String, Object> data) throws JsonInteractiveSpacesException;
 
   /**
    * Put a value pair in an array.
@@ -121,44 +60,24 @@ public class JsonBuilder {
    *          the value
    *
    * @return this builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an array
    */
-  public JsonBuilder put(Object value) {
-    if (currentType == TYPE_ARRAY) {
-      currentArray.add(value);
-    } else {
-      // Must be an object
-
-      throw new InteractiveSpacesException("Cannot put unnamed item into an object");
-    }
-
-    return this;
-  }
+  JsonBuilder put(Object value) throws JsonInteractiveSpacesException;
 
   /**
    * Add a new object into the current object.
    *
    * @param name
-   *          name of the newobject
+   *          name of the new object
    *
    * @return the builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an object
    */
-  public JsonBuilder newObject(String name) {
-    if (currentType == TYPE_OBJECT) {
-      Map<String, Object> newObject = Maps.newHashMap();
-
-      currentObject.put(name, newObject);
-
-      nav.push(currentObject);
-
-      currentObject = newObject;
-    } else {
-      // Must be an array
-
-      throw new InteractiveSpacesException("Cannot put named item into an array");
-    }
-
-    return this;
-  }
+  JsonBuilder newObject(String name) throws JsonInteractiveSpacesException;
 
   /**
    * Add a new array into the current object.
@@ -167,116 +86,46 @@ public class JsonBuilder {
    *          name of the new object
    *
    * @return the builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an object
    */
-  public JsonBuilder newArray(String name) {
-    if (currentType == TYPE_OBJECT) {
-      List<Object> newObject = Lists.newArrayList();
-
-      currentObject.put(name, newObject);
-
-      nav.push(currentObject);
-
-      currentArray = newObject;
-      currentType = TYPE_ARRAY;
-    } else {
-      // Must be an array
-
-      throw new InteractiveSpacesException("Cannot put named item into an array");
-    }
-
-    return this;
-  }
+  JsonBuilder newArray(String name) throws JsonInteractiveSpacesException;
 
   /**
    * Add a new array into the current array.
    *
-   * @param name
-   *          name of the new object
-   *
    * @return the builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an array
    */
-  public JsonBuilder newArray() {
-    if (currentType == TYPE_ARRAY) {
-      List<Object> newObject = Lists.newArrayList();
-
-      currentArray.add(newObject);
-
-      nav.push(currentArray);
-
-      currentArray = newObject;
-    } else {
-      // Must be an object
-
-      throw new InteractiveSpacesException("Cannot put unnamed item into an object");
-    }
-
-    return this;
-  }
+  JsonBuilder newArray() throws JsonInteractiveSpacesException;
 
   /**
    * Add a new array into the current array.
    *
-   * @param name
-   *          name of the new object
-   *
    * @return the builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is not an array
    */
-  public JsonBuilder newObject() {
-    if (currentType == TYPE_ARRAY) {
-      Map<String, Object> newObject = Maps.newHashMap();
-
-      currentArray.add(newObject);
-
-      nav.push(currentArray);
-
-      currentObject = newObject;
-      currentType = TYPE_OBJECT;
-    } else {
-      // Must be an object
-
-      throw new InteractiveSpacesException("Cannot put unnamed item into an object");
-    }
-
-    return this;
-  }
+  JsonBuilder newObject() throws JsonInteractiveSpacesException;
 
   /**
    * Move up a level.
    *
    * @return this builder
+   *
+   * @throws JsonInteractiveSpacesException
+   *           the current level is already the root
    */
-  @SuppressWarnings("unchecked")
-  public JsonBuilder up() {
-    if (!nav.isEmpty()) {
-      Object newObject = nav.pop();
-
-      if (newObject instanceof Map) {
-        currentArray = null;
-        currentObject = (Map<String, Object>) newObject;
-        currentType = TYPE_OBJECT;
-      } else {
-        currentObject = null;
-        currentArray = (List<Object>) newObject;
-        currentType = TYPE_ARRAY;
-      }
-    } else {
-      throw new InteractiveSpacesException("Cannot move up in builder, nothing left");
-    }
-
-    return this;
-  }
+  JsonBuilder up() throws JsonInteractiveSpacesException;
 
   /**
    * Get the final object.
    *
    * @return the fully built object.
    */
-  public Map<String, Object> build() {
-    return root;
-  }
-
-  @Override
-  public String toString() {
-    return root.toString();
-  }
+  Map<String, Object> build();
 }

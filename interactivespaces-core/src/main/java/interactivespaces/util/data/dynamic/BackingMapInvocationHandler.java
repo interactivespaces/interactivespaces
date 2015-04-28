@@ -27,8 +27,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
- * Invocation handler that stores state of the object (JavaBean properties) in the backing map. Calls to hashCode()
- * and toString() are delegated to the map.
+ * Invocation handler that stores state of the object (JavaBean properties) in the backing map. Calls to hashCode() and
+ * toString() are delegated to the map.
  *
  * @author Oleksandr Kelepko
  */
@@ -144,8 +144,7 @@ final class BackingMapInvocationHandler implements InvocationHandler {
       return null;
     }
 
-    throw new UnsupportedOperationException(
-        String.format("Method is neither a getter nor a setter: %s.", method));
+    throw new UnsupportedOperationException(String.format("Method is neither a getter nor a setter: %s.", method));
   }
 
   /**
@@ -158,7 +157,6 @@ final class BackingMapInvocationHandler implements InvocationHandler {
    */
   private Object invokeGetter(Method method) {
     String property = getPropertyName(method.getName());
-
     Object result = backingMap.get(property);
     Class<?> returnType = method.getReturnType();
     Type genericReturnType = method.getGenericReturnType();
@@ -213,13 +211,11 @@ final class BackingMapInvocationHandler implements InvocationHandler {
 
     Class<?> returnType = method.getReturnType();
     if (returnType != void.class && returnType != Void.class) {
-      throw new UnsupportedOperationException(
-          String.format("Setter method must return void: %s.", method));
+      throw new UnsupportedOperationException(String.format("Setter method must return void: %s.", method));
     }
 
     if (params.length != 1) {
-      throw new UnsupportedOperationException(
-          String.format("Setter method must have exactly 1 parameter: %s", method));
+      throw new UnsupportedOperationException(String.format("Setter method must have exactly 1 parameter: %s", method));
     }
 
     return true;
@@ -242,20 +238,20 @@ final class BackingMapInvocationHandler implements InvocationHandler {
     String name = method.getName();
     Class<?> returnType = method.getReturnType();
 
-    boolean isGetterName = name.startsWith(METHOD_PREFIX_GET)
-        || (name.startsWith(METHOD_PREFIX_IS) && (returnType == Boolean.class || returnType == Boolean.TYPE));
+    boolean isGetterName =
+        name.startsWith(METHOD_PREFIX_GET)
+            || (name.startsWith(METHOD_PREFIX_IS) && (returnType == Boolean.class || returnType == Boolean.TYPE));
     if (!isGetterName) {
       return false;
     }
 
     if (returnType == void.class || returnType == Void.class) {
-      throw new UnsupportedOperationException(
-          String.format("Getter method must have a return type (not void or Void): %s", method));
+      throw new UnsupportedOperationException(String.format(
+          "Getter method must have a return type (not void or Void): %s", method));
     }
 
     if (params.length != 0) {
-      throw new UnsupportedOperationException(
-          String.format("Getter method must be parameterless: %s", method));
+      throw new UnsupportedOperationException(String.format("Getter method must be parameterless: %s", method));
     }
 
     return true;

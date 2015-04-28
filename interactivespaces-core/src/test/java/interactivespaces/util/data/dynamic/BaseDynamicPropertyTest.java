@@ -19,7 +19,7 @@ package interactivespaces.util.data.dynamic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
 
 import org.junit.Test;
 
@@ -111,7 +111,7 @@ public abstract class BaseDynamicPropertyTest<T> {
   public void serialize_noExceptions() {
     setFirst(first);
     map.put(secondKey, second);
-    new JsonMapper().toString(map);
+    new StandardJsonMapper().toString(map);
   }
 
   @Test

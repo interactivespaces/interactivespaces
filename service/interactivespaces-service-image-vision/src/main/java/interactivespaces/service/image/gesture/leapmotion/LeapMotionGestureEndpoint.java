@@ -29,6 +29,7 @@ import interactivespaces.service.web.client.WebSocketClient;
 import interactivespaces.service.web.client.WebSocketClientService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.data.json.JsonNavigator;
+import interactivespaces.util.data.json.StandardJsonNavigator;
 import interactivespaces.util.geometry.Vector3;
 
 import com.google.common.collect.Lists;
@@ -453,7 +454,7 @@ public class LeapMotionGestureEndpoint implements GestureEndpoint {
    */
   private void handleGestureData(Object data) {
     if (data != null) {
-      JsonNavigator gdata = new JsonNavigator(data);
+      JsonNavigator gdata = new StandardJsonNavigator(data);
       processPointables(gdata);
       processHands(gdata);
       processGestures(gdata);

@@ -25,6 +25,7 @@ import interactivespaces.service.image.vision.opencv.OpenCvCascadeClassifierVide
 import interactivespaces.service.image.vision.opencv.OpenCvVideoLoop;
 import interactivespaces.service.image.vision.opencv.swing.OpenCvMatPanel;
 import interactivespaces.util.data.json.JsonBuilder;
+import interactivespaces.util.data.json.StandardJsonBuilder;
 import interactivespaces.util.geometry.Rectangle2;
 import interactivespaces.util.ui.swing.JFrameManagedResource;
 
@@ -167,7 +168,7 @@ public class ImageOpenCvVisionFaceDetectActivity extends BaseRoutableRosActivity
    */
   private void handleNewDetectionEvent(Collection<Rectangle2> eventData) {
     if (isActivated()) {
-      JsonBuilder message = new JsonBuilder();
+      JsonBuilder message = new StandardJsonBuilder();
 
       message.newArray(MESSAGE_PROPERTY_FACES);
 
