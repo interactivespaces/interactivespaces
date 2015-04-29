@@ -5,4 +5,4 @@ http://www.interactive-spaces.org
 
 ##Building from scratch
 
-Documentation is [here](http://github.com/interactivespaces/interactivespaces/README.md)
+Documentation is [here](http://github.com/interactivespaces/interactivespaces/BUILD.md)
