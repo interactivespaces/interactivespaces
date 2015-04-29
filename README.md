@@ -5,4 +5,5 @@ http://www.interactive-spaces.org
 
 ##Building from scratch
 
-Documentation is [here](http://github.com/interactivespaces/interactivespaces/BUILD.md)
+Build documentation is found in the BUILD.md file.
+
