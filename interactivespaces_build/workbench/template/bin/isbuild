@@ -25,7 +25,7 @@ export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
 
 WBDIR=$INTERACTIVESPACES_HOME/workbench
 ROOTDIR=$PWD/$PROOT
-cd $ROOTDIR
+cd "$ROOTDIR"
 
 if [ $CMD == debug ]; then
   # Requires proper setup in ~/.interactivespaces.rc
@@ -85,7 +85,7 @@ if [ ! "$SUPPRESS_WORKBENCH" ]; then
   fi
 
   # Re-run workbench to do the build.
-  (cd $WBDIR; $WBEXE $ROOTDIR build)
+  (cd $WBDIR; $WBEXE "$ROOTDIR" build)
 fi
 
 eval JAR_FILES=$INTERACTIVESPACES_HOME/controller/startup/*.jar
@@ -112,7 +112,7 @@ done
 
 # Re-run workbench to do the build if indicated.
 if [ "$SHOULD_RERUN_WORKBENCH" ]; then
- (cd $WBDIR; $WBEXE $ROOTDIR build)
+ (cd $WBDIR; $WBEXE "$ROOTDIR" build)
 fi
 
 # If it exists, source any post-run files. Also process embedded scripts, unless suppressed.
