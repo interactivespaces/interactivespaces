@@ -19,6 +19,8 @@ package interactivespaces.workbench.project;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.util.Map;
 
@@ -80,4 +82,11 @@ public interface ProjectContext {
    *         pairs
    */
   Map<File, File> getResourceSourceMap();
+
+  /**
+   * Get the context log.
+   *
+   * @return the log
+   */
+  Log getLog();
 }

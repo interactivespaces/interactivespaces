@@ -433,11 +433,7 @@ public class ProjectTaskContext implements ProjectContext {
     this.currentTaskName = currentTaskName;
   }
 
-  /**
-   * Get the context log.
-   *
-   * @return the log
-   */
+  @Override
   public Log getLog() {
     return getWorkbenchTaskContext().getLog();
   }

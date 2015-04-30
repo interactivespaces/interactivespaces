@@ -24,6 +24,8 @@ import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
 import com.google.common.collect.Maps;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.util.Map;
 
@@ -44,6 +46,11 @@ public class ProjectCreationContext implements ProjectContext {
    * Description of this specification.
    */
   private final String description;
+
+  /**
+   * Logger to use for this context.
+   */
+  private final Log log;
 
   /**
    * The project itself.
@@ -75,9 +82,12 @@ public class ProjectCreationContext implements ProjectContext {
    *
    * @param description
    *          context description
+   * @param log
+   *          logger to use for this context
    */
-  public ProjectCreationContext(String description) {
+  public ProjectCreationContext(String description, Log log) {
     this.description = description;
+    this.log = log;
   }
 
   /**
@@ -103,13 +113,14 @@ public class ProjectCreationContext implements ProjectContext {
    * @param groupProjectTemplateSpecification
    *          thing to set
    */
-  public void setGroupProjectTemplateSpecification(GroupProjectTemplateSpecification groupProjectTemplateSpecification) {
+  public void setGroupProjectTemplateSpecification(
+      GroupProjectTemplateSpecification groupProjectTemplateSpecification) {
     this.groupProjectTemplateSpecification = groupProjectTemplateSpecification;
   }
 
   @Override
   public <T extends Project> T getProject() {
-    return (T)project;
+    return (T) project;
   }
 
   /**
@@ -220,5 +231,10 @@ public class ProjectCreationContext implements ProjectContext {
    */
   public String getDescription() {
     return description;
+  }
+
+  @Override
+  public Log getLog() {
+    return log;
   }
 }

@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -376,12 +377,16 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
             String.format("Deploying project %s", project.getBaseDirectory().getAbsolutePath()));
 
         Configuration projectConfig = projectTaskContext.getProject().getConfiguration();
+        boolean deploymentMatch = false;
         for (ProjectDeployment deployment : project.getDeployments()) {
           if (deploymentType.equals(deployment.getType())) {
             File deploymentLocation = new File(projectConfig.evaluate(deployment.getLocation()));
-            projectTaskContext.getLog().info(String.format("Deploying to %s\n", deploymentLocation.getAbsolutePath()));
             copyBuildArtifacts(deploymentLocation);
+            deploymentMatch = true;
           }
+        }
+        if (!deploymentMatch) {
+          projectTaskContext.getLog().warn("No deployment target match for deployment type " + deploymentType);
         }
       } catch (Throwable e) {
         projectTaskContext.getWorkbenchTaskContext().handleError("Error while deploying project", e);
@@ -395,16 +400,25 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
      *          the destination directory for the deployment
      */
     private void copyBuildArtifacts(File destination) {
-      File[] artifacts = getProjectTaskContext().getBuildDirectory().listFiles(new FileFilter() {
+      if (!fileSupport.isDirectory(destination)) {
+        throw SimpleInteractiveSpacesException.newFormattedException(
+            "Deploy directory not found or not a directory: '%s'", destination.getAbsolutePath());
+      }
+      ProjectTaskContext projectTaskContext = getProjectTaskContext();
+      File[] artifacts = projectTaskContext.getBuildDirectory().listFiles(new FileFilter() {
         @Override
         public boolean accept(File pathname) {
           return pathname.isFile();
         }
       });
-      if (artifacts != null) {
+      if (artifacts != null && artifacts.length > 0) {
         for (File artifact : artifacts) {
+          projectTaskContext.getLog().info(String.format("Deploying build artifact to %s/%s",
+              destination.getAbsolutePath(), artifact.getName()));
           fileSupport.copyFile(artifact, new File(destination, artifact.getName()));
         }
+      } else {
+        projectTaskContext.getLog().warn("No build artifacts found for project");
       }
     }
   }

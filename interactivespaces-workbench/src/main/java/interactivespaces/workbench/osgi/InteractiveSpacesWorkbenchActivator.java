@@ -21,6 +21,7 @@ import interactivespaces.system.SimpleInteractiveSpacesEnvironment;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
+import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
@@ -157,6 +158,8 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
         public void run() {
           boolean success = false;
           try {
+            // TODO(trevor): Make this less hacky by using a listener.
+            InteractiveSpacesUtilities.delay(ERROR_RACE_CONDITION_DELAY_MS);
             success = workbench.doCommands(commandLineArguments);
           } finally {
             try {

@@ -11,7 +11,6 @@ gradle.properties
 interactivespaces_docs/src/main/sphinx/conf.py
 interactivespaces_docs/src/main/sphinx/interactivespaces.pyc
 interactivespaces_docs/src/main/sphinx/javadoc.pyc
-**/bin/
 **/build/
 **/dist/
 **/msg_gen/
@@ -21,3 +20,4 @@ interactivespaces_docs/src/main/sphinx/javadoc.pyc
 **/osgi_build/
 **/target/
 interactivespaces-controller-android/libs/**
+*.iml

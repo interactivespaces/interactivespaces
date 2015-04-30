@@ -358,7 +358,7 @@ public class InteractiveSpacesWorkbench {
     JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
     GroupProjectTemplateSpecification project = projectReader.readProjectGroupTemplateSpecification(specFile);
 
-    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath());
+    ProjectCreationContext creationSpecification = new ProjectCreationContext(specFile.getAbsolutePath(), getLog());
     creationSpecification.setGroupProjectTemplateSpecification(project);
     creationSpecification.setWorkbenchTaskContext(newWorkbenchTaskContext());
     creationSpecification.setSpecificationBase(specFile.getParentFile());

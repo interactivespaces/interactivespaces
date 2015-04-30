@@ -19,7 +19,6 @@ package interactivespaces.workbench.ui;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
-import interactivespaces.workbench.ui.wizard.Wizard;
 import interactivespaces.workbench.ui.wizard.WizardCollection;
 import interactivespaces.workbench.ui.wizard.component.ChooseDirectoryWizard;
 import interactivespaces.workbench.ui.wizard.component.ChooseFileWizard;
@@ -83,7 +82,7 @@ public class NewProjectWizard extends WizardCollection {
 
     Project project = activityDescriptionWizard.getProject();
 
-    ProjectCreationContext context = new ProjectCreationContext("from wizard");
+    ProjectCreationContext context = new ProjectCreationContext("from wizard", workbench.getLog());
     context.setProject(project);
     // TODO(keith): Fix this.
     //context.setWorkbench(workbench);

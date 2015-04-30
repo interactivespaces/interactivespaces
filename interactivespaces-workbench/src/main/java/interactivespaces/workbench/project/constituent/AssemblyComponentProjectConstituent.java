@@ -91,6 +91,8 @@ public class AssemblyComponentProjectConstituent extends BaseContentProjectConst
     File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
 
     File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
+    context.getLog().info(String.format("Extracting assembly '%s' into '%s'...",
+        sourceZipFile.getAbsoluteFile(), outputDirectory.getAbsoluteFile()));
     fileSupport.directoryExists(outputDirectory);
     fileSupport.unzip(sourceZipFile, outputDirectory, context.getResourceSourceMap());
   }
