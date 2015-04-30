@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# Change the tab title.
+PS1=
+printf "\033]0;IS: [@INTERACTIVESPACES_CONTAINER_TYPE@]\007"
+
 # Figure out, regardless of any symlinks, aliases, etc, where this script
 # is located.
 SOURCE="${BASH_SOURCE[0]}"

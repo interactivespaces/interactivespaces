@@ -73,6 +73,11 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
 
 echo $INTERACTIVESPACES_MAIN_ARGS
 
+# Change the tab title.
+ACTIVITY_NAME=`xmllint --xpath "/project/name/text()" "$TARGET/project.xml"`
+PS1=
+printf "\033]0;IS: $ACTIVITY_NAME\007"
+
 CONTROLLER_EXE=$CDIR/bin/isstartup
 
 # TODO(keith) Decide whether or not to support pre-1.8 controllers.
