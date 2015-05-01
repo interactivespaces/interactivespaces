@@ -55,7 +55,8 @@ if [ -f $PREFILE ]; then
   if [ "$SHARED_CEC_LIBRARY" != "" ]; then
     libpath=$SHARED_CEC_LIBRARY
     if [ ! -x $libpath ]; then
-      libpath=$INTERACTIVESPACES_HOME/cec-common/lib/$SHARED_CEC_LIBRARY
+      # This really should be more configurable.
+      libpath=$INTERACTIVESPACES_HOME/ecp/lib/$SHARED_CEC_LIBRARY
     fi
 
     echo Importing shared components from $libpath...
