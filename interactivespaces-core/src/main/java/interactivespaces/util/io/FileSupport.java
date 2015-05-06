@@ -238,6 +238,24 @@ public interface FileSupport {
   void copyStream(InputStream in, OutputStream out, boolean closeOnCompletion) throws IOException;
 
   /**
+   * Copy the contents of a file to an output stream.
+   *
+   * <p>
+   * The output stream will not be closed.
+   *
+   * @param in
+   *          the input stream
+   * @param out
+   *          the output stream
+   * @param closeOnCompletion
+   *          {@code true} if the streams should be closed on completion of the copy
+   *
+   * @throws IOException
+   *           io problem with operation
+   */
+  void copyFileToStream(File in, OutputStream out, boolean closeOnCompletion) throws IOException;
+
+  /**
    * Read the contents of an input stream and return a string containing the contents.
    *
    * @param in
@@ -618,10 +636,26 @@ public interface FileSupport {
    * @param closeable
    *          the item to close, can be {@code null}
    * @param throwException
-   *          {@code true} if any exceptions thrown during closing should be rethrown.
+   *          {@code true} if any exceptions thrown during closing should be rethrown
    *
    * @throws InteractiveSpacesException
    *           an exception happened during close
    */
   void close(Closeable closeable, boolean throwException) throws InteractiveSpacesException;
+
+  /**
+   * Is the candidate parent the parent of the file?
+   *
+   * <p>
+   * The parent relationship is a strict parent. {@code /foo/bar} is not considered a parent for {@code /foo/bart/spam}
+   * and {@code /foo/bar} is not a parent for {@code /foo/bar}.
+   *
+   * @param candidateParent
+   *          the possible parent
+   * @param file
+   *          the file that may have the candidate parent as a parent
+   *
+   * @return {@code true} if the candidate is a parent of the file
+   */
+  boolean isParent(File candidateParent, File file);
 }

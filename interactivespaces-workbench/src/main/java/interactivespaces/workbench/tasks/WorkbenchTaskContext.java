@@ -29,6 +29,7 @@ import interactivespaces.util.graph.DependencyResolver;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
+import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import interactivespaces.workbench.InteractiveSpacesContainer;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
@@ -147,7 +148,7 @@ public class WorkbenchTaskContext {
   /**
    * The native application runners collection for this context.
    */
-  private NativeApplicationRunnerCollection nativeApplicationRunners;
+  private StandardNativeApplicationRunnerCollection nativeApplicationRunners;
 
   /**
    * Map of project task contextx for the current run.
@@ -259,7 +260,7 @@ public class WorkbenchTaskContext {
    */
   private void prepareForTaskPerformance() {
     nativeApplicationRunners =
-        new NativeApplicationRunnerCollection(workbench.getSpaceEnvironment(), workbench.getLog());
+        new StandardNativeApplicationRunnerCollection(workbench.getSpaceEnvironment(), workbench.getLog());
     nativeApplicationRunners.startup();
   }
 

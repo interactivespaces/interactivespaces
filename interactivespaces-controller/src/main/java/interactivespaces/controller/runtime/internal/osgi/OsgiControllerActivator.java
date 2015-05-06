@@ -40,6 +40,8 @@ import interactivespaces.liveactivity.runtime.configuration.BasePropertyFileLive
 import interactivespaces.liveactivity.runtime.configuration.ProductionPropertyFileLiveActivityConfigurationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
+import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
+import interactivespaces.liveactivity.runtime.monitor.internal.StandardRemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.osgi.OsgiServiceRegistrationLiveActivityRuntimeListener;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.liveactivity.runtime.repository.internal.file.FileLocalLiveActivityRepository;
@@ -166,10 +168,12 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory =
         new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
+    RemoteLiveActivityRuntimeMonitorService runtimeDebugService = new StandardRemoteLiveActivityRuntimeMonitorService();
+
     StandardLiveActivityRuntime liveActivityRuntime =
         new StandardLiveActivityRuntime(liveActivityRuntimeComponentFactory, liveActivityRepository,
             activityInstallationManager, activityLogFactory, liveActivityConfigurationManager,
-            liveActivityStorageManager, alertStatusManager, eventQueue, spaceEnvironment);
+            liveActivityStorageManager, alertStatusManager, eventQueue, runtimeDebugService, spaceEnvironment);
     addManagedResource(liveActivityRuntime);
 
     liveActivityRuntime.addRuntimeListener(new OsgiServiceRegistrationLiveActivityRuntimeListener(this));

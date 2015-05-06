@@ -36,6 +36,7 @@ import interactivespaces.liveactivity.runtime.installation.ActivityInstallationL
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.liveactivity.runtime.logging.LiveActivityLogFactory;
+import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesFilesystem;
@@ -106,7 +107,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   /**
    * The storage manager for activities.
    */
-  private LiveActivityStorageManager activityStorageManager;
+  private LiveActivityStorageManager liveActivityStorageManager;
 
   /**
    * All activity state transitioners.
@@ -159,6 +160,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   private List<LiveActivityRuntimeListener> runtimeListeners = Lists.newCopyOnWriteArrayList();
 
   /**
+   * The debug service.
+   */
+  private RemoteLiveActivityRuntimeMonitorService runtimeDebugService;
+
+  /**
    * Construct a new runtime.
    *
    * @param liveActivityRuntimeComponentFactory
@@ -177,6 +183,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    *          the alerting manager for live activities
    * @param eventQueue
    *          the event queue to use
+   * @param runtimeDebugService
+   *          the remote debug service to use
    * @param spaceEnvironment
    *          the space environment to run under
    */
@@ -184,7 +192,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       LocalLiveActivityRepository liveActivityRepository, ActivityInstallationManager activityInstallationManager,
       LiveActivityLogFactory activityLogFactory, LiveActivityConfigurationManager configurationManager,
       LiveActivityStorageManager activityStorageManager, AlertStatusManager alertStatusManager,
-      SequentialEventQueue eventQueue, InteractiveSpacesEnvironment spaceEnvironment) {
+      SequentialEventQueue eventQueue, RemoteLiveActivityRuntimeMonitorService runtimeDebugService,
+      InteractiveSpacesEnvironment spaceEnvironment) {
     super(liveActivityRuntimeComponentFactory.newNativeActivityRunnerFactory(), liveActivityRuntimeComponentFactory
         .newActivityComponentFactory(), spaceEnvironment);
     this.liveActivityRuntimeComponentFactory = liveActivityRuntimeComponentFactory;
@@ -193,11 +202,13 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     this.activityInstallationManager = activityInstallationManager;
     this.activityLogFactory = activityLogFactory;
     this.configurationManager = configurationManager;
-    this.activityStorageManager = activityStorageManager;
+    this.liveActivityStorageManager = activityStorageManager;
     this.alertStatusManager = alertStatusManager;
     this.eventQueue = eventQueue;
 
     liveActivityRunnerSampler = new SimpleLiveActivityRunnerSampler(spaceEnvironment, spaceEnvironment.getLog());
+    this.runtimeDebugService = runtimeDebugService;
+    runtimeDebugService.setLiveActivityRuntime(this);
   }
 
   @Override
@@ -217,8 +228,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     activityInstallationManager.addActivityInstallationListener(activityInstallationListener);
 
     liveActivityRunnerSampler.startup();
-
     liveActivityRunnerFactory.startup();
+    runtimeDebugService.startup();
 
     liveActivityRuntimeComponentFactory.registerCoreServices(getSpaceEnvironment().getServiceRegistry());
 
@@ -240,6 +251,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       }
 
       liveActivityRunnerFactory.shutdown();
+
+      runtimeDebugService.shutdown();
 
       shutdownAllActivities();
 
@@ -435,7 +448,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     }
 
     getSpaceEnvironment().getLog().info(String.format("Cleaning activity tmp directory for activity %s.", uuid));
-    activityStorageManager.cleanTmpActivityDataDirectory(uuid);
+    liveActivityStorageManager.cleanTmpActivityDataDirectory(uuid);
   }
 
   @Override
@@ -444,15 +457,15 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     if (active != null) {
       if (active.getCachedActivityStatus().getState().isRunning()) {
         getSpaceEnvironment().getLog().warn(
-            String.format("Attempting to clean activity permanent data directory for a running activity %s. Aborting.",
-                uuid));
+            String.format(
+                "Attempting to clean activity permanent data directory for a running activity %s. Aborting.", uuid));
 
         return;
       }
     }
 
     getSpaceEnvironment().getLog().info(String.format("Cleaning activity permanent directory for activity %s.", uuid));
-    activityStorageManager.cleanPermanentActivityDataDirectory(uuid);
+    liveActivityStorageManager.cleanPermanentActivityDataDirectory(uuid);
   }
 
   @Override
@@ -494,13 +507,9 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
       publishActivityStatus(runner.getUuid(), status);
       alertStatusManager.announceLiveActivityStatus(runner);
     } else {
-      getSpaceEnvironment()
-          .getLog()
-          .warn(
-              String
-                  .format(
-                      "How odd,  a live activity runner for live activity %s has a no instance status event that isn't an error: %s",
-                      runner.getUuid(), status));
+      getSpaceEnvironment().getLog().warn(
+          String.format("A live activity runner for live activity %s has a no instance status"
+              + " event that isn't an error: %s", runner.getUuid(), status));
     }
   }
 
@@ -657,7 +666,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   private LiveActivityRunner newLiveActivityRunner(String uuid) {
     InstalledLiveActivity liveActivity = liveActivityRepository.getInstalledLiveActivityByUuid(uuid);
     if (liveActivity != null) {
-      InternalLiveActivityFilesystem activityFilesystem = activityStorageManager.getActivityFilesystem(uuid);
+      InternalLiveActivityFilesystem activityFilesystem = liveActivityStorageManager.getActivityFilesystem(uuid);
 
       LiveActivityConfiguration activityConfiguration =
           configurationManager.newLiveActivityConfiguration(liveActivity, activityFilesystem);
@@ -899,5 +908,10 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public LiveActivityRunnerFactory getLiveActivityRunnerFactory() {
     return liveActivityRunnerFactory;
+  }
+
+  @Override
+  public LiveActivityStorageManager getLiveActivityStorageManager() {
+    return liveActivityStorageManager;
   }
 }

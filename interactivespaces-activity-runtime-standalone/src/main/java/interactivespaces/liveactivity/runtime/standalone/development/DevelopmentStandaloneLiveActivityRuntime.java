@@ -32,6 +32,8 @@ import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.InteractiveSpacesEnvironmentLiveActivityLogFactory;
 import interactivespaces.liveactivity.runtime.logging.LiveActivityLogFactory;
+import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
+import interactivespaces.liveactivity.runtime.monitor.internal.StandardRemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.standalone.StandaloneActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.standalone.StandaloneLiveActivityInformation;
 import interactivespaces.liveactivity.runtime.standalone.StandaloneLiveActivityInformationCollection;
@@ -339,10 +341,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     LiveActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);
 
+    RemoteLiveActivityRuntimeMonitorService runtimeDebugService = new StandardRemoteLiveActivityRuntimeMonitorService();
+
     liveActivityRuntime =
         new StandardLiveActivityRuntime(runtimeComponentFactory, liveActivityRepository, activityInstallationManager,
             activityLogFactory, configurationManager, liveActivityStorageManager, alertStatusManager, eventQueue,
-            spaceEnvironment);
+            runtimeDebugService, spaceEnvironment);
     liveActivityRuntime.setLiveActivityStatusPublisher(liveActivityStatusPublisher);
     liveActivityRuntime.addRuntimeListener(liveActivityRuntimeListener);
     managedResources.addResource(liveActivityRuntime);

@@ -192,4 +192,11 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    * @return the live activity runner factory instance
    */
   LiveActivityRunnerFactory getLiveActivityRunnerFactory();
+
+  /**
+   * Get the activity storage manager.
+   *
+   * @return the activity storage manager
+   */
+  LiveActivityStorageManager getLiveActivityStorageManager();
 }

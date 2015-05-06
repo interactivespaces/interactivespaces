@@ -21,6 +21,8 @@ import static com.google.common.io.Closeables.closeQuietly;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
+import com.google.common.io.Closeables;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -176,8 +178,8 @@ public class FileSupportImpl implements FileSupport {
 
       zipFile.close();
     } catch (IOException ioe) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Error while unzipping file %s", getAbsolutePath(source)), ioe);
+      throw new SimpleInteractiveSpacesException(String.format("Error while unzipping file %s",
+          getAbsolutePath(source)), ioe);
     } finally {
       // ZipFile does not implement Closeable, so can't use utility function.
       if (zipFile != null) {
@@ -245,8 +247,8 @@ public class FileSupportImpl implements FileSupport {
     try {
       createNewFile(destination);
     } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Could not create new file %s", getAbsolutePath(destination)),
-          e);
+      throw new InteractiveSpacesException(
+          String.format("Could not create new file %s", getAbsolutePath(destination)), e);
     }
 
     FileChannel in = null;
@@ -315,6 +317,18 @@ public class FileSupportImpl implements FileSupport {
           // Don't care
         }
       }
+    }
+  }
+
+  @Override
+  public void copyFileToStream(File in, OutputStream out, boolean closeOnCompletion) throws IOException {
+    FileInputStream inputStream = null;
+    try {
+      inputStream = new FileInputStream(in);
+
+      copyStream(inputStream, out, closeOnCompletion);
+    } finally {
+      Closeables.closeQuietly(inputStream);
     }
   }
 
@@ -584,6 +598,18 @@ public class FileSupportImpl implements FileSupport {
           throw new InteractiveSpacesException("Exception while closing closeable", e);
         }
       }
+    }
+  }
+
+  @Override
+  public boolean isParent(File candidateParent, File file) {
+    try {
+      // We need to make sure that /foo/bar is not considered a parent for /foo/bart/spam, hence taking on
+      // the separator
+      return file.getCanonicalPath().startsWith(candidateParent.getCanonicalPath() + File.separator);
+    } catch (IOException e) {
+      throw InteractiveSpacesException.newFormattedException(e, "Error checking that %s is a parent of %s",
+          candidateParent.getPath(), file.getPath());
     }
   }
 }

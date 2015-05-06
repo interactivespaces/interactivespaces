@@ -24,6 +24,8 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.web.MimeResolver;
 
 import com.google.common.collect.Maps;
@@ -63,6 +65,21 @@ import java.util.regex.Pattern;
  * @author Keith M. Hughes
  */
 public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpStaticContentRequestHandler {
+
+  /**
+   * The first portion of a content range header.
+   */
+  private static final String CONTENT_RANGE_PREFIX = "bytes ";
+
+  /**
+   * The separator between the start and end of the range.
+   */
+  private static final String CONTENT_RANGE_RANGE_SEPARATOR = "-";
+
+  /**
+   * The separator between the range and the file size in a content range header.
+   */
+  private static final String CONTENT_RANGE_RANGE_SIZE_SEPARATOR = "/";
 
   /**
    * Chunk size to use for copying content.
@@ -114,6 +131,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
   private MimeResolver mimeResolver;
 
   /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Create a new instance.
    *
    * @param parentHandler
@@ -137,11 +159,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
     }
 
     StringBuilder sanitizedUriPrefix = new StringBuilder();
-    if (!uriPrefix.startsWith("/")) {
+    if (!uriPrefix.startsWith(CONTENT_RANGE_RANGE_SIZE_SEPARATOR)) {
       sanitizedUriPrefix.append('/');
     }
     sanitizedUriPrefix.append(uriPrefix);
-    if (!uriPrefix.endsWith("/")) {
+    if (!uriPrefix.endsWith(CONTENT_RANGE_RANGE_SIZE_SEPARATOR)) {
       sanitizedUriPrefix.append('/');
     }
     this.uriPrefix = sanitizedUriPrefix.toString();
@@ -182,13 +204,13 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
     }
 
     int luriPrefixLength = uriPrefix.length();
-    String filepath = URLDecoder.decode(
-        url.substring(url.indexOf(uriPrefix) + luriPrefixLength), StandardCharsets.UTF_8.name());
+    String filepath =
+        URLDecoder.decode(url.substring(url.indexOf(uriPrefix) + luriPrefixLength), StandardCharsets.UTF_8.name());
 
     File file = new File(baseDir, filepath);
 
     // Refuse to process if the path wanders outside of the base directory.
-    if (!allowLinks && !file.getCanonicalPath().startsWith(baseDir.getCanonicalPath())) {
+    if (!allowLinks && !fileSupport.isParent(baseDir, file)) {
       parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
       return;
     }
@@ -244,8 +266,8 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       setContentLength(response, fileLength);
     } else {
       setContentLength(response, rangeRequest.getRangeLength());
-      addHeader(response, HttpHeaders.Names.CONTENT_RANGE, "bytes " + rangeRequest.begin + "-" + rangeRequest.end + "/"
-          + fileLength);
+      addHeader(response, HttpHeaders.Names.CONTENT_RANGE, CONTENT_RANGE_PREFIX + rangeRequest.begin
+          + CONTENT_RANGE_RANGE_SEPARATOR + rangeRequest.end + CONTENT_RANGE_RANGE_SIZE_SEPARATOR + fileLength);
       response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
     }
 

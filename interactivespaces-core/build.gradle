@@ -69,6 +69,7 @@ jar {
         'org.joda.*;resolution:="optional"',
         'javassist.*;resolution:="optional"',
         'interactivespaces.system.bootstrap.osgi;resolution:="optional"',
+        'com.google.common;resolution:="optional"',
         '*'
   }
 }

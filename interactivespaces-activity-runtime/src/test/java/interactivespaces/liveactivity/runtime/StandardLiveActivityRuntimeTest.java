@@ -34,6 +34,7 @@ import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.domain.pojo.SimpleInstalledLiveActivity;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.logging.LiveActivityLogFactory;
+import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -69,6 +70,7 @@ public class StandardLiveActivityRuntimeTest {
   private LiveActivityRunnerSampler liveActivityRunnerSampler;
   private LiveActivityStatusPublisher liveActivityStatusPublisher;
   private LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory;
+  private RemoteLiveActivityRuntimeMonitorService runtimeDebugService;
 
   private Log log;
 
@@ -86,6 +88,7 @@ public class StandardLiveActivityRuntimeTest {
     alertStatusManager = mock(AlertStatusManager.class);
     liveActivityRunnerSampler = mock(LiveActivityRunnerSampler.class);
     liveActivityStatusPublisher = mock(LiveActivityStatusPublisher.class);
+    runtimeDebugService = mock(RemoteLiveActivityRuntimeMonitorService.class);
 
     liveActivityRuntimeComponentFactory = mock(LiveActivityRuntimeComponentFactory.class);
     when(liveActivityRuntimeComponentFactory.newLiveActivityRunnerFactory()).thenReturn(liveActivityRunnerFactory);
@@ -102,7 +105,8 @@ public class StandardLiveActivityRuntimeTest {
     liveActivityRuntime =
         new StandardLiveActivityRuntime(liveActivityRuntimeComponentFactory, liveActivityRepository,
             liveActivityInstallationManager, liveActivityLogFactory, liveActivityConfigurationManager,
-            liveActivityStorageManager, alertStatusManager, new ImmediateRunSequentialEventQueue(), spaceEnvironment);
+            liveActivityStorageManager, alertStatusManager, new ImmediateRunSequentialEventQueue(),
+            runtimeDebugService, spaceEnvironment);
 
     liveActivityRuntime.setAlertStatusManager(alertStatusManager);
     liveActivityRuntime.setLiveActivityRunnerSampler(liveActivityRunnerSampler);

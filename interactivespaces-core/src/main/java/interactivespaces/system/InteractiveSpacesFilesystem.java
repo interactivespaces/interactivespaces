@@ -54,28 +54,6 @@ public interface InteractiveSpacesFilesystem {
   File getLogsDirectory();
 
   /**
-   * Get the EInteractive Spaces-wide directory used for writing temporary
-   * files.
-   *
-   * @return the temporary directory
-   */
-  File getTempDirectory();
-
-  /**
-   * Get a temp directory relative to {@link #getTempDirectory()}.
-   *
-   * <p>
-   * If the directory doesn't exist, it will be created. If it does exist, it
-   * will be checked if it is writeable.
-   *
-   * @param subdir
-   *          the relative portion of the filename
-   *
-   * @return the requested subdirectory in the temp directory
-   */
-  File getTempDirectory(String subdir);
-
-  /**
    * Get the root library directory. This contains libraries for the various
    * supported scripting languages.
    *
@@ -118,4 +96,26 @@ public interface InteractiveSpacesFilesystem {
    * @return the requested subdirectory in the data directory
    */
   File getDataDirectory(String subdir);
+
+  /**
+   * Get the EInteractive Spaces-wide directory used for writing temporary
+   * files.
+   *
+   * @return the temporary directory
+   */
+  File getTempDirectory();
+
+  /**
+   * Get a temp directory relative to {@link #getTempDirectory()}.
+   *
+   * <p>
+   * If the directory doesn't exist, it will be created. If it does exist, it
+   * will be checked if it is writeable.
+   *
+   * @param subdir
+   *          the relative portion of the filename
+   *
+   * @return the requested subdirectory in the temp directory
+   */
+  File getTempDirectory(String subdir);
 }

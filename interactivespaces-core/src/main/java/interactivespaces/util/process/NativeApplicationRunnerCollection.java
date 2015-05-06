@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,110 +16,19 @@
 
 package interactivespaces.util.process;
 
-import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.resource.ManagedResource;
 
-import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
-
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
- * A collection of {@link NativeApplicationRunner} instances.
+ * A collection of native application runners.
  *
  * <p>
- * This collection ensures the runners are properly sampled and shutdown properly, do not attempt to handle them
- * yourself.
+ * The collection will periodically sample the application runners to monitor their lifecycles.
  *
  * @author Keith M. Hughes
  */
-public class NativeApplicationRunnerCollection implements ManagedResource {
-
-  /**
-   * The default for how often to sample the runners to see if they are still running, in milliseconds.
-   */
-  public static final long SAMPLING_PERIOD_DEFAULT = 500;
-
-  /**
-   * How often to sample the runners to see if they are still running, in milliseconds.
-   */
-  private long samplingPeriod = SAMPLING_PERIOD_DEFAULT;
-
-  /**
-   * The parser for native applications.
-   */
-  private NativeApplicationRunnerParser runnerParser = new StandardNativeApplicationRunnerParser();
-
-  /**
-   * The space environment to use.
-   */
-  private final InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The logger for issues.
-   */
-  private final Log log;
-
-  /**
-   * All runners currently running.
-   */
-  private final List<NativeApplicationRunner> runners = Lists.newCopyOnWriteArrayList();
-
-  /**
-   * The factory for new runners.
-   */
-  private final NativeApplicationRunnerFactory runnerFactory;
-
-  /**
-   * The future used to control the sampling thread.
-   */
-  private Future<?> samplingFuture;
-
-  /**
-   * Construct a new collection.
-   *
-   * @param spaceEnvironment
-   *          the space environment for the collection to use
-   * @param log
-   *          the logger
-   */
-  public NativeApplicationRunnerCollection(InteractiveSpacesEnvironment spaceEnvironment, Log log) {
-    this.spaceEnvironment = spaceEnvironment;
-    this.log = log;
-
-    runnerFactory = new SimpleNativeApplicationRunnerFactory(runnerParser, spaceEnvironment);
-  }
-
-  @Override
-  public synchronized void startup() {
-    if (samplingFuture == null) {
-      for (NativeApplicationRunner runner : runners) {
-        runner.startup();
-      }
-      samplingFuture = spaceEnvironment.getExecutorService().scheduleAtFixedRate(new Runnable() {
-        @Override
-        public void run() {
-          sampleRunners();
-        }
-      }, samplingPeriod, samplingPeriod, TimeUnit.MILLISECONDS);
-    }
-  }
-
-  @Override
-  public synchronized void shutdown() {
-    if (samplingFuture != null) {
-      samplingFuture.cancel(true);
-      samplingFuture = null;
-    }
-
-    for (NativeApplicationRunner runner : runners) {
-      runner.shutdown();
-    }
-  }
+public interface NativeApplicationRunnerCollection extends ManagedResource {
 
   /**
    * Create a new application runner with the given description.
@@ -132,14 +41,7 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    *
    * @return a new application runner appropriate for the current platform
    */
-  public NativeApplicationRunner addNativeApplicationRunner(NativeApplicationDescription description) {
-    NativeApplicationRunner runner = newNativeApplicationRunner();
-    runner.configure(description);
-
-    addNativeApplicationRunner(runner);
-
-    return runner;
-  }
+  NativeApplicationRunner addNativeApplicationRunner(NativeApplicationDescription description);
 
   /**
    * Create a new application runner with the given config.
@@ -155,14 +57,7 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    * @deprecated Use {@link #newNativeApplicationRunner() and use the configuration setters.
    */
   @Deprecated
-  public NativeApplicationRunner addNativeApplicationRunner(Map<String, Object> config) {
-    NativeApplicationRunner runner = newNativeApplicationRunner();
-    runner.configure(config);
-
-    addNativeApplicationRunner(runner);
-
-    return runner;
-  }
+  NativeApplicationRunner addNativeApplicationRunner(Map<String, Object> config);
 
   /**
    * Add a native application runner to the collection.
@@ -173,13 +68,7 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    * @param runner
    *          the runner to add to the collection
    */
-  public synchronized void addNativeApplicationRunner(NativeApplicationRunner runner) {
-    runners.add(runner);
-
-    if (samplingFuture != null) {
-      runner.startup();
-    }
-  }
+  void addNativeApplicationRunner(NativeApplicationRunner runner);
 
   /**
    * Create a new application runner.
@@ -189,20 +78,5 @@ public class NativeApplicationRunnerCollection implements ManagedResource {
    *
    * @return a new runner
    */
-  public NativeApplicationRunner newNativeApplicationRunner() {
-    return runnerFactory.newPlatformNativeApplicationRunner(log);
-  }
-
-  /**
-   * Sample all runners and see if they are still running.
-   */
-  private void sampleRunners() {
-    // No need to synchronize as the collection is properly threadsafe.
-    for (NativeApplicationRunner runner : runners) {
-      if (!runner.isRunning()) {
-        // This works because of the copy on write
-        runners.remove(runner);
-      }
-    }
-  }
+  NativeApplicationRunner newNativeApplicationRunner();
 }
