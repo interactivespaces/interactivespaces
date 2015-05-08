@@ -16,6 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.monitor.internal;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.monitor.LiveActivityRuntimeMonitorPlugin;
 import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
@@ -64,20 +65,33 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
   public void startup() {
     spaceEnvironment = liveActivityRuntime.getSpaceEnvironment();
 
+    Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
+    boolean enabled = systemConfiguration
+        .getPropertyBoolean(CONFIGURE_MONITOR_ENABLE, CONFIGURE_MONITOR_ENABLE_DEFAULT);
+
+    if (!enabled) {
+      spaceEnvironment.getLog().warn("Live activity runtime monitor server disabled");
+      return;
+    }
+
     webServer = new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
     webServer.setServerName(WEB_SERVER_NAME);
-    webServer.setPort(spaceEnvironment.getSystemConfiguration().getPropertyInteger(CONFIGURATION_WEBSERVER_PORT,
+    webServer.setPort(systemConfiguration.getPropertyInteger(CONFIGURATION_WEBSERVER_PORT,
         CONFIGURATION_VALUE_DEFAULT_WEBSERVER_PORT));
 
     webServer.startup();
 
-    addBasePlugins();
+    spaceEnvironment.getLog().info("Live activity runtime monitor server running on port " + webServer.getPort());
 
-    spaceEnvironment.getLog().info("Live activity runtime monitor server running");
+    addBasePlugins();
   }
 
   @Override
   public void shutdown() {
+    if (webServer == null) {
+      return;
+    }
+
     for (LiveActivityRuntimeMonitorPlugin plugin : plugins) {
       try {
         plugin.shutdown();
@@ -91,6 +105,10 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
 
   @Override
   public void addPlugin(LiveActivityRuntimeMonitorPlugin plugin) {
+    if (webServer == null) {
+      return;
+    }
+
     try {
       plugin.startup(this, webServer);
       plugins.add(plugin);

@@ -51,20 +51,29 @@ rm -rf $BUILDDIR && mkdir -p $BUILDDIR
 if [ -f $PREFILE ]; then
   echo Executing $ROOTDIR/$PREFILE...
   source $PREFILE
+fi
 
-  if [ "$SHARED_CEC_LIBRARY" != "" ]; then
-    libpath=$SHARED_CEC_LIBRARY
-    if [ ! -x $libpath ]; then
-      # This really should be more configurable.
-      libpath=$INTERACTIVESPACES_HOME/ecp/lib/$SHARED_CEC_LIBRARY
-    fi
+if [ -f project.xml ]; then
+  SHARED_VERSION=`xmllint --xpath "string(//extensions/extension[@name='cec.libraries.shared']/@version)" "project.xml"`
+  SHARED_NAME=`xmllint --xpath "string(//extensions/extension[@name='cec.libraries.shared']/@name)" "project.xml"`
+fi
 
-    echo Importing shared components from $libpath...
-    if [ -d $libpath ]; then
-      ln -sf $libpath $BUILDDIR/
-    else
-      unzip -qd $BUILDDIR $libpath
-    fi
+if [ "$SHARED_VERSION" -a "$SHARED_NAME" ]; then
+  SHARED_CEC_LIBRARY=$SHARED_NAME-$SHARED_VERSION.zip
+fi
+
+if [ "$SHARED_CEC_LIBRARY" != "" ]; then
+  libpath=$SHARED_CEC_LIBRARY
+  if [ ! -x $libpath ]; then
+    # This really should be more configurable.
+    libpath=$INTERACTIVESPACES_HOME/ecp/lib/$SHARED_CEC_LIBRARY
+  fi
+
+  echo Importing shared components from $libpath...
+  if [ -d $libpath ]; then
+    ln -sf $libpath $BUILDDIR/
+  else
+    unzip -qd $BUILDDIR $libpath
   fi
 fi
 

@@ -27,6 +27,16 @@ import interactivespaces.util.resource.ManagedResource;
 public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource {
 
   /**
+   * The configuration property name for enabling the monitor.
+   */
+  String CONFIGURE_MONITOR_ENABLE = "space.activityruntime.monitor.enable";
+
+  /**
+   * The configuration default for enabling the monitor.
+   */
+  boolean CONFIGURE_MONITOR_ENABLE_DEFAULT = false;
+
+  /**
    * The configuration property name for the monitor webserver port.
    */
   String CONFIGURATION_WEBSERVER_PORT = "space.activityruntime.monitor.webserver.port";
