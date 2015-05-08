@@ -19,7 +19,7 @@ package interactivespaces.liveactivity.runtime;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.controller.activity.wrapper.ActivityWrapper;
+import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;

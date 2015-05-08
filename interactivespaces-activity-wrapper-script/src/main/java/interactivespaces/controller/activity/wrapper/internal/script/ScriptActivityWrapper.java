@@ -16,16 +16,18 @@
 
 package interactivespaces.controller.activity.wrapper.internal.script;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.activity.wrapper.ActivityWrapper;
-import interactivespaces.controller.activity.wrapper.BaseActivityWrapper;
+import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
+import interactivespaces.liveactivity.runtime.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.service.script.ActivityScriptWrapper;
 import interactivespaces.service.script.FileScriptSource;
 import interactivespaces.service.script.ScriptService;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
 
@@ -39,19 +41,41 @@ import java.io.File;
 public class ScriptActivityWrapper extends BaseActivityWrapper {
 
   /**
+   * The separator between a file name and it's extension.
+   */
+  private static final char EXTENSION_SEPARATOR = '.';
+
+  /**
    * Wrapper around the script.
    */
   private ActivityScriptWrapper scriptWrapper;
 
-  public ScriptActivityWrapper(File scriptFile, ScriptService scriptService,
-      ActivityFilesystem activityFilesystem, Configuration configuration) {
-    if (!scriptFile.exists()) {
-      throw new InteractiveSpacesException(String.format("Script file %s does not exist",
-          scriptFile.getAbsolutePath()));
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct a new wrapper.
+   *
+   * @param scriptFile
+   *          the script file for the wrapper
+   * @param scriptService
+   *          the scripting service
+   * @param activityFilesystem
+   *          the file system for the activity
+   * @param configuration
+   *          the configuration for the activity
+   */
+  public ScriptActivityWrapper(File scriptFile, ScriptService scriptService, ActivityFilesystem activityFilesystem,
+      Configuration configuration) {
+    if (!fileSupport.exists(scriptFile)) {
+      SimpleInteractiveSpacesException.throwFormattedException("Script file %s does not exist",
+          scriptFile.getAbsolutePath());
     }
 
     String filename = scriptFile.getName();
-    int periodPos = filename.lastIndexOf('.');
+    int periodPos = filename.lastIndexOf(EXTENSION_SEPARATOR);
     String extension = filename.substring(periodPos + 1);
     String baseName = filename.substring(0, periodPos);
 

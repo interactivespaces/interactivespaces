@@ -17,8 +17,6 @@
 package interactivespaces.liveactivity.runtime.osgi;
 
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
-import interactivespaces.controller.client.node.ActiveControllerActivityFactory;
-import interactivespaces.controller.client.node.DoNotUseActiveControllerActivityFactory;
 import interactivespaces.liveactivity.runtime.BaseLiveActivityRuntimeListener;
 import interactivespaces.liveactivity.runtime.LiveActivityRunnerFactory;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
@@ -51,8 +49,6 @@ public class OsgiServiceRegistrationLiveActivityRuntimeListener extends BaseLive
 
     LiveActivityRunnerFactory liveActivityRunnerFactory = runtime.getLiveActivityRunnerFactory();
     bundleActivator.registerOsgiFrameworkService(LiveActivityRunnerFactory.class.getName(), liveActivityRunnerFactory);
-    bundleActivator.registerOsgiFrameworkService(ActiveControllerActivityFactory.class.getName(),
-        new DoNotUseActiveControllerActivityFactory(liveActivityRunnerFactory));
 
     NativeActivityRunnerFactory nativeActivityRunnerFactory = runtime.getNativeActivityRunnerFactory();
     bundleActivator.registerOsgiFrameworkService(NativeActivityRunnerFactory.class.getName(),
