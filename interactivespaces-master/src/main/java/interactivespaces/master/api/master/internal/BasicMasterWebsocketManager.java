@@ -42,9 +42,8 @@ import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import org.python.google.common.collect.Lists;
 
 import java.util.Date;
 import java.util.Map;

@@ -32,7 +32,7 @@ import interactivespaces.util.ros.RosSubscribers;
 
 import interactivespaces_msgs.MusicJukeboxAnnounce;
 import interactivespaces_msgs.MusicJukeboxControl;
-import org.python.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
 import org.ros.node.ConnectedNode;
