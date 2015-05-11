@@ -17,7 +17,8 @@
 package interactivespaces.util.io.directorywatcher;
 
 import interactivespaces.system.InteractiveSpacesEnvironment;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -73,6 +74,11 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
   private Log log;
 
   /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Construct a new SimpleWatcher.
    *
    * <p>
@@ -86,8 +92,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
    * Construct a new SimpleWatcher.
    *
    * @param cleanFirst
-   *          {@code true} if added directories are cleaned before they are
-   *          watched
+   *          {@code true} if added directories are cleaned before they are watched
    */
   public SimpleDirectoryWatcher(boolean cleanFirst) {
     this(cleanFirst, null);
@@ -97,8 +102,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
    * Construct a new SimpleWatcher.
    *
    * @param cleanFirst
-   *          {@code true} if added directories are cleaned before they are
-   *          watched
+   *          {@code true} if added directories are cleaned before they are watched
    * @param log
    *          the logger to use
    */
@@ -139,7 +143,7 @@ public class SimpleDirectoryWatcher implements DirectoryWatcher, Runnable {
       if (directory.canRead()) {
         if (directory.canWrite()) {
           if (cleanFirst) {
-            Files.deleteDirectoryContents(directory);
+            fileSupport.deleteDirectoryContents(directory);
           }
         }
         directoriesWatched.add(directory);

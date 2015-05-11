@@ -23,7 +23,7 @@ import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupportImpl;
 
 import com.google.common.collect.Maps;
 
@@ -151,7 +151,7 @@ public class HttpClientHttpContentCopierTest {
     File source = getTempFile();
     final File destination = getTempFile();
 
-    Files.writeFile(source, TEST_CONTENT);
+    FileSupportImpl.INSTANCE.writeFile(source, TEST_CONTENT);
 
     final AtomicReference<Map<String, String>> receivedParameters =
         new AtomicReference<Map<String, String>>();
@@ -175,7 +175,7 @@ public class HttpClientHttpContentCopierTest {
 
     Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-    Assert.assertEquals(TEST_CONTENT, Files.readFile(destination).trim());
+    Assert.assertEquals(TEST_CONTENT, FileSupportImpl.INSTANCE.readFile(destination).trim());
     Assert.assertEquals(expectedParameters, receivedParameters.get());
   }
 
@@ -210,7 +210,7 @@ public class HttpClientHttpContentCopierTest {
 
     Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
 
-    Assert.assertEquals(TEST_CONTENT, Files.readFile(destination).trim());
+    Assert.assertEquals(TEST_CONTENT, FileSupportImpl.INSTANCE.readFile(destination).trim());
     Assert.assertEquals(expectedParameters, receivedParameters.get());
   }
 
@@ -220,7 +220,7 @@ public class HttpClientHttpContentCopierTest {
    */
   private void testCopyFromSuccessfulTransfer(File destination, String sourceUri) {
     copier.copy(sourceUri + "success", destination);
-    String content = Files.readFile(destination);
+    String content = FileSupportImpl.INSTANCE.readFile(destination);
     Assert.assertEquals(TEST_CONTENT, content.trim());
   }
 

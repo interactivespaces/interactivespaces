@@ -16,7 +16,8 @@
 
 package interactivespaces.service.script;
 
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
 
@@ -24,8 +25,7 @@ import java.io.File;
  * A file -based script source.
  *
  * <p>
- * This will always check to see if the contents of the script has changed. if
- * not, it will not change.
+ * This will always check to see if the contents of the script has changed. if not, it will not change.
  *
  * @author Keith M. Hughes
  */
@@ -46,6 +46,17 @@ public class FileScriptSource implements ScriptSource {
    */
   private String content;
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * Construct a new script source.
+   *
+   * @param sourceFile
+   *          the source file
+   */
   public FileScriptSource(File sourceFile) {
     this.sourceFile = sourceFile;
   }
@@ -55,7 +66,7 @@ public class FileScriptSource implements ScriptSource {
     if (isModified()) {
       lastModified = sourceFile.lastModified();
 
-      content = Files.readFile(sourceFile);
+      content = fileSupport.readFile(sourceFile);
     }
 
     return content;

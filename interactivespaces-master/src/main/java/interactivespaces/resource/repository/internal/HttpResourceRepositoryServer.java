@@ -31,12 +31,14 @@ import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.data.resource.CopyableResourceListener;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+
+import com.google.common.collect.Maps;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -100,8 +102,12 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
   /**
    * Map for linking resource upload channels to content listeners.
    */
-  private final Map<String, CopyableResourceListener> resourceUploadListenerMap =
-      new HashMap<String, CopyableResourceListener>();
+  private final Map<String, CopyableResourceListener> resourceUploadListenerMap = Maps.newHashMap();
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   public void startup() {
@@ -181,7 +187,7 @@ public class HttpResourceRepositoryServer implements ResourceRepositoryServer {
     if (resourceStream != null) {
       response.setResponseCode(HttpResponseCode.OK);
       try {
-        Files.copyInputStream(resourceStream, response.getOutputStream());
+        fileSupport.copyInputStream(resourceStream, response.getOutputStream());
       } catch (IOException e) {
         spaceEnvironment.getLog().error(
             String.format("Error while writing resource %s:%s of category %s", name, version, category));

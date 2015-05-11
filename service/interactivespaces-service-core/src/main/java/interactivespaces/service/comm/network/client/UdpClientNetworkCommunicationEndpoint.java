@@ -90,32 +90,6 @@ public interface UdpClientNetworkCommunicationEndpoint extends ManagedResource {
    * The packet will be of a dynamic size.
    *
    * @return UDP packet of the proper endian
-   *
-   * @depecated Use {@link #newDynamicWriteableUdpPacket()}.
-   */
-  @Deprecated
-  UdpPacket newDynamicUdpPacket();
-
-  /**
-   * Create a new UDP packet.
-   *
-   * @param size
-   *          size of the packet
-   *
-   * @return UDP packet of the proper endian
-   *
-   * @depecated Use {@link #newWriteableUdpPacket()}.
-   */
-  @Deprecated
-  UdpPacket newUdpPacket(int size);
-
-  /**
-   * Create a new UDP packet.
-   *
-   * <p>
-   * The packet will be of a dynamic size.
-   *
-   * @return UDP packet of the proper endian
    */
   WriteableUdpPacket newDynamicWriteableUdpPacket();
 

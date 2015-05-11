@@ -19,7 +19,6 @@ package interactivespaces.service.comm.network.client.internal.netty;
 import interactivespaces.service.comm.network.WriteableUdpPacket;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpoint;
 import interactivespaces.service.comm.network.client.UdpClientNetworkCommunicationEndpointListener;
-import interactivespaces.service.comm.network.client.UdpPacket;
 import interactivespaces.service.comm.network.internal.netty.NettyWriteableUdpPacket;
 
 import com.google.common.collect.Lists;
@@ -172,17 +171,6 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements UdpClientNetw
   }
 
   @Override
-  public UdpPacket newDynamicUdpPacket() {
-    return new NettyUdpPacket(outputChannel, ChannelBuffers.dynamicBuffer(byteOrder,
-        NettyWriteableUdpPacket.DYNAMIC_BUFFER_INITIAL_SIZE));
-  }
-
-  @Override
-  public UdpPacket newUdpPacket(int size) {
-    return new NettyUdpPacket(outputChannel, ChannelBuffers.buffer(byteOrder, size));
-  }
-
-  @Override
   public WriteableUdpPacket newDynamicWriteableUdpPacket() {
     return new NettyWriteableUdpPacket(outputChannel, ChannelBuffers.dynamicBuffer(byteOrder,
         NettyWriteableUdpPacket.DYNAMIC_BUFFER_INITIAL_SIZE));
@@ -235,27 +223,6 @@ public class NettyUdpClientNetworkCommunicationEndpoint implements UdpClientNetw
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
       log.error("Error while handling UDP client message", e.getCause());
       e.getChannel().close();
-    }
-  }
-
-  /**
-   * A UDP packet for Netty.
-   *
-   * @author Keith M. Hughes
-   */
-  @Deprecated
-  class NettyUdpPacket extends NettyWriteableUdpPacket implements UdpPacket {
-
-    /**
-     * Construct a new writeable packet.
-     *
-     * @param outputChannel
-     *          the output channel to write to
-     * @param buffer
-     *          the buffer to store data in
-     */
-    public NettyUdpPacket(DatagramChannel outputChannel, ChannelBuffer buffer) {
-      super(outputChannel, buffer);
     }
   }
 }

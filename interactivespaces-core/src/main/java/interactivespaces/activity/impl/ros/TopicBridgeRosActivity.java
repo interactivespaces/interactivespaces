@@ -20,7 +20,8 @@ import interactivespaces.activity.Activity;
 import interactivespaces.bridge.message.MessageBridge;
 import interactivespaces.bridge.message.MessageBridgeFactory;
 import interactivespaces.bridge.message.ros.RosMessageBridgeFactory;
-import interactivespaces.util.io.Files;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import java.io.File;
 
@@ -46,6 +47,11 @@ public class TopicBridgeRosActivity extends BaseRosActivity {
    */
   private MessageBridge topicMessageBridge;
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public void commonActivitySetup() {
     MessageBridgeFactory messageBridgeFactory = new RosMessageBridgeFactory(getMainNode());
@@ -54,7 +60,7 @@ public class TopicBridgeRosActivity extends BaseRosActivity {
         new File(getActivityFilesystem().getInstallDirectory(), getConfiguration()
             .getRequiredPropertyString(CONFIGURATION_BRIDGE_TOPIC_FILE));
 
-    topicMessageBridge = messageBridgeFactory.newMessageBridge(Files.readFile(confFile), getLog());
+    topicMessageBridge = messageBridgeFactory.newMessageBridge(fileSupport.readFile(confFile), getLog());
     topicMessageBridge.startup();
   }
 
