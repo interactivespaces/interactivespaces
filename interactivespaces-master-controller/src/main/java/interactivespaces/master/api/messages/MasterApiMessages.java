@@ -64,226 +64,494 @@ public class MasterApiMessages {
   public static final String MASTER_API_PARAMETER_COMMAND = "command";
 
   /**
+   * Prefix for activity commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_ACTIVITY = "/activity";
+
+  /**
+   * Web socket command for getting view data for all activities.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_ALL = MASTER_API_COMMAND_PREFIX_ACTIVITY + "/all";
+
+  /**
+   * Web socket command for getting view data for an activity.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_VIEW = MASTER_API_COMMAND_PREFIX_ACTIVITY + "/view";
+
+  /**
+   * Web socket command for updating all deployments of an activity.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_DEPLOY = MASTER_API_COMMAND_PREFIX_ACTIVITY + "/deploy";
+
+  /**
+   * Web socket command for setting metadata for an activity.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_METADATA_SET = MASTER_API_COMMAND_PREFIX_ACTIVITY
+      + "/metadata/set";
+
+  /**
+   * Web socket command for locally deleting an activity.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_DELETE_LOCAL = MASTER_API_COMMAND_PREFIX_ACTIVITY
+      + "/delete/local";
+
+  /**
+   * Prefix for live activity commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY = "/liveactivity";
+
+  /**
    * Web socket command for getting view data for all live activities.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_ALL = "/liveactivity/all";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_ALL = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/all";
 
   /**
    * Web socket command for getting view data for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW = "/liveactivity/view";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/view";
 
   /**
    * Web socket command for deploying a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY = "/liveactivity/deploy";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/deploy";
 
   /**
    * Web socket command for configuring a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURE = "/liveactivity/configure";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURE = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/configure";
 
   /**
    * Web socket command for getting configuration data for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_GET = "/liveactivity/configuration/get";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_GET =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/configuration/get";
 
   /**
    * Web socket command for setting configuration data for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_SET = "/liveactivity/configuration/set";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_SET =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/configuration/set";
 
   /**
    * Web socket command for setting metadata for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_METADATA_SET = "/liveactivity/metadata/set";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_METADATA_SET = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/metadata/set";
 
   /**
    * Web socket command for starting up a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_STARTUP = "/liveactivity/startup";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_STARTUP = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/startup";
 
   /**
    * Web socket command for activating a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_ACTIVATE = "/liveactivity/activate";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_ACTIVATE = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/activate";
 
   /**
    * Web socket command for deactivating a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DEACTIVATE = "/liveactivity/deactivate";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DEACTIVATE = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/deactivate";
 
   /**
    * Web socket command for shutting down a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_SHUTDOWN = "/liveactivity/shutdown";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_SHUTDOWN = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/shutdown";
 
   /**
    * Web socket command for getting the status for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_STATUS = "/liveactivity/status";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_STATUS = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/status";
 
   /**
    * Web socket command for deleting the master's entry for a live activity.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_LOCAL = "/liveactivity/delete/local";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_LOCAL = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/delete/local";
 
   /**
    * Web socket command for deleting a live activity from its controller.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_REMOTE = "/liveactivity/delete/remote";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_REMOTE = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/delete/remote";
+
+  /**
+   * Web socket command for cleaning out a live activity's permanent data folder.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/data/permanent/clean";
+
+  /**
+   * Web socket command for cleaning out a live activity's temporary data folder.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/data/temporary/clean";
+
+  /**
+   * Prefix for live activity group commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP = "/liveactivitygroup";
 
   /**
    * Web socket command for getting view data for all live activity groups.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ALL = "/liveactivitygroup/all";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ALL =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/all";
 
   /**
    * Web socket command for getting view data for a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW = "/liveactivitygroup/view";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/view";
 
   /**
    * Web socket command for deploying a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEPLOY = "/liveactivitygroup/deploy";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEPLOY =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/deploy";
 
   /**
    * Web socket command for configuring a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_CONFIGURE = "/liveactivitygroup/configure";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_CONFIGURE =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/configure";
 
   /**
    * Web socket command for setting metadata for a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_METADATA_SET = "/liveactivitygroup/metadata/set";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_METADATA_SET =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/metadata/set";
 
   /**
    * Web socket command for starting up a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STARTUP = "/liveactivitygroup/startup";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STARTUP =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/startup";
 
   /**
    * Web socket command for activating a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ACTIVATE = "/liveactivitygroup/activate";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ACTIVATE =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/activate";
 
   /**
    * Web socket command for deactivating a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEACTIVATE = "/liveactivitygroup/deactivate";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEACTIVATE =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/deactivate";
 
   /**
    * Web socket command for shutting down a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_SHUTDOWN = "/liveactivitygroup/shutdown";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_SHUTDOWN =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/shutdown";
 
   /**
    * Web socket command for getting the status for a live activity group.
    */
-  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STATUS = "/liveactivitygroup/status";
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STATUS =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/status";
+
+  /**
+   * Web socket command for force shutting down a live activity.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_SHUTDOWN_FORCE =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/shutdown/force";
+
+  /**
+   * Web socket command for deleting the master's entry for a live activity.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DELETE_LOCAL =
+      MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/delete/local";
+
+  /**
+   * Prefix for space commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_SPACE = "/space";
 
   /**
    * Web socket command for getting all spaces.
    */
-  public static final String MASTER_API_COMMAND_SPACE_ALL = "/space/all";
+  public static final String MASTER_API_COMMAND_SPACE_ALL = MASTER_API_COMMAND_PREFIX_SPACE + "/all";
 
   /**
    * Web socket command for getting view data for a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_VIEW = "/space/view";
+  public static final String MASTER_API_COMMAND_SPACE_VIEW = MASTER_API_COMMAND_PREFIX_SPACE + "/view";
 
   /**
    * Web socket command for deploying a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_DEPLOY = "/space/deploy";
+  public static final String MASTER_API_COMMAND_SPACE_DEPLOY = MASTER_API_COMMAND_PREFIX_SPACE + "/deploy";
 
   /**
    * Web socket command for configuring a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_CONFIGURE = "/space/configure";
+  public static final String MASTER_API_COMMAND_SPACE_CONFIGURE = MASTER_API_COMMAND_PREFIX_SPACE + "/configure";
 
   /**
    * Web socket command for setting metadata for a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_METADATA_SET = "/space/metadata/set";
+  public static final String MASTER_API_COMMAND_SPACE_METADATA_SET = MASTER_API_COMMAND_PREFIX_SPACE + "/metadata/set";
 
   /**
    * Web socket command for starting up a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_STARTUP = "/space/startup";
+  public static final String MASTER_API_COMMAND_SPACE_STARTUP = MASTER_API_COMMAND_PREFIX_SPACE + "/startup";
 
   /**
    * Web socket command for activating a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_ACTIVATE = "/space/activate";
+  public static final String MASTER_API_COMMAND_SPACE_ACTIVATE = MASTER_API_COMMAND_PREFIX_SPACE + "/activate";
 
   /**
    * Web socket command for deactivating a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_DEACTIVATE = "/space/deactivate";
+  public static final String MASTER_API_COMMAND_SPACE_DEACTIVATE = MASTER_API_COMMAND_PREFIX_SPACE + "/deactivate";
 
   /**
    * Web socket command for shutting down a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_SHUTDOWN = "/space/shutdown";
+  public static final String MASTER_API_COMMAND_SPACE_SHUTDOWN = MASTER_API_COMMAND_PREFIX_SPACE + "/shutdown";
 
   /**
    * Web socket command for getting the status for a space.
    */
-  public static final String MASTER_API_COMMAND_SPACE_STATUS = "/space/status";
+  public static final String MASTER_API_COMMAND_SPACE_STATUS = MASTER_API_COMMAND_PREFIX_SPACE + "/status";
+
+  /**
+   * Web socket command for deleting the master's entry for a space.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_DELETE_LOCAL = MASTER_API_COMMAND_PREFIX_SPACE + "/delete/local";
+
+  /**
+   * Prefix for space controller commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER = "/spacecontroller";
 
   /**
    * Web socket command for getting view data for all space controllers.
    */
-  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL = "/spacecontroller/all";
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/all";
 
   /**
    * Web socket command for getting view data for a space controller.
    */
-  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW = "/spacecontroller/view";
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/view";
 
   /**
    * Web socket command for configuring a space controller.
    */
-  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURE = "/spacecontroller/configure";
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURE =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/configure";
 
   /**
    * Web socket command for getting configuration data for a space controller.
    */
   public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_GET =
-      "/spacecontroller/configuration/get";
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/configuration/get";
 
   /**
    * Web socket command for setting configuration data for a space controller.
    */
   public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_SET =
-      "/spacecontroller/configuration/set";
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/configuration/set";
 
   /**
    * Web socket command for setting metadata for a space controller.
    */
-  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET = "/spacecontroller/metadata/set";
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/metadata/set";
+
+  /**
+   * Web socket command for connecting to a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONNECT = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/connect";
+
+  /**
+   * Web socket command for disconnecting from a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DISCONNECT =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/disconnect";
+
+  /**
+   * Web socket command for connecting to all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_CONNECT_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/connect";
+
+  /**
+   * Web socket command for disconnecting from all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DISCONNECT_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/disconnect";
+
+  /**
+   * Web socket command for requesting the status from a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_STATUS = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/status";
+
+  /**
+   * Web socket command for requesting the status from all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_STATUS_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/status";
+
+  /**
+   * Web socket command for deploying all live activities on a controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DEPLOY = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/deploy";
+
+  /**
+   * Web socket command for deploying all live activities on all controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DEPLOY_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/deploy";
+
+  /**
+   * Web socket command for cleaning out a space controller's permanent data folder.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_PERMANENT_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/data/permanent/clean";
+
+  /**
+   * Web socket command for cleaning out a space controller's temporary data folder.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_TEMPORARY_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/data/temporary/clean";
+
+  /**
+   * Web socket command for cleaning out all space controller's permanent data folders.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_PERMANENT_CLEAN_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/data/permanent/clean";
+
+  /**
+   * Web socket command for cleaning out all space controller's temporary data folders.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_TEMPORARY_CLEAN_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/data/temporary/clean";
+
+  /**
+   * Web socket command for cleaning out a space controller's permanent data folder.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/liveactivities/data/permanent/clean";
+
+  /**
+   * Web socket command for cleaning out a space controller's temporary data folder.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/liveactivities/data/temporary/clean";
+
+  /**
+   * Web socket command for cleaning out all space controller's permanent data folders.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/liveactivities/data/permanent/clean";
+
+  /**
+   * Web socket command for cleaning out a space controller's temporary data folder.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/liveactivities/data/temporary/clean";
+
+  /**
+   * Web socket command for shutting down a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_SHUTDOWN = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
+      + "/shutdown";
+
+  /**
+   * Web socket command for shutting down all live activities on a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_SHUTDOWN_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/liveactivities/shutdown";
+
+  /**
+   * Web socket command for shutting down all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_SHUTDOWN =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/shutdown";
+
+  /**
+   * Web socket command for shutting down all live activities on all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_SHUTDOWN_ALL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/liveactivities/shutdown";
+
+  /**
+   * Web socket command for capturing data from a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_CAPTURE =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/data/capture";
+
+  /**
+   * Web socket command for restoring data from a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_RESTORE =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/data/restore";
+
+  /**
+   * Web socket command for capturing data from all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_DATA_CAPTURE =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/data/capture";
+
+  /**
+   * Web socket command for restoring data from all space controllers.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_DATA_RESTORE =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/all/data/restore";
+
+  /**
+   * Web socket command for deleting a space controller from the master domain model.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_DELETE_LOCAL =
+      MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER + "/delete";
+
+  /**
+   * Prefix for named script commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT = "/admin/namedscript";
 
   /**
    * Web socket command for getting all named scripts.
    */
-  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_ALL = "/admin/namedscript/all";
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_ALL = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT + "/all";
 
   /**
    * Web socket command for viewing a named script.
    */
-  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_VIEW = "/admin/namedscript/view";
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_VIEW = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT + "/view";
 
   /**
    * Web socket command for setting metadata for a named script.
    */
-  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_METADATA_SET = "/admin/namedscript/metadata/set";
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_METADATA_SET = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT
+      + "/metadata/set";
 
   /**
    * Web socket command for running a named script.
    */
-  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_RUN = "/admin/namedscript/run";
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_RUN = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT + "/run";
+
+  /**
+   * Web socket command for deleting a named script.
+   */
+  public static final String MASTER_API_COMMAND_NAMEDSCRIPT_DELETE = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT + "/delete";
 
   /**
    * Parameter name for the ID of the entity in the Master API message.

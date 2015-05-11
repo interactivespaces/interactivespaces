@@ -177,13 +177,13 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/spacecontroller/{id}/restoredata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> restoreData(@PathVariable String id) {
-    return masterApiSpaceControllerManager.restoreSpaceControllerDataBundle(id);
+    return masterApiSpaceControllerManager.restoreDataSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/capturedata.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> captureData(@PathVariable String id) {
-    return masterApiSpaceControllerManager.captureSpaceControllerDataBundle(id);
+    return masterApiSpaceControllerManager.captureDataSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/shutdown.json", method = RequestMethod.GET)
@@ -207,7 +207,7 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   @RequestMapping(value = "/spacecontroller/{id}/deploy.json", method = RequestMethod.GET)
   public @ResponseBody
   Map<String, ? extends Object> deployLiveActivities(@PathVariable String id) {
-    return masterApiSpaceControllerManager.deployAllSpaceControllerActivityInstances(id);
+    return masterApiSpaceControllerManager.deployAllActivityInstancesSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/all/connect.html", method = RequestMethod.GET)

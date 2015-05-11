@@ -290,7 +290,7 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> captureSpaceControllerDataBundle(String id);
+  Map<String, Object> captureDataSpaceController(String id);
 
   /**
    * Restore the data bundle for the given controller ID.
@@ -300,7 +300,7 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> restoreSpaceControllerDataBundle(String id);
+  Map<String, Object> restoreDataSpaceController(String id);
 
   /**
    * Capture the data bundle for all controllers.
@@ -341,7 +341,17 @@ public interface MasterApiSpaceControllerManager {
    *
    * @return the Master API response
    */
-  Map<String, Object> deployAllSpaceControllerActivityInstances(String id);
+  Map<String, Object> deployAllActivityInstancesSpaceController(String id);
+
+  /**
+   * Deploy all activities which are on all controllers.
+   *
+   * @param id
+   *          ID of the controller
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> deployAllActivityInstancesAllSpaceControllers();
 
   /**
    * Deploy all out of date live activities which are based on the specified

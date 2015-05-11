@@ -87,7 +87,8 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
       List<SpaceController> spaceControllers =
           Lists.newArrayList(spaceControllerRepository.getSpaceControllers(filterExpression));
       Collections.sort(spaceControllers, MasterApiUtilities.SPACE_CONTROLLER_BY_NAME_COMPARATOR);
-      for (ActiveSpaceController acontroller : activeSpaceControllerManager.getActiveSpaceControllers(spaceControllers)) {
+      for (ActiveSpaceController acontroller : activeSpaceControllerManager
+          .getActiveSpaceControllers(spaceControllers)) {
         Map<String, Object> controllerData = Maps.newHashMap();
 
         SpaceController controller = acontroller.getController();
@@ -396,8 +397,12 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
       try {
         activeSpaceControllerManager.disconnectSpaceController(controller);
       } catch (Exception e) {
-        spaceEnvironment.getLog().error(
-            String.format("Unable to disconnect to controller %s (%s)", controller.getUuid(), controller.getName()), e);
+        spaceEnvironment
+            .getLog()
+            .error(
+                String
+                    .format("Unable to disconnect to controller %s (%s)", controller.getUuid(), controller.getName()),
+                e);
       }
     }
 
@@ -638,7 +643,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   @Override
-  public Map<String, Object> captureSpaceControllerDataBundle(String id) {
+  public Map<String, Object> captureDataSpaceController(String id) {
     SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
     if (controller != null) {
       activeSpaceControllerManager.captureSpaceControllerDataBundle(controller);
@@ -650,7 +655,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   @Override
-  public Map<String, Object> restoreSpaceControllerDataBundle(String id) {
+  public Map<String, Object> restoreDataSpaceController(String id) {
     SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
     if (controller != null) {
       activeSpaceControllerManager.restoreSpaceControllerDataBundle(controller);
@@ -721,13 +726,10 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
   }
 
   @Override
-  public Map<String, Object> deployAllSpaceControllerActivityInstances(String id) {
+  public Map<String, Object> deployAllActivityInstancesSpaceController(String id) {
     SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
     if (controller != null) {
-
-      for (LiveActivity liveActivity : activityRepository.getLiveActivitiesByController(controller)) {
-        activeSpaceControllerManager.deployLiveActivity(liveActivity);
-      }
+      deployAllActivitysForController(controller);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
@@ -735,11 +737,36 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     }
   }
 
+  /**
+   * Deploy all activities found on a given controller.
+   *
+   * @param controller
+   */
+  private void deployAllActivitysForController(SpaceController controller) {
+    for (LiveActivity liveActivity : activityRepository.getLiveActivitiesByController(controller)) {
+      activeSpaceControllerManager.deployLiveActivity(liveActivity);
+    }
+  }
+
+  @Override
+  public Map<String, Object> deployAllActivityInstancesAllSpaceControllers() {
+    for (SpaceController controller : getAllEnabledSpaceControllers()) {
+      try {
+        activeSpaceControllerManager.shutdownAllActivities(controller);
+      } catch (Throwable e) {
+        spaceEnvironment.getLog().error(
+            String.format("Unable to deploy all live activities from controller %s (%s)", controller.getUuid(),
+                controller.getName()), e);
+      }
+    }
+
+    return MasterApiMessageSupport.getSimpleSuccessResponse();
+  }
+
   @Override
   public Map<String, Object> deployAllLiveActivityInstances(String id) {
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
-
       for (LiveActivity liveActivity : activityRepository.getLiveActivitiesByActivity(activity)) {
         if (liveActivity.isOutOfDate()) {
           activeSpaceControllerManager.deployLiveActivity(liveActivity);
@@ -1309,7 +1336,8 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * @return the API response
    */
   private Map<String, Object> getNoSuchLiveActivityGroupResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+    return MasterApiMessageSupport
+        .getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
   }
 
   /**

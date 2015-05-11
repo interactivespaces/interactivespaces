@@ -16,6 +16,7 @@
 
 package interactivespaces.master.api.master.internal;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
@@ -40,7 +41,10 @@ import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+
+import org.python.google.common.collect.Lists;
 
 import java.util.Date;
 import java.util.Map;
@@ -110,6 +114,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
    * Construct a new manager.
    */
   public BasicMasterWebsocketManager() {
+    registerActivityHandlers();
     registerLiveActivityHandlers();
     registerLiveActivityGroupHandlers();
     registerSpaceHandlers();
@@ -120,54 +125,90 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
   /**
    * Register all handlers for Live Activity commands.
    */
+  private void registerActivityHandlers() {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getActivitiesByFilter(getFilter(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_VIEW) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getActivityView(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_DEPLOY) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.deployAllLiveActivityInstances(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_METADATA_SET) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String id = getEntityId(commandArgs);
+        Map<String, Object> metadata =
+            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
+
+        return masterApiActivityManager.updateActivityMetadata(id, metadata);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_DELETE_LOCAL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.deleteActivity(getEntityId(commandArgs));
+      }
+    });
+  }
+
+  /**
+   * Register all handlers for Live Activity commands.
+   */
   private void registerLiveActivityHandlers() {
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_ALL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
-        return masterApiActivityManager.getLiveActivitiesByFilter(filter);
+        return masterApiActivityManager.getLiveActivitiesByFilter(getFilter(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiActivityManager.getLiveActivityView(id);
+        return masterApiActivityManager.getLiveActivityView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deployLiveActivity(id);
+        return masterApiSpaceControllerManager.deployLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.configureLiveActivity(id);
+        return masterApiSpaceControllerManager.configureLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_GET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiActivityManager.getLiveActivityConfiguration(id);
+        return masterApiActivityManager.getLiveActivityConfiguration(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_CONFIGURATION_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, String> config =
-            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
+        String id = getEntityId(commandArgs);
+        Map<String, String> config = getConfiguration(commandArgs);
         return masterApiActivityManager.configureLiveActivity(id, config);
       }
     });
@@ -175,7 +216,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        String id = getEntityId(commandArgs);
         Map<String, Object> metadata =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
@@ -186,56 +227,63 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_STARTUP) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.startupLiveActivity(id);
+        return masterApiSpaceControllerManager.startupLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_ACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.activateLiveActivity(id);
+        return masterApiSpaceControllerManager.activateLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DEACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deactivateLiveActivity(id);
+        return masterApiSpaceControllerManager.deactivateLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_SHUTDOWN) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.shutdownLiveActivity(id);
+        return masterApiSpaceControllerManager.shutdownLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_STATUS) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.statusLiveActivity(id);
+        return masterApiSpaceControllerManager.statusLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_LOCAL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiActivityManager.deleteLiveActivity(id);
+        return masterApiActivityManager.deleteLiveActivity(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_REMOTE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deleteLiveActivity(id);
+        return masterApiSpaceControllerManager.deleteLiveActivity(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanLiveActivityPermanentData(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanLiveActivityTempData(getEntityId(commandArgs));
       }
     });
   }
@@ -248,39 +296,35 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ALL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
-        return masterApiActivityManager.getLiveActivityGroupsByFilter(filter);
+        return masterApiActivityManager.getLiveActivityGroupsByFilter(getFilter(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiActivityManager.getLiveActivityGroupView(id);
+        return masterApiActivityManager.getLiveActivityGroupView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deployLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.deployLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_CONFIGURE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.configureLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.configureLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        String id = getEntityId(commandArgs);
         Map<String, Object> metadata =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
@@ -291,40 +335,49 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STARTUP) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.startupLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.startupLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_ACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.activateLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.activateLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deactivateLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.deactivateLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_SHUTDOWN) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.shutdownLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.shutdownLiveActivityGroup(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_STATUS) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.statusLiveActivityGroup(id);
+        return masterApiSpaceControllerManager.statusLiveActivityGroup(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_SHUTDOWN_FORCE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.forceShutdownLiveActivitiesLiveActivityGroup(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DELETE_LOCAL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.deleteLiveActivityGroup(getEntityId(commandArgs));
       }
     });
   }
@@ -336,37 +389,32 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_ALL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String filter =
-            (commandArgs != null) ? (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER) : null;
-        return masterApiActivityManager.getSpacesByFilter(filter);
+        return masterApiActivityManager.getSpacesByFilter(getFilter(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiActivityManager.getSpaceView(id);
+        return masterApiActivityManager.getSpaceView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deploySpace(id);
+        return masterApiSpaceControllerManager.deploySpace(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_CONFIGURE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.configureSpace(id);
+        return masterApiSpaceControllerManager.configureSpace(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        String id = getEntityId(commandArgs);
         Map<String, Object> metadata =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
@@ -376,36 +424,39 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_STARTUP) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.startupSpace(id);
+        return masterApiSpaceControllerManager.startupSpace(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_ACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.activateSpace(id);
+        return masterApiSpaceControllerManager.activateSpace(getEntityId(commandArgs));
       }
     });
-    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_DEACTIVATE) {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_DEACTIVATE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.deactivateSpace(id);
+        return masterApiSpaceControllerManager.deactivateSpace(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_SHUTDOWN) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.shutdownSpace(id);
+        return masterApiSpaceControllerManager.shutdownSpace(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_STATUS) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.statusSpace(id);
+        return masterApiSpaceControllerManager.statusSpace(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_DELETE_LOCAL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.deleteSpace(getEntityId(commandArgs));
       }
     });
   }
@@ -418,33 +469,29 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
-        return masterApiSpaceControllerManager.getSpaceControllersByFilter(filter);
+        return masterApiSpaceControllerManager.getSpaceControllersByFilter(getFilter(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.getSpaceControllerView(id);
+        return masterApiSpaceControllerManager.getSpaceControllerView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_GET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.getSpaceControllerConfiguration(id);
+        return masterApiSpaceControllerManager.getSpaceControllerConfiguration(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURATION_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        Map<String, String> config =
-            getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
+        String id = getEntityId(commandArgs);
+        Map<String, String> config = getConfiguration(commandArgs);
         return masterApiSpaceControllerManager.setSpaceControllerConfiguration(id, config);
       }
     });
@@ -452,19 +499,194 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONFIGURE) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiSpaceControllerManager.configureSpaceController(id);
+        return masterApiSpaceControllerManager.configureSpaceController(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        String id = getEntityId(commandArgs);
         Map<String, Object> metadata =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
         return masterApiSpaceControllerManager.updateSpaceControllerMetadata(id, metadata);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONNECT) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.connectToSpaceControllers(Lists.newArrayList(getEntityId(commandArgs)));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DISCONNECT) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.disconnectFromSpaceControllers(Lists
+            .newArrayList(getEntityId(commandArgs)));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_CONNECT_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.connectToAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DISCONNECT_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.disconnectFromAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_STATUS) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.statusSpaceControllers(Lists.newArrayList(getEntityId(commandArgs)));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_STATUS_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.statusFromAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DEPLOY) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.deployAllActivityInstancesSpaceController(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DEPLOY_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.deployAllActivityInstancesAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_PERMANENT_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerPermanentData(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_TEMPORARY_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerTempData(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_PERMANENT_CLEAN_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerPermanentDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_TEMPORARY_CLEAN_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerTempDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentData(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempData(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_DATA_PERMANENT_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_DATA_TEMPORARY_CLEAN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_SHUTDOWN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.shutdownSpaceControllers(Lists.newArrayList(getEntityId(commandArgs)));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_LIVE_ACTIVITY_SHUTDOWN_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.shutdownAllActivities(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_SHUTDOWN) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.shutdownAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_LIVE_ACTIVITY_SHUTDOWN_ALL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.shutdownAllActivitiesAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_CAPTURE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.captureDataSpaceController(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DATA_RESTORE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.restoreDataSpaceController(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_DATA_CAPTURE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.captureDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_ALL_DATA_RESTORE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.restoreDataAllSpaceControllers();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_DELETE_LOCAL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.deleteSpaceController(getEntityId(commandArgs));
       }
     });
   }
@@ -476,33 +698,38 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_ALL) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String filter = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER);
-        return masterApiAutomationManager.getNamedScriptsByFilter(filter);
+        return masterApiAutomationManager.getNamedScriptsByFilter(getFilter(commandArgs));
       }
     });
-    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_VIEW) {
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_VIEW) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiAutomationManager.getNamedScriptView(id);
+        return masterApiAutomationManager.getNamedScriptView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_RUN) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
-        return masterApiAutomationManager.runNamedScript(id);
+        return masterApiAutomationManager.runNamedScript(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_METADATA_SET) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
-        String id = getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+        String id = getEntityId(commandArgs);
         Map<String, Object> metadata =
             getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_METADATA);
 
         return masterApiAutomationManager.updateNamedScriptMetadata(id, metadata);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_NAMEDSCRIPT_DELETE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiAutomationManager.deleteNamedScript(getEntityId(commandArgs));
       }
     });
   }
@@ -573,7 +800,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       webSocketFactory.sendJson(message);
     } else {
       spaceEnvironment.getLog().warn(
-          String.format("Recived status update in web socket master client for unknown live activity UUID %s", uuid));
+          String.format("Received status update in web socket master client for unknown live activity UUID %s", uuid));
     }
   }
 
@@ -634,21 +861,39 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
 
         webSocketFactory.sendJson(connectionId, responseMessage);
       } else {
-        MasterApiWebSocketCommandHandler handler = commandHandlers.get(command);
-        if (handler != null) {
-          Map<String, Object> responseMessage = handler.execute(commandArgs);
-          responseMessage.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
-              MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
-          potentiallyAddRequestId(responseMessage, requestId);
-          webSocketFactory.sendJson(connectionId, responseMessage);
-        } else {
-          spaceEnvironment.getLog().error(
-              String.format("Master API websocket connection got unknown command %s", command));
-        }
+        executeWithCommandHandler(connectionId, command, commandArgs, requestId);
       }
     } catch (Throwable e) {
-      spaceEnvironment.getLog().error(String.format("Error while performing Master API websocket command %s", command),
-          e);
+      spaceEnvironment.getLog().error(
+          String.format("Error while performing Master API websocket command %s", command), e);
+    }
+  }
+
+  /**
+   * Execute the command with a command handler.
+   *
+   * @param connectionId
+   *          the connection IS to the remote web socket client
+   * @param command
+   *          the command to be executed
+   * @param commandArgs
+   *          the arguments for the command, can be {@code null}
+   * @param requestId
+   *          the request ID for the command, can be {@code null}
+   */
+  @VisibleForTesting
+      void
+      executeWithCommandHandler(String connectionId, String command, Map<String, Object> commandArgs, String requestId) {
+    MasterApiWebSocketCommandHandler handler = commandHandlers.get(command);
+    if (handler != null) {
+      Map<String, Object> responseMessage = handler.execute(commandArgs);
+      responseMessage.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
+          MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
+      potentiallyAddRequestId(responseMessage, requestId);
+      webSocketFactory.sendJson(connectionId, responseMessage);
+    } else {
+      spaceEnvironment.getLog()
+          .error(String.format("Master API websocket connection got unknown command %s", command));
     }
   }
 
@@ -738,7 +983,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
    *
    * @author Keith M. Hughes
    */
-  public abstract static class MasterApiWebSocketCommandHandler {
+  public abstract class MasterApiWebSocketCommandHandler {
 
     /**
      * The name of the command.
@@ -828,6 +1073,49 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
       } else {
         throw new SimpleInteractiveSpacesException("Unknown argument " + argName);
       }
+    }
+
+    /**
+     * Get the filter parameter from the command arguments.
+     *
+     * @param commandArgs
+     *          the command arguments
+     *
+     * @return the filter, or {code null} if none
+     */
+    protected String getFilter(Map<String, Object> commandArgs) {
+      return (commandArgs != null) ? (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_FILTER)
+          : null;
+    }
+
+    /**
+     * Get the entity ID from the command arguments.
+     *
+     * @param commandArgs
+     *          the command arguments
+     *
+     * @return the entity ID
+     *
+     * @throws InteractiveSpacesException
+     *           the entity ID was not in the command arguments
+     */
+    protected String getEntityId(Map<String, Object> commandArgs) throws InteractiveSpacesException {
+      return getRequiredStringArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+    }
+
+    /**
+     * Get the configuration map from the command arguments.
+     *
+     * @param commandArgs
+     *          the command arguments
+     *
+     * @return the configuration map
+     *
+     * @throws InteractiveSpacesException
+     *           the configuration map was not in the command arguments
+     */
+    protected Map<String, String> getConfiguration(Map<String, Object> commandArgs) throws InteractiveSpacesException {
+      return getRequiredMapArg(commandArgs, MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_CONFIG);
     }
   }
 }
