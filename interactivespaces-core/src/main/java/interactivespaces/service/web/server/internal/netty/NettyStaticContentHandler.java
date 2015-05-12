@@ -196,6 +196,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
   public void handleWebRequest(ChannelHandlerContext ctx, HttpRequest request, Set<HttpCookie> cookiesToAdd)
       throws IOException {
     String url = request.getUri();
+    String originalUrl = url;
 
     // Strip off query parameters, if any, as we don't care.
     int pos = url.indexOf('?');
@@ -211,7 +212,10 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
 
     // Refuse to process if the path wanders outside of the base directory.
     if (!allowLinks && !fileSupport.isParent(baseDir, file)) {
-      parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
+      HttpResponseStatus status = HttpResponseStatus.FORBIDDEN;
+      parentHandler.getWebServer().getLog().warn(
+          String.format("HTTP [%s] %s --> (Path attempts to leave base directory)", status.getCode(), originalUrl));
+      parentHandler.sendError(ctx, status);
       return;
     }
 
@@ -222,7 +226,10 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       if (fallbackHandler != null) {
         fallbackHandler.handleWebRequest(ctx, request, cookiesToAdd);
       } else {
-        parentHandler.sendError(ctx, HttpResponseStatus.NOT_FOUND);
+        HttpResponseStatus status = HttpResponseStatus.NOT_FOUND;
+        parentHandler.getWebServer().getLog().warn(
+                String.format("HTTP [%s] %s --> (File Not Found)", status.getCode(), originalUrl));
+        parentHandler.sendError(ctx, status);
       }
       return;
     }
@@ -249,9 +256,11 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       rangeRequest = parseRangeRequest(request, fileLength);
     } catch (Exception e) {
       try {
-        parentHandler.getWebServer().getLog().error(e.getMessage());
-        response.setStatus(HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
-        parentHandler.sendError(ctx, HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+        HttpResponseStatus status = HttpResponseStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
+        parentHandler.getWebServer().getLog().error(String.format("[%s] HTTP %s --> %s",
+            status.getCode(), originalUrl, e.getMessage()));
+        response.setStatus(status);
+        parentHandler.sendError(ctx, status);
       } finally {
         try {
           raf.close();
@@ -262,13 +271,15 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       return;
     }
 
+    HttpResponseStatus status = HttpResponseStatus.OK;
     if (rangeRequest == null) {
       setContentLength(response, fileLength);
     } else {
       setContentLength(response, rangeRequest.getRangeLength());
       addHeader(response, HttpHeaders.Names.CONTENT_RANGE, CONTENT_RANGE_PREFIX + rangeRequest.begin
           + CONTENT_RANGE_RANGE_SEPARATOR + rangeRequest.end + CONTENT_RANGE_RANGE_SIZE_SEPARATOR + fileLength);
-      response.setStatus(HttpResponseStatus.PARTIAL_CONTENT);
+      status = HttpResponseStatus.PARTIAL_CONTENT;
+      response.setStatus(status);
     }
 
     Channel ch = ctx.getChannel();
@@ -306,6 +317,9 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       // Close the connection when the whole content is written out.
       writeFuture.addListener(ChannelFutureListener.CLOSE);
     }
+
+    parentHandler.getWebServer().getLog().debug(String.format("[%s] HTTP %s --> %s",
+            status.getCode(), originalUrl, file.getPath()));
   }
 
   /**

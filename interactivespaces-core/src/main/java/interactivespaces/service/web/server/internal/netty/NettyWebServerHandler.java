@@ -27,6 +27,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.service.web.HttpConstants;
 import interactivespaces.service.web.server.HttpAuthProvider;
 import interactivespaces.service.web.server.HttpAuthResponse;
 import interactivespaces.service.web.server.HttpFileUploadListener;
@@ -34,6 +35,7 @@ import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -64,6 +66,7 @@ import org.jboss.netty.util.CharsetUtil;
 
 import java.io.IOException;
 import java.net.HttpCookie;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,6 +95,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Exception message when WebSocket connections are closed.
    */
   private static final String MESSAGE_WEB_SOCKET_CLOSED_EXCEPTION = "Connection reset by peer";
+
+  /**
+   * List of file names that are not logged as errors if they can't be found.
+   */
+  private static final Set<String> UNWARNED_MISSING_FILE_NAMES = ImmutableSet.of("favicon.ico");
 
   /**
    * The web socket path used by this handler.
@@ -267,9 +275,16 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       // The method handled the request if the return value was true.
     } else {
       // Nothing we handle.
-      webServer.getLog().warn(String.format("Web server has no handlers for request %s", req.getUri()));
 
-      sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, FORBIDDEN), false, false);
+      HttpResponseStatus status = FORBIDDEN;
+      String message = String.format("HTTP [%d] %s --> (No handlers for request)", status.getCode(), req.getUri());
+      if (shouldWarnOnMissingFile(new URI(req.getUri()).getPath())) {
+        webServer.getLog().warn(message);
+      } else {
+        webServer.getLog().debug(message);
+      }
+
+      sendHttpResponse(ctx, req, new DefaultHttpResponse(HTTP_1_1, status), false, false);
     }
   }
 
@@ -355,6 +370,8 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       } else {
         fileUpload.completeNonChunked();
         fileUploadComplete(fileUpload);
+        HttpResponseStatus status = HttpResponseStatus.OK;
+        webServer.getLog().debug(String.format("HTTP [%s] %s --> (File Upload)", status.getCode(), request.getUri()));
         sendSuccessHttpResponse(context, request);
       }
     } catch (Exception e) {
@@ -761,5 +778,19 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   public void setAccessManager(WebResourceAccessManager accessManager) {
     this.accessManager = accessManager;
+  }
+
+  /**
+   * Determines whether a missing file or path should be reported as an warning or not.
+   *
+   * @param uriPath
+   *          the uriPath fragment to test
+   *
+   * @return {@code true} if the missing file should be logged as a warning
+   */
+  private boolean shouldWarnOnMissingFile(String uriPath) {
+    int pos = uriPath.lastIndexOf(HttpConstants.URL_PATH_COMPONENT_SEPARATOR);
+    String filename = pos >= 0 ? uriPath.substring(pos + HttpConstants.URL_PATH_COMPONENT_SEPARATOR.length()) : uriPath;
+    return !UNWARNED_MISSING_FILE_NAMES.contains(filename);
   }
 }
