@@ -19,6 +19,8 @@ package org.ros.internal.transport;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import interactivespaces.testing.sizes.TestSizeLarge;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -35,6 +37,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.ros.concurrent.CancellableLoop;
 import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.internal.message.DefaultMessageDeserializer;
@@ -192,6 +195,7 @@ public class MessageQueueIntegrationTest {
     assertTrue(secondLatch.await(3, TimeUnit.SECONDS));
   }
 
+  @Category(TestSizeLarge.class)
   @Test
   public void testSendAndReceiveMessage() throws InterruptedException {
     startRepeatingPublisher();
@@ -201,6 +205,7 @@ public class MessageQueueIntegrationTest {
     expectMessages();
   }
 
+  @Category(TestSizeLarge.class)
   @Test
   public void testSendAndReceiveLatchedMessage() throws InterruptedException {
     // Setting latched mode and writing a message should cause any
@@ -222,6 +227,7 @@ public class MessageQueueIntegrationTest {
     expectMessages();
   }
 
+  @Category(TestSizeLarge.class)
   @Test
   public void testSendAfterIncomingQueueShutdown() throws InterruptedException {
     startRepeatingPublisher();
@@ -231,6 +237,7 @@ public class MessageQueueIntegrationTest {
     outgoingMessageQueue.add(expectedMessage);
   }
 
+  @Category(TestSizeLarge.class)
   @Test
   public void testSendAfterServerChannelClosed() throws InterruptedException {
     startRepeatingPublisher();
@@ -240,6 +247,7 @@ public class MessageQueueIntegrationTest {
     outgoingMessageQueue.add(expectedMessage);
   }
 
+  @Category(TestSizeLarge.class)
   @Test
   public void testSendAfterOutgoingQueueShutdown() throws InterruptedException {
     startRepeatingPublisher();
