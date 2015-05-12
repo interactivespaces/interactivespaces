@@ -39,7 +39,7 @@ dependencies {
 
   compile 'org.jboss.javassist:com.springsource.javassist:3.12.1.GA'
 
-  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:1.1_4'
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:2.0.6_1'
 
   compile 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
 
@@ -60,7 +60,7 @@ jar {
     instruction 'Import-Package',
         'org.apache.commons.ognl.*;resolution:="optional"',
         'org.apache.http.*;resolution:="optional"',
-        'org.jdom.*;resolution:="optional"',
+        'org.jdom2.*;resolution:="optional"',
         'org.jboss.netty.handler.codec.http;resolution:="optional"',
         'org.jboss.netty.bootstrap;resolution:="optional"',
         'org.codehaus.jackson.*;resolution:="optional"',

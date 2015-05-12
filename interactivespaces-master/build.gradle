@@ -23,6 +23,8 @@ dependencies {
   compile project(':service:interactivespaces-service-alert')
   compile project(':service:interactivespaces-service-script')
   compile project(':service:interactivespaces-service-scheduler')
+  
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.jdom:2.0.6_1'
 
   compile('org.apache.openjpa:openjpa:2.3.0') {
     exclude group: 'org.apache.geronimo.specs'

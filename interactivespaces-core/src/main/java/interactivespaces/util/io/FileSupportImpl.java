@@ -35,6 +35,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.Enumeration;
@@ -451,6 +452,11 @@ public class FileSupportImpl implements FileSupport {
   public File newFile(String path) {
     // TODO(keith): Handle Windows
     return new File(path);
+  }
+
+  @Override
+  public File newFile(URI uri) {
+    return new File(uri);
   }
 
   @Override

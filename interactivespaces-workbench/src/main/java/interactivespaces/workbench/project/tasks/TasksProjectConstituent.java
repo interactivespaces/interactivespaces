@@ -32,8 +32,8 @@ import interactivespaces.workbench.tasks.WorkbenchTaskModifiers;
 
 import com.google.common.collect.Maps;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import java.util.List;
 import java.util.Map;

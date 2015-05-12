@@ -23,8 +23,8 @@ import interactivespaces.workbench.project.ProjectContext;
 
 import com.google.common.collect.Maps;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import java.io.File;
 import java.util.Map;

@@ -26,6 +26,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
@@ -429,6 +430,16 @@ public interface FileSupport {
    * @return a file for the path
    */
   File newFile(String path);
+
+  /**
+   * Create a new file for a specified path.
+   *
+   * @param uri
+   *          the {@code file:} based URI for the file
+   *
+   * @return a file for the uRI
+   */
+  File newFile(URI uri);
 
   /**
    * Create a new file for a specified path relative to the parent file.

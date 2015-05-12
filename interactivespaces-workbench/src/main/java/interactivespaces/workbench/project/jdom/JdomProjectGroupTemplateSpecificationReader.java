@@ -25,9 +25,9 @@ import interactivespaces.workbench.project.creator.TemplateAssignConstituent;
 import interactivespaces.workbench.project.creator.TemplateFileConstituent;
 import interactivespaces.workbench.project.group.GroupProjectTemplateSpecification;
 
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import java.io.File;
 import java.util.List;

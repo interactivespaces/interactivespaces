@@ -24,8 +24,8 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
 import com.google.common.collect.Maps;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -164,7 +164,7 @@ public class ActivityProjectConstituent extends BaseProjectConstituent {
       Map<String, ProjectConfigurationProperty> properties = Maps.newTreeMap();
 
       if (configurationElement != null) {
-        for (Element propertyElement : (List<Element>) configurationElement.getChildren(PROPERTY_ELEMENT_NAME,
+        for (Element propertyElement : configurationElement.getChildren(PROPERTY_ELEMENT_NAME,
             namespace)) {
           processConfigurationPropertyElement(namespace, propertyElement, properties);
         }

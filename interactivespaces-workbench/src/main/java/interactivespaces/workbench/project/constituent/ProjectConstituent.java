@@ -20,8 +20,8 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 
 import org.apache.commons.logging.Log;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 /**
  * Interface for project constituents.

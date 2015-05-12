@@ -18,22 +18,32 @@ package interactivespaces.workbench.project.jdom;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.service.web.HttpConstants;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.constituent.ProjectConstituent;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 
 import org.apache.commons.logging.Log;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.located.LocatedJDOMFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.EntityResolver2;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +53,11 @@ import java.util.Map;
  * @author Trevor pering
  */
 public class JdomReader {
+
+  /**
+   * XML parser feature for enabling xinclude.
+   */
+  private static final String XML_PARSER_FEATURE_XINCLUDE = "http://apache.org/xml/features/xinclude";
 
   /**
    * Project definition file element name for templates.
@@ -69,6 +84,11 @@ public class JdomReader {
    * Prototype manager to use when reading/constructing projects, may be {@code null} if none available.
    */
   private JdomPrototypeProcessor jdomPrototypeProcessor;
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Create a new jdom reader.
@@ -100,17 +120,17 @@ public class JdomReader {
    */
   Element getRootElement(File inputFile) {
     Document doc;
-    FileInputStream inputStream = null;
     try {
-      inputStream = new FileInputStream(inputFile);
       SAXBuilder builder = new SAXBuilder();
-      doc = builder.build(inputStream);
+      builder.setJDOMFactory(new LocatedJDOMFactory());
+      builder.setFeature(XML_PARSER_FEATURE_XINCLUDE, true);
+      builder.setEntityResolver(new MyEntityResolver());
+      doc = builder.build(inputFile);
     } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Exception while processing %s", inputFile.getAbsolutePath()),
-          e);
-    } finally {
-      Closeables.closeQuietly(inputStream);
+      throw new InteractiveSpacesException(
+          String.format("Exception while processing %s", inputFile.getAbsolutePath()), e);
     }
+
     return doc.getRootElement();
   }
 
@@ -350,6 +370,49 @@ public class JdomReader {
       }
     } else {
       addError(String.format("Unknown resource type '%s'", type));
+    }
+  }
+
+  /**
+   * An EntityResolver that evaluates system IDs using an Interactive Spaces configuration evaluation.
+   *
+   * @author Keith M. Hughes
+   */
+  private class MyEntityResolver implements EntityResolver2 {
+
+    @Override
+    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+      // JDOM2 uses a SAX2 parser so this method should never be called.
+      throw SimpleInteractiveSpacesException.newFormattedException("Unsupported call to %s.resolveEntity(%s, %s)",
+          getClass().getCanonicalName(), publicId, systemId);
+    }
+
+    @Override
+    public InputSource getExternalSubset(String name, String baseUri) throws SAXException, IOException {
+      throw SimpleInteractiveSpacesException.newFormattedException("Unsupported call to %s.getExternalSubset(%s, %s)",
+          getClass().getCanonicalName(), name, baseUri);
+    }
+
+    @Override
+    public InputSource resolveEntity(String name, String publicId, String baseUri, String systemId)
+        throws SAXException, IOException {
+      try {
+        String decodedSystemId =
+            workbench.getSpaceEnvironment().getSystemConfiguration()
+                .evaluate(URLDecoder.decode(systemId, Charsets.UTF_8.name()));
+
+        File resolvedFile = null;
+        if (!systemId.startsWith(HttpConstants.URL_PATH_COMPONENT_SEPARATOR)) {
+          resolvedFile =
+              fileSupport.newFile(fileSupport.getParentFile(fileSupport.newFile(new URI(baseUri))), decodedSystemId);
+        } else {
+          resolvedFile = fileSupport.newFile(decodedSystemId);
+        }
+
+        return new InputSource(resolvedFile.toURI().toString());
+      } catch (URISyntaxException e) {
+        throw InteractiveSpacesException.newFormattedException(e, "Could not resolve XML entity");
+      }
     }
   }
 }

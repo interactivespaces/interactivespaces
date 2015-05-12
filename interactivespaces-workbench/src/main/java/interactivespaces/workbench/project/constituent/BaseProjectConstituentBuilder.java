@@ -17,8 +17,8 @@
 package interactivespaces.workbench.project.constituent;
 
 import org.apache.commons.logging.Log;
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 /**
  * Base implementation of a project constituent builder.

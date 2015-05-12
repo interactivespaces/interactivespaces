@@ -16,11 +16,13 @@
 
 package interactivespaces.workbench.project.jdom;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import interactivespaces.SimpleInteractiveSpacesException;
-import org.jdom.Element;
+
+import org.jdom2.Element;
 
 import java.util.List;
 import java.util.Map;

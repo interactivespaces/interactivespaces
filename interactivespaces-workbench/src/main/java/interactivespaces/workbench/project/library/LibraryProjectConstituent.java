@@ -24,8 +24,8 @@ import interactivespaces.workbench.project.constituent.ProjectConstituent;
 import interactivespaces.workbench.project.java.ContainerInfo;
 import interactivespaces.workbench.project.java.ContainerInfo.ImportPackage;
 
-import org.jdom.Element;
-import org.jdom.Namespace;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 
 import java.util.List;
 
