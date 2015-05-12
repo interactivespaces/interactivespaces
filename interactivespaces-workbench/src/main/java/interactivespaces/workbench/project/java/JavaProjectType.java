@@ -29,9 +29,12 @@ import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +44,21 @@ import java.util.Set;
  * @author Keith M. Hughes
  */
 public abstract class JavaProjectType implements ProjectType {
+
+  /**
+   * The configuration name for the project Java bootstrap classpath.
+   */
+  public static final String CONFIGURATION_NAME_PROJECT_JAVA_CLASSPATH_BOOTSTRAP = "project.java.classpath.bootstrap";
+
+  /**
+   * The configuration name for the project Java additional (non-bootstrap) classpath.
+   */
+  public static final String CONFIGURATION_NAME_PROJECT_JAVA_CLASSPATH_ADDITIONS = "project.java.classpath.additions";
+
+  /**
+   * A joiner for creating classpaths.
+   */
+  private static final Joiner CLASSPATH_JOINER = Joiner.on(":");
 
   /**
    * The file support to use.
@@ -88,15 +106,51 @@ public abstract class JavaProjectType implements ProjectType {
    */
   public void getRuntimeClasspath(boolean needsDynamicArtifacts, ProjectTaskContext projectTaskContext,
       List<File> classpath, JavaProjectExtension extension, WorkbenchTaskContext workbenchTaskContext) {
-    classpath.addAll(workbenchTaskContext.getControllerSystemBootstrapClasspath());
-
-    addDependenciesFromDynamicProjectTaskContexts(projectTaskContext, classpath);
-
-    addDependenciesFromUserBootstrap(needsDynamicArtifacts, projectTaskContext, classpath, workbenchTaskContext);
+    List<File> bootstrapClasspath = workbenchTaskContext.getControllerSystemBootstrapClasspath();
 
     if (extension != null) {
-      extension.addToClasspath(classpath, projectTaskContext);
+      extension.addToClasspath(bootstrapClasspath, projectTaskContext);
     }
+
+    classpath.addAll(bootstrapClasspath);
+
+    addClasspathConfiguration(bootstrapClasspath, CONFIGURATION_NAME_PROJECT_JAVA_CLASSPATH_BOOTSTRAP,
+        projectTaskContext);
+
+    Set<File> classpathAdditions = Sets.newHashSet();
+    Set<File> dynamicProjectDependencies = addDependenciesFromDynamicProjectTaskContexts(projectTaskContext);
+    classpath.addAll(dynamicProjectDependencies);
+    classpathAdditions.addAll(dynamicProjectDependencies);
+
+    Set<File> userBootstrapAdditions =
+        addDependenciesFromUserBootstrap(needsDynamicArtifacts, projectTaskContext, workbenchTaskContext);
+    classpath.addAll(userBootstrapAdditions);
+    classpathAdditions.addAll(userBootstrapAdditions);
+
+    addClasspathConfiguration(classpathAdditions, CONFIGURATION_NAME_PROJECT_JAVA_CLASSPATH_ADDITIONS,
+        projectTaskContext);
+
+  }
+
+  /**
+   * Add in a classpath configuration parameter.
+   *
+   * @param classpathPiece
+   *          the piece of the classpath to create the configuration parameter from
+   * @param configurationParameter
+   *          the name of the configuration parameter
+   * @param projectTaskContext
+   *          the project task context
+   */
+  private void addClasspathConfiguration(Collection<File> classpathPiece, String configurationParameter,
+      ProjectTaskContext projectTaskContext) {
+    List<String> path = Lists.newArrayList();
+    for (File file : classpathPiece) {
+      path.add(file.getAbsolutePath());
+    }
+
+    String configurationValue = CLASSPATH_JOINER.join(path);
+    projectTaskContext.getProject().getConfiguration().setValue(configurationParameter, configurationValue);
   }
 
   /**
@@ -104,17 +158,16 @@ public abstract class JavaProjectType implements ProjectType {
    *
    * @param projectTaskContext
    *          context for the project the classpath is needed for
-   * @param classpath
-   *          the classpath to add to
+   *
+   * @return the files being added
    */
-  private void
-      addDependenciesFromDynamicProjectTaskContexts(ProjectTaskContext projectTaskContext, List<File> classpath) {
+  private Set<File> addDependenciesFromDynamicProjectTaskContexts(ProjectTaskContext projectTaskContext) {
     Set<File> filesToAdd = Sets.newHashSet();
     for (ProjectTaskContext dynamicProjectTaskContext : projectTaskContext.getDynamicProjectDependencyContexts()) {
       filesToAdd.addAll(dynamicProjectTaskContext.getGeneratedArtifacts());
     }
 
-    classpath.addAll(filesToAdd);
+    return filesToAdd;
   }
 
   /**
@@ -124,13 +177,15 @@ public abstract class JavaProjectType implements ProjectType {
    *          {@code true} if needs artifacts from the dynamic projects
    * @param projectTaskContext
    *          the project build context
-   * @param classpath
-   *          the classpath list
    * @param wokbenchTaskContext
    *          the workbench task context
+   *
+   * @return the files to add to the classpath
    */
-  private void addDependenciesFromUserBootstrap(boolean needsDynamicArtifacts, ProjectTaskContext projectTaskContext,
-      List<File> classpath, WorkbenchTaskContext wokbenchTaskContext) {
+  private Set<File> addDependenciesFromUserBootstrap(boolean needsDynamicArtifacts,
+      ProjectTaskContext projectTaskContext, WorkbenchTaskContext wokbenchTaskContext) {
+    Set<File> filesToAdd = Sets.newHashSet();
+
     NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> startupResources =
         new OsgiResourceAnalyzer(wokbenchTaskContext.getWorkbench().getLog()).getResourceCollection(fileSupport
             .newFile(wokbenchTaskContext.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
@@ -151,7 +206,7 @@ public abstract class JavaProjectType implements ProjectType {
 
         dependency.setProvider(new FileProjectDependencyProvider(dependencyFile));
 
-        classpath.add(dependencyFile);
+        filesToAdd.add(dependencyFile);
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
         throw new SimpleInteractiveSpacesException(String.format(
@@ -159,6 +214,8 @@ public abstract class JavaProjectType implements ProjectType {
             dependency.getVersion()));
       }
     }
+
+    return filesToAdd;
   }
 
   /**
