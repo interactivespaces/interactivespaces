@@ -52,6 +52,9 @@ if [ -n $CLASSPATH_ADDITIONAL ]; then
   CLASSPATH="${CLASSPATH}:${CLASSPATH_ADDITIONAL}"
 fi
 
+# Default to IPv4 stack, so multicast (used for standalone runner) will work
+EXTRAARGS="-Djava.net.preferIPv4Stack=true ${EXTRAARGS}"
+
 # Start up Interactive Spaces
 if [ $RUN_MODE == "foreground" ]; then
   java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher ${INTERACTIVESPACES_MAIN_ARGS}
