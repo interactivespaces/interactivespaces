@@ -149,16 +149,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   public static final int THREAD_POOL_SIZE = 100;
 
   /**
-   * Config filename to use for activity specific configuration.
-   */
-  public static final String ACTIVITY_SPECIFIC_CONFIG_FILE_NAME = "standalone.conf";
-
-  /**
-   * Config filename to use for activity specific configuration.
-   */
-  public static final String LOCAL_CONFIG_FILE_NAME = "local.conf";
-
-  /**
    * Config filename for the included activity configuration.
    */
   public static final String ACTIVITY_CONFIG_FILE_NAME = "activity.conf";
@@ -212,16 +202,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Path name for send path.
    */
   private String traceSendPath;
-
-  /**
-   * Mutable local config file for this activity. Has default, but can be set.
-   */
-  private File localConfigFile = new File(LOCAL_CONFIG_FILE_NAME);
-
-  /**
-   * Mutable local config file for this activity. Has default, but can be set.
-   */
-  private File activityConfigFile = new File(ACTIVITY_SPECIFIC_CONFIG_FILE_NAME);
 
   /**
    * Message router to use for this standalone activity.
@@ -295,20 +275,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SOURCE);
     getLog().info("activitySourcePath is " + activitySourcePath);
 
-    String activityConfigPath =
-        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_CONFIG);
-    getLog().info("activityConfigPath is " + activityConfigPath);
-
     String standaloneRouterType =
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ROUTER_TYPE);
     if (standaloneRouterType != null) {
       getLog().info("configuring to use router type " + standaloneRouterType);
       setUseStandaloneRouter("standalone".equals(standaloneRouterType));
     }
-
-    setActivityConfigFile(new File(activityConfigPath,
-        DevelopmentStandaloneLiveActivityRuntime.ACTIVITY_SPECIFIC_CONFIG_FILE_NAME));
-    setLocalConfigFile(new File(activityConfigPath, DevelopmentStandaloneLiveActivityRuntime.LOCAL_CONFIG_FILE_NAME));
 
     List<File> foldersToUse = Lists.newArrayList();
     File rootFolder = new File(activitySourcePath);
@@ -341,7 +313,8 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     LiveActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);
 
-    RemoteLiveActivityRuntimeMonitorService runtimeDebugService = new StandardRemoteLiveActivityRuntimeMonitorService();
+    RemoteLiveActivityRuntimeMonitorService runtimeDebugService =
+        new StandardRemoteLiveActivityRuntimeMonitorService();
 
     liveActivityRuntime =
         new StandardLiveActivityRuntime(runtimeComponentFactory, liveActivityRepository, activityInstallationManager,
@@ -374,11 +347,15 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Start the run.
    */
   public void play() {
-    prepareFilesystem();
-    prepareRuntime();
-    startupActivity();
+    try {
+      prepareFilesystem();
+      prepareRuntime();
+      startupActivity();
 
-    startPlayback();
+      startPlayback();
+    } catch (Throwable e) {
+      getLog().error("Error while running the standalone runner", e);
+    }
   }
 
   /**
@@ -518,21 +495,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   }
 
   /**
-   * Get the configuration file to use for local activity configuration.
-   *
-   * @param configFile
-   *          base configuration file
-   *
-   * @return file to use for local activity configuration
-   */
-  private File getInstanceConfigFile(File configFile) {
-    String rootPath = configFile.getPath();
-    int breakIndex = rootPath.lastIndexOf('.');
-    String instanceName = rootPath.substring(0, breakIndex) + instanceSuffix + rootPath.substring(breakIndex);
-    return new File(instanceName);
-  }
-
-  /**
    * Add dynamic configuration parameters to this configuration.
    *
    * @param configuration
@@ -605,26 +567,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   }
 
   /**
-   * Set the local config file.
-   *
-   * @param localConfigFile
-   *          local config file
-   */
-  public void setLocalConfigFile(File localConfigFile) {
-    this.localConfigFile = getInstanceConfigFile(localConfigFile);
-  }
-
-  /**
-   * Set the activity config file.
-   *
-   * @param activityConfigFile
-   *          activity config file
-   */
-  public void setActivityConfigFile(File activityConfigFile) {
-    this.activityConfigFile = getInstanceConfigFile(activityConfigFile);
-  }
-
-  /**
    * Set the trace check path.
    *
    * @param traceCheckPath
@@ -658,15 +600,7 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Prepare the filesystem for use. Makes sure necessary directories exist.
    */
   public void prepareFilesystem() {
-    if (!isPrimaryInstance) {
-      // When running multiple instances, require explicit local config files to
-      // make it more obvious what they should be.
-      if (!activityConfigFile.exists()) {
-        throw new InteractiveSpacesException("Missing activity config file " + activityConfigFile.getAbsolutePath());
-      }
-    }
-
-    spaceEnvironment.getLog().info("Using activity config file " + activityConfigFile.getAbsolutePath());
+    // Nothing to do right now
   }
 
   /**
