@@ -36,5 +36,4 @@ public class InteractiveSpacesUtilities {
       // Don't care
     }
   }
-
 }

@@ -23,8 +23,9 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
+import freemarker.template.Version;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,9 +36,16 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
+ * A templater using Freemarker.
+ *
  * @author Keith M. Hughes
  */
 public class FreemarkerTemplater implements Templater {
+
+  /**
+   * The version of freemarker to use.
+   */
+  private static final Version FREEMARKER_VERSION = Configuration.VERSION_2_3_22;
 
   /**
    * The directory containing the templates.
@@ -67,11 +75,12 @@ public class FreemarkerTemplater implements Templater {
   @Override
   public synchronized void startup() {
     try {
-      freemarkerConfig = new Configuration();
+      DefaultObjectWrapperBuilder objectWrapperBuilder = new DefaultObjectWrapperBuilder(FREEMARKER_VERSION);
+      freemarkerConfig = new Configuration(FREEMARKER_VERSION);
       freemarkerConfig.setDirectoryForTemplateLoading(templateDirectory);
       // Specify how templates will see the data-model. This is an
       // advanced topic... but just use this:
-      freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
+      freemarkerConfig.setObjectWrapper(objectWrapperBuilder.build());
     } catch (IOException e) {
       throw new InteractiveSpacesException("Cannot initialize Freemarker templater", e);
     }

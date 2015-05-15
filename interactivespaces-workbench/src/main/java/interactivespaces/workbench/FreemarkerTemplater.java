@@ -26,8 +26,9 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
+import freemarker.template.Version;
 
 import java.io.File;
 import java.io.FileReader;
@@ -55,6 +56,11 @@ import java.util.Map;
 public class FreemarkerTemplater implements ManagedResource {
 
   /**
+   * The version of freemarker to use.
+   */
+  private static final Version FREEMARKER_VERSION = Configuration.VERSION_2_3_22;
+
+  /**
    * Base directory where templates are kept.
    */
   public static final File TEMPLATE_LOCATION = new File("templates");
@@ -72,11 +78,13 @@ public class FreemarkerTemplater implements ManagedResource {
   @Override
   public synchronized void startup() {
     try {
-      freemarkerConfig = new Configuration();
+      DefaultObjectWrapperBuilder objectWrapperBuilder = new DefaultObjectWrapperBuilder(FREEMARKER_VERSION);
+      freemarkerConfig = new Configuration(FREEMARKER_VERSION);
+
       freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);
       // Specify how templates will see the data-model. This is an
       // advanced topic... but just use this:
-      freemarkerConfig.setObjectWrapper(new DefaultObjectWrapper());
+      freemarkerConfig.setObjectWrapper(objectWrapperBuilder.build());
     } catch (IOException e) {
       throw new InteractiveSpacesException("Cannot initialize activity project creator", e);
     }

@@ -19,12 +19,18 @@ package interactivespaces.workbench.tasks;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.BaseNativeApplicationRunnerListener;
 import interactivespaces.util.process.NativeApplicationDescription;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunner.NativeApplicationRunnerState;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 
+import com.google.common.collect.Maps;
+
+import java.io.File;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -35,33 +41,73 @@ import java.util.concurrent.CountDownLatch;
 public class NativeWorkbenchTaskFactory implements WorkbenchTaskFactory {
 
   /**
+   * The file name prefix for instantiated task templates.
+   */
+  public static final String TEMPLATE_FILE_NAME_PREFIX = "workbench";
+
+  /**
+   * The file name suffix for instantiated task templates.
+   */
+  public static final String TEMPLATE_FILE_NAME_SUFFIX = ".native";
+
+  /**
+   * The template variable for obtaining the workbench task context.
+   */
+  public static final String TEMPLATE_VARIABLE_WORKBENCH_TASK_CONTEXT = "workbenchTaskContext";
+
+  /**
    * The application description.
    */
   private NativeApplicationDescription applicationDescription;
+
+  /**
+   * Potential source file path for the template.
+   */
+  private String templateSource;
+
+  /**
+   * Potential content for the template.
+   */
+  private String templateContent;
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a new factory.
    *
    * @param applicationDescription
    *          the application description
+   * @param templateSource
+   *          a potential source file for the template
+   * @param templateContent
+   *          potential content for the template
    */
-  public NativeWorkbenchTaskFactory(NativeApplicationDescription applicationDescription) {
+  public NativeWorkbenchTaskFactory(NativeApplicationDescription applicationDescription, String templateSource,
+      String templateContent) {
     this.applicationDescription = applicationDescription;
+    this.templateSource = templateSource;
+    this.templateContent = templateContent;
   }
 
   @Override
   public WorkbenchTask newTask() {
-    // TODO Auto-generated method stub
     return new BaseWorkbenchTask() {
       @Override
       public void perform(WorkbenchTaskContext workbenchTaskContext) throws InteractiveSpacesException {
+        Configuration config = getConfiguration(workbenchTaskContext);
+
+        prepareForExecution(workbenchTaskContext, config);
+
         workbenchTaskContext.getWorkbench().getLog()
             .info(String.format("Native application %s", applicationDescription));
 
-        NativeApplicationRunnerCollection nativeApplicationRunners = workbenchTaskContext.getNativeApplicationRunners();
+        NativeApplicationRunnerCollection nativeApplicationRunners =
+            workbenchTaskContext.getNativeApplicationRunners();
         NativeApplicationRunner runner = nativeApplicationRunners.newNativeApplicationRunner();
 
-        Configuration config = getConfiguration(workbenchTaskContext);
         runner.setExecutablePath(config.evaluate(applicationDescription.getExecutablePath()));
 
         for (String commandArg : applicationDescription.getArguments()) {
@@ -109,6 +155,96 @@ public class NativeWorkbenchTaskFactory implements WorkbenchTaskFactory {
    */
   protected Configuration getConfiguration(WorkbenchTaskContext workbenchTaskContext) {
     return workbenchTaskContext.getWorkbench().getWorkbenchConfig();
+  }
+
+  /**
+   * Get the base location for writing task templates.
+   *
+   * @param workbenchTaskContext
+   *          the workbench task context
+   *
+   * @return a base location for a template
+   */
+  protected File getBaseTemplateDirectory(WorkbenchTaskContext workbenchTaskContext) {
+    return workbenchTaskContext.getWorkbench().getSpaceEnvironment().getFilesystem().getTempDirectory();
+  }
+
+  /**
+   * Create a template file.
+   *
+   * @param baseDirectory
+   *          the base directory for template files
+   *
+   * @return a location for the template file
+   */
+  private File createTemplateFile(File baseDirectory) {
+    return fileSupport.createTempFile(baseDirectory, TEMPLATE_FILE_NAME_PREFIX, TEMPLATE_FILE_NAME_SUFFIX);
+  }
+
+  /**
+   * Prepare the native task for execution.
+   *
+   * @param workbenchTaskContext
+   *          task context for the workbench
+   * @param config
+   *          the configuration to use
+   */
+  private void prepareForExecution(WorkbenchTaskContext workbenchTaskContext, Configuration config) {
+    String executablePath = applicationDescription.getExecutablePath();
+    if (executablePath == null) {
+      if (templateContent == null || templateContent.isEmpty()) {
+        File templateSourceFile = fileSupport.newFile(config.evaluate(templateSource));
+        if (fileSupport.isFile(templateSourceFile)) {
+          templateContent = fileSupport.readFile(templateSourceFile);
+        } else {
+          SimpleInteractiveSpacesException.newFormattedException("Could not find task template file %s",
+              templateSourceFile.getAbsolutePath());
+        }
+      }
+
+      String evaluatedContent = evaluateTemplateContent(workbenchTaskContext, config, templateContent);
+
+      File templateFile = createTemplateFile(getBaseTemplateDirectory(workbenchTaskContext));
+      fileSupport.writeFile(templateFile, evaluatedContent);
+      fileSupport.setExecutable(templateFile, true);
+
+      applicationDescription.setExecutablePath(templateFile.getAbsolutePath());
+    }
+  }
+
+  /**
+   * Evaluate the template content.
+   *
+   * @param workbenchTaskContext
+   *          the workbench task context
+   * @param config
+   *          the configuration
+   * @param content
+   *          the template content
+   *
+   * @return the evaluated content
+   */
+  private String evaluateTemplateContent(WorkbenchTaskContext workbenchTaskContext, Configuration config,
+      String content) {
+    Map<String, Object> data = Maps.newHashMap();
+    data.put(TEMPLATE_VARIABLE_WORKBENCH_TASK_CONTEXT, workbenchTaskContext);
+
+    addAdditionalTemplateData(workbenchTaskContext, data);
+
+    String templatedContent = workbenchTaskContext.getWorkbench().getTemplater().processStringTemplate(data, content);
+    return config.evaluate(templatedContent);
+  }
+
+  /**
+   * Add any additional template data needed for instantiating templates.
+   *
+   * @param workbenchTaskContext
+   *          the workbench task context
+   * @param data
+   *          the template data
+   */
+  protected void addAdditionalTemplateData(WorkbenchTaskContext workbenchTaskContext, Map<String, Object> data) {
+    // Default is add nothing
   }
 
   @Override

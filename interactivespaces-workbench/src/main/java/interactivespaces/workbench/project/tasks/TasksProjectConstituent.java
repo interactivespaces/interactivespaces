@@ -35,6 +35,7 @@ import com.google.common.collect.Maps;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -188,27 +189,7 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
         // TODO(keith): add in a factory for these readers once
 
         if (TASK_TYPE_NATIVE.equals(type)) {
-          Element nativeElement = taskElement.getChild(TASK_TYPE_NATIVE, namespace);
-
-          NativeApplicationDescription nativeDescription = new NativeApplicationDescription();
-
-          String executablePath = nativeElement.getChildTextTrim(TASK_TYPE_NATIVE_EXECUTABLE_PATH, namespace);
-          if (executablePath != null && !executablePath.isEmpty()) {
-            nativeDescription.setExecutablePath(executablePath);
-          } else {
-            addError("There is no executable-path element");
-          }
-
-          @SuppressWarnings("unchecked")
-          List<Element> argumentElements = nativeElement.getChildren(TASK_TYPE_NATIVE_ARG, namespace);
-          for (Element argumentElement : argumentElements) {
-            String argument = argumentElement.getTextTrim();
-            if (argument != null && !argument.isEmpty()) {
-              nativeDescription.addArguments(argument);
-            }
-          }
-
-          resource.addTaskFactory(name, position, new ProjectNativeWorkbenchTaskFactory(project, nativeDescription));
+          handleNativeTask(namespace, project, resource, taskElement, name, position);
         } else {
           addError(String.format("Unknown task type %s", type));
         }
@@ -220,6 +201,58 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
         return resource;
       }
     }
+
+    /**
+     * Handle a native task element.
+     *
+     * @param namespace
+     *          the XML namespace
+     * @param project
+     *          the IS project
+     * @param resource
+     *          the constituent for project tasks
+     * @param taskElement
+     *          the XML element for the native task
+     * @param name
+     *          the task name
+     * @param position
+     *          the position for the native task
+     */
+    private void handleNativeTask(Namespace namespace, Project project, TasksProjectConstituent resource,
+        Element taskElement, String name, String position) {
+      Element nativeElement = taskElement.getChild(TASK_TYPE_NATIVE, namespace);
+
+      NativeApplicationDescription nativeDescription = new NativeApplicationDescription();
+
+      String executablePath = nativeElement.getChildTextTrim(TASK_TYPE_NATIVE_EXECUTABLE_PATH, namespace);
+
+      String templateContent = null;
+      String templateSource = null;
+      Element templateElement = nativeElement.getChild("template", namespace);
+      if (templateElement != null) {
+        templateContent = templateElement.getText();
+        templateSource = templateElement.getAttributeValue("source");
+      }
+
+      if (executablePath != null && !executablePath.isEmpty()) {
+        nativeDescription.setExecutablePath(executablePath);
+      } else if ((templateContent == null || templateContent.isEmpty())
+          && (templateSource == null || templateSource.trim().isEmpty())) {
+        addError("There is no executable-path element or template");
+      }
+
+      @SuppressWarnings("unchecked")
+      List<Element> argumentElements = nativeElement.getChildren(TASK_TYPE_NATIVE_ARG, namespace);
+      for (Element argumentElement : argumentElements) {
+        String argument = argumentElement.getTextTrim();
+        if (argument != null && !argument.isEmpty()) {
+          nativeDescription.addArguments(argument);
+        }
+      }
+
+      resource.addTaskFactory(name, position, new ProjectNativeWorkbenchTaskFactory(project, nativeDescription,
+          templateSource, templateContent));
+    }
   }
 
   /**
@@ -228,6 +261,21 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
    * @author Keith M. Hughes
    */
   public static class ProjectNativeWorkbenchTaskFactory extends NativeWorkbenchTaskFactory {
+
+    /**
+     * The build subdirectory for generated tasks.
+     */
+    private static final String FILE_DIRECTORY_GENERATED_TASKS = "generated-tasks";
+
+    /**
+     * Template data name for the project task context.
+     */
+    public static final String TEMPLATE_DATA_PROJECT_TASK_CONTEXT = "projectTaskContext";
+
+    /**
+     * Template data name for the project.
+     */
+    public static final String TEMPLATE_DATA_PROJECT = "project";
 
     /**
      * The project this factory is part of.
@@ -241,9 +289,14 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
      *          the project
      * @param nativeDescription
      *          the description of the native application
+     * @param templateSource
+     *          a source location for a task template
+     * @param templateContent
+     *          content for a task template
      */
-    public ProjectNativeWorkbenchTaskFactory(Project project, NativeApplicationDescription nativeDescription) {
-      super(nativeDescription);
+    public ProjectNativeWorkbenchTaskFactory(Project project, NativeApplicationDescription nativeDescription,
+        String templateSource, String templateContent) {
+      super(nativeDescription, templateSource, templateContent);
 
       this.project = project;
     }
@@ -251,6 +304,18 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
     @Override
     protected Configuration getConfiguration(WorkbenchTaskContext workbenchTaskContext) {
       return project.getConfiguration();
+    }
+
+    @Override
+    protected File getBaseTemplateDirectory(WorkbenchTaskContext workbenchTaskContext) {
+      ProjectTaskContext projectTaskContext = workbenchTaskContext.getProjectTaskContext(project);
+      return projectTaskContext.getBuildDirectory(FILE_DIRECTORY_GENERATED_TASKS);
+    }
+
+    @Override
+    protected void addAdditionalTemplateData(WorkbenchTaskContext workbenchTaskContext, Map<String, Object> data) {
+      data.put(TEMPLATE_DATA_PROJECT, project);
+      data.put(TEMPLATE_DATA_PROJECT_TASK_CONTEXT, workbenchTaskContext.getProjectTaskContext(project));
     }
   }
 }

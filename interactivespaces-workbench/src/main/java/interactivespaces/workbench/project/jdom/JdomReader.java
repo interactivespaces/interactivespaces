@@ -402,7 +402,7 @@ public class JdomReader {
                 .evaluate(URLDecoder.decode(systemId, Charsets.UTF_8.name()));
 
         File resolvedFile = null;
-        if (!systemId.startsWith(HttpConstants.URL_PATH_COMPONENT_SEPARATOR)) {
+        if (!decodedSystemId.startsWith(HttpConstants.URL_PATH_COMPONENT_SEPARATOR)) {
           resolvedFile =
               fileSupport.newFile(fileSupport.getParentFile(fileSupport.newFile(new URI(baseUri))), decodedSystemId);
         } else {

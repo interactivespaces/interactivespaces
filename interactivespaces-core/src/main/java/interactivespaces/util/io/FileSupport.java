@@ -669,4 +669,16 @@ public interface FileSupport {
    * @return {@code true} if the candidate is a parent of the file
    */
   boolean isParent(File candidateParent, File file);
+
+  /**
+   * Set the file as executable by the owner.
+   *
+   * @param file
+   *          the file
+   * @param executable
+   *          {@code true} if the file should be executable
+   *
+   * @return {@code true} if successful
+   */
+  boolean setExecutable(File file, boolean executable);
 }

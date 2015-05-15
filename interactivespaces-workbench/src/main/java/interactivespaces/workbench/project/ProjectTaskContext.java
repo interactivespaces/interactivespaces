@@ -201,6 +201,20 @@ public class ProjectTaskContext implements ProjectContext {
   }
 
   /**
+   * Get a sub directory from the build directory.
+   *
+   * @param subpath
+   *          relative path for the sub directory
+   *
+   * @return the subdirectory
+   */
+  public File getBuildDirectory(String subpath) {
+    File subBuild = fileSupport.newFile(getBuildDirectory(), subpath);
+    fileSupport.directoryExists(subBuild);
+    return subBuild;
+  }
+
+  /**
    * Get the root staging directory.
    *
    * @return the root of the staging directory
@@ -277,7 +291,8 @@ public class ProjectTaskContext implements ProjectContext {
     if (tasks != null) {
       for (DependencyWorkbenchTask task : tasks) {
         if (tasksForProject.put(task.getName(), task) != null) {
-          getLog().warn(String.format("There was a previous task with name %s which has been dropped", task.getName()));
+          getLog()
+              .warn(String.format("There was a previous task with name %s which has been dropped", task.getName()));
         }
       }
 

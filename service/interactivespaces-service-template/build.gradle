@@ -17,7 +17,7 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile('org.freemarker:com.springsource.freemarker:2.3.15') {
+  compile('org.apache.servicemix.bundles:org.apache.servicemix.bundles.freemarker:2.3.22_1') {
     exclude group: 'org.apache.log4j'
   }
 

@@ -618,4 +618,9 @@ public class FileSupportImpl implements FileSupport {
           candidateParent.getPath(), file.getPath());
     }
   }
+
+  @Override
+  public boolean setExecutable(File file, boolean executable) {
+    return file.setExecutable(executable);
+  }
 }
