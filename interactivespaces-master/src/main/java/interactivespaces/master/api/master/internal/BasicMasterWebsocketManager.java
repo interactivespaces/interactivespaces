@@ -26,6 +26,7 @@ import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.api.master.MasterApiAutomationManager;
 import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.master.MasterWebsocketManager;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ActivityRepository;
@@ -865,6 +866,16 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
     } catch (Throwable e) {
       spaceEnvironment.getLog().error(
           String.format("Error while performing Master API websocket command %s", command), e);
+
+      Map<String, Object> responseMessage = MasterApiMessageSupport.getFailureResponse(e.getMessage());
+      potentiallyAddRequestId(responseMessage, requestId);
+
+      try {
+        webSocketFactory.sendJson(connectionId, responseMessage);
+      } catch (Throwable e1) {
+        spaceEnvironment.getLog().error(
+            String.format("Error while responding to failure of Master API websocket command %s", command), e1);
+      }
     }
   }
 
