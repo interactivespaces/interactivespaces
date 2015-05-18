@@ -479,12 +479,14 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     instance.setActivityRuntime(this);
     instance.setUuid(uuid);
 
-    instance.setConfiguration(configuration);
     instance.setActivityFilesystem(activityFilesystem);
     instance.setSpaceEnvironment(getSpaceEnvironment());
     instance.setExecutionContext(executionContext);
 
+    // Initialize and set configuration after other environments so that initialization
+    // code can make use of other resources, if appropriate.
     initializeActivityConfiguration(configuration, activityFilesystem);
+    instance.setConfiguration(configuration);
 
     onActivityInitialization(instance);
   }

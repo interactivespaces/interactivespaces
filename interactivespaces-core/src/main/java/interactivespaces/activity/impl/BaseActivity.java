@@ -474,14 +474,17 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       cleanShutdown = false;
     }
 
-    componentContext.beginShutdownPhase();
-    boolean handlersAllComplete =
-        componentContext.waitOnNoProcessingHandlings(SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME,
-            SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME);
-    if (!handlersAllComplete) {
-      getLog().warn(
-          String.format("Handlers still running after %d msecs of shutdown",
-              SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME));
+    if (componentContext != null) {
+      componentContext.beginShutdownPhase();
+      boolean handlersAllComplete =
+          componentContext.waitOnNoProcessingHandlings(SHUTDOWN_EVENT_HANDLER_COMPLETION_SAMPLE_TIME,
+              SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME);
+
+      if (!handlersAllComplete) {
+        getLog().warn(
+            String.format("Component handlers still running after %d msecs of shutdown",
+                SHUTDOWN_EVENT_HANDLER_COMPLETION_MAX_SAMPLE_TIME));
+      }
     }
 
     if (managedCommands != null) {
@@ -525,7 +528,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     }
 
     try {
-      if (!componentContext.shutdownAndClear()) {
+      if (componentContext != null && !componentContext.shutdownAndClear()) {
         cleanShutdown = false;
       }
     } catch (Throwable e) {
@@ -534,8 +537,10 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       cleanShutdown = false;
     }
 
-    managedResources.shutdownResources();
-    managedResources.clear();
+    if (managedResources != null) {
+      managedResources.shutdownResources();
+      managedResources.clear();
+    }
 
     if (cleanShutdown) {
       setActivityStatus(ActivityState.READY, "Post clean shutdown");
