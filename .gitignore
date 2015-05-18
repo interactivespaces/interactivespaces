@@ -22,3 +22,4 @@ interactivespaces_docs/src/main/sphinx/javadoc.pyc
 **/target/
 interactivespaces-controller-android/libs/**
 *.iml
+interactivespaces_docs/src/main/sphinx/__pycache__/*
