@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.ide;
 
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
@@ -90,6 +92,11 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
   private final JavaProjectExtension extensions;
 
   /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Construct a specification with {@code null} extensions.
    *
    * @param sourcesRequired
@@ -148,8 +155,8 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
     freemarkerContext.put(FREEMARKER_CONTEXT_LIBS, projectLibs);
     freemarkerContext.put(FREEMARKER_CONTEXT_DYNAMIC_PROJECTS, dynamicProjects);
 
-    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(), FILENAME_CLASSPATH_FILE),
-        TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH);
+    templater.writeTemplate(freemarkerContext,
+        fileSupport.newFile(project.getBaseDirectory(), FILENAME_CLASSPATH_FILE), TEMPLATE_FILEPATH_ECLIPSE_CLASSPATH);
   }
 
   /**
@@ -165,7 +172,7 @@ public class JavaEclipseIdeProjectCreatorSpecification implements EclipseIdeProj
    */
   private void addNecessaryOptionalSources(Project project, List<String> sources) {
     for (String sourceOptional : sourcesOptional) {
-      File location = new File(project.getBaseDirectory(), sourceOptional);
+      File location = fileSupport.newFile(project.getBaseDirectory(), sourceOptional);
       if (location.exists()) {
         sources.add(sourceOptional);
       }

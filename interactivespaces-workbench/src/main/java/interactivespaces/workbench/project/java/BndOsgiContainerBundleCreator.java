@@ -134,7 +134,7 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       String bundleFileName = "interactivespaces." + sourceJarFile.getName();
 
       if (output.isDirectory()) {
-        output = new File(output, bundleFileName);
+        output = fileSupport.newFile(output, bundleFileName);
       }
 
       analyzer.calcManifest();

@@ -61,9 +61,9 @@ public class FreemarkerTemplater implements ManagedResource {
   private static final Version FREEMARKER_VERSION = Configuration.VERSION_2_3_22;
 
   /**
-   * Base directory where templates are kept.
+   * Base directory where templates are kept relative to the workbench.
    */
-  public static final File TEMPLATE_LOCATION = new File("templates");
+  public static final String TEMPLATE_LOCATION = "templates";
 
   /**
    * File support instance to use.
@@ -75,13 +75,36 @@ public class FreemarkerTemplater implements ManagedResource {
    */
   private Configuration freemarkerConfig;
 
+  /**
+   * The workbench the templater is running under.
+   */
+  private InteractiveSpacesWorkbench workbench;
+
+  /**
+   * The directory for templates.
+   */
+  private File templateDirectory;
+
+  /**
+   * Construct a new templater.
+   *
+   * @param workbench
+   *          the workbench
+   */
+  public FreemarkerTemplater(InteractiveSpacesWorkbench workbench) {
+    this.workbench = workbench;
+
+    templateDirectory =
+        fileSupport.newFile(workbench.getWorkbenchFileSystem().getInstallDirectory(), TEMPLATE_LOCATION);
+  }
+
   @Override
   public synchronized void startup() {
     try {
       DefaultObjectWrapperBuilder objectWrapperBuilder = new DefaultObjectWrapperBuilder(FREEMARKER_VERSION);
       freemarkerConfig = new Configuration(FREEMARKER_VERSION);
 
-      freemarkerConfig.setDirectoryForTemplateLoading(TEMPLATE_LOCATION);
+      freemarkerConfig.setDirectoryForTemplateLoading(templateDirectory);
       // Specify how templates will see the data-model. This is an
       // advanced topic... but just use this:
       freemarkerConfig.setObjectWrapper(objectWrapperBuilder.build());
@@ -170,14 +193,14 @@ public class FreemarkerTemplater implements ManagedResource {
   public void writeTemplate(Map<String, Object> data, File outputFile, String template, int evaluationPasses) {
     fileSupport.directoryExists(outputFile.getParentFile());
     List<File> deleteList = Lists.newArrayList();
-    File tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), evaluationPasses));
+    File tempFile = fileSupport.newFile(String.format("%s.%d", outputFile.getAbsolutePath(), evaluationPasses));
     deleteList.add(tempFile);
-    File inputFile = new File(template);
+    File inputFile = fileSupport.newFile(template);
     if (inputFile.isAbsolute()) {
       fileSupport.copyFile(inputFile, tempFile);
     }
     for (int passesRemaining = evaluationPasses; passesRemaining > 0; passesRemaining--) {
-      tempFile = new File(String.format("%s.%d", outputFile.getAbsolutePath(), passesRemaining - 1));
+      tempFile = fileSupport.newFile(String.format("%s.%d", outputFile.getAbsolutePath(), passesRemaining - 1));
       deleteList.add(tempFile);
       if (passesRemaining == 1) {
         writeTemplate(data, outputFile, template);
@@ -227,5 +250,14 @@ public class FreemarkerTemplater implements ManagedResource {
 
       fileSupport.close(out, true);
     }
+  }
+
+  /**
+   * Get the directory for freemarker templates.
+   *
+   * @return the directory for freemarker templates
+   */
+  public File getTemplateDirectory() {
+    return templateDirectory;
   }
 }

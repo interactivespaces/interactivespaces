@@ -83,8 +83,9 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
    */
   private void copyActivityResources(ActivityProject project, File stagingDirectory, ProjectTaskContext context)
       throws InteractiveSpacesException {
-    File activityDirectory = new File(project.getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
-    if (activityDirectory.exists()) {
+    File activityDirectory =
+        fileSupport.newFile(project.getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+    if (fileSupport.exists(activityDirectory)) {
       fileSupport.copyDirectory(activityDirectory, stagingDirectory, true, context.getResourceSourceMap());
     }
   }
@@ -100,9 +101,9 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
    *          context for the build
    */
   private void handleActivityXml(ActivityProject project, File stagingDirectory, ProjectTaskContext context) {
-    File activityXmlDest = new File(stagingDirectory, ActivityProject.FILENAME_ACTIVITY_XML);
+    File activityXmlDest = fileSupport.newFile(stagingDirectory, ActivityProject.FILENAME_ACTIVITY_XML);
 
-    File activityXmlSrc = new File(project.getBaseDirectory(), ActivityProject.FILENAME_ACTIVITY_XML);
+    File activityXmlSrc = fileSupport.newFile(project.getBaseDirectory(), ActivityProject.FILENAME_ACTIVITY_XML);
     if (activityXmlSrc.exists()) {
       fileSupport.copyFile(activityXmlSrc, activityXmlDest);
     } else {
@@ -133,7 +134,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
       return;
     }
 
-    File generatedActivityConfFile = new File(stagingDirectory, ActivityProject.FILENAME_ACTIVITY_CONF);
+    File generatedActivityConfFile = fileSupport.newFile(stagingDirectory, ActivityProject.FILENAME_ACTIVITY_CONF);
     Map<String, Object> templateData = Maps.newHashMap();
     templateData.put("project", project);
 

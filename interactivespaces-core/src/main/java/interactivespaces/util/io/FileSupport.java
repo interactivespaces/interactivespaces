@@ -457,6 +457,22 @@ public interface FileSupport {
   File newFile(File parent, String subpath);
 
   /**
+   * Create a new file for a specified path relative to the parent file. if the subpath is absolute,
+   * the returned file will be just the subpath.
+   *
+   * <p>
+   * This method takes canonical pathnames and corrects them for the underlying operation system.
+   *
+   * @param baseDir
+   *          the parent file if the subpath is relative
+   * @param subpath
+   *          the path
+   *
+   * @return a file for the subpath
+   */
+  File resolveFile(File baseDir, String subpath);
+
+  /**
    * Returns the absolute form of this abstract pathname.
    *
    * @param file

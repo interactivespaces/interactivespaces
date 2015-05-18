@@ -16,13 +16,14 @@
 
 package interactivespaces.workbench.project.ide;
 
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Maps;
 
-import java.io.File;
 import java.util.Map;
 
 /**
@@ -46,6 +47,11 @@ public class EclipseIdeProjectCreator {
    * The Templater.
    */
   private final FreemarkerTemplater templater;
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a new project creator.
@@ -95,7 +101,7 @@ public class EclipseIdeProjectCreator {
    *           something bad happened
    */
   private void writeProjectFile(Project project, Map<String, Object> freemarkerContext) throws Exception {
-    templater.writeTemplate(freemarkerContext, new File(project.getBaseDirectory(), FILENAME_PROJECT_FILE),
+    templater.writeTemplate(freemarkerContext, fileSupport.newFile(project.getBaseDirectory(), FILENAME_PROJECT_FILE),
         TEMPLATE_FILEPATH_ECLIPSE_PROJECT);
   }
 }

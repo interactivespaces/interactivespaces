@@ -74,7 +74,7 @@ public class ProjectTaskContext implements ProjectContext {
   /**
    * The task context for building.
    */
-  private final WorkbenchTaskContext taskContext;
+  private final WorkbenchTaskContext workbenchTaskContext;
 
   /**
    * Files to include in the project.
@@ -141,7 +141,7 @@ public class ProjectTaskContext implements ProjectContext {
   public ProjectTaskContext(ProjectType projectType, Project project, WorkbenchTaskContext taskContext) {
     this.projectType = projectType;
     this.project = project;
-    this.taskContext = taskContext;
+    this.workbenchTaskContext = taskContext;
 
     buildDirectory = fileSupport.newFile(project.getBaseDirectory(), BUILD_DIRECTORY);
     stagingDirectory = fileSupport.newFile(buildDirectory, BUILD_STAGING_DIRECTORY);
@@ -156,7 +156,7 @@ public class ProjectTaskContext implements ProjectContext {
 
   @Override
   public WorkbenchTaskContext getWorkbenchTaskContext() {
-    return taskContext;
+    return workbenchTaskContext;
   }
 
   @Override
@@ -177,13 +177,10 @@ public class ProjectTaskContext implements ProjectContext {
   }
 
   @Override
-  public File getProjectTarget(File rootDirectory, String target) {
+  public File getProjectTargetFile(File rootDirectory, String target) {
     String targetPath = project.getConfiguration().evaluate(target);
-    File targetFile = new File(targetPath);
-    if (targetFile.isAbsolute()) {
-      return targetFile;
-    }
-    return new File(rootDirectory, targetPath);
+
+    return fileSupport.resolveFile(rootDirectory, targetPath);
   }
 
   @Override
@@ -229,10 +226,10 @@ public class ProjectTaskContext implements ProjectContext {
    * @return a temporary build directory
    */
   public File getTempBuildDirectory() {
-    File tempDirectory = new File(buildDirectory, BUILD_TEMP_DIRECTORY);
+    File tempDirectory = fileSupport.newFile(buildDirectory, BUILD_TEMP_DIRECTORY);
     fileSupport.mkdir(tempDirectory);
     File tempFile = fileSupport.createTempFile(tempDirectory);
-    return new File(tempDirectory, tempFile.getName() + TEMP_DIRECTORY_EXTENSION);
+    return fileSupport.newFile(tempDirectory, tempFile.getName() + TEMP_DIRECTORY_EXTENSION);
   }
 
   /**
@@ -296,7 +293,7 @@ public class ProjectTaskContext implements ProjectContext {
         }
       }
 
-      taskContext.addTasks(tasks);
+      workbenchTaskContext.addTasks(tasks);
     }
 
     return this;

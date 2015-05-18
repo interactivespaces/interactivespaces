@@ -75,7 +75,12 @@ public class InteractiveSpacesWorkbench {
   public static final String COMMAND_LINE_FLAG_OUTPUT = "--output";
 
   /**
-   * Configuration property defining the project home directory.
+   * The directory from where the workbench was invoked.
+   */
+  public static final String CONFIGURATION_PROPERTY_INTERACTIVESPACES_RUNDIR = "interactivespaces.rundir";
+
+  /**
+   * Configuration property defining the workbench home directory.
    */
   public static final String CONFIGURATION_PROPERTY_WORKBENCH_HOME = "workbench.home";
 
@@ -186,6 +191,11 @@ public class InteractiveSpacesWorkbench {
   private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
+   * The directory that the workbench was initially run in.
+   */
+  private File runDirectory;
+
+  /**
    * Construct a workbench.
    *
    * @param spaceEnvironment
@@ -202,7 +212,15 @@ public class InteractiveSpacesWorkbench {
     workbenchConfig.setValue(CONFIGURATION_PROPERTY_WORKBENCH_HOME, workbenchFileSystem.getInstallDirectory()
         .getAbsolutePath());
 
-    this.templater = new FreemarkerTemplater();
+    String runDirPath = workbenchConfig.getPropertyString(CONFIGURATION_PROPERTY_INTERACTIVESPACES_RUNDIR);
+    if (runDirPath != null) {
+      runDirectory = new File(runDirPath);
+    } else {
+      // Go to whatever Java thinks our current directory is.
+      runDirectory = new File(".").getAbsoluteFile();
+    }
+
+    this.templater = new FreemarkerTemplater(this);
     templater.startup();
 
     projectTypeRegistry = new StandardProjectTypeRegistry();
@@ -233,21 +251,21 @@ public class InteractiveSpacesWorkbench {
           throw new SimpleInteractiveSpacesException("Missing output value from osgi command");
         }
 
-        outputFile = fileSupport.newFile(args.get(i));
+        outputFile = fileSupport.resolveFile(runDirectory, args.get(i));
       } else if (COMMAND_LINE_FLAG_HEADERS.equals(arg)) {
         if (++i >= args.size()) {
           throw new SimpleInteractiveSpacesException("Missing headers value from osgi command");
         }
 
-        headersFile = fileSupport.newFile(args.get(i));
+        headersFile = fileSupport.resolveFile(runDirectory, args.get(i));
       } else if (COMMAND_LINE_FLAG_SOURCEDIR.equals(arg)) {
         if (++i >= args.size()) {
           throw new SimpleInteractiveSpacesException("Missing source dir value from osgi command");
         }
 
-        workbenchTaskContext.addJarFiles(fileSupport.newFile(args.get(i)), sources);
+        workbenchTaskContext.addJarFiles(fileSupport.resolveFile(runDirectory, args.get(i)), sources);
       } else {
-        sources.add(fileSupport.newFile(arg));
+        sources.add(fileSupport.resolveFile(runDirectory, arg));
       }
     }
 
@@ -287,7 +305,7 @@ public class InteractiveSpacesWorkbench {
       } else if (COMMAND_OSGI.equals(command)) {
         createOsgi(commands);
       } else {
-        File baseDir = new File(command);
+        File baseDir = fileSupport.resolveFile(runDirectory, command);
         if (baseDir.isDirectory()) {
           if (projectManager.isProjectFolder(baseDir)) {
             return doCommandsOnProject(baseDir, commands);
@@ -350,10 +368,12 @@ public class InteractiveSpacesWorkbench {
    */
   private void createProject(List<String> commands) {
     getLog().info("Creating project from specification...");
-    File specFile =
-        new File(determineTemplateSpec(removeArgument(commands, "specification project type"),
-            removeArgument(commands, "specification project kind")));
-    File baseDirectory = new File(removeArgument(commands, "base output directory"));
+    String specFilePath =
+        determineTemplateSpec(removeArgument(commands, "specification project type"),
+            removeArgument(commands, "specification project kind"));
+    File specFile = fileSupport.resolveFile(runDirectory, specFilePath);
+    String baseDirectoryPath = removeArgument(commands, "base output directory");
+    File baseDirectory = fileSupport.resolveFile(runDirectory, baseDirectoryPath);
 
     JdomProjectGroupTemplateSpecificationReader projectReader = new JdomProjectGroupTemplateSpecificationReader(this);
     GroupProjectTemplateSpecification project = projectReader.readProjectGroupTemplateSpecification(specFile);
@@ -682,6 +702,15 @@ public class InteractiveSpacesWorkbench {
    */
   public void handleError(String message, Throwable e) {
     throw new SimpleInteractiveSpacesException(message, e);
+  }
+
+  /**
+   * Get the run directory for the workbench.
+   *
+   * @return the run directory
+   */
+  public File getRunDirectory() {
+    return runDirectory;
   }
 
   /**

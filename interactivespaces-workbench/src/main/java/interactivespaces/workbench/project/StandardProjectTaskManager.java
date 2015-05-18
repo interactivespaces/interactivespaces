@@ -17,7 +17,6 @@
 package interactivespaces.workbench.project;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.configuration.Configuration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.FreemarkerTemplater;
@@ -376,11 +375,12 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
         projectTaskContext.getLog().info(
             String.format("Deploying project %s", project.getBaseDirectory().getAbsolutePath()));
 
-        Configuration projectConfig = projectTaskContext.getProject().getConfiguration();
         boolean deploymentMatch = false;
         for (ProjectDeployment deployment : project.getDeployments()) {
           if (deploymentType.equals(deployment.getType())) {
-            File deploymentLocation = new File(projectConfig.evaluate(deployment.getLocation()));
+            File deploymentLocation =
+                projectTaskContext.getProjectTargetFile(projectTaskContext.getProject().getBaseDirectory(),
+                    deployment.getLocation());
             copyBuildArtifacts(deploymentLocation);
             deploymentMatch = true;
           }
@@ -413,9 +413,9 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
       });
       if (artifacts != null && artifacts.length > 0) {
         for (File artifact : artifacts) {
-          projectTaskContext.getLog().info(String.format("Deploying build artifact to %s/%s",
-              destination.getAbsolutePath(), artifact.getName()));
-          fileSupport.copyFile(artifact, new File(destination, artifact.getName()));
+          projectTaskContext.getLog().info(
+              String.format("Deploying build artifact to %s/%s", destination.getAbsolutePath(), artifact.getName()));
+          fileSupport.copyFile(artifact, fileSupport.newFile(destination, artifact.getName()));
         }
       } else {
         projectTaskContext.getLog().warn("No build artifacts found for project");
@@ -458,8 +458,8 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
         generator.generate(getProjectTaskContext());
       } else {
         projectTaskContext.getLog().warn(
-            String
-                .format("Project located at %s is not a java project\n", project.getBaseDirectory().getAbsolutePath()));
+            String.format("Project located at %s is not a java project\n", project.getBaseDirectory()
+                .getAbsolutePath()));
       }
     }
   }

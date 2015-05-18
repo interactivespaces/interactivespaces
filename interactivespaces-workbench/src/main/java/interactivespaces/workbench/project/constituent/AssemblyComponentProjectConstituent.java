@@ -88,9 +88,9 @@ public class AssemblyComponentProjectConstituent extends BaseContentProjectConst
   @Override
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
-    File sourceZipFile = context.getProjectTarget(baseDirectory, sourceFile);
+    File sourceZipFile = context.getProjectTargetFile(baseDirectory, sourceFile);
 
-    File outputDirectory = context.getProjectTarget(stagingDirectory, destinationDirectory);
+    File outputDirectory = context.getProjectTargetFile(stagingDirectory, destinationDirectory);
     context.getLog().info(String.format("Extracting assembly '%s' into '%s'...",
         sourceZipFile.getAbsoluteFile(), outputDirectory.getAbsoluteFile()));
     fileSupport.directoryExists(outputDirectory);

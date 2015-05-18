@@ -18,6 +18,8 @@ package interactivespaces.workbench.project.activity.type.android;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeCommandsExecutor;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
@@ -50,13 +52,18 @@ public class AndroidJavaProjectExtension implements JavaProjectExtension {
    */
   public static final String PROPERTY_ANDROID_PLATFORM = "android.platform";
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public void addToClasspath(List<File> classpath, ProjectTaskContext context) {
     Configuration properties = context.getProject().getConfiguration();
     String androidJar =
         properties.getRequiredPropertyString(PROPERTY_ANDROID_SDK_HOME) + "/platforms/"
             + properties.getRequiredPropertyString(PROPERTY_ANDROID_PLATFORM) + "/android.jar";
-    File androidJarFile = new File(androidJar);
+    File androidJarFile = fileSupport.newFile(androidJar);
 
     if (androidJarFile.exists()) {
       classpath.add(androidJarFile);

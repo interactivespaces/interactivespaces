@@ -20,6 +20,8 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectDependency;
@@ -271,6 +273,11 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
   private static final ProjectDependencyLinking PROJECT_DEPENDENCY_LINKING_DEFAULT = ProjectDependencyLinking.RUNTIME;
 
   /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Construct a project reader.
    *
    * @param workbench
@@ -417,9 +424,9 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       project.setVersion(Version.parseVersion(version));
     }
 
-    String baseDirectory = getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
-    if (baseDirectory != null) {
-      project.setBaseDirectory(new File(baseDirectory));
+    String baseDirectoryPath = getChildTextTrimmed(rootElement, projectNamespace, PROJECT_ELEMENT_NAME_BASE_DIRECTORY);
+    if (baseDirectoryPath != null) {
+      project.setBaseDirectory(fileSupport.newFile(baseDirectoryPath));
     }
 
     project.setBuilderType(getAttributeValue(rootElement, PROJECT_ATTRIBUTE_NAME_PROJECT_BUILDER,

@@ -466,6 +466,16 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
+  public File resolveFile(File parent, String subpath) {
+    File subFile = newFile(subpath);
+    if (subFile.isAbsolute()) {
+      return subFile;
+    } else {
+      return newFile(parent, subpath);
+    }
+  }
+
+  @Override
   public File getAbsoluteFile(File file) {
     return file.getAbsoluteFile();
   }

@@ -176,7 +176,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
    * @return the output directory for building
    */
   private File getCompilationOutputDirectory(File buildDirectory) {
-    File outputDirectory = new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    File outputDirectory = fileSupport.newFile(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;

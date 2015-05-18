@@ -16,6 +16,8 @@
 
 package interactivespaces.workbench.project.activity;
 
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.BaseProjectTemplate;
 import interactivespaces.workbench.project.creator.ProjectCreationContext;
 import interactivespaces.workbench.project.java.JavaProjectType;
@@ -28,6 +30,11 @@ import java.io.File;
  * @author Keith M. Hughes
  */
 public class ActivityProjectTemplate extends BaseProjectTemplate {
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   @Override
   protected void onTemplateSetup(ProjectCreationContext context) {
@@ -43,7 +50,7 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    * @return the source directory for activity sources
    */
   public File getActivitySourceDirectory(ProjectCreationContext context) {
-    return new File(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    return fileSupport.newFile(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
   /**
@@ -55,6 +62,6 @@ public class ActivityProjectTemplate extends BaseProjectTemplate {
    * @return the resource directory for activity components
    */
   public File getActivityResourceDirectory(ProjectCreationContext context) {
-    return new File(context.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
+    return fileSupport.newFile(context.getProject().getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
   }
 }

@@ -119,16 +119,16 @@ public class TemplateFileConstituent extends BaseProjectConstituent {
     Map<String, Object> templateData = projectCreationContext.getTemplateData();
 
     String outPath = templater.processStringTemplate(templateData, getOutput());
-    File outFile = new File(outPath);
+    File outFile = fileSupport.newFile(outPath);
     if (!outFile.isAbsolute()) {
       String newBasePath = (String) templateData.get(BaseProjectTemplate.BASE_DIRECTORY_VARIABLE);
-      outFile = new File(newBasePath, outFile.getPath());
+      outFile = fileSupport.newFile(fileSupport.newFile(newBasePath), outFile.getPath());
     }
 
     String inPath = templater.processStringTemplate(templateData, getTemplate());
-    File inFile = new File(inPath);
+    File inFile = fileSupport.newFile(inPath);
     if (!inFile.isAbsolute()) {
-      inPath = new File(projectCreationContext.getSpecificationBase(), inPath).getAbsolutePath();
+      inPath = fileSupport.newFile(projectCreationContext.getSpecificationBase(), inPath).getAbsolutePath();
     }
 
     templater.writeTemplate(templateData, outFile, inPath, TEMPLATE_WRITE_EVALUATION_PASSES);

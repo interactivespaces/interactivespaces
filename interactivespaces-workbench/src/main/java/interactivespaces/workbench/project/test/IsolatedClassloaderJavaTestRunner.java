@@ -76,10 +76,11 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
     List<File> compilationFiles = Lists.newArrayList();
 
     Project project = context.getProject();
-    projectCompiler.getCompilationFiles(new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_TESTS),
+    projectCompiler.getCompilationFiles(
+        fileSupport.newFile(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_TESTS), compilationFiles);
+    projectCompiler.getCompilationFiles(
+        fileSupport.newFile(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_TESTS),
         compilationFiles);
-    projectCompiler.getCompilationFiles(new File(context.getBuildDirectory(),
-        JavaProjectType.SOURCE_GENERATED_MAIN_TESTS), compilationFiles);
 
     if (compilationFiles.isEmpty()) {
       // No tests mean they all succeeded in some weird philosophical sense.
@@ -94,7 +95,8 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
     classpath.add(jarDestinationFile);
     projectType.getProjectClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
 
-    File compilationFolder = new File(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_TESTS);
+    File compilationFolder =
+        fileSupport.newFile(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_TESTS);
     fileSupport.directoryExists(compilationFolder);
 
     List<String> compilerOptions = projectCompiler.getCompilerOptions(context);

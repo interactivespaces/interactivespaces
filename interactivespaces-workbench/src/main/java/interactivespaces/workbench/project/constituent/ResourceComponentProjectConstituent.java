@@ -152,24 +152,24 @@ public class ResourceComponentProjectConstituent extends BaseProjectConstituent 
   public void processConstituent(Project project, File stagingDirectory, ProjectContext context) {
     File baseDirectory = project.getBaseDirectory();
     if (getDestinationDirectory() != null) {
-      File destDir = context.getProjectTarget(stagingDirectory, getDestinationDirectory());
+      File destDir = context.getProjectTargetFile(stagingDirectory, getDestinationDirectory());
       fileSupport.directoryExists(destDir);
 
       if (getSourceDirectory() != null) {
-        File srcDir = context.getProjectTarget(baseDirectory, getSourceDirectory());
+        File srcDir = context.getProjectTargetFile(baseDirectory, getSourceDirectory());
         fileSupport.copyDirectory(srcDir, destDir, true, context.getResourceSourceMap());
       } else {
         // There is a file to be copied.
-        File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
-        File destination = new File(destDir, srcFile.getName());
+        File srcFile = context.getProjectTargetFile(baseDirectory, getSourceFile());
+        File destination = fileSupport.newFile(destDir, srcFile.getName());
         fileSupport.copyFile(srcFile, destination);
         context.getResourceSourceMap().put(destination, srcFile);
       }
     } else {
       // Have a dest file
       // There is a file to be copied.
-      File destFile = context.getProjectTarget(stagingDirectory, getDestinationFile());
-      File srcFile = context.getProjectTarget(baseDirectory, getSourceFile());
+      File destFile = context.getProjectTargetFile(stagingDirectory, getDestinationFile());
+      File srcFile = context.getProjectTargetFile(baseDirectory, getSourceFile());
       fileSupport.directoryExists(destFile.getParentFile());
       fileSupport.copyFile(srcFile, destFile);
       context.getResourceSourceMap().put(destFile, srcFile);

@@ -398,8 +398,8 @@ public class WorkbenchTaskContext {
     }
 
     // TODO(keith): Get these in a file somewhere.
-    classpath.add(new File(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
-    classpath.add(new File(javaSystemDirectory, "org.apache.felix.framework-4.2.1.jar"));
+    classpath.add(fileSupport.newFile(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
+    classpath.add(fileSupport.newFile(javaSystemDirectory, "org.apache.felix.framework-4.2.1.jar"));
 
     addControllerExtensionsClasspath(classpath);
 
@@ -433,7 +433,7 @@ public class WorkbenchTaskContext {
    */
   public File getControllerDirectory() {
     String controllerPath = workbenchConfig.getPropertyString(CONFIGURATION_CONTROLLER_BASEDIR);
-    File controllerDirectory = new File(controllerPath);
+    File controllerDirectory = fileSupport.newFile(controllerPath);
     if (controllerDirectory.isAbsolute()) {
       return controllerDirectory;
     }
@@ -476,13 +476,14 @@ public class WorkbenchTaskContext {
    */
   public void addExtrasControllerExtensionsClasspath(List<File> classpath, String extraComponent) {
     File[] extraComponentFiles =
-        new File(new File(workbench.getWorkbenchFileSystem().getInstallDirectory(), EXTRAS_BASE_FOLDER), extraComponent)
-            .listFiles(new FilenameFilter() {
-              @Override
-              public boolean accept(File dir, String name) {
-                return name.endsWith(FILENAME_JAR_EXTENSION);
-              }
-            });
+        fileSupport.newFile(
+            fileSupport.newFile(workbench.getWorkbenchFileSystem().getInstallDirectory(), EXTRAS_BASE_FOLDER),
+            extraComponent).listFiles(new FilenameFilter() {
+          @Override
+          public boolean accept(File dir, String name) {
+            return name.endsWith(FILENAME_JAR_EXTENSION);
+          }
+        });
 
     if (extraComponentFiles != null) {
       Collections.addAll(classpath, extraComponentFiles);

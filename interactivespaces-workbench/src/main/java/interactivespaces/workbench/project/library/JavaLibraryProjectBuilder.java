@@ -93,7 +93,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
    * @return the output directory for building
    */
   private File getOutputDirectory(File buildDirectory) {
-    File outputDirectory = new File(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    File outputDirectory = fileSupport.newFile(buildDirectory, ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
     fileSupport.directoryExists(outputDirectory);
 
     return outputDirectory;

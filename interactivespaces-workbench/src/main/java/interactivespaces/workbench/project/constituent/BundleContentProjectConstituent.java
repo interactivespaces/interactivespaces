@@ -81,12 +81,12 @@ public class BundleContentProjectConstituent extends BaseContentProjectConstitue
 
     try {
       File baseDirectory = project.getBaseDirectory();
-      File outputFile = context.getProjectTarget(stagingDirectory, outputPath);
+      File outputFile = context.getProjectTargetFile(stagingDirectory, outputPath);
       fileSupport.directoryExists(outputFile.getParentFile());
       outputStream = new FileOutputStream(outputFile);
 
       for (String sourcePath : sourcePaths) {
-        File sourceFile = context.getProjectTarget(baseDirectory, sourcePath);
+        File sourceFile = context.getProjectTargetFile(baseDirectory, sourcePath);
         if (!sourceFile.exists()) {
           throw new SimpleInteractiveSpacesException("Source file does not exist " + sourceFile.getAbsolutePath());
         } else if (sourceFile.isDirectory()) {

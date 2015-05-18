@@ -171,7 +171,7 @@ public class StandardProjectManager implements ProjectManager {
 
   @Override
   public void saveSource(Source source) {
-    fileSupport.writeFile(new File(source.getPath()), source.getContent());
+    fileSupport.writeFile(fileSupport.newFile(source.getPath()), source.getContent());
   }
 
   /**
@@ -195,6 +195,6 @@ public class StandardProjectManager implements ProjectManager {
    * @return the file for the project file
    */
   private File getActivityProjectFile(File baseDir) {
-    return new File(baseDir, FILE_NAME_ACTIVITY);
+    return fileSupport.newFile(baseDir, FILE_NAME_ACTIVITY);
   }
 }

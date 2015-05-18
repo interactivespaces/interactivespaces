@@ -14,6 +14,9 @@ if [ "$PROOT" == "" ]; then
   PROOT=.
 fi
 
+
+CURDIR="$( pwd )"
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
   SOURCE="$(readlink "$SOURCE")"
@@ -38,6 +41,8 @@ if [ ! -x $WBDIR/bin/isworkbench.bash -a ! -x $WBDIR/bin/isworkbench ]; then
   echo Perhaps set your INTERACTIVESPACES_HOME env variable\?
   false
 fi
+
+INTERACTIVESPACES_ARGS="-Dinteractivespaces.rundir=${CURDIR}"
 
 BUILDDIR=build
 PREFILE=isbuild-pre.sh
@@ -88,9 +93,9 @@ if [ ! "$SUPPRESS_EMBEDDED_SCRIPTS" ]; then
 fi
 
 if [ ! "$SUPPRESS_WORKBENCH" ]; then
-  WBEXE=bin/isworkbench
+  WBEXE=bin/isworkbench 
   # Re-run workbench to do the build.
-  (cd $WBDIR; $WBEXE "$ROOTDIR" build)
+  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build)
 fi
 
 eval JAR_FILES=$INTERACTIVESPACES_HOME/controller/startup/*.jar
@@ -117,7 +122,7 @@ done
 
 # Re-run workbench to do the build if indicated.
 if [ "$SHOULD_RERUN_WORKBENCH" ]; then
- (cd $WBDIR; $WBEXE "$ROOTDIR" build)
+ (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build)
 fi
 
 # If it exists, source any post-run files. Also process embedded scripts, unless suppressed.
@@ -145,7 +150,7 @@ fi
 if [[ "$WBEXE" && "$INTERACTIVESPACES_BUILD_DEPLOY_TARGET" ]]; then
   echo Exporting build artifacts...
   DEPLOYARGS=-Dexport.activity.dir=$INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/
-  (cd $WBDIR; $WBEXE $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET)
+  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET)
   rm -f $INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/resource.map
 fi
 

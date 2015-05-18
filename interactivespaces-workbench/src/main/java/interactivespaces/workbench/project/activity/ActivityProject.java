@@ -17,6 +17,8 @@
 package interactivespaces.workbench.project.activity;
 
 import interactivespaces.domain.basic.pojo.SimpleConfigurationParameter;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -88,6 +90,11 @@ public class ActivityProject extends Project {
    * Configuration properties for the activity.
    */
   private final List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
+
+  /**
+   * The file support to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Get the type of the activity.
@@ -171,7 +178,7 @@ public class ActivityProject extends Project {
    * @return the location of the config file
    */
   public File getActivityConfigFile() {
-    return new File(getActivityResourceDirectory(), FILENAME_ACTIVITY_CONF);
+    return fileSupport.newFile(getActivityResourceDirectory(), FILENAME_ACTIVITY_CONF);
   }
 
   /**
@@ -180,7 +187,7 @@ public class ActivityProject extends Project {
    * @return the location of the source resource directory
    */
   public File getActivityResourceDirectory() {
-    return new File(getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
+    return fileSupport.newFile(getBaseDirectory(), SRC_MAIN_RESOURCES_ACTIVITY);
   }
 
   /**
@@ -189,7 +196,7 @@ public class ActivityProject extends Project {
    * @return the location of the description file
    */
   public File getActivityDescriptionFile() {
-    return new File(getBaseDirectory(), FILENAME_ACTIVITY_XML);
+    return fileSupport.newFile(getBaseDirectory(), FILENAME_ACTIVITY_XML);
   }
 
   /**
@@ -198,7 +205,7 @@ public class ActivityProject extends Project {
    * @return the location of the source directory for activities
    */
   public File getActivitySourceDirectory() {
-    return new File(getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    return fileSupport.newFile(getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
   }
 
   /**

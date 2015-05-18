@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+CURDIR="$( pwd )"
+
 # Figure out, regardless of any symlinks, aliases, etc, where this script
 # is located.
 SOURCE="${BASH_SOURCE[0]}"
@@ -18,7 +20,9 @@ if [ -f $RCFILE ]; then
   source $RCFILE
 fi
 
-INTERACTIVESPACES_ARGS=""
+# Anyone else setting this will be through the command line of however the workbench is invoked which
+# means this value will be overwritten by, say, isbuild.
+INTERACTIVESPACES_ARGS="-Dinteractivespaces.rundir=${CURDIR}"
 
 # Add in the Interactive Spaces version if one has been set.
 if [ -n "${INTERACTIVESPACES_VERSION}" ]; then

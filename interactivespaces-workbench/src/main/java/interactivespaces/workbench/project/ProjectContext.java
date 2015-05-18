@@ -69,7 +69,7 @@ public interface ProjectContext {
    *
    * @return appropriate file to use
    */
-  File getProjectTarget(File rootDirectory, String target);
+  File getProjectTargetFile(File rootDirectory, String target);
 
   /**
    * The resource source map is a map that can be used at runtime to link

@@ -217,7 +217,7 @@ public class ProjectCreationContext implements ProjectContext {
   }
 
   @Override
-  public File getProjectTarget(File rootDirectory, String target) {
+  public File getProjectTargetFile(File rootDirectory, String target) {
     throw new UnsupportedOperationException("getProjectTarget not supported for creation context");
   }
 

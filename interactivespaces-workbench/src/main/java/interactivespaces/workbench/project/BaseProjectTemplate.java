@@ -70,7 +70,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
       onTemplateWrite(context);
       processTemplateConstituents(context);
     } catch (Exception e) {
-      File outputFile = new File(context.getBaseDirectory(), TEMPLATE_VARIABLES_DUMP);
+      File outputFile = fileSupport.newFile(context.getBaseDirectory(), TEMPLATE_VARIABLES_DUMP);
       dumpVariables(outputFile, context.getTemplateData());
       throw new SimpleInteractiveSpacesException("Template variables can be found in " + outputFile.getAbsolutePath(),
           e);
@@ -88,7 +88,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
     Project project = context.getProject();
 
     context.addTemplateDataEntry(BASE_DIRECTORY_VARIABLE, context.getBaseDirectory().getAbsolutePath());
-    context.addTemplateDataEntry("internalTemplates", FreemarkerTemplater.TEMPLATE_LOCATION.getAbsoluteFile());
+    context.addTemplateDataEntry("internalTemplates", templater.getTemplateDirectory().getAbsoluteFile());
     context.addTemplateDataEntry("spec", context);
     context.addTemplateDataEntry("project", project);
   }

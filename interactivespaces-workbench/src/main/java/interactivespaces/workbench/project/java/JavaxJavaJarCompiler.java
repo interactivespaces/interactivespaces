@@ -108,8 +108,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
     projectType.getRuntimeClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
 
     Project project = context.getProject();
-    File mainSourceDirectory = new File(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
-    File generatedSourceDirectory = new File(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
+    File mainSourceDirectory = fileSupport.newFile(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    File generatedSourceDirectory = fileSupport.newFile(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
 
     List<File> compilationFiles = Lists.newArrayList();
     projectCompiler.getCompilationFiles(mainSourceDirectory, compilationFiles);
@@ -129,7 +129,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
         constituent.processConstituent(project, buildTempDirectory, context);
         sourceDirectory = buildTempDirectory.toString();
       }
-      File addedSource = context.getProjectTarget(project.getBaseDirectory(), sourceDirectory);
+      File addedSource = context.getProjectTargetFile(project.getBaseDirectory(), sourceDirectory);
 
       List<File> additionalSources = Lists.newArrayList();
       projectCompiler.getCompilationFiles(addedSource, additionalSources);
