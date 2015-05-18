@@ -329,7 +329,13 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     playerFuture = spaceEnvironment.getExecutorService().submit(new Runnable() {
       @Override
       public void run() {
-        play();
+        try {
+          getLog().info("Starting standalone playback");
+          play();
+          getLog().info("Done with standalone playback");
+        } catch (Throwable e) {
+          getLog().error("Error during standalone playback", e);
+        }
       }
     });
   }

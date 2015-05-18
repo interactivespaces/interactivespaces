@@ -157,12 +157,14 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
     if (obtainInstanceLock(InstanceLockState.STARTUP)) {
       try {
         if (instance == null) {
-          try {
-            configuration.load();
-            instance = activityWrapper.newInstance();
-            liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
-                activityWrapper.newExecutionContext());
+          configuration.load();
+          instance = activityWrapper.newInstance();
+          // Until the activity instance is initialized, certain aspects, such as the execution context,
+          // are not defined and so this can't be
+          liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
+              activityWrapper.newExecutionContext());
 
+          try {
             instance.startup();
 
             // Instances notify status changes through their event listeners, so the startup notification is already
