@@ -409,6 +409,10 @@ public class JdomReader {
           resolvedFile = fileSupport.newFile(decodedSystemId);
         }
 
+        if (!decodedSystemId.equals(systemId)) {
+          getLog().info(String.format("XML entity %s (possibly xinclude) resolved to %s",
+              systemId, resolvedFile.getAbsolutePath()));
+        }
         return new InputSource(resolvedFile.toURI().toString());
       } catch (URISyntaxException e) {
         throw InteractiveSpacesException.newFormattedException(e, "Could not resolve XML entity");
