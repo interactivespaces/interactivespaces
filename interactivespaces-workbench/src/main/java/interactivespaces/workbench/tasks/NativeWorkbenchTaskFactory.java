@@ -197,7 +197,7 @@ public class NativeWorkbenchTaskFactory implements WorkbenchTaskFactory {
         if (fileSupport.isFile(templateSourceFile)) {
           templateContent = fileSupport.readFile(templateSourceFile);
         } else {
-          SimpleInteractiveSpacesException.newFormattedException("Could not find task template file %s",
+          SimpleInteractiveSpacesException.throwFormattedException("Could not find task template file %s",
               templateSourceFile.getAbsolutePath());
         }
       }
