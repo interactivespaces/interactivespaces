@@ -397,9 +397,8 @@ public class JdomReader {
     public InputSource resolveEntity(String name, String publicId, String baseUri, String systemId)
         throws SAXException, IOException {
       try {
-        String decodedSystemId =
-            workbench.getSpaceEnvironment().getSystemConfiguration()
-                .evaluate(URLDecoder.decode(systemId, Charsets.UTF_8.name()));
+        String idExpression = URLDecoder.decode(systemId, Charsets.UTF_8.name());
+        String decodedSystemId = workbench.getSpaceEnvironment().getSystemConfiguration().evaluate(idExpression);
 
         File resolvedFile = null;
         if (!decodedSystemId.startsWith(HttpConstants.URL_PATH_COMPONENT_SEPARATOR)) {
@@ -411,7 +410,7 @@ public class JdomReader {
 
         if (!decodedSystemId.equals(systemId)) {
           getLog().info(String.format("XML entity %s (possibly xinclude) resolved to %s",
-              systemId, resolvedFile.getAbsolutePath()));
+              idExpression, resolvedFile.getAbsolutePath()));
         }
         return new InputSource(resolvedFile.toURI().toString());
       } catch (URISyntaxException e) {
