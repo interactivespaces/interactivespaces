@@ -47,7 +47,6 @@ INTERACTIVESPACES_ARGS="-Dinteractivespaces.rundir=${CURDIR}"
 BUILDDIR=build
 PROJFILE=project.xml
 PREFILE=isbuild-pre.sh
-MIDFILE=isbuild-mid.sh
 POSTFILE=isbuild-post.sh
 
 # Clean old build directory
