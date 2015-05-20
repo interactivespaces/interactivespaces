@@ -23,7 +23,7 @@ configurations {
   bootstrap
   system
   launcher
-  extrasAndroid
+//  extrasAndroid
   extrasTesting
 }
 
@@ -40,7 +40,7 @@ dependencies {
 
   launcher project(':interactivespaces-launcher')
 
-  extrasAndroid project(':service:interactivespaces-service-androidos')
+//  extrasAndroid project(':service:interactivespaces-service-androidos')
   extrasTesting project(':interactivespaces-workbench-testing')
 }
 
@@ -73,10 +73,12 @@ task copyExamples(type:Copy) {
 
 task copyNeededComponents(dependsOn: [copyCore, copyExamples])
 
+/*
 task copyContainerDependenciesExtrasAndroid(type: Copy) {
   into "${project.ext.containerBuildTarget}/extras/android"
   from configurations.extrasAndroid - configurations.bootstrap
 }
+*/
 
 task copyContainerDependenciesExtrasTesting(type: Copy) {
   into "${project.ext.containerBuildTarget}/extras/testing"
@@ -121,7 +123,7 @@ task assembleContainers(dependsOn: [
   copyContainerDependenciesLauncher,
   copyContainerDependenciesBootstrap,
   copyContainerDependenciesSystemJava,
-  copyContainerDependenciesExtrasAndroid,
+//  copyContainerDependenciesExtrasAndroid,
   copyContainerDependenciesExtrasTesting,
   copyDocs
 ])
