@@ -131,6 +131,7 @@ public class BaseActivityTest {
   public void testCleanStartup() {
     activity.startup();
 
+    activityInOrder.verify(activity).onActivityPreSetup();
     activityInOrder.verify(activity).onActivitySetup();
     activityInOrder.verify(activity).onActivityStartup();
     activityInOrder.verify(activity).onActivityPostStartup();
@@ -215,6 +216,27 @@ public class BaseActivityTest {
     assertTrue(activityComponentContext.areProcessingHandlers());
 
     Mockito.verify(log, Mockito.times(1)).warn(Mockito.anyString());
+  }
+
+  /**
+   * Test that a broken presetup works.
+   */
+  @Test
+  public void testBrokenPreSetup() {
+    Error e = new Error();
+    Mockito.doThrow(e).when(activity).onActivityPreSetup();
+
+    activity.startup();
+
+    activityInOrder.verify(activity).onActivityPreSetup();
+    Mockito.verify(activity, Mockito.never()).onActivitySetup();
+    Mockito.verify(activity, Mockito.never()).onActivityStartup();
+    Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
+    assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
+    Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
+
+    assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
   }
 
   /**

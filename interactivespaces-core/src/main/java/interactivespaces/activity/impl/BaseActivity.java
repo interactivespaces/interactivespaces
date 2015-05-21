@@ -233,6 +233,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     componentContext.beginStartupPhase();
     try {
+      callOnActivityPreSetup();
+
       configurationAnnotationProcessor = new StandardConfigurationPropertyAnnotationProcessor(getConfiguration());
       configurationAnnotationProcessor.process(this);
 
@@ -273,6 +275,19 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       logException("Could not startup activity", e);
 
       setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
+    }
+  }
+
+  /**
+   * Properly call {@link #onActivityPreSetup()}.
+   */
+  private void callOnActivityPreSetup() {
+    ActivityMethodInvocation invocation = getExecutionContext().enterMethod();
+
+    try {
+      onActivityPreSetup();
+    } finally {
+      getExecutionContext().exitMethod(invocation);
     }
   }
 
@@ -764,6 +779,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   @Override
   public void onActivityConfiguration(Map<String, Object> update) {
+    // Default is to do nothing.
+  }
+
+  @Override
+  public void onActivityPreSetup() {
     // Default is to do nothing.
   }
 

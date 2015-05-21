@@ -31,6 +31,7 @@ import java.util.Map;
  * Call back methods are called in the following sequence during startup.
  *
  * <ul>
+ * <li>{@link #onActivityPreSetup()} is called before annotated configuration parameters are processed.</li>
  * <li>{@link #onActivitySetup()} is called before any components are configured. This is a good time to call
  * {@link #addActivityComponent(ActivityComponent)} or {@link #addActivityComponent(String...)}</li>
  * <li>{@link #onActivityStartup()} is called after all components have been configured.</li>
@@ -39,6 +40,14 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public interface SupportedActivity extends Activity {
+
+  /**
+   * Called during the setup of the activity.
+   *
+   * <p>
+   * This method should throw an exception if it can't set up. Any exceptions thrown will be caught.
+   */
+  void onActivityPreSetup();
 
   /**
    * Called during the setup of the activity.

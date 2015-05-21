@@ -28,13 +28,24 @@ event methods will be called for a single event so that the Activity can
 respond properly to its internal state, so make sure you carefully read when
 event methods are called.
 
+.. _onActivityPreSetup-reference-label:
+
+``void onActivityPreSetup()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method is called when Activity is starting up.
+This is the first event method called
+and is called only once.
+
+Annotated configuration parameters have not been processed yet, but the configuration is available.
+
 .. _onActivitySetup-reference-label:
 
 ``void onActivitySetup()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method is called when Activity is starting up.
-This is the first event method called
+This is the second event method called
 and is called only once.
 
  This event is usually used to register Activity Components.

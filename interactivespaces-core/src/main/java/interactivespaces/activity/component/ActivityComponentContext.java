@@ -115,6 +115,9 @@ public class ActivityComponentContext {
 
   /**
    * Begin the setup phase.
+   *
+   * <p>
+   * Do nothing with configurations in this phase.
    */
   public void beginStartupPhase() {
     // Nothing required at the moment
