@@ -16,7 +16,6 @@
 
 package interactivespaces.liveactivity.runtime.standalone.development;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
@@ -56,8 +55,6 @@ import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -261,7 +258,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   @Override
   public void startup() {
     Configuration configuration = spaceEnvironment.getSystemConfiguration();
-    addDynamicConfiguration(configuration);
 
     boolean isSingleActivity =
         configuration.getPropertyBoolean(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE,
@@ -481,24 +477,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   }
 
   /**
-   * Add dynamic configuration parameters to this configuration.
-   *
-   * @param configuration
-   *          the configuration to dynamically update
-   */
-  private void addDynamicConfiguration(Configuration configuration) {
-    try {
-      String hostname = InetAddress.getLocalHost().getHostName();
-      configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME, hostname);
-      configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID, hostname);
-      String hostAddress = InetAddress.getByName(hostname).getHostAddress();
-      configuration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, hostAddress);
-    } catch (UnknownHostException e) {
-      throw new InteractiveSpacesException("Could not determine hostname", e);
-    }
-  }
-
-  /**
    * Prepare the runtime.
    */
   public void prepareRuntime() {
@@ -516,8 +494,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    */
   public void setInstanceSuffix(String instanceSuffix) {
     this.instanceSuffix = (instanceSuffix != null && !instanceSuffix.trim().isEmpty()) ? instanceSuffix.trim() : null;
-
-    System.out.format("Instance is '%s'\n", this.instanceSuffix);
   }
 
   /**
