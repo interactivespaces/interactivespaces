@@ -23,6 +23,7 @@ import interactivespaces.liveactivity.runtime.osgi.OsgiServiceRegistrationLiveAc
 import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.system.InteractiveSpacesSystemControl;
 
 import org.apache.commons.logging.Log;
 
@@ -33,6 +34,11 @@ import org.apache.commons.logging.Log;
  * @author Trevor Pering
  */
 public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+
+  /**
+   * OSGi service tracker for the interactive spaces control.
+   */
+  private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
 
   /**
    * Space environment from launcher.
@@ -49,6 +55,11 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
   }
 
   @Override
+  protected void onStart() {
+    interactiveSpacesSystemControlTracker = newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
+  }
+
+  @Override
   protected void allRequiredServicesAvailable() {
     spaceEnvironment = getInteractiveSpacesEnvironmentTracker().getMyService();
 
@@ -57,7 +68,8 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     String controllerMode =
         systemConfiguration.getPropertyString(SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, null);
-    if (!DevelopmentStandaloneLiveActivityRuntime.CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE.equals(controllerMode)) {
+    if (!DevelopmentStandaloneLiveActivityRuntime.CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE
+        .equals(controllerMode)) {
       getLog().info("Not activating standalone space controller, mode is " + controllerMode);
       return;
     }
@@ -65,9 +77,10 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
         new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
-    DevelopmentStandaloneLiveActivityRuntime runner =
+    DevelopmentStandaloneLiveActivityRuntime runtime =
         new DevelopmentStandaloneLiveActivityRuntime(runtimeComponentFactory, spaceEnvironment,
-            new OsgiServiceRegistrationLiveActivityRuntimeListener(this));
-    addManagedResource(runner);
+            new OsgiServiceRegistrationLiveActivityRuntimeListener(this),
+            interactiveSpacesSystemControlTracker.getMyService());
+    addManagedResource(runtime);
   }
 }

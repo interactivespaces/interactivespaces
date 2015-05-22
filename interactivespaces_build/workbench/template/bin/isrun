@@ -15,6 +15,15 @@ INTERACTIVESPACES_ROUTER=${INTERACTIVESPACES_ROUTER:-standalone}
 
 CMD=${1:-run}
 
+PROJFILE=project.xml
+if [ -f $TARGET/$PROJFILE ]; then
+  SINGLE_ACTIVITY='true'
+  ACTIVITY_NAME=`xmllint --xpath "/project/name/text()" "$TARGET/project.xml"`
+else
+  SINGLE_ACTIVITY='false'
+  ACTIVITY_NAME=$TARGET
+fi
+
 RUNDIR=$TARGET/run
 POSTFIX=
 INSTANCE_SUFFIX=
@@ -37,9 +46,6 @@ CONFIGDIR=test
 CDIR=$INTERACTIVESPACES_HOME/controller
 WDIR=$INTERACTIVESPACES_HOME/workbench
 
-# TODO(keith): consider older controllers. If no extras/standalone folder could copy the standalone
-# from cec-common the old way.
-
 export ISDEBUG=n
 if [ $CMD == "debug" ]; then
   export ISSUSPEND=y
@@ -49,21 +55,13 @@ fi
 
 mkdir -p $RUNDIR
 
-#TODO(keith): get rid of when log4j fully moved to proper location in config/
-LIBSYSJAVA=lib/system/java
-LOG4J_PROPERTIES=$CDIR/$LIBSYSJAVA/log4j.properties
-if [ -x $LOG4J_PROPERTIES ]; then
-  mkdir -p $RUNDIR/$LIBSYSJAVA
-  cp -a $LOG4J_PROPERTIES $RUNDIR/$LIBSYSJAVA
-fi
-
-
 echo Starting up activity...
 export INTERACTIVESPACES_MAIN_ARGS="--runtime=$RUNDIR"
 INTERACTIVESPACES_MAIN_ARGS+=" --config=${CDIR}/config"
 INTERACTIVESPACES_MAIN_ARGS+=" --bootstrap=${CDIR}/extras/standalone"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.controller.mode=standalone"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.service.mail.receiver.enable=false"
+INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.single=$SINGLE_ACTIVITY"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.runtime=$RUNDIR"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.source=$TARGET"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.config=$TARGET/$CONFIGDIR"
@@ -74,18 +72,9 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
 echo $INTERACTIVESPACES_MAIN_ARGS
 
 # Change the tab title.
-ACTIVITY_NAME=`xmllint --xpath "/project/name/text()" "$TARGET/project.xml"`
 PS1=
 printf "\033]0;IS: $ACTIVITY_NAME\007"
 
 CONTROLLER_EXE=$CDIR/bin/isstartup
-
-# TODO(keith) Decide whether or not to support pre-1.8 controllers.
-#if [ ! -x $CONTROLLER_EXE ]; then
-#  # The startup_linux.bash is legacy, and can be removed when only 1.8.0+ is supported.
-#  CONTROLLER_EXE=$CDIR/bin/startup_linux.bash
-#fi
   
 $CONTROLLER_EXE | ${WDIR}/bin/islog
- 
-

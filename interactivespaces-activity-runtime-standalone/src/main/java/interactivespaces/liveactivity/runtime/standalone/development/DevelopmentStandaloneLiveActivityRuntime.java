@@ -41,6 +41,7 @@ import interactivespaces.liveactivity.runtime.standalone.StandaloneLiveActivityS
 import interactivespaces.liveactivity.runtime.standalone.StandaloneLocalLiveActivityRepository;
 import interactivespaces.liveactivity.runtime.standalone.messaging.StandaloneMessageRouter;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.system.InteractiveSpacesSystemControl;
 import interactivespaces.util.concurrency.SequentialEventQueue;
 import interactivespaces.util.concurrency.SimpleSequentialEventQueue;
 import interactivespaces.util.io.FileSupport;
@@ -54,11 +55,8 @@ import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.channels.FileLock;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -69,6 +67,11 @@ import java.util.concurrent.Future;
  * @author Keith M. Hughes
  */
 public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource {
+
+  /**
+   * The filename for project files.
+   */
+  private static final String PROJECT_FILENAME = "project.xml";
 
   /**
    * The path relative to an activity project folder where development information is kept.
@@ -87,6 +90,18 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    */
   public static final String CONFIGURATION_INTERACTIVESPACES_STANDALONE_INSTANCE =
       "interactivespaces.standalone.instance";
+
+  /**
+   * Config parameter for whether this run is for a single activity or a group. {@code true} if this is a single
+   * activity run.
+   */
+  public static final String CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE =
+      "interactivespaces.standalone.activity.single";
+
+  /**
+   * Config parameter for whether this run is for a single activity or a group.
+   */
+  public static final boolean CONFIGURATION_DEFAULT_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE = false;
 
   /**
    * Config parameter for activity runtime.
@@ -144,26 +159,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   private ManagedResources managedResources;
 
   /**
-   * Number of threads in the thread pool.
-   */
-  public static final int THREAD_POOL_SIZE = 100;
-
-  /**
-   * Config filename for the included activity configuration.
-   */
-  public static final String ACTIVITY_CONFIG_FILE_NAME = "activity.conf";
-
-  /**
-   * Filename to use for a running instance lock.
-   */
-  private static final String LOCK_FILE_NAME = "instancelock";
-
-  /**
-   * Maximum number of standalone instances to allow.
-   */
-  private static final int MAX_INSTANCE_COUNT = 10;
-
-  /**
    * File support instance to use.
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -172,11 +167,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Instance suffix for handling multiple instances run in the same directory.
    */
   private String instanceSuffix;
-
-  /**
-   * {@code true} if this is the primary (first) instance running in the same directory.
-   */
-  private boolean isPrimaryInstance;
 
   /**
    * {@code true} (default) if the standalone router should be used.
@@ -240,6 +230,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   private Future<?> playerFuture;
 
   /**
+   * The system control for the runtime.
+   */
+  private InteractiveSpacesSystemControl systemControl;
+
+  /**
    * Construct a new standalone runtime.
    *
    * @param runtimeComponentFactory
@@ -248,12 +243,16 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    *          space environment to use for this instance
    * @param liveActivityRuntimeListener
    *          a live activity runner listener to add to the runner
+   * @param systemControl
+   *          the system control for the container
    */
   public DevelopmentStandaloneLiveActivityRuntime(LiveActivityRuntimeComponentFactory runtimeComponentFactory,
-      InteractiveSpacesEnvironment spaceEnvironment, LiveActivityRuntimeListener liveActivityRuntimeListener) {
+      InteractiveSpacesEnvironment spaceEnvironment, LiveActivityRuntimeListener liveActivityRuntimeListener,
+      InteractiveSpacesSystemControl systemControl) {
     this.runtimeComponentFactory = runtimeComponentFactory;
     this.spaceEnvironment = spaceEnvironment;
     this.liveActivityRuntimeListener = liveActivityRuntimeListener;
+    this.systemControl = systemControl;
 
     managedResources = new ManagedResources(spaceEnvironment.getLog());
   }
@@ -263,29 +262,39 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     Configuration configuration = spaceEnvironment.getSystemConfiguration();
     addDynamicConfiguration(configuration);
 
-    String instance = configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_INSTANCE, "");
-    setInstanceSuffix(instance);
+    boolean isSingleActivity =
+        configuration.getPropertyBoolean(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE,
+            CONFIGURATION_DEFAULT_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE);
 
-    String activityRuntimePath =
+    String instanceSuffixValue =
+        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_INSTANCE, "");
+    setInstanceSuffix(instanceSuffixValue);
+
+    File activityRuntimeFolder = null;
+    String activityRuntimeFolderPath =
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_RUNTIME);
-    getLog().info("activityRuntimePath is " + activityRuntimePath);
-    setActivityRuntimeDir(new File(activityRuntimePath));
+    if (activityRuntimeFolderPath != null) {
+      getLog().info("activityRuntimePath is " + activityRuntimeFolderPath);
+      activityRuntimeFolder = fileSupport.newFile(activityRuntimeFolderPath);
+    }
 
-    String activitySourcePath =
+    String activitySourceFolderPath =
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SOURCE);
-    getLog().info("activitySourcePath is " + activitySourcePath);
+    getLog().info("activitySourcePath is " + activitySourceFolderPath);
+    File activitySourceFolder = fileSupport.newFile(activitySourceFolderPath);
 
     String standaloneRouterType =
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ROUTER_TYPE);
     if (standaloneRouterType != null) {
       getLog().info("configuring to use router type " + standaloneRouterType);
-      setUseStandaloneRouter("standalone".equals(standaloneRouterType));
+      setUseStandaloneRouter(CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE.equals(standaloneRouterType));
     }
 
-    List<File> foldersToUse = Lists.newArrayList();
-    File rootFolder = new File(activitySourcePath);
-    scanForProjects(rootFolder, foldersToUse);
-    prepareLiveActivityInformation(rootFolder, foldersToUse);
+    if (isSingleActivity) {
+      prepareForSingleActivityRun(activityRuntimeFolder, activitySourceFolder);
+    } else {
+      prepareForMultipleActivityRun(activityRuntimeFolder, activitySourceFolder);
+    }
 
     SequentialEventQueue eventQueue = new SimpleSequentialEventQueue(spaceEnvironment, spaceEnvironment.getLog());
     managedResources.addResource(eventQueue);
@@ -346,15 +355,48 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   /**
    * Start the run.
    */
-  public void play() {
+  private void play() {
     try {
       prepareFilesystem();
       prepareRuntime();
-      startupActivity();
+      startupActivities();
 
       startPlayback();
     } catch (Throwable e) {
       getLog().error("Error while running the standalone runner", e);
+
+      systemControl.shutdown();
+    }
+  }
+
+  /**
+   * Prepare for the run of a single activity.
+   *
+   * @param activityRuntimeFolder
+   *          the runtime folder to use
+   * @param activityRootFolder
+   *          the root folder of the activity
+   */
+  private void prepareForSingleActivityRun(File activityRuntimeFolder, File activityRootFolder) {
+    compileLiveActivityInformation(createActivityUuid(activityRootFolder), activityRootFolder, activityRuntimeFolder);
+  }
+
+  /**
+   * Prepare for a multiple activity run.
+   *
+   * @param rootFolder
+   *          the root folder for the activities
+   * @param suppliedRuntimeFolder
+   *          the runtime folder supplied to the runner
+   */
+  private void prepareForMultipleActivityRun(File rootFolder, File suppliedRuntimeFolder) {
+    List<File> foldersToUse = Lists.newArrayList();
+    scanForProjectFolders(rootFolder, foldersToUse);
+
+    for (File projectFolder : foldersToUse) {
+      String uuid = createActivityUuid(projectFolder);
+      File baseActivityRuntimeFolder = fileSupport.newFile(suppliedRuntimeFolder, uuid);
+      compileLiveActivityInformation(uuid, projectFolder, baseActivityRuntimeFolder);
     }
   }
 
@@ -366,14 +408,14 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * @param foldersToUse
    *          the list of folders to use
    */
-  private void scanForProjects(File folder, List<File> foldersToUse) {
+  private void scanForProjectFolders(File folder, List<File> foldersToUse) {
     if (isProjectFolder(folder)) {
       foldersToUse.add(folder);
     } else {
       File[] subfolders = folder.listFiles(DIRECTORY_FILE_FILTER);
       if (subfolders != null) {
         for (File subfolder : subfolders) {
-          scanForProjects(subfolder, foldersToUse);
+          scanForProjectFolders(subfolder, foldersToUse);
         }
       }
     }
@@ -388,33 +430,7 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * @return {@code true} if the folder is a project folder
    */
   public boolean isProjectFolder(File folder) {
-    return fileSupport.exists(fileSupport.newFile(folder, "project.xml"));
-  }
-
-  /**
-   * Prepare the activity information from the project files.
-   *
-   * @param rootFolder
-   *          the root folder the runner was started in
-   * @param foldersToUse
-   *          the folders to use for activities
-   */
-  private void prepareLiveActivityInformation(File rootFolder, List<File> foldersToUse) {
-    // No matter what, the runtime folder will be in the project.
-    File runtimeFolder = fileSupport.newFile(rootFolder, "run");
-    fileSupport.directoryExists(runtimeFolder);
-
-    if (foldersToUse.size() > 1) {
-      for (File projectFolder : foldersToUse) {
-        String uuid = createActivityUuid(projectFolder);
-        File baseActivityRuntimeFolder = fileSupport.newFile(runtimeFolder, uuid);
-        compileLiveActivityInformation(uuid, projectFolder, baseActivityRuntimeFolder);
-      }
-    } else {
-      File projectFolder = foldersToUse.get(0);
-
-      compileLiveActivityInformation(createActivityUuid(projectFolder), projectFolder, runtimeFolder);
-    }
+    return fileSupport.exists(fileSupport.newFile(folder, PROJECT_FILENAME));
   }
 
   /**
@@ -448,50 +464,19 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
 
     File installDirectory = fileSupport.newFile(info.getBaseSourceDirectory(), ACTIVITY_PATH_BUILD_STAGING);
 
-    File logDirectory = fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_LOG);
+    File activityLogDirectory =
+        fileSupport.newFile(baseActivityRuntimeFolder, "activity-" + SimpleLiveActivityFilesystem.SUBDIRECTORY_LOG);
     File permanentDataDirectory =
         fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_DATA_PERMANENT);
     File tempDataDirectory =
         fileSupport.newFile(baseActivityRuntimeFolder, SimpleLiveActivityFilesystem.SUBDIRECTORY_DATA_TEMPORARY);
     File internalDirectory = fileSupport.newFile(projectFolder, ACTIVITY_PATH_DEVELOPMENT);
     SimpleLiveActivityFilesystem filesystem =
-        new SimpleLiveActivityFilesystem(installDirectory, logDirectory, permanentDataDirectory, tempDataDirectory,
-            internalDirectory);
+        new SimpleLiveActivityFilesystem(installDirectory, activityLogDirectory, permanentDataDirectory,
+            tempDataDirectory, internalDirectory);
     filesystem.ensureDirectories();
 
     info.setActivityFilesystem(filesystem);
-  }
-
-  /**
-   * Get the instance suffix to use for this instance. The suffix returned depends on the number of already running
-   * instances.
-   *
-   * @param rootDir
-   *          the root directory that holds the instance locks
-   *
-   * @return suffix to use for directories and files
-   */
-  private String findInstanceSuffix(File rootDir) {
-    if (instanceSuffix != null) {
-      return instanceSuffix;
-    }
-
-    int instance = 0;
-    while (instance < MAX_INSTANCE_COUNT) {
-      String suffix = instance > 0 ? ("-" + instance) : "";
-      File lockFile = new File(rootDir, LOCK_FILE_NAME + suffix);
-      try {
-        RandomAccessFile pidRaf = new RandomAccessFile(lockFile, "rw");
-        FileLock fileLock = pidRaf.getChannel().tryLock(0, Long.MAX_VALUE, false);
-        if (fileLock != null) {
-          return suffix;
-        }
-      } catch (IOException e) {
-        // Do nothing, increment and try again.
-      }
-      instance++;
-    }
-    throw new InteractiveSpacesException("Could not lock run file after " + MAX_INSTANCE_COUNT + " tries");
   }
 
   /**
@@ -529,7 +514,9 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    *          instance suffix to use
    */
   public void setInstanceSuffix(String instanceSuffix) {
-    this.instanceSuffix = instanceSuffix;
+    this.instanceSuffix = (instanceSuffix != null && !instanceSuffix.trim().isEmpty()) ? instanceSuffix.trim() : null;
+
+    System.out.format("Instance is '%s'\n", this.instanceSuffix);
   }
 
   /**
@@ -540,20 +527,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    */
   public void setUseStandaloneRouter(boolean useStandaloneRouter) {
     this.useStandaloneRouter = useStandaloneRouter;
-  }
-
-  /**
-   * Set the activity runtime dir.
-   *
-   * @param activityRuntimeDir
-   *          directory to use for activity runtime files
-   */
-  public void setActivityRuntimeDir(File activityRuntimeDir) {
-    instanceSuffix = findInstanceSuffix(activityRuntimeDir);
-    isPrimaryInstance = instanceSuffix.length() == 0;
-    File actualRootDir =
-        isPrimaryInstance ? activityRuntimeDir : new File(activityRuntimeDir, "instance" + instanceSuffix);
-    fileSupport.directoryExists(actualRootDir);
   }
 
   /**
@@ -617,9 +590,9 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   }
 
   /**
-   * Startup the activity.
+   * Startup all activities.
    */
-  public void startupActivity() {
+  public void startupActivities() {
     if (traceCheckPath != null) {
       cecRouter.checkStart(traceCheckPath);
     }
@@ -642,9 +615,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    *          status of the activity
    */
   private void onPublishActivityStatus(String uuid, ActivityStatus status) {
-    // TODO(keith): If any signal crash, should shut runner down.
-
     spaceEnvironment.getLog().info(String.format("Activity status for activity %s is now %s", uuid, status));
+
+    if (!status.getState().isRunning()) {
+      systemControl.shutdown();
+    }
   }
 
   /**

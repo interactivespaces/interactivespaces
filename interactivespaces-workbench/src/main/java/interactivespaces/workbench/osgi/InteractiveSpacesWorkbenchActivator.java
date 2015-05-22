@@ -21,7 +21,6 @@ import interactivespaces.system.SimpleInteractiveSpacesEnvironment;
 import interactivespaces.system.core.configuration.ConfigurationProvider;
 import interactivespaces.system.core.container.ContainerCustomizerProvider;
 import interactivespaces.system.core.logging.LoggingProvider;
-import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
@@ -29,7 +28,9 @@ import org.apache.commons.lang.SystemUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceReference;
 import org.ros.concurrent.DefaultScheduledExecutorService;
 
@@ -41,14 +42,6 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
-
-  /**
-   * Introduced delay to prevent startup/shutdown race conditions when the workbench immediately errors out due to
-   * something like a missing command line argument. When that happens, sometimes other components are in the process of
-   * starting up and throw a confusing/misleading error message when the workbench then shuts down. This delay allows
-   * the other components to fully start up before being shutdown.
-   */
-  public static final int ERROR_RACE_CONDITION_DELAY_MS = 200;
 
   /**
    * The workbench UI, if any.
@@ -83,14 +76,29 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
    */
   private DefaultScheduledExecutorService executorService;
 
+  /**
+   * The space environment for the bundle.
+   */
+  private SimpleInteractiveSpacesEnvironment spaceEnvironment;
+
   @Override
   public void start(BundleContext bundleContext) throws Exception {
     this.bundleContext = bundleContext;
 
     getCoreServices();
 
+    BundleListener myBundleListener = new BundleListener() {
+
+      @Override
+      public void bundleChanged(BundleEvent event) {
+        handleBundleChangedEvent(event);
+      }
+    };
+
+    bundleContext.addBundleListener(myBundleListener);
+
     try {
-      run();
+      prepareWorkkbenchEnvironment();
     } catch (Exception e) {
       loggingProvider.getLog().error("Could not run workbench", e);
     }
@@ -129,13 +137,11 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
   }
 
   /**
-   * Start the workbench running.
+   * prepare the workbench environment.
    */
-  public void run() {
-    Bundle systemBundle = bundleContext.getBundle(0);
-    ClassLoader systemClassLoader = systemBundle.getClass().getClassLoader();
+  public void prepareWorkkbenchEnvironment() {
 
-    SimpleInteractiveSpacesEnvironment spaceEnvironment = new SimpleInteractiveSpacesEnvironment();
+    spaceEnvironment = new SimpleInteractiveSpacesEnvironment();
     spaceEnvironment.setLog(loggingProvider.getLog());
     executorService = new DefaultScheduledExecutorService();
     spaceEnvironment.setExecutorService(executorService);
@@ -146,36 +152,55 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
     String platformOs = SystemUtils.IS_OS_LINUX ? "linux" : "osx";
     configuration.setValue("interactivespaces.platform.os", platformOs);
 
-
     spaceEnvironment.setSystemConfiguration(configuration);
+  }
 
-    final InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(spaceEnvironment, systemClassLoader);
+  /**
+   * Handle a bundle change event.
+   *
+   * @param event
+   *          the bundle change event
+   */
+  private void handleBundleChangedEvent(BundleEvent event) {
+    // Make sure the bundle is us.
+    if (event.getBundle().equals(bundleContext.getBundle())) {
+      if (event.getType() == BundleEvent.STARTED) {
+        spaceEnvironment.getExecutorService().execute(new Runnable() {
+          @Override
+          public void run() {
+            runWorkbench();
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * The bundle is now officially started and the OSGi framework is happy with it.
+   */
+  protected void runWorkbench() {
+    Bundle systemBundle = bundleContext.getBundle(0);
+    ClassLoader systemClassLoader = systemBundle.getClass().getClassLoader();
+
+    InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(spaceEnvironment, systemClassLoader);
 
     final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
     if (!commandLineArguments.isEmpty()) {
-      new Thread(new Runnable() {
-        @Override
-        public void run() {
-          boolean success = false;
-          try {
-            // TODO(trevor): Make this less hacky by using a listener.
-            InteractiveSpacesUtilities.delay(ERROR_RACE_CONDITION_DELAY_MS);
-            success = workbench.doCommands(commandLineArguments);
-          } finally {
-            try {
-              bundleContext.getBundle(0).stop();
-            } catch (BundleException e) {
-              loggingProvider.getLog().error("Error stopping container", e);
-              success = false;
-            }
-
-            if (!success) {
-              System.exit(-1);
-            }
-          }
+      boolean success = false;
+      try {
+        success = workbench.doCommands(commandLineArguments);
+      } finally {
+        try {
+          bundleContext.getBundle(0).stop();
+        } catch (BundleException e) {
+          loggingProvider.getLog().error("Error stopping container", e);
+          success = false;
         }
 
-      }).start();
+        if (!success) {
+          System.exit(-1);
+        }
+      }
     } else {
       ui = new WorkbenchUi(workbench);
     }
