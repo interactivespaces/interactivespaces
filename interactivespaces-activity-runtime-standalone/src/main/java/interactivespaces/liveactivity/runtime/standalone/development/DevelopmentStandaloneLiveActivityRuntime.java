@@ -17,6 +17,7 @@
 package interactivespaces.liveactivity.runtime.standalone.development;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
 import interactivespaces.configuration.Configuration;
@@ -617,7 +618,8 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   private void onPublishActivityStatus(String uuid, ActivityStatus status) {
     spaceEnvironment.getLog().info(String.format("Activity status for activity %s is now %s", uuid, status));
 
-    if (!status.getState().isRunning()) {
+    ActivityState state = status.getState();
+    if (!state.isRunning() && !state.isTransitional()) {
       systemControl.shutdown();
     }
   }
