@@ -16,7 +16,6 @@
 
 dependencies {
   compile('org.apache.servicemix.bundles:org.apache.servicemix.bundles.junit:4.11_1')
-  compile 'org.ow2.asm:asm-all:4.2'
   
   runtime 'org.mockito:mockito-all:1.9.5'
   

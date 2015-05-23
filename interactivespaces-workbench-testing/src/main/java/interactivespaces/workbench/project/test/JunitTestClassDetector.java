@@ -16,13 +16,11 @@
 
 package interactivespaces.workbench.project.test;
 
-import org.objectweb.asm.ClassReader;
+import org.apache.commons.logging.Log;
+import org.junit.Test;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,22 +32,36 @@ import java.util.List;
 public class JunitTestClassDetector {
 
   /**
+   * The separator between a file name and the file extension.
+   */
+  public static final char FILE_EXTENSION_SEPARATOR = '.';
+
+  /**
    * File extension for class files.
    */
-  public static final String CLASS_FILE_EXTENSION = ".class";
+  public static final String CLASS_FILE_EXTENSION = FILE_EXTENSION_SEPARATOR + "class";
+
+  /**
+   * The separator between the components of a Java package path.
+   */
+  public static final char CLASS_PACKAGE_COMPONENT_SEPARATOR = '.';
 
   /**
    * Find all test classes in the given directory.
    *
    * @param directory
    *          the directory to start looking for classes
+   * @param classLoader
+   *          the classloader for the test classes
+   * @param log
+   *          logger for the test run
    *
    * @return list of all test classes in the directory
    */
-  public List<JunitTestClassVisitor> findTestClasses(File directory) {
-    List<JunitTestClassVisitor> testClasses = new ArrayList<JunitTestClassVisitor>();
+  public List<Class<?>> findTestClasses(File directory, ClassLoader classLoader, Log log) {
+    List<Class<?>> testClasses = new ArrayList<Class<?>>();
 
-    scanDirectory(directory, testClasses);
+    scanDirectory(directory, testClasses, new StringBuilder(), classLoader, log);
 
     return testClasses;
   }
@@ -61,55 +73,119 @@ public class JunitTestClassDetector {
    *          the directory to scan
    * @param testClasses
    *          a list to put the found classes in
+   * @param packagePrefix
+   *          the prefix for Java packages for files in this directory
+   * @param classLoader
+   *          the classloader for the test classes
+   * @param log
+   *          logger for the test run
    */
-  private void scanDirectory(File directory, List<JunitTestClassVisitor> testClasses) {
+  private void scanDirectory(File directory, List<Class<?>> testClasses, StringBuilder packagePrefix,
+      ClassLoader classLoader, Log log) {
     File[] contents = directory.listFiles();
     if (contents != null) {
       for (File file : contents) {
+        String fileName = file.getName();
         if (file.isFile()) {
-          if (file.getName().endsWith(CLASS_FILE_EXTENSION)) {
-            JunitTestClassVisitor classVisitor = newClassVisitor(file);
-            if (classVisitor.isTestClass() && !classVisitor.isAbstractClass()) {
-              testClasses.add(classVisitor);
-            }
+          if (fileName.endsWith(CLASS_FILE_EXTENSION)) {
+            testClassForTests(packagePrefix, fileName, classLoader, testClasses, log);
           }
 
         } else if (file.isDirectory()) {
-          scanDirectory(file, testClasses);
+          int length = packagePrefix.length();
+          if (packagePrefix.length() != 0) {
+            packagePrefix.append(CLASS_PACKAGE_COMPONENT_SEPARATOR);
+          }
+          packagePrefix.append(fileName);
+          scanDirectory(file, testClasses, packagePrefix, classLoader, log);
+          packagePrefix.setLength(length);
         }
       }
     }
   }
 
   /**
-   * Create a class visitor for the class to be examined for JUnit tests.
+   * Test the specified class for any test methods.
    *
-   * @param testClassFile
-   *          the file to be examined
+   * <p>
+   * Superclasses are searched.
    *
-   * @return the class visitor for scanning the class
+   * @param packagePrefix
+   *          the prefix package path
+   * @param classFileName
+   *          the classname for the potential test class
+   * @param classLoader
+   *          the classloader for test classes
+   * @param testClasses
+   *          the growing list of classes to test
+   * @param log
+   *          the logger to use
    */
-  private JunitTestClassVisitor newClassVisitor(File testClassFile) {
-    JunitTestClassVisitor classVisitor = new JunitTestClassVisitor();
-
-    InputStream classStream = null;
+  private void testClassForTests(StringBuilder packagePrefix, String classFileName, ClassLoader classLoader,
+      List<Class<?>> testClasses, Log log) {
+    StringBuilder fullyQualifiedClassName = new StringBuilder(packagePrefix);
+    if (fullyQualifiedClassName.length() != 0) {
+      fullyQualifiedClassName.append(CLASS_PACKAGE_COMPONENT_SEPARATOR);
+    }
+    fullyQualifiedClassName.append(classFileName.substring(0, classFileName.indexOf(FILE_EXTENSION_SEPARATOR)));
     try {
-      classStream = new BufferedInputStream(new FileInputStream(testClassFile));
+      Class<?> potentialTestClass = classLoader.loadClass(fullyQualifiedClassName.toString());
 
-      ClassReader classReader = new ClassReader(classStream);
-      classReader.accept(classVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES);
-    } catch (Throwable e) {
-      throw new RuntimeException(String.format("Could not process class file %s", testClassFile.getAbsolutePath()), e);
-    } finally {
-      if (classStream != null) {
-        try {
-          classStream.close();
-        } catch (IOException e) {
-          // Don't care
-        }
+      if (isTestClass(potentialTestClass, log)) {
+        testClasses.add(potentialTestClass);
+      }
+    } catch (Exception e) {
+      log.error(String.format("Could not test class %s for test methods", fullyQualifiedClassName));
+    }
+  }
+
+  /**
+   * Is the class a JUnit test class?
+   *
+   * @param potentialTestClass
+   *          the class to test
+   * @param log
+   *          the logger to use
+   *
+   * @return {@code true} if the class is testable and can be instantiated
+   */
+  private boolean isTestClass(Class<?> potentialTestClass, Log log) {
+    if (potentialTestClass.isInterface() || !classHasPublicConstructor(potentialTestClass, log)) {
+      return false;
+    }
+
+    for (Method method : potentialTestClass.getMethods()) {
+      if (method.isAnnotationPresent(Test.class)) {
+
+        // No need to check any more if we have 1
+        return true;
       }
     }
 
-    return classVisitor;
+    return false;
+  }
+
+  /**
+   * Does the class have a no argument public constructor?
+   *
+   * @param clazz
+   *          the class to test
+   * @param log
+   *          the logger to use
+   *
+   * @return {@code true} if the class has a public no arg constructor
+   */
+  private boolean classHasPublicConstructor(Class<?> clazz, Log log) {
+    try {
+      clazz.getConstructor();
+
+      return true;
+    } catch (NoSuchMethodException e) {
+      return false;
+    } catch (SecurityException e) {
+      log.warn(String.format("Potential test class %s caused a security exception. Ignoring.", clazz.getName()), e);
+
+      return false;
+    }
   }
 }

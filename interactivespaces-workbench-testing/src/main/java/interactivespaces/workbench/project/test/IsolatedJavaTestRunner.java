@@ -24,7 +24,6 @@ import org.junit.runner.notification.RunListener;
 
 import java.io.File;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,15 +51,10 @@ public class IsolatedJavaTestRunner {
   public boolean runTests(File testCompilationFolder, URLClassLoader classLoader, Log log) {
     // Get all JUnit tests
     JunitTestClassDetector detector = new JunitTestClassDetector();
-    List<JunitTestClassVisitor> testClasses = detector.findTestClasses(testCompilationFolder);
-    List<String> testClassNames = new ArrayList<String>();
+    List<Class<?>> testClasses = detector.findTestClasses(testCompilationFolder, classLoader, log);
 
     if (!testClasses.isEmpty()) {
-      for (JunitTestClassVisitor testClass : testClasses) {
-        testClassNames.add(testClass.getClassName().replaceAll("\\/", "."));
-      }
-
-      return runJunitTests(classLoader, testClassNames, log);
+      return runJunitTests(testClasses, log);
     } else {
       log.warn(String.format("No JUnit test classes found in %s", testCompilationFolder.getAbsolutePath()));
 
@@ -72,16 +66,14 @@ public class IsolatedJavaTestRunner {
   /**
    * Run all JUnit tests.
    *
-   * @param classLoader
-   *          the classloader for loading test classes
-   * @param testClassNames
+   * @param testClasses
    *          the names of the detected JUnit classes
    * @param log
    *          logger for the test run
    *
    * @return {@code true} if all tests succeeded
    */
-  private boolean runJunitTests(URLClassLoader classLoader, List<String> testClassNames, final Log log) {
+  private boolean runJunitTests(List<Class<?>> testClasses, final Log log) {
     JUnitCore junit = new JUnitCore();
 
     junit.addListener(new RunListener() {
@@ -99,17 +91,16 @@ public class IsolatedJavaTestRunner {
     log.info("Starting JUnit tests");
 
     boolean allSucceeded = true;
-    for (String testClassName : testClassNames) {
+    for (Class<?> testClass : testClasses) {
       try {
-        Class<?> testClass = classLoader.loadClass(testClassName);
         Result result = junit.run(testClass);
 
         log.info(String.format("Ran %2d tests in %4dms: %d failed, %d ignored. (%s)", result.getRunCount(),
-            result.getRunTime(), result.getFailureCount(), result.getIgnoreCount(), testClassName));
+            result.getRunTime(), result.getFailureCount(), result.getIgnoreCount(), testClass.getName()));
 
         allSucceeded &= result.wasSuccessful();
       } catch (Exception e) {
-        log.error(String.format("Error while running test class %s", testClassName), e);
+        log.error(String.format("Error while running test class %s", testClass.getName()), e);
       }
     }
 
@@ -127,24 +118,6 @@ public class IsolatedJavaTestRunner {
    *          logger for the test run
    */
   private void reportFailure(Failure testFailure, Log log) {
-    log.error(String.format("Test %s failed\n%s\n", testFailure.getTestHeader(), trimStackTrace(testFailure)));
-  }
-
-  /**
-   * Trim stack trace to stop before everything about the fact that Java
-   * reflection called the test method.
-   *
-   * @param failure
-   *          the JUnit failure
-   *
-   * @return the trimmed stack trace
-   */
-  private String trimStackTrace(Failure failure) {
-    String trace = failure.getTrace();
-    String testclass = failure.getDescription().getClassName();
-    int lastIndexOf = trace.lastIndexOf(testclass);
-    int endOfLine = trace.indexOf("\n", lastIndexOf);
-
-    return trace.substring(0, endOfLine);
+    log.error(String.format("Test %s failed\n%s\n", testFailure.getTestHeader(), testFailure.getTrace()));
   }
 }
