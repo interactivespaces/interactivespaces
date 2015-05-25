@@ -17,6 +17,7 @@
 package interactivespaces.util.resource;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 
 import com.google.common.collect.Lists;
 
@@ -123,7 +124,7 @@ public class ManagedResources {
       } catch (Exception e) {
         shutdownResources(startedResources);
 
-        throw new InteractiveSpacesException("Could not start up all managed resources", e);
+        throw new SimpleInteractiveSpacesException("Could not start up all managed resources", e);
       }
     }
 

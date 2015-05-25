@@ -289,14 +289,17 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
       try {
         ZipFile zip = new ZipFile(stageFile);
         ZipEntry entry = zip.getEntry(descriptorFileName);
+        if (entry == null) {
+          SimpleInteractiveSpacesException.throwFormattedException("Staged resource is missing descriptor %s, is it a valid activity file?", descriptorFileName);
+        }
 
         return new MyZipInputStream(zip, zip.getInputStream(entry));
       } catch (Exception e) {
-        throw new InteractiveSpacesException(String.format("Cannot get resource description from staged resource %s",
-            stageHandle), e);
+        throw SimpleInteractiveSpacesException.newFormattedException(e, "Could not get resource description from staged resource %s",
+            stageHandle);
       }
     } else {
-      throw new InteractiveSpacesException(String.format("%s is not a valid staging handle", stageHandle));
+      throw SimpleInteractiveSpacesException.newFormattedException("%s is not a valid staging handle", stageHandle);
     }
   }
 

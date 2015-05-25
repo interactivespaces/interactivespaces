@@ -17,8 +17,7 @@
     <evaluate expression="new java.util.Date()" result="flowScope.now" />
   </on-start>
 
-  <view-state id="newActivity" model="activityForm"
-    view="activity/ActivityUpload">
+  <view-state id="newActivity" model="activityForm" view="activity/ActivityUpload">
     <on-render>
       <evaluate expression="activityAction.addNeededEntities(flowRequestContext)" />
     </on-render>
@@ -29,8 +28,11 @@
   <action-state id="saveUploadActivity">
     <evaluate expression="activityAction.saveActivity(activityForm)" />
     <transition on="success" to="doneUploadActivity" />
-    <transition on="error" to="uploadActivity" />
+    <transition on="error" to="errorUploadActivity" />
   </action-state>
+
+  <view-state id="errorUploadActivity" model="activityForm" view="activity/ActivityError">
+  </view-state>
 
   <end-state id="doneUploadActivity"
     view="externalRedirect:contextRelative:/activity/#{activityForm.activity.id}/view.html">

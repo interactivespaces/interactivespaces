@@ -17,6 +17,7 @@
 package interactivespaces.master.ui.internal.web.activity;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.master.api.master.MasterApiActivityManager;
@@ -65,7 +66,7 @@ public class ActivityAction extends BaseSpaceMasterController {
    *
    * @param activity
    */
-  public void saveActivity(ActivityForm form) {
+  public String saveActivity(ActivityForm form) {
     try {
       Activity activity =
           masterApiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
@@ -73,9 +74,19 @@ public class ActivityAction extends BaseSpaceMasterController {
 
       // So the ID gets copied out of the flow.
       form.getActivity().setId(activity.getId());
+      return "success";
     } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
-      throw new InteractiveSpacesException("Could not get uploaded activity file", e);
+      form.setActivityFile(null);
+      String message = SimpleInteractiveSpacesException.getStackTrace(e);
+      if (e instanceof SimpleInteractiveSpacesException) {
+        message = ((SimpleInteractiveSpacesException) e).getCompoundMessage();
+        spaceEnvironment.getLog().error("Could not get uploaded activity file\n" + message);
+      } else {
+        spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
+      }
+      form.setActivityError(message);
+      return "error";
+      //throw new InteractiveSpacesException("Could not get uploaded activity file", e);
     }
   }
 
@@ -104,11 +115,21 @@ public class ActivityAction extends BaseSpaceMasterController {
      */
     private MultipartFile activityFile;
 
+    private String activityError;
+
     /**
      * @return the activity
      */
     public SimpleActivity getActivity() {
       return activity;
+    }
+
+    public String getActivityError() {
+      return activityError;
+    }
+
+    public void setActivityError(String activityError) {
+      this.activityError = activityError;
     }
 
     /**

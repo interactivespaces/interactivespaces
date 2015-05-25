@@ -16,31 +16,14 @@
 <!DOCTYPE html>
 <#import "/spring.ftl" as spring />
 <html>
-<head>
-<title>Interactive Spaces Admin: Activities</title>
+  <head>
+    <title>Interactive Spaces Admin: Activity Upload Error</title>
 
-<#include "/allpages_head.ftl">
-</head>
+  <#include "/allpages_head.ftl">
+  </head>
 
-<body class="admin-content">
-
-<h2>Upload Activity</h2>
-
-<form action="${flowExecutionUrl}" method="post" enctype="multipart/form-data">
-<table>
-<tr>
-<td>File</td>
-<td>
-<@spring.formInput path="activityForm.activityFile" fieldType="file" attributes='style="width: 40em"' />
-<@spring.showErrors '<br>', 'fieldError' />
-</td>
-</tr>
-<tr>
-<td>&nbsp;</td><td><input type="submit" name="_eventId_save" value="Save" />
-<input type="submit" name="_eventId_cancel" value="Cancel" />   </td>
-</tr>
-</form>
-
-
-</body>
+  <body class="admin-content">
+    <h2>Error encountered during activity upload:</h2>
+    <pre>${activityForm.activityError}</pre>
+  </body>
 </html>
