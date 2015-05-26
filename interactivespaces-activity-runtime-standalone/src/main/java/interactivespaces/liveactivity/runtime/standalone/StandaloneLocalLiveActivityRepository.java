@@ -29,6 +29,8 @@ import interactivespaces.liveactivity.runtime.domain.pojo.SimpleInstalledLiveAct
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
 import interactivespaces.resource.Version;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -62,6 +64,11 @@ public class StandaloneLocalLiveActivityRepository implements LocalLiveActivityR
    * The space environment to use.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * File support instance to use.
+   */
+  private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Construct a new repository.
@@ -134,6 +141,12 @@ public class StandaloneLocalLiveActivityRepository implements LocalLiveActivityR
     Date installedDate = new Date(spaceEnvironment.getTimeProvider().getCurrentTime());
 
     File activityFile = info.getActivityFilesystem().getInstallFile("activity.xml");
+
+    if (!fileSupport.exists(activityFile)) {
+      SimpleInteractiveSpacesException.throwFormattedException(
+          "Activity description file %s not found, has the activity been successfully built?",
+          activityFile.getAbsoluteFile());
+    }
 
     InputStream activityDescriptionStream = null;
     Version version;

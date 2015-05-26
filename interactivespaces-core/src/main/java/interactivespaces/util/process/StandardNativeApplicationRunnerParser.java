@@ -16,6 +16,8 @@
 
 package interactivespaces.util.process;
 
+import interactivespaces.expression.ExpressionConstants;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,16 +27,6 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class StandardNativeApplicationRunnerParser implements NativeApplicationRunnerParser {
-
-  /**
-   * The escape character for the flags configuration.
-   */
-  public static final char ESCAPE_CHARACTER = '\\';
-
-  /**
-   * The equals character for environment variables.
-   */
-  public static final char EQUALS_CHARACTER = '=';
 
   @Override
   public void parseCommandArguments(List<String> commandFlagsList, String commandFlags) {
@@ -53,7 +45,7 @@ public class StandardNativeApplicationRunnerParser implements NativeApplicationR
           commandFlagsList.add(component.toString());
           component.setLength(0);
         }
-      } else if (ch == ESCAPE_CHARACTER) {
+      } else if (ch == ExpressionConstants.ESCAPE_CHARACTER) {
         i++;
         if (i < commandFlags.length()) {
           component.append(commandFlags.charAt(i));
@@ -95,12 +87,12 @@ public class StandardNativeApplicationRunnerParser implements NativeApplicationR
           }
           component.setLength(0);
         }
-      } else if (ch == ESCAPE_CHARACTER) {
+      } else if (ch == ExpressionConstants.ESCAPE_CHARACTER) {
         i++;
         if (i < variables.length()) {
           component.append(variables.charAt(i));
         }
-      } else if (ch == EQUALS_CHARACTER && variableName == null) {
+      } else if (ch == ExpressionConstants.EQUALS_CHARACTER && variableName == null) {
         variableName = component.toString();
         component.setLength(0);
       } else {

@@ -30,11 +30,18 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class BaseNativeApplicationRunnerTest {
+
+  /**
+   * An instance of the application runner.
+   */
   private BaseNativeApplicationRunner runner;
 
+  /**
+   * Initialize setup for every test.
+   */
   @Before
   public void setup() {
-    runner = new BaseNativeApplicationRunner(new StandardNativeApplicationRunnerParser(), null, null) {
+    runner = new BaseNativeApplicationRunner(new StandardNativeApplicationRunnerParser(null), null, null) {
       @Override
       public boolean handleProcessExit(int exitValue, String[] commands) {
         return false;
@@ -146,7 +153,7 @@ public class BaseNativeApplicationRunnerTest {
   }
 
   /**
-   * Test modifying an environment
+   * Test modifying an environment.
    */
   @Test
   public void testEnvironmentModification() {

@@ -16,7 +16,7 @@
 
 package interactivespaces.master.ui.internal.web.activity;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.master.api.master.MasterApiActivityManager;
@@ -43,7 +43,7 @@ public class ActivityAction extends BaseSpaceMasterController {
   /**
    * Get a new activity model.
    *
-   * @return
+   * @return new activity form
    */
   public ActivityForm newActivity() {
     return new ActivityForm();
@@ -63,9 +63,12 @@ public class ActivityAction extends BaseSpaceMasterController {
   /**
    * Save the new activity.
    *
-   * @param activity
+   * @param form
+   *          activity form context
+   *
+   * @return status result
    */
-  public void saveActivity(ActivityForm form) {
+  public String saveActivity(ActivityForm form) {
     try {
       Activity activity =
           masterApiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
@@ -73,9 +76,21 @@ public class ActivityAction extends BaseSpaceMasterController {
 
       // So the ID gets copied out of the flow.
       form.getActivity().setId(activity.getId());
+      return "success";
     } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
-      throw new InteractiveSpacesException("Could not get uploaded activity file", e);
+      // On an error, need to clear the activity file else flow serialization fails.
+      form.setActivityFile(null);
+
+      String message = SimpleInteractiveSpacesException.getStackTrace(e);
+      if (e instanceof SimpleInteractiveSpacesException) {
+        message = ((SimpleInteractiveSpacesException) e).getCompoundMessage();
+        spaceEnvironment.getLog().error("Could not get uploaded activity file\n" + message);
+      } else {
+        spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
+      }
+      form.setActivityError(message);
+
+      return "error";
     }
   }
 
@@ -103,6 +118,11 @@ public class ActivityAction extends BaseSpaceMasterController {
      * The activity file.
      */
     private MultipartFile activityFile;
+
+    /**
+     * The activity error description.
+     */
+    private String activityError;
 
     /**
      * @return the activity
@@ -136,6 +156,23 @@ public class ActivityAction extends BaseSpaceMasterController {
      */
     public void setActivityFile(MultipartFile activityFile) {
       this.activityFile = activityFile;
+    }
+
+    /**
+     * @return the activity error
+     */
+    public String getActivityError() {
+      return activityError;
+    }
+
+    /**
+     * Set an activity error message.
+     *
+     * @param activityError
+     *          activity error message
+     */
+    public void setActivityError(String activityError) {
+      this.activityError = activityError;
     }
   }
 }

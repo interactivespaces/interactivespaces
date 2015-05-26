@@ -18,7 +18,6 @@ package interactivespaces.util.process;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
@@ -44,7 +43,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A support superclass for {@link NativeActivityRunner} implementations.
+ * A support superclass for {@link NativeApplicationRunner} implementations.
  *
  * @author Keith M. Hughes
  */
@@ -270,7 +269,12 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     commandLine = commandLineComponents.toArray(new String[commandLineComponents.size()]);
 
     String executable = commandLine[0];
-    executableFolder = new File(executable.substring(0, executable.lastIndexOf("/")));
+    int endIndex = executable.lastIndexOf(File.separatorChar);
+    if (endIndex < 0) {
+      SimpleInteractiveSpacesException.throwFormattedException(
+          "Executable path %s has no embedded file separator characters", executable);
+    }
+    executableFolder = new File(executable.substring(0, endIndex));
   }
 
   @Override

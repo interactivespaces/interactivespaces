@@ -48,7 +48,7 @@ fi
 
 CLASSPATH=interactivespaces-launcher-@INTERACTIVESPACES_VERSION@.jar
 
-if [ -n $CLASSPATH_ADDITIONAL ]; then
+if [ -n "$CLASSPATH_ADDITIONAL" ]; then
   CLASSPATH="${CLASSPATH}:${CLASSPATH_ADDITIONAL}"
 fi
 
