@@ -108,7 +108,9 @@ public abstract class InteractiveSpacesServiceOsgiBundleActivator implements Bun
 
     unregisterOsgiServices();
     unregisterInteractiveSpacesServices();
-    managedResources.shutdownResourcesAndClear();
+    if (managedResources != null) {
+      managedResources.shutdownResourcesAndClear();
+    }
 
     // Close all the trackers.
     for (MyServiceTracker<?> tracker : serviceTrackers.values()) {

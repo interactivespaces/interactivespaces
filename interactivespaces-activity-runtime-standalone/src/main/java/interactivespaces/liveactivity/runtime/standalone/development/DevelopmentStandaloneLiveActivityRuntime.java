@@ -16,6 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.standalone.development;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.component.route.MessageRouterActivityComponent;
@@ -390,6 +391,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     List<File> foldersToUse = Lists.newArrayList();
     scanForProjectFolders(rootFolder, foldersToUse);
 
+    if (foldersToUse.size() == 0) {
+      SimpleInteractiveSpacesException.throwFormattedException(
+          "No valid activities found in %s", suppliedRuntimeFolder.getAbsoluteFile());
+    }
+
     for (File projectFolder : foldersToUse) {
       String uuid = createActivityUuid(projectFolder);
       File baseActivityRuntimeFolder = fileSupport.newFile(suppliedRuntimeFolder, uuid);
@@ -578,7 +584,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
       cecRouter.setTraceFilter(traceFilterPath);
     }
 
-    for (InstalledLiveActivity activity : liveActivityRuntime.getAllInstalledLiveActivities()) {
+    List<InstalledLiveActivity> installedLiveActivities = liveActivityRuntime.getAllInstalledLiveActivities();
+    if (installedLiveActivities.size() == 0) {
+      SimpleInteractiveSpacesException.throwFormattedException("No installed live activities found");
+    }
+    for (InstalledLiveActivity activity : installedLiveActivities) {
       liveActivityRuntime.activateLiveActivity(activity.getUuid());
     }
   }
