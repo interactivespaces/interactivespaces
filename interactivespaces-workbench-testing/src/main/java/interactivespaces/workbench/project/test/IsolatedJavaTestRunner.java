@@ -24,6 +24,8 @@ import org.junit.runner.notification.RunListener;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -35,6 +37,16 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class IsolatedJavaTestRunner {
+
+  /**
+   * Comparator to sort a collection of classes by class name.
+   */
+  private static final Comparator<Class<?>> CLASS_COMPARATOR = new Comparator<Class<?>>() {
+    @Override
+    public int compare(Class<?> o1, Class<?> o2) {
+      return o1.getName().compareToIgnoreCase(o2.getName());
+    }
+  };
 
   /**
    * Run the given tests in the given classLoader.
@@ -91,6 +103,7 @@ public class IsolatedJavaTestRunner {
     log.info("Starting JUnit tests");
 
     boolean allSucceeded = true;
+    Collections.sort(testClasses, CLASS_COMPARATOR);
     for (Class<?> testClass : testClasses) {
       try {
         Result result = junit.run(testClass);
