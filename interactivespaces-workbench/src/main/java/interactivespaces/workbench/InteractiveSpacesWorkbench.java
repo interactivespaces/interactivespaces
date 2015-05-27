@@ -384,7 +384,11 @@ public class InteractiveSpacesWorkbench {
     creationSpecification.setSpecificationBase(specFile.getParentFile());
     creationSpecification.setBaseDirectory(baseDirectory);
 
-    projectCreator.create(creationSpecification);
+    if (projectCreator.create(creationSpecification)) {
+      getLog().info("Successfully created project.");
+    } else {
+      getLog().error("Failed to create project.");
+    }
   }
 
   /**

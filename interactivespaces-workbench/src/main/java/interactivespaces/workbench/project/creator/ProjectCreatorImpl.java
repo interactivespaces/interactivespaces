@@ -56,7 +56,7 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public void create(ProjectCreationContext context) {
+  public boolean create(ProjectCreationContext context) {
     try {
       Project project = context.getProject();
       GroupProjectTemplateSpecification groupProjectTemplateSpecification =
@@ -72,7 +72,9 @@ public class ProjectCreatorImpl implements ProjectCreator {
 
     } catch (Exception e) {
       workbench.handleError("Error while creating project " + context.getDescription(), e);
+      return false;
     }
+    return true;
   }
 
   /**
