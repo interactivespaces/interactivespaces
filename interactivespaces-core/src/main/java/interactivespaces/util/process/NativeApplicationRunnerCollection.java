@@ -16,6 +16,8 @@
 
 package interactivespaces.util.process;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.util.process.NativeApplicationRunner.NativeApplicationRunnerState;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.util.Map;
@@ -79,4 +81,20 @@ public interface NativeApplicationRunnerCollection extends ManagedResource {
    * @return a new runner
    */
   NativeApplicationRunner newNativeApplicationRunner();
+
+  /**
+   * Run a new application runner, blocking until the runner completes.
+   *
+   * @param description
+   *          the description of the runner
+   * @param waitTime
+   *          the number of milliseconds to wait for the command to complete
+   *
+   * @return a new application runner appropriate for the current platform
+   *
+   * @throws InteractiveSpacesException
+   *           the command failed or it ran longer than {@code waitTime}
+   */
+  NativeApplicationRunnerState runNativeApplicationRunner(NativeApplicationDescription description, long waitTime)
+      throws InteractiveSpacesException;
 }

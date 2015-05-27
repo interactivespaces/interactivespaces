@@ -16,7 +16,9 @@
 
 package interactivespaces.util.process;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.process.NativeApplicationRunner.NativeApplicationRunnerState;
 
 import com.google.common.collect.Lists;
 
@@ -24,6 +26,7 @@ import org.apache.commons.logging.Log;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +40,11 @@ import java.util.concurrent.TimeUnit;
  * @author Keith M. Hughes
  */
 public class StandardNativeApplicationRunnerCollection implements NativeApplicationRunnerCollection {
+
+  /**
+   * The count for the countdown latch for {@link #runNativeApplicationRunner(NativeApplicationDescription, long)}.
+   */
+  public static final int BLOCKING_RUN_COUNTDOWN_COUNT = 1;
 
   /**
    * The default for how often to sample the runners to see if they are still running, in milliseconds.
@@ -153,6 +161,42 @@ public class StandardNativeApplicationRunnerCollection implements NativeApplicat
   @Override
   public NativeApplicationRunner newNativeApplicationRunner() {
     return runnerFactory.newPlatformNativeApplicationRunner(log);
+  }
+
+  @Override
+  public NativeApplicationRunnerState runNativeApplicationRunner(NativeApplicationDescription description,
+      long waitTime) {
+    NativeApplicationRunner runner = newNativeApplicationRunner();
+    runner.configure(description);
+
+    final CountDownLatch runnerComplete = new CountDownLatch(BLOCKING_RUN_COUNTDOWN_COUNT);
+    runner.addNativeApplicationRunnerListener(new BaseNativeApplicationRunnerListener() {
+
+      @Override
+      public void onNativeApplicationRunnerStartupFailed(NativeApplicationRunner runner) {
+        runnerComplete.countDown();
+      }
+
+      @Override
+      public void onNativeApplicationRunnerShutdown(NativeApplicationRunner runner) {
+        runnerComplete.countDown();
+      }
+    });
+
+    addNativeApplicationRunner(runner);
+
+    try {
+      if (!runnerComplete.await(waitTime, TimeUnit.MILLISECONDS)) {
+        SimpleInteractiveSpacesException.throwFormattedException("The command %s did not complete in %d msec",
+            description, waitTime);
+      }
+    } catch (SimpleInteractiveSpacesException e) {
+      throw e;
+    } catch (InterruptedException e) {
+      SimpleInteractiveSpacesException.throwFormattedException("The command %s wait was interrupted", description);
+    }
+
+    return runner.getState();
   }
 
   /**

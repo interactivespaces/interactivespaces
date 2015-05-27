@@ -16,7 +16,6 @@
 
 package interactivespaces.liveactivity.runtime.monitor.internal;
 
-import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.service.web.server.HttpRequest;
@@ -24,9 +23,7 @@ import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
-import interactivespaces.util.process.BaseNativeApplicationRunnerListener;
 import interactivespaces.util.process.NativeApplicationDescription;
-import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 
@@ -34,8 +31,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The runtime monitor plugin that performs screenshots.
@@ -94,7 +89,7 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   private String screenshotExecutable;
 
   /**
-   * The executable flags for the screenshot executable. {@code 0}} is used for the file for the screenshot.
+   * The executable flags for the screenshot executable. {@code 0} is used for the file for the screenshot.
    */
   private MessageFormat screenshotExecutableFlags;
 
@@ -172,29 +167,11 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
     NativeApplicationRunnerCollection runnerCollection =
         new StandardNativeApplicationRunnerCollection(liveActivityRuntime.getSpaceEnvironment(), liveActivityRuntime
             .getSpaceEnvironment().getLog());
-    NativeApplicationRunner nativeRunner = runnerCollection.addNativeApplicationRunner(description);
-
-    final CountDownLatch snapshotComplete = new CountDownLatch(1);
-    nativeRunner.addNativeApplicationRunnerListener(new BaseNativeApplicationRunnerListener() {
-
-      @Override
-      public void onNativeApplicationRunnerStartupFailed(NativeApplicationRunner runner) {
-        snapshotComplete.countDown();
-      }
-
-      @Override
-      public void onNativeApplicationRunnerShutdown(NativeApplicationRunner runner) {
-        snapshotComplete.countDown();
-      }
-    });
 
     try {
-      // Once used, should this runner collection stay running?
+      // TODO(keith): Once used, should this runner collection stay running until plugin shutdown?
       runnerCollection.startup();
-      if (!snapshotComplete.await(screenshotSleepTime, TimeUnit.MILLISECONDS)) {
-        SimpleInteractiveSpacesException.throwFormattedException("Screen shot did not complete in %d msec",
-            screenshotSleepTime);
-      }
+      runnerCollection.runNativeApplicationRunner(description, screenshotSleepTime);
 
       return screenshotFile;
     } finally {
