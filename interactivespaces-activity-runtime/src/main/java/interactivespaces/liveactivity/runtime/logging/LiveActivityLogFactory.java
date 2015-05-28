@@ -16,7 +16,8 @@
 
 package interactivespaces.liveactivity.runtime.logging;
 
-import interactivespaces.controller.MinimalLiveActivity;
+import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 import org.apache.commons.logging.Log;
 
@@ -34,8 +35,10 @@ public interface LiveActivityLogFactory {
    *          the activity a logger is needed for
    * @param level
    *          initial level for the logger
+   * @param activityFilesystem
+   *          file system for the activity
    *
    * @return a fully configured logger at the requested level
    */
-  Log createLogger(MinimalLiveActivity activity, String level);
+  Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem);
 }

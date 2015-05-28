@@ -21,7 +21,6 @@ import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.ActivityRuntime;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.util.resource.ManagedResource;
 
@@ -63,10 +62,13 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    *          activity to log
    * @param configuration
    *          configuration properties
+   * @param activityFilesystem
+   *          file system for the activity
    *
    * @return logger for this activity and configuration
    */
-  Log getActivityLog(MinimalLiveActivity activity, Configuration configuration);
+      Log
+      getActivityLog(InstalledLiveActivity activity, Configuration configuration, ActivityFilesystem activityFilesystem);
 
   /**
    * Start up all activities in the controller that aren't currently started.
@@ -159,7 +161,7 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    * @param executionContext
    *          execution context for this activity
    */
-  void initializeActivityInstance(MinimalLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
+  void initializeActivityInstance(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
       Activity instance, Configuration configuration, ActivityExecutionContext executionContext);
 
   /**

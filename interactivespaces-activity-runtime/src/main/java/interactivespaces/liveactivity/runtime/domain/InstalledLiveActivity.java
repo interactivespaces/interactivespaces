@@ -18,7 +18,6 @@ package interactivespaces.liveactivity.runtime.domain;
 
 import interactivespaces.activity.ActivityRuntimeStartupType;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.resource.Version;
 
 import java.util.Date;
@@ -28,7 +27,14 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public interface InstalledLiveActivity extends MinimalLiveActivity {
+public interface InstalledLiveActivity {
+
+  /**
+   * Get the UUID of the activity.
+   *
+   * @return the UUID
+   */
+  String getUuid();
 
   /**
    * Set the UUID of the activity.

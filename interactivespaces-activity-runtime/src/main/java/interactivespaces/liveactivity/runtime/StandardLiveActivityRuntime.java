@@ -27,7 +27,6 @@ import interactivespaces.activity.BaseActivityRuntime;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.controller.MinimalLiveActivity;
 import interactivespaces.liveactivity.runtime.alert.AlertStatusManager;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfigurationManager;
@@ -469,11 +468,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
-  public void initializeActivityInstance(MinimalLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
+  public void initializeActivityInstance(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
       Activity instance, Configuration configuration, ActivityExecutionContext executionContext) {
 
     // Set log first to enable logging of any configuration/startup errors.
-    instance.setLog(getActivityLog(liveActivity, configuration));
+    instance.setLog(getActivityLog(liveActivity, configuration, activityFilesystem));
 
     String uuid = liveActivity.getUuid();
     instance.setActivityRuntime(this);
@@ -514,9 +513,10 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
-  public Log getActivityLog(MinimalLiveActivity activity, Configuration configuration) {
+  public Log getActivityLog(InstalledLiveActivity activity, Configuration configuration,
+      ActivityFilesystem activityFilesystem) {
     return activityLogFactory.createLogger(activity, configuration.getPropertyString(
-        Activity.CONFIGURATION_PROPERTY_LOG_LEVEL, InteractiveSpacesEnvironment.LOG_LEVEL_ERROR));
+        Activity.CONFIGURATION_PROPERTY_LOG_LEVEL, InteractiveSpacesEnvironment.LOG_LEVEL_ERROR), activityFilesystem);
   }
 
   /**

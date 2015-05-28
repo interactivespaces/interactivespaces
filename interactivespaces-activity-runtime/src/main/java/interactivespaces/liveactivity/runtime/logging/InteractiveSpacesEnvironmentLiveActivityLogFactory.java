@@ -16,14 +16,14 @@
 
 package interactivespaces.liveactivity.runtime.logging;
 
-import interactivespaces.controller.MinimalLiveActivity;
+import interactivespaces.activity.ActivityFilesystem;
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
 
 /**
- * A {@link LiveActivityLogFactory} which uses the
- * {@link InteractiveSpacesEnvironment} to get a logger.
+ * A {@link LiveActivityLogFactory} which uses the {@link InteractiveSpacesEnvironment} to get a logger.
  *
  * @author Keith M. Hughes
  */
@@ -45,13 +45,12 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
    * @param spaceEnvironment
    *          environment to define logging context
    */
-  public InteractiveSpacesEnvironmentLiveActivityLogFactory(
-      InteractiveSpacesEnvironment spaceEnvironment) {
+  public InteractiveSpacesEnvironmentLiveActivityLogFactory(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
   }
 
   @Override
-  public Log createLogger(MinimalLiveActivity activity, String level) {
+  public Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem) {
     return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level);
   }
 }
