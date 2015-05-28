@@ -106,7 +106,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
    *
    */
   public void addChunk(ChannelHandlerContext ctx, HttpChunk chunk) throws Exception {
-    if (!chunk.getContent().readable()) {
+    if (!chunk.getContent().readable() && !chunk.isLast()) {
       return;
     }
 
