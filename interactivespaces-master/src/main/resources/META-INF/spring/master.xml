@@ -223,8 +223,9 @@
   </bean>
 
   <bean id="interactivespaces.master.controller.active"
-    class="interactivespaces.master.server.services.internal.BasicActiveSpaceControllerManager"
+    class="interactivespaces.master.server.services.internal.StandardActiveSpaceControllerManager"
   >
+    <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
     <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
 
@@ -233,15 +234,12 @@
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
-  <bean id="interactivespaces.master.space.alert" class="interactivespaces.master.server.services.internal.BasicMasterAlertManager"
+  <bean id="interactivespaces.master.space.alert" class="interactivespaces.master.server.services.internal.StandardMasterAlertManager"
     destroy-method="shutdown" init-method="startup"
   >
-
-    <property name="activeSpaceControllerManager" ref="interactivespaces.master.controller.active" />
+    <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
     <property name="alertService" ref="interactivespaces.service.alert" />
-
-    <property name="spaceControllerRepository" ref="interactivespaces.repository.controller" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
@@ -312,13 +310,17 @@
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
+  <bean id="interactivespaces.master.event.manager" class="interactivespaces.master.event.StandardMasterEventManager">
+    <property name="log" ref="interactivespaces.master.logger" />
+  </bean>
+
   <bean id="interactivespaces.master.api.activity" parent="txProxyTemplate">
 
     <property name="target">
-
-      <bean class="interactivespaces.master.api.master.internal.BasicMasterApiActivityManager"
+      <bean class="interactivespaces.master.api.master.internal.StandardMasterApiActivityManager"
         destroy-method="shutdown" init-method="startup" parent="abstractMasterApiManager"
       >
+        <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
         <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
@@ -335,7 +337,7 @@
 
     <property name="target">
 
-      <bean class="interactivespaces.master.api.master.internal.BasicMasterApiSpaceControllerManager"
+      <bean class="interactivespaces.master.api.master.internal.StandardMasterApiSpaceControllerManager"
         parent="abstractMasterApiManager"
       >
 
@@ -395,7 +397,7 @@
     </property>
   </bean>
 
-  <bean id="interactivespaces.master.websocket" class="interactivespaces.master.api.master.internal.BasicMasterWebsocketManager"
+  <bean id="interactivespaces.master.websocket" class="interactivespaces.master.api.master.internal.StandardMasterWebsocketManager"
     destroy-method="shutdown" init-method="startup"
   >
 

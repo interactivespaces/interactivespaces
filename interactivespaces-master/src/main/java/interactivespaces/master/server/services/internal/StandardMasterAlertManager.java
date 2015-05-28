@@ -17,15 +17,15 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.event.BaseMasterEventListener;
+import interactivespaces.master.event.MasterEventListener;
+import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.MasterAlertManager;
-import interactivespaces.master.server.services.SpaceControllerListener;
-import interactivespaces.master.server.services.SpaceControllerListenerSupport;
-import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterAlertManager implements MasterAlertManager {
+public class StandardMasterAlertManager implements MasterAlertManager {
 
   /**
    * Default number of milliseconds for space controller failure.
@@ -53,34 +53,28 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   private static final int WATCHER_DELAY_DEFAULT = 1000;
 
   /**
-   * The active controller manager to listen to.
-   */
-  private ActiveSpaceControllerManager activeSpaceControllerManager;
-
-  /**
-   * Number of milliseconds after not receiving a heartbeat for a space
-   * controller that we will raise the alarm.
+   * Number of milliseconds after not receiving a heartbeat for a space controller that we will raise the alarm.
    */
   private long spaceControllerHeartbeatTime = SPACE_CONTROLLER_HEARTBEAT_TIME_DEFAULT;
 
   /**
    * The listener for space controller events.
    */
-  private final SpaceControllerListener spaceControllerListener = new SpaceControllerListenerSupport() {
+  private final MasterEventListener masterEventListener = new BaseMasterEventListener() {
 
     @Override
     public void onSpaceControllerConnectAttempted(ActiveSpaceController controller) {
-      handleSpaceControllerConnectAttempted(controller.getController().getUuid());
+      handleSpaceControllerConnectAttempted(controller);
     }
 
     @Override
     public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
-      handleSpaceControllerDisconnectAttempted(controller.getController().getUuid());
+      handleSpaceControllerDisconnectAttempted(controller);
     }
 
     @Override
-    public void onSpaceControllerHeartbeat(String uuid, long timestamp) {
-      handleSpaceControllerHeartbeat(uuid, timestamp);
+    public void onSpaceControllerHeartbeat(ActiveSpaceController controller, long timestamp) {
+      handleSpaceControllerHeartbeat(controller, timestamp);
     }
   };
 
@@ -90,8 +84,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   private ScheduledFuture<?> alertWatcherControl;
 
   /**
-   * Number of milliseconds the alert watcher waits before scanning for activity
-   * state.
+   * Number of milliseconds the alert watcher waits before scanning for activity state.
    */
   private final long alertWatcherDelay = WATCHER_DELAY_DEFAULT;
 
@@ -106,9 +99,9 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   private AlertService alertService;
 
   /**
-   * The repository for controller entities.
+   * The event manager for the master.
    */
-  private SpaceControllerRepository spaceControllerRepository;
+  private MasterEventManager masterEventManager;
 
   /**
    * The space environment to use.
@@ -117,7 +110,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 
   @Override
   public void startup() {
-    activeSpaceControllerManager.addSpaceControllerListener(spaceControllerListener);
+    masterEventManager.addListener(masterEventListener);
 
     alertWatcherControl = spaceEnvironment.getExecutorService().scheduleAtFixedRate(new Runnable() {
       @Override
@@ -131,7 +124,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
 
   @Override
   public void shutdown() {
-    activeSpaceControllerManager.removeSpaceControllerListener(spaceControllerListener);
+    masterEventManager.removeListener(masterEventListener);
     if (alertWatcherControl != null) {
       alertWatcherControl.cancel(true);
       alertWatcherControl = null;
@@ -152,39 +145,41 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   /**
    * Handle a connection attempt to a space controller.
    *
-   * @param uuid
-   *          uuid of the space controller
+   * @param activeSpaceController
+   *          the space controller
    */
-  private void handleSpaceControllerConnectAttempted(String uuid) {
-    addSpaceControllerWatcher(uuid);
+  private void handleSpaceControllerConnectAttempted(ActiveSpaceController activeSpaceController) {
+    addSpaceControllerWatcher(activeSpaceController);
   }
 
   /**
    * Handle a disconnection attempt to a space controller.
    *
-   * @param uuid
-   *          uuid of the space controller
+   * @param activeSpaceController
+   *          the space controller
    */
-  private void handleSpaceControllerDisconnectAttempted(String uuid) {
-    removeSpaceControllerWatcher(uuid);
+  private void handleSpaceControllerDisconnectAttempted(ActiveSpaceController activeSpaceController) {
+    removeSpaceControllerWatcher(activeSpaceController);
   }
 
   /**
    * Handle a controller heartbeat.
    *
-   * @param uuid
-   *          UUID of the controller
+   * @param activeSpaceController
+   *          the space controller
    * @param timestamp
    *          timestamp of the controller coming in
    */
-  public void handleSpaceControllerHeartbeat(String uuid, long timestamp) {
-    SpaceControllerAlertWatcher watcher = getSpaceControllerWatcher(uuid);
+  public void handleSpaceControllerHeartbeat(ActiveSpaceController activeSpaceController, long timestamp) {
+    SpaceControllerAlertWatcher watcher =
+        getSpaceControllerWatcher(activeSpaceController.getSpaceController().getUuid());
 
     if (watcher != null) {
       watcher.heartbeat(timestamp);
     } else {
       spaceEnvironment.getLog().warn(
-          String.format("Master alert manager got heartbeat for unknown space controller %s", uuid));
+          String.format("Master alert manager got heartbeat for unknown space controller %s", activeSpaceController
+              .getSpaceController().getUuid()));
     }
   }
 
@@ -194,14 +189,14 @@ public class BasicMasterAlertManager implements MasterAlertManager {
    * <p>
    * It will be given the timestamp of the current time.
    *
-   * @param uuid
-   *          the UUID of the space controller
+   * @param activeSpaceController
+   *          the space controller
    */
-  private void addSpaceControllerWatcher(String uuid) {
+  private void addSpaceControllerWatcher(ActiveSpaceController activeSpaceController) {
     long timestamp = spaceEnvironment.getTimeProvider().getCurrentTime();
     synchronized (spaceControllerWatchers) {
-      SpaceControllerAlertWatcher watcher = new SpaceControllerAlertWatcher(uuid, timestamp);
-      spaceControllerWatchers.put(uuid, watcher);
+      SpaceControllerAlertWatcher watcher = new SpaceControllerAlertWatcher(activeSpaceController, timestamp);
+      spaceControllerWatchers.put(activeSpaceController.getSpaceController().getUuid(), watcher);
     }
   }
 
@@ -225,12 +220,12 @@ public class BasicMasterAlertManager implements MasterAlertManager {
    * <p>
    * Does nothing if no watcher for the space controller.
    *
-   * @param uuid
-   *          the UUID of the space controller
+   * @param activeSpaceController
+   *          the space controller
    */
-  public void removeSpaceControllerWatcher(String uuid) {
+  public void removeSpaceControllerWatcher(ActiveSpaceController activeSpaceController) {
     synchronized (spaceControllerWatchers) {
-      spaceControllerWatchers.remove(uuid);
+      spaceControllerWatchers.remove(activeSpaceController.getSpaceController().getUuid());
     }
   }
 
@@ -246,25 +241,17 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   }
 
   /**
-   * Get the space controller listener the manager is using.
+   * Get the master event listener the manager is using.
    *
-   * @return the space controller listener
+   * @return the master event listener
    */
-  SpaceControllerListener getSpaceControllerListener() {
-    return spaceControllerListener;
+  @VisibleForTesting
+  MasterEventListener getMasterEventListener() {
+    return masterEventListener;
   }
 
   /**
-   * @param activeControllerManager
-   *          the activeControllerManager to set
-   */
-  public void setActiveSpaceControllerManager(ActiveSpaceControllerManager activeControllerManager) {
-    this.activeSpaceControllerManager = activeControllerManager;
-  }
-
-  /**
-   * Set the maximum amount of time willing to wait for a controller heartbeat
-   * before complaining.
+   * Set the maximum amount of time willing to wait for a controller heartbeat before complaining.
    *
    * @param spaceControllerHeartbeatTime
    *          the time to wait in milliseconds
@@ -274,8 +261,7 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   }
 
   /**
-   * Get the maximum amount of time willing to wait for a controller heartbeat
-   * before complaining.
+   * Get the maximum amount of time willing to wait for a controller heartbeat before complaining.
    *
    * @return the time to wait in milliseconds
    */
@@ -284,16 +270,20 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   }
 
   /**
-   * @param spaceControllerRepository
-   *          the controllerRepository to set
+   * Set the master event listener.
+   *
+   * @param masterEventManager
+   *          the master event listener
    */
-  public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
-    this.spaceControllerRepository = spaceControllerRepository;
+  public void setMasterEventManager(MasterEventManager masterEventManager) {
+    this.masterEventManager = masterEventManager;
   }
 
   /**
+   * Set the space environment.
+   *
    * @param spaceEnvironment
-   *          the spaceEnvironment to set
+   *          the space environment
    */
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;
@@ -315,9 +305,9 @@ public class BasicMasterAlertManager implements MasterAlertManager {
   public class SpaceControllerAlertWatcher {
 
     /**
-     * UUID of the controller being watched.
+     * The active space controller.
      */
-    private final String uuid;
+    private final ActiveSpaceController activeSpaceController;
 
     /**
      * Last timestamp for a heartbeat.
@@ -334,13 +324,13 @@ public class BasicMasterAlertManager implements MasterAlertManager {
     /**
      * Construct a new alert watcher.
      *
-     * @param uuid
-     *          UUID for the space controller
+     * @param activeSpaceController
+     *          the space controller
      * @param timestamp
      *          timestamp for the alert
      */
-    public SpaceControllerAlertWatcher(String uuid, long timestamp) {
-      this.uuid = uuid;
+    public SpaceControllerAlertWatcher(ActiveSpaceController activeSpaceController, long timestamp) {
+      this.activeSpaceController = activeSpaceController;
       lastHeartbeatTimestamp = new AtomicLong(timestamp);
     }
 
@@ -378,7 +368,8 @@ public class BasicMasterAlertManager implements MasterAlertManager {
       if (!alerted) {
         alerted = true;
 
-        alertService.raiseAlert(ALERT_TYPE_CONTROLLER_TIMEOUT, uuid, createAlertMessage(timeSinceLastHeartbeat));
+        alertService.raiseAlert(ALERT_TYPE_CONTROLLER_TIMEOUT, activeSpaceController.getSpaceController().getUuid(),
+            createAlertMessage(timeSinceLastHeartbeat));
       }
     }
 
@@ -391,17 +382,12 @@ public class BasicMasterAlertManager implements MasterAlertManager {
      * @return the fully formated message
      */
     private String createAlertMessage(long timeSinceLastHeartbeat) {
-      SpaceController controller = spaceControllerRepository.getSpaceControllerByUuid(uuid);
+      SpaceController controller = activeSpaceController.getSpaceController();
 
-      if (controller != null) {
-        String message =
-            "No space controller heartbeat in %d milliseconds\n\n" + "ID: %s\nUUID: %s\nName: %s\nHostId: %s\n";
-        return String.format(message, timeSinceLastHeartbeat, controller.getId(), uuid, controller.getName(),
-            controller.getHostId());
-      } else {
-        return String.format("No space controller heartbeat in %d milliseconds\nUnknown space controller with UUID %s",
-            timeSinceLastHeartbeat, uuid);
-      }
+      String message =
+          "No space controller heartbeat in %d milliseconds\n\n" + "ID: %s\nUUID: %s\nName: %s\nHostId: %s\n";
+      return String.format(message, timeSinceLastHeartbeat, controller.getId(), controller.getUuid(),
+          controller.getName(), controller.getHostId());
     }
   }
 }

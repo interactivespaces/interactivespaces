@@ -46,14 +46,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * Test the {@link StandardMasterDataBundleManager}.
+ *
  * @author peringknife@google.com (Trevor Pering)
  */
-public class BasicMasterDataBundleManagerTest {
+public class StandardMasterDataBundleManagerTest {
 
   /**
    * Current instance of main class under test.
    */
-  BasicMasterDataBundleManager masterDataBundleManager;
+  StandardMasterDataBundleManager masterDataBundleManager;
 
   /**
    * Mock controller to use.
@@ -73,7 +75,7 @@ public class BasicMasterDataBundleManagerTest {
   // Various test constants.
   static final String TEST_RESOURCE_CATEGORY = "data";
   static final String TEST_UUID = "1bd6a9762679cba97d6b";
-  static final Version TEST_RESOURCE_VERSION = BasicMasterDataBundleManager.DATA_BUNDLE_STATIC_VERSION;
+  static final Version TEST_RESOURCE_VERSION = StandardMasterDataBundleManager.DATA_BUNDLE_STATIC_VERSION;
   static final String TEST_URI_SEPARATOR = "-";
   static final String TEST_OUTPUT_CONTENTS = "Qjwhqekjwh ekqjwhekqjweh q\n"
       + "WJQHD kqjhd qwDHOuwhqdouwh qWhodwq wqjdhwkqjdhqwk djhqKWJDhkqwjd\n";
@@ -98,7 +100,7 @@ public class BasicMasterDataBundleManagerTest {
     testResults = new TestResults();
 
     activeSpaceController = Mockito.mock(ActiveSpaceController.class, RETURNS_DEEP_STUBS);
-    when(activeSpaceController.getController().getUuid()).thenReturn(TEST_UUID);
+    when(activeSpaceController.getSpaceController().getUuid()).thenReturn(TEST_UUID);
 
     resourceRepositoryServer = Mockito.mock(ResourceRepositoryServer.class);
 
@@ -185,7 +187,7 @@ public class BasicMasterDataBundleManagerTest {
     }
   }
 
-  class TestBasicMasterDataBundleManager extends BasicMasterDataBundleManager {
+  class TestBasicMasterDataBundleManager extends StandardMasterDataBundleManager {
     @Override
     protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller, String destinationUri) {
       testResults.destinationUri = destinationUri;

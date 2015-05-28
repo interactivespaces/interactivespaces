@@ -16,7 +16,7 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.ActivityDeploymentRequest;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
@@ -293,10 +293,11 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   @Override
   public void configureSpaceController(ActiveSpaceController controller) {
     List<ConfigurationParameterRequest> parameterRequests = Lists.newArrayList();
-    SpaceControllerConfiguration configuration = controller.getController().getConfiguration();
+    SpaceControllerConfiguration configuration = controller.getSpaceController().getConfiguration();
     if (configuration != null) {
       for (ConfigurationParameter parameter : configuration.getParameters()) {
-        ConfigurationParameterRequest newParameter = rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
+        ConfigurationParameterRequest newParameter =
+            rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
         newParameter.setOperation(ConfigurationParameterRequest.OPERATION_ADD);
         newParameter.setName(parameter.getName());
         newParameter.setValue(parameter.getValue());
@@ -389,7 +390,8 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
     ActivityConfiguration configuration = activity.getLiveActivity().getConfiguration();
     if (configuration != null) {
       for (ConfigurationParameter parameter : configuration.getParameters()) {
-        ConfigurationParameterRequest newParameter = rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
+        ConfigurationParameterRequest newParameter =
+            rosMessageFactory.newFromType(ConfigurationParameterRequest._TYPE);
         newParameter.setOperation(ConfigurationParameterRequest.OPERATION_ADD);
         newParameter.setName(parameter.getName());
         newParameter.setValue(parameter.getValue());
@@ -609,8 +611,8 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         break;
 
       case ControllerStatus.STATUS_CONTROLLER_CONTAINER_RESOURCE_QUERY:
-        handleContainerResourceQueryResponse(containerResourceQueryResponseDeserializer
-            .deserialize(status.getPayload()));
+        handleContainerResourceQueryResponse(containerResourceQueryResponseDeserializer.deserialize(status
+            .getPayload()));
         break;
 
       case ControllerStatus.STATUS_CONTROLLER_CONTAINER_RESOURCE_COMMIT:
@@ -776,7 +778,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @return The communicator for the controller. Will be {@code null} if there is none and creation wasn't specified.
    */
   private SpaceControllerCommunicator getCommunicator(ActiveSpaceController controller, boolean create) {
-    String remoteNode = controller.getController().getHostId();
+    String remoteNode = controller.getSpaceController().getHostId();
     synchronized (controllerCommunicators) {
       SpaceControllerCommunicator communicator = controllerCommunicators.get(remoteNode);
 
@@ -801,7 +803,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    *          The controller
    */
   private void shutdownCommunicator(ActiveSpaceController controller) {
-    String remoteNode = controller.getController().getHostId();
+    String remoteNode = controller.getSpaceController().getHostId();
     SpaceControllerCommunicator communicator = null;
     synchronized (controllerCommunicators) {
       communicator = controllerCommunicators.remove(remoteNode);
@@ -809,7 +811,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     if (communicator != null) {
       communicator.shutdown();
-      log.info(String.format("Communicator for controller %s shutdown and removed", controller.getController()
+      log.info(String.format("Communicator for controller %s shutdown and removed", controller.getSpaceController()
           .getUuid()));
     }
   }
@@ -925,8 +927,8 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         if (publisherListener.awaitNewSubscriber(controllerConnectionTimeWait, TimeUnit.MILLISECONDS)) {
           controllerRequestPublisher.publish(request);
         } else {
-          throw new InteractiveSpacesException(String.format("No connection to controller in %d milliseconds",
-              controllerConnectionTimeWait));
+          SimpleInteractiveSpacesException.throwFormattedException("No connection to controller in %d milliseconds",
+              controllerConnectionTimeWait);
         }
       } catch (InterruptedException e) {
         // TODO(keith): Decide what to do.

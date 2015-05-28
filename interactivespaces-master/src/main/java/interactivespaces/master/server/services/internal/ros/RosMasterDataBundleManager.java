@@ -16,7 +16,7 @@
 package interactivespaces.master.server.services.internal.ros;
 
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.internal.BasicMasterDataBundleManager;
+import interactivespaces.master.server.services.internal.StandardMasterDataBundleManager;
 
 import interactivespaces_msgs.ControllerDataRequest;
 import interactivespaces_msgs.ControllerRequest;
@@ -27,7 +27,7 @@ import org.ros.node.ConnectedNode;
 /**
  * Ros-based implementation of a master data bundle manager.
  */
-public class RosMasterDataBundleManager extends BasicMasterDataBundleManager {
+public class RosMasterDataBundleManager extends StandardMasterDataBundleManager {
 
   /**
    * Remote space controller client for communication.

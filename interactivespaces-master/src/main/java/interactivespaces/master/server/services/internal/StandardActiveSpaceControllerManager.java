@@ -25,6 +25,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.space.Space;
+import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivityGroup;
 import interactivespaces.master.server.services.ActiveSpace;
@@ -32,8 +33,6 @@ import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
-import interactivespaces.master.server.services.SpaceControllerListener;
-import interactivespaces.master.server.services.SpaceControllerListenerHelper;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -52,7 +51,7 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class BasicActiveSpaceControllerManager implements InternalActiveSpaceControllerManager,
+public class StandardActiveSpaceControllerManager implements InternalActiveSpaceControllerManager,
     RemoteSpaceControllerClientListener {
 
   /**
@@ -66,8 +65,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   private final Map<String, ActiveLiveActivity> activeLiveActivities = Maps.newHashMap();
 
   /**
-   * Active live activities mapped by the ID of the controller which contains
-   * the live activity.
+   * Active live activities mapped by the ID of the controller which contains the live activity.
    */
   private final Multimap<String, ActiveLiveActivity> activeLiveActivitiesByController = HashMultimap.create();
 
@@ -84,7 +82,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   /**
    * Listeners for events in the manager.
    */
-  private final SpaceControllerListenerHelper spaceControllerListeners = new SpaceControllerListenerHelper();
+  private MasterEventManager masterEventManager;
 
   /**
    * The client for interacting with a controller remotely.
@@ -137,7 +135,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void forceStatusSpaceController(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(String.format("Forcing status request from controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog().info(
+        String.format("Forcing status request from controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -146,17 +145,19 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void configureSpaceController(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(String.format("Setting configuration of space controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog().info(
+        String.format("Setting configuration of space controller %s", spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
-    remoteSpaceControllerClient. configureSpaceController(activeSpaceController);
+    remoteSpaceControllerClient.configureSpaceController(activeSpaceController);
   }
 
   @Override
   public void cleanSpaceControllerTempData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting space controller temp data clean from space controller %s", spaceController.getHostId()));
+        String.format("Requesting space controller temp data clean from space controller %s",
+            spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -166,7 +167,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   @Override
   public void cleanSpaceControllerPermanentData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting space controller permanent data clean from space controller %s", spaceController.getHostId()));
+        String.format("Requesting space controller permanent data clean from space controller %s",
+            spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -175,8 +177,10 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void cleanSpaceControllerActivitiesTempData(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(
-        String.format("Requesting all activity temp data clean from space controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog()
+        .info(
+            String.format("Requesting all activity temp data clean from space controller %s",
+                spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -186,7 +190,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   @Override
   public void cleanSpaceControllerActivitiesPermanentData(SpaceController spaceController) {
     spaceEnvironment.getLog().info(
-        String.format("Requesting all activities permanent data clean from space controller %s", spaceController.getHostId()));
+        String.format("Requesting all activities permanent data clean from space controller %s",
+            spaceController.getHostId()));
 
     // To make sure something is listening for the request.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -195,7 +200,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void captureSpaceControllerDataBundle(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(String.format("Capturing data bundle for space controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog().info(
+        String.format("Capturing data bundle for space controller %s", spaceController.getHostId()));
 
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
     activeSpaceController.setDataBundleState(DataBundleState.CAPTURE_REQUESTED);
@@ -204,7 +210,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void restoreSpaceControllerDataBundle(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(String.format("Restoring data bundle for space controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog().info(
+        String.format("Restoring data bundle for space controller %s", spaceController.getHostId()));
 
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
     activeSpaceController.setDataBundleState(DataBundleState.RESTORE_REQUESTED);
@@ -227,7 +234,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void shutdownAllActivities(SpaceController spaceController) {
-    spaceEnvironment.getLog().info(String.format("Shutting down all apps on space controller %s", spaceController.getHostId()));
+    spaceEnvironment.getLog().info(
+        String.format("Shutting down all apps on space controller %s", spaceController.getHostId()));
 
     // The async results will signal all active apps.
     ActiveSpaceController activeSpaceController = getActiveSpaceController(spaceController);
@@ -239,8 +247,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   /**
    * Clear all active live activity state models for the given space controller.
    *
-   * @param space controller
-   *          the space controller which has the activities
+   * @param spaceController
+   *          the space controller thath has the activities
    */
   private void cleanLiveActivityStateModels(SpaceController spaceController) {
     synchronized (activeLiveActivitiesByController) {
@@ -271,8 +279,8 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     } catch (Exception e) {
       activeLiveActivity.setDeployState(ActivityState.DEPLOY_FAILURE, e.getMessage());
       spaceEnvironment.getLog().error(
-          String.format("could not deploy live activity %s to space controller %s", liveActivity.getUuid(), liveActivity
-              .getController().getHostId()), e);
+          String.format("could not deploy live activity %s to space controller %s", liveActivity.getUuid(),
+              liveActivity.getController().getHostId()), e);
     }
   }
 
@@ -442,8 +450,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
    * @param liveActivity
    *          the live activity to deploy
    * @param deployedLiveActivities
-   *          the live activities that have been deployed already (can be
-   *          {@link null})
+   *          the live activities that have been deployed already (can be {@link null})
    */
   private void attemptDeployActiveActivityFromGroup(ActiveLiveActivity liveActivity,
       Set<ActiveLiveActivity> deployedLiveActivities) {
@@ -494,8 +501,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
    * @param liveActivity
    *          the live activity to configure
    * @param configuredLiveActivities
-   *          the live activities that have been configured already (can be
-   *          {@link null})
+   *          the live activities that have been configured already (can be {@link null})
    */
   private void attemptConfigureActiveActivityFromGroup(ActiveLiveActivity liveActivity,
       Set<ActiveLiveActivity> configuredLiveActivities) {
@@ -817,8 +823,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
    * @param uuid
    *          the UUID of the space controller
    *
-   * @return the active space controller associated with the uuid, or {@code null} if
-   *         none
+   * @return the active space controller associated with the uuid, or {@code null} if none
    */
   @VisibleForTesting
   ActiveSpaceController getActiveControllerByUuid(String uuid) {
@@ -833,8 +838,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
    * @param uuid
    *          the UUID of the activity
    *
-   * @return the active activity associated with the UUID or {@code null} if
-   *         none
+   * @return the active activity associated with the UUID or {@code null} if none
    */
   ActiveLiveActivity getActiveActivityByUuid(String uuid) {
     synchronized (activeLiveActivities) {
@@ -844,12 +848,12 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
 
   @Override
   public void onSpaceControllerConnectAttempted(ActiveSpaceController spaceController) {
-    spaceControllerListeners.signalSpaceControllerConnectAttempted(spaceController);
+    masterEventManager.signalSpaceControllerConnectAttempted(spaceController);
   }
 
   @Override
   public void onSpaceControllerDisconnectAttempted(ActiveSpaceController spaceController) {
-    spaceControllerListeners.signalSpaceControllerDisconnectAttempted(spaceController);
+    masterEventManager.signalSpaceControllerDisconnectAttempted(spaceController);
   }
 
   @Override
@@ -859,11 +863,11 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
       spaceController.setState(SpaceControllerState.RUNNING);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got heartbeat from %s (%s)", spaceController.getController().getName(), spaceController
-                .getController().getUuid()));
+            String.format("Got heartbeat from %s (%s)", spaceController.getSpaceController().getName(),
+                spaceController.getSpaceController().getUuid()));
       }
 
-      spaceControllerListeners.signalSpaceControllerHeartbeat(uuid, timestamp);
+      masterEventManager.signalSpaceControllerHeartbeat(spaceController, timestamp);
     } else {
       spaceEnvironment.getLog().warn(String.format("Heartbeat from unknown space controller with UUID %s", uuid));
     }
@@ -876,11 +880,11 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
       spaceController.setState(state);
       if (spaceEnvironment.getLog().isDebugEnabled()) {
         spaceEnvironment.getLog().debug(
-            String.format("Got space controller status update %s (%s) to %s", spaceController.getController().getName(),
-                spaceController.getController().getUuid(), state));
+            String.format("Got space controller status update %s (%s) to %s", spaceController.getSpaceController()
+                .getName(), spaceController.getSpaceController().getUuid(), state));
       }
 
-      spaceControllerListeners.signalSpaceControllerStatusChange(uuid, state);
+      masterEventManager.signalSpaceControllerStatusChange(spaceController, state);
     } else {
       spaceEnvironment.getLog().warn(String.format("Status change for unknown controller with UUID %s", uuid));
     }
@@ -897,15 +901,14 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
         active.setDeployState(ActivityState.READY);
 
         spaceEnvironment.getLog().info(String.format("Live activity %s deployed successfully", uuid));
-
       } else {
         active.setDeployState(ActivityState.DEPLOY_FAILURE, result.getStatus().toString());
 
-        spaceEnvironment.getLog()
-            .info(String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
+        spaceEnvironment.getLog().info(
+            String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
       }
 
-      spaceControllerListeners.signalActivityInstall(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
+      masterEventManager.signalLiveActivityDeploy(active, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -940,7 +943,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
           spaceEnvironment.getLog().info(String.format("Live activity %s delete failed", uuid));
       }
 
-      spaceControllerListeners.signalActivityDelete(uuid, result, spaceEnvironment.getTimeProvider().getCurrentTime());
+      masterEventManager.signalLiveActivityDelete(active, result, spaceEnvironment.getTimeProvider().getCurrentTime());
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -961,7 +964,7 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
         }
       }
 
-      spaceControllerListeners.signalLiveActivityStateChange(uuid, oldState, newState);
+      masterEventManager.signalLiveActivityStateChange(active, oldState, newState);
     } else {
       logUnknownLiveActivity(uuid);
     }
@@ -988,14 +991,14 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
     spaceEnvironment.getLog().warn(String.format("Got activity status update for unknown activity %s", uuid));
   }
 
-  @Override
-  public void addSpaceControllerListener(SpaceControllerListener listener) {
-    spaceControllerListeners.addListener(listener);
-  }
-
-  @Override
-  public void removeSpaceControllerListener(SpaceControllerListener listener) {
-    spaceControllerListeners.removeListener(listener);
+  /**
+   * Set the master event manager.
+   *
+   * @param masterEventManager
+   *          the master event manager
+   */
+  public void setMasterEventManager(MasterEventManager masterEventManager) {
+    this.masterEventManager = masterEventManager;
   }
 
   /**
@@ -1011,16 +1014,20 @@ public class BasicActiveSpaceControllerManager implements InternalActiveSpaceCon
   }
 
   /**
+   * Set the remote activity deployment manager to use.
+   *
    * @param remoteActivityDeploymentManager
-   *          the remote activity deployment manager to use
+   *          the remote activity deployment manager
    */
   public void setRemoteActivityDeploymentManager(RemoteActivityDeploymentManager remoteActivityDeploymentManager) {
     this.remoteActivityDeploymentManager = remoteActivityDeploymentManager;
   }
 
   /**
+   * Set the space environment to use.
+   *
    * @param spaceEnvironment
-   *          the spaceEnvironment to set
+   *          the space environment
    */
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
     this.spaceEnvironment = spaceEnvironment;

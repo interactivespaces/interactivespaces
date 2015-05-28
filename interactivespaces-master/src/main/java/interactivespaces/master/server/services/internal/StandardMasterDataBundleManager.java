@@ -37,7 +37,7 @@ import java.io.OutputStream;
  *
  * @author Trevor Pering
  */
-public abstract class BasicMasterDataBundleManager implements MasterDataBundleManager {
+public abstract class StandardMasterDataBundleManager implements MasterDataBundleManager {
 
   /**
    * Static version identifier to use for unversioned bundles.
@@ -77,7 +77,7 @@ public abstract class BasicMasterDataBundleManager implements MasterDataBundleMa
 
   @Override
   public void captureControllerDataBundle(ActiveSpaceController controller) {
-    String uuid = controller.getController().getUuid();
+    String uuid = controller.getSpaceController().getUuid();
     String destinationUri =
         resourceRepositoryServer.getResourceUri(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_DATA, uuid,
             DATA_BUNDLE_STATIC_VERSION);
@@ -98,7 +98,7 @@ public abstract class BasicMasterDataBundleManager implements MasterDataBundleMa
 
   @Override
   public void restoreControllerDataBundle(ActiveSpaceController controller) {
-    String uuid = controller.getController().getUuid();
+    String uuid = controller.getSpaceController().getUuid();
     String sourceUri =
         resourceRepositoryServer.getResourceUri(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_DATA, uuid,
             DATA_BUNDLE_STATIC_VERSION);

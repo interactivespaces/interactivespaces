@@ -14,20 +14,21 @@
  * the License.
  */
 
-package interactivespaces.master.server.services;
+package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.ActiveLiveActivity;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
- * A listener for events from controllers which are controlled by a
- * {@link ActiveSpaceControllerManager}.
+ * A listener for events within the master.
  *
  * @author Keith M. Hughes
  */
-public interface SpaceControllerListener {
+public interface MasterEventListener {
 
   /**
    * A space controller connection is being attempted.
@@ -48,57 +49,57 @@ public interface SpaceControllerListener {
   /**
    * A controller has sent a heartbeat.
    *
-   * @param uuid
-   *          the UUID of the controller
+   * @param controller
+   *          the controller
    *
    * @param timestamp
    *          timestamp of the heartbeat
    */
-  void onSpaceControllerHeartbeat(String uuid, long timestamp);
+  void onSpaceControllerHeartbeat(ActiveSpaceController controller, long timestamp);
 
   /**
    * The controller status has been updated.
    *
-   * @param uuid
-   *          the UUID of the space controller
+   * @param controller
+   *          the space controller
    * @param state
    *          the new state
    */
-  void onSpaceControllerStatusChange(String uuid, SpaceControllerState state);
+  void onSpaceControllerStatusChange(ActiveSpaceController controller, SpaceControllerState state);
 
   /**
-   * An activity has been deployed.
+   * A live activity has been deployed.
    *
-   * @param uuid
-   *          uuid of the activity
+   * @param liveActivity
+   *          the live activity
    * @param result
    *          result of the installation attempt
    * @param timestamp
    *          timestamp of the event
    */
-  void onLiveActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp);
+  void onLiveActivityDeploy(ActiveLiveActivity liveActivity, LiveActivityDeploymentResponse result, long timestamp);
 
   /**
-   * An activity has been deleted.
+   * A live activity has been deleted.
    *
-   * @param uuid
-   *          uuid of the activity
+   * @param liveActivity
+   *          the activity
    * @param result
    *          result from the deletion attempt
    * @param timestamp
    *          timestamp of the event
    */
-  void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result, long timestamp);
+  void onLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp);
 
   /**
    * A live activity has had a state change.
    *
-   * @param uuid
-   *          UUID of the live activity
+   * @param liveActivity
+   *          the live activity
    * @param oldState
    *          the old state the activity had
    * @param newState
    *          the new state
    */
-  void onLiveActivityStateChange(String uuid, ActivityState oldState, ActivityState newState);
+  void onLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState, ActivityState newState);
 }

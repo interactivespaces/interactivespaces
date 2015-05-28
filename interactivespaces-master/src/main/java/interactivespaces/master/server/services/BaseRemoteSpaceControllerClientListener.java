@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,49 +19,53 @@ package interactivespaces.master.server.services;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
- * A support implementation of {@link SpaceControllerListener} which provides
- * empty methods for all events.
+ * Base class for {@link RemoteSpaceControllerClientListener} subclasses that implements every method with a no-op.
  *
  * @author Keith M. Hughes
  */
-public abstract class SpaceControllerListenerSupport implements SpaceControllerListener {
+public class BaseRemoteSpaceControllerClientListener implements RemoteSpaceControllerClientListener {
 
   @Override
   public void onSpaceControllerConnectAttempted(ActiveSpaceController controller) {
-    // Default is do nothing.
+    // Default is do nothing
   }
 
   @Override
   public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
-    // Default is do nothing.
+    // Default is do nothing
   }
 
   @Override
   public void onSpaceControllerHeartbeat(String uuid, long timestamp) {
-    // Default is do nothing.
+    // Default is do nothing
   }
 
   @Override
   public void onSpaceControllerStatusChange(String uuid, SpaceControllerState state) {
-    // Default is do nothing.
+    // Default is do nothing
   }
 
   @Override
-  public void onLiveActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp) {
-    // Default is do nothing.
+  public void onLiveActivityDeployment(String uuid, LiveActivityDeploymentResponse result) {
+    // Default is do nothing
   }
 
   @Override
-  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result, long timestamp) {
-    // Default is do nothing.
+  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
+    // Default is do nothing
   }
 
   @Override
-  public void
-      onLiveActivityStateChange(String uuid, ActivityState oldState, ActivityState newState) {
-    // Default is do nothing.
+  public void onLiveActivityRuntimeStateChange(String uuid, ActivityState state, String detail) {
+    // Default is do nothing
+  }
+
+  @Override
+  public void onDataBundleStateChange(String uuid, DataBundleState state) {
+    // Default is do nothing
   }
 }

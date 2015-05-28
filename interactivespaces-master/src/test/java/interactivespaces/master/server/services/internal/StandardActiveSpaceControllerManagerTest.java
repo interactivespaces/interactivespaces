@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2013 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,14 +19,21 @@ package interactivespaces.master.server.services.internal;
 import static org.junit.Assert.assertEquals;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
+import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
+import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.domain.space.Space;
+import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
+import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
-import interactivespaces.master.server.services.SpaceControllerListener;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.time.TimeProvider;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -36,181 +43,297 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Tests for the {@link BasicActiveSpaceControllerManager}.
+ * Tests for the {@link StandardActiveSpaceControllerManager}.
  *
  * @author Keith M. Hughes
  */
-public class ActiveSpaceControllerManagerTest extends BaseSpaceTest {
-  private BasicActiveSpaceControllerManager activeControllerManager;
+public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
 
+  private StandardActiveSpaceControllerManager activeControllerManager;
+  private InteractiveSpacesEnvironment spaceEnvironment;
+  private TimeProvider timeProvider;
   private RemoteSpaceControllerClient remoteControllerClient;
-
-  private RemoteSpaceControllerClientListenerHelper remoteControllerListenerHelper;
-
-  private SpaceControllerListener controllerListener;
-
+  private MasterEventManager masterEventManager;
   private RemoteActivityDeploymentManager remoteActivityDeploymentManager;
 
+  private final long timestamp = 4321;
   private Log log;
-
-  private InteractiveSpacesEnvironment spaceEnvironment;
 
   @Before
   public void setup() {
     baseSetup();
 
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
+
+    timeProvider = Mockito.mock(TimeProvider.class);
+    Mockito.when(timeProvider.getCurrentTime()).thenReturn(timestamp);
+
     Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
     log = Mockito.mock(Log.class);
-
     Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
+
+    remoteControllerClient = Mockito.mock(RemoteSpaceControllerClient.class);
 
     remoteActivityDeploymentManager = Mockito.mock(RemoteActivityDeploymentManager.class);
 
-    activeControllerManager = new BasicActiveSpaceControllerManager();
+    masterEventManager = Mockito.mock(MasterEventManager.class);
 
-    activeControllerManager.setRemoteActivityDeploymentManager(remoteActivityDeploymentManager);
 
-    remoteControllerClient = Mockito.mock(RemoteSpaceControllerClient.class);
-    activeControllerManager.setRemoteSpaceControllerClient(remoteControllerClient);
+    activeControllerManager = new StandardActiveSpaceControllerManager();
     activeControllerManager.setSpaceEnvironment(spaceEnvironment);
-
-    controllerListener = Mockito.mock(SpaceControllerListener.class);
-    activeControllerManager.addSpaceControllerListener(controllerListener);
-
-    remoteControllerListenerHelper = new RemoteSpaceControllerClientListenerHelper(log);
-    remoteControllerListenerHelper.addListener(activeControllerManager);
+    activeControllerManager.setRemoteSpaceControllerClient(remoteControllerClient);
+    activeControllerManager.setRemoteActivityDeploymentManager(remoteActivityDeploymentManager);
+    activeControllerManager.setMasterEventManager(masterEventManager);
   }
 
   /**
-   * Test a live activity going to the successful deploy states.
+   * Test handling the onActivityDeploy message handler during success.
    */
   @Test
-  public void testRemoteDeployStateSuccess() {
-    LiveActivity liveActivity = liveActivity(0);
-    ActiveLiveActivity activeLiveActivity = activeLiveActivity(liveActivity);
+  public void testActivityDeploySuccess() {
+    String activityUuid = "activity";
+    LiveActivityDeploymentResponse result =
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_SUCCESS, timestamp);
 
-    ActivityState oldState = ActivityState.DEPLOY_ATTEMPT;
-    activeLiveActivity.setRuntimeState(oldState, null);
-    remoteControllerListenerHelper.signalActivityStateChange(liveActivity.getUuid(), ActivityState.READY, null);
-    assertEquals(ActivityState.READY, activeLiveActivity.getRuntimeState());
-    Mockito.verify(controllerListener, Mockito.times(1)).onLiveActivityStateChange(liveActivity.getUuid(), oldState,
-        ActivityState.READY);
+    String spaceUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(spaceUuid);
+    activeControllerManager.getActiveSpaceController(controller);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setUuid(activityUuid);
+    activity.setController(controller);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    active.setDeployState(ActivityState.DEPLOY_ATTEMPT);
+    active.setRuntimeState(null, null);
+
+    activeControllerManager.onLiveActivityDeployment(activityUuid, result);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDeploy(active, result, timestamp);
+    assertEquals(null, active.getRuntimeState());
+    assertEquals(ActivityState.READY, active.getDeployState());
   }
 
   /**
-   * Test a live activity going to the failure deploy states.
+   * Test handling the onActivityDeploy message handler during failure.
    */
   @Test
-  public void testRemoteDeployStateFailure() {
-    LiveActivity liveActivity = liveActivity(0);
-    ActiveLiveActivity activeLiveActivity = activeLiveActivity(liveActivity);
+  public void testActivityDeployFailure() {
+    String activityUuid = "activity";
+    LiveActivityDeploymentResponse result =
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_FAILURE_COPY, timestamp);
 
-    ActivityState startState = ActivityState.DEPLOY_ATTEMPT;
-    ActivityState finalState = ActivityState.DEPLOY_FAILURE;
-    activeLiveActivity.setRuntimeState(startState, null);
-    remoteControllerListenerHelper.signalActivityStateChange(liveActivity.getUuid(), finalState, null);
-    assertEquals(finalState, activeLiveActivity.getRuntimeState());
-    Mockito.verify(controllerListener, Mockito.times(1)).onLiveActivityStateChange(liveActivity.getUuid(), startState,
-        finalState);
+    String spaceUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(spaceUuid);
+    activeControllerManager.getActiveSpaceController(controller);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setUuid(activityUuid);
+    activity.setController(controller);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    active.setDeployState(null);
+    active.setRuntimeState(null, null);
+
+    activeControllerManager.onLiveActivityDeployment(activityUuid, result);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDeploy(active, result, timestamp);
+    assertEquals(null, active.getRuntimeState());
+    assertEquals(ActivityState.DEPLOY_FAILURE, active.getDeployState());
   }
 
   /**
-   * Test an activity going through the start states.
+   * Test handling the onActivityDelete message handler during success.
    */
-  // @Test
-  // public void testRemoteStartupStates() {
-  // LiveActivity activity = activity(0);
-  // ActiveLiveActivity activeLiveActivity = activeControllerManager
-  // .getActiveActivity(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.STARTUP_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityStart(activity.getUuid(),
-  // RemoteActivityStartStatus.SUCCESS);
-  // assertEquals(ActivityState.RUNNING, activeLiveActivity.getState());
-  // Mockito.verify(controllerListener, Mockito.times(1)).onActivityStartup(
-  // activity);
-  //
-  // activeLiveActivity.setState(ActivityState.STARTUP_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityStart(activity.getUuid(),
-  // RemoteActivityStartStatus.FAILURE);
-  // assertEquals(ActivityState.STARTUP_FAILURE,
-  // activeLiveActivity.getState());
-  // }
-  //
-  // /**
-  // * Test an activity going through the activate states.
-  // */
-  // @Test
-  // public void testRemoteActivateStates() {
-  // LiveActivity activity = activity(0);
-  // ActiveLiveActivity activeLiveActivity = activeControllerManager
-  // .getActiveActivity(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.ACTIVATE_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityActivate(activity.getUuid(),
-  // RemoteActivityActivateStatus.SUCCESS);
-  // assertEquals(ActivityState.ACTIVE, activeLiveActivity.getState());
-  // Mockito.verify(controllerListener, Mockito.times(1))
-  // .onActivityActivate(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.ACTIVATE_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityActivate(activity.getUuid(),
-  // RemoteActivityActivateStatus.FAILURE);
-  // assertEquals(ActivityState.ACTIVATE_FAILURE,
-  // activeLiveActivity.getState());
-  // }
-  //
-  // /**
-  // * Test an activity going through the deactivate states.
-  // */
-  // @Test
-  // public void testRemoteDeactivateStates() {
-  // LiveActivity activity = activity(0);
-  // ActiveLiveActivity activeLiveActivity = activeControllerManager
-  // .getActiveActivity(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.DEACTIVATE_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityDeactivate(activity.getUuid(),
-  // RemoteActivityDeactivateStatus.SUCCESS);
-  // assertEquals(ActivityState.RUNNING, activeLiveActivity.getState());
-  // Mockito.verify(controllerListener, Mockito.times(1))
-  // .onActivityDeactivate(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.ACTIVATE_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityDeactivate(activity.getUuid(),
-  // RemoteActivityDeactivateStatus.FAILURE);
-  // assertEquals(ActivityState.DEACTIVATE_FAILURE,
-  // activeLiveActivity.getState());
-  // }
-  //
-  // /**
-  // * Test an activity going through the shutdown states.
-  // */
-  // @Test
-  // public void testRemoteShutdownStates() {
-  // LiveActivity activity = activity(0);
-  // ActiveLiveActivity activeLiveActivity = activeControllerManager
-  // .getActiveActivity(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.SHUTDOWN_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityShutdown(activity.getUuid(),
-  // RemoteActivityShutdownStatus.SUCCESS);
-  // assertEquals(ActivityState.READY, activeLiveActivity.getState());
-  // Mockito.verify(controllerListener, Mockito.times(1))
-  // .onActivityShutdown(activity);
-  //
-  // activeLiveActivity.setState(ActivityState.SHUTDOWN_ATTEMPT);
-  // remoteControllerListenerHelper.sendOnActivityShutdown(activity.getUuid(),
-  // RemoteActivityShutdownStatus.FAILURE);
-  // assertEquals(ActivityState.SHUTDOWN_FAILURE,
-  // activeLiveActivity.getState());
-  // }
+  @Test
+  public void testActivityDeleteSucccess() {
+    String activityUuid = "activity";
+    LiveActivityDeleteResult result = LiveActivityDeleteResult.SUCCESS;
+
+    String spaceUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(spaceUuid);
+    activeControllerManager.getActiveSpaceController(controller);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setUuid(activityUuid);
+    activity.setController(controller);
+    Date lastDeployDate = new Date();
+    activity.setLastDeployDate(lastDeployDate);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    active.setDeployState(null);
+    active.setRuntimeState(null, null);
+
+    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    assertEquals(ActivityState.UNKNOWN, active.getRuntimeState());
+    assertEquals(ActivityState.UNKNOWN, active.getDeployState());
+    assertEquals(null, activity.getLastDeployDate());
+  }
+
+  /**
+   * Test handling the onActivityDelete message handler during success.
+   */
+  @Test
+  public void testActivityDeleteFailure() {
+    String activityUuid = "activity";
+    LiveActivityDeleteResult result = LiveActivityDeleteResult.FAIL;
+
+    String spaceUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(spaceUuid);
+    activeControllerManager.getActiveSpaceController(controller);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setUuid(activityUuid);
+    activity.setController(controller);
+    Date lastDeployDate = new Date();
+    activity.setLastDeployDate(lastDeployDate);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    active.setDeployState(null);
+    active.setRuntimeState(null, null);
+
+    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    assertEquals(null, active.getRuntimeState());
+    assertEquals(null, active.getDeployState());
+    assertEquals(lastDeployDate, activity.getLastDeployDate());
+
+  }
+
+  /**
+   * Test handling the onActivityDelete message handler during not exist.
+   */
+  @Test
+  public void testActivityDeleteNotExist() {
+    String activityUuid = "activity";
+    LiveActivityDeleteResult result = LiveActivityDeleteResult.DOESNT_EXIST;
+
+    String spaceUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(spaceUuid);
+    activeControllerManager.getActiveSpaceController(controller);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setUuid(activityUuid);
+    activity.setController(controller);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    active.setDeployState(null);
+    active.setRuntimeState(null, null);
+
+    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    assertEquals(ActivityState.DOESNT_EXIST, active.getRuntimeState());
+    assertEquals(ActivityState.DOESNT_EXIST, active.getDeployState());
+  }
+
+  /**
+   * Test cleaning a controller's permanent data.
+   */
+  @Test
+  public void testCleanControllerPermanantData() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    activeControllerManager.cleanSpaceControllerPermanentData(controller);
+
+    ActiveSpaceController acontroller = activeControllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerPermanentData(acontroller);
+  }
+
+  /**
+   * Test cleaning all permanent data for a controller and all live activities.
+   */
+  @Test
+  public void testCleanControllerPermanantDataAll() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    activeControllerManager.cleanSpaceControllerActivitiesPermanentData(controller);
+
+    ActiveSpaceController acontroller = activeControllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerActivitiesPermanentData(acontroller);
+  }
+
+  /**
+   * Test cleaning a controller's temp data.
+   */
+  @Test
+  public void testCleanControllerTempData() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    activeControllerManager.cleanSpaceControllerTempData(controller);
+
+    ActiveSpaceController acontroller = activeControllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerTempData(acontroller);
+  }
+
+  /**
+   * Test cleaning temp data for a controller and all live activities.
+   */
+  @Test
+  public void testCleanControllerTempDataAll() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    activeControllerManager.cleanSpaceControllerActivitiesTempData(controller);
+
+    ActiveSpaceController acontroller = activeControllerManager.getActiveControllerByUuid(controllerUuid);
+    Mockito.verify(remoteControllerClient).cleanControllerActivitiesTempData(acontroller);
+  }
+
+  /**
+   * Test cleaning the permanent data for an activity.
+   */
+  @Test
+  public void testActivityPermanentClean() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setController(controller);
+
+    activeControllerManager.cleanLiveActivityPermanentData(activity);
+
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+
+    Mockito.verify(remoteControllerClient).cleanActivityPermanentData(active);
+  }
+
+  /**
+   * Test cleaning the temp data for an activity.
+   */
+  @Test
+  public void testActivityTempClean() {
+    String controllerUuid = "space";
+    SpaceController controller = new SimpleSpaceController();
+    controller.setUuid(controllerUuid);
+
+    LiveActivity activity = new SimpleLiveActivity();
+    activity.setController(controller);
+
+    activeControllerManager.cleanLiveActivityTempData(activity);
+
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+
+    Mockito.verify(remoteControllerClient).cleanActivityTempData(active);
+  }
+
 
   /**
    * Make sure an activity deploys.

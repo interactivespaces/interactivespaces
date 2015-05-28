@@ -79,7 +79,7 @@ public class ActiveSpaceController {
   /**
    * @return the controller
    */
-  public SpaceController getController() {
+  public SpaceController getSpaceController() {
     return controller;
   }
 
@@ -104,6 +104,8 @@ public class ActiveSpaceController {
   }
 
   /**
+   * Set the state of the active space controller.
+   *
    * @param state
    *          the state to set
    */
@@ -116,8 +118,7 @@ public class ActiveSpaceController {
   /**
    * Get the lastStateUpdate of the last update.
    *
-   * @return the lastStateUpdate. Will be {@code null} if the controller has
-   *         never been updated.
+   * @return the lastStateUpdate, will be {@code null} if the controller has never been updated
    */
   public Long getLastStateUpdate() {
     return lastStateUpdate;
@@ -126,8 +127,7 @@ public class ActiveSpaceController {
   /**
    * Get the lastStateUpdate of the last update as a date.
    *
-   * @return the lastStateUpdate. Will be {@code null} if the controller has
-   *         never been updated.
+   * @return the lastStateUpdate, will be {@code null} if the controller has never been updated
    */
   public Date getLastStateUpdateDate() {
     if (lastStateUpdate != null) {
@@ -157,8 +157,7 @@ public class ActiveSpaceController {
   /**
    * Get the lastDataBundleStateUpdate of the last update.
    *
-   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has
-   *         never been updated.
+   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has never been updated.
    */
   public Long getLastDataBundleStateUpdate() {
     return lastDataBundleStateUpdate;
@@ -167,8 +166,7 @@ public class ActiveSpaceController {
   /**
    * Get the lastDataBundleStateUpdate of the last update as a date.
    *
-   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has
-   *         never been updated.
+   * @return the lastDataBundleStateUpdate. Will be {@code null} if the controller has never been updated.
    */
   public Date getLastDataBundleStateUpdateDate() {
     if (lastDataBundleStateUpdate != null) {

@@ -29,8 +29,7 @@ import org.apache.commons.logging.Log;
 import java.util.List;
 
 /**
- * A helper class for working with {@link RemoteSpaceControllerClientListener}
- * instances.
+ * A helper class for working with {@link RemoteSpaceControllerClientListener} instances.
  *
  * <p>
  * There will be one per remote controller client.
@@ -90,7 +89,12 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalSpaceControllerConnectAttempt(ActiveSpaceController controller) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onSpaceControllerConnectAttempted(controller);
+      try {
+        listener.onSpaceControllerConnectAttempted(controller);
+      } catch (Throwable e) {
+        log.error(String.format("Error handling space controller connect event for UUID %s", controller
+            .getSpaceController().getUuid()), e);
+      }
     }
   }
 
@@ -102,7 +106,12 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalSpaceControllerDisconnectAttempt(ActiveSpaceController controller) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onSpaceControllerDisconnectAttempted(controller);
+      try {
+        listener.onSpaceControllerDisconnectAttempted(controller);
+      } catch (Throwable e) {
+        log.error(String.format("Error handling space controller disconnect event for UUID %s", controller
+            .getSpaceController().getUuid()), e);
+      }
     }
   }
 
@@ -118,9 +127,9 @@ public class RemoteSpaceControllerClientListenerHelper {
     for (RemoteSpaceControllerClientListener listener : listeners) {
       try {
         listener.onSpaceControllerHeartbeat(uuid, timestamp);
-      } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      } catch (Throwable e) {
+        log.error(String.format("Error handling space controller heartbeat event for UUID %s and timestamp %d", uuid,
+            timestamp), e);
       }
     }
   }
@@ -135,7 +144,13 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalSpaceControllerStatusChange(String uuid, SpaceControllerState state) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onSpaceControllerStatusChange(uuid, state);
+      try {
+        listener.onSpaceControllerStatusChange(uuid, state);
+      } catch (Throwable e) {
+        log.error(
+            String.format("Error handling space controller status change event for UUID %s and state %s", uuid, state),
+            e);
+      }
     }
   }
 
@@ -149,7 +164,12 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalActivityDeployStatus(String uuid, LiveActivityDeploymentResponse result) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityDeployment(uuid, result);
+      try {
+        listener.onLiveActivityDeployment(uuid, result);
+      } catch (Throwable e) {
+        log.error(String.format("Error handling space controller deployment status event for UUID %s and result %s",
+            uuid, result), e);
+      }
     }
   }
 
@@ -163,7 +183,12 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalActivityDelete(String uuid, LiveActivityDeleteResult result) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityDelete(uuid, result);
+      try {
+        listener.onLiveActivityDelete(uuid, result);
+      } catch (Throwable e) {
+        log.error(String.format("Error handling live activity delete event for UUID %s and result %s", uuid, result),
+            e);
+      }
     }
   }
 
@@ -179,7 +204,13 @@ public class RemoteSpaceControllerClientListenerHelper {
    */
   public void signalActivityStateChange(String uuid, ActivityState newRuntimeState, String newRuntimeStateDetail) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onLiveActivityRuntimeStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
+      try {
+        listener.onLiveActivityRuntimeStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Error handling live activity state change event for UUID %s and new runtime state %s", uuid,
+            newRuntimeState), e);
+      }
     }
   }
 
@@ -187,13 +218,18 @@ public class RemoteSpaceControllerClientListenerHelper {
    * Send the data bundle state change message to all listeners.
    *
    * @param uuid
-   *          UUID of the activity.
+   *          UUID of the activity
    * @param status
    *          data bundle status
    */
   public void signalDataBundleState(String uuid, DataBundleState status) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
-      listener.onDataBundleStateChange(uuid, status);
+      try {
+        listener.onDataBundleStateChange(uuid, status);
+      } catch (Throwable e) {
+        log.error(
+            String.format("Error handling live activity data bundle event for UUID %s and status %s", uuid, status), e);
+      }
     }
   }
 

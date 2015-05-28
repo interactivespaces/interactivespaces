@@ -384,23 +384,4 @@ public interface ActiveSpaceControllerManager {
    * @return the active controllers for the controllers
    */
   List<ActiveSpaceController> getActiveSpaceControllers(List<SpaceController> controllers);
-
-  /**
-   * Add in a new controller listener.
-   *
-   * @param listener
-   *          the new listener
-   */
-  void addSpaceControllerListener(SpaceControllerListener listener);
-
-  /**
-   * Remove a controller listener.
-   *
-   * <p>
-   * Nothing will happen if the listener was not in.
-   *
-   * @param listener
-   *          the listener to remove
-   */
-  void removeSpaceControllerListener(SpaceControllerListener listener);
 }

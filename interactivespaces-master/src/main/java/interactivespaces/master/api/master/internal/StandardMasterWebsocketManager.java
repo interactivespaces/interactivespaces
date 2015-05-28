@@ -57,7 +57,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterWebsocketManager extends BaseMasterApiManager implements MasterWebsocketManager,
+public class StandardMasterWebsocketManager extends BaseMasterApiManager implements MasterWebsocketManager,
     MultipleConnectionWebSocketHandler, RemoteSpaceControllerClientListener {
 
   /**
@@ -113,7 +113,7 @@ public class BasicMasterWebsocketManager extends BaseMasterApiManager implements
   /**
    * Construct a new manager.
    */
-  public BasicMasterWebsocketManager() {
+  public StandardMasterWebsocketManager() {
     registerActivityHandlers();
     registerLiveActivityHandlers();
     registerLiveActivityGroupHandlers();

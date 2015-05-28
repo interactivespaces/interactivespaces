@@ -21,8 +21,8 @@ import static org.mockito.Mockito.when;
 
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.MasterAlertManager;
 import interactivespaces.service.alert.AlertService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -34,13 +34,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 /**
- * Unit tests for {@link BasicMasterAlertManager}.
+ * Unit tests for {@link StandardMasterAlertManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterAlertManagerTest {
+public class StandardMasterAlertManagerTest {
 
-  private BasicMasterAlertManager alertManager;
+  private StandardMasterAlertManager alertManager;
 
   private InteractiveSpacesEnvironment spaceEnvironment;
 
@@ -48,7 +48,7 @@ public class BasicMasterAlertManagerTest {
 
   private AlertService alertService;
 
-  private SpaceControllerRepository controllerRepository;
+  private MasterEventManager masterEventManager;
 
   @Before
   public void setup() {
@@ -56,13 +56,10 @@ public class BasicMasterAlertManagerTest {
     timeProvider = new SettableTimeProvider();
     when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
-    controllerRepository = Mockito.mock(SpaceControllerRepository.class);
-
     alertService = Mockito.mock(AlertService.class);
-    alertManager = new BasicMasterAlertManager();
+    alertManager = new StandardMasterAlertManager();
     alertManager.setSpaceEnvironment(spaceEnvironment);
     alertManager.setAlertService(alertService);
-    alertManager.setSpaceControllerRepository(controllerRepository);
   }
 
   /**
@@ -79,10 +76,10 @@ public class BasicMasterAlertManagerTest {
 
     int initialTimestamp = 1000;
     timeProvider.setCurrentTime(initialTimestamp);
-    alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(active);
+    alertManager.getMasterEventListener().onSpaceControllerConnectAttempted(active);
     alertManager.scan();
 
-    alertManager.getSpaceControllerListener().onSpaceControllerHeartbeat(uuid,
+    alertManager.getMasterEventListener().onSpaceControllerHeartbeat(active,
         initialTimestamp + alertManager.getSpaceControllerHeartbeatTime() - 1);
     timeProvider.setCurrentTime(initialTimestamp + alertManager.getSpaceControllerHeartbeatTime());
     alertManager.scan();
@@ -103,12 +100,11 @@ public class BasicMasterAlertManagerTest {
     controller.setUuid(uuid);
     controller.setHostId("hostess");
     controller.setName("NumeroUno");
-    Mockito.when(controllerRepository.getSpaceControllerByUuid(uuid)).thenReturn(controller);
 
     ActiveSpaceController active = new ActiveSpaceController(controller, timeProvider);
 
     timeProvider.setCurrentTime(initialTimestamp);
-    alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(active);
+    alertManager.getMasterEventListener().onSpaceControllerConnectAttempted(active);
     alertManager.scan();
 
     timeProvider.setCurrentTime(initialTimestamp + alertManager.getSpaceControllerHeartbeatTime()
@@ -140,10 +136,10 @@ public class BasicMasterAlertManagerTest {
     ActiveSpaceController active = new ActiveSpaceController(controller, timeProvider);
 
     timeProvider.setCurrentTime(initialTimestamp);
-    alertManager.getSpaceControllerListener().onSpaceControllerConnectAttempted(active);
+    alertManager.getMasterEventListener().onSpaceControllerConnectAttempted(active);
     alertManager.scan();
 
-    alertManager.getSpaceControllerListener().onSpaceControllerDisconnectAttempted(active);
+    alertManager.getMasterEventListener().onSpaceControllerDisconnectAttempted(active);
     timeProvider.setCurrentTime(initialTimestamp + alertManager.getSpaceControllerHeartbeatTime()
         + 1);
     alertManager.scan();

@@ -50,11 +50,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A simple controller manager for UIs.
+ * A master API manager for space controllers.
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager implements
+public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManager implements
     MasterApiSpaceControllerManager {
 
   /**
@@ -91,7 +91,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
           .getActiveSpaceControllers(spaceControllers)) {
         Map<String, Object> controllerData = Maps.newHashMap();
 
-        SpaceController controller = acontroller.getController();
+        SpaceController controller = acontroller.getSpaceController();
         getSpaceControllerMasterApiData(controller, controllerData);
 
         responseData.add(controllerData);
@@ -114,7 +114,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
     for (ActiveSpaceController acontroller : activeSpaceControllerManager.getActiveSpaceControllers(spaceControllers)) {
       Map<String, Object> controllerData = Maps.newHashMap();
 
-      SpaceController controller = acontroller.getController();
+      SpaceController controller = acontroller.getSpaceController();
       getSpaceControllerMasterApiData(controller, controllerData);
       getActiveSpaceControllerMasterApiData(acontroller, controllerData);
 
@@ -741,6 +741,7 @@ public class BasicMasterApiSpaceControllerManager extends BaseMasterApiManager i
    * Deploy all activities found on a given controller.
    *
    * @param controller
+   *          the controller
    */
   private void deployAllActivitysForController(SpaceController controller) {
     for (LiveActivity liveActivity : activityRepository.getLiveActivitiesByController(controller)) {

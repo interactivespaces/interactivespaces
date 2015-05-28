@@ -34,14 +34,16 @@ import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.api.master.MasterApiUtilities;
 import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
+import interactivespaces.master.event.BaseMasterEventListener;
+import interactivespaces.master.event.MasterEventListener;
+import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
-import interactivespaces.master.server.services.SpaceControllerListener;
-import interactivespaces.master.server.services.SpaceControllerListenerSupport;
 import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -59,7 +61,7 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterApiActivityManager extends BaseMasterApiManager implements InternalMasterApiActivityManager {
+public class StandardMasterApiActivityManager extends BaseMasterApiManager implements InternalMasterApiActivityManager {
 
   /**
    * Repository for activities.
@@ -82,27 +84,29 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   private ActiveSpaceControllerManager activeSpaceControllerManager;
 
   /**
-   * Listener for space controller events.
+   * Listener for master events.
    */
-  private SpaceControllerListener controllerListener;
+  private MasterEventListener masterEventListener = new BaseMasterEventListener() {
+    @Override
+    public void onLiveActivityDeploy(ActiveLiveActivity liveActivity, LiveActivityDeploymentResponse result,
+        long timestamp) {
+      handleLiveActivityInstallMasterEvent(liveActivity, result, timestamp);
+    }
+  };
+
+  /**
+   * The even manager for the master.
+   */
+  private MasterEventManager masterEventManager;
 
   @Override
   public void startup() {
-    controllerListener = new SpaceControllerListenerSupport() {
-      @Override
-      public void onLiveActivityInstall(String uuid, LiveActivityDeploymentResponse result, long timestamp) {
-        if (result.getStatus() == ActivityDeployStatus.STATUS_SUCCESS) {
-          updateLiveActivityDeploymentTime(uuid, timestamp);
-        }
-      }
-    };
-
-    activeSpaceControllerManager.addSpaceControllerListener(controllerListener);
+    masterEventManager.addListener(masterEventListener);
   }
 
   @Override
   public void shutdown() {
-    activeSpaceControllerManager.removeSpaceControllerListener(controllerListener);
+    masterEventManager.removeListener(masterEventListener);
   }
 
   @Override
@@ -201,7 +205,8 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
         Map<String, Object> dependencyData = Maps.newHashMap();
         dependencies.add(dependencyData);
 
-        dependencyData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_IDENTIFYING_NAME, activityDependency.getIdentifyingName());
+        dependencyData.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_IDENTIFYING_NAME,
+            activityDependency.getIdentifyingName());
         dependencyData.put("minimumVersion", activityDependency.getMinimumVersion());
         dependencyData.put("maximumVersion", activityDependency.getMaximumVersion());
         dependencyData.put("required", activityDependency.isRequired());
@@ -1287,12 +1292,13 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   /**
    * Update the deployment time of a live activity.
    *
-   * @param uuid
-   *          UUID of the live activity
+   * @param activeLiveActivity
+   *          the live activity
    * @param timestamp
    *          timestamp of the time of deployment
    */
-  public void updateLiveActivityDeploymentTime(String uuid, long timestamp) {
+  private void updateLiveActivityDeploymentTime(ActiveLiveActivity activeLiveActivity, long timestamp) {
+    String uuid = activeLiveActivity.getLiveActivity().getUuid();
     LiveActivity liveActivity = activityRepository.getLiveActivityByUuid(uuid);
     if (liveActivity != null) {
       liveActivity.setLastDeployDate(new Date(timestamp));
@@ -1301,6 +1307,23 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
     } else {
       spaceEnvironment.getLog().warn(
           String.format("Attempt to update deployment time for an unknown live activity %s", uuid));
+    }
+  }
+
+  /**
+   * Handle an install event for a live activity.
+   *
+   * @param liveActivity
+   *          the live activity
+   * @param result
+   *          the result from the install
+   * @param timestamp
+   *          when the install was completed
+   */
+  private void handleLiveActivityInstallMasterEvent(ActiveLiveActivity liveActivity,
+      LiveActivityDeploymentResponse result, long timestamp) {
+    if (result.getStatus() == ActivityDeployStatus.STATUS_SUCCESS) {
+      updateLiveActivityDeploymentTime(liveActivity, timestamp);
     }
   }
 
@@ -1314,32 +1337,60 @@ public class BasicMasterApiActivityManager extends BaseMasterApiManager implemen
   }
 
   /**
+   * Get the master event listener for the manager.
+   *
+   * @return the master event listener
+   */
+  @VisibleForTesting
+  MasterEventListener getMasterEventListener() {
+    return masterEventListener;
+  }
+
+  /**
+   * Set the master event manager.
+   *
+   * @param masterEventManager
+   *          the master event manager
+   */
+  public void setMasterEventManager(MasterEventManager masterEventManager) {
+    this.masterEventManager = masterEventManager;
+  }
+
+  /**
+   * Set the activity repository.
+   *
    * @param activityRepository
-   *          the activityRepository to set
+   *          the activity repository
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
   }
 
   /**
+   * Set the space controller repository.
+   *
    * @param spaceControllerRepository
-   *          the spaceControllerRepository to set
+   *          the space controller repository
    */
   public void setSpaceControllerRepository(SpaceControllerRepository spaceControllerRepository) {
     this.spaceControllerRepository = spaceControllerRepository;
   }
 
   /**
+   * Set the activity repository manager.
+   *
    * @param activityRepositoryManager
-   *          the activityRepositoryManager to set
+   *          the activity repository manager
    */
   public void setActivityRepositoryManager(ActivityRepositoryManager activityRepositoryManager) {
     this.activityRepositoryManager = activityRepositoryManager;
   }
 
   /**
+   * Set the active space controller manager.
+   *
    * @param activeSpaceControllerManager
-   *          the activeControllerManager to set
+   *          the active space controller manager
    */
   public void setActiveSpaceControllerManager(ActiveSpaceControllerManager activeSpaceControllerManager) {
     this.activeSpaceControllerManager = activeSpaceControllerManager;
