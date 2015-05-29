@@ -104,4 +104,11 @@ public interface LiveActivityRunner extends ActivityControl {
    * @return the activity wrapper
    */
   ActivityWrapper getActivityWrapper();
+
+  /**
+   * Get the display name for the live activity in the runner.
+   *
+   * @return the display name
+   */
+  String getDisplayName();
 }

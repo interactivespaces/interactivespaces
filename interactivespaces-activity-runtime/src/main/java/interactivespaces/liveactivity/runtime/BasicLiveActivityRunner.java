@@ -160,8 +160,8 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
           try {
             configuration.load();
             instance = activityWrapper.newInstance();
-            liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance, configuration,
-                activityWrapper.newExecutionContext());
+            liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance,
+                configuration, activityWrapper.newExecutionContext());
 
             instance.startup();
 
@@ -181,7 +181,8 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
               try {
                 instance.handleStartupFailure();
               } catch (Throwable e1) {
-                liveActivityRuntime.getSpaceEnvironment().getLog().error("Error cleaning up activity which could not start", e1);
+                liveActivityRuntime.getSpaceEnvironment().getLog()
+                    .error("Error cleaning up activity which could not start", e1);
               }
             }
 
@@ -344,6 +345,11 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
     } else {
       throw new SimpleInteractiveSpacesException("Could not set activity status because could not get instance lock");
     }
+  }
+
+  @Override
+  public String getDisplayName() {
+    return installedActivity.getDisplayName();
   }
 
   /**

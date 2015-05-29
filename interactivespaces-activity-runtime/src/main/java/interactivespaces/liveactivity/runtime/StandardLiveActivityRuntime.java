@@ -295,26 +295,26 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void startupLiveActivity(String uuid) {
-    getSpaceEnvironment().getLog().info(String.format("Starting up activity %s", uuid));
-
     try {
-      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
-      if (activity != null) {
-        ActivityStatus status = activity.getCachedActivityStatus();
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
+      if (runner != null) {
+        getSpaceEnvironment().getLog().info(String.format("Starting up live activity: %s", runner.getDisplayName()));
+        ActivityStatus status = runner.getCachedActivityStatus();
         if (!status.getState().isRunning()) {
-          attemptActivityStartup(activity);
+          attemptActivityStartup(runner);
         } else {
           // The activity is running so just report what it is doing
           publishActivityStatus(uuid, status);
         }
       } else {
-        getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+        getSpaceEnvironment().getLog().warn(
+            String.format("Startup of live activity failed, does not exist on controller: %s", uuid));
 
         ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
         publishActivityStatus(uuid, status);
       }
     } catch (Exception e) {
-      getSpaceEnvironment().getLog().error(String.format("Error during startup of live activity %s", uuid), e);
+      getSpaceEnvironment().getLog().error(String.format("Error during startup of live activity: %s", uuid), e);
       ActivityStatus status = new ActivityStatus(ActivityState.STARTUP_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
     }
@@ -322,28 +322,30 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void shutdownLiveActivity(final String uuid) {
-    getSpaceEnvironment().getLog().info(String.format("Shutting down activity %s", uuid));
-
     try {
-      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, false);
-      if (activity != null) {
-        attemptActivityShutdown(activity);
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
+      if (runner != null) {
+        getSpaceEnvironment().getLog().info(String.format("Shutting down activity: %s", runner.getDisplayName()));
+        attemptActivityShutdown(runner);
       } else {
         // The activity hasn't been active. Make sure it really exists then
         // send that it is ready.
-        InstalledLiveActivity ia = liveActivityRepository.getInstalledLiveActivityByUuid(uuid);
-        if (ia != null) {
+        InstalledLiveActivity liveActivity = liveActivityRepository.getInstalledLiveActivityByUuid(uuid);
+        if (liveActivity != null) {
+          getSpaceEnvironment().getLog().info(
+              String.format("Shutting down activity (wasn't running): %s", liveActivity.getDisplayName()));
           publishActivityStatus(uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY);
         } else {
           // TODO(keith): Tell master the controller doesn't exist.
-          getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+          getSpaceEnvironment().getLog().error(
+              String.format("Startup of live activity failed, does not exist on controller: %s", uuid));
 
           ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
           publishActivityStatus(uuid, status);
         }
       }
     } catch (Exception e) {
-      getSpaceEnvironment().getLog().error(String.format("Error during shutdown of live activity %s", uuid), e);
+      getSpaceEnvironment().getLog().error(String.format("Error during shutdown of live activity: %s", uuid), e);
 
       ActivityStatus status = new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
@@ -352,21 +354,24 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void statusLiveActivity(String uuid) {
-    getSpaceEnvironment().getLog().info(String.format("Getting status of activity %s", uuid));
-
-    LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, false);
-    if (activity != null) {
-      final ActivityStatus activityStatus = activity.sampleActivityStatus();
-      getSpaceEnvironment().getLog().info(String.format("Reporting activity status %s for %s", uuid, activityStatus));
-      publishActivityStatus(activity.getUuid(), activityStatus);
+    LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
+    if (runner != null) {
+      getSpaceEnvironment().getLog().info(
+          String.format("Getting status of live activity: %s", runner.getDisplayName()));
+      final ActivityStatus activityStatus = runner.sampleActivityStatus();
+      getSpaceEnvironment().getLog().info(
+          String.format("Reporting live activity status %s: %s", activityStatus, runner.getDisplayName()));
+      publishActivityStatus(runner.getUuid(), activityStatus);
     } else {
       InstalledLiveActivity liveActivity = liveActivityRepository.getInstalledLiveActivityByUuid(uuid);
       if (liveActivity != null) {
         getSpaceEnvironment().getLog().info(
-            String.format("Reporting activity status %s for %s", uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY));
+            String.format("Reporting live activity status %s: %s", LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY,
+                liveActivity.getDisplayName()));
         publishActivityStatus(uuid, LiveActivityRunner.LIVE_ACTIVITY_STATUS_READY);
       } else {
-        getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+        getSpaceEnvironment().getLog().error(
+            String.format("Status of live activity failed, does not exist on controller: %s", uuid));
 
         ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
         publishActivityStatus(uuid, status);
@@ -376,21 +381,21 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void activateLiveActivity(String uuid) {
-    getSpaceEnvironment().getLog().info(String.format("Activating activity %s", uuid));
-
-    // Can create since can immediately request activate
     try {
-      LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
-      if (activity != null) {
-        attemptActivityActivate(activity);
+      // Can create since can immediately request activate
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
+      if (runner != null) {
+        getSpaceEnvironment().getLog().info(String.format("Activating live activity: %s", runner.getDisplayName()));
+        attemptActivityActivate(runner);
       } else {
-        getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+        getSpaceEnvironment().getLog().error(
+            String.format("Activation of live activity failed, does not exist on controller: %s", uuid));
 
         ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
         publishActivityStatus(uuid, status);
       }
     } catch (Exception e) {
-      getSpaceEnvironment().getLog().error(String.format("Error during activation of live activity %s", uuid), e);
+      getSpaceEnvironment().getLog().error(String.format("Error during activation of live activity: %s", uuid), e);
 
       ActivityStatus status = new ActivityStatus(ActivityState.ACTIVATE_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
@@ -399,20 +404,20 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void deactivateLiveActivity(String uuid) {
-    getSpaceEnvironment().getLog().info(String.format("Deactivating activity %s", uuid));
-
     try {
       LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
       if (runner != null) {
+        getSpaceEnvironment().getLog().info(String.format("Deactivating live activity: %s", runner.getDisplayName()));
         attemptActivityDeactivate(runner);
       } else {
-        getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+        getSpaceEnvironment().getLog().error(
+            String.format("Deactivation of live activity failed, does not exist on controller: %s", uuid));
 
         ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
         publishActivityStatus(uuid, status);
       }
     } catch (Exception e) {
-      getSpaceEnvironment().getLog().error(String.format("Error during deactivation of live activity %s", uuid), e);
+      getSpaceEnvironment().getLog().error(String.format("Error during deactivation of live activity: %s", uuid), e);
 
       ActivityStatus status = new ActivityStatus(ActivityState.DEACTIVATE_FAILURE, e.getMessage());
       publishActivityStatus(uuid, status);
@@ -421,50 +426,70 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void configureLiveActivity(String uuid, Map<String, String> configuration) {
-    getSpaceEnvironment().getLog().info(String.format("Configuring activity %s", uuid));
+    try {
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
+      if (runner != null) {
+        getSpaceEnvironment().getLog().info(String.format("Configuring live activity: %s", runner.getDisplayName()));
+        runner.updateConfiguration(configuration);
+      } else {
+        getSpaceEnvironment().getLog().error(
+            String.format("Configuration of live activity failed, does not exist on controller: %s", uuid));
 
-    LiveActivityRunner activity = getLiveActivityRunnerByUuid(uuid, true);
-    if (activity != null) {
-      activity.updateConfiguration(configuration);
-    } else {
-      getSpaceEnvironment().getLog().warn(String.format("Activity %s does not exist on controller", uuid));
+        ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
+        publishActivityStatus(uuid, status);
+      }
+    } catch (Throwable e) {
+      getSpaceEnvironment().getLog().error(String.format("Error during configuration of live activity: %s", uuid), e);
 
-      ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
-      publishActivityStatus(uuid, status);
+      // TODO(keith): An appropriate status to send back?
     }
   }
 
   @Override
   public void cleanLiveActivityTmpData(String uuid) {
-    LiveActivityRunner active = getLiveActivityRunnerByUuid(uuid);
-    if (active != null) {
-      if (active.getCachedActivityStatus().getState().isRunning()) {
-        getSpaceEnvironment().getLog().warn(
-            String.format("Attempting to clean activity tmp directory for a running activity %s. Aborting.", uuid));
-
-        return;
+    try {
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid);
+      if (runner != null) {
+        if (!runner.getCachedActivityStatus().getState().isRunning()) {
+          getSpaceEnvironment().getLog().info(
+              String.format("Cleaning live activity tmp directory for live activity: %s", runner.getDisplayName()));
+          liveActivityStorageManager.cleanTmpActivityDataDirectory(uuid);
+        } else {
+          getSpaceEnvironment().getLog().warn(
+              String.format("Concelling attempt to clean activity tmp directory for a running activity: %s",
+                  runner.getDisplayName()));
+        }
       }
-    }
+    } catch (Throwable e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during cleaning live activity tmp data directory: %s", uuid), e);
 
-    getSpaceEnvironment().getLog().info(String.format("Cleaning activity tmp directory for activity %s.", uuid));
-    liveActivityStorageManager.cleanTmpActivityDataDirectory(uuid);
+      // TODO(keith): An appropriate status to send back?
+    }
   }
 
   @Override
   public void cleanLiveActivityPermanentData(String uuid) {
-    LiveActivityRunner active = getLiveActivityRunnerByUuid(uuid);
-    if (active != null) {
-      if (active.getCachedActivityStatus().getState().isRunning()) {
-        getSpaceEnvironment().getLog().warn(
-            String.format(
-                "Attempting to clean activity permanent data directory for a running activity %s. Aborting.", uuid));
-
-        return;
+    try {
+      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid);
+      if (runner != null) {
+        if (!runner.getCachedActivityStatus().getState().isRunning()) {
+          getSpaceEnvironment().getLog().info(
+              String.format("Cleaning activity permanent directory for live activity: %s", runner.getDisplayName()));
+          liveActivityStorageManager.cleanPermanentActivityDataDirectory(uuid);
+        } else {
+          getSpaceEnvironment().getLog().warn(
+              String.format(
+                  "Cancelling attempt to clean activity permanent data directory for a running live activity: %s",
+                  runner.getDisplayName()));
+        }
       }
-    }
+    } catch (Throwable e) {
+      getSpaceEnvironment().getLog().error(
+          String.format("Error during cleaning live activity permanent data directory: %s", uuid), e);
 
-    getSpaceEnvironment().getLog().info(String.format("Cleaning activity permanent directory for activity %s.", uuid));
-    liveActivityStorageManager.cleanPermanentActivityDataDirectory(uuid);
+      // TODO(keith): An appropriate status to send back?
+    }
   }
 
   @Override

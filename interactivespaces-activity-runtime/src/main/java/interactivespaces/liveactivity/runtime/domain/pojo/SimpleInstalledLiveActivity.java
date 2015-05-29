@@ -157,4 +157,9 @@ public class SimpleInstalledLiveActivity implements InstalledLiveActivity {
   public void setRuntimeStartupType(ActivityRuntimeStartupType runtimeStartupType) {
     this.runtimeStartupType = runtimeStartupType;
   }
+
+  @Override
+  public String getDisplayName() {
+    return String.format("UUID %s, identifying name %s, version %s", getUuid(), getIdentifyingName(), getVersion());
+  }
 }

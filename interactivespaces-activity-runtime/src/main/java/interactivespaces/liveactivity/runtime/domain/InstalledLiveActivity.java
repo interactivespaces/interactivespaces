@@ -133,4 +133,11 @@ public interface InstalledLiveActivity {
    *          how the activity should respond to runtime startup
    */
   void setRuntimeStartupType(ActivityRuntimeStartupType runtimeStartupType);
+
+  /**
+   * Get the display name for the live activity in the runner.
+   *
+   * @return the display name
+   */
+  String getDisplayName();
 }
