@@ -17,11 +17,11 @@
 package interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
-import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
@@ -95,6 +95,9 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 
     try {
       return (Activity) activityClass.newInstance();
+    } catch (IllegalAccessException e) {
+      throw new SimpleInteractiveSpacesException(
+          String.format("Activity class %s must have a public no-argument constructor", className), e);
     } catch (Exception e) {
       throw new InteractiveSpacesException(String.format("Could not create activity class %s", className), e);
     }

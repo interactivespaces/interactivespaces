@@ -30,7 +30,6 @@ import freemarker.template.Version;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
@@ -81,7 +80,8 @@ public class FreemarkerTemplater implements Templater {
       // Specify how templates will see the data-model. This is an
       // advanced topic... but just use this:
       freemarkerConfig.setObjectWrapper(objectWrapperBuilder.build());
-    } catch (IOException e) {
+    } catch (Exception e) {
+      freemarkerConfig = null;
       throw new InteractiveSpacesException("Cannot initialize Freemarker templater", e);
     }
   }
@@ -97,14 +97,22 @@ public class FreemarkerTemplater implements Templater {
    * @return freemarker configuration
    */
   private synchronized Configuration getConfiguration() {
+    checkInitialized();
+    return freemarkerConfig;
+  }
+
+  /**
+   * Check to see that the template system has been properly initialized.
+   */
+  private void checkInitialized() {
     if (freemarkerConfig == null) {
       throw new SimpleInteractiveSpacesException("Templater has not been started");
     }
-    return freemarkerConfig;
   }
 
   @Override
   public String instantiateTemplate(String templateName, Map<String, Object> data) {
+    checkInitialized();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     Writer out = new OutputStreamWriter(baos);
     boolean noException = true;
@@ -124,6 +132,7 @@ public class FreemarkerTemplater implements Templater {
 
   @Override
   public void writeTemplate(String templateName, Map<String, Object> data, File outputFile) {
+    checkInitialized();
     Writer out = null;
     boolean noException = true;
     try {

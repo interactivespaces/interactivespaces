@@ -30,7 +30,7 @@ import java.util.Map;
 public class SimpleConfiguration extends BaseConfiguration {
 
   /**
-   * The properties file containing the app properties.
+   * Map of locally defined values.
    */
   private Map<String, String> values = new HashMap<String, String>();
 
