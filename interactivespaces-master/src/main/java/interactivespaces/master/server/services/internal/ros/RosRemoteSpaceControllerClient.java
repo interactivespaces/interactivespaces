@@ -38,7 +38,7 @@ import interactivespaces.master.server.services.RemoteSpaceControllerClientListe
 import interactivespaces.master.server.services.internal.DataBundleState;
 import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.MasterDataBundleManager;
-import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerHelper;
+import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -99,7 +99,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   /**
    * Helps with listeners for activity events.
    */
-  private RemoteSpaceControllerClientListenerHelper remoteControllerClientListeners;
+  private RemoteSpaceControllerClientListenerCollection remoteControllerClientListeners;
 
   /**
    * The ROS Master context the client is running in.
@@ -200,7 +200,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   public void startup() {
     log.info("Starting up ROS remote controller");
 
-    remoteControllerClientListeners = new RemoteSpaceControllerClientListenerHelper(log);
+    remoteControllerClientListeners = new RemoteSpaceControllerClientListenerCollection(log);
 
     masterNode = masterRosContext.getMasterNode();
     rosMessageFactory = masterNode.getTopicMessageFactory();
@@ -444,7 +444,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   @Override
-  public RemoteSpaceControllerClientListenerHelper registerRemoteActivityDeploymentManager(
+  public RemoteSpaceControllerClientListenerCollection registerRemoteActivityDeploymentManager(
       RemoteActivityDeploymentManager remoteActivityDeploymentManager) {
     this.remoteActivityDeploymentManager = remoteActivityDeploymentManager;
 
@@ -715,10 +715,6 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         newState = ActivityState.UNKNOWN;
     }
 
-    if (log.isInfoEnabled()) {
-      log.info(String.format("Remote activity %s has reported state %s", status.getUuid(), newState));
-    }
-
     remoteControllerClientListeners.signalActivityStateChange(status.getUuid(), newState, status.getStatusDetail());
   }
 
@@ -753,7 +749,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   @Override
-  public RemoteSpaceControllerClientListenerHelper getRemoteControllerClientListeners() {
+  public RemoteSpaceControllerClientListenerCollection getRemoteControllerClientListeners() {
     return remoteControllerClientListeners;
   }
 

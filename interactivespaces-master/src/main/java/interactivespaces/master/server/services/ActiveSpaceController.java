@@ -59,6 +59,11 @@ public class ActiveSpaceController {
   private Long lastDataBundleStateUpdate;
 
   /**
+   * Last timestamp for a heartbeat.
+   */
+  private Long lastHeartbeatTimestamp;
+
+  /**
    * The time provider.
    */
   private TimeProvider timeProvider;
@@ -174,5 +179,54 @@ public class ActiveSpaceController {
     } else {
       return null;
     }
+  }
+
+  /**
+   * Set the new heartbeat time.
+   *
+   * @param heartbeatTime
+   *          the new heartbeat time
+   */
+  public void setHeartbeatTime(long heartbeatTime) {
+    lastHeartbeatTimestamp = heartbeatTime;
+  }
+
+  /**
+   * Get the last heartbeat time.
+   *
+   * @return the last heartbeat time, or {@code null} if it has never been set
+   */
+  public Long getLastHeartbeatTime() {
+    return lastHeartbeatTimestamp;
+  }
+
+/**
+ * Get the amount of time between the sample time and the last heartbeat.
+ *
+ * @param sampletime
+ *      the sample time, in milliseconds
+ *
+ * @return the time difference in milliseconds
+ */
+  public Long timeSinceLastHeartbeat(long sampletime) {
+    if (lastHeartbeatTimestamp != null) {
+      return sampletime - lastHeartbeatTimestamp;
+    } else if (lastStateUpdate != null) {
+      // Since hasn't been a heartbeat, just go with the last time we had a status update
+      return sampletime - lastStateUpdate;
+    } else {
+      // Assumption... some day someone will update the state, so just say everything is fine
+      return null;
+    }
+  }
+
+  /**
+   * Get a nice display name for the space controller.
+   *
+   * @return a nice display name for the space controller
+   */
+  public String getDisplayName() {
+    return String.format("UUID %s, host id %s, name %s", controller.getUuid(), controller.getHostId(),
+        controller.getName());
   }
 }

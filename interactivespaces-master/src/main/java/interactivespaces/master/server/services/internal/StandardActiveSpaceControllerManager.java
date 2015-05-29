@@ -248,7 +248,7 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
    * Clear all active live activity state models for the given space controller.
    *
    * @param spaceController
-   *          the space controller thath has the activities
+   *          the space controller
    */
   private void cleanLiveActivityStateModels(SpaceController spaceController) {
     synchronized (activeLiveActivitiesByController) {
@@ -617,12 +617,13 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
             String.format("Shut down live activity %s from group %s", activity.getUuid(), groupId));
       }
 
+      ActiveLiveActivity activeLiveActivity = getActiveLiveActivity(activity);
       try {
-        getActiveLiveActivity(activity).shutdownFromLiveActivityGroup(activeActivityGroup);
+        activeLiveActivity.shutdownFromLiveActivityGroup(activeActivityGroup);
       } catch (Exception e) {
         spaceEnvironment.getLog().error(
             String.format("Error while shutting down live activity %s as part of live activity group %s",
-                activity.getUuid(), activeActivityGroup.getActivityGroup().getId()), e);
+                activeLiveActivity.getDisplayName(), activeActivityGroup.getActivityGroup().getId()), e);
       }
     }
   }
@@ -900,12 +901,13 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
         // error or something that is currently being shown.
         active.setDeployState(ActivityState.READY);
 
-        spaceEnvironment.getLog().info(String.format("Live activity %s deployed successfully", uuid));
+        spaceEnvironment.getLog().info(
+            String.format("Live activity deployed successfully: %s", active.getDisplayName()));
       } else {
         active.setDeployState(ActivityState.DEPLOY_FAILURE, result.getStatus().toString());
 
         spaceEnvironment.getLog().info(
-            String.format("Live activity %s deployment failed %s", uuid, result.getStatus()));
+            String.format("Live activity deployment failed %s: %s", result.getStatus(), active.getDisplayName()));
       }
 
       masterEventManager.signalLiveActivityDeploy(active, result, spaceEnvironment.getTimeProvider().getCurrentTime());
@@ -926,7 +928,8 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
           active.setRuntimeState(ActivityState.UNKNOWN, null);
           active.getLiveActivity().setLastDeployDate(null);
 
-          spaceEnvironment.getLog().info(String.format("Live activity %s deleted successfully", uuid));
+          spaceEnvironment.getLog().info(
+              String.format("Live activity deleted successfully: %s", active.getDisplayName()));
 
           break;
 
@@ -935,7 +938,8 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
           active.setRuntimeState(ActivityState.DOESNT_EXIST, null);
 
           spaceEnvironment.getLog().info(
-              String.format("Live activity %s deletion attempt failed because it isn't on the controller", uuid));
+              String.format("Live activity deletion attempt failed because it isn't on the controller: %s",
+                  active.getDisplayName()));
 
           break;
 
@@ -953,6 +957,9 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
   public void onLiveActivityRuntimeStateChange(String uuid, ActivityState newState, String newStateDetail) {
     ActiveLiveActivity active = getActiveActivityByUuid(uuid);
     if (active != null) {
+      spaceEnvironment.getLog().info(
+          String.format("Remote live activity has reported state %s: %s", newState, active.getDisplayName()));
+
       ActivityState oldState;
       synchronized (active) {
         oldState = active.getRuntimeState();

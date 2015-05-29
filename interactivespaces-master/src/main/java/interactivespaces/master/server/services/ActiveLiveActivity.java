@@ -16,11 +16,11 @@
 
 package interactivespaces.master.server.services;
 
-import com.google.common.collect.Sets;
-
 import interactivespaces.activity.ActivityState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.time.TimeProvider;
+
+import com.google.common.collect.Sets;
 
 import java.util.Date;
 import java.util.Set;
@@ -29,8 +29,7 @@ import java.util.Set;
  * A {@link LiveActivity} which is active.
  *
  * <p>
- * This class is not thread safe in and of itself. It is assumed that whoever is
- * calling it is thread safe.
+ * This class is not thread safe in and of itself. It is assumed that whoever is calling it is thread safe.
  *
  * @author Keith M. Hughes
  */
@@ -55,8 +54,7 @@ public class ActiveLiveActivity {
    * The state of the active activity.
    *
    * <p>
-   * This is local knowledge about what is true about the remote version of the
-   * activity.
+   * This is local knowledge about what is true about the remote version of the activity.
    */
   private ActivityState runtimeState = ActivityState.UNKNOWN;
 
@@ -69,8 +67,7 @@ public class ActiveLiveActivity {
    * The deploy state of the activity.
    *
    * <p>
-   * This is local knowledge about what is true about the remote version of the
-   * activity.
+   * This is local knowledge about what is true about the remote version of the activity.
    */
   private ActivityState deployState = ActivityState.UNKNOWN;
 
@@ -372,7 +369,7 @@ public class ActiveLiveActivity {
    * @param runtimeState
    *          the state to set
    * @param runtimeStateDetail
-   *        detail about the runtime state, can be {@code null}
+   *          detail about the runtime state, can be {@code null}
    */
   public void setRuntimeState(ActivityState runtimeState, String runtimeStateDetail) {
     this.runtimeState = runtimeState;
@@ -384,8 +381,8 @@ public class ActiveLiveActivity {
   /**
    * Get the time of the last state update.
    *
-   * @return The time in milliseconds from the epoch of the last status update.
-   *         {@code null} means there hasn't been one yet.
+   * @return The time in milliseconds from the epoch of the last status update. {@code null} means there hasn't been one
+   *         yet.
    */
   public Long getLastStateUpdate() {
     return lastStateUpdate;
@@ -394,8 +391,8 @@ public class ActiveLiveActivity {
   /**
    * Get the time of the last state update as a date.
    *
-   * @return The time in milliseconds from the epoch of the last status update.
-   *         {@code null} means there hasn't been one yet.
+   * @return The time in milliseconds from the epoch of the last status update. {@code null} means there hasn't been one
+   *         yet.
    */
   public Date getLastStateUpdateDate() {
     if (lastStateUpdate != null) {
@@ -444,6 +441,16 @@ public class ActiveLiveActivity {
   public void setDeployState(ActivityState deployState, String deployStateDetail) {
     this.deployState = deployState;
     this.deployStateDetail = deployStateDetail;
+  }
+
+  /**
+   * Get a nice display name for the live activity.
+   *
+   * @return a nice display name for the activity
+   */
+  public String getDisplayName() {
+    return String.format("UUID %s, identifying name %s, version %s", activity.getUuid(), activity.getActivity()
+        .getIdentifyingName(), activity.getActivity().getVersion());
   }
 
   /**

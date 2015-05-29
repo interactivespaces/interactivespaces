@@ -19,8 +19,6 @@ package interactivespaces.master.api.master.internal;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.api.master.MasterApiAutomationManager;
@@ -28,13 +26,11 @@ import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.master.MasterWebsocketManager;
 import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
-import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.event.BaseMasterEventListener;
+import interactivespaces.master.event.MasterEventListener;
+import interactivespaces.master.event.MasterEventManager;
+import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ExtensionManager;
-import interactivespaces.master.server.services.RemoteSpaceControllerClient;
-import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
-import interactivespaces.master.server.services.internal.DataBundleState;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.service.web.server.BasicMultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.MultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
@@ -58,7 +54,7 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class StandardMasterWebsocketManager extends BaseMasterApiManager implements MasterWebsocketManager,
-    MultipleConnectionWebSocketHandler, RemoteSpaceControllerClientListener {
+    MultipleConnectionWebSocketHandler {
 
   /**
    * The space environment.
@@ -73,22 +69,12 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   /**
    * Web socket handler for the connection to the browser.
    */
-  private MultipleConnectionWebServerWebSocketHandlerFactory webSocketFactory;
-
-  /**
-   * Client for communication with a remote controller.
-   */
-  private RemoteSpaceControllerClient remoteSpaceControllerClient;
+  private MultipleConnectionWebServerWebSocketHandlerFactory webSocketHandlerFactory;
 
   /**
    * The manager for extensions.
    */
   private ExtensionManager extensionManager;
-
-  /**
-   * Repository for all activity entities..
-   */
-  private ActivityRepository activityRepository;
 
   /**
    * The Master API manager for activities.
@@ -109,6 +95,23 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * A mapping of command name to the handler for that command.
    */
   private final Map<String, MasterApiWebSocketCommandHandler> commandHandlers = Maps.newHashMap();
+
+  /**
+   * The master event listener.
+   */
+  private MasterEventListener masterEventListener = new BaseMasterEventListener() {
+
+    @Override
+    public void onLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+        ActivityState newState) {
+      handleLiveActivityStateChange(liveActivity, oldState, newState);
+    }
+  };
+
+  /**
+   * The master event manager.
+   */
+  private MasterEventManager masterEventManager;
 
   /**
    * Construct a new manager.
@@ -745,18 +748,19 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
     webServer.setServerName("master");
     webServer.setPort(port);
 
-    webSocketFactory = new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
+    webSocketHandlerFactory =
+        new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
 
-    webServer.setWebSocketHandlerFactory("", webSocketFactory);
+    webServer.setWebSocketHandlerFactory("", webSocketHandlerFactory);
 
     webServer.startup();
 
-    remoteSpaceControllerClient.addRemoteSpaceControllerClientListener(this);
+    masterEventManager.addListener(masterEventListener);
   }
 
   @Override
   public void shutdown() {
-    remoteSpaceControllerClient.removeRemoteSpaceControllerClientListener(this);
+    masterEventManager.removeListener(masterEventListener);
 
     if (webServer != null) {
       webServer.shutdown();
@@ -764,69 +768,38 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
     }
   }
 
-  @Override
-  public void onLiveActivityDeployment(String uuid, LiveActivityDeploymentResponse result) {
-    // Don't care
-  }
+  /**
+   * Handle the state change for a live activity from the master event bus.
+   *
+   * @param activeLiveActivity
+   *          the live activity
+   * @param oldState
+   *          the old state of the live activity
+   * @param newState
+   *          the new state of the live activity
+   */
+  private void handleLiveActivityStateChange(ActiveLiveActivity activeLiveActivity, ActivityState oldState,
+      ActivityState newState) {
+    LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
+    Map<String, Object> data = Maps.newHashMap();
 
-  @Override
-  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
-    // Don't care
-  }
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_TYPE,
+        MasterApiMessages.MASTER_API_PARAMETER_VALUE_TYPE_STATUS_LIVE_ACTIVITY);
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, liveActivity.getUuid());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE, newState.name());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE_DESCRIPTION, newState.getDescription());
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_DETAIL, activeLiveActivity.getRuntimeStateDetail());
 
-  @Override
-  public void onLiveActivityRuntimeStateChange(String uuid, ActivityState runtimeState, String detail) {
-    LiveActivity liveActivity = activityRepository.getLiveActivityByUuid(uuid);
-    if (liveActivity != null) {
-      Map<String, Object> data = Maps.newHashMap();
+    data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment.getTimeProvider()
+        .getCurrentTime()));
 
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_TYPE,
-          MasterApiMessages.MASTER_API_PARAMETER_VALUE_TYPE_STATUS_LIVE_ACTIVITY);
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_UUID, uuid);
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivity.getId());
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE, runtimeState.name());
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_RUNTIME_STATE_DESCRIPTION,
-          runtimeState.getDescription());
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_DETAIL, detail);
+    Map<String, Object> message = Maps.newHashMap();
+    message.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
+        MasterApiMessages.MASTER_API_MESSAGE_TYPE_STATUS_UPDATE);
+    message.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA, data);
 
-      data.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_STATUS_TIME, new Date(spaceEnvironment.getTimeProvider()
-          .getCurrentTime()));
-
-      Map<String, Object> message = Maps.newHashMap();
-      message.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
-          MasterApiMessages.MASTER_API_MESSAGE_TYPE_STATUS_UPDATE);
-      message.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA, data);
-
-      webSocketFactory.sendJson(message);
-    } else {
-      spaceEnvironment.getLog().warn(
-          String.format("Received status update in web socket master client for unknown live activity UUID %s", uuid));
-    }
-  }
-
-  @Override
-  public void onDataBundleStateChange(String uuid, DataBundleState state) {
-    // For now don't care.
-  }
-
-  @Override
-  public void onSpaceControllerConnectAttempted(ActiveSpaceController controller) {
-    // For now don't care.
-  }
-
-  @Override
-  public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
-    // For now don't care.
-  }
-
-  @Override
-  public void onSpaceControllerHeartbeat(String uuid, long timestamp) {
-    // For now don't care.
-  }
-
-  @Override
-  public void onSpaceControllerStatusChange(String uuid, SpaceControllerState status) {
-    // For now don't care.
+    webSocketHandlerFactory.sendJson(message);
   }
 
   @Override
@@ -859,7 +832,7 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
             MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
         potentiallyAddRequestId(responseMessage, requestId);
 
-        webSocketFactory.sendJson(connectionId, responseMessage);
+        webSocketHandlerFactory.sendJson(connectionId, responseMessage);
       } else {
         executeWithCommandHandler(connectionId, command, commandArgs, requestId);
       }
@@ -871,7 +844,7 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       potentiallyAddRequestId(responseMessage, requestId);
 
       try {
-        webSocketFactory.sendJson(connectionId, responseMessage);
+        webSocketHandlerFactory.sendJson(connectionId, responseMessage);
       } catch (Throwable e1) {
         spaceEnvironment.getLog().error(
             String.format("Error while responding to failure of Master API websocket command %s", command), e1);
@@ -900,7 +873,7 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       responseMessage.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
           MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
       potentiallyAddRequestId(responseMessage, requestId);
-      webSocketFactory.sendJson(connectionId, responseMessage);
+      webSocketHandlerFactory.sendJson(connectionId, responseMessage);
     } else {
       spaceEnvironment.getLog()
           .error(String.format("Master API websocket connection got unknown command %s", command));
@@ -922,6 +895,16 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   }
 
   /**
+   * Get the master event listener.
+   *
+   * @return the master event listener
+   */
+  @VisibleForTesting
+  MasterEventListener getMasterEventListener() {
+    return masterEventListener;
+  }
+
+  /**
    * Register a command handler with the manager.
    *
    * @param handler
@@ -932,8 +915,31 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   }
 
   /**
+   * Set the master event manager.
+   *
+   * @param masterEventManager
+   *          the master event manager
+   */
+  public void setMasterEventManager(MasterEventManager masterEventManager) {
+    this.masterEventManager = masterEventManager;
+  }
+
+  /**
+   * Set the websocket handler factory.
+   *
+   * @param websocketHandlerFactory
+   *          the websocket handler factory
+   */
+  @VisibleForTesting
+  void setWebSocketHandlerFactory(MultipleConnectionWebServerWebSocketHandlerFactory websocketHandlerFactory) {
+    this.webSocketHandlerFactory = websocketHandlerFactory;
+  }
+
+  /**
+   * Set the space environment.
+   *
    * @param spaceEnvironment
-   *          the spaceEnvironment to set
+   *          the space environment
    */
   @Override
   public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
@@ -949,32 +955,20 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   }
 
   /**
-   * @param remoteControllerClient
-   *          the remoteControllerClient to set
-   */
-  public void setRemoteSpaceControllerClient(RemoteSpaceControllerClient remoteControllerClient) {
-    this.remoteSpaceControllerClient = remoteControllerClient;
-  }
-
-  /**
-   * @param activityRepository
-   *          the activityRepository to set
-   */
-  public void setActivityRepository(ActivityRepository activityRepository) {
-    this.activityRepository = activityRepository;
-  }
-
-  /**
+   * Set the master API activity manager.
+   *
    * @param masterApiActivityManager
-   *          activity manager to set
+   *          the master api activity manager
    */
   public void setMasterApiActivityManager(MasterApiActivityManager masterApiActivityManager) {
     this.masterApiActivityManager = masterApiActivityManager;
   }
 
   /**
+   * Set the master API controller manager.
+   *
    * @param masterApiControllerManager
-   *          the controller manager to set
+   *          the master API controller manager
    */
   public void setMasterApiSpaceControllerManager(MasterApiSpaceControllerManager masterApiControllerManager) {
     this.masterApiSpaceControllerManager = masterApiControllerManager;

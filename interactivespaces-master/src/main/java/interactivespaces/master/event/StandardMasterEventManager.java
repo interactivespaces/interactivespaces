@@ -58,28 +58,64 @@ public class StandardMasterEventManager implements MasterEventManager {
   @Override
   public void signalSpaceControllerConnectAttempted(ActiveSpaceController controller) {
     for (MasterEventListener listener : listeners) {
-      listener.onSpaceControllerConnectAttempted(controller);
+      try {
+        listener.onSpaceControllerConnectAttempted(controller);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing space controller connection attempt master event listener: %s",
+            controller.getDisplayName()), e);
+      }
     }
   }
 
   @Override
   public void signalSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
     for (MasterEventListener listener : listeners) {
-      listener.onSpaceControllerDisconnectAttempted(controller);
+      try {
+        listener.onSpaceControllerDisconnectAttempted(controller);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing space controller disconnection attempt master event listener: %s",
+            controller.getDisplayName()), e);
+      }
     }
   }
 
   @Override
   public void signalSpaceControllerHeartbeat(ActiveSpaceController controller, long timestamp) {
     for (MasterEventListener listener : listeners) {
-      listener.onSpaceControllerHeartbeat(controller, timestamp);
+      try {
+        listener.onSpaceControllerHeartbeat(controller, timestamp);
+      } catch (Throwable e) {
+        log.error(String.format("Exception while processing space controller heartbeat master event listener: %s",
+            controller.getDisplayName()), e);
+      }
+    }
+  }
+
+  @Override
+  public void signalSpaceControllerHeartbeatLost(ActiveSpaceController controller, long timeSinceLastHeartbeat) {
+    for (MasterEventListener listener : listeners) {
+      try {
+        listener.onSpaceControllerHeartbeatLost(controller, timeSinceLastHeartbeat);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing space controller heartbeat lost master event listener: %s",
+            controller.getDisplayName()), e);
+      }
     }
   }
 
   @Override
   public void signalSpaceControllerStatusChange(ActiveSpaceController controller, SpaceControllerState state) {
     for (MasterEventListener listener : listeners) {
-      listener.onSpaceControllerStatusChange(controller, state);
+      try {
+        listener.onSpaceControllerStatusChange(controller, state);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing space controller status change master event listener (%s): %s", state,
+            controller.getDisplayName()), e);
+      }
     }
   }
 
@@ -87,21 +123,39 @@ public class StandardMasterEventManager implements MasterEventManager {
   public void signalLiveActivityDeploy(ActiveLiveActivity liveActivity, LiveActivityDeploymentResponse result,
       long timestamp) {
     for (MasterEventListener listener : listeners) {
-      listener.onLiveActivityDeploy(liveActivity, result, timestamp);
+      try {
+        listener.onLiveActivityDeploy(liveActivity, result, timestamp);
+      } catch (Throwable e) {
+        log.error(String.format("Exception while processing live activity deploy master event listener (%s): %s",
+            result, liveActivity.getDisplayName()), e);
+      }
     }
   }
 
   @Override
-  public void signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp) {
+  public void
+      signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp) {
     for (MasterEventListener listener : listeners) {
-      listener.onLiveActivityDelete(liveActivity, result, timestamp);
+      try {
+        listener.onLiveActivityDelete(liveActivity, result, timestamp);
+      } catch (Throwable e) {
+        log.error(String.format("Exception while processing live activity delete master event listener (%s): %s",
+            result, liveActivity.getDisplayName()), e);
+      }
     }
   }
 
   @Override
-  public void signalLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState, ActivityState newState) {
+  public void signalLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+      ActivityState newState) {
     for (MasterEventListener listener : listeners) {
-      listener.onLiveActivityStateChange(liveActivity, oldState, newState);
+      try {
+        listener.onLiveActivityStateChange(liveActivity, oldState, newState);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing live activity deploy master event listener (%s to %s): %s", oldState,
+            newState, liveActivity.getDisplayName()), e);
+      }
     }
   }
 

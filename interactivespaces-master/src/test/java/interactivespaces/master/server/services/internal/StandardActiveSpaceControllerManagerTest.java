@@ -22,9 +22,11 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.domain.space.Space;
@@ -84,7 +86,6 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
 
     masterEventManager = Mockito.mock(MasterEventManager.class);
 
-
     activeControllerManager = new StandardActiveSpaceControllerManager();
     activeControllerManager.setSpaceEnvironment(spaceEnvironment);
     activeControllerManager.setRemoteSpaceControllerClient(remoteControllerClient);
@@ -106,10 +107,16 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     controller.setUuid(spaceUuid);
     activeControllerManager.getActiveSpaceController(controller);
 
-    LiveActivity activity = new SimpleLiveActivity();
-    activity.setUuid(activityUuid);
-    activity.setController(controller);
-    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    Activity activity = new SimpleActivity();
+    activity.setIdentifyingName("test");
+    activity.setVersion("1.2.3");
+
+    LiveActivity liveActivity = new SimpleLiveActivity();
+    liveActivity.setUuid(activityUuid);
+    liveActivity.setController(controller);
+    liveActivity.setActivity(activity);
+
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(liveActivity);
     active.setDeployState(ActivityState.DEPLOY_ATTEMPT);
     active.setRuntimeState(null, null);
 
@@ -134,10 +141,16 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     controller.setUuid(spaceUuid);
     activeControllerManager.getActiveSpaceController(controller);
 
-    LiveActivity activity = new SimpleLiveActivity();
-    activity.setUuid(activityUuid);
-    activity.setController(controller);
-    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    Activity activity = new SimpleActivity();
+    activity.setIdentifyingName("test");
+    activity.setVersion("1.2.3");
+
+    LiveActivity liveActivity = new SimpleLiveActivity();
+    liveActivity.setUuid(activityUuid);
+    liveActivity.setController(controller);
+    liveActivity.setActivity(activity);
+
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(liveActivity);
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
@@ -161,12 +174,18 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     controller.setUuid(spaceUuid);
     activeControllerManager.getActiveSpaceController(controller);
 
-    LiveActivity activity = new SimpleLiveActivity();
-    activity.setUuid(activityUuid);
-    activity.setController(controller);
+    Activity activity = new SimpleActivity();
+    activity.setIdentifyingName("test");
+    activity.setVersion("1.2.3");
+
+    LiveActivity liveActivity = new SimpleLiveActivity();
+    liveActivity.setUuid(activityUuid);
+    liveActivity.setController(controller);
+    liveActivity.setActivity(activity);
+
     Date lastDeployDate = new Date();
-    activity.setLastDeployDate(lastDeployDate);
-    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    liveActivity.setLastDeployDate(lastDeployDate);
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(liveActivity);
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
@@ -175,7 +194,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
     assertEquals(ActivityState.UNKNOWN, active.getRuntimeState());
     assertEquals(ActivityState.UNKNOWN, active.getDeployState());
-    assertEquals(null, activity.getLastDeployDate());
+    assertEquals(null, liveActivity.getLastDeployDate());
   }
 
   /**
@@ -222,10 +241,16 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     controller.setUuid(spaceUuid);
     activeControllerManager.getActiveSpaceController(controller);
 
-    LiveActivity activity = new SimpleLiveActivity();
-    activity.setUuid(activityUuid);
-    activity.setController(controller);
-    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(activity);
+    Activity activity = new SimpleActivity();
+    activity.setIdentifyingName("test");
+    activity.setVersion("1.2.3");
+
+    LiveActivity liveActivity = new SimpleLiveActivity();
+    liveActivity.setUuid(activityUuid);
+    liveActivity.setController(controller);
+    liveActivity.setActivity(activity);
+
+    ActiveLiveActivity active = activeControllerManager.getActiveLiveActivity(liveActivity);
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
@@ -333,7 +358,6 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
 
     Mockito.verify(remoteControllerClient).cleanActivityTempData(active);
   }
-
 
   /**
    * Make sure an activity deploys.
@@ -693,8 +717,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Make sure all activities in each group deploy only once when call with
-   * deploy set.
+   * Make sure all activities in each group deploy only once when call with deploy set.
    */
   @Test
   public void testMultipleActivityGroupAllDeploymentOverlaping() {
@@ -765,8 +788,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Start up activities in two activity groups. One activity will be in both.
-   * Force it to shutdown.
+   * Start up activities in two activity groups. One activity will be in both. Force it to shutdown.
    */
   @Test
   public void testMultipleActivityGroupAllStartupForceShutdown() {
@@ -837,9 +859,8 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Multiple activity groups. One activity is in both. Activate one of the
-   * groups containing the activity and make sure that unshared activities are
-   * activated, but the shared activity is left alone.
+   * Multiple activity groups. One activity is in both. Activate one of the groups containing the activity and make sure
+   * that unshared activities are activated, but the shared activity is left alone.
    */
   @Test
   public void testMultipleActivityGroupPartialStartup() {
@@ -909,9 +930,8 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Multiple activity groups are started up. One activity is in both. Activate
-   * one of the groups containing the activity and make sure that unshared
-   * activities are activated, but the shared activity is left alone.
+   * Multiple activity groups are started up. One activity is in both. Activate one of the groups containing the
+   * activity and make sure that unshared activities are activated, but the shared activity is left alone.
    */
   @Test
   public void testMultipleActivityGroupPartialActivate() {
@@ -987,9 +1007,8 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Multiple activity groups are deactivated. One activity is in both. Stop one
-   * of the groups containing the activity and make sure that unshared
-   * activities are deactivated, but the shared activity is left alone.
+   * Multiple activity groups are deactivated. One activity is in both. Stop one of the groups containing the activity
+   * and make sure that unshared activities are deactivated, but the shared activity is left alone.
    */
   @Test
   public void testMultipleActivityGroupPartialDeactivate() {
@@ -1228,8 +1247,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Don't shutdown the entire tree, just a subtree. The entire tree will have
-   * been started.
+   * Don't shutdown the entire tree, just a subtree. The entire tree will have been started.
    */
   @Test
   public void testSubSpaceShutdown() {
@@ -1347,8 +1365,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   }
 
   /**
-   * Don't deactivate the entire tree, just a subtree. The entire tree will have
-   * been started.
+   * Don't deactivate the entire tree, just a subtree. The entire tree will have been started.
    */
   @Test
   public void testSubSpaceDeactivation() {

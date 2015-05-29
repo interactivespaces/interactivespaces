@@ -29,14 +29,14 @@ import org.apache.commons.logging.Log;
 import java.util.List;
 
 /**
- * A helper class for working with {@link RemoteSpaceControllerClientListener} instances.
+ * A collection of {@link RemoteSpaceControllerClientListener} instances.
  *
  * <p>
  * There will be one per remote controller client.
  *
  * @author Keith M. Hughes
  */
-public class RemoteSpaceControllerClientListenerHelper {
+public class RemoteSpaceControllerClientListenerCollection {
 
   /**
    * Listeners registered with helper.
@@ -54,7 +54,7 @@ public class RemoteSpaceControllerClientListenerHelper {
    * @param log
    *          the logger to use
    */
-  public RemoteSpaceControllerClientListenerHelper(Log log) {
+  public RemoteSpaceControllerClientListenerCollection(Log log) {
     this.log = log;
   }
 
@@ -92,8 +92,8 @@ public class RemoteSpaceControllerClientListenerHelper {
       try {
         listener.onSpaceControllerConnectAttempted(controller);
       } catch (Throwable e) {
-        log.error(String.format("Error handling space controller connect event for UUID %s", controller
-            .getSpaceController().getUuid()), e);
+        log.error(String.format("Error handling space controller connect event for %s", controller.getDisplayName()),
+            e);
       }
     }
   }
@@ -109,8 +109,8 @@ public class RemoteSpaceControllerClientListenerHelper {
       try {
         listener.onSpaceControllerDisconnectAttempted(controller);
       } catch (Throwable e) {
-        log.error(String.format("Error handling space controller disconnect event for UUID %s", controller
-            .getSpaceController().getUuid()), e);
+        log.error(
+            String.format("Error handling space controller disconnect event for %s", controller.getDisplayName()), e);
       }
     }
   }

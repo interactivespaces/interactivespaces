@@ -46,6 +46,11 @@ public abstract class BaseMasterEventListener implements MasterEventListener {
   }
 
   @Override
+  public void onSpaceControllerHeartbeatLost(ActiveSpaceController controller, long timeSinceLastHeartbeat) {
+    // Default is do nothing.
+  }
+
+  @Override
   public void onSpaceControllerStatusChange(ActiveSpaceController controller, SpaceControllerState state) {
     // Default is do nothing.
   }

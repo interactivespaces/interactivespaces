@@ -20,7 +20,7 @@ import interactivespaces.activity.deployment.ActivityDeploymentRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
-import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerHelper;
+import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
 import interactivespaces.util.resource.ManagedResource;
 
 import interactivespaces_msgs.LiveActivityDeleteRequest;
@@ -280,7 +280,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    *
    * @return the helper which handles the listeners
    */
-  RemoteSpaceControllerClientListenerHelper getRemoteControllerClientListeners();
+  RemoteSpaceControllerClientListenerCollection getRemoteControllerClientListeners();
 
   /**
    * Register a remote activity deployment manager with the remote controller.
@@ -290,6 +290,6 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    *
    * @return the helper for the manager to use
    */
-  RemoteSpaceControllerClientListenerHelper registerRemoteActivityDeploymentManager(
+  RemoteSpaceControllerClientListenerCollection registerRemoteActivityDeploymentManager(
       RemoteActivityDeploymentManager remoteActivityDeploymentManager);
 }

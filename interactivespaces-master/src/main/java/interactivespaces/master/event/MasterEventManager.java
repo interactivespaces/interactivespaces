@@ -113,6 +113,16 @@ public interface MasterEventManager {
   void signalSpaceControllerHeartbeat(ActiveSpaceController controller, long timestamp);
 
   /**
+   * Signal that master has lost the heartbeat from a controller.
+   *
+   * @param controller
+   *          the controller
+   * @param timeSinceLastHeartbeat
+   *          the time since the last heartbeat that triggered the error, in milliseconds
+   */
+  void signalSpaceControllerHeartbeatLost(ActiveSpaceController controller, long timeSinceLastHeartbeat);
+
+  /**
    * Signal a space controller disconnection attempt.
    *
    * @param controller

@@ -58,6 +58,16 @@ public interface MasterEventListener {
   void onSpaceControllerHeartbeat(ActiveSpaceController controller, long timestamp);
 
   /**
+   * The master has lost the heartbeat from a controller.
+   *
+   * @param controller
+   *          the controller
+   * @param timeSinceLastHeartbeat
+   *          the time since te last heartbeat that triggered the error, in milliseconds
+   */
+  void onSpaceControllerHeartbeatLost(ActiveSpaceController controller, long timeSinceLastHeartbeat);
+
+  /**
    * The controller status has been updated.
    *
    * @param controller

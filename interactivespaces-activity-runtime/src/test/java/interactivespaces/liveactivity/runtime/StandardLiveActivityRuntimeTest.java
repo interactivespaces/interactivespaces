@@ -244,6 +244,13 @@ public class StandardLiveActivityRuntimeTest {
   public void testCleanLiveActivityTempDataDir() {
     String uuid = "foo";
 
+    InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
+    when(installedActivity.getUuid()).thenReturn(uuid);
+    BasicLiveActivityRunner active =
+        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    liveActivityRuntime.addLiveActivityRunner(uuid, active);
+    active.setCachedActivityStatus(new ActivityStatus(ActivityState.READY, ""));
+
     liveActivityRuntime.cleanLiveActivityTmpData(uuid);
 
     verify(liveActivityStorageManager, times(1)).cleanTmpActivityDataDirectory(uuid);
@@ -274,6 +281,13 @@ public class StandardLiveActivityRuntimeTest {
   @Test
   public void testCleanLiveActivityPermanentDataDir() {
     String uuid = "foo";
+
+    InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
+    when(installedActivity.getUuid()).thenReturn(uuid);
+    BasicLiveActivityRunner active =
+        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    liveActivityRuntime.addLiveActivityRunner(uuid, active);
+    active.setCachedActivityStatus(new ActivityStatus(ActivityState.READY, ""));
 
     liveActivityRuntime.cleanLiveActivityPermanentData(uuid);
 

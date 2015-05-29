@@ -239,6 +239,8 @@
   >
     <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
+    <property name="activeSpaceControllerManager" ref="interactivespaces.master.controller.active" />
+
     <property name="alertService" ref="interactivespaces.service.alert" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
@@ -400,14 +402,11 @@
   <bean id="interactivespaces.master.websocket" class="interactivespaces.master.api.master.internal.StandardMasterWebsocketManager"
     destroy-method="shutdown" init-method="startup"
   >
+    <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="extensionManager" ref="interactivespaces.master.extension" />
-
-    <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
-
-    <property name="activityRepository" ref="interactivespaces.repository.activity" />
 
     <property name="masterApiActivityManager" ref="interactivespaces.master.api.activity" />
 

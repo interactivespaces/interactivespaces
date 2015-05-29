@@ -28,7 +28,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
-import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerHelper;
+import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
 import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.ResourceDependencyReference;
 import interactivespaces.resource.Version;
@@ -86,7 +86,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
   /**
    * The listeners for remote events.
    */
-  private RemoteSpaceControllerClientListenerHelper remoteSpaceControllerClientListeners;
+  private RemoteSpaceControllerClientListenerCollection remoteSpaceControllerClientListeners;
 
   /**
    * {@code true} if should send dependencies every time.
