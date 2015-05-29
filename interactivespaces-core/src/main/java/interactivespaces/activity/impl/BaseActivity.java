@@ -235,7 +235,8 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     try {
       callOnActivityPreSetup();
 
-      configurationAnnotationProcessor = new StandardConfigurationPropertyAnnotationProcessor(getConfiguration());
+      configurationAnnotationProcessor =
+          new StandardConfigurationPropertyAnnotationProcessor(getConfiguration(), getLog());
       configurationAnnotationProcessor.process(this);
 
       handleUpdateConfigurationUnprotected(null);

@@ -24,6 +24,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
+import org.apache.commons.logging.Log;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -43,32 +45,41 @@ public class StandardConfigurationPropertyAnnotationProcessor implements Configu
   private final Configuration configuration;
 
   /**
+   * Logger to use for success/error messages.
+   */
+  private final Log log;
+
+  /**
    * Construct a new processor.
    *
    * @param configuration
    *          the configuration the processor will use
+   * @param log
+   *          logger to use
    */
-  public StandardConfigurationPropertyAnnotationProcessor(Configuration configuration) {
+  public StandardConfigurationPropertyAnnotationProcessor(Configuration configuration, Log log) {
     this.configuration = configuration;
+    this.log = log;
   }
 
-  /* (non-Javadoc)
-   * @see interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor#process(java.lang.Object)
-   */
   @Override
   public void process(Object obj) {
+    log.info("Processing configuration annotations on " + obj);
     List<String> errors = Lists.newArrayList();
+    List<String> successes = Lists.newArrayList();
     for (Class<?> c = obj.getClass(); c != null; c = c.getSuperclass()) {
       Field[] fields = c.getDeclaredFields();
       for (Field field : fields) {
-        String error = processField(obj, field);
-        if (error != null) {
-          errors.add(error);
-        }
+        processField(obj, field, errors, successes);
       }
     }
+    for (String success : successes) {
+      log.debug(success);
+    }
     if (!errors.isEmpty()) {
-      throw new SimpleInteractiveSpacesException(Joiner.on('\n').join(errors));
+      SimpleInteractiveSpacesException
+          .throwFormattedException("Errors while processing configuration annotations on %s:\n%s",
+              obj, Joiner.on('\n').join(errors));
     }
   }
 
@@ -80,27 +91,28 @@ public class StandardConfigurationPropertyAnnotationProcessor implements Configu
    *          object that contains the field into which config parameters will be injected
    * @param field
    *          field into which a config parameter will be injected
-   *
-   * @return {@code null} if the config value was successfully injected; error message, otherwise.
+   * @param errors
+   *          list container to accumulate errors
+   * @param successes
+   *          list container to accumulate successes
    */
-  private String processField(Object obj, Field field) {
+  private void processField(Object obj, Field field, List<String> errors, List<String> successes) {
     ConfigurationProperty annotation = field.getAnnotation(ConfigurationProperty.class);
     if (annotation == null) {
-      return null;
+      return;
     }
+    int initialErrorSize = errors.size();
+    String fieldName = field.getName();
     if (Modifier.isFinal(field.getModifiers())) {
-      return "Modifying a final field may have unpredictable effects: " + field;
+      errors.add(String.format("Field '%s' is marked final and may have unpredictable effects", fieldName));
     }
     String property = annotation.name();
     if (property == null || property.isEmpty()) {
       property = annotation.value();
     }
-    if (property == null) {
-      return "Property name is null: " + field;
-    }
     property = property.trim();
     if (property.isEmpty()) {
-      return "Property name is all white space or empty: " + field;
+      errors.add(String.format("Field '%s' has property name that is all white space or empty", fieldName));
     }
 
     boolean required = annotation.required();
@@ -110,75 +122,66 @@ public class StandardConfigurationPropertyAnnotationProcessor implements Configu
       field.setAccessible(true);
     }
     try {
+      Object value = null;
       Class<?> type = field.getType();
       if (required) {
-        Object value = field.get(obj);
-        boolean valueIsNotDefault = !Objects.equal(value, Defaults.defaultValue(type));
+        Object defaultValue = field.get(obj);
+        boolean valueIsNotDefault = !Objects.equal(defaultValue, Defaults.defaultValue(type));
         if (valueIsNotDefault) {
-          return String.format("The field '%s' into which a required property '%s' "
-              + "is to be injected already has a value: '%s'. Set 'required = false', "
-              + "or set the value of the property in the configuration " + "(do not initialize the field directly).",
-              field, property, value);
+          errors.add(String.format("Field '%s' into which a required property '%s' "
+                  + "is to be injected already has a value: '%s', set 'required = false', "
+                  + "or set the value of the property in the configuration "
+                  + "(do not initialize the field directly).",
+              fieldName, property, defaultValue));
+        }
+
+        if (!configuration.containsProperty(property) && !property.isEmpty()) {
+          errors.add(String.format("Field '%s' does not contain required property '%s'",
+              fieldName, property));
         }
       }
-      Object value;
+
+      // If value is required but not present, an error has already been registered.
       if (type == int.class || type == Integer.class) {
-        value =
-            required ? configuration.getRequiredPropertyInteger(property) : configuration.getPropertyInteger(property,
-                null);
+        value = configuration.getPropertyInteger(property, null);
       } else if (type == long.class || type == Long.class) {
-        value =
-            required ? configuration.getRequiredPropertyLong(property) : configuration.getPropertyLong(property, null);
+        value = configuration.getPropertyLong(property, null);
       } else if (type == double.class || type == Double.class) {
-        value =
-            required ? configuration.getRequiredPropertyDouble(property) : configuration.getPropertyDouble(property,
-                null);
+        value = configuration.getPropertyDouble(property, null);
       } else if (type == boolean.class || type == Boolean.class) {
-        value =
-            required ? configuration.getRequiredPropertyBoolean(property) : configuration.getPropertyBoolean(property,
-                null);
+        value = configuration.getPropertyBoolean(property, null);
       } else if (type == String.class) {
-        value =
-            required ? configuration.getRequiredPropertyString(property) : configuration.getPropertyString(property);
+        value = configuration.getPropertyString(property);
       } else if (type.isAssignableFrom(List.class)) {
         value = configuration.getPropertyStringList(property, delimiter);
-        if (value == null && required) {
-          requiredPropertyDoesNotExist(property);
-        }
       } else if (type.isAssignableFrom(Set.class)) {
         value = configuration.getPropertyStringSet(property, delimiter);
-        if (value == null && required) {
-          requiredPropertyDoesNotExist(property);
-        }
       } else {
-        return String.format("Cannot inject config value '%s' - unsupported type of the field: %s",
-            tryGetValueForErrorMessage(property), field);
+        errors.add(String.format(String.format("Field '%s' has unsupported type '%s'",
+            fieldName, tryGetValueForErrorMessage(property))));
       }
+      if (errors.size() != initialErrorSize) {
+        return;
+      }
+      String header = "@" + ConfigurationProperty.class.getSimpleName();
       if (value != null) {
+        successes.add(String.format("%s field '%s' injected property '%s' with value '%s'",
+            header, fieldName, property, value));
         field.set(obj, value);
+      } else {
+        successes.add(String.format("%s field '%s' has no value from property '%s', skipping",
+            header, fieldName, property));
       }
     } catch (IllegalAccessException e) {
-      return String.format("Cannot access %s: %s", field, e.toString());
+      errors.add(String.format("Field '%s' can not be accessed: %s", fieldName, e.toString()));
     } catch (Exception e) {
-      return String.format("Cannot inject configuration value '%s' into %s: %s", tryGetValueForErrorMessage(property),
-          field, e.toString());
+      errors.add(String.format("Field '%s' with property '%s' encountered error: %s",
+          fieldName, tryGetValueForErrorMessage(property), e.toString()));
     } finally {
       if (!accessible) {
         field.setAccessible(false);
       }
     }
-    return null;
-  }
-
-  /**
-   * Throw an exception for a required property.
-   *
-   * @param property
-   *          required property for which there's no value in the configuration
-   */
-  private void requiredPropertyDoesNotExist(String property) {
-    // there's no getRequiredPropertyString[List|Set]; throwing an exception
-    throw new SimpleInteractiveSpacesException(String.format("Required property %s does not exist", property));
   }
 
   /**

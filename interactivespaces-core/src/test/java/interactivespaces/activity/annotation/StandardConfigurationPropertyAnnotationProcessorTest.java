@@ -25,6 +25,8 @@ import interactivespaces.configuration.SimpleConfiguration;
 
 import com.google.common.collect.Sets;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.SimpleLog;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -41,6 +43,8 @@ public class StandardConfigurationPropertyAnnotationProcessorTest {
   Configuration configuration = SimpleConfiguration.newConfiguration();
   final String property = "some.property.name";
 
+  final Log log = new SimpleLog("StandardConfigurationPropertyAnnotationProcessorTest");
+
   class Injected {
     public Injected() {
       injectConfigValues(this);
@@ -48,7 +52,7 @@ public class StandardConfigurationPropertyAnnotationProcessorTest {
   }
 
   private void injectConfigValues(Object obj) {
-    new StandardConfigurationPropertyAnnotationProcessor(configuration).process(obj);
+    new StandardConfigurationPropertyAnnotationProcessor(configuration, log).process(obj);
   }
 
   private void setConfigValue(Object value) {
