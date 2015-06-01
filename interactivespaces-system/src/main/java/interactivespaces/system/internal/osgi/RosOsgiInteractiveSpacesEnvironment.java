@@ -109,8 +109,8 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
   }
 
   @Override
-  public Log getLog(String logName, String level) {
-    return loggingProvider.getLog(logName, level);
+  public Log getLog(String logName, String level, String filename) {
+    return loggingProvider.getLog(logName, level, filename);
   }
 
   @Override

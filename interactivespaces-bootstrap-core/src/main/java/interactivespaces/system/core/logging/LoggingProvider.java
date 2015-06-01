@@ -18,6 +18,7 @@ package interactivespaces.system.core.logging;
 
 import org.apache.commons.logging.Log;
 
+
 /**
  * The platform logging provider.
  *
@@ -28,47 +29,47 @@ public interface LoggingProvider {
   /**
    * Base name attached to loggers.
    */
-  public static final String LOGGER_BASE_NAME = "interactivespaces";
+  String LOGGER_BASE_NAME = "interactivespaces";
 
   /**
    * The log level for warnings and above.
    */
-  public static final String LOG_LEVEL_WARN = "warn";
+  String LOG_LEVEL_WARN = "warn";
 
   /**
    * The log level for trace and above.
    */
-  public static final String LOG_LEVEL_TRACE = "trace";
+  String LOG_LEVEL_TRACE = "trace";
 
   /**
    * The log level for no logging.
    */
-  public static final String LOG_LEVEL_OFF = "off";
+  String LOG_LEVEL_OFF = "off";
 
   /**
    * The log level for info and above.
    */
-  public static final String LOG_LEVEL_INFO = "info";
+  String LOG_LEVEL_INFO = "info";
 
   /**
    * The log level for debug and above.
    */
-  public static final String LOG_LEVEL_DEBUG = "debug";
+  String LOG_LEVEL_DEBUG = "debug";
 
   /**
    * The log level for fatal.
    */
-  public static final String LOG_LEVEL_FATAL = "fatal";
+  String LOG_LEVEL_FATAL = "fatal";
 
   /**
    * The log level for error and above.
    */
-  public static final String LOG_LEVEL_ERROR = "error";
+  String LOG_LEVEL_ERROR = "error";
 
   /**
    * Get the container log.
    *
-   * @return
+   * @return the log
    */
   Log getLog();
 
@@ -76,9 +77,14 @@ public interface LoggingProvider {
    * Get a named log.
    *
    * @param logName
-   * @return
+   *         the name of the log
+   * @param level
+   *         the level to use for the log
+   * @param filename
+   *         the filename to write the log to
+   * @return the log
    */
-  Log getLog(String logName, String level);
+  Log getLog(String logName, String level, String filename);
 
   /**
    * Modify the log level.
@@ -91,7 +97,7 @@ public interface LoggingProvider {
    * @param level
    *          the new level
    *
-   * @return {@code true} if able to modify the log.
+   * @return {@code true} if able to modify the log
    */
   boolean modifyLogLevel(Log log, String level);
 }

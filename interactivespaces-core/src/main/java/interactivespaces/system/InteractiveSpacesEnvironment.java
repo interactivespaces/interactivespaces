@@ -198,16 +198,18 @@ public interface InteractiveSpacesEnvironment {
   Log getLog();
 
   /**
-   * Get a named log.
+   * Get a named log at the given level with optional filename of an additional output log file.
    *
    * @param logName
    *          the name the log should have
    * @param level
    *          default logging level
+   * @param filename
+   *          the optional filename to use for writing a log to disk
    *
    * @return the requested named log
    */
-  Log getLog(String logName, String level);
+  Log getLog(String logName, String level, String filename);
 
   /**
    * Modify the log level.

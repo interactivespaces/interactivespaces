@@ -39,7 +39,12 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author Keith M. Hughes
  */
-public class StandaloneInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
+public final class StandaloneInteractiveSpacesEnvironment implements InteractiveSpacesEnvironment {
+
+  /**
+   * The number of threads to initialize in the scheduled thread pool.
+   */
+  private static final int NUM_THREADS_IN_POOL = 100;
 
   /**
    * Create a new {@link StandaloneInteractiveSpacesEnvironment}.
@@ -50,7 +55,7 @@ public class StandaloneInteractiveSpacesEnvironment implements InteractiveSpaces
     StandaloneInteractiveSpacesEnvironment environment = new StandaloneInteractiveSpacesEnvironment();
 
     environment.systemConfiguration = SimpleConfiguration.newConfiguration();
-    environment.executorService = Executors.newScheduledThreadPool(100);
+    environment.executorService = Executors.newScheduledThreadPool(NUM_THREADS_IN_POOL);
     environment.log = new Jdk14Logger("test.interactive.spaces");
     environment.serviceRegistry = new SimpleServiceRegistry(environment);
     environment.timeProvider = new SettableTimeProvider();
@@ -127,7 +132,7 @@ public class StandaloneInteractiveSpacesEnvironment implements InteractiveSpaces
   }
 
   @Override
-  public Log getLog(String logName, String level) {
+  public Log getLog(String logName, String level, String filename) {
     // for now just return the system log
     return log;
   }

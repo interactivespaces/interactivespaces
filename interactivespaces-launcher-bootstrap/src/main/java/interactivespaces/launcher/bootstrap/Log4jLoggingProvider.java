@@ -22,7 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.RollingFileAppender;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,6 +64,11 @@ public class Log4jLoggingProvider implements LoggingProvider {
       "log4j.appender.interactivespaces.File";
 
   /**
+   * The Log4J property for the logging conversion pattern.
+   */
+  public static final String LOG4J_PROPERTY_CONVERSTION_PATTERN = "log4j.appender.stdout.layout.ConversionPattern";
+
+  /**
    * The map of logging levels to their log4j level.
    */
   public static final Map<String, Level> LOG_4J_LEVELS;
@@ -90,6 +97,11 @@ public class Log4jLoggingProvider implements LoggingProvider {
   private Log baseContainerLog;
 
   /**
+   * The properties loaded from property file to use for the logger.
+   */
+  private Properties loggingProperties;
+
+  /**
    * Configure the provider.
    *
    * @param baseInstallDir
@@ -100,7 +112,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   public void configure(File baseInstallDir, File configDir) {
     File loggingPropertiesFile = findLoggingConfiguration(baseInstallDir, configDir);
 
-    Properties loggingProperties = new Properties();
+    loggingProperties = new Properties();
 
     FileInputStream fileInputStream = null;
 
@@ -155,7 +167,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
   }
 
   @Override
-  public Log getLog(String logName, String level) {
+  public Log getLog(String logName, String level, String filename) {
     Level l = LOG_4J_LEVELS.get(level.toLowerCase());
     boolean unknownLevel = false;
     if (l == null) {
@@ -165,6 +177,18 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
     Logger logger = Logger.getLogger("interactivespaces." + logName);
     logger.setLevel(l);
+
+    if (filename != null) {
+      // Create pattern layout
+      PatternLayout layout = new PatternLayout();
+      layout.setConversionPattern(loggingProperties.getProperty(LOG4J_PROPERTY_CONVERSTION_PATTERN));
+      try {
+        RollingFileAppender fileAppender = new RollingFileAppender(layout, filename);
+        logger.addAppender(fileAppender);
+      } catch (java.io.IOException e) {
+        throw new RuntimeException(String.format("Error while creating a RollingFileAppender for %s", filename), e);
+      }
+    }
 
     if (unknownLevel) {
       logger.error(String.format("Unknown log level %s, set to ERROR", level));

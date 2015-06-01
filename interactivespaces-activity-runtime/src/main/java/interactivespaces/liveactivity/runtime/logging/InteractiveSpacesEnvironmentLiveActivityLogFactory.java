@@ -22,6 +22,8 @@ import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
 
+import java.io.File;
+
 /**
  * A {@link LiveActivityLogFactory} which uses the {@link InteractiveSpacesEnvironment} to get a logger.
  *
@@ -33,6 +35,11 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
    * Prefix to be affixed to the logger name.
    */
   private static final String ACTIVITY_LOG_PREFIX = "activity";
+
+  /**
+   * The name of the file for the per-activity log.
+   */
+  private static final String ACTIVITY_LOG_FILENAME = "activity.log";
 
   /**
    * The Interactive Spaces environment this is being run in.
@@ -51,6 +58,7 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
 
   @Override
   public Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem) {
-    return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level);
+    return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level,
+            new File(activityFilesystem.getLogDirectory(),ACTIVITY_LOG_FILENAME).getAbsolutePath());
   }
 }

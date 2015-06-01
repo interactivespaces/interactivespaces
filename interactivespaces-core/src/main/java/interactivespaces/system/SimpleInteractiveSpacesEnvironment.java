@@ -93,7 +93,7 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   @Override
-  public Log getLog(String logName, String level) {
+  public Log getLog(String logName, String level, String filename) {
     // for now just return the system log
     return log;
   }
