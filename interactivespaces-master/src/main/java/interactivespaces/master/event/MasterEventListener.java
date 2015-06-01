@@ -78,6 +78,14 @@ public interface MasterEventListener {
   void onSpaceControllerStatusChange(ActiveSpaceController controller, SpaceControllerState state);
 
   /**
+   * The space controller is shutting down.
+   *
+   * @param controller
+   *          the space controller
+   */
+  void onSpaceControllerShutdown(ActiveSpaceController controller);
+
+  /**
    * A live activity has been deployed.
    *
    * @param liveActivity

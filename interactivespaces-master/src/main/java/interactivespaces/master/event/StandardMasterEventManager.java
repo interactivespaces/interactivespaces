@@ -120,6 +120,19 @@ public class StandardMasterEventManager implements MasterEventManager {
   }
 
   @Override
+  public void signalSpaceControllerShutdown(ActiveSpaceController controller) {
+    for (MasterEventListener listener : listeners) {
+      try {
+        listener.onSpaceControllerShutdown(controller);
+      } catch (Throwable e) {
+        log.error(
+            String.format("Exception while processing space controller shutdown master event listener: %s",
+                controller.getDisplayName()), e);
+      }
+    }
+  }
+
+  @Override
   public void signalLiveActivityDeploy(ActiveLiveActivity liveActivity, LiveActivityDeploymentResponse result,
       long timestamp) {
     for (MasterEventListener listener : listeners) {

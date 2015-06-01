@@ -89,6 +89,11 @@ import java.util.Map;
 public class RosSpaceControllerCommunicator implements SpaceControllerCommunicator {
 
   /**
+   * The amount of time between sending a shutdown message and closing the master connection, in milliseconds.
+   */
+  public static final int SHUTDOWN_DELAY = 500;
+
+  /**
    * Startup delay for space controller startup notification. In milliseconds.
    */
   public static final int STARTUP_NOTIFICATION_DELAY = 1000;
@@ -310,6 +315,9 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
 
   @Override
   public void onShutdown() {
+    publishControllerStatus(ControllerStatus.STATUS_CONTROLLER_SHUTDOWN, null);
+    InteractiveSpacesUtilities.delay(SHUTDOWN_DELAY);
+
     if (node != null) {
       node.shutdown();
       node = null;

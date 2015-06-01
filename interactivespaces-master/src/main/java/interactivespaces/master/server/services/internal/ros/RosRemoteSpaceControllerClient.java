@@ -276,8 +276,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   public void requestShutdown(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_SHUTDOWN_CONTROLLER);
 
-    // Leave attached ROS control topic in place but should shutdown
-    // heartbeat alarm (once there is one)
+    // Heartbeat is shut down once controller acknowledges shutdown.
   }
 
   @Override
@@ -620,6 +619,10 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
             .getPayload()));
         break;
 
+      case ControllerStatus.STATUS_CONTROLLER_SHUTDOWN:
+        handleSpaceControllerShutdown(status);
+        break;
+
       default:
         log.warn(String.format("Unknown status type %d, for controller %s", status.getStatus(),
             status.getControllerUuid()));
@@ -748,6 +751,16 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
     remoteActivityDeploymentManager.handleResourceDeploymentCommitResponse(response);
   }
 
+  /**
+   * Handle the shutdown of a space controller.
+   *
+   * @param status
+   *          the controller status
+   */
+  private void handleSpaceControllerShutdown(ControllerStatus status) {
+    remoteControllerClientListeners.signalSpaceControllerShutdown(status.getControllerUuid());
+  }
+
   @Override
   public RemoteSpaceControllerClientListenerCollection getRemoteControllerClientListeners() {
     return remoteControllerClientListeners;
@@ -771,7 +784,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @param create
    *          {@code true} is a communicator should be created if there is none associated with the controller.
    *
-   * @return The communicator for the controller. Will be {@code null} if there is none and creation wasn't specified.
+   * @return the communicator for the controller, {@code null} if there is none and creation wasn't specified
    */
   private SpaceControllerCommunicator getCommunicator(ActiveSpaceController controller, boolean create) {
     String remoteNode = controller.getSpaceController().getHostId();

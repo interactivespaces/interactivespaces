@@ -102,6 +102,14 @@ public interface MasterEventManager {
   void signalSpaceControllerStatusChange(ActiveSpaceController controller, SpaceControllerState state);
 
   /**
+   * Signal that a space controller status is shutting down.
+   *
+   * @param controller
+   *          the space controller
+   */
+  void signalSpaceControllerShutdown(ActiveSpaceController controller);
+
+  /**
    * Signal a space controller heartbeat.
    *
    * @param controller

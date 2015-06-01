@@ -155,6 +155,23 @@ public class RemoteSpaceControllerClientListenerCollection {
   }
 
   /**
+   * Signal that the space controller is shutting down.
+   *
+   * @param uuid
+   *          the UUID of the space controller
+   */
+  public void signalSpaceControllerShutdown(String uuid) {
+    for (RemoteSpaceControllerClientListener listener : listeners) {
+      try {
+        listener.onSpaceControllerShutdown(uuid);
+      } catch (Throwable e) {
+        log.error(
+            String.format("Error handling space controller shutdown event for UUID %s", uuid), e);
+      }
+    }
+  }
+
+  /**
    * Send the on deployment message to all listeners.
    *
    * @param uuid

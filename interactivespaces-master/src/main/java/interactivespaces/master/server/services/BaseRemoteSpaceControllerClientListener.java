@@ -50,6 +50,11 @@ public class BaseRemoteSpaceControllerClientListener implements RemoteSpaceContr
   }
 
   @Override
+  public void onSpaceControllerShutdown(String uuid) {
+    // Default is do nothing.
+  }
+
+  @Override
   public void onLiveActivityDeployment(String uuid, LiveActivityDeploymentResponse result) {
     // Default is do nothing
   }

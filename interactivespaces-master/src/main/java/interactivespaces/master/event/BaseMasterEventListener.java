@@ -56,6 +56,11 @@ public abstract class BaseMasterEventListener implements MasterEventListener {
   }
 
   @Override
+  public void onSpaceControllerShutdown(ActiveSpaceController controller) {
+    // Default is do nothing.
+  }
+
+  @Override
   public void onLiveActivityDeploy(ActiveLiveActivity liveActivity, LiveActivityDeploymentResponse result,
       long timestamp) {
     // Default is do nothing.

@@ -988,6 +988,16 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
     }
   }
 
+  @Override
+  public void onSpaceControllerShutdown(String uuid) {
+    ActiveSpaceController spaceController = getActiveControllerByUuid(uuid);
+    if (spaceController != null) {
+      masterEventManager.signalSpaceControllerShutdown(spaceController);
+    } else {
+      spaceEnvironment.getLog().warn(String.format("Shutdown from unknown controller with UUID %s", uuid));
+    }
+  }
+
   /**
    * Log that an unknown activity gave its status.
    *

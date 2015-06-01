@@ -67,6 +67,14 @@ public interface RemoteSpaceControllerClientListener {
   void onSpaceControllerStatusChange(String uuid, SpaceControllerState state);
 
   /**
+   * The space controller has signaled a shutdown..
+   *
+   * @param uuid
+   *          the UUID of the space controller
+   */
+  void onSpaceControllerShutdown(String uuid);
+
+  /**
    * An activity has been deployed.
    *
    * @param uuid

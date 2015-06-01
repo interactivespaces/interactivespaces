@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.services.internal;
 
+import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.master.event.BaseMasterEventListener;
 import interactivespaces.master.event.MasterEventListener;
@@ -69,6 +70,11 @@ public class StandardMasterAlertManager implements MasterAlertManager {
     @Override
     public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
       handleSpaceControllerDisconnectAttempted(controller);
+    }
+
+    @Override
+    public void onSpaceControllerShutdown(ActiveSpaceController controller) {
+      handleSpaceControllerShutdown(controller);
     }
 
     @Override
@@ -173,6 +179,42 @@ public class StandardMasterAlertManager implements MasterAlertManager {
   }
 
   /**
+   * Handle a space controller shutdown event.
+   *
+   * @param activeSpaceController
+   *          the space controller
+   */
+  private void handleSpaceControllerShutdown(final ActiveSpaceController activeSpaceController) {
+    // Have to go into future so not happening in comm threads.
+    spaceEnvironment.getExecutorService().schedule(new Runnable() {
+      @Override
+      public void run() {
+        processSpaceControllerShutdown(activeSpaceController);
+      }
+    }, 500, TimeUnit.MILLISECONDS);
+  }
+
+  /**
+   * Process the latter parts of a space controller shutdown.
+   *
+   * @param activeSpaceController
+   *          the space controller being shut down
+   */
+  private void processSpaceControllerShutdown(ActiveSpaceController activeSpaceController) {
+    spaceEnvironment.getLog().info(
+        String.format("Space controller signalled shutdown: %s", activeSpaceController.getDisplayName()));
+
+    // Remove heatbeat tester
+    removeSpaceControllerWatcher(activeSpaceController);
+
+    // Shutdown comms to the controller.
+    disconnectSpaceController(activeSpaceController);
+
+    // State is now unknown
+    activeSpaceController.setState(SpaceControllerState.UNKNOWN);
+  }
+
+  /**
    * Handle a lost space controller heartbeat.
    *
    * @param activeSpaceController
@@ -196,6 +238,16 @@ public class StandardMasterAlertManager implements MasterAlertManager {
           String.format("Lost heartbeat alert for space controller: %s", activeSpaceController.getDisplayName()), e);
     }
 
+    disconnectSpaceController(activeSpaceController);
+  }
+
+  /**
+   * Disconnect the master from a space controller.
+   *
+   * @param activeSpaceController
+   *          the space controller to be disconnected from
+   */
+  private void disconnectSpaceController(ActiveSpaceController activeSpaceController) {
     try {
       activeSpaceControllerManager.disconnectSpaceController(activeSpaceController.getSpaceController());
     } catch (Throwable e) {
