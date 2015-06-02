@@ -44,6 +44,11 @@ import java.util.concurrent.TimeUnit;
 public class StandardMasterAlertManager implements MasterAlertManager {
 
   /**
+   * The delay for handing a controller shut down event in milliseconds.
+   */
+  public static final int CONTROLLER_SHUTDOWN_EVENT_HANDLING_DELAY = 500;
+
+  /**
    * Default number of milliseconds for space controller failure.
    */
   public static final int SPACE_CONTROLLER_HEARTBEAT_TIME_DEFAULT = 30000;
@@ -186,12 +191,13 @@ public class StandardMasterAlertManager implements MasterAlertManager {
    */
   private void handleSpaceControllerShutdown(final ActiveSpaceController activeSpaceController) {
     // Have to go into future so not happening in comm threads.
+    // TODO(keith): Eventually handle with callback on shutdown events for controller comms.
     spaceEnvironment.getExecutorService().schedule(new Runnable() {
       @Override
       public void run() {
         processSpaceControllerShutdown(activeSpaceController);
       }
-    }, 500, TimeUnit.MILLISECONDS);
+    }, CONTROLLER_SHUTDOWN_EVENT_HANDLING_DELAY, TimeUnit.MILLISECONDS);
   }
 
   /**
