@@ -70,8 +70,33 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
    */
   private final FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
+  /**
+   * Build a class path structure based on the given jar destination file and project.
+   *
+   * @param context
+   *          the project task context
+   * @param extension
+   *          the java project extension
+   * @param additionalFiles
+   *          any number of additional Files to add to the class path
+   * @return a List<File> of all required class path entries
+   */
+  private List<File> getClasspath(ProjectTaskContext context, JavaProjectExtension extension, File... additionalFiles) {
+    List<File> classpath = Lists.newArrayList();
+    for (File additionalFile : additionalFiles) {
+      classpath.add(additionalFile);
+    }
+    classpath.add(fileSupport.newFile(context.getProject().getBaseDirectory(),
+        JavaProjectType.SOURCE_MAIN_TEST_RESOURCES));
+
+    JavaProjectType projectType = context.getProjectType();
+    projectType.getProjectClasspath(true, context, classpath, extension, context.getWorkbenchTaskContext());
+
+    return classpath;
+  }
+
   @Override
-  public void runTests(File jarDestinationFile, JavaProjectExtension extensions, ProjectTaskContext context)
+  public void runTests(File jarDestinationFile, JavaProjectExtension extension, ProjectTaskContext context)
       throws InteractiveSpacesException {
     List<File> compilationFiles = Lists.newArrayList();
 
@@ -90,10 +115,7 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
     context.getLog().info(
         String.format("Running Java tests for project %s", context.getProject().getBaseDirectory().getAbsolutePath()));
 
-    JavaProjectType projectType = context.getProjectType();
-    List<File> classpath = Lists.newArrayList();
-    classpath.add(jarDestinationFile);
-    projectType.getProjectClasspath(true, context, classpath, extensions, context.getWorkbenchTaskContext());
+    List<File> classpath = getClasspath(context, extension, jarDestinationFile);
 
     File compilationFolder =
         fileSupport.newFile(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_TESTS);
@@ -103,7 +125,7 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
 
     projectCompiler.compile(compilationFolder, classpath, compilationFiles, compilerOptions);
 
-    runJavaUnitTests(compilationFolder, jarDestinationFile, projectType, extensions, context);
+    runJavaUnitTests(compilationFolder, jarDestinationFile, extension, context);
   }
 
   /**
@@ -113,8 +135,6 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
    *          folder where the test classes were compiled
    * @param jarDestinationFile
    *          the jar that was built
-   * @param projectType
-   *          the project type
    * @param extension
    *          the Java project extension for the project (can be {@code null})
    * @param context
@@ -123,12 +143,10 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
    * @throws InteractiveSpacesException
    *           the tests failed
    */
-  private void runJavaUnitTests(File testCompilationFolder, File jarDestinationFile, JavaProjectType projectType,
-      JavaProjectExtension extension, ProjectTaskContext context) throws InteractiveSpacesException {
-    List<File> classpath = Lists.newArrayList();
-    classpath.add(jarDestinationFile);
-    classpath.add(testCompilationFolder);
-    projectType.getProjectClasspath(true, context, classpath, extension, context.getWorkbenchTaskContext());
+  private void runJavaUnitTests(File testCompilationFolder, File jarDestinationFile,
+                                JavaProjectExtension extension, ProjectTaskContext context)
+      throws InteractiveSpacesException {
+    List<File> classpath = getClasspath(context, extension, jarDestinationFile, testCompilationFolder);
 
     List<URL> urls = Lists.newArrayList();
     for (File classpathElement : classpath) {

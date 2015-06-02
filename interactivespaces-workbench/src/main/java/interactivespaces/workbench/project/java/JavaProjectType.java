@@ -76,6 +76,11 @@ public abstract class JavaProjectType implements ProjectType {
   public static final String SOURCE_MAIN_TESTS = "src/test/java";
 
   /**
+   * Source location for test resources.
+   */
+  public static final String SOURCE_MAIN_TEST_RESOURCES = "src/test/resources";
+
+  /**
    * Source location for the generated Java source files.
    */
   public static final String SOURCE_GENERATED_MAIN_JAVA = ProjectType.GENERATED_SOURCE_ROOT + "/main/java";
