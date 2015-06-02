@@ -1,0 +1,923 @@
+#!/usr/bin/python
+
+# Copyright (C) 2015 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+
+"""This is the command-line tool for interacting with Interactive Spaces."""
+
+import os
+import sys
+import json
+import time
+import glob
+import errno
+import shutil
+import thread
+import threading
+import subprocess
+import xml.etree.ElementTree as ElementTree
+import fnmatch
+import itertools
+import pprint
+
+try:
+  import websocket
+except:
+  print("WebSockets library not installed. Please install with `sudo pip install websocket-client`")
+  exit(1)
+
+
+ACTIVITY_UPDATE_DELAY = 3 # Seconds
+
+
+def print_help():
+  """Print help information and exits."""
+  print("""Interactive Spaces command-line tool.
+
+This tool handles common tasks for Interactive Spaces from the command line.
+
+Some tasks require live activities, some require activities, and some \
+require files. These can often be inferred from other information, but are never inferred \
+when directly specified. Example: if --activity is supplied, the live activities can be \
+inferred. However, if --live-activity is supplied, they will not be inferred.
+
+Usage:
+    isdo [-?]
+    isdo [--flag [VALUE]? ...] [PATH...]?
+
+General Flags:
+    --help|-?                       Show help.
+    --host|-h <HOST>                Specifies the host name (default: localhost)
+    --port|-p <PORT>                Specifies the host port (default: 8090)
+    --lenient                       Ignore non-fatal errors
+    --silent                        Do not print to stdout
+    --debug                         Show debugging information
+
+Selection Flags:
+    --live-activity | -L <REF>      Specifies an live activity to be used. The REF is
+                                    required and can be the name, id, or UUID.
+                                    An activity can be inferred from this.
+
+    --activity | -A <NAME>          Specifies an activity to be used. The activity name is
+                                    required.
+                                    Live activities can be inferred from this.
+
+    --version | -V <VERSION>        Specifies an activity version to be used. The version
+                                    is required.
+                                    This can be combined with --activity to only infer
+                                    live activities which use a specific version of an activity.
+
+    --group | -G <NAME>             Specifies a live activity group to be used. The group
+                                    name is required.
+                                    Live activities can be inferred from this.
+
+    --controller | -C <UUID | NAME> Specifies a controller to be used. The controller
+                                    UUID or name are required.
+                                    Live activities can be inferred from this.
+
+    --all                           Specifies all activities or live activities the master is
+                                    aware of.
+                                    Live activities and activities can be inferred from this.
+
+    [PATH...]                       Provides a folder to search recursively for project
+                                    files. If files are required and no paths are
+                                    provided or no activities or live activities can be
+                                    inferred, the current working directory will be used.
+                                    Activities and live activities can be inferred from this.
+
+Command Flags:
+    --build | -b                    Recompiles projects (using isbuild). Requires files.
+
+    --shutdown | -s                 Shuts down live activities. Requires live activities.
+
+    --delete-live-activity          Deletes live activities. Requires live activities.
+
+    --delete-activity               Deletes activities. Implies --shutdown and
+                                    --delete-live-activity. Requires activities.
+
+    --upload | -u                   Uploads projects to the master. Requires files.
+
+    --create <NAME>                 Creates a new live activity. Name is required. The new
+                                    live activity UUID is written to stdout. Requires a
+                                    single activity and --controller flag.  --version
+                                    is optional (defaults to highest version). After
+                                    this command, if live activities have not been specified,
+                                    only the newly created live activity will be inferred.
+
+    --deploy | -d                   Pushes the latest activity and configuration to
+                                    controllers. Implies --shutdown. Requires live activities.
+
+    --config <FILE | ->             Changes the live activity configuration. Configuration is
+                                    loaded from the file, or a dash indicates that data
+                                    should be read from stdin. Requires live activities.
+
+    --group-remove                  Removes live activities from a live activity group. Requires
+                                    live activities and the --group flag.
+
+    --group-delete                  Deletes a live activity group. Implies --group-remove.
+                                    Requires live activities and the --group flag.
+
+    --group-create                  Creates a new live activity group. Requires --group
+                                    flag.
+
+    --group-add                     Adds activities to a group. Requires activities and
+                                    --group flag.
+
+    --activate | -a                 Activates activities. Requires activities.
+
+    --reactivate | -r               Records which live activities were not in the READY state
+                                    when isdo started. Afterwards attempts to activate
+                                    only those live activities. Requires live activities.
+
+    --list | -l                     Lists structured data about activities, live activities and
+                                    files.
+
+Examples:
+
+    Build and Run an Activity
+
+        isdo --build --upload --deploy --reactivate
+
+    Install an Exhibit
+
+        GROUP=`isdo --group-delete --group-create Example --lenient` && \\
+        isdo --upload /path/to/exhibit && \\
+        isdo -C C1 -A com.example.a -c A  -d --config a.conf  -ga -G $GROUP && \\
+        isdo -C C1 -A com.example.b -c B1 -d --config b1.conf -ga -G $GROUP && \\
+        isdo -C C2 -A com.example.b -c B2 -d --config b2.conf -ga -G $GROUP && \\
+        isdo -G $GROUP --activate && \\
+        isdo -G $GROUP --list
+
+    Wipe an Installation
+
+        isdo --purge --all
+
+""")
+  exit(1)
+
+
+def parse_command_line(arguments):
+  """Parse command line arguments."""
+  config = AttrDict()
+
+  # Default Settings
+
+  config.host_name = 'localhost'
+  config.host_port = 8090
+  config.debug = False
+  config.silent = False
+  config.lenient = False
+  config.live_activities = []
+  config.activities = []
+  config.groups = []
+  config.folders = []
+  config.controllers = []
+  config.version = None
+  config.all = False
+  config.commands = {}
+  config.live_activity_generated = False
+  config.activity_generated = False
+
+  while arguments:
+    argument = arguments.pop(0)
+    if argument in ['--help', '-?']:
+      print_help()
+
+    elif argument in ['--debug']:
+      config.debug = True
+
+    elif argument in ['--silent']:
+      config.silent = True
+
+    elif argument in ['--lenient']:
+      config.lenient = True
+
+    elif argument in ['--host', '-h']:
+      if not arguments:
+        print('Host name not provided')
+        exit(1)
+      config.host_name = arguments.pop(0)
+
+    elif argument in ['--port', '-p']:
+      if not arguments:
+        print('Host port not provided')
+        exit(1)
+      config.host_port = arguments.pop(0)
+
+    elif argument in ['--live-activity', '-L']:
+      if not arguments:
+        print('Live activity Name, ID, or UUID not provided')
+        exit(1)
+      config.live_activities.append(arguments.pop(0))
+
+    elif argument in ['--activity', '-A']:
+      if not arguments:
+        print('Activity ID or Name not provided')
+        exit(1)
+      config.activities.append(arguments.pop(0))
+
+    elif argument in ['--version', '-V']:
+      if not arguments:
+        print('Activity version not provided')
+        exit(1)
+      config.version = arguments.pop(0)
+
+    elif argument in ['--group', '-G']:
+      if not arguments:
+        print('Group name not provided')
+        exit(1)
+      config.groups.append(arguments.pop(0))
+
+    elif argument in ['--controller', '-C']:
+      if not arguments:
+        print('Controller UUID not provided')
+        exit(1)
+      config.controllers.append(arguments.pop(0))
+
+    elif argument in ['--all']:
+      config.all = True
+
+    elif argument in ['--build', '-b']:
+      config.commands[BuildCommand] = BuildCommand()
+
+    elif argument in ['--shutdown', '-s']:
+      config.commands[ShutdownCommand] = ShutdownCommand()
+
+    elif argument in ['--delete-live-activity']:
+      config.commands[DeleteLiveActivityCommand] = DeleteLiveActivityCommand()
+
+    elif argument in ['--delete-activity']:
+      config.commands[DeleteActivityCommand] = DeleteActivityCommand()
+
+    elif argument in ['--upload', '-u']:
+      config.commands[UploadCommand] = UploadCommand()
+
+    elif argument in ['--create']:
+      if not arguments:
+        print('Activity name not provided')
+        exit(1)
+      config.commands[CreateCommand] = CreateCommand(arguments.pop(0))
+
+    elif argument in ['--upgrade']:
+      config.commands[UpgradeCommand] = UpgradeCommand()
+
+    elif argument in ['--deploy', '-d']:
+      config.commands[ShutdownCommand] = ShutdownCommand()
+      config.commands[DeployCommand] = DeployCommand()
+
+    elif argument in ['--config']:
+      if not arguments:
+        print('Config path not provided')
+        exit(1)
+      config.commands[ShutdownCommand] = ShutdownCommand()
+      config.commands[ConfigCommand] = ConfigCommand(arguments.pop(0))
+
+    elif argument in ['--group-remove', '-gr']:
+      config.commands[GroupRemoveCommand] = GroupRemoveCommand()
+
+    elif argument in ['--group-delete', '-gd']:
+      config.commands[GroupDeleteCommand] = GroupDeleteCommand()
+
+    elif argument in ['--group-create', '-gc']:
+      config.commands[GroupCreateCommand] = GroupCreateCommand()
+
+    elif argument in ['--group-add', '-ga']:
+      config.commands[GroupAddCommand] = GroupAddCommand()
+
+    elif argument in ['--reactivate', '-r']:
+      config.commands[ShutdownCommand] = ShutdownCommand()
+      config.commands[SaveActivityStateCommand] = SaveActivityStateCommand()
+      config.commands[ActivateCommand] = ActivateCommand()
+
+    elif argument in ['--activate', '-a']:
+      config.commands[SaveActivityStateCommand] = None
+      config.commands[ActivateCommand] = ActivateCommand()
+
+    elif argument in ['--list', '-l']:
+      config.commands[ListCommand] = ListCommand()
+
+    else:
+      config.folders.append(argument)
+
+  config.selected_live_activities = set()
+
+  config.known_activities = {a: [] for a in config.activities}
+  config.known_live_activities = {i: [] for i in config.live_activities}
+  config.project_folders = []
+  config.states = None
+
+  return config
+
+
+def execute_command_line(commands, debug=False, indent="", **kwargs):
+  """Execute a command-line program."""
+  output = subprocess.Popen(commands,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            **kwargs).stdout
+  if debug:
+    result = ""
+    while True:
+      line = output.readline()
+      if line:
+        result = result + line
+        print("%s%s" % (indent, line.rstrip()))
+      else:
+        break
+
+    return result
+  else:
+    return output.read()
+
+
+class AttrDict(dict):
+  """Dictionary that acts like a tuple."""
+  def __init__(self, *args, **kwargs):
+    super(AttrDict, self).__init__(*args, **kwargs)
+    self.__dict__ = self
+
+
+class Command(object):
+  """Base class for command steps."""
+
+  def set_config(self, config, server_connection):
+    self.config = config
+    self.validate(server_connection)
+
+  def execute(self, server_connection):
+    """Executes this task"""
+
+    raise NotImplementedError("Command %s not implemented" % self.__class__.__name__)
+
+  def validate(self, server_connection):
+    """Validates this step's configuration. Override this to add custom validation steps."""
+
+    # Validate commands that require files have them.
+
+    has_files = len(self.config.folders) > 0
+
+    if self.requires_files() and not has_files:
+      self.write('Fatal: No files provided for command %s' % self.__class__.__name__)
+      exit(1)
+
+    # Validate commands that require activities have them.
+
+    num_activities = len(self.config.activities or self.config.known_activities)
+
+    if self.requires_activity() and num_activities != 1:
+      self.write('Fatal: Exactly one activity must be specified for command %s, found %d' % (self.__class__.__name__, num_activities))
+      exit(1)
+
+    if self.requires_activities() and num_activities == 0:
+      self.write('Fatal: Activities must be specified for command %s' % self.__class__.__name__)
+      exit(1)
+
+    # Validate commands that require live activities have them.
+
+    num_live_activities = len(self.config.selected_live_activities)
+
+    if self.requires_live_activities() and num_live_activities == 0:
+      self.write('Fatal: Live activities must be specified for command %s' % self.__class__.__name__)
+      exit(1)
+
+    # Validate commands that require groups have them.
+
+    has_one_group = len(self.config.groups) == 1
+
+    if self.requires_group() and not has_one_group:
+      self.write('Fatal: Exactly one group required for command %s' % self.__class__.__name__)
+      exit(1)
+
+    # Validate commands that require controllers have them.
+
+    has_one_controller = len(self.config.controllers) == 1
+
+    if self.requires_controller() and not has_one_controller:
+      self.write('Fatal: Exactly one controller required for command %s' % self.__class__.__name__)
+      exit(1)
+
+  def write_debug(self, message):
+    """Writes a message if debugging is turned on."""
+
+    if self.config.debug:
+      self.write(message)
+
+  def write(self, message):
+    """Writes a message regardless of debugging."""
+
+    print(message)
+
+  def requires_server(self):
+    """Indicates whether the command requires a connection to the server."""
+    return True
+
+  def requires_live_activities(self):
+    """Indicates whether the command requires live_activities."""
+    return False
+
+  def requires_activities(self):
+    """Indicates whether the command requires activities."""
+    return False
+
+  def requires_activity(self):
+    """Indicates whether the command requires a single activity."""
+
+  def requires_files(self):
+    """Indicates whether the command requires files."""
+    return False
+
+  def requires_group(self):
+    """Indicates whether the command requires a single group."""
+    return False
+
+  def requires_controller(self):
+    """Indicates whether the command requires a single controller."""
+    return False
+
+
+class BuildCommand(Command):
+  """Compiles one or more IS projects using isbuild."""
+
+  def requires_files(self):
+    return True
+
+  def requires_server(self):
+    return False
+
+  def execute(self, server_connection):
+    isbuild = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'isbuild')
+    for folder in self.config.project_folders.iterkeys():
+      self.write_debug("Building %s" % folder)
+      execute_command_line([isbuild, folder], debug=self.config.debug, indent="  ")
+
+
+class ShutdownCommand(Command):
+  """Shuts down selected live activities."""
+
+  def requires_live_activities(self):
+    return True
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities:
+      server_connection.send('/liveactivity/shutdown', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
+
+class DeleteLiveActivityCommand(Command):
+  """Deletes live activities."""
+
+  def requires_live_activities(self):
+    return True
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities:
+      server_connection.send('/liveactivity/delete/remote', { 'id': self.config.known_live_activities[live_activity]['id'] })
+      server_connection.send('/liveactivity/delete/local', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
+
+class DeleteActivityCommand(Command):
+  """Deletes activities."""
+
+  def requires_activities(self):
+    return True
+
+
+class UploadCommand(Command):
+  """Uploads activities. Note that remote hosts are not supported yet."""
+
+  def validate(self, *args):
+    if self.config.host_name != 'localhost':
+      self.write('Upload command currently requires that the host be "localhost"')
+      exit(1)
+
+    super(UploadCommand, self).validate(*args)
+    self.config.activity_generated = True
+
+  def requires_files(self):
+    return True
+
+  def execute(self, server_connection):
+    drop_folder = os.path.join(os.path.expandvars('$MDIR'), 'master', 'activity', 'import')
+    if not os.path.isdir(drop_folder):
+      os.makedirs(drop_folder)
+
+    for (folder, activity) in self.config.project_folders.iteritems():
+      activity_zip = os.path.join(folder, 'build', activity + '*.zip')
+      for file in glob.glob(activity_zip):
+        self.write_debug('  Copying %s to %s' % (file, drop_folder))
+        shutil.copyfile(file, os.path.join(drop_folder, os.path.basename(file)))
+
+    time.sleep(2)
+
+
+class CreateCommand(Command):
+  """Creates a new live activity for a given activity."""
+
+  def __init__(self, name):
+    self.name = name
+
+  def validate(self, *args):
+    super(CreateCommand, self).validate(*args)
+    self.config.live_activity_generated = True
+
+  def requires_activity(self):
+    return True
+
+  def requires_controller(self):
+    return True
+
+
+class UpgradeCommand(Command):
+  """Changes the version of a live activity."""
+
+  def requires_live_activities(self):
+    return True
+
+
+class DeployCommand(Command):
+  """Deploys the last uploaded bundle of a live activity."""
+
+  def requires_live_activities(self):
+    return True
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities:
+      server_connection.send('/liveactivity/deploy', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
+
+class ConfigCommand(Command):
+  """Writes an updated configuration for an activity."""
+
+  def __init__(self, path):
+    self.path = path
+
+  def requires_live_activities(self):
+    return True
+
+
+class GroupRemoveCommand(Command):
+  """Removes live activities from a live activity group."""
+
+  def requires_group(self):
+    return True
+
+  def requires_live_activities(self):
+    return True
+
+
+class GroupDeleteCommand(Command):
+  """Deletes a live activtiy group."""
+
+  def requires_group(self):
+    return True
+
+
+class GroupCreateCommand(Command):
+  """Creates a live activity group."""
+
+  def requires_group(self):
+    return True
+
+
+class GroupAddCommand(Command):
+  """Adds live activities to a live activity group."""
+
+  def requires_group(self):
+    return True
+
+  def requires_live_activities(self):
+    return True
+
+
+class SaveActivityStateCommand(Command):
+  """Saves the state of the activities on the service. This is a meta-activity; not directly requested by the user, but
+  necessary for other activities to function properly (particularly reactivate)."""
+
+  def execute(self, server_connection):
+    self.write_debug("  Getting server state")
+    server_connection.send("/spacecontroller/all/status", expect_response=False)
+    self.write_debug("  Waiting for activity state to settle")
+    time.sleep(ACTIVITY_UPDATE_DELAY)
+    self.config.states = server_connection.send("/liveactivity/all")
+
+
+class ActivateCommand(Command):
+  """Activates (or reactivates) live activities."""
+  ACTIVE_STATES = [ 'ACTIVE',
+                    'STARTUP_FAILURE',
+                    'RUNNING' ]
+
+  def requires_live_activities(self):
+    return True
+
+  def execute(self, server_connection):
+    if self.config.states:
+      activities_to_activate = [a['uuid'] for a in self.config.states["data"] \
+                                   if a["active"]["runtimeState"] in ActivateCommand.ACTIVE_STATES]
+      if self.config.debug:
+        print('  Reactivating %d activities' % len(activities_to_activate))
+    else:
+      activities_to_activate = self.config.selected_live_activities
+
+    for live_activity in activities_to_activate:
+      server_connection.send('/liveactivity/activate', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
+
+
+class ListCommand(Command):
+  """Writes out deployment and state information about activities and live activities."""
+
+  def execute(self, server_connection):
+    for folder, activity in sorted(self.config.project_folders.iteritems()):
+      if activity in self.config.selected_activities:
+        self.write_folder(folder, [activity])
+
+    known_activities = self.config.project_folders.values()
+    unknown_activities = {a for a in self.config.selected_activities if a not in known_activities}
+
+    if unknown_activities:
+      self.write_folder('[Unknown Project Folder]', unknown_activities)
+
+    self.write("-" * 50)
+    self.write("%d Paths, %d Activities, %d Live Activities" % (len(self.config.project_folders),
+                                                                len(self.config.selected_activities),
+                                                                len(self.config.selected_live_activities)))
+
+
+  def write_folder(self, folder, activities):
+    self.write(folder)
+    for activity in sorted(activities):
+      inferred_activity = self.config.known_activities.get(activity)
+      if inferred_activity is not None:
+        self.write_activity(activity, inferred_activity)
+
+
+  def write_activity(self, activity, live_activities):
+    self.write('  ' + activity)
+    for live_activity in live_activities:
+      if live_activity in self.config.selected_live_activities:
+        self.write_live_activity(live_activity)
+
+  def write_live_activity(self, live_activity, indent=4):
+    self.write((' ' * indent) + live_activity)
+
+
+class MasterConnection(object):
+  """Handles websocket connection to master."""
+
+  def __init__(self, config):
+    url = "ws://%s:%s" % (config.host_name, config.host_port)
+    if config.debug:
+      print('Connecting to server at %s' % url)
+
+    self._config = config
+    self._lock = threading.Condition()
+    self._closing = False
+    self._responses = {}
+    self._next_id = 0
+    self._ws = websocket.WebSocketApp(url,
+                                      on_message=self._on_message,
+                                      on_error=self._on_error,
+                                      on_close=self._on_close)
+    self._ws.on_open = self._on_open
+
+    self._lock.acquire()
+    thread.start_new_thread(self._ws.run_forever, ())
+    self._lock.wait()
+    self._lock.release()
+
+    if config.debug:
+      print('Connected to server at %s' % url)
+
+  def _on_open(self, socket):
+    self._lock.acquire()
+    self._lock.notify()
+    self._lock.release()
+
+  def _on_message(self, socket, message):
+    parsed_message = json.loads(message)
+    id = parsed_message["requestId"]
+
+    if self._config.debug:
+      print('<-- [%s] %s' % (id, parsed_message["result"]))
+
+    if id:
+      self._lock.acquire()
+      self._responses[id] = AttrDict(parsed_message)
+      self._lock.notify()
+      self._lock.release()
+
+
+  def _on_error(self, socket, error):
+    if self._config.debug:
+      print('Connection to server error: %s' % error)
+    exit(1)
+
+  def _on_close(self, socket):
+    if not self._closing:
+      if self._config.debug:
+        print('Connection to server closed unexpectedly')
+      exit(1)
+    else:
+      if self._config.debug:
+        print('Connection to server closed')
+
+    self._lock.acquire()
+    self._lock.notify()
+    self._lock.release()
+
+
+  def send(self, message_type, arguments={}, wait_for_response=None, expect_response=True):
+    """Sends a message to the master and either waits for a response and returns it, returns a token that can be used
+    to wait for a response, or returns a blank string if no response is expected."""
+
+    if wait_for_response is None:
+      wait_for_response = expect_response
+
+    self._lock.acquire()
+    if expect_response or wait_for_response:
+      self._next_id += 1
+      id = str(self._next_id)
+    else:
+      id = ""
+
+    message = { 'requestId': id,
+                'type': message_type,
+                'data': arguments }
+
+    if self._config.debug:
+      print('--> [%s] %s %s' % (id, message_type, arguments or ""))
+
+    self._ws.send(json.dumps(message))
+    self._lock.release()
+
+    if wait_for_response:
+      return self.wait_for_response(id)
+    else:
+      return id
+
+  def wait_for_response(self, id):
+    """Waits for a specific response by id and returns it."""
+
+    self._lock.acquire()
+    try:
+      while True:
+        if not self._ws.sock:
+          return None
+        elif id in self._responses:
+          result = self._responses[id]
+          del self._responses[id]
+          return result
+        self._lock.wait()
+    finally:
+      self._lock.release()
+
+  def shutdown(self):
+    """Shuts down the websocket connection, signalling to all listeners that no more responses are coming."""
+    if self._config.debug:
+      print('Closing connection to server')
+
+    self._closing = True
+    self._ws.close()
+
+
+class Runner(object):
+  """Main script runner."""
+
+  command_order = [ BuildCommand,
+                    SaveActivityStateCommand,
+                    ShutdownCommand,
+                    DeleteLiveActivityCommand,
+                    DeleteActivityCommand,
+                    UploadCommand,
+                    CreateCommand,
+                    UpgradeCommand,
+                    DeployCommand,
+                    ConfigCommand,
+                    GroupRemoveCommand,
+                    GroupDeleteCommand,
+                    GroupCreateCommand,
+                    GroupAddCommand,
+                    ActivateCommand,
+                    ListCommand ]
+
+
+  def run(self, arguments):
+    config = parse_command_line(arguments)
+
+    self._find_projects(config)
+
+    server_connection = self._configure_commands(config)
+
+    self._execute_commands(config, server_connection)
+
+    if server_connection:
+      server_connection.shutdown()
+
+
+  def _configure_commands(self, config):
+    server_connection = None
+    count = 0
+    for command_name in Runner.command_order:
+      command = config.commands.get(command_name)
+      if command is not None:
+        if command.requires_server() and not server_connection:
+          server_connection = MasterConnection(config)
+          self._find_live_activities(config, server_connection)
+
+        count += 1
+        config.commands[command_name].set_config(config, server_connection)
+
+    if not count:
+      print_help()
+
+    return server_connection
+
+
+  def _execute_commands(self, config, server_connection):
+    for command_name in Runner.command_order:
+      command = config.commands.get(command_name)
+      if command is not None:
+        if config.debug:
+          print('Executing Command: %s' % command.__class__.__name__)
+
+        command.execute(server_connection)
+
+
+  def _find_live_activities(self, config, server_connection):
+    live_activities_supplied = False
+    server_activities = server_connection.send('/liveactivity/all')
+    config.known_live_activities = {a['uuid']: a for a in server_activities['data']}
+
+    config.selected_live_activities.update([a['uuid'] for a in server_activities['data'] if \
+        a['uuid'] in config.live_activities or \
+        a['id'] in config.live_activities or \
+        a['name'] in config.live_activities])
+
+    if config.all:
+      live_activities_supplied = True
+      config.selected_live_activities.update(config.known_live_activities.iterkeys())
+
+    if config.debug:
+      print('Found %d live activities, %d selected' % (len(config.known_live_activities), len(config.selected_live_activities)))
+
+    for live_activity_id, live_activity in config.known_live_activities.iteritems():
+      activity_name = live_activity['activity']['identifyingName']
+
+      if activity_name not in config.known_activities:
+        config.known_activities[activity_name] = set()
+      config.known_activities[activity_name].add(live_activity_id)
+
+    if not (live_activities_supplied or config.selected_live_activities) and config.project_folders:
+      if config.debug:
+        print('Adding live activities inferred by projects')
+
+      for activity in config.project_folders.values():
+        if activity in config.known_activities:
+          config.selected_live_activities.update(config.known_activities[activity])
+
+    config.selected_activities = set()
+    for live_activity_id, live_activity in config.known_live_activities.iteritems():
+      if live_activity_id in config.selected_live_activities:
+        config.selected_activities.add(live_activity['activity']['identifyingName'])
+
+
+  def _find_projects(self, config):
+    config.project_folders = {}
+
+    for folder in config.folders:
+      if not os.path.isdir(folder):
+        print('Path \'%s\' not found' % folder)
+        if folder[0] == '-':
+          print('It looks like you were trying to use an unrecognized option. Use \'-?\' for a list of all options')
+        exit(1)
+
+      for root, dirs, files in os.walk(folder, followlinks=True):
+        if '.git' in dirs:
+          # os.walk uses the dirs collection to determine subsequent folder recursion.
+          dirs.remove('.git')
+
+        if fnmatch.filter(files, 'project.xml'):
+          path = os.path.join(root, 'project.xml')
+          if config.debug:
+            print('Loading ' + path)
+
+          activity_name = ElementTree.parse(path).find('./identifyingName').text.strip()
+          config.project_folders[root] = activity_name
+          config.known_activities[activity_name] = set()
+
+
+if __name__ == '__main__':
+  Runner().run(sys.argv[1:])
+
