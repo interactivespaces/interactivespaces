@@ -59,6 +59,6 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
   @Override
   public Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem) {
     return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level,
-            new File(activityFilesystem.getLogDirectory(),ACTIVITY_LOG_FILENAME).getAbsolutePath());
+            new File(activityFilesystem.getLogDirectory(), ACTIVITY_LOG_FILENAME).getAbsolutePath());
   }
 }
