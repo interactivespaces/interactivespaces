@@ -56,25 +56,18 @@ public class ProjectCreatorImpl implements ProjectCreator {
   }
 
   @Override
-  public boolean create(ProjectCreationContext context) {
-    try {
-      Project project = context.getProject();
-      GroupProjectTemplateSpecification groupProjectTemplateSpecification =
-          context.getGroupProjectTemplateSpecification();
+  public void create(ProjectCreationContext context) {
+    Project project = context.getProject();
+    GroupProjectTemplateSpecification groupProjectTemplateSpecification =
+        context.getGroupProjectTemplateSpecification();
 
-      if (project != null) {
-        createProject(context, project);
-      } else if (groupProjectTemplateSpecification != null) {
-        createGroupProject(context);
-      } else {
-        throw new SimpleInteractiveSpacesException("Context has neither Project nor GroupProject");
-      }
-
-    } catch (Exception e) {
-      workbench.handleError("Error while creating project " + context.getDescription(), e);
-      return false;
+    if (project != null) {
+      createProject(context, project);
+    } else if (groupProjectTemplateSpecification != null) {
+      createGroupProject(context);
+    } else {
+      throw new SimpleInteractiveSpacesException("Context has neither Project nor GroupProject");
     }
-    return true;
   }
 
   /**

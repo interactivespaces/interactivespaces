@@ -28,7 +28,6 @@ public interface ProjectCreator {
    *
    * @param context
    *          creation context for the new project
-   * @return true if the project was successfully created, otherwise false.
    */
-  boolean create(ProjectCreationContext context);
+  void create(ProjectCreationContext context);
 }
