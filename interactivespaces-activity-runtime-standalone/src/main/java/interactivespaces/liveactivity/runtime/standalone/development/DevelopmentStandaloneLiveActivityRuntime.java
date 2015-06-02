@@ -115,12 +115,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
       "interactivespaces.standalone.activity.source";
 
   /**
-   * Config parameter for activity config.
-   */
-  public static final String CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_CONFIG =
-      "interactivespaces.standalone.activity.config";
-
-  /**
    * Config parameter for router type.
    */
   public static final String CONFIGURATION_INTERACTIVESPACES_STANDALONE_ROUTER_TYPE =
@@ -315,7 +309,8 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     ExpressionEvaluatorFactory expressionEvaluatorFactory = new SimpleExpressionEvaluatorFactory();
 
     DevelopmentPropertyFileLiveActivityConfigurationManager configurationManager =
-        new DevelopmentPropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment);
+        new DevelopmentPropertyFileLiveActivityConfigurationManager(
+            expressionEvaluatorFactory, spaceEnvironment, instanceSuffix);
 
     LiveActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);

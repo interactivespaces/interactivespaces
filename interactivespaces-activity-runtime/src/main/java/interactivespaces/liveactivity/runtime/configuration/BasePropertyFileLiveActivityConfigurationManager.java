@@ -24,6 +24,8 @@ import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 
 /**
@@ -72,8 +74,20 @@ public abstract class BasePropertyFileLiveActivityConfigurationManager implement
         newConfiguration(baseActivityConfiguration, true, expressionEvaluator);
 
     File installedActivityConfiguration = getInstalledActivityConfiguration(liveActivity, activityFilesystem);
+    boolean configurationFileRequired = isInstalledActivityConfigurationFileRequired();
     SingleConfigurationStorageManager installedActivityConfigurationStorageManager =
-        newConfiguration(installedActivityConfiguration, false, expressionEvaluator);
+        newConfiguration(installedActivityConfiguration, configurationFileRequired, expressionEvaluator);
+
+    Log log = spaceEnvironment.getLog();
+    boolean fileExists = installedActivityConfiguration.exists();
+    String absolutePath = installedActivityConfiguration.getAbsolutePath();
+    if (fileExists) {
+      log.info("Using installed activity configuration file " + absolutePath);
+    } else if (configurationFileRequired) {
+      log.error("Missing required installed activity configuration file " + absolutePath);
+    } else {
+      log.warn("Skipping missing installed activity configuration file " + absolutePath);
+    }
 
     StandardLiveActivityConfiguration configuration =
         new StandardLiveActivityConfiguration(baseConfigurationStorageManager,
@@ -82,6 +96,16 @@ public abstract class BasePropertyFileLiveActivityConfigurationManager implement
     expressionEvaluator.setEvaluationEnvironment(configuration);
 
     return configuration;
+  }
+
+  /**
+   * Indicate if an activity configuration is required for this instance. Intended to be overridden
+   * by sub-classes to provide specific behavior for different running contexts.
+   *
+   * @return {@code true} if the activity configuration file is required
+   */
+  protected boolean isInstalledActivityConfigurationFileRequired() {
+    return false;
   }
 
   /**

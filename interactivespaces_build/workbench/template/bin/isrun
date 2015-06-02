@@ -42,7 +42,6 @@ RUNDIR=$RUNDIR$POSTFIX
 echo Rundir is $RUNDIR
 
 JDLINE="suspend=y,address=5005"
-CONFIGDIR=test
 CDIR=$INTERACTIVESPACES_HOME/controller
 WDIR=$INTERACTIVESPACES_HOME/workbench
 
@@ -64,7 +63,6 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.service.mail.receiver.enable=
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.single=$SINGLE_ACTIVITY"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.runtime=$RUNDIR"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.source=$TARGET"
-INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.config=$TARGET/$CONFIGDIR"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.instance=$INSTANCE_SUFFIX"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.router.type=${INTERACTIVESPACES_ROUTER}"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"

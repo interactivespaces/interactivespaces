@@ -38,16 +38,24 @@ public class DevelopmentPropertyFileLiveActivityConfigurationManager extends
   public static final String CONFIG_TYPE_STANDALONE_ACTIVITY = "activity";
 
   /**
+   * Instance suffix used by this development instance.
+   */
+  private final String instanceSuffix;
+
+  /**
    * Construct a new configuration manager.
    *
    * @param expressionEvaluatorFactory
    *          the expression evaluator factory to use
    * @param spaceEnvironment
    *          the space environment to use
+   * @param instanceSuffix
+   *          instance suffix to use for the configuration, or {@code null} for default
    */
   public DevelopmentPropertyFileLiveActivityConfigurationManager(ExpressionEvaluatorFactory expressionEvaluatorFactory,
-      InteractiveSpacesEnvironment spaceEnvironment) {
+      InteractiveSpacesEnvironment spaceEnvironment, String instanceSuffix) {
     super(expressionEvaluatorFactory, spaceEnvironment);
+    this.instanceSuffix = instanceSuffix == null ? "" : instanceSuffix;
   }
 
   @Override
@@ -59,6 +67,12 @@ public class DevelopmentPropertyFileLiveActivityConfigurationManager extends
   @Override
   protected File getInstalledActivityConfiguration(InstalledLiveActivity liveActivity,
       InternalLiveActivityFilesystem activityFilesystem) {
-    return activityFilesystem.getInternalFile(getConfigFileName(CONFIG_TYPE_STANDALONE_ACTIVITY));
+    return activityFilesystem.getInternalFile(getConfigFileName(CONFIG_TYPE_STANDALONE_ACTIVITY + instanceSuffix));
+  }
+
+  @Override
+  protected boolean isInstalledActivityConfigurationFileRequired() {
+    // If there is an instance suffix then the configuration file is required.
+    return !instanceSuffix.isEmpty();
   }
 }
