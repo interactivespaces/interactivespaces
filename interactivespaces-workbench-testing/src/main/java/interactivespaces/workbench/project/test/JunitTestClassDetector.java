@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -151,6 +152,11 @@ public class JunitTestClassDetector {
    */
   private boolean isTestClass(Class<?> potentialTestClass, Log log) {
     if (potentialTestClass.isInterface() || !classHasPublicConstructor(potentialTestClass, log)) {
+      return false;
+    }
+
+    // Do not attempt to run tests on abstract test classes.
+    if (Modifier.isAbstract(potentialTestClass.getModifiers())) {
       return false;
     }
 
