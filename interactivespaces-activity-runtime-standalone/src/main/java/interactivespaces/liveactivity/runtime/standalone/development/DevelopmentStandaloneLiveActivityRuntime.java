@@ -43,6 +43,9 @@ import interactivespaces.liveactivity.runtime.standalone.StandaloneLocalLiveActi
 import interactivespaces.liveactivity.runtime.standalone.messaging.StandaloneMessageRouter;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.system.InternalInteractiveSpacesEnvironment;
+import interactivespaces.system.InteractiveSpacesFilesystem;
+import interactivespaces.system.DevelopmentStandaloneInteractiveSpacesFilesystem;
 import interactivespaces.util.concurrency.SequentialEventQueue;
 import interactivespaces.util.concurrency.SimpleSequentialEventQueue;
 import interactivespaces.util.io.FileSupport;
@@ -252,6 +255,7 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
 
   @Override
   public void startup() {
+
     Configuration configuration = spaceEnvironment.getSystemConfiguration();
 
     boolean isSingleActivity =
@@ -269,6 +273,15 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
       getLog().info("activityRuntimePath is " + activityRuntimeFolderPath);
       activityRuntimeFolder = fileSupport.newFile(activityRuntimeFolderPath);
     }
+
+    // Make sure to use the activity runtime folder for the space environment file system
+    // to emulate each activity running on its own controller when in standalone mode.
+    InteractiveSpacesFilesystem fileSystem = spaceEnvironment.getFilesystem();
+    DevelopmentStandaloneInteractiveSpacesFilesystem newFileSystem =
+        new DevelopmentStandaloneInteractiveSpacesFilesystem(fileSystem.getInstallDirectory(), activityRuntimeFolder);
+    InternalInteractiveSpacesEnvironment internalSpaceEnvironment =
+        (InternalInteractiveSpacesEnvironment) spaceEnvironment;
+    internalSpaceEnvironment.setFilesystem(newFileSystem);
 
     String activitySourceFolderPath =
         configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SOURCE);

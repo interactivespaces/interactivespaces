@@ -15,19 +15,18 @@
  */
 
 package interactivespaces.system;
-
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.io.File;
 
 /**
- * The basic {@link InteractiveSpacesFilesystem}.
+ * A base class for InteractiveSpacesFilesystem subclasses that validates directories.
  *
  * @author Keith M. Hughes
+ * @author Max Rebuschatis
  */
 public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesystem, ManagedResource {
-
   /**
    * The container subdirectory for data.
    */
@@ -62,7 +61,7 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
    * The base Interactive Spaces install directory. This is the install for a
    * master or a controller.
    */
-  private File baseInstallDirectory;
+  private final File baseInstallDirectory;
 
   /**
    * The temporary directory to be used by the install.
@@ -95,26 +94,40 @@ public class BasicInteractiveSpacesFilesystem implements InteractiveSpacesFilesy
   private final File logsDirectory;
 
   /**
+   * Create a new BasicInteractiveSpacesFilesystem.
    *
-   * @param baseInstallDir
-   *          The base directory where Interactive Spaces is installed.
+   * @param baseInstallDirectory
+   *          the base directory where Interactive Spaces is installed
+   * @param baseRuntimeDirectory
+   *          the directory where runtime data should be stored
    */
-  public BasicInteractiveSpacesFilesystem(File baseInstallDir) {
-    /**
-     * Need to check this is always right for all OSes.
-     */
-    this.baseInstallDirectory = baseInstallDir;
+  protected BasicInteractiveSpacesFilesystem(File baseInstallDirectory, File baseRuntimeDirectory) {
+    this.baseInstallDirectory = baseInstallDirectory;
     String absolutePath = baseInstallDirectory.getAbsolutePath();
     if (absolutePath.endsWith(".")) {
       baseInstallDirectory = baseInstallDirectory.getParentFile();
     }
 
-    logsDirectory = new File(baseInstallDirectory, DIRECTORY_LOGS);
+    if (baseRuntimeDirectory == null) {
+      baseRuntimeDirectory = baseInstallDirectory;
+    }
+
+    logsDirectory = new File(baseRuntimeDirectory, DIRECTORY_LOGS);
     systemBootstrapDirectory = new File(baseInstallDirectory, DIRECTORY_SYSTEM_BOOTSTRAP);
     userBootstrapDirectory = new File(baseInstallDirectory, DIRECTORY_USER_BOOTSTRAP);
     libraryDirectory = new File(baseInstallDirectory, DIRECTORY_LIB);
-    dataDirectory = new File(baseInstallDirectory, DIRECTORY_DATA);
-    tempDirectory = new File(baseInstallDirectory, DIRECTORY_TMP);
+    dataDirectory = new File(baseRuntimeDirectory, DIRECTORY_DATA);
+    tempDirectory = new File(baseRuntimeDirectory, DIRECTORY_TMP);
+  }
+
+  /**
+   * Create a new BasicInteractiveSpacesFilesystem.
+   *
+   * @param baseInstallDirectory
+   *          the base directory where Interactive Spaces is installed.
+   */
+  public BasicInteractiveSpacesFilesystem(File baseInstallDirectory) {
+    this(baseInstallDirectory, null);
   }
 
   @Override
