@@ -65,24 +65,9 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
   public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME = "identifyingName";
 
   /**
-   * Project definition file deprecated attribute name for the identifying name of a dependency.
-   */
-  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED = "name";
-
-  /**
    * Project definition file attribute name for the version range of a dependency.
    */
   public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION = "version";
-
-  /**
-   * Project definition file attribute name for the minimum version of a dependency.
-   */
-  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM = "minimumVersion";
-
-  /**
-   * Project definition file attribute name for the maximum version of a dependency.
-   */
-  public static final String ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM = "maximumVersion";
 
   /**
    * Project definition file attribute name for whether a dependency is required.
@@ -216,12 +201,8 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
     String identifyingName =
         dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME);
     if (identifyingName == null) {
-      identifyingName =
-          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_IDENTIFYING_NAME_DEPRECATED);
-      if (identifyingName == null) {
-        errors.add("Dependency has no name");
-        return null;
-      }
+      errors.add("Dependency has no identifyingName");
+      return null;
     }
 
     VersionRange version = null;
@@ -229,24 +210,8 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
     if (versionStr != null) {
       version = VersionRange.parseVersionRange(versionStr);
     } else {
-      String minimumVersionStr =
-          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MINIMUM);
-      String maximumVersionStr =
-          dependencyElement.getAttributeValue(ACTIVITY_ATTRIBUTE_NAME_DEPENDENCY_ITEM_VERSION_MAXIMUM);
-
-      if (minimumVersionStr != null) {
-        if (maximumVersionStr == null) {
-          maximumVersionStr = minimumVersionStr;
-        }
-      } else if (maximumVersionStr != null) {
-        // If here was no minimum version
-        minimumVersionStr = maximumVersionStr;
-      } else {
-        errors.add("Dependency has no version constraints");
-        return null;
-      }
-
-      version = VersionRange.parseVersionRange(minimumVersionStr, maximumVersionStr);
+      errors.add("Dependency has no version range");
+      return null;
     }
 
     String requiredString =
