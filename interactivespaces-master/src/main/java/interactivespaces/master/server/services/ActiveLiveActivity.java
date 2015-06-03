@@ -17,6 +17,7 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.time.TimeProvider;
 
@@ -449,8 +450,12 @@ public class ActiveLiveActivity {
    * @return a nice display name for the activity
    */
   public String getDisplayName() {
-    return String.format("UUID %s, identifying name %s, version %s", activity.getUuid(), activity.getActivity()
-        .getIdentifyingName(), activity.getActivity().getVersion());
+    // TODO: XXX activity.getActivity() is returning null in StandardActiveSpaceControllerManagerTest.java!!!
+    Activity myActivity = activity.getActivity();
+    String version = myActivity != null ? myActivity.getVersion() : "?.?.?";
+    String identifyingName = myActivity != null ? myActivity.getIdentifyingName() : "???";
+    return String.format("UUID %s, identifying name %s, version %s", activity.getUuid(),
+        identifyingName, version);
   }
 
   /**
