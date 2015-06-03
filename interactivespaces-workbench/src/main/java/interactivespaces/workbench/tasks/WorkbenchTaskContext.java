@@ -111,6 +111,16 @@ public class WorkbenchTaskContext {
   };
 
   /**
+   * A file filter for detecting jar files.
+   */
+  private static final FileFilter JAR_FILE_FILTER = new FileFilter() {
+    @Override
+    public boolean accept(File pathname) {
+      return pathname.getName().endsWith(".jar");
+    }
+  };
+
+  /**
    * The workbench for the context.
    */
   private final InteractiveSpacesWorkbench workbench;
@@ -397,9 +407,7 @@ public class WorkbenchTaskContext {
           CONFIGURATION_CONTROLLER_BASEDIR));
     }
 
-    // TODO(keith): Get these in a file somewhere.
-    classpath.add(fileSupport.newFile(javaSystemDirectory, "com.springsource.org.apache.commons.logging-1.1.1.jar"));
-    classpath.add(fileSupport.newFile(javaSystemDirectory, "org.apache.felix.framework-4.2.1.jar"));
+    classpath.addAll(fileSupport.collectFiles(javaSystemDirectory, JAR_FILE_FILTER, false));
 
     addControllerExtensionsClasspath(classpath);
 

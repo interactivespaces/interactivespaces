@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
@@ -457,8 +458,8 @@ public interface FileSupport {
   File newFile(File parent, String subpath);
 
   /**
-   * Create a new file for a specified path relative to the parent file. if the subpath is absolute,
-   * the returned file will be just the subpath.
+   * Create a new file for a specified path relative to the parent file. if the subpath is absolute, the returned file
+   * will be just the subpath.
    *
    * <p>
    * This method takes canonical pathnames and corrects them for the underlying operation system.
@@ -697,4 +698,18 @@ public interface FileSupport {
    * @return {@code true} if successful
    */
   boolean setExecutable(File file, boolean executable);
+
+  /**
+   * Collect all files that pass the file filer.
+   *
+   * @param baseDir
+   *          the base directory to start in
+   * @param filter
+   *          the filter that decides which files
+   * @param recurse
+   *          {@code true} if should recurse through directories
+   *
+   * @return the collection of files that pass the filter
+   */
+  List<File> collectFiles(File baseDir, FileFilter filter, boolean recurse);
 }

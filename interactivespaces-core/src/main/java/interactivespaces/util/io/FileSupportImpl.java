@@ -21,6 +21,7 @@ import static com.google.common.io.Closeables.closeQuietly;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 
 import java.io.BufferedOutputStream;
@@ -38,6 +39,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -611,5 +613,41 @@ public class FileSupportImpl implements FileSupport {
   @Override
   public boolean setExecutable(File file, boolean executable) {
     return file.setExecutable(executable);
+  }
+
+  @Override
+  public List<File> collectFiles(File baseDir, FileFilter filter, boolean recurse) {
+    List<File> files = Lists.newArrayList();
+
+    collectFiles(baseDir, filter, recurse, files);
+
+    return files;
+  }
+
+  /**
+   * Collect files from the current directory.
+   *
+   * @param currentDir
+   *          the current directory
+   * @param filter
+   *          the file filter
+   * @param recurse
+   *          {@code true} if should recurse
+   * @param files
+   *          the collection of files being added to
+   */
+  private void collectFiles(File currentDir, FileFilter filter, boolean recurse, List<File> files) {
+    File[] contents = listFiles(currentDir);
+    if (contents != null) {
+      for (File file : contents) {
+        if (filter.accept(file)) {
+          files.add(file);
+        }
+
+        if (recurse && file.isDirectory()) {
+          collectFiles(file, filter, true, files);
+        }
+      }
+    }
   }
 }
