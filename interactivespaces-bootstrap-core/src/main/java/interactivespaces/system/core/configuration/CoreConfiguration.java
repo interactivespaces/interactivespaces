@@ -71,4 +71,9 @@ public interface CoreConfiguration {
    * The value of the InteractiveSpaces configuration property value when it is unknown.
    */
   String CONFIGURATION_VALUE_PLATFORM_OS_UNKNOWN = "unknown";
+
+  /**
+   * The platform-specific file separator character.
+   */
+  String CONFIGURATION_PLATFORM_FILE_SEPARATOR = "platform.file.separator";
 }

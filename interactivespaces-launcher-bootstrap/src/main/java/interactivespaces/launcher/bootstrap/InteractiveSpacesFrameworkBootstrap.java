@@ -456,6 +456,7 @@ public class InteractiveSpacesFrameworkBootstrap {
     }
 
     configurationProvider.put(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS, platformOs);
+    configurationProvider.put(CoreConfiguration.CONFIGURATION_PLATFORM_FILE_SEPARATOR, File.separator);
   }
 
   /**
