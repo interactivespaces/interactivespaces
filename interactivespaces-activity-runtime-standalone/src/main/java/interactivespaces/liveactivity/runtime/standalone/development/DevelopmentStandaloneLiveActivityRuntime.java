@@ -309,8 +309,8 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     ExpressionEvaluatorFactory expressionEvaluatorFactory = new SimpleExpressionEvaluatorFactory();
 
     DevelopmentPropertyFileLiveActivityConfigurationManager configurationManager =
-        new DevelopmentPropertyFileLiveActivityConfigurationManager(
-            expressionEvaluatorFactory, spaceEnvironment, instanceSuffix);
+        new DevelopmentPropertyFileLiveActivityConfigurationManager(expressionEvaluatorFactory, spaceEnvironment,
+            instanceSuffix);
 
     LiveActivityLogFactory activityLogFactory =
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);
@@ -387,8 +387,8 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     scanForProjectFolders(rootFolder, foldersToUse);
 
     if (foldersToUse.size() == 0) {
-      SimpleInteractiveSpacesException.throwFormattedException(
-          "No valid activities found in %s", suppliedRuntimeFolder.getAbsoluteFile());
+      SimpleInteractiveSpacesException.throwFormattedException("No valid activities found in %s",
+          suppliedRuntimeFolder.getAbsoluteFile());
     }
 
     for (File projectFolder : foldersToUse) {

@@ -139,8 +139,8 @@ function shutdownAllActivitiesAllControllers() {
         </div>
       </td>
       <td>
-        <#if spacecontroller.lastStateUpdate??>
-          <#assign t  = spacecontroller.lastStateUpdate>
+        <#if spacecontroller.lastStateUpdateDate??>
+          <#assign t  = spacecontroller.lastStateUpdateDate>
         <#else>
           <#assign t = 'Unknown'>
         </#if>
@@ -154,7 +154,7 @@ function shutdownAllActivitiesAllControllers() {
         </div>
       </td>
       <td>
-        <#if spacecontroller.lastDataBundleStateUpdate??>
+        <#if spacecontroller.lastDataBundleStateUpdateDate??>
           <#assign t  = spacecontroller.lastDataBundleStateUpdateDate>
         <#else>
           <#assign t = 'Unknown'>

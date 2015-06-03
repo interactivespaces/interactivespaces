@@ -160,8 +160,8 @@ ${spacecontroller.description?html}
 <tr>
   <th>Status</th>
   <td>
-    <#if spacecontroller.lastStateUpdate??>
-      <#assign t  = spacecontroller.lastStateUpdate>
+    <#if spacecontroller.lastStateUpdateDate??>
+      <#assign t  = spacecontroller.lastStateUpdateDate>
     <#else>
       <#assign t = 'Unknown'>
     </#if>
@@ -263,8 +263,8 @@ ${spacecontroller.description?html}
   <tr>
     <td class="databundle-header">Data Bundle State</td>
     <td class="databundle-value">
-      <#if spacecontroller.lastDataBundleStateUpdate??>
-        <#assign t  = spacecontroller.lastDataBundleStateUpdateDate?datetime>
+      <#if spacecontroller.lastDataBundleStateUpdateDate??>
+        <#assign t  = spacecontroller.lastDataBundleStateUpdateDate>
       <#else>
         <#assign t = 'Unknown'>
       </#if>

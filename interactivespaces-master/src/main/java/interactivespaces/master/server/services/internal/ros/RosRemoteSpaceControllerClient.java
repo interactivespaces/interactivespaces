@@ -556,8 +556,8 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
       case ControllerStatus.STATUS_CONTROLLER_LIVE_ACTIVITY_RUNTIME_STATUS:
         LiveActivityRuntimeStatus liveActivityStatus =
             liveActivityRuntimeStatusDeserializer.deserialize(status.getPayload());
-        if (log.isInfoEnabled()) {
-          log.info(String.format("Activity status %s, %d\n", liveActivityStatus.getUuid(),
+        if (log.isDebugEnabled()) {
+          log.debug(String.format("Activity status %s, %d\n", liveActivityStatus.getUuid(),
               liveActivityStatus.getStatus()));
         }
         handleRemoteLiveActivityStatusUpdate(liveActivityStatus);

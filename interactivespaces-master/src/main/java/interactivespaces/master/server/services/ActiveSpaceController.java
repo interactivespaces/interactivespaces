@@ -200,14 +200,14 @@ public class ActiveSpaceController {
     return lastHeartbeatTimestamp;
   }
 
-/**
- * Get the amount of time between the sample time and the last heartbeat.
- *
- * @param sampletime
- *      the sample time, in milliseconds
- *
- * @return the time difference in milliseconds
- */
+  /**
+   * Get the amount of time between the sample time and the last heartbeat.
+   *
+   * @param sampletime
+   *          the sample time, in milliseconds
+   *
+   * @return the time difference in milliseconds
+   */
   public Long timeSinceLastHeartbeat(long sampletime) {
     if (lastHeartbeatTimestamp != null) {
       return sampletime - lastHeartbeatTimestamp;
