@@ -422,6 +422,10 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
         .getSystemConfiguration().getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE));
     rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_HOST, spaceEnvironment.getSystemConfiguration()
         .getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
+
+    // This call is so that the ROS URI gets evaluated.
+    rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_MASTER_URI, spaceEnvironment.getSystemConfiguration()
+        .getPropertyString(RosEnvironment.CONFIGURATION_ROS_MASTER_URI));
   }
 
   /**

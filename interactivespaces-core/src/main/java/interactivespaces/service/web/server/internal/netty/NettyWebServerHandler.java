@@ -192,8 +192,16 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   public void setWebSocketHandlerFactory(String webSocketUriPrefix,
       WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
-    this.fullWebSocketUriPrefix =
-        (webSocketUriPrefix != null) ? "/" + webSocketUriPrefix.trim() : "/" + WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
+    if (webSocketUriPrefix != null) {
+      webSocketUriPrefix = webSocketUriPrefix.trim();
+      if (webSocketUriPrefix.startsWith(HttpConstants.URL_PATH_COMPONENT_SEPARATOR)) {
+        fullWebSocketUriPrefix = webSocketUriPrefix;
+      } else {
+        fullWebSocketUriPrefix = HttpConstants.URL_PATH_COMPONENT_SEPARATOR + webSocketUriPrefix;
+      }
+    } else {
+      fullWebSocketUriPrefix = HttpConstants.URL_PATH_COMPONENT_SEPARATOR + WebServer.WEBSOCKET_URI_PREFIX_DEFAULT;
+    }
     this.webSocketHandlerFactory = webSocketHandlerFactory;
   }
 
@@ -790,7 +798,8 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   private boolean shouldWarnOnMissingFile(String uriPath) {
     int pos = uriPath.lastIndexOf(HttpConstants.URL_PATH_COMPONENT_SEPARATOR);
-    String filename = pos >= 0 ? uriPath.substring(pos + HttpConstants.URL_PATH_COMPONENT_SEPARATOR.length()) : uriPath;
+    String filename =
+        pos >= 0 ? uriPath.substring(pos + HttpConstants.URL_PATH_COMPONENT_SEPARATOR.length()) : uriPath;
     return !UNWARNED_MISSING_FILE_NAMES.contains(filename);
   }
 }

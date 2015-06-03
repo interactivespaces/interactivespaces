@@ -166,11 +166,10 @@
     <property name="log" ref="interactivespaces.master.logger" />
   </bean>
 
-  <bean id="interactivespaces.master.server" class="interactivespaces.master.server.remote.master.internal.ros.RosRemoteMasterServer"
+  <bean id="interactivespaces.master.server" class="interactivespaces.master.server.remote.master.internal.StandardRemoteMasterServer"
     destroy-method="shutdown" init-method="startup"
   >
-
-    <property name="masterRosContext" ref="interactivespaces.master.ros.context" />
+    <property name="masterCommunicationManager" ref="interactivespaces.master.communication.manager" />
 
     <property name="log" ref="interactivespaces.master.logger" />
   </bean>
@@ -214,11 +213,16 @@
     class="interactivespaces.controller.client.master.internal.BasicRemoteActivityDeploymentManager"
     destroy-method="shutdown" init-method="startup"
   >
-
     <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
     <property name="containerResourceDeploymentManager" ref="interactivespaces.resource.deployment.manager" />
     <property name="repositoryServer" ref="interactivespaces.resource.repository.server" />
 
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
+  </bean>
+
+  <bean id="interactivespaces.master.communication.manager" class="interactivespaces.master.communication.internal.StandardMasterCommunicationManager"
+    destroy-method="shutdown" init-method="startup"
+  >
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
@@ -404,6 +408,8 @@
   >
     <property name="masterEventManager" ref="interactivespaces.master.event.manager" />
 
+    <property name="masterCommunicationManager" ref="interactivespaces.master.communication.manager" />
+    
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="extensionManager" ref="interactivespaces.master.extension" />

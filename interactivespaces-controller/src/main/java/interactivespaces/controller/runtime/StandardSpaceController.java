@@ -48,7 +48,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Keith M. Hughes
  */
-public class StandardSpaceController extends BaseSpaceController implements SpaceControllerControl, LiveActivityStatusPublisher {
+public class StandardSpaceController extends BaseSpaceController implements SpaceControllerControl,
+    LiveActivityStatusPublisher {
 
   /**
    * The default number of milliseconds the controllerHeartbeat thread delays between beats.
@@ -139,15 +140,16 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param liveActivityRuntime
    *          the live activity runtime for the controller
    * @param eventQueue
-   *        the event queue for the controller
+   *          the event queue for the controller
    * @param spaceEnvironment
    *          the space environment to use
    */
   public StandardSpaceController(SpaceControllerCommunicator spaceControllerCommunicator,
       SpaceControllerInfoPersister spaceControllerInfoPersister, InteractiveSpacesSystemControl spaceSystemControl,
       SpaceControllerDataBundleManager dataBundleManager,
-      SpaceControllerConfigurationManager spaceControllerConfigurationManager, LiveActivityRuntime liveActivityRuntime,
-      SequentialEventQueue eventQueue, InteractiveSpacesEnvironment spaceEnvironment) {
+      SpaceControllerConfigurationManager spaceControllerConfigurationManager,
+      LiveActivityRuntime liveActivityRuntime, SequentialEventQueue eventQueue,
+      InteractiveSpacesEnvironment spaceEnvironment) {
     super(spaceEnvironment);
     this.spaceControllerConfigurationManager = spaceControllerConfigurationManager;
 
@@ -195,7 +197,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
     startupAutostartActivities();
 
-    spaceControllerCommunicator.notifyRemoteMasterServerAboutStartup(getControllerInfo());
+    spaceControllerCommunicator.registerControllerWithMaster(getControllerInfo());
 
     startedUp = true;
   }

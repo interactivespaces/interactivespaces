@@ -31,8 +31,6 @@
       condition="!manualconfig" />
 
     <variable name="interactivespaces.container.type" value="controller" />
-    <variable name="ros.master.uri"
-      value="http://${interactivespaces.master.hostname}:${interactivespaces.master.port}/" />
     <variable name="ros.node.name" value="${interactivespaces.hostid}" />
   </dynamicvariables>
 
@@ -97,18 +95,20 @@
       <file src="interactivespaces-launcher-@{app.version}.jar" targetdir="$INSTALL_PATH"
         override="true" />
 
-      <parsable targetfile="$INSTALL_PATH/bin/isstartup" />
+      <parsable targetfile="$INSTALL_PATH/bin/isstartup" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isstartup" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isshutdown" />
+      <parsable targetfile="$INSTALL_PATH/bin/isshutdown" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isshutdown" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" />
+      <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isharshshutdown" stage="never" />
 
       <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" />
-      <parsable targetfile="$INSTALL_PATH/config/container.conf" />
-      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
-      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/controllerinfo.conf" />
-      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/controller.conf" />
+      <parsable targetfile="$INSTALL_PATH/config/container.conf" type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf"
+        type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/controllerinfo.conf"
+        type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/controller.conf" type="shell" />
       <file src="extras" targetdir="$INSTALL_PATH" />
     </pack>
   </packs>

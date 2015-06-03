@@ -41,7 +41,7 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.master.server.remote.client.RemoteMasterServerClient;
-import interactivespaces.master.server.remote.client.ros.RosRemoteMasterServerClient;
+import interactivespaces.master.server.remote.client.internal.StandardRemoteMasterServerClient;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
@@ -304,13 +304,16 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
   }
 
   @Override
-  public void notifyRemoteMasterServerAboutStartup(SimpleSpaceController controllerInfo) {
-    RemoteMasterServerClient masterServerClient = new RosRemoteMasterServerClient();
-    masterServerClient.startup(rosEnvironment);
-    InteractiveSpacesUtilities.delay(STARTUP_NOTIFICATION_DELAY);
-
-    masterServerClient.sendControllerDescription(controllerInfo);
-    masterServerClient.shutdown();
+  public void registerControllerWithMaster(SimpleSpaceController controllerInfo) {
+    // Yes, this is inside of a mostly ROS based class, but the ROS class is going away to use the new comm system and
+    // this code will be in here then anyway. So is confusing, but is the final home, so is here now.
+    RemoteMasterServerClient masterServerClient = new StandardRemoteMasterServerClient(spaceEnvironment);
+    masterServerClient.startup();
+    try {
+      masterServerClient.registerSpaceController(controllerInfo);
+    } finally {
+      masterServerClient.shutdown();
+    }
   }
 
   @Override

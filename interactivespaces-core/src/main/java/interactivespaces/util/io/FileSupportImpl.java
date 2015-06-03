@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
-import java.security.SecureRandom;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -72,11 +71,6 @@ public class FileSupportImpl implements FileSupport {
    * File prefix to use for creating unique temporary files.
    */
   private static final String TEMP_FILE_PREFIX = "tmp";
-
-  /**
-   * For generating unique filenames.
-   */
-  private SecureRandom random = new SecureRandom();
 
   @Override
   public void zip(File target, File sourceDirectory) {
@@ -575,33 +569,18 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public File createTempDirectory(File baseDir, String prefix, String suffix) {
-    // Cycle until find a file name that doesn't exist
     File dir = null;
-    do {
-      dir = newFile(baseDir, generateTempName(prefix, suffix));
-    } while (!exists(dir));
-
+    try {
+      dir = File.createTempFile(prefix, suffix, baseDir);
+    } catch (IOException e) {
+      SimpleInteractiveSpacesException.throwFormattedException(e, "Error creating temp directory in %s",
+          baseDir.getAbsolutePath());
+    }
     if (!mkdirs(dir)) {
-      throw new SimpleInteractiveSpacesException("Could not create temp directory in " + baseDir.getAbsolutePath());
+      SimpleInteractiveSpacesException.throwFormattedException("Could not create temp directory in %s",
+          baseDir.getAbsolutePath());
     }
     return dir;
-  }
-
-  /**
-   * Generate a temporary file name.
-   *
-   * @param prefix
-   *          the prefix for the filename
-   * @param suffix
-   *          `` the suffix for the filename
-   *
-   * @return a temporary filename
-   */
-  private String generateTempName(String prefix, String suffix) {
-    long n = random.nextLong();
-    n = (n == Long.MIN_VALUE) ? 0 : Math.abs(n);
-
-    return prefix + Long.toString(n) + suffix;
   }
 
   @Override

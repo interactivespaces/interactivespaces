@@ -72,20 +72,20 @@
       <file src="interactivespaces-launcher-@{app.version}.jar" targetdir="$INSTALL_PATH"
         override="true" />
 
-      <parsable targetfile="$INSTALL_PATH/config/workbench.conf" />
+      <parsable targetfile="$INSTALL_PATH/config/workbench.conf" type="shell" />
 
-      <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" />
-      <parsable targetfile="$INSTALL_PATH/bin/isworkbench" />
+      <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" type="shell" />
+      <parsable targetfile="$INSTALL_PATH/bin/isworkbench" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isworkbench" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isrun" />
+      <parsable targetfile="$INSTALL_PATH/bin/isrun" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isrun" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isbuild" />
+      <parsable targetfile="$INSTALL_PATH/bin/isbuild" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isbuild" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isdev" />
+      <parsable targetfile="$INSTALL_PATH/bin/isdev" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isdev" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/islog" />
+      <parsable targetfile="$INSTALL_PATH/bin/islog" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/islog" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isdo" />
+      <parsable targetfile="$INSTALL_PATH/bin/isdo" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isdo" stage="never" />
     </pack>
 

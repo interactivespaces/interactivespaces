@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,19 +14,22 @@
  * the License.
  */
 
-package interactivespaces.master.api.master;
+package interactivespaces.master.communication;
 
+import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
- * A websocket connection to the master.
+ * The manager for master communications.
  *
  * @author Keith M. Hughes
  */
-public interface MasterWebsocketManager extends ManagedResource {
+public interface MasterCommunicationManager extends ManagedResource {
 
   /**
-   * Prefix for the master API websocket endpoint.
+   * Get the master web server.
+   *
+   * @return the master web server
    */
-  String MASTERAPI_WEBSOCKET_URI_PREFIX = "/masterapi/websocket";
+  WebServer getWebServer();
 }

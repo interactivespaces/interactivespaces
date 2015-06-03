@@ -27,4 +27,24 @@ public class HttpConstants {
    * The separator between URL path components.
    */
   public static final String URL_PATH_COMPONENT_SEPARATOR = "/";
+
+  /**
+   * The URL prefix for an HTTP request.
+   */
+  public static final String HTTP_URL_PREFIX = "http://";
+
+  /**
+   * The separator for a URL port designator.
+   */
+  public static final String URL_PORT_SEPARATOR = ":";
+
+  /**
+   * The separator for a URL query string.
+   */
+  public static final String URL_QUERY_STRING_SEPARATOR = "?";
+
+  /**
+   * The separator for a URL query string between a name and its value.
+   */
+  public static final String URL_QUERY_NAME_VALUE_SEPARATOR = "=";
 }

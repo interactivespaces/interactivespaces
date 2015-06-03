@@ -365,21 +365,38 @@ Moving Ports for the Master
 Sometimes you might not be able to use the default ports that the Interactive Spaces
 Master uses.
 
+The master has a web server used for a variety of master communications, including master/space controller
+communications and the Master API Websocket interface. This is controlled with the configuration
+property `interactivespaces.master.communication.port`. It's default value is `8090`.
+This property is set in `config/container.conf`.
+
+ 
+The Master API websocket interface mentioned above is used by the master Web Admin and for live activities 
+that want to provide a richer admin interface than
+the Master Web Application. If you change the port for the Master websocket server, you must call the Interactive Spaces Master Web Admin
+with a query parameter of `?isport=port` where `port` is the new port. As an example, if the websocket
+port is changed to `8091`, the Master Web Admin would be addressed as
+
+::
+
+  http://masterhost:8080/interactivespaces?isport=8091
+
+where `masterhost` is the network host for your master.
+
 The Master contains a ROS master used by the core communication facilities provided
 by Interactive Spaces. The file `config/container.conf` contains a line
 like
 
 ::
 
-  org.ros.master.uri=http://masterhost:11311/
+  org.ros.master.uri=http://${interactivespaces.master.host}:11311/
 
-where `masterhost` is the host name for the machine the Master is running on.
 The port, here `11311`, can be changed on this line to any other port. For
 example, if the ROS master should run on port `11312`, this line should become
 
 ::
 
-  org.ros.master.uri=http://masterhost:11312/
+  org.ros.master.uri=http://${interactivespaces.master.host}:11312/
 
 
 The Master Web Application's port, `8080` by default, can be changed with the configuration
@@ -391,21 +408,6 @@ the controller. The port for this HTTP server can be changed with the
 configuration property `interactivespaces.repository.activities.server.port`. The default value of
 `10000` is used if this property doesn't exist. This configuration property should be set
 in `config/interactivespaces/master.conf`.
- 
-The Master uses a websocket server for live activities that want to provide a richer admin interface than
-the Master Web Application. The port for this websocket server can be changed with the
-configuration property `interactivespaces.master.api.websocket.port`. The default value of
-`8090` is used if this property doesn't exist. This configuration property should be set
-in `config/interactivespaces/master.conf`.
-
-If you change the port for the Master websocket server, you must call the Interactive Spaces Master Web Admin
-with a query parameter of `?isport=port` where `port` is the new port. As an example, if the websocket
-port is changed to `8091`, the Master Web Admin would be addressed as
-
-
-::
-
-  http://masterhost:8080/interactivespaces?isport=8091
 
 Notification for Issues
 =======================

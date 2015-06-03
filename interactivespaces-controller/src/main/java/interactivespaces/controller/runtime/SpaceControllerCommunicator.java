@@ -28,12 +28,12 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 public interface SpaceControllerCommunicator {
 
   /**
-   * Notify the master that the controller has started.
+   * Register the space controller with the master.
    *
    * @param controllerInfo
    *          the controller info to send
    */
-  void notifyRemoteMasterServerAboutStartup(SimpleSpaceController controllerInfo);
+  void registerControllerWithMaster(SimpleSpaceController controllerInfo);
 
   /**
    * The controller is starting up.

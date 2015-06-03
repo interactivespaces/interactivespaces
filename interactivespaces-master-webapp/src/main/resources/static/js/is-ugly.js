@@ -41,7 +41,7 @@ InteractiveSpacesUgly.prototype = {
       uglyPort = argsParsed.isport;
     }
 
-    this.ws = new WebSocket("ws://" + uglyHost + ":" + uglyPort + "/websocket");
+    this.ws = new WebSocket("ws://" + uglyHost + ":" + uglyPort + "/masterapi/websocket");
 
     this.ws.onopen = (function(event) {
       this.onWebSocketOpen();

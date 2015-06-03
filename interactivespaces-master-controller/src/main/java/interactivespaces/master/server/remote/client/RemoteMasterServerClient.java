@@ -17,32 +17,20 @@
 package interactivespaces.master.server.remote.client;
 
 import interactivespaces.domain.basic.SpaceController;
-
-import org.ros.osgi.common.RosEnvironment;
+import interactivespaces.util.resource.ManagedResource;
 
 /**
- * A client for communicating with a master server.
+ * A client for communicating with a master communication server.
  *
  * @author Keith M. Hughes
  */
-public interface RemoteMasterServerClient {
+public interface RemoteMasterServerClient extends ManagedResource {
 
   /**
-   * Start up the client.
-   */
-  void startup(RosEnvironment rosEnvironment);
-
-  /**
-   * Shut the client down.
-   */
-  void shutdown();
-
-  /**
-   * Send a controller description.
+   * Register a space controller.
    *
    * @param controller
-   *          the controller description
+   *          the controller information
    */
-  void sendControllerDescription(SpaceController controller);
-
+  void registerSpaceController(SpaceController controller);
 }

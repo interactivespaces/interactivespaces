@@ -26,6 +26,7 @@ import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.master.MasterWebsocketManager;
 import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.api.messages.MasterApiMessages;
+import interactivespaces.master.communication.MasterCommunicationManager;
 import interactivespaces.master.event.BaseMasterEventListener;
 import interactivespaces.master.event.MasterEventListener;
 import interactivespaces.master.event.MasterEventManager;
@@ -35,7 +36,6 @@ import interactivespaces.service.web.server.BasicMultipleConnectionWebServerWebS
 import interactivespaces.service.web.server.MultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.WebServer;
-import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -60,11 +60,6 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * The space environment.
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
-
-  /**
-   * The web server hosting the web socket connection.
-   */
-  private WebServer webServer;
 
   /**
    * Web socket handler for the connection to the browser.
@@ -95,6 +90,11 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * A mapping of command name to the handler for that command.
    */
   private final Map<String, MasterApiWebSocketCommandHandler> commandHandlers = Maps.newHashMap();
+
+  /**
+   * The master communication manager.
+   */
+  private MasterCommunicationManager masterCommunicationManager;
 
   /**
    * The master event listener.
@@ -739,21 +739,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
 
   @Override
   public void startup() {
-    int port =
-        spaceEnvironment.getSystemConfiguration().getPropertyInteger(
-            MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT,
-            MasterWebsocketManager.CONFIGURATION_MASTER_WEBSOCKET_PORT_DEFAULT);
-
-    webServer = new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
-    webServer.setServerName("master");
-    webServer.setPort(port);
+    WebServer webServer = masterCommunicationManager.getWebServer();
 
     webSocketHandlerFactory =
         new BasicMultipleConnectionWebServerWebSocketHandlerFactory(this, spaceEnvironment.getLog());
 
-    webServer.setWebSocketHandlerFactory("", webSocketHandlerFactory);
-
-    webServer.startup();
+    webServer.setWebSocketHandlerFactory(MasterWebsocketManager.MASTERAPI_WEBSOCKET_URI_PREFIX,
+        webSocketHandlerFactory);
 
     masterEventManager.addListener(masterEventListener);
   }
@@ -761,11 +753,6 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   @Override
   public void shutdown() {
     masterEventManager.removeListener(masterEventListener);
-
-    if (webServer != null) {
-      webServer.shutdown();
-      webServer = null;
-    }
   }
 
   /**
@@ -922,6 +909,16 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    */
   public void setMasterEventManager(MasterEventManager masterEventManager) {
     this.masterEventManager = masterEventManager;
+  }
+
+  /**
+   * Set the master communication manager.
+   *
+   * @param masterCommunicationManager
+   *          the master communication manager
+   */
+  public void setMasterCommunicationManager(MasterCommunicationManager masterCommunicationManager) {
+    this.masterCommunicationManager = masterCommunicationManager;
   }
 
   /**

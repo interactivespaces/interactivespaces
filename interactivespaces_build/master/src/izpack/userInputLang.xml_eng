@@ -2,8 +2,8 @@
 
 <langpack>
 <str id="static.main.title" txt="Interactive Spaces Master Configuration"/>
-<str id="input.interactivespaces.hostname" txt="Hostname:"/>
-<str id="input.interactivespaces.hostname.invalid" txt="The master hostname is invalid. It must be a domain name or an IP address." />
+<str id="input.interactivespaces.host" txt="Hostname:"/>
+<str id="input.interactivespaces.host.invalid" txt="The master hostname is invalid. It must be a domain name or an IP address." />
 
 <str id="input.interactivespaces.hostid" txt="Host ID:"/>
 <str id="input.interactivespaces.hostid.invalid" txt="The Host ID is invalid. It must consist only of letters and numbers and start with a letter." />
@@ -14,6 +14,10 @@
 <str id="static.advanced.title" txt="Advanced Master Configuration"/>
 
 <str id="static.advanced.info" txt="These values should only be changed if you know what you are doing."/>
-<str id="input.interactivespaces.master.port" txt="Master Host Port:" />
-<str id="input.interactivespaces.master.port.invalid" txt="Invalid Master Host port. It must be a maximum 5 digit number." />
+
+<str id="input.interactivespaces.master.communication.port" txt="Master Communication Port:" size="8" />
+<str id="input.interactivespaces.master.communication.port.invalid" txt="Invalid Master Communication port. It must be a maximum 5 digit number." />
+
+<str id="input.interactivespaces.master.ros.port" txt="Master ROS Port:" size="8" />
+<str id="input.interactivespaces.master.ros.port.invalid" txt="Invalid Master ROS port. It must be a maximum 5 digit number." />
 </langpack>

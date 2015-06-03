@@ -20,8 +20,8 @@
     <variable name="interactivespaces.platform.os" value="osx" condition="izpack.macinstall" />
 
     <variable name="interactivespaces.container.type" value="master" />
-    <variable name="ros.master.uri" value="http://${interactivespaces.hostname}:${interactivespaces.master.port}/" />
     <variable name="ros.node.name" value="${interactivespaces.hostid}" />
+    <variable name="interactivespaces.master.host" value="${interactivespaces.host}" />
   </dynamicvariables>
 
   <!-- The gui preferences indication. Sets the installer window to 640x480. It will be able to change 
@@ -76,17 +76,17 @@
       <file src="interactivespaces-launcher-@{app.version}.jar" targetdir="$INSTALL_PATH"
         override="true" />
 
-      <parsable targetfile="$INSTALL_PATH/bin/isstartup" />
+      <parsable targetfile="$INSTALL_PATH/bin/isstartup" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isstartup" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isshutdown" />
+      <parsable targetfile="$INSTALL_PATH/bin/isshutdown" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isshutdown" stage="never" />
-      <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" />
+      <parsable targetfile="$INSTALL_PATH/bin/isharshshutdown" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isharshshutdown" stage="never" />
 
-      <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" />
-      <parsable targetfile="$INSTALL_PATH/config/container.conf" />
-      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" />
-      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/master.conf" />
+      <parsable targetfile="$INSTALL_PATH/config/system/log4j.properties" type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/container.conf" type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/interactivespaces.conf" type="shell" />
+      <parsable targetfile="$INSTALL_PATH/config/interactivespaces/master.conf" type="shell" />
     </pack>
   </packs>
 
