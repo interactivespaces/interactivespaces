@@ -22,6 +22,11 @@ if [ -f $TARGET/$PROJFILE ]; then
 else
   SINGLE_ACTIVITY='false'
   ACTIVITY_NAME=$TARGET
+  num_activities=$(find . -name project.xml 2>/dev/null | wc -l)
+  if [[ ${num_activities} == 0 ]]; then
+    echo No valid project.xml found in current directory or subdirectories.
+    false
+  fi
 fi
 
 RUNDIR=$TARGET/run
