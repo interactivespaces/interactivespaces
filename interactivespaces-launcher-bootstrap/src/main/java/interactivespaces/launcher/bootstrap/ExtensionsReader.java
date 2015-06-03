@@ -39,6 +39,11 @@ public class ExtensionsReader {
   public static final String EXTENSION_FILE_EXTENSION = ".ext";
 
   /**
+   * The initial chaacter for comments in extension files.
+   */
+  public static final String EXTENSION_FILE_COMMENT = "#";
+
+  /**
    * The keyword header for a package line in an extensions file.
    */
   public static final String EXTENSION_FILE_KEYWORD_PACKAGE = "package:";
@@ -190,7 +195,7 @@ public class ExtensionsReader {
       String line;
       while ((line = reader.readLine()) != null) {
         line = line.trim();
-        if (!line.isEmpty()) {
+        if (!line.isEmpty() && !line.startsWith(EXTENSION_FILE_COMMENT)) {
           boolean processed =
               processLine(line, EXTENSION_FILE_KEYWORD_PACKAGE, packages)
                   || processLine(line, EXTENSION_FILE_KEYWORD_PACKAGE_BOOT, bootPackages)

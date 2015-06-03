@@ -34,7 +34,7 @@ dependencies {
 
   system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
   system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
-  system 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  system 'org.apache.felix:org.apache.felix.framework:5.0.0'
   system project(':interactivespaces-bootstrap-core')
   system project(':interactivespaces-launcher-bootstrap')
 

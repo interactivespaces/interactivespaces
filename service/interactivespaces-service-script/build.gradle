@@ -21,7 +21,7 @@ dependencies {
   expandedJars files("${project.getProperty('interactivespaces.dependencies.home')}/python/jython/jython2.5.2/jython.jar")
   expandedJars 'org.mozilla:rhino:1.7R4'
 
-  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

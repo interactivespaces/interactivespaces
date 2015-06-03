@@ -25,7 +25,7 @@ dependencies {
 
   extrasCompile files("${project.getProperty('interactivespaces.dependencies.home')}/comm/serial/RXTXcomm.jar")
 
-  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

@@ -17,11 +17,9 @@ dependencies {
   compile project(':service:interactivespaces-service-core')
   compile project(':interactivespaces-system')
 
-  compile 'javax.mail:com.springsource.javax.mail:1.4.1'
-  
-  runtime 'javax.activation:com.springsource.javax.activation:1.1.1'
+  compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.javax.mail:1.4.1_5'
 
-  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

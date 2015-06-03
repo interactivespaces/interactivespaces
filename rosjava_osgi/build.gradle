@@ -16,7 +16,7 @@
  dependencies {
   compile project(':nrosjava')
 
-  provided 'org.apache.felix:org.apache.felix.framework:4.2.1'
+  provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
   provided 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
   
   testCompile 'junit:junit:4.8.2'
