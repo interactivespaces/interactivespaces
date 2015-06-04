@@ -111,6 +111,12 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/view";
 
   /**
+   * Web socket command for creating a live activity.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_CREATE = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/create";
+
+  /**
    * Web socket command for deploying a live activity.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
@@ -587,6 +593,16 @@ public class MasterApiMessages {
    * Status parameter name for the configuration of a configurable entity in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_CONFIG = "config";
+
+  /**
+   * Parameter name for the ID of an activity in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_ACTIVITY_ID = "activityId";
+
+  /**
+   * Parameter name for the ID of a space controller in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID = "spaceControllerId";
 
   /**
    * Parameter name for the host ID of a space controller in the Master API message.

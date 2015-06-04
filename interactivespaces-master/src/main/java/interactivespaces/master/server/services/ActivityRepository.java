@@ -23,6 +23,7 @@ import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
 
@@ -139,6 +140,16 @@ public interface ActivityRepository {
    * @return the new installed activity instance, it will not be saved in the repository
    */
   LiveActivity newLiveActivity();
+
+  /**
+   * Create a new live activity based on the templated activity.
+   *
+   * @param liveActivityTemplate
+   *          the template
+   *
+   * @return the new live activity
+   */
+  LiveActivity newAndSaveLiveActivity(SimpleLiveActivity liveActivityTemplate);
 
   /**
    * Get all activities in the repository.

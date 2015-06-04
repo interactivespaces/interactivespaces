@@ -29,6 +29,7 @@ import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
+import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.api.master.MasterApiUtilities;
@@ -360,6 +361,55 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     } else {
       return noSuchLiveActivityResult();
     }
+  }
+
+  @Override
+  public Map<String, Object> createLiveActivity(Map<String, Object> args) {
+    if (!canCreateLiveActivities()) {
+      return MasterApiMessageSupport.getFailureResponse("Live activities cannot be created.");
+    }
+
+    String activityId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ACTIVITY_ID);
+    if (activityId == null) {
+      return MasterApiMessageSupport.getFailureResponse("Missing activityId");
+    }
+
+    Activity activity = activityRepository.getActivityById(activityId);
+    if (activity == null) {
+      return MasterApiMessageSupport.getFailureResponse(String.format("No activity with ID %s", activityId));
+    }
+
+    String spaceControllerId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID);
+    if (spaceControllerId == null) {
+      return MasterApiMessageSupport.getFailureResponse("Missing spaceControllerId");
+    }
+
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(spaceControllerId);
+    if (spaceController == null) {
+      return MasterApiMessageSupport.getFailureResponse(String.format("No space controller with ID %s",
+          spaceControllerId));
+    }
+
+    String name = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME);
+    if (name == null || name.trim().isEmpty()) {
+      return MasterApiMessageSupport.getFailureResponse("Missing name");
+    }
+
+    // This field is not required.
+    String description = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION);
+
+    SimpleLiveActivity liveActivityTemplate = new SimpleLiveActivity();
+    liveActivityTemplate.setActivity(activity);
+    liveActivityTemplate.setController(spaceController);
+    liveActivityTemplate.setName(name);
+    liveActivityTemplate.setDescription(description);
+
+    LiveActivity newLiveActivity = activityRepository.newAndSaveLiveActivity(liveActivityTemplate);
+
+    Map<String, Object> responseData = Maps.newHashMap();
+    extractLiveActivityApiData(newLiveActivity, responseData);
+
+    return MasterApiMessageSupport.getSuccessResponse(responseData);
   }
 
   @Override

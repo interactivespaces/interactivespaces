@@ -186,6 +186,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_CREATE) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.createLiveActivity(commandArgs);
+      }
+    });
+   registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {

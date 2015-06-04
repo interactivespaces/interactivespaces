@@ -162,9 +162,21 @@ public class InMemoryActivityRepository implements ActivityRepository {
   }
 
   @Override
+  public LiveActivity newAndSaveLiveActivity(SimpleLiveActivity liveActivityTemplate) {
+    LiveActivity newLiveActivity = newLiveActivity();
+
+    newLiveActivity.setActivity(liveActivityTemplate.getActivity());
+    newLiveActivity.setController(liveActivityTemplate.getController());
+    newLiveActivity.setName(liveActivityTemplate.getName());
+    newLiveActivity.setDescription(liveActivityTemplate.getDescription());
+
+    return saveLiveActivity(newLiveActivity);
+  }
+
+  @Override
   public List<LiveActivity> getAllLiveActivities() {
     synchronized (liveActivitiesById) {
-      return new ArrayList<LiveActivity>(liveActivitiesById.values());
+      return Lists.newArrayList(liveActivitiesById.values());
     }
   }
 
@@ -174,7 +186,7 @@ public class InMemoryActivityRepository implements ActivityRepository {
     List<LiveActivity> toBeFiltered;
 
     synchronized (liveActivitiesById) {
-      toBeFiltered = new ArrayList<LiveActivity>(liveActivitiesById.values());
+      toBeFiltered = Lists.newArrayList(liveActivitiesById.values());
     }
 
     for (LiveActivity activity : toBeFiltered) {

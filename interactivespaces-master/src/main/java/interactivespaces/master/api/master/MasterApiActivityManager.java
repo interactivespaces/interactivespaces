@@ -145,7 +145,7 @@ public interface MasterApiActivityManager extends ManagedResource {
   boolean canCreateLiveActivities();
 
   /**
-   * Delete an installed activity from the activity repository.
+   * Delete a live activity from the activity repository.
    *
    * <p>
    * Does nothing if there is no live activity with the given ID.
@@ -156,6 +156,19 @@ public interface MasterApiActivityManager extends ManagedResource {
    * @return API response to deletion
    */
   Map<String, Object> deleteLiveActivity(String id);
+
+  /**
+   * Create a new live activity.
+   *
+   * <p>
+   * Does nothing if there is no live activity with the given ID.
+   *
+   * @param args
+   *          the arguments for the live activity creation
+   *
+   * @return API response to creation
+   */
+  Map<String, Object> createLiveActivity(Map<String, Object> args);
 
   /**
    * Get the configuration of a live activity.

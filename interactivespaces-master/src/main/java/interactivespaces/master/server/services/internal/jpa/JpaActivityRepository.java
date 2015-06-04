@@ -24,13 +24,14 @@ import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivity;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfiguration;
-import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityDependency;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfigurationParameter;
+import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityDependency;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivity;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaLiveActivityGroup;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpace;
@@ -149,6 +150,17 @@ public class JpaActivityRepository implements ActivityRepository {
     lactivity.setUuid(uuidGenerator.newUuid());
 
     return lactivity;
+  }
+
+  @Override
+  public LiveActivity newAndSaveLiveActivity(SimpleLiveActivity liveActivityTemplate) {
+    LiveActivity newLiveActivity = newLiveActivity();
+    newLiveActivity.setActivity(liveActivityTemplate.getActivity());
+    newLiveActivity.setController(liveActivityTemplate.getController());
+    newLiveActivity.setName(liveActivityTemplate.getName());
+    newLiveActivity.setDescription(liveActivityTemplate.getDescription());
+
+    return saveLiveActivity(newLiveActivity);
   }
 
   @Override
