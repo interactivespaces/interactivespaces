@@ -377,12 +377,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   /**
    * Prepare for a multiple activity run.
    *
-   * @param rootFolder
-   *          the root folder for the activities
    * @param suppliedRuntimeFolder
    *          the runtime folder supplied to the runner
+   * @param rootFolder
+   *          the root folder for the activities
    */
-  private void prepareForMultipleActivityRun(File rootFolder, File suppliedRuntimeFolder) {
+  private void prepareForMultipleActivityRun(File suppliedRuntimeFolder, File rootFolder) {
     List<File> foldersToUse = Lists.newArrayList();
     scanForProjectFolders(rootFolder, foldersToUse);
 
