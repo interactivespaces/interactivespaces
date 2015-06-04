@@ -75,11 +75,11 @@ public class StandardRosSubscribers<T> implements RosSubscribers<T> {
   @Override
   public synchronized void addSubscribers(ConnectedNode node, String messageType, Set<String> topicNames,
       MessageListener<T> listener) {
-    log.info("Adding topic subscribers");
+    log.debug("Adding topic subscribers");
     for (String topicName : topicNames) {
-      log.info(String.format("Adding subscriber topic %s", topicName));
+      log.debug(String.format("Adding subscriber topic %s", topicName));
       Subscriber<T> newSubscriber = node.newSubscriber(topicName, messageType);
-      log.info(String.format("Added subscriber topic %s", topicName));
+      log.debug(String.format("Added subscriber topic %s", topicName));
       newSubscriber.addSubscriberListener(this);
 
       for (SubscriberListener<T> subscriberListener : subscriberListeners) {
@@ -105,7 +105,7 @@ public class StandardRosSubscribers<T> implements RosSubscribers<T> {
 
   @Override
   public void onMasterRegistrationSuccess(Subscriber<T> subscriber) {
-    log.info(String.format("Subscriber for topic %s has successfully registered with the master",
+    log.debug(String.format("Subscriber for topic %s has successfully registered with the master",
         subscriber.getTopicName()));
   }
 
@@ -117,18 +117,16 @@ public class StandardRosSubscribers<T> implements RosSubscribers<T> {
 
   @Override
   public void onMasterUnregistrationSuccess(Subscriber<T> subscriber) {
-    log.info(String.format("Subscriber for topic %s has unregistered from the master", subscriber.getTopicName()));
+    log.debug(String.format("Subscriber for topic %s has unregistered from the master", subscriber.getTopicName()));
   }
 
   @Override
   public void onNewPublisher(Subscriber<T> subscriber, PublisherIdentifier publisher) {
-    if (log.isInfoEnabled()) {
-      log.info(String.format("Subscriber for topic %s has a new publisher", subscriber.getTopicName()));
-    }
+    log.debug(String.format("Subscriber for topic %s has a new publisher", subscriber.getTopicName()));
   }
 
   @Override
   public void onShutdown(Subscriber<T> subscriber) {
-    log.info(String.format("Subscriber for topic %s has shut down", subscriber.getTopicName()));
+    log.debug(String.format("Subscriber for topic %s has shut down", subscriber.getTopicName()));
   }
 }

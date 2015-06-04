@@ -16,7 +16,7 @@
 
 package interactivespaces.util.ros;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
 
 import com.google.common.collect.Lists;
 
@@ -81,18 +81,12 @@ public class StandardRosPublishers<T> implements RosPublishers<T> {
   @Override
   public synchronized void
       addPublishers(ConnectedNode node, String messageType, Set<String> topicNames, boolean latch) {
-    if (log.isInfoEnabled()) {
-      log.info(String.format("Adding publishers for topic names %s with message type %s", topicNames, messageType));
-    }
+    log.debug(String.format("Adding publishers for topic names %s with message type %s", topicNames, messageType));
 
     for (String topicName : topicNames) {
-      if (log.isInfoEnabled()) {
-        log.info(String.format("Adding publisher topic %s", topicName));
-      }
+      log.debug(String.format("Adding publisher topic %s", topicName));
       Publisher<T> publisher = node.newPublisher(topicName, messageType);
-      if (log.isInfoEnabled()) {
-        log.info(String.format("Added publisher topic %s", topicName));
-      }
+      log.debug(String.format("Added publisher topic %s", topicName));
       publisher.addListener(this);
 
       for (PublisherListener<T> listener : publisherListeners) {
@@ -116,7 +110,7 @@ public class StandardRosPublishers<T> implements RosPublishers<T> {
     if (!publishers.isEmpty()) {
       return publishers.get(0).newMessage();
     } else {
-      throw new InteractiveSpacesException("No publishers found to create a message");
+      throw new SimpleInteractiveSpacesException("No publishers found to create a message");
     }
   }
 
@@ -129,33 +123,33 @@ public class StandardRosPublishers<T> implements RosPublishers<T> {
 
   @Override
   public void onMasterRegistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to register with the master", publisher.getTopicName()));
+    log.warn(String.format("Publisher for topic %s has failed to register with the master", publisher.getTopicName()));
   }
 
   @Override
   public void onMasterRegistrationSuccess(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has successfully registered with the master",
+    log.debug(String.format("Publisher for topic %s has successfully registered with the master",
         publisher.getTopicName()));
   }
 
   @Override
   public void onMasterUnregistrationFailure(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has failed to unregister with the master", publisher.getTopicName()));
+    log.warn(String.format("Publisher for topic %s has failed to unregister with the master", publisher.getTopicName()));
   }
 
   @Override
   public void onMasterUnregistrationSuccess(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has successfully unregistered with the master",
+    log.debug(String.format("Publisher for topic %s has successfully unregistered with the master",
         publisher.getTopicName()));
   }
 
   @Override
   public void onNewSubscriber(Publisher<T> publisher, SubscriberIdentifier subscriberIdentifier) {
-    log.info(String.format("Publisher for topic %s has a new subscriber", publisher.getTopicName()));
+    log.debug(String.format("Publisher for topic %s has a new subscriber", publisher.getTopicName()));
   }
 
   @Override
   public void onShutdown(Publisher<T> publisher) {
-    log.info(String.format("Publisher for topic %s has shut down", publisher.getTopicName()));
+    log.debug(String.format("Publisher for topic %s has shut down", publisher.getTopicName()));
   }
 }
