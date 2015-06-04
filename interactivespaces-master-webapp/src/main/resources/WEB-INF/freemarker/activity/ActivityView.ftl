@@ -184,8 +184,8 @@ None
 <#list activity.dependencies as dependency>
     <tr>
       <td>${dependency.identifyingName}</td>
-      <td>${dependency.minimumVersion}</td>
-      <td>${dependency.maximumVersion}</td>
+      <td><#if dependency.minimumVersion??>${dependency.minimumVersion}</#if></td>
+      <td><#if dependency.maximumVersion??>${dependency.maximumVersion}</#if></td>
       <td><#if dependency.required>Required<#else>Not Required</#if></td>
     </tr>
 </#list>

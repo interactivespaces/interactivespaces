@@ -19,6 +19,7 @@ package interactivespaces.domain.support;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.ActivityDependency;
 import interactivespaces.domain.basic.pojo.SimpleActivityDependency;
+import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
 
 import com.google.common.collect.Lists;
@@ -221,8 +222,14 @@ public class JdomActivityDescriptionReader implements ActivityDescriptionReader 
     ActivityDependency dependency = new SimpleActivityDependency();
 
     dependency.setIdentifyingName(identifyingName);
-    dependency.setMinimumVersion(version.getMinimum().toString());
-    dependency.setMaximumVersion(version.getMaximum().toString());
+    Version minimum = version.getMinimum();
+    if (minimum != null) {
+      dependency.setMinimumVersion(minimum.toString());
+    }
+    Version maximum = version.getMaximum();
+    if (maximum != null) {
+      dependency.setMaximumVersion(maximum.toString());
+    }
     dependency.setRequired(ACTIVITY_VALUE_TRUE.equals(requiredString));
 
     return dependency;
