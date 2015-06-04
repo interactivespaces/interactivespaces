@@ -21,7 +21,6 @@ import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTemplate;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.activity.builder.java.JavaActivityProjectBuilder;
-import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.builder.ProjectBuilder;
 import interactivespaces.workbench.project.ide.EclipseIdeProjectCreatorSpecification;
 import interactivespaces.workbench.project.ide.JavaEclipseIdeProjectCreatorSpecification;
@@ -53,7 +52,8 @@ public class AndroidActivityProjectType extends JavaProjectType {
 
   @Override
   public boolean isProperType(Project project) {
-    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType()) && BUILDER_TYPE.equals(project.getBuilderType());
+    return ActivityProject.PROJECT_TYPE_NAME.equals(project.getType())
+        && BUILDER_TYPE.equals(project.getBuilderType());
   }
 
   @Override
@@ -68,7 +68,7 @@ public class AndroidActivityProjectType extends JavaProjectType {
 
   @Override
   public EclipseIdeProjectCreatorSpecification getEclipseIdeProjectCreatorSpecification() {
-    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(JavaProjectType.SOURCE_MAIN_JAVA,
-        ProjectType.SOURCE_MAIN_RESOURCES), Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS), extension);
+    return new JavaEclipseIdeProjectCreatorSpecification(Lists.newArrayList(JavaProjectType.SOURCE_MAIN_JAVA),
+        Lists.newArrayList(JavaProjectType.SOURCE_MAIN_TESTS), extension);
   }
 }
