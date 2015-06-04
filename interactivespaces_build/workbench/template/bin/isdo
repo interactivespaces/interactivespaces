@@ -18,6 +18,7 @@
 """This is the command-line tool for interacting with Interactive Spaces."""
 
 import os
+import re
 import sys
 import json
 import time
@@ -176,6 +177,7 @@ def parse_command_line(arguments):
 
   config.host_name = 'localhost'
   config.host_port = 8090
+  config.host_path = 'masterapi/websocket'
   config.debug = False
   config.silent = False
   config.lenient = False
@@ -281,7 +283,6 @@ def parse_command_line(arguments):
       if not arguments:
         print('Config path not provided')
         exit(1)
-      config.commands[ShutdownCommand] = ShutdownCommand()
       config.commands[ConfigCommand] = ConfigCommand(arguments.pop(0))
 
     elif argument in ['--group-remove', '-gr']:
@@ -313,7 +314,7 @@ def parse_command_line(arguments):
 
   config.selected_live_activities = set()
 
-  config.known_activities = {a: [] for a in config.activities}
+  config.known_activities = {a: set() for a in config.activities}
   config.known_live_activities = {i: [] for i in config.live_activities}
   config.project_folders = []
   config.states = None
@@ -360,6 +361,10 @@ class Command(object):
     """Executes this task"""
 
     raise NotImplementedError("Command %s not implemented" % self.__class__.__name__)
+
+  def prep(self):
+    """Prepares this task for execution"""
+    pass
 
   def validate(self, server_connection):
     """Validates this step's configuration. Override this to add custom validation steps."""
@@ -537,6 +542,17 @@ class CreateCommand(Command):
   def requires_controller(self):
     return True
 
+  def execute(self, server_connection):
+    for activity in self.config.selected_activities:
+      print activity
+      server_connection.send('/liveactivity/create', { 'name': self.name,
+                                                       'activityId': activity,
+                                                       'controllerId': 'oops' })
+
+    print server_connection.send('/liveactivity/create', { 'name': self.name,
+                                                           'activityId': '1',
+                                                           'spaceControllerId': '101' })
+
 
 class UpgradeCommand(Command):
   """Changes the version of a live activity."""
@@ -554,6 +570,8 @@ class DeployCommand(Command):
   def execute(self, server_connection):
     for live_activity in self.config.selected_live_activities:
       server_connection.send('/liveactivity/deploy', { 'id': self.config.known_live_activities[live_activity]['id'] })
+      server_connection.send('/liveactivity/configure', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
 
 
 class ConfigCommand(Command):
@@ -562,8 +580,41 @@ class ConfigCommand(Command):
   def __init__(self, path):
     self.path = path
 
+  def validate(self, *args):
+    if self.path != '-':
+      if os.path.exists(self.path):
+       try:
+          with open (self.path, "r") as config_file:
+            self.contents = config_file.read()
+       except Exception as e:
+         self.write('Reading from configuration file "%s" failed - %s' % (self.path, e))
+         exit(1)
+      else:
+        self.write('Configuration file "%s" not found' % self.path)
+        exit(1)
+
+    super(ConfigCommand, self).validate(*args)
+
   def requires_live_activities(self):
     return True
+
+  def prep(self):
+    if self.path == '-':
+      self.contents = sys.stdin.read()
+
+    # TODO: Support comments (lines start with # or !)
+
+    self.map = {}
+    flags = re.MULTILINE
+    for result in re.findall("^\s*(.+?)\s*=\s*(.*?)\s*$", self.contents, flags=flags):
+      self.map[result[0]] = result[1]
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities:
+      id = self.config.known_live_activities[live_activity]['id']
+      server_connection.send('/liveactivity/configuration/set', { 'id': id,
+                                                                  'config': self.map })
+      server_connection.send('/liveactivity/configure', { 'id': id })
 
 
 class GroupRemoveCommand(Command):
@@ -677,7 +728,7 @@ class MasterConnection(object):
   """Handles websocket connection to master."""
 
   def __init__(self, config):
-    url = "ws://%s:%s" % (config.host_name, config.host_port)
+    url = "ws://%s:%s/%s" % (config.host_name, config.host_port, config.host_path)
     if config.debug:
       print('Connecting to server at %s' % url)
 
@@ -831,7 +882,7 @@ class Runner(object):
     count = 0
     for command_name in Runner.command_order:
       command = config.commands.get(command_name)
-      if command is not None:
+      if command:
         if command.requires_server() and not server_connection:
           server_connection = MasterConnection(config)
           self._find_live_activities(config, server_connection)
@@ -848,7 +899,12 @@ class Runner(object):
   def _execute_commands(self, config, server_connection):
     for command_name in Runner.command_order:
       command = config.commands.get(command_name)
-      if command is not None:
+      if command:
+        command.prep()
+
+    for command_name in Runner.command_order:
+      command = config.commands.get(command_name)
+      if command:
         if config.debug:
           print('Executing Command: %s' % command.__class__.__name__)
 
