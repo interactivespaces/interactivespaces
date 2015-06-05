@@ -115,7 +115,7 @@ class PlaybackRunner implements Runnable {
         finishDelayMs = standaloneMessageRouter.getFinishDelta();
       }
 
-      standaloneMessageRouter.verifyFinished();
+      standaloneMessageRouter.injectionFinished();
     } catch (Exception e) {
       standaloneMessageRouter.handleError("While processing playback file " + playbackFile.getAbsolutePath(), e);
     }

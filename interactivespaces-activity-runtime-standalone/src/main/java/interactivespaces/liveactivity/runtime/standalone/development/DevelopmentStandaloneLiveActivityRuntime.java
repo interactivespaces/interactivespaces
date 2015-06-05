@@ -139,6 +139,26 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   };
 
   /**
+   * Configuration property for receive message playback file.
+   */
+  public static final String CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_RECV = "space.test.messages.recv";
+
+  /**
+   * Configuration property for send message playback file.
+   */
+  public static final String CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_SEND = "space.test.messages.send";
+
+  /**
+   * Configuration property for check message file.
+   */
+  public static final String CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_CHECK = "space.test.messages.check";
+
+  /**
+   * Configuration property for filter message file.
+   */
+  public static final String CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_FILTER = "space.test.messages.filter";
+
+  /**
    * The collection of information about the live activities to run.
    */
   private StandaloneLiveActivityInformationCollection liveActivityInformation =
@@ -170,26 +190,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   private boolean useStandaloneRouter = true;
 
   /**
-   * Path name for trace filters, if any.
-   */
-  private String traceFilterPath;
-
-  /**
-   * Path name for trace playback file.
-   */
-  private String tracePlaybackPath;
-
-  /**
-   * Path name for trace check file.
-   */
-  private String traceCheckPath;
-
-  /**
-   * Path name for send path.
-   */
-  private String traceSendPath;
-
-  /**
    * Message router to use for this standalone activity.
    */
   private StandaloneMessageRouter cecRouter;
@@ -198,6 +198,11 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Space environment.
    */
   private final InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * System configuration.
+   */
+  private Configuration systemConfiguration;
 
   /**
    * The live activity runtime for this runner.
@@ -256,19 +261,19 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   @Override
   public void startup() {
 
-    Configuration configuration = spaceEnvironment.getSystemConfiguration();
+    systemConfiguration = spaceEnvironment.getSystemConfiguration();
 
     boolean isSingleActivity =
-        configuration.getPropertyBoolean(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE,
+        systemConfiguration.getPropertyBoolean(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE,
             CONFIGURATION_DEFAULT_INTERACTIVESPACES_STANDALONE_ACTIVITY_SINGLE);
 
     String instanceSuffixValue =
-        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_INSTANCE, "");
+        systemConfiguration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_INSTANCE, "");
     setInstanceSuffix(instanceSuffixValue);
 
     File activityRuntimeFolder = null;
     String activityRuntimeFolderPath =
-        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_RUNTIME);
+        systemConfiguration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_RUNTIME);
     if (activityRuntimeFolderPath != null) {
       getLog().info("activityRuntimePath is " + activityRuntimeFolderPath);
       activityRuntimeFolder = fileSupport.newFile(activityRuntimeFolderPath);
@@ -284,12 +289,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
     internalSpaceEnvironment.setFilesystem(newFileSystem);
 
     String activitySourceFolderPath =
-        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SOURCE);
+        systemConfiguration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ACTIVITY_SOURCE);
     getLog().info("activitySourcePath is " + activitySourceFolderPath);
     File activitySourceFolder = fileSupport.newFile(activitySourceFolderPath);
 
     String standaloneRouterType =
-        configuration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ROUTER_TYPE);
+        systemConfiguration.getPropertyString(CONFIGURATION_INTERACTIVESPACES_STANDALONE_ROUTER_TYPE);
     if (standaloneRouterType != null) {
       getLog().info("configuring to use router type " + standaloneRouterType);
       setUseStandaloneRouter(CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE.equals(standaloneRouterType));
@@ -521,46 +526,6 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   }
 
   /**
-   * Set the trace send path.
-   *
-   * @param traceSendPath
-   *          trace send path
-   */
-  public void setTraceSendPath(String traceSendPath) {
-    this.traceSendPath = traceSendPath;
-  }
-
-  /**
-   * Set the trace check path.
-   *
-   * @param traceCheckPath
-   *          trace check path
-   */
-  public void setTraceCheckPath(String traceCheckPath) {
-    this.traceCheckPath = traceCheckPath;
-  }
-
-  /**
-   * Set the trace playback path.
-   *
-   * @param tracePlaybackPath
-   *          trace playback path
-   */
-  public void setTracePlaybackPath(String tracePlaybackPath) {
-    this.tracePlaybackPath = tracePlaybackPath;
-  }
-
-  /**
-   * Set the trace filter path.
-   *
-   * @param traceFilterPath
-   *          trace filter path
-   */
-  public void setTraceFilterPath(String traceFilterPath) {
-    this.traceFilterPath = traceFilterPath;
-  }
-
-  /**
    * Prepare the filesystem for use. Makes sure necessary directories exist.
    */
   public void prepareFilesystem() {
@@ -571,10 +536,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Start any trace playback.
    */
   public void startPlayback() {
-    if (tracePlaybackPath != null) {
-      cecRouter.playback(tracePlaybackPath, false);
+    String traceRecvPath = systemConfiguration.getPropertyString(CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_RECV);
+    if (traceRecvPath != null) {
+      cecRouter.playback(traceRecvPath, false);
     }
 
+    String traceSendPath = systemConfiguration.getPropertyString(CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_SEND);
     if (traceSendPath != null) {
       cecRouter.playback(traceSendPath, true);
     }
@@ -584,10 +551,12 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
    * Startup all activities.
    */
   public void startupActivities() {
+    String traceCheckPath = systemConfiguration.getPropertyString(CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_CHECK);
     if (traceCheckPath != null) {
       cecRouter.checkStart(traceCheckPath);
     }
 
+    String traceFilterPath = systemConfiguration.getPropertyString(CONFIGURATION_PROPERTY_SPACE_TEST_MESSAGES_FILTER);
     if (traceFilterPath != null) {
       cecRouter.setTraceFilter(traceFilterPath);
     }
@@ -682,7 +651,7 @@ public class DevelopmentStandaloneLiveActivityRuntime implements ManagedResource
   /**
    * @return logger to use
    */
-  private Log getLog() {
+  public Log getLog() {
     return spaceEnvironment.getLog();
   }
 

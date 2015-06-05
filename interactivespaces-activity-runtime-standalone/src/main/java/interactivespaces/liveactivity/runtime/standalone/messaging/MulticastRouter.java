@@ -112,7 +112,7 @@ public class MulticastRouter implements StandaloneRouter {
 
   @Override
   public boolean isRunning() {
-    return multicastSocket != null;
+    return multicastSocket != null && !multicastSocket.isClosed();
   }
 
   @Override
@@ -133,7 +133,7 @@ public class MulticastRouter implements StandaloneRouter {
   @Override
   public MessageMap receive() {
     try {
-      Preconditions.checkState(!multicastSocket.isClosed(), "Router is closed");
+      Preconditions.checkState(isRunning(), "Router is no longer running");
 
       multicastSocket.receive(datagramPacket);
 
@@ -147,7 +147,7 @@ public class MulticastRouter implements StandaloneRouter {
       }
       return messageObject;
     } catch (Exception e) {
-      throw new SimpleInteractiveSpacesException("While receiving multicast message");
+      throw new SimpleInteractiveSpacesException("While receiving multicast message", e);
     }
   }
 }

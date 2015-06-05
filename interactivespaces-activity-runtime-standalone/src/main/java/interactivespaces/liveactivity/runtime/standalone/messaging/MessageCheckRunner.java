@@ -31,14 +31,9 @@ import java.io.File;
 class MessageCheckRunner {
 
   /**
-   * File that contains the check messages.
-   */
-  private final File traceCheckFile;
-
-  /**
    * Parsed list of messages.
    */
-  private final MessageSetList expectedMessageList;
+  private MessageSetList expectedMessageList;
 
   /**
    * The next message object to check.
@@ -64,7 +59,7 @@ class MessageCheckRunner {
    */
   public MessageCheckRunner(StandaloneMessageRouter standaloneMessageRouter, String traceCheckPath) {
     this.standaloneMessageRouter = standaloneMessageRouter;
-    traceCheckFile = new File(traceCheckPath);
+    File traceCheckFile = new File(traceCheckPath);
     expectedMessageList = MessageUtils.readMessageList(traceCheckFile);
   }
 
@@ -103,7 +98,8 @@ class MessageCheckRunner {
       }
 
       if (MessageUtils.deepMatches(message, nextExpectedMessage)) {
-        standaloneMessageRouter.getLog().info("Message index " + messageIndex + " verified");
+        standaloneMessageRouter.getLog().info(String.format("Verified message index %d: %s",
+            messageIndex, nextExpectedMessage.get(StandaloneMessageRouter.MESSAGE_KEY)));
         messageIndex++;
         nextExpectedMessage = null;
       }
@@ -113,9 +109,22 @@ class MessageCheckRunner {
   }
 
   /**
+   * Check if the message check runner is currently active.
+   *
+   * @return {@code true} if active
+   */
+  synchronized boolean isActive() {
+    return expectedMessageList != null;
+  }
+
+  /**
    * Verify completion. Will signal success or failure to containing activity runner..
    */
-  synchronized void verifyFinished() {
+  synchronized void finalizeVerification() {
+    if (expectedMessageList == null) {
+      standaloneMessageRouter.getLog().warn("Message verification already finalized");
+      return;
+    }
     if (messageIndex < expectedMessageList.size()) {
       standaloneMessageRouter.getLog().error(String.format("Failed to verify message #%d: %s",
           messageIndex, expectedMessageList.get(messageIndex)));
@@ -124,5 +133,6 @@ class MessageCheckRunner {
       standaloneMessageRouter.getLog().info("All messages verified consumed");
       standaloneMessageRouter.getActivityRunner().signalCompletion(true);
     }
+    expectedMessageList = null;
   }
 }

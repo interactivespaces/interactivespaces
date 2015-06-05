@@ -13,7 +13,11 @@ LIBDIR=$EXEDIR/../lib
 export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
 INTERACTIVESPACES_ROUTER=${INTERACTIVESPACES_ROUTER:-standalone}
 
-CMD=${1:-run}
+CMD=run
+if [[ $# -gt 0 ]]; then
+  CMD="${1}"
+  shift
+fi
 
 PROJFILE=project.xml
 if [ -f $TARGET/$PROJFILE ]; then
@@ -70,7 +74,7 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.runtime=$
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.activity.source=$TARGET"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.instance=$INSTANCE_SUFFIX"
 INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.router.type=${INTERACTIVESPACES_ROUTER}"
-INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
+INTERACTIVESPACES_MAIN_ARGS+=" $@"
 
 echo $INTERACTIVESPACES_MAIN_ARGS
 

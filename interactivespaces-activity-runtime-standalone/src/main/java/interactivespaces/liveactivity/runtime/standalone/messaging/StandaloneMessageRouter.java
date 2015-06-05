@@ -73,6 +73,11 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
   public static final String SEGMENT_KEY = "segment";
 
   /**
+   * Key for message content.
+   */
+  public static final String MESSAGE_KEY = "message";
+
+  /**
    * Router for, well, route messages.
    */
   private StandaloneRouter router;
@@ -188,6 +193,9 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
   @Override
   protected void onPostStartupComponent() {
     initializeCommunication();
+    if (playbackRunner != null) {
+      getComponentContext().getActivity().getSpaceEnvironment().getExecutorService().submit(playbackRunner);
+    }
   }
 
   /**
@@ -236,7 +244,7 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
       });
 
       if (!messageWhiteList.isEmpty()) {
-        boolean autoFlush = true;
+        final boolean autoFlush = true;
         File receiveTraceFile = new File(activity.getActivityFilesystem().getLogDirectory(), "messages.recv");
         receiveTraceWriter = new PrintWriter(new FileOutputStream(receiveTraceFile), autoFlush);
         File sendTraceFile = new File(activity.getActivityFilesystem().getLogDirectory(), "messages.send");
@@ -284,7 +292,7 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
 
         if (messageCheckRunner != null) {
           if (messageCheckRunner.checkMessage(messageObject)) {
-            messageCheckRunner.verifyFinished();
+            messageCheckRunner.finalizeVerification();
           }
         }
       }
@@ -334,11 +342,20 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
   }
 
   /**
-   * Receive loop for handling incomming messages.
+   * Receive loop for handling incoming messages.
    */
   private void receiveLoop() {
     while (true) {
-      receiveMessage();
+      try {
+        receiveMessage();
+      } catch (Exception e) {
+        if (messageCheckRunner != null && !messageCheckRunner.isActive()) {
+          getLog().info("Receive loop exiting, verification complete");
+          return;
+        } else {
+          throw e;
+        }
+      }
     }
   }
 
@@ -412,7 +429,6 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
       throw new InteractiveSpacesException("Multiple playback runners activated");
     }
     playbackRunner = new PlaybackRunner(this, new File(playbackPath), onRoute);
-    getComponentContext().getActivity().getSpaceEnvironment().getExecutorService().submit(playbackRunner);
   }
 
   /**
@@ -426,14 +442,14 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
   }
 
   /**
-   * Verify if the check runner has finished successfully.
+   * Signal that injection is completed (check final state).
    */
-  public void verifyFinished() {
+  public void injectionFinished() {
     if (messageCheckRunner == null) {
-      getLog().info("All messages sent with no checked messages");
+      getLog().info("All messages sent with no message checking.");
       activityRunner.signalCompletion(true);
     } else {
-      messageCheckRunner.verifyFinished();
+      messageCheckRunner.finalizeVerification();
     }
   }
 
@@ -441,7 +457,7 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
    * @return logger to use
    */
   public Log getLog() {
-    return activity.getLog();
+    return activityRunner.getLog();
   }
 
   /**
