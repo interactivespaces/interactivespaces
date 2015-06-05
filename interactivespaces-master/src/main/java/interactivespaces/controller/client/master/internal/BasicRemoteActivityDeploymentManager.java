@@ -239,7 +239,7 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
         case FAILURE:
           finalizeActivityDeployment(request,
               new LiveActivityDeploymentResponse(request.getTransactionId(), request.getUuid(),
-                  ActivityDeployStatus.STATUS_FAILURE_DEPENDENCIES_NOT_SATISFIED, spaceEnvironment.getTimeProvider()
+                  ActivityDeployStatus.STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED, spaceEnvironment.getTimeProvider()
                       .getCurrentTime()));
 
           break;

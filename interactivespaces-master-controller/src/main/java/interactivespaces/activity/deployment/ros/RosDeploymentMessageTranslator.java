@@ -17,7 +17,7 @@
 package interactivespaces.activity.deployment.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
@@ -62,7 +62,7 @@ public class RosDeploymentMessageTranslator {
    * @param rosRequest
    *          the ROS message
    */
-  public static void serializeActivityDeploymentRequest(ActivityDeploymentRequest request,
+  public static void serializeActivityDeploymentRequest(LiveActivityDeploymentRequest request,
       LiveActivityDeployRequest rosRequest) {
     rosRequest.setTransactionId(request.getTransactionId());
     rosRequest.setUuid(request.getUuid());
@@ -79,8 +79,8 @@ public class RosDeploymentMessageTranslator {
    *
    * @return the deserialized message
    */
-  public static ActivityDeploymentRequest deserializeActivityDeploymentRequest(LiveActivityDeployRequest rosMessage) {
-    return new ActivityDeploymentRequest(rosMessage.getTransactionId(), rosMessage.getUuid(),
+  public static LiveActivityDeploymentRequest deserializeActivityDeploymentRequest(LiveActivityDeployRequest rosMessage) {
+    return new LiveActivityDeploymentRequest(rosMessage.getTransactionId(), rosMessage.getUuid(),
         rosMessage.getIdentifyingName(), Version.parseVersion(rosMessage.getVersion()),
         rosMessage.getActivitySourceUri());
   }

@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.client.master.internal;
 
-import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.resource.Version;
@@ -26,7 +26,7 @@ import interactivespaces.resource.Version;
  *
  * @author Keith M. Hughes
  */
-public class MasterActivityDeploymentRequest extends ActivityDeploymentRequest {
+public class MasterActivityDeploymentRequest extends LiveActivityDeploymentRequest {
 
   /**
    * The live activity being deployed.

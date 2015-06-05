@@ -201,4 +201,11 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    * @return the activity storage manager
    */
   LiveActivityStorageManager getLiveActivityStorageManager();
+
+  /**
+   * Does the runtime have live activities running?
+   *
+   * @return {@code true} if any live activities are running
+   */
+  boolean hasLiveActivitiesRunning();
 }

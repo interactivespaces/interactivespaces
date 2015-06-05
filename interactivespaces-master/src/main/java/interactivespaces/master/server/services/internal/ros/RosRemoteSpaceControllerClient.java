@@ -18,7 +18,7 @@ package interactivespaces.master.server.services.internal.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.ros.RosDeploymentMessageTranslator;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
@@ -314,7 +314,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   @Override
-  public void deployActivity(ActiveLiveActivity liveActivity, ActivityDeploymentRequest request) {
+  public void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request) {
     LiveActivityDeployRequest rosRequest = rosMessageFactory.newFromType(LiveActivityDeployRequest._TYPE);
     RosDeploymentMessageTranslator.serializeActivityDeploymentRequest(request, rosRequest);
     ChannelBuffer serialize = liveActivityDeployRequestSerializer.serialize(rosRequest);

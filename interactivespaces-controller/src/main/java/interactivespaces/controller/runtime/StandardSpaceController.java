@@ -17,8 +17,16 @@
 package interactivespaces.controller.runtime;
 
 import interactivespaces.activity.ActivityStatus;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.SpaceControllerStatus;
+import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
@@ -120,6 +128,16 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   private SpaceControllerFileControl fileControl;
 
   /**
+   * Activity installer for the controller.
+   */
+  private SpaceControllerActivityInstallationManager spaceControllerActivityInstallManager;
+
+  /**
+   * The container resource deployment manager.
+   */
+  private final ContainerResourceDeploymentManager containerResourceDeploymentManager;
+
+  /**
    * Support for file operations.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -127,6 +145,10 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   /**
    * Construct a new StandardSpaceController.
    *
+   * @param spaceControllerActivityInstaller
+   *          activity installer
+   * @param containerResourceDeploymentManager
+   *          manager for deploying container resources
    * @param spaceControllerCommunicator
    *          the communicator for something controlling the controller
    * @param spaceControllerInfoPersister
@@ -144,13 +166,18 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * @param spaceEnvironment
    *          the space environment to use
    */
-  public StandardSpaceController(SpaceControllerCommunicator spaceControllerCommunicator,
+  public StandardSpaceController(SpaceControllerActivityInstallationManager spaceControllerActivityInstaller,
+      ContainerResourceDeploymentManager containerResourceDeploymentManager,
+      SpaceControllerCommunicator spaceControllerCommunicator,
       SpaceControllerInfoPersister spaceControllerInfoPersister, InteractiveSpacesSystemControl spaceSystemControl,
       SpaceControllerDataBundleManager dataBundleManager,
       SpaceControllerConfigurationManager spaceControllerConfigurationManager,
       LiveActivityRuntime liveActivityRuntime, SequentialEventQueue eventQueue,
       InteractiveSpacesEnvironment spaceEnvironment) {
     super(spaceEnvironment);
+
+    this.spaceControllerActivityInstallManager = spaceControllerActivityInstaller;
+    this.containerResourceDeploymentManager = containerResourceDeploymentManager;
     this.spaceControllerConfigurationManager = spaceControllerConfigurationManager;
 
     this.dataBundleManager = dataBundleManager;
@@ -454,6 +481,37 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
       fileControl = new SpaceControllerFileControl(this, spaceSystemControl, getSpaceEnvironment());
       fileControl.startup();
     }
+  }
+
+  @Override
+  public ContainerResourceDeploymentQueryResponse handleContainerResourceDeploymentQueryRequest(
+      ContainerResourceDeploymentQueryRequest request) {
+    return containerResourceDeploymentManager.queryResources(request);
+  }
+
+  @Override
+  public ContainerResourceDeploymentCommitResponse handleContainerResourceDeploymentCommitRequest(
+      ContainerResourceDeploymentCommitRequest request) {
+    if (liveActivityRuntime.hasLiveActivitiesRunning()) {
+      // TODO(keith): Add in reason for failure so can be displayed on master side.
+      getSpaceEnvironment().getLog().warn("Could not deploy resources to controller, live activities are running.");
+
+      return new ContainerResourceDeploymentCommitResponse(request.getTransactionId(),
+          ContainerResourceDeploymentCommitStatus.FAILURE);
+    } else {
+      return containerResourceDeploymentManager.commitResources(request);
+    }
+  }
+
+  @Override
+  public LiveActivityDeploymentResponse installLiveActivity(LiveActivityDeploymentRequest request) {
+    return spaceControllerActivityInstallManager.handleDeploymentRequest(request);
+  }
+
+  @Override
+  public SpaceControllerLiveActivityDeleteResponse
+      deleteLiveActivity(SpaceControllerLiveActivityDeleteRequest request) {
+    return spaceControllerActivityInstallManager.handleDeleteRequest(request);
   }
 
   /**

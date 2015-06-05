@@ -23,7 +23,7 @@ import interactivespaces.resource.Version;
  *
  * @author Keith M. Hughes
  */
-public class ActivityDeploymentRequest {
+public class LiveActivityDeploymentRequest {
 
   /**
    * The transaction ID for this request.
@@ -64,7 +64,7 @@ public class ActivityDeploymentRequest {
    * @param activitySourceUri
    *          URI for obtaining the source
    */
-  public ActivityDeploymentRequest(String transactionId, String uuid, String identifyingName, Version version,
+  public LiveActivityDeploymentRequest(String transactionId, String uuid, String identifyingName, Version version,
       String activitySourceUri) {
     this.transactionId = transactionId;
     this.uuid = uuid;

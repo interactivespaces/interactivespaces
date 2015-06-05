@@ -16,7 +16,7 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
@@ -151,7 +151,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param request
    *          the deployment request
    */
-  void deployActivity(ActiveLiveActivity liveActivity, ActivityDeploymentRequest request);
+  void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request);
 
   /**
    * Query a controller about a resource deployment.

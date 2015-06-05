@@ -109,7 +109,7 @@ public class StandardSpaceControllerTest {
     systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE, "false");
 
     controller =
-        new StandardSpaceController(controllerCommunicator, controllerInfoPersister, spaceSystemControl,
+        new StandardSpaceController(null, null, controllerCommunicator, controllerInfoPersister, spaceSystemControl,
             dataBundleManager, spaceControllerConfigurationManager, liveActivityRuntime,
             new ImmediateRunSequentialEventQueue(), spaceEnvironment);
 

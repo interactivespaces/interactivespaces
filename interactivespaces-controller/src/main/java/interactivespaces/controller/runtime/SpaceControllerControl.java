@@ -16,6 +16,12 @@
 
 package interactivespaces.controller.runtime;
 
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
@@ -171,4 +177,46 @@ public interface SpaceControllerControl extends SpaceController {
    * Clean the permanent data folder for the controller and all live activities.
    */
   void cleanControllerPermanentDataAll();
+
+  /**
+   * Handle a container resource query request.
+   *
+   * @param request
+   *          the query request
+   *
+   * @return the query response
+   */
+  ContainerResourceDeploymentQueryResponse handleContainerResourceDeploymentQueryRequest(
+      ContainerResourceDeploymentQueryRequest request);
+
+  /**
+   * Handle a container resource commit request.
+   *
+   * @param request
+   *          the commit request
+   *
+   * @return the commit response
+   */
+  ContainerResourceDeploymentCommitResponse handleContainerResourceDeploymentCommitRequest(
+      ContainerResourceDeploymentCommitRequest request);
+
+  /**
+   * Install a live activity.
+   *
+   * @param request
+   *          the deployment request
+   *
+   * @return the deployment response
+   */
+  LiveActivityDeploymentResponse installLiveActivity(LiveActivityDeploymentRequest request);
+
+  /**
+   * Delete a live activity.
+   *
+   * @param request
+   *          the delete request
+   *
+   * @return the delete response
+   */
+  SpaceControllerLiveActivityDeleteResponse deleteLiveActivity(SpaceControllerLiveActivityDeleteRequest request);
 }

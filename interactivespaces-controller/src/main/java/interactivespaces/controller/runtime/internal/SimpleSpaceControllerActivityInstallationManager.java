@@ -16,12 +16,12 @@
 
 package interactivespaces.controller.runtime.internal;
 
-import interactivespaces.activity.deployment.ActivityDeploymentRequest;
+import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.runtime.SpaceControllerActivityInstallationManager;
 import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteRequest;
-import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteStatus;
+import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteResponse;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -71,7 +71,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
   }
 
   @Override
-  public LiveActivityDeploymentResponse handleDeploymentRequest(ActivityDeploymentRequest request) {
+  public LiveActivityDeploymentResponse handleDeploymentRequest(LiveActivityDeploymentRequest request) {
     String activityUri = request.getActivitySourceUri();
     String uuid = request.getUuid();
 
@@ -114,7 +114,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    *          date to mark it if successful
    * @return an appropriately filled out deployment status
    */
-  private LiveActivityDeploymentResponse createDeployResult(ActivityDeploymentRequest request,
+  private LiveActivityDeploymentResponse createDeployResult(LiveActivityDeploymentRequest request,
       ActivityDeployStatus status, boolean success, Date installedDate) {
 
     long timeDeployed = 0;
@@ -126,7 +126,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
   }
 
   @Override
-  public SpaceControllerLiveActivityDeleteStatus handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
+  public SpaceControllerLiveActivityDeleteResponse handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
     RemoveActivityResult result = RemoveActivityResult.FAILURE;
 
     try {
@@ -148,7 +148,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    *
    * @return the response to be sent back
    */
-  public SpaceControllerLiveActivityDeleteStatus createDeleteResponse(SpaceControllerLiveActivityDeleteRequest request,
+  public SpaceControllerLiveActivityDeleteResponse createDeleteResponse(SpaceControllerLiveActivityDeleteRequest request,
       RemoveActivityResult result) {
     int status;
     switch (result) {
@@ -164,7 +164,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
         status = LiveActivityDeleteStatus.STATUS_FAILURE;
     }
 
-    return new SpaceControllerLiveActivityDeleteStatus(request.getUuid(), status, spaceEnvironment.getTimeProvider()
+    return new SpaceControllerLiveActivityDeleteResponse(request.getUuid(), status, spaceEnvironment.getTimeProvider()
         .getCurrentTime());
   }
 }

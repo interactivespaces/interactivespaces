@@ -131,9 +131,9 @@ public class LiveActivityDeploymentResponse {
     STATUS_FAILURE_UNPACK(false),
 
     /**
-     * The dependencies could not be satisfied for the deployment.
+     * The dependencies could not be committed for the deployment.
      */
-    STATUS_FAILURE_DEPENDENCIES_NOT_SATISFIED(false);
+    STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED(false);
 
     /**
      * {@code true} if this is a success message.

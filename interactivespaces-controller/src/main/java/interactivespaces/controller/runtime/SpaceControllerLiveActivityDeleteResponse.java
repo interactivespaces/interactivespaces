@@ -21,7 +21,7 @@ package interactivespaces.controller.runtime;
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerLiveActivityDeleteStatus {
+public class SpaceControllerLiveActivityDeleteResponse {
 
   /**
    * The deletion was successful.
@@ -58,7 +58,7 @@ public class SpaceControllerLiveActivityDeleteStatus {
    * @param timeDeleted
    *          the time the live activity was deleted
    */
-  public SpaceControllerLiveActivityDeleteStatus(String uuid, int status, long timeDeleted) {
+  public SpaceControllerLiveActivityDeleteResponse(String uuid, int status, long timeDeleted) {
     this.uuid = uuid;
     this.status = status;
     this.timeDeleted = timeDeleted;

@@ -149,8 +149,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
         new InteractiveSpacesEnvironmentLiveActivityLogFactory(spaceEnvironment);
 
     RosSpaceControllerCommunicator spaceControllerCommunicator =
-        new RosSpaceControllerCommunicator(controllerActivityInstaller, containerResourceDeploymentManager,
-            rosEnvironment, spaceEnvironment);
+        new RosSpaceControllerCommunicator(rosEnvironment, spaceEnvironment);
 
     SpaceControllerDataBundleManager dataBundleManager = new StandardSpaceControllerDataBundleManager();
     dataBundleManager.setActivityStorageManager(liveActivityStorageManager);
@@ -168,7 +167,8 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory =
         new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
 
-    RemoteLiveActivityRuntimeMonitorService runtimeDebugService = new StandardRemoteLiveActivityRuntimeMonitorService();
+    RemoteLiveActivityRuntimeMonitorService runtimeDebugService =
+        new StandardRemoteLiveActivityRuntimeMonitorService();
 
     StandardLiveActivityRuntime liveActivityRuntime =
         new StandardLiveActivityRuntime(liveActivityRuntimeComponentFactory, liveActivityRepository,
@@ -179,9 +179,9 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     liveActivityRuntime.addRuntimeListener(new OsgiServiceRegistrationLiveActivityRuntimeListener(this));
 
     StandardSpaceController spaceController =
-        new StandardSpaceController(spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(),
-            spaceSystemControl, dataBundleManager, spaceControllerConfigurationManager, liveActivityRuntime,
-            eventQueue, spaceEnvironment);
+        new StandardSpaceController(controllerActivityInstaller, containerResourceDeploymentManager,
+            spaceControllerCommunicator, new FileSystemSpaceControllerInfoPersister(), spaceSystemControl,
+            dataBundleManager, spaceControllerConfigurationManager, liveActivityRuntime, eventQueue, spaceEnvironment);
     addManagedResource(spaceController);
 
     OsgiControllerShell controllerShell =

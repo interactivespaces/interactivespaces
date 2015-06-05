@@ -596,6 +596,20 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     return getLiveActivityRunnerByUuid(uuid, false);
   }
 
+  @Override
+  public boolean hasLiveActivitiesRunning() {
+    synchronized (liveActivityRunners) {
+      for (LiveActivityRunner runner : liveActivityRunners.values()) {
+        ActivityState state = runner.getCachedActivityStatus().getState();
+        if (state.isRunning() || state.isTransitional()) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   /**
    * Get an activity runner by UUID.
    *
