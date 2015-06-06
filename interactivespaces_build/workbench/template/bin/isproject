@@ -1,0 +1,46 @@
+#!/bin/bash -e
+
+function usage {
+  echo "Usage: isproject [command] ..."
+  echo  Where command is:
+  echo '  extract     Extract information from project file using xpath'
+  echo
+  echo  Examples:
+  echo "  isproject extract project.xml '/is:project/is:name/text()'"
+  false
+}
+
+if [[ $# == 0 ]]; then
+  usage
+fi
+
+COMMAND=$1
+shift
+
+# Currently only extract is supported
+if [[ "${COMMAND}" != "extract" ]]; then
+  usage
+fi
+
+DOCUMENT=${1?Missing project document}
+XPATH=${2?Missing xpath expression}
+XMLNS=http://interactive-spaces.org/project.xsd
+
+# See http://stackoverflow.com/questions/8264134/xmllint-failing-to-properly-query-with-xpath
+
+# First try a version that doesn't use a namespace prefix.
+# This is necessary if the project.xml file does not specify a default namespace.
+XPATH_NONS=$(echo ${XPATH} | sed -e s_/is:_/_g)
+path_result=$(xmllint ${DOCUMENT} --xpath "${XPATH_NONS}" 2>/dev/null) || true
+
+# If that didn't work, then try again by specifying the is namespace prefix.
+if [[ -z "${path_result}" ]]; then
+  path_result=$(xmllint --shell "${DOCUMENT}" <<EOF | fgrep content=
+    setns is=${XMLNS}
+    xpath ${XPATH}
+EOF
+  )
+fi
+
+# Output the result without the content prefix.
+echo "${path_result# *content=}"

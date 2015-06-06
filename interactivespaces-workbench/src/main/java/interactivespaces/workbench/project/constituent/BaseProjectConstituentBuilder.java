@@ -78,12 +78,8 @@ public abstract class BaseProjectConstituentBuilder implements ProjectConstituen
     log.warn(message);
   }
 
-  /**
-   * Were there errors?
-   *
-   * @return {@code true} if there were errors
-   */
-  protected boolean hasErrors() {
+  @Override
+  public boolean hasErrors() {
     return errors;
   }
 

@@ -65,7 +65,9 @@ fi
 
 # If so indicated, do NOT run the workbench... just the helper scripts.
 if [ ! "$SUPPRESS_WORKBENCH" ]; then
-  WBEXE=bin/isworkbench 
+  PROJNAME=$(isproject extract $PROJFILE '/is:project/is:name/text()')
+  echo Building interactive spaces project $PROJNAME
+  WBEXE=bin/isworkbench
   # Re-run workbench to do the build.
   (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build)
 fi

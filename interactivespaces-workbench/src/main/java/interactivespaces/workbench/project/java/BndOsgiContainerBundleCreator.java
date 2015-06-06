@@ -146,8 +146,8 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
         if (m.matches()) {
           base = m.group(1);
         } else {
-          throw new SimpleInteractiveSpacesException(
-              "Can not calculate bundle name from the source jar, rename jar to be of form name-version.jar or use a headers file");
+          throw new SimpleInteractiveSpacesException("Can not calculate bundle name from the source jar, "
+              + "rename jar to be of form name-version.jar or use a headers file");
         }
         analyzer.setProperty(Constants.BUNDLE_SYMBOLICNAME, base);
 
@@ -234,7 +234,8 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
         fileSupport.unzip(source, tempExpansionFolder);
       }
 
-      fatJar = fileSupport.createTempFile(baseTempDir, DEFAULT_FAT_JAR_FILENAME_PREFIX, DEFAULT_FAT_JAR_FILENAME_SUFFIX);
+      fatJar = fileSupport.createTempFile(baseTempDir,
+          DEFAULT_FAT_JAR_FILENAME_PREFIX, DEFAULT_FAT_JAR_FILENAME_SUFFIX);
       createJarFile(fatJar, tempExpansionFolder);
 
       return fatJar;

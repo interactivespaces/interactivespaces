@@ -182,9 +182,9 @@ public class TasksProjectConstituent extends BaseProjectConstituent {
           break;
         }
 
-        String name = taskElement.getAttributeValue(ELEMENT_NAME_TASK_NAME, namespace);
-        String position = taskElement.getAttributeValue(ELEMENT_NAME_TASK_POSITION, namespace);
-        String type = taskElement.getAttributeValue(ELEMENT_NAME_TASK_TYPE, namespace);
+        String name = taskElement.getAttributeValue(ELEMENT_NAME_TASK_NAME);
+        String position = taskElement.getAttributeValue(ELEMENT_NAME_TASK_POSITION);
+        String type = taskElement.getAttributeValue(ELEMENT_NAME_TASK_TYPE);
 
         // TODO(keith): add in a factory for these readers once
 

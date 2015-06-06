@@ -297,6 +297,13 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       throw new SimpleInteractiveSpacesException("Invalid project root element name " + projectElement.getName());
     }
 
+    // When an xi:include statement is used, the included elements do not pick up the default namespace.
+    if (!Namespace.NO_NAMESPACE.equals(projectNamespace)) {
+      getLog().info(
+          String.format("Applying default namespace '%s' to project element tree", projectNamespace.getURI()));
+      applyDefaultNamespaceRecursively(projectElement, projectNamespace, true);
+    }
+
     String projectType = getProjectType(projectElement);
     Project project = getWorkbench().getProjectTypeRegistry().newProject(projectType);
 
@@ -315,6 +322,30 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
     }
 
     return project;
+  }
+
+  /**
+   * Recursively apply a default namespace to an element tree. This will log instances that are
+   * changed at the root of a tree (but not elements underneath that root).
+   *
+   * @param element
+   *          target root element
+   * @param namespace
+   *          namespace to apply as default
+   * @param shouldLog
+   *          {@code true} if logging should be applied to any matches
+   */
+  void applyDefaultNamespaceRecursively(Element element, Namespace namespace, boolean shouldLog) {
+    if (Namespace.NO_NAMESPACE.equals(element.getNamespace())) {
+      if (shouldLog) {
+        getLog().info(String.format("Applying default namespace to element tree root '%s'", element.getName()));
+        shouldLog = false;
+      }
+      element.setNamespace(namespace);
+    }
+    for (Element child : element.getChildren()) {
+      applyDefaultNamespaceRecursively(child, namespace, shouldLog);
+    }
   }
 
   /**
@@ -627,11 +658,8 @@ public class JdomProjectReader extends JdomReader implements ProjectReader {
       if (Character.isDigit(versionStr.charAt(0))) {
         getWorkbench()
             .getLog()
-            .warn(
-                String
-                    .format(
-                        "A version value of %s was specified that gives a range of [%s, infinity). If an exact match is wanted, use =%s",
-                        versionStr, versionStr, versionStr));
+            .warn(String.format("A version value of %s was specified that gives a range of [%s, infinity). "
+                    + "If an exact match is wanted, use =%s", versionStr, versionStr, versionStr));
       }
       version = VersionRange.parseVersionRange(versionStr);
     } else {

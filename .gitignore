@@ -13,6 +13,7 @@ interactivespaces_docs/src/main/sphinx/interactivespaces.pyc
 interactivespaces_docs/src/main/sphinx/javadoc.pyc
 **/build/
 **/bin/
+!interactivespaces_build/workbench/template/bin
 **/dist/
 **/msg_gen/
 **/srv_gen/

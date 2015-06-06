@@ -368,6 +368,9 @@ public class JdomReader {
       if (constituent != null) {
         constituents.add(constituent);
       }
+      if (projectConstituentBuilder.hasErrors()) {
+        addError(String.format("Error building project constituent type '%s'", type));
+      }
     } else {
       addError(String.format("Unknown resource type '%s'", type));
     }

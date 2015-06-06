@@ -22,7 +22,7 @@ fi
 PROJFILE=project.xml
 if [ -f $TARGET/$PROJFILE ]; then
   SINGLE_ACTIVITY='true'
-  ACTIVITY_NAME=`xmllint --xpath "/project/name/text()" "$TARGET/project.xml"`
+  ACTIVITY_NAME=$(isproject extract $TARGET/project.xml '/is:project/is:name/text()')
 else
   SINGLE_ACTIVITY='false'
   ACTIVITY_NAME=$TARGET
@@ -32,6 +32,8 @@ else
     false
   fi
 fi
+
+echo Running activity $ACTIVITY_NAME
 
 RUNDIR=$TARGET/run
 POSTFIX=

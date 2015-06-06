@@ -463,13 +463,19 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream inputStream = process.getInputStream();
       String inputString = fileSupport.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
-        log.info(inputString);
+        String[] parts = inputString.split("\n");
+        for (String line : parts) {
+          log.info(line);
+        }
       }
 
       InputStream errorStream = process.getErrorStream();
       String errorString = fileSupport.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
-        log.error(errorString);
+        String[] parts = errorString.split("\n");
+        for (String line : parts) {
+          log.error(line);
+        }
       }
     } catch (Exception e) {
       log.error("Error reading native application process streams", e);

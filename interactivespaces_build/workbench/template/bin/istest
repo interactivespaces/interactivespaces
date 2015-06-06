@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+CMD=test
+if [[ $# -gt 0 ]]; then
+  CMD="${1}"
+  shift
+fi
+
+TEST_ARGS=
+
+if [[ -f test/messages.filter ]]; then
+  TEST_ARGS+=" -Dspace.test.messages.filter=${PWD}/test/messages.filter"
+fi
+if [[ -f test/messages.recv ]]; then
+  TEST_ARGS+=" -Dspace.test.messages.recv=${PWD}/test/messages.recv"
+fi
+if [[ -f test/messages.send ]]; then
+  TEST_ARGS+=" -Dspace.test.messages.send=${PWD}/test/messages.send"
+fi
+if [[ -f test/messages.check ]]; then
+  TEST_ARGS+=" -Dspace.test.messages.check=${PWD}/test/messages.check"
+fi
+
+isrun $CMD $TEST_ARGS "$@"

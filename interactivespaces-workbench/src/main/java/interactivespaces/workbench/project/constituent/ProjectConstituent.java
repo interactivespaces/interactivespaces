@@ -82,6 +82,13 @@ public interface ProjectConstituent {
     ProjectConstituent buildConstituentFromElement(Namespace namespace, Element constituentElement, Project project);
 
     /**
+     * Were there errors?
+     *
+     * @return {@code true} if there were errors
+     */
+    boolean hasErrors();
+
+    /**
      * Set the logging provider for use by the builder.
      *
      * @param log
