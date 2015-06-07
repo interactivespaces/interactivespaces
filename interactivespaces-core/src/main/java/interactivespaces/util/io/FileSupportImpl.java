@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -566,21 +567,17 @@ public class FileSupportImpl implements FileSupport {
 
   @Override
   public File createTempDirectory(File baseDir) {
-    return createTempDirectory(baseDir, TEMP_FILE_PREFIX, "");
+    return createTempDirectory(baseDir, TEMP_FILE_PREFIX);
   }
 
   @Override
-  public File createTempDirectory(File baseDir, String prefix, String suffix) {
+  public File createTempDirectory(File baseDir, String prefix) {
     File dir = null;
     try {
-      dir = File.createTempFile(prefix, suffix, baseDir);
+      dir = Files.createTempDirectory(baseDir.toPath(), prefix).toFile();
     } catch (IOException e) {
-      SimpleInteractiveSpacesException.throwFormattedException(e, "Error creating temp directory in %s",
-          baseDir.getAbsolutePath());
-    }
-    if (!mkdirs(dir)) {
-      SimpleInteractiveSpacesException.throwFormattedException("Could not create temp directory in %s",
-          baseDir.getAbsolutePath());
+       InteractiveSpacesException.throwFormattedException(e, "Error creating temp directory in %s",
+          baseDir.getAbsolutePath(), e);
     }
     return dir;
   }

@@ -46,6 +46,41 @@ import java.util.zip.ZipOutputStream;
 public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
   /**
+   * The default fat jar name prefix.
+   */
+  private static final String DEFAULT_FAT_JAR_FILENAME_PREFIX = "interactivespaces";
+
+  /**
+   * The default fat jar name suffix.
+   */
+  private static final String DEFAULT_FAT_JAR_FILENAME_SUFFIX = "-bundle.jar";
+
+  /**
+   * The prefix of the name for the merge jar before handed to BND.
+   */
+  private static final String MERGE_JAR_TEMP_DIRECTORY_PREFIX = "interactivespaces-bundle";
+
+  /**
+   * The prefix for the filename for the ultimate OSGi bundle if no name is specified.
+   */
+  private static final String GENERIC_BUNDLE_FILENAME_PREFIX = "interactivespaces.";
+
+  /**
+   * Regular expression prefix for a guess at a symbolic name for a jar from its filename.
+   */
+  private static final String PATTERN_PREFIX_SYMBOLIC_NAME_FROM_JAR = "(";
+
+  /**
+   * Regular expression suffix for a guess at a symbolic name for a jar from its filename.
+   */
+  private static final String PATTERN_SUFFIX_SYMBOLIC_NAME_FROM_JAR = ")(-[0-9])?.*\\.jar";
+
+  /**
+   * BND declaration for all import packages should be considered optional.
+   */
+  private static final String ALL_IMPORT_PACKAGES_OPTIONAL = "*;resolution:=optional";
+
+  /**
    * Size of IO buffers in bytes.
    */
   public static final int IO_BUFFER_SIZE = 1024;
@@ -100,12 +135,14 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
       if (headers != null) {
         analyzer.addProperties(headers);
       } else {
-        analyzer.setProperty(Constants.IMPORT_PACKAGE, "*;resolution:=optional");
+        analyzer.setProperty(Constants.IMPORT_PACKAGE, ALL_IMPORT_PACKAGES_OPTIONAL);
 
-        Pattern p = Pattern.compile("(" + Verifier.SYMBOLICNAME.pattern() + ")(-[0-9])?.*\\.jar");
+        Pattern p =
+            Pattern.compile(PATTERN_PREFIX_SYMBOLIC_NAME_FROM_JAR + Verifier.SYMBOLICNAME.pattern()
+                + PATTERN_SUFFIX_SYMBOLIC_NAME_FROM_JAR);
         String base = sourceJarFile.getName();
         Matcher m = p.matcher(base);
-        base = "Untitled";
+        base = null;
         if (m.matches()) {
           base = m.group(1);
         } else {
@@ -131,7 +168,7 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
         output = sourceJarFile.getAbsoluteFile().getParentFile();
       }
 
-      String bundleFileName = "interactivespaces." + sourceJarFile.getName();
+      String bundleFileName = GENERIC_BUNDLE_FILENAME_PREFIX + sourceJarFile.getName();
 
       if (output.isDirectory()) {
         output = fileSupport.newFile(output, bundleFileName);
@@ -146,8 +183,10 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
 
       if (errors.isEmpty()) {
         finalJar.write(output);
+
+        log.info(String.format("Created OSGi bundle %s", output.getAbsolutePath()));
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       throw new InteractiveSpacesException("Error while creating OSGi bundle", e);
     } finally {
       fileSupport.close(analyzer, false);
@@ -189,13 +228,13 @@ public class BndOsgiContainerBundleCreator implements ContainerBundleCreator {
     File tempExpansionFolder = null;
     File fatJar = null;
     try {
-      tempExpansionFolder = fileSupport.createTempDirectory(baseTempDir, "interactivespaces", "-bundle");
+      tempExpansionFolder = fileSupport.createTempDirectory(baseTempDir, MERGE_JAR_TEMP_DIRECTORY_PREFIX);
 
       for (File source : sources) {
         fileSupport.unzip(source, tempExpansionFolder);
       }
 
-      fatJar = fileSupport.createTempFile(baseTempDir, "interactivespaces", "-bundle.jar");
+      fatJar = fileSupport.createTempFile(baseTempDir, DEFAULT_FAT_JAR_FILENAME_PREFIX, DEFAULT_FAT_JAR_FILENAME_SUFFIX);
       createJarFile(fatJar, tempExpansionFolder);
 
       return fatJar;

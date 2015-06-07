@@ -627,12 +627,10 @@ public interface FileSupport {
    *          directory in which to create directory
    * @param prefix
    *          temp file prefix to use
-   * @param suffix
-   *          temp file suffix to use
    *
    * @return unique directory
    */
-  File createTempDirectory(File baseDir, String prefix, String suffix);
+  File createTempDirectory(File baseDir, String prefix);
 
   /**
    * Get a file as a string.

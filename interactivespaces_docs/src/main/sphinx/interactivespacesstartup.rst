@@ -12,16 +12,16 @@ Interactive Spaces Space Controller.
 Starting Up a Container
 =======================
 
-The best way to start a container is to use the ``bin/startup_linux.bash`` command found in the installation
+The best way to start a container is to use the ``bin/isstartup`` command found in the installation
 directory for the container. While the command does have ``linux`` in its name, it will work for any operating
 system that supports the ``bash`` shell, which includes Linux and OSX.
 
-The ``startup_linux.bash`` script starts by figuring out in exactly which directory the container is installed.
+The ``isstartup`` script starts by figuring out in exactly which directory the container is installed.
 It then changes the directory for the operating system process which is running the container to that installation
 directory.
 
 By default, a container will start up in a ``foreground`` mode, a normal blocking terminal process. If
-``background`` is specified as the first argument to ``startup_linux.bash``, then it will run in a sub-process
+``background`` is specified as the first argument to ``isstartup``, then it will run in a sub-process
 with detached input/output pipes.
 
 Setting up the Java Process Environment

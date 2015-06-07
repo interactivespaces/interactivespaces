@@ -248,19 +248,22 @@ public class InteractiveSpacesWorkbench {
       String arg = args.get(i);
       if (COMMAND_LINE_FLAG_OUTPUT.equals(arg)) {
         if (++i >= args.size()) {
-          throw new SimpleInteractiveSpacesException("Missing output value from osgi command");
+          throw new SimpleInteractiveSpacesException("Missing output value from osgi command, use "
+              + COMMAND_LINE_FLAG_OUTPUT + " filename");
         }
 
         outputFile = fileSupport.resolveFile(runDirectory, args.get(i));
       } else if (COMMAND_LINE_FLAG_HEADERS.equals(arg)) {
         if (++i >= args.size()) {
-          throw new SimpleInteractiveSpacesException("Missing headers value from osgi command");
+          throw new SimpleInteractiveSpacesException("Missing headers value from osgi command "
+              + COMMAND_LINE_FLAG_HEADERS + " headersfile");
         }
 
         headersFile = fileSupport.resolveFile(runDirectory, args.get(i));
       } else if (COMMAND_LINE_FLAG_SOURCEDIR.equals(arg)) {
         if (++i >= args.size()) {
-          throw new SimpleInteractiveSpacesException("Missing source dir value from osgi command");
+          throw new SimpleInteractiveSpacesException("Missing source dir value from osgi command "
+              + COMMAND_LINE_FLAG_SOURCEDIR + " sourcedir");
         }
 
         workbenchTaskContext.addJarFiles(fileSupport.resolveFile(runDirectory, args.get(i)), sources);
