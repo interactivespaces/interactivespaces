@@ -83,6 +83,8 @@
       <executable targetfile="$INSTALL_PATH/bin/isbuild" stage="never" />
       <parsable targetfile="$INSTALL_PATH/bin/istest" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/istest" stage="never" />
+      <parsable targetfile="$INSTALL_PATH/bin/isproject" type="shell" />
+      <executable targetfile="$INSTALL_PATH/bin/isproject" stage="never" />
       <parsable targetfile="$INSTALL_PATH/bin/isdev" type="shell" />
       <executable targetfile="$INSTALL_PATH/bin/isdev" stage="never" />
       <parsable targetfile="$INSTALL_PATH/bin/islog" type="shell" />
