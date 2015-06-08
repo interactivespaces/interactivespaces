@@ -565,6 +565,28 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_NAMEDSCRIPT_DELETE = MASTER_API_COMMAND_PREFIX_NAMEDSCRIPT + "/delete";
 
   /**
+   * Prefix for master domain model commands.
+   */
+  public static final String MASTER_API_COMMAND_PREFIX_ADMIN_MASTER_DOMAIN_MODEL = "/admin/masterdomainmodel";
+
+  /**
+   * Web socket command for importing a master domain model.
+   */
+  public static final String MASTER_API_COMMAND_ADMIN_MASTER_DOMAIN_MODEL_IMPORT =
+      MASTER_API_COMMAND_PREFIX_ADMIN_MASTER_DOMAIN_MODEL + "/import";
+
+  /**
+   * Web socket command for obtaining the Interactive Spaces version.
+   */
+  public static final String MASTER_API_COMMAND_INTERACTIVE_SPACES_VERSION = "/interactivespaces/version";
+
+  /**
+   * Web socket command for importing a master domain model.
+   */
+  public static final String MASTER_API_COMMAND_ADMIN_MASTER_DOMAIN_MODEL_EXPORT =
+      MASTER_API_COMMAND_PREFIX_ADMIN_MASTER_DOMAIN_MODEL + "/export";
+
+  /**
    * Parameter name for the ID of the entity in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_ENTITY_ID = "id";
@@ -640,6 +662,21 @@ public class MasterApiMessages {
   public static final String MASTER_API_MESSAGE_TYPE_STATUS_UPDATE = "statusUpdate";
 
   /**
+   * Status parameter name for a model, e.g. a Master Domain Model, in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_MODEL = "model";
+
+  /**
+   * Status parameter name for the Interactive Spaces version in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_NAME_INTERACTIVE_SPACES_VERSION = "interactiveSpacesVersion";
+
+  /**
+   * Status parameter value for an unknown Interactive Spaces version in the Master API message.
+   */
+  public static final String MASTER_API_PARAMETER_VALUE_INTERACTIVE_SPACES_VERSION_UNKNOWN = "Unknown";
+
+  /**
    * Status parameter name for the status time in the Master API message.
    */
   public static final String MASTER_API_PARAMETER_NAME_STATUS_TIME = "statusTime";
@@ -707,12 +744,19 @@ public class MasterApiMessages {
   /**
    * Message key for a call failing because live activities cannot be created.
    */
-  public static final String MESSAGE_SPACE_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY = "space.command.failure.liveactivity.nocreate";
+  public static final String MESSAGE_SPACE_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY =
+      "space.command.failure.liveactivity.nocreate";
 
   /**
    * Message key for a call failing because live activities cannot be created.
    */
-  public static final String MESSAGE_SPACE_DETAIL_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY = "Live activities currently cannot be created.";
+  public static final String MESSAGE_SPACE_DETAIL_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY =
+      "Live activities currently cannot be created.";
+
+  /**
+   * Message key for a call failing because live activities cannot be created.
+   */
+  public static final String MESSAGE_SPACE_DETAIL_CALL_FAILURE_MISSING_MODEL = "The argument 'mode' is missing.";
 
   /**
    * Message key for a call failing due to missing arguments.

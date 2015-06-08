@@ -16,35 +16,27 @@
 
 package interactivespaces.master.server.services;
 
+import interactivespaces.util.resource.ManagedResource;
+
 /**
  * Manager for supporting master operations.
  *
  * @author Keith M. Hughes
  */
-public interface MasterSupportManager {
+public interface MasterSupportManager extends ManagedResource {
 
   /**
-   * Start the manager up.
-   */
-  void startup();
-
-  /**
-   * Shut the manager down.
-   */
-  void shutdown();
-
-  /**
-   * Get a description of the entire master domain.
+   * Get a model of the entire master domain.
    *
-   * @return the entire domain description
+   * @return the entire domain model
    */
-  String getMasterDomainDescription();
+  String getMasterDomainModel();
 
   /**
-   * Import a master domain description.
+   * Import a master domain model.
    *
-   * @param description
-   *          the description to import
+   * @param model
+   *          the model to import
    */
-  void importMasterDomainDescription(String description);
+  void importMasterDomainModel(String model);
 }

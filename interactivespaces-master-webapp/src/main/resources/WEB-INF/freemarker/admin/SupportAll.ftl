@@ -59,7 +59,7 @@ function importMasterDomainModel() {
 
 <tr>
   <td>Interactive Spaces Version</td>
-  <td>${interactivespacesVersion}</td>
+  <td>${interactiveSpacesVersion}</td>
 </tr>
 
 </table>

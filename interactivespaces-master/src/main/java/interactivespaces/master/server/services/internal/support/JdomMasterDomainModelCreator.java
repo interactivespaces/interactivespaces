@@ -54,7 +54,7 @@ import java.util.Set;
  *
  * @author Keith M. Hughes
  */
-public class JdomMasterDomainDescriptionCreator implements MasterDomainDescription {
+public class JdomMasterDomainModelCreator implements MasterDomainDescription {
 
   /**
    * Create a description of the entire space domain.
@@ -68,7 +68,7 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
    *
    * @return the XML description
    */
-  public String newDescription(ActivityRepository activityRepository, SpaceControllerRepository controllerRepository,
+  public String newModel(ActivityRepository activityRepository, SpaceControllerRepository controllerRepository,
       AutomationRepository automationRepository) {
 
     try {
@@ -244,9 +244,11 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
         dependencyElement
             .addContent(new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_NAME).addContent(dependency.getIdentifyingName()))
             .addContent(
-                new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM).addContent(dependency.getMinimumVersion()))
+                new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MINIMUM).addContent(dependency
+                    .getMinimumVersion()))
             .addContent(
-                new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM).addContent(dependency.getMaximumVersion()))
+                new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_VERSION_MAXIMUM).addContent(dependency
+                    .getMaximumVersion()))
             .addContent(
                 new Element(ELEMENT_NAME_ACTIVITY_DEPENDENCY_REQUIRED).addContent(dependency.isRequired() ? VALUE_TRUE
                     : VALUE_FALSE));
@@ -292,8 +294,8 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
             new Element(ELEMENT_NAME_LIVE_ACTIVITY_CONTROLLER).setAttribute(ATTRIBUTE_NAME_ID, liveActivity
                 .getController().getId()))
         .addContent(
-            new Element(ELEMENT_NAME_LIVE_ACTIVITY_ACTIVITY).setAttribute(ATTRIBUTE_NAME_ID, liveActivity.getActivity()
-                .getId())).addContent(newMetadataElement(liveActivity.getMetadata()));
+            new Element(ELEMENT_NAME_LIVE_ACTIVITY_ACTIVITY).setAttribute(ATTRIBUTE_NAME_ID, liveActivity
+                .getActivity().getId())).addContent(newMetadataElement(liveActivity.getMetadata()));
 
     addActivityConfiguration(liveActivityElement, liveActivity.getConfiguration());
 
@@ -479,8 +481,8 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
       Element subspacesElement = new Element(ELEMENT_NAME_SPACE_ROOT_SUBSPACES);
       spaceElement.addContent(subspacesElement);
       for (Space subspace : subspaces) {
-        subspacesElement.addContent(new Element(ELEMENT_NAME_SPACE_INDIVIDUAL_SUBSPACE).setAttribute(ATTRIBUTE_NAME_ID,
-            subspace.getId()));
+        subspacesElement.addContent(new Element(ELEMENT_NAME_SPACE_INDIVIDUAL_SUBSPACE).setAttribute(
+            ATTRIBUTE_NAME_ID, subspace.getId()));
       }
     }
   }
@@ -543,9 +545,9 @@ public class JdomMasterDomainDescriptionCreator implements MasterDomainDescripti
 
     Element scheduleElement =
         new Element(ELEMENT_NAME_NAMED_SCRIPT_SCHEDULE).addContent(new CDATA(script.getSchedule()));
-    scheduleElement.addContent(scheduleElement);
     scheduleElement.setAttribute(ATTRIBUTE_NAME_NAMED_SCRIPT_SCHEDULE_SCHEDULED, script.getScheduled() ? VALUE_TRUE
         : VALUE_FALSE);
+    scriptElement.addContent(scheduleElement);
 
     return scriptElement;
   }

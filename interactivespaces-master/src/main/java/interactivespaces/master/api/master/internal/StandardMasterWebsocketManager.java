@@ -22,6 +22,7 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.api.master.MasterApiAutomationManager;
+import interactivespaces.master.api.master.MasterApiMasterSupportManager;
 import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
 import interactivespaces.master.api.master.MasterWebsocketManager;
 import interactivespaces.master.api.messages.MasterApiMessageSupport;
@@ -106,6 +107,11 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * The Master API manager for automation.
    */
   private MasterApiAutomationManager masterApiAutomationManager;
+
+  /**
+   * The Master API manager for master support.
+   */
+  private MasterApiMasterSupportManager masterApiMasterSupportManager;
 
   /**
    * A mapping of command name to the handler for that command.
@@ -772,6 +778,29 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
         return masterApiAutomationManager.deleteNamedScript(getEntityId(commandArgs));
       }
     });
+
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_ADMIN_MASTER_DOMAIN_MODEL_EXPORT) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiMasterSupportManager.exportMasterDomainModel();
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_ADMIN_MASTER_DOMAIN_MODEL_IMPORT) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        String model = (String) commandArgs.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_MODEL);
+        return masterApiMasterSupportManager.importMasterDomainModel(model);
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_INTERACTIVE_SPACES_VERSION) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiMasterSupportManager.getInteractiveSpacesVersion();
+      }
+    });
   }
 
   @Override
@@ -1072,11 +1101,23 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   }
 
   /**
+   * Set the Master API Manager for automation.
+   *
    * @param masterApiAutomationManager
-   *          the automation manager to set
+   *          the manager
    */
   public void setMasterApiAutomationManager(MasterApiAutomationManager masterApiAutomationManager) {
     this.masterApiAutomationManager = masterApiAutomationManager;
+  }
+
+  /**
+   * Set the Master API Manager for Master Support.
+   *
+   * @param masterApiMasterSupportManager
+   *          the manager
+   */
+  public void setMasterApiMasterSupportManager(MasterApiMasterSupportManager masterApiMasterSupportManager) {
+    this.masterApiMasterSupportManager = masterApiMasterSupportManager;
   }
 
   /**

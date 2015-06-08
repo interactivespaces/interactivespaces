@@ -252,7 +252,7 @@
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
-  <bean id="interactivespaces.master.support" class="interactivespaces.master.server.services.internal.BasicMasterSupportManager"
+  <bean id="interactivespaces.master.support" class="interactivespaces.master.server.services.internal.StandardMasterSupportManager"
     destroy-method="shutdown" init-method="startup"
   >
 
@@ -379,7 +379,7 @@
 
     <property name="target">
 
-      <bean class="interactivespaces.master.api.master.internal.BasicMasterApiMasterSupportManager"
+      <bean class="interactivespaces.master.api.master.internal.StandardMasterApiMasterSupportManager"
         parent="abstractMasterApiManager"
       >
 
@@ -421,6 +421,8 @@
     <property name="masterApiSpaceControllerManager" ref="interactivespaces.master.api.controller" />
 
     <property name="masterApiAutomationManager" ref="interactivespaces.master.api.automation" />
+    
+    <property name="masterApiMasterSupportManager" ref="interactivespaces.master.api.support" />
   </bean>
 
   <context:component-scan base-package="interactivespaces" />

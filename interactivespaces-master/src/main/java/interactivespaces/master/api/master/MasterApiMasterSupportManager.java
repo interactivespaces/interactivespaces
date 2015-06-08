@@ -28,16 +28,51 @@ import java.util.Map;
 public interface MasterApiMasterSupportManager {
 
   /**
-   * Get the master domain description.
-   *
-   * @return the Master API response
+   * The name of the master domain description file.
    */
-  Map<String, Object> getMasterDomainDescription();
+  String MASTER_DOMAIN_FILE = "master-domain.xml";
 
   /**
-   * Import the master domain description.
+   * Export the master domain model.
    *
    * @return the Master API response
    */
-  Map<String, Object> importMasterDomainDescription();
+  Map<String, Object> exportMasterDomainModel();
+
+  /**
+   * Import the master domain model.
+   *
+   * @param model
+   *          the model to be imported
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> importMasterDomainModel(String model);
+
+  /**
+   * Export the master domain description from the file system.
+   *
+   * <p>
+   * The exported model file will be in the root folder of the master in the file named {@link #MASTER_DOMAIN_FILE}.
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> exportToFileSystemMasterDomainModel();
+
+  /**
+   * Import the master domain description from the file system.
+   *
+   * <p>
+   * The imported model file should be in the root folder of the master in the file named {@link #MASTER_DOMAIN_FILE}.
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> importFromFileSystemMasterDomainModel();
+
+  /**
+   * Get the Interactive Spaces Version.
+   *
+   * @return the Master API response
+   */
+  Map<String, Object> getInteractiveSpacesVersion();
 }

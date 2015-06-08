@@ -20,16 +20,16 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationRepository;
 import interactivespaces.master.server.services.MasterSupportManager;
 import interactivespaces.master.server.services.SpaceControllerRepository;
-import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionCreator;
-import interactivespaces.master.server.services.internal.support.JdomMasterDomainDescriptionImporter;
+import interactivespaces.master.server.services.internal.support.JdomMasterDomainModelCreator;
+import interactivespaces.master.server.services.internal.support.JdomMasterDomainModelImporter;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 /**
- * A basic implementation of the {@link MasterSupportManager}.
+ * The standard implementation of the {@link MasterSupportManager}.
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterSupportManager implements MasterSupportManager {
+public class StandardMasterSupportManager implements MasterSupportManager {
 
   /**
    * Repository for activity entities.
@@ -62,17 +62,17 @@ public class BasicMasterSupportManager implements MasterSupportManager {
   }
 
   @Override
-  public String getMasterDomainDescription() {
-    JdomMasterDomainDescriptionCreator creator = new JdomMasterDomainDescriptionCreator();
+  public String getMasterDomainModel() {
+    JdomMasterDomainModelCreator creator = new JdomMasterDomainModelCreator();
 
-    return creator.newDescription(activityRepository, spaceControllerRepository, automationRepository);
+    return creator.newModel(activityRepository, spaceControllerRepository, automationRepository);
   }
 
   @Override
-  public void importMasterDomainDescription(String description) {
-    JdomMasterDomainDescriptionImporter importer = new JdomMasterDomainDescriptionImporter();
+  public void importMasterDomainModel(String model) {
+    JdomMasterDomainModelImporter importer = new JdomMasterDomainModelImporter();
 
-    importer.importDescription(description, activityRepository, spaceControllerRepository, automationRepository,
+    importer.importModel(model, activityRepository, spaceControllerRepository, automationRepository,
         spaceEnvironment.getTimeProvider());
   }
 

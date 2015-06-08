@@ -17,8 +17,8 @@
 package interactivespaces.master.ui.internal.web.admin;
 
 import interactivespaces.master.api.master.MasterApiMasterSupportManager;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
-import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,25 +55,22 @@ public class MasterSupportController extends BaseSpaceMasterController {
   public ModelAndView supportIndexPage() {
     ModelAndView mav = getModelAndView();
 
-    mav.addObject(
-        "interactivespacesVersion",
-        spaceEnvironment.getSystemConfiguration().getPropertyString(
-            InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION, INTERACTIVESPACES_VERSION_UNKNOWN));
+    Map<String, Object> response = masterApiMasterSupportManager.getInteractiveSpacesVersion();
+    mav.addAllObjects(MasterApiMessageSupport.getResponseDataMap(response));
+
     mav.setViewName("admin/SupportAll");
 
     return mav;
   }
 
   @RequestMapping(value = "/admin/support/exportMasterDomainModel.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> exportMasterDomainModel() {
-    return masterApiMasterSupportManager.getMasterDomainDescription();
+  public @ResponseBody Map<String, ? extends Object> exportMasterDomainModel() {
+    return masterApiMasterSupportManager.exportToFileSystemMasterDomainModel();
   }
 
   @RequestMapping(value = "/admin/support/importMasterDomainModel.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> importMasterDomainModel() {
-    return masterApiMasterSupportManager.importMasterDomainDescription();
+  public @ResponseBody Map<String, ? extends Object> importMasterDomainModel() {
+    return masterApiMasterSupportManager.importFromFileSystemMasterDomainModel();
   }
 
   /**

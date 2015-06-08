@@ -52,7 +52,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JdomMasterDomainDescriptionImporter implements MasterDomainDescription {
+public class JdomMasterDomainModelImporter implements MasterDomainDescription {
 
   // TODO(keith): Get some error checking in here.
 
@@ -82,10 +82,10 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
   private Map<String, Space> spaces = Maps.newHashMap();
 
   /**
-   * IMport a space domain description.
+   * Import a master domain model.
    *
-   * @param description
-   *          description to import
+   * @param model
+   *          model to import
    * @param activityRepository
    *          the repository for activity entities
    * @param controllerRepository
@@ -95,10 +95,10 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param timeProvider
    *          the time provider to use
    */
-  public void importDescription(String description, ActivityRepository activityRepository,
+  public void importModel(String model, ActivityRepository activityRepository,
       SpaceControllerRepository controllerRepository, AutomationRepository automationRepository,
       TimeProvider timeProvider) {
-    Element rootElement = readDescription(description);
+    Element rootElement = readDescription(model);
 
     if (!ELEMENT_NAME_DESCRIPTION_ROOT_ELEMENT.equals(rootElement.getName())) {
       throw new SimpleInteractiveSpacesException(String.format("The description file doesn't have root element %s",
@@ -303,8 +303,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
    * @param activityRepository
    *          the repository for activity entities
    */
-  private void
-      addActivityDependencies(Element activityElement, Activity activity, ActivityRepository activityRepository) {
+  private void addActivityDependencies(Element activityElement, Activity activity,
+      ActivityRepository activityRepository) {
     Element dependenciesElement = activityElement.getChild(ELEMENT_NAME_ROOT_ACTIVITY_DEPENDENCIES);
     if (dependenciesElement != null) {
       List<ActivityDependency> dependencies = Lists.newArrayList();
@@ -511,7 +511,8 @@ public class JdomMasterDomainDescriptionImporter implements MasterDomainDescript
 
       for (Element groupLiveActivityElement : groupLiveActivityElements) {
         String myLiveActivityId = groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_ID);
-        String myDependency = groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_DEPENDENCY);
+        String myDependency =
+            groupLiveActivityElement.getAttributeValue(ATTRIBUTE_NAME_GROUP_LIVE_ACTIVITY_DEPENDENCY);
 
         LiveActivity activity = liveActivities.get(myLiveActivityId);
         GroupLiveActivityDependency dependency = GroupLiveActivityDependency.valueOf(myDependency);

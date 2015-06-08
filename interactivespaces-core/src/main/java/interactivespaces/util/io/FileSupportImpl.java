@@ -654,8 +654,8 @@ public class FileSupportImpl implements FileSupport {
     try {
       return new FileInputStream(file);
     } catch (FileNotFoundException e) {
-      throw SimpleInteractiveSpacesException.newFormattedException(
-          e, "Could not create a new file input stream for file %s", file.getAbsolutePath());
+      throw SimpleInteractiveSpacesException.newFormattedException(e,
+          "Could not create a new file input stream for file %s", file.getAbsolutePath());
     }
   }
 
@@ -664,8 +664,8 @@ public class FileSupportImpl implements FileSupport {
     try {
       return new FileOutputStream(file);
     } catch (FileNotFoundException e) {
-      throw SimpleInteractiveSpacesException.newFormattedException(
-          e, "Could not create a new file output stream for file %s", file.getAbsolutePath());
+      throw SimpleInteractiveSpacesException.newFormattedException(e,
+          "Could not create a new file output stream for file %s", file.getAbsolutePath());
     }
   }
 }
